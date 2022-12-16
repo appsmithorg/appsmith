@@ -91,7 +91,6 @@ function WidgetLink(props: EntityLinkProps) {
       widget.type,
       widget.pageId,
       props.id === selectedWidgetId,
-      widget.parentModalId,
     );
     AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
       entityType: "WIDGET",

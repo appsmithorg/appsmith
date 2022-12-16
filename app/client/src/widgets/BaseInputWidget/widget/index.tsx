@@ -40,12 +40,14 @@ class BaseInputWidget<
             helpText: "Sets the label position of the widget",
             propertyName: "labelPosition",
             label: "Position",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
+              { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
-              { label: "Auto", value: LabelPosition.Auto },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -243,6 +245,24 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
+            helpText: "Triggers an action when the input field receives focus",
+            propertyName: "onFocus",
+            label: "onFocus",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the input field loses focus",
+            propertyName: "onBlur",
+            label: "onBlur",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
             helpText:
               "Triggers an action on submit (when the enter key is pressed)",
             propertyName: "onSubmit",
@@ -275,6 +295,7 @@ class BaseInputWidget<
           {
             propertyName: "labelTextColor",
             label: "Font Color",
+            helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -289,6 +310,7 @@ class BaseInputWidget<
           {
             propertyName: "labelTextSize",
             label: "Font Size",
+            helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -331,6 +353,7 @@ class BaseInputWidget<
           {
             propertyName: "labelStyle",
             label: "Emphasis",
+            helpText: "Control if the label should be bold or italics",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -342,7 +365,8 @@ class BaseInputWidget<
                 value: "ITALIC",
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
@@ -421,7 +445,6 @@ class BaseInputWidget<
      * 2. Dragging across the text (for text selection) in input won't cause the widget to drag.
      */
     this.props.updateWidgetMetaProperty("dragDisabled", focusState);
-    this.props.updateWidgetMetaProperty("isFocused", focusState);
   }
 
   resetWidgetText() {

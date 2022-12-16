@@ -78,6 +78,8 @@ public class FieldName {
     public static String PUBLISHED_APPLICATION = "deployed application";
     public static final String TOKEN = "token";
     public static String WIDGET_TYPE = "type";
+    public static String LIST_WIDGET_TEMPLATE = "template";
+    public static String LIST_WIDGET = "LIST_WIDGET";
     public static String TABLE_WIDGET = "TABLE_WIDGET";
     public static String CONTAINER_WIDGET = "CONTAINER_WIDGET";
     public static String CANVAS_WIDGET = "CANVAS_WIDGET";
@@ -125,7 +127,7 @@ public class FieldName {
     public static final String VIEWER = "App Viewer";
     public static final String WORKSPACE_VIEWER_DESCRIPTION = "Can view applications and invite other users to view " +
             "applications";
-    public static final Object USER_GROUP = "userGroup";
+    public static final String USER_GROUP = "userGroup";
     public static final Object GROUP_ID = "groupId";
     public static final Object USERNAME = "username";
     public static final Object NEW_GROUP_ID = "newGroupId";
@@ -139,9 +141,26 @@ public class FieldName {
     public static final String FORM_LOGIN = "FormLogin";
     public static final String APP_MODE = "appMode";
     public static final String PAGE_ORDER = "order";
-    public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS = "actionExecutionRequestParams";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS_COUNT = "actionExecutionRequestParamsCount";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
+
+    // this key will present in the analytics as a diff b/w server and user invoked flows
+    public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
+    public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
+    public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
+    public static final String INVITED_USERS_TO_USER_GROUPS = "invitedUsers";
+    public static final String REMOVED_USERS_FROM_USER_GROUPS = "removedUsers";
+    public static final String REMOVE_USERS_FROM_USER_GROUPS = "removeUsers";
+    public static final String INVITE_USERS_TO_USER_GROUPS = "inviteUsers";
+    public static final String ASSIGNED_USERS_TO_PERMISSION_GROUPS = "assignedUsers";
+    public static final String UNASSIGNED_USERS_FROM_PERMISSION_GROUPS = "unAssignedUsers";
+    public static final String ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS = "assignedGroups";
+    public static final String UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS = "unAssignedGroups";
+    public static final String ASSIGNED_TO_PERMISSION_GROUPS = "assignedUserAndGroups";
+    public static final String UNASSIGNED_FROM_PERMISSION_GROUPS = "unAssignedUsersAndGroups";
+
 }

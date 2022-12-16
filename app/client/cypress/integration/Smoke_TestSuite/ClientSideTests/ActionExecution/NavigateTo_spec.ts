@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
 const {
   AggregateHelper: agHelper,
   CommonLocators: locator,
@@ -9,10 +8,17 @@ const {
 } = ObjectsRegistry;
 
 describe("Navigate To feature", () => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
     // create a new page
     ee.AddNewPage(); // page 2
-
     ee.SelectEntityByName("Page1");
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
@@ -22,9 +28,20 @@ describe("Navigate To feature", () => {
     cy.get(".t--open-dropdown-Select-Page").click();
     agHelper.AssertElementLength(".bp3-menu-item", 2);
     cy.get(locator._dropDownValue("Page2")).click();
+    cy.get("label")
+      .contains("Query Params")
+      .siblings()
+      .find(".CodeEditorTarget")
+      .then(($el) => cy.updateCodeInput($el, "{{{ test: '123' }}}"));
+    agHelper.ClickButton("Submit");
+    cy.url().should("include", "a=b");
+    cy.url().should("include", "test=123");
+    ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(".bp3-heading").contains("This page seems to be blank");
+    cy.url().should("include", "a=b");
+    cy.url().should("include", "test=123");
     deployMode.NavigateBacktoEditor();
   });
 

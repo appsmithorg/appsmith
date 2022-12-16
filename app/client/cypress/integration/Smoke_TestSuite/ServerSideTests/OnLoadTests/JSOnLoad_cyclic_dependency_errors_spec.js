@@ -1,24 +1,19 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const dsl = require("../../../../fixtures/inputdsl.json");
-const buttonDsl = require("../../../../fixtures/buttondsl.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-import jsActions from "../../../../locators/jsActionLocators.json";
-import { Entity } from "draft-js";
 const jsEditor = ObjectsRegistry.JSEditor;
 const ee = ObjectsRegistry.EntityExplorer;
-const explorer = require("../../../../locators/explorerlocators.json");
 const agHelper = ObjectsRegistry.AggregateHelper;
-const pageid = "MyPage";
 let queryName;
 
 /*
 Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
 1. On page load actions
 2. When updating DSL attribute
-3. When updating JS Object name 
+3. When updating JS Object name
 4. When updating Js Object content
 5. When updating DSL name
 6. When updating Datasource query
@@ -26,6 +21,8 @@ Cyclic Depedency Error if occurs, Message would be shown in following 6 cases:
 
 describe("Cyclic Dependency Informational Error Messagaes", function() {
   before(() => {
+    //appId = localStorage.getItem("applicationId");
+    //cy.log("appID:" + appId);
     cy.addDsl(dsl);
     cy.wait(3000); //dsl to settle!
   });
@@ -158,9 +155,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
   // Case 6: When updating Datasource query
   it("7. Update Query and check for errors", () => {
-    cy.get(".t--entity-name")
-      .contains(queryName)
-      .click({ force: true });
+    ee.SelectEntityByName(queryName, "Queries/JS");
     // update query and check for cyclic depedency issue
     cy.get(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")

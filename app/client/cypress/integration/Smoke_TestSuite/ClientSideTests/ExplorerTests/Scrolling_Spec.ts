@@ -1,11 +1,10 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let ee = ObjectsRegistry.EntityExplorer,
+const ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators,
-  mockDBNameUsers: any,
-  mockDBNameMovies: any;
+  locator = ObjectsRegistry.CommonLocators;
+let mockDBNameUsers: any, mockDBNameMovies: any;
 
 describe("Entity explorer context menu should hide on scrolling", function() {
   it("1. Bug #15474 - Entity explorer menu must close on scroll", function() {
@@ -25,8 +24,9 @@ describe("Entity explorer context menu should hide on scrolling", function() {
       mockDBNameMovies = $createdMock.response?.body.data.name;
       dataSources.CreateQuery(mockDBNameMovies);
     });
+    ee.ExpandCollapseEntity("Users");
+    ee.ExpandCollapseEntity("Movies");
     ee.ExpandCollapseEntity("public.users");
-    ee.ExpandCollapseEntity("movies");
     agHelper.GetNClick(locator._createNew);
     agHelper.AssertElementVisible(ee._createNewPopup);
     agHelper.ScrollTo(ee._entityExplorerWrapper, "bottom");

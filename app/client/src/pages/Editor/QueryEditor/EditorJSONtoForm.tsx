@@ -1,4 +1,4 @@
-import React, { RefObject, useRef, useState } from "react";
+import React, { RefObject, useCallback, useRef } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -20,23 +20,23 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
-import Callout from "components/ads/Callout";
-import { Variant } from "components/ads/common";
 import {
   Button,
+  Callout,
   Category,
+  Classes,
   Icon as AdsIcon,
   IconSize,
   SearchSnippet,
   Size,
   Spinner,
+  TabComponent,
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
 import styled from "constants/DefaultTheme";
-import { TabComponent } from "components/ads/Tabs";
-import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
@@ -85,12 +85,10 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
-import { Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "../../../api/PluginApi";
+import { Plugin, UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
@@ -104,16 +102,31 @@ import {
 import {
   responseTabComponent,
   InlineButton,
-  TableCellHeight,
-  SectionDivider,
   CancelRequestButton,
   LoadingOverlayContainer,
   handleCancelActionExecution,
-  ActionExecutionResizerHeight,
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { executeCommandAction } from "../../../actions/apiPaneActions";
+import {
+  hasCreateDatasourcePermission,
+  hasDeleteActionPermission,
+  hasExecuteActionPermission,
+  hasManageActionPermission,
+} from "@appsmith/utils/permissionHelpers";
+import { executeCommandAction } from "actions/apiPaneActions";
+import {
+  getQueryPaneConfigSelectedTabIndex,
+  getQueryPaneResponsePaneHeight,
+  getQueryPaneResponseSelectedTab,
+} from "selectors/queryPaneSelectors";
+import {
+  setQueryPaneConfigSelectedTabIndex,
+  setQueryPaneResponsePaneHeight,
+  setQueryPaneResponseSelectedTab,
+} from "actions/queryPaneActions";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -148,7 +161,7 @@ const ErrorMessage = styled.p`
 
 export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
-  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
+  height: ${ActionExecutionResizerHeight}px;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
@@ -181,8 +194,8 @@ const SettingsWrapper = styled.div`
 
 const ResultsCount = styled.div`
   position: absolute;
-  right: 13px;
-  top: 8px;
+  right: ${(props) => props.theme.spaces[17] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 1}px;
   color: #716e6e;
 `;
 
@@ -490,9 +503,6 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
-    window.innerHeight,
-  );
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
@@ -504,6 +514,23 @@ export function EditorJSONtoForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
+  const isChangePermitted = hasManageActionPermission(
+    currentActionConfig?.userPermissions,
+  );
+  const isExecutePermitted = hasExecuteActionPermission(
+    currentActionConfig?.userPermissions,
+  );
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentActionConfig?.userPermissions,
+  );
+
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateDatasource = hasCreateDatasourcePermission(
+    userWorkspacePermissions,
+  );
 
   // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
@@ -538,10 +565,12 @@ export function EditorJSONtoForm(props: Props) {
     return (
       <>
         <components.MenuList {...props}>{props.children}</components.MenuList>
-        <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-          <Icon className="createIcon" icon="plus" iconSize={11} />
-          {createMessage(CREATE_NEW_DATASOURCE)}
-        </CreateDatasource>
+        {canCreateDatasource ? (
+          <CreateDatasource onClick={() => onCreateDatasourceClick()}>
+            <Icon className="createIcon" icon="plus" iconSize={11} />
+            {createMessage(CREATE_NEW_DATASOURCE)}
+          </CreateDatasource>
+        ) : null}
       </>
     );
   }
@@ -739,6 +768,11 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
+  const responsePaneHeight = useSelector(getQueryPaneResponsePaneHeight);
+  const setResponsePaneHeight = useCallback((height: number) => {
+    dispatch(setQueryPaneResponsePaneHeight(height));
+  }, []);
+
   const responseBodyTabs =
     responseDataTypes &&
     responseDataTypes.map((dataType, index) => {
@@ -749,16 +783,21 @@ export function EditorJSONtoForm(props: Props) {
         panelComponent: responseTabComponent(
           dataType.key,
           output,
-          tableBodyHeight,
+          responsePaneHeight,
         ),
       };
     });
 
-  const onResponseTabSelect = (tab: any) => {
+  const onResponseTabSelect = (tabKey: string) => {
+    if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "QUERY_PANE",
+      });
+    }
     updateActionResponseDisplayFormat({
       id: currentActionConfig?.id || "",
       field: "responseDisplayFormat",
-      value: tab.title,
+      value: tabKey,
     });
   };
 
@@ -770,7 +809,7 @@ export function EditorJSONtoForm(props: Props) {
 
   const responseTabs = [
     {
-      key: "Response",
+      key: "response",
       title: "Response",
       panelComponent: (
         <ResponseContentWrapper>
@@ -792,7 +831,11 @@ export function EditorJSONtoForm(props: Props) {
                   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
                     source: "QUERY",
                   });
-                  dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+                  dispatch(
+                    setQueryPaneResponseSelectedTab(
+                      DEBUGGER_TAB_KEYS.ERROR_TAB,
+                    ),
+                  );
                 }}
                 secondHalfText={createMessage(
                   DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
@@ -818,10 +861,9 @@ export function EditorJSONtoForm(props: Props) {
             responseBodyTabs.length > 0 &&
             selectedTabIndex !== -1 && (
               <EntityBottomTabs
-                defaultIndex={selectedTabIndex}
                 onSelect={onResponseTabSelect}
                 responseViewer
-                selectedTabIndex={selectedTabIndex}
+                selectedTabKey={responseDisplayFormat.value}
                 tabs={responseBodyTabs}
               />
             )}
@@ -831,6 +873,7 @@ export function EditorJSONtoForm(props: Props) {
               <Text type={TextType.P1}>
                 {createMessage(ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF)}
                 <InlineButton
+                  disabled={!isExecutePermitted}
                   isLoading={isRunning}
                   onClick={responeTabOnRunClick}
                   size={Size.medium}
@@ -889,6 +932,18 @@ export function EditorJSONtoForm(props: Props) {
     [],
   );
 
+  const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
+
+  const setSelectedConfigTab = useCallback((selectedIndex: number) => {
+    dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
+  }, []);
+
+  const selectedResponseTab = useSelector(getQueryPaneResponseSelectedTab);
+
+  const setSelectedResponseTab = useCallback((tabKey: string) => {
+    dispatch(setQueryPaneResponseSelectedTab(tabKey));
+  }, []);
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -902,12 +957,14 @@ export function EditorJSONtoForm(props: Props) {
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
           <NameWrapper>
-            <ActionNameEditor />
+            <ActionNameEditor disabled={!isChangePermitted} />
           </NameWrapper>
           <ActionsWrapper>
             <MoreActionsMenu
               className="t--more-action-menu"
               id={currentActionConfig ? currentActionConfig.id : ""}
+              isChangePermitted={isChangePermitted}
+              isDeletePermitted={isDeletePermitted}
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
@@ -931,6 +988,7 @@ export function EditorJSONtoForm(props: Props) {
               <DropdownField
                 className={"t--switch-datasource"}
                 components={{ MenuList, Option: CustomOption, SingleValue }}
+                isDisabled={!isChangePermitted}
                 maxMenuHeight={200}
                 name="datasource.id"
                 options={DATASOURCES_OPTIONS}
@@ -941,6 +999,7 @@ export function EditorJSONtoForm(props: Props) {
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
+              disabled={!isExecutePermitted}
               isLoading={isRunning}
               onClick={onRunClick}
               size={Size.medium}
@@ -978,6 +1037,8 @@ export function EditorJSONtoForm(props: Props) {
                 </DocumentationLink>
               )}
               <TabComponent
+                onSelect={setSelectedConfigTab}
+                selectedIndex={selectedConfigTab}
                 tabs={[
                   {
                     key: EDITOR_TABS.QUERY,
@@ -1036,17 +1097,19 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabContainerView>
 
-            <TabbedViewContainer ref={panelRef}>
+            <TabbedViewContainer
+              className="t--query-bottom-pane-container"
+              ref={panelRef}
+            >
               <Resizable
+                initialHeight={responsePaneHeight}
+                onResizeComplete={(height: number) =>
+                  setResponsePaneHeight(height)
+                }
                 openResizer={isRunning}
                 panelRef={panelRef}
-                setContainerDimensions={(height: number) =>
-                  // TableCellHeight in this case is the height of one table cell in pixels.
-                  setTableBodyHeightHeight(height - TableCellHeight)
-                }
                 snapToHeight={ActionExecutionResizerHeight}
               />
-              <SectionDivider />
               {isRunning && (
                 <>
                   <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
@@ -1056,7 +1119,7 @@ export function EditorJSONtoForm(props: Props) {
                         {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
                       </Text>
                       <CancelRequestButton
-                        category={Category.tertiary}
+                        category={Category.secondary}
                         className={`t--cancel-action-button`}
                         onClick={() => {
                           handleCancelActionExecution();
@@ -1075,14 +1138,20 @@ export function EditorJSONtoForm(props: Props) {
                 <ResultsCount>
                   <Text type={TextType.P3}>
                     Result:
-                    <Text type={TextType.H5}>{`${output.length} Record${
+                    <Text type={TextType.H5}>{` ${output.length} Record${
                       output.length > 1 ? "s" : ""
                     }`}</Text>
                   </Text>
                 </ResultsCount>
               )}
 
-              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
+              <EntityBottomTabs
+                containerRef={panelRef}
+                expandedHeight={`${ActionExecutionResizerHeight}px`}
+                onSelect={setSelectedResponseTab}
+                selectedTabKey={selectedResponseTab}
+                tabs={responseTabs}
+              />
             </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper

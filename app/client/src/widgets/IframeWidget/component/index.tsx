@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { hexToRgba } from "widgets/WidgetUtils";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
@@ -81,6 +81,7 @@ function IframeComponent(props: IframeComponentProps) {
     srcDoc,
     title,
     widgetId,
+    widgetName,
   } = props;
 
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -151,6 +152,7 @@ function IframeComponent(props: IframeComponentProps) {
       ) : srcDoc ? (
         <iframe
           allow="camera; microphone"
+          id={`iframe-${widgetName}`}
           ref={frameRef}
           sandbox={
             disableIframeWidgetSandbox
@@ -164,6 +166,7 @@ function IframeComponent(props: IframeComponentProps) {
       ) : (
         <iframe
           allow="camera; microphone"
+          id={`iframe-${widgetName}`}
           ref={frameRef}
           src={source}
           title={title}

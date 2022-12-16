@@ -4,7 +4,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
   ARRAY_ITEM_KEY,
   FIELD_EXPECTING_OPTIONS,
@@ -121,6 +121,7 @@ const COMMON_PROPERTIES = {
       {
         propertyName: "fieldType",
         label: "Field Type",
+        helpText: "Type of the widget to be used corresponding to the field",
         controlType: "DROP_DOWN",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -304,6 +305,7 @@ const COMMON_PROPERTIES = {
       {
         propertyName: "labelTextColor",
         label: "Font Color",
+        helpText: "Control the color of the label associated",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -320,6 +322,7 @@ const COMMON_PROPERTIES = {
       {
         propertyName: "labelTextSize",
         label: "Font Size",
+        helpText: "Control the font size of the label associated",
         defaultValue: "0.875rem",
         controlType: "DROP_DOWN",
         options: [
@@ -362,6 +365,7 @@ const COMMON_PROPERTIES = {
       {
         propertyName: "labelStyle",
         label: "Emphasis",
+        helpText: "Control if the label should be bold or italics",
         controlType: "BUTTON_TABS",
         options: [
           {

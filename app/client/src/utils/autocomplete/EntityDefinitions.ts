@@ -155,6 +155,9 @@ export const entityDefinitions = {
     updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
     triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
     pageOffset: generateTypeDef(widget.pageOffset),
+    tableHeaders: generateTypeDef(widget.tableHeaders),
+    newRow: generateTypeDef(widget.newRow),
+    isAddRowInProgress: "bool",
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -328,7 +331,6 @@ export const entityDefinitions = {
   },
   MODAL_WIDGET: {
     isVisible: isVisible,
-    isOpen: "bool",
   },
   RICH_TEXT_EDITOR_WIDGET: {
     isVisible: isVisible,
@@ -560,6 +562,11 @@ export const entityDefinitions = {
       "!doc": "The text value of the input",
       "!url": "https://docs.appsmith.com/widget-reference/input",
     },
+    inputText: {
+      "!type": "string",
+      "!doc": "The unformatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
@@ -676,7 +683,7 @@ export const entityDefinitions = {
   },
 };
 
-/* 
+/*
   $__name__$ is just to reduce occurrences of global def showing up in auto completion for user as `$` is less commonly used as entityName/
 
   GLOBAL_DEFS are maintained to support definition for array of objects which currently aren't supported by our generateTypeDef.
@@ -727,6 +734,14 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Store key value data locally",
     "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
   },
+  removeValue: {
+    "!doc": "Remove key value data locally",
+    "!type": "fn(key: string) -> +Promise[:t=[!0.<i>.:t]]",
+  },
+  clearStore: {
+    "!doc": "Clear all key value data locally",
+    "!type": "fn() -> +Promise[:t=[!0.<i>.:t]]",
+  },
   download: {
     "!doc": "Download anything as a file",
     "!type":
@@ -756,6 +771,11 @@ export const GLOBAL_FUNCTIONS = {
   unsubscribeParentMessages: {
     "!doc": "Unsubscribe to messages from parent window",
     "!type": "fn(origin: string) -> void",
+  },
+  postWindowMessage: {
+    "!doc":
+      "Establish cross-origin communication between Window objects/page and iframes",
+    "!type": "fn(message: unknown, source: string, targetOrigin: string)",
   },
 };
 

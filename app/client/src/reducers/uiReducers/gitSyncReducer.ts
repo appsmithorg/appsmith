@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 import { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
+import { PageDefaultMeta } from "api/ApplicationApi";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -426,6 +427,13 @@ const gitSyncReducer = createReducer(initialState, {
     isImportingApplicationViaGit: false,
     gitImportError: null,
   }),
+  [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_STATUS_RESET]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isImportingApplicationViaGit: false,
+    gitImportError: null,
+  }),
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR]: (
     state: GitSyncReducerState,
     action: ReduxAction<any>,
@@ -522,12 +530,7 @@ export type GitDiscardResponse = {
   name: string;
   workspaceId: string;
   isPublic: boolean;
-  pages: {
-    id: string;
-    isDefault: boolean;
-    defaultPageId: string;
-    default: boolean;
-  }[];
+  pages: PageDefaultMeta[];
   appIsExample: boolean;
   color: string;
   icon: string;

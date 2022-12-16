@@ -296,6 +296,11 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   //cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   //cy.reload();
+
+  cy.get("#loading").should("not.exist");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
@@ -322,4 +327,21 @@ Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
   cy.get(explorer.editEntity)
     .last()
     .type(`${renamedEntity}`, { force: true });
+});
+Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
+  cy.openWorkspaceOptionsPopup(newWorkspaceName);
+  cy.get(homePage.workspaceNamePopoverContent)
+    .find("a")
+    .should("have.length", 1)
+    .first()
+    .contains("Leave Workspace")
+    .click();
+  cy.contains("Are you sure").click();
+  cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
+    expect(httpResponse.status).to.equal(200);
+  });
+  cy.get(homePage.toastMessage).should(
+    "contain",
+    "You have successfully left the workspace",
+  );
 });

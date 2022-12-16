@@ -1,8 +1,15 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("FilePicker Widget Functionality", function() {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 

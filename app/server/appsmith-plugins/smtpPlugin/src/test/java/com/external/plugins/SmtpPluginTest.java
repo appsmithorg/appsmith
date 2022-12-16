@@ -7,6 +7,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
@@ -38,7 +40,7 @@ public class SmtpPluginTest {
             .withExposedPorts(25)
             .withCommand("bin/maildev --base-pathname /maildev --incoming-user " + username + " --incoming-pass " + password + " -s 25");
 
-    private SmtpPlugin.SmtpPluginExecutor pluginExecutor = new SmtpPlugin.SmtpPluginExecutor();
+    private final SmtpPlugin.SmtpPluginExecutor pluginExecutor = new SmtpPlugin.SmtpPluginExecutor();
 
 
     @BeforeAll
@@ -112,6 +114,22 @@ public class SmtpPluginTest {
 
         assertEquals(Set.of("Invalid authentication credentials. Please check datasource configuration."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
+    }
+
+    @Test
+    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+
     }
 
     @Test

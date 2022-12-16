@@ -15,7 +15,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,7 @@ import reactor.test.StepVerifier;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,6 +74,12 @@ public class EnvManagerTest {
     @MockBean
     private UserUtils userUtils;
 
+    @MockBean
+    private TenantService tenantService;
+
+    @MockBean
+    private ObjectMapper objectMapper;
+
     EnvManager envManager;
 
     @BeforeEach
@@ -88,7 +97,9 @@ public class EnvManagerTest {
                 fileUtils,
                 permissionGroupService,
                 configService,
-                userUtils);
+                userUtils,
+                tenantService,
+                objectMapper);
     }
 
     @Test
@@ -262,7 +273,7 @@ public class EnvManagerTest {
                 )
         ))
                 .matches(value -> value instanceof AppsmithException
-                        && AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) value).getError()));
+                        && AppsmithError.GENERIC_BAD_REQUEST.equals(((AppsmithException) value).getError()));
     }
 
     @Test
@@ -361,4 +372,26 @@ public class EnvManagerTest {
                 .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
                 .verify();
     }
+
+	@Test
+	public void setEnv_AndGetAll() {
+		EnvManager envManagerInner = Mockito.mock(EnvManagerImpl.class);
+
+		Map<String, String> envs = new HashMap<>();
+		envs.put("APPSMITH_MONGODB_URI", "mongo-url");
+		envs.put("APPSMITH_DISABLE_TELEMETRY", "");
+
+		Mockito.when(envManagerInner.getAll()).thenReturn(Mono.just(envs));
+		Mockito.when(envManagerInner.getAllNonEmpty()).thenCallRealMethod();
+
+
+		Mono<Map<String, String>> envMono = envManagerInner.getAllNonEmpty();
+
+		StepVerifier.create(envMono)
+			.assertNext(map -> {
+				assertThat(map).hasSize(1);
+				assertThat(map.containsKey("APPSMITH_DISABLE_TELEMETRY")).isFalse();
+			})
+			.verifyComplete();
+	}
 }

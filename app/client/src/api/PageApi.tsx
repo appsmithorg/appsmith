@@ -27,6 +27,7 @@ export type SavePageRequest = {
   dsl: DSLWidget;
   layoutId: string;
   pageId: string;
+  applicationId: string;
 };
 
 export type PageLayout = {
@@ -45,6 +46,7 @@ export type FetchPageResponseData = {
   layouts: Array<PageLayout>;
   lastUpdatedTime: number;
   customSlug?: string;
+  userPermissions?: string[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
 
@@ -76,6 +78,18 @@ export type UpdatePageRequest = {
   customSlug?: string;
 };
 
+export type UpdatePageResponse = {
+  id: string;
+  name: string;
+  slug: string;
+  customSlug?: string;
+  applicationId: string;
+  layouts: Array<PageLayout>;
+  isHidden: boolean;
+  lastUpdatedTime: number;
+  defaultResources: unknown[];
+};
+
 export type SetPageOrderRequest = {
   order: number;
   pageId: string;
@@ -92,6 +106,7 @@ export type FetchPageListResponseData = {
     isHidden?: boolean;
     layouts: Array<PageLayout>;
     slug: string;
+    userPermissions?: string[];
   }>;
   workspaceId: string;
 };
@@ -147,8 +162,12 @@ class PageApi extends Api {
   static url = "v1/pages";
   static refactorLayoutURL = "v1/layouts/refactor";
   static pageUpdateCancelTokenSource?: CancelTokenSource = undefined;
-  static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
-    return `v1/layouts/${layoutId}/pages/${pageId}`;
+  static getLayoutUpdateURL = (
+    applicationId: string,
+    pageId: string,
+    layoutId: string,
+  ) => {
+    return `v1/layouts/${layoutId}/pages/${pageId}?applicationId=${applicationId}`;
   };
 
   static getGenerateTemplateURL = (pageId?: string) => {
@@ -183,6 +202,7 @@ class PageApi extends Api {
     PageApi.pageUpdateCancelTokenSource = axios.CancelToken.source();
     return Api.put(
       PageApi.getLayoutUpdateURL(
+        savePageRequest.applicationId,
         savePageRequest.pageId,
         savePageRequest.layoutId,
       ),
@@ -206,7 +226,9 @@ class PageApi extends Api {
     return Api.post(PageApi.url, createPageRequest);
   }
 
-  static updatePage(request: UpdatePageRequest): AxiosPromise<ApiResponse> {
+  static updatePage(
+    request: UpdatePageRequest,
+  ): AxiosPromise<ApiResponse<UpdatePageResponse>> {
     return Api.put(PageApi.updatePageUrl(request.id), request);
   }
 

@@ -24,6 +24,7 @@ type BodyContextType = {
   width: number;
   rows: ReactTableRowType<Record<string, unknown>>[];
   primaryColumnId?: string;
+  isAddRowInProgress: boolean;
 };
 
 export const BodyContext = React.createContext<BodyContextType>({
@@ -36,6 +37,7 @@ export const BodyContext = React.createContext<BodyContextType>({
   width: 0,
   rows: [],
   primaryColumnId: "",
+  isAddRowInProgress: false,
 });
 
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
@@ -81,7 +83,9 @@ const TableVirtualBodyComponent = React.forwardRef(
           }
           itemCount={Math.max(props.rows.length, props.pageSize)}
           itemData={props.rows}
-          itemSize={props.tableSizes.ROW_HEIGHT}
+          itemSize={
+            props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
+          }
           outerRef={ref}
           width={`calc(100% + ${2 * WIDGET_PADDING}px`}
         >
@@ -116,6 +120,7 @@ export const TableBody = React.forwardRef(
       accentColor,
       borderRadius,
       columns,
+      isAddRowInProgress,
       multiRowSelection,
       prepareRow,
       primaryColumnId,
@@ -132,6 +137,7 @@ export const TableBody = React.forwardRef(
       <BodyContext.Provider
         value={{
           accentColor,
+          isAddRowInProgress,
           borderRadius,
           multiRowSelection,
           prepareRow,

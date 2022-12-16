@@ -11,12 +11,12 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
@@ -24,9 +24,11 @@ import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -44,6 +46,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,6 +86,9 @@ public class ActionCollectionServiceTest {
     LayoutActionService layoutActionService;
 
     @Autowired
+    RefactoringSolution refactoringSolution;
+
+    @Autowired
     NewPageService newPageService;
 
     @Autowired
@@ -96,6 +102,9 @@ public class ActionCollectionServiceTest {
 
     @Autowired
     PluginRepository pluginRepository;
+
+    @Autowired
+    ActionCollectionRepository actionCollectionRepository;
 
     @Autowired
     UserWorkspaceService userWorkspaceService;
@@ -193,6 +202,64 @@ public class ActionCollectionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testCreateActionCollection() {
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollection");
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        StepVerifier.create(layoutCollectionService.createCollection(actionCollectionDTO))
+                .assertNext(actionCollectionDTO1 -> {
+                    assertThat(actionCollectionDTO1.getApplicationId()).isEqualTo(testApp.getId());
+                    assertThat(actionCollectionDTO1.getWorkspaceId()).isEqualTo(testApp.getWorkspaceId());
+                    assertThat(actionCollectionDTO1.getPageId()).isEqualTo(testPage.getId());
+                    assertThat(actionCollectionDTO1.getPluginId()).isEqualTo(datasource.getPluginId());
+                    assertThat(actionCollectionDTO1.getUserPermissions()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Test to verify soft-deleted actionCollections are not retrieved in repository find methods.
+     * This issue was observed when deprecated soft-delete field "deleted" is set to "false" and current field "deletedAt"
+     * contains a non-null value.
+     * Here deletedAt field is manually set to a non-null value instead of deleting actionCollection since that would
+     * update both fields.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCreateActionCollection_verifySoftDeletedCollectionIsNotLoaded() {
+        Application application = new Application();
+        application.setName(UUID.randomUUID().toString());
+
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        assert createdApplication != null;
+        final String pageId = createdApplication.getPages().get(0).getId();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollectionSoftDeleted");
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setWorkspaceId(createdApplication.getWorkspaceId());
+        actionCollectionDTO.setPageId(pageId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setDeletedAt(Instant.now());
+        layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollection createdActionCollection = actionCollectionRepository.findByApplicationId(createdApplication.getId(), READ_ACTIONS, null).blockFirst();
+        createdActionCollection.setDeletedAt(Instant.now());
+        actionCollectionRepository.save(createdActionCollection).block();
+
+        StepVerifier.create(actionCollectionRepository.findByApplicationId(createdApplication.getId(), READ_ACTIONS, null))
+                .verifyComplete();
+    }
+
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createValidActionCollectionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -275,6 +342,7 @@ public class ActionCollectionServiceTest {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
+        actionCollectionDTO1.setBody("export default { x: 1 }");
 
         final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
@@ -290,7 +358,7 @@ public class ActionCollectionServiceTest {
         action2.getActionConfiguration().setBody("testCollection1.testAction1()");
         actionCollectionDTO2.setActions(List.of(action2));
         actionCollectionDTO2.setPluginType(PluginType.JS);
-        actionCollectionDTO2.setBody("testCollection1.testAction1()");
+        actionCollectionDTO2.setBody("export default { x: testCollection1.testAction1() }");
 
         final ActionCollectionDTO createdActionCollectionDTO2 = layoutCollectionService.createCollection(actionCollectionDTO2).block();
 
@@ -303,7 +371,7 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("testAction1");
         refactorActionNameDTO.setNewName("newTestAction1");
 
-        final LayoutDTO layoutDTO = layoutActionService.refactorActionName(refactorActionNameDTO).block();
+        final LayoutDTO layoutDTO = refactoringSolution.refactorActionName(refactorActionNameDTO).block();
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO2.getId());
@@ -311,7 +379,7 @@ public class ActionCollectionServiceTest {
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
                     assertEquals(
-                            "testCollection1.newTestAction1()",
+                            "export default { x: testCollection1.newTestAction1() }",
                             actionCollection.getUnpublishedCollection().getBody()
                     );
                 })
@@ -353,6 +421,7 @@ public class ActionCollectionServiceTest {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
+        actionCollectionDTO1.setBody("export default { x: 1 }");
 
         final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
@@ -368,7 +437,7 @@ public class ActionCollectionServiceTest {
         action2.getActionConfiguration().setBody("Api1.run()");
         actionCollectionDTO2.setActions(List.of(action2));
         actionCollectionDTO2.setPluginType(PluginType.JS);
-        actionCollectionDTO2.setBody("Api1.run()");
+        actionCollectionDTO2.setBody("export default { x: Api1.run() }");
 
         final ActionCollectionDTO createdActionCollectionDTO2 = layoutCollectionService.createCollection(actionCollectionDTO2).block();
 
@@ -381,7 +450,7 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("run");
         refactorActionNameDTO.setNewName("newRun");
 
-        final LayoutDTO layoutDTO = layoutActionService.refactorActionName(refactorActionNameDTO).block();
+        final LayoutDTO layoutDTO = refactoringSolution.refactorActionName(refactorActionNameDTO).block();
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO2.getId());
@@ -389,7 +458,7 @@ public class ActionCollectionServiceTest {
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
                     assertEquals(
-                            "Api1.run()",
+                            "export default { x: Api1.run() }",
                             actionCollection.getUnpublishedCollection().getBody()
                     );
                 })

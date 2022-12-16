@@ -1,12 +1,11 @@
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useState, useCallback } from "react";
-import { Route, Switch } from "react-router";
+import React, { useCallback, useEffect } from "react";
+import { Route, Switch, useLocation } from "react-router";
 
 import EditorsRouter from "./routes";
 import BottomBar from "./BottomBar";
-import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import {
@@ -17,6 +16,9 @@ import {
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
+import { routeChanged } from "actions/focusHistoryActions";
+import { getExplorerWidth } from "selectors/explorerSelector";
+import { AppsmithLocationState } from "utils/history";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -28,11 +30,10 @@ const Container = styled.div`
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
+
 function MainContainer() {
   const dispatch = useDispatch();
-  const [sidebarWidth, setSidebarWidth] = useState(
-    DEFAULT_ENTITY_EXPLORER_WIDTH,
-  );
+  const sidebarWidth = useSelector(getExplorerWidth);
 
   /**
    * on entity explorer sidebar width change
@@ -40,7 +41,7 @@ function MainContainer() {
    * @return void
    */
   const onLeftSidebarWidthChange = useCallback((newWidth) => {
-    setSidebarWidth(newWidth);
+    dispatch(updateExplorerWidthAction(newWidth));
   }, []);
 
   /**
@@ -54,9 +55,15 @@ function MainContainer() {
 
   const isPreviewMode = useSelector(previewModeSelector);
 
+  const location = useLocation<AppsmithLocationState>();
+
+  useEffect(() => {
+    dispatch(routeChanged(location));
+  }, [location.pathname, location.hash]);
+
   return (
     <>
-      <Container className="w-full overflow-x-hidden">
+      <Container className="relative w-full overflow-x-hidden">
         <EntityExplorerSidebar
           onDragEnd={onLeftSidebarDragEnd}
           onWidthChange={onLeftSidebarWidthChange}

@@ -4,12 +4,21 @@
 
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-
 const onFilterUpdateJSBtn = ".t--property-control-onfilterupdate .t--js-toggle";
 const fieldPrefix = ".t--jsonformfield";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSONForm Select field - filterText update action trigger ", () => {
-  before(() => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  it("1. JSONForm Select field - filterText update action trigger - pre condition", () => {
     const schema = {
       color: "GREEN",
     };
@@ -21,7 +30,7 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
     cy.closePropertyPane();
   });
 
-  it("shows alert on filter text change", () => {
+  it("2. shows alert on filter text change", () => {
     const filterText = "Test string";
 
     cy.openPropertyPane("jsonformwidget");
@@ -50,10 +59,8 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
 
     cy.get(commonlocators.toastmsg).contains(`Filter update:${filterText}`);
   });
-});
 
-describe("JSONForm Multiselect field - filterText update action trigger ", () => {
-  before(() => {
+  it("3. JSONForm Multiselect field - filterText update action trigger - pre condition", () => {
     const schema = {
       colors: ["GREEN", "BLUE"],
     };
@@ -63,7 +70,7 @@ describe("JSONForm Multiselect field - filterText update action trigger ", () =>
     cy.closePropertyPane();
   });
 
-  it("shows alert on filter text change", () => {
+  it("4. shows alert on filter text change", () => {
     const filterText = "Test string";
 
     cy.openPropertyPane("jsonformwidget");

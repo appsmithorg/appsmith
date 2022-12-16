@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { ReactComponent as Layout } from "assets/images/layout.svg";
 import { ReactComponent as Database } from "assets/images/database.svg";
@@ -6,6 +6,7 @@ import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  previewModeSelector,
   selectURLSlugs,
   showCanvasTopSectionSelector,
 } from "selectors/editorSelectors";
@@ -21,7 +22,10 @@ import {
   GENERATE_PAGE_DESCRIPTION,
   TEMPLATE_CARD_DESCRIPTION,
   TEMPLATE_CARD_TITLE,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
+import { deleteCanvasCardsState } from "actions/editorActions";
 
 const Wrapper = styled.div`
   margin: ${(props) =>
@@ -31,7 +35,7 @@ const Wrapper = styled.div`
   gap: ${(props) => props.theme.spaces[7]}px;
 `;
 
-const Card = styled.div`
+const Card = styled.div<{ centerAlign?: boolean }>`
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[9]}px`};
   border: solid 1px ${Colors.GREY_4};
@@ -40,16 +44,20 @@ const Card = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  ${(props) =>
+    props.centerAlign &&
+    `
+    justify-content: center;
+  `}
   cursor: pointer;
-  transition: all 0.5s;
 
   svg {
     height: 24px;
     width: 24px;
   }
 
-  &:hover {
-    background-color: ${Colors.GREY_2};
+  &:hover svg path {
+    fill: var(--appsmith-color-orange-500);
   }
 `;
 
@@ -73,31 +81,52 @@ const goToGenPageForm = ({ pageId }: routeId): void => {
 function CanvasTopSection() {
   const dispatch = useDispatch();
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
+  const inPreviewMode = useSelector(previewModeSelector);
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
+  const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
+
+  useEffect(() => {
+    if (!showCanvasTopSection && !inPreviewMode) {
+      dispatch(deleteCanvasCardsState());
+    }
+  }, [showCanvasTopSection, inPreviewMode]);
 
   if (!showCanvasTopSection) return null;
 
   const showTemplatesModal = () => {
     dispatch(showTemplatesModalAction(true));
+    AnalyticsUtil.logEvent("CANVAS_BLANK_PAGE_CTA_CLICK", {
+      item: "ADD_PAGE_FROM_TEMPLATE",
+    });
+  };
+
+  const onGeneratePageClick = () => {
+    goToGenPageForm({ applicationSlug, pageSlug, pageId });
+    AnalyticsUtil.logEvent("CANVAS_BLANK_PAGE_CTA_CLICK", {
+      item: "GENERATE_PAGE",
+    });
   };
 
   return (
-    <Wrapper>
-      <Card data-cy="start-from-template" onClick={showTemplatesModal}>
-        <Layout />
-        <Content>
-          <Text color={Colors.COD_GRAY} type={TextType.P1}>
-            {createMessage(TEMPLATE_CARD_TITLE)}
-          </Text>
-          <Text type={TextType.P3}>
-            {createMessage(TEMPLATE_CARD_DESCRIPTION)}
-          </Text>
-        </Content>
-      </Card>
+    <Wrapper data-cy="canvas-ctas">
+      {!!featureFlags.TEMPLATES_PHASE_2 && (
+        <Card data-cy="start-from-template" onClick={showTemplatesModal}>
+          <Layout />
+          <Content>
+            <Text color={Colors.COD_GRAY} type={TextType.P1}>
+              {createMessage(TEMPLATE_CARD_TITLE)}
+            </Text>
+            <Text type={TextType.P3}>
+              {createMessage(TEMPLATE_CARD_DESCRIPTION)}
+            </Text>
+          </Content>
+        </Card>
+      )}
       <Card
+        centerAlign={!featureFlags.TEMPLATES_PHASE_2}
         data-cy="generate-app"
-        onClick={() => goToGenPageForm({ applicationSlug, pageSlug, pageId })}
+        onClick={onGeneratePageClick}
       >
         <Database />
         <Content>

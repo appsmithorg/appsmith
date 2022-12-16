@@ -1,9 +1,11 @@
 export class CommonLocators {
+  _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
   _runBtnSpinner = ".cs-spinner";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _emptyCanvasCta = "[data-cy='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
   _widgetName = (widgetName: string) =>
@@ -18,7 +20,7 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
-  _textWidget = ".t--draggable-textwidget span";
+  _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -44,22 +46,15 @@ export class CommonLocators {
   _contextMenuSubItemDiv = (item: string) =>
     "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
-  _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
+  _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
   _crossBtn = "span.cancel-icon";
   _createNew = ".t--entity-add-btn.group.files";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
-  _debuggerIcon = ".t--debugger svg";
   _errorTab = "[data-cy=t--tab-ERROR]";
   _responseTab = "[data-cy=t--tab-response]";
-  _debugErrorMsg = ".t--debugger-message";
-  _debuggerLogState = ".t--debugger-log-state";
-  _debuggerLogMessage = ".t--debugger-log-message";
-  _debuggerLogMessageOccurence = ".t--debugger-log-message-occurence";
-  _debuggerClearLogs = ".t--debugger-clear-logs";
-  _debuggerLabel = "span.debugger-label";
   _modal = ".t--modal-widget";
   _entityProperties = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
@@ -77,6 +72,10 @@ export class CommonLocators {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//button[contains(@class, 't--open-dropdown-Select-Action')]";
+    _selectPropPageDropdown = (ddName: string) =>
+    "//div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//button[contains(@class, 't--open-dropdown-Select-Page')]";
   _dropDownValue = (dropdownOption: string) =>
     ".single-select:contains('" + dropdownOption + "')";
   _selectOptionValue = (dropdownOption: string) =>
@@ -118,6 +117,8 @@ export class CommonLocators {
   _codeMirrorValue = "//div[contains(@class,'CodeMirror-code')]//span/span";
   _evaluatedCurrentValue =
     "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre";
+  _evaluatedErrorMessage =
+    ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -139,7 +140,7 @@ export class CommonLocators {
     "(//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" +
     date +
     "'])[last()]";
-  _inputWidgetValueField = (fieldName: string, input: boolean = true) =>
+  _inputWidgetValueField = (fieldName: string, input = true) =>
     `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${
       input ? "input" : "textarea"
     }`;
@@ -154,4 +155,15 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
+  _widgetPane = "[data-cy='widget-sidebar-scrollable-wrapper']";
+  _sliderThumb = '[data-cy="slider-thumb"]';
+  _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
+  _dropDownMultiTreeValue = (dropdownOption: string) =>
+    "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
+    dropdownOption +
+    "']";
+  _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
+  _omnibarDescription = "[data-cy='description']";
+  _previewModeToggle = ".t--switch-preview-mode-toggle";
+  _editModeToggle = ".t--switch-comment-mode-off";
 }

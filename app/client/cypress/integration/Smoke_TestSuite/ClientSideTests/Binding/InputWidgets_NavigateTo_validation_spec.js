@@ -7,8 +7,18 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function() {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
   before(() => {
     cy.addDsl(dsl);
     cy.wait(5000); //dsl to settle!
@@ -17,6 +27,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
   it("1. Create MyPage and valdiate if its successfully created", function() {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
+    cy.wait(5000); //dsl to settle!
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.CheckAndUnfoldEntityItem("Pages");

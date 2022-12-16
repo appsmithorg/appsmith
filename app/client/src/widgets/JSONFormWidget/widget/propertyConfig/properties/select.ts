@@ -11,7 +11,7 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export function defaultOptionValueValidation(
   inputValue: unknown,
@@ -107,6 +107,7 @@ const PROPERTIES = {
       {
         propertyName: "placeholderText",
         label: "Placeholder",
+        helpText: "Sets a placeholder text",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "Enter placeholder text",
         isBindProperty: true,

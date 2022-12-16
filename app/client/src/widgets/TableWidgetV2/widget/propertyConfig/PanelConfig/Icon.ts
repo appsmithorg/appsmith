@@ -24,7 +24,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -38,6 +38,7 @@ export default {
       label: "Position",
       helpText: "Sets the icon alignment of the menu button",
       controlType: "ICON_TABS",
+      fullWidth: true,
       options: [
         {
           icon: "VERTICAL_LEFT",
@@ -57,7 +58,7 @@ export default {
       validation: {
         type: ValidationTypes.TEXT,
         params: {
-          allowedValues: ["center", "left", "right"],
+          allowedValues: ["left", "right"],
         },
       },
     },

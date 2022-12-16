@@ -58,5 +58,12 @@ CodeMirror.defineMode(EditorModes.GRAPHQL_WITH_BINDING, function(config) {
         name: "javascript",
       }),
     },
+    {
+      open: '"{{',
+      close: '}}"',
+      mode: CodeMirror.getMode(config, {
+        name: "javascript",
+      }),
+    },
   );
 });

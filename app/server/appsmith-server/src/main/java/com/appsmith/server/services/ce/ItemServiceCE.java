@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.AddItemToPageDTO;
 import com.appsmith.server.dtos.ItemDTO;
 import org.springframework.util.MultiValueMap;

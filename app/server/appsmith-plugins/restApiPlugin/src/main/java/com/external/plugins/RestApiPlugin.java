@@ -11,8 +11,10 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
@@ -78,7 +80,7 @@ public class RestApiPlugin extends BasePlugin {
                 if (actionConfiguration.getBody() != null) {
 
                     // First extract all the bindings in order
-                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
+                    List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
                     // Replace all the bindings with a ? as expected in a prepared statement.
                     String updatedBody = MustacheHelper.replaceMustacheWithPlaceholder(actionConfiguration.getBody(), mustacheKeysInOrder);
 
@@ -148,7 +150,7 @@ public class RestApiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
-            WebClient.Builder webClientBuilder = triggerUtils.getWebClientBuilder(actionConfiguration,
+            WebClient.Builder webClientBuilder = restAPIActivateUtils.getWebClientBuilder(actionConfiguration,
                     datasourceConfiguration);
             String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
 
@@ -171,11 +173,11 @@ public class RestApiPlugin extends BasePlugin {
             Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
                     encodeParamsToggle,
                     httpMethod);
-            WebClient client = triggerUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
+            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
-            return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+            return restAPIActivateUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper, hintMessages, errorResult, requestCaptureFilter);
         }
 
@@ -211,7 +213,8 @@ public class RestApiPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+            Param param = (Param) args[0];
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null, param);
         }
     }
 }

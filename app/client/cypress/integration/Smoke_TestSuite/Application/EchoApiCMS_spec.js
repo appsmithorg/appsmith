@@ -2,10 +2,8 @@ const dsl = require("../../../fixtures/CMSdsl.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 import apiEditor from "../../../locators/ApiEditor";
 import appPage from "../../../locators/CMSApplocators";
-const commonlocators = require("../../../locators/commonlocators.json");
-describe("Content Management System App", function() {
-  let repoName;
 
+describe("Content Management System App", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -99,6 +97,7 @@ describe("Content Management System App", function() {
       .click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
     //cy.xpath(appPage.datasourcesbutton).click({ force: true });
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.xpath(appPage.postApi).click({ force: true });
     cy.ResponseCheck("Test");
     // cy.ResponseCheck("Task completed");

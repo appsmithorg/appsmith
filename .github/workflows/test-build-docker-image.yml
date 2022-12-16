@@ -269,6 +269,7 @@ jobs:
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_AUDITLOG_ENABLED: true
         working-directory: app/server
         run: |
           mvn --batch-mode versions:set \
@@ -512,6 +513,7 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_AUDITLOG_ENABLED: true
         run: |
           ls -l
           ls -l scripts/
@@ -530,6 +532,14 @@ jobs:
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
+      # Start rts
+      - name: Start RTS Server
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: ./app/rts
+        run: |
+          cp .env.example .env        
+          ./start-server.sh &
+
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
@@ -543,6 +553,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -778,6 +792,7 @@ jobs:
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            -e APPSMITH_AUDITLOG_ENABLED=true \
             fatcontainer
 
       - name: Use Node.js 16.14.0
@@ -806,6 +821,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -841,6 +860,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -880,6 +903,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -1168,6 +1195,7 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_AUDITLOG_ENABLED: true
         run: |
           ls -l
           ls -l scripts/
@@ -1243,6 +1271,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -1276,6 +1308,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -1314,6 +1350,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -1464,7 +1504,7 @@ jobs:
 
       # Force save the failed spec list into a cache
       - name: Store the combined run result
-        if: needs.ui-test.result
+        if: needs.ui-test.result != 'success'
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
@@ -1475,7 +1515,7 @@ jobs:
 
       # Force save the fat failed spec list into a cache
       - name: Store the combined run result for fat
-        if: needs.ui-test.result
+        if: needs.fat-container-test.result != 'success'
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
@@ -1487,7 +1527,7 @@ jobs:
       # Upload combined failed spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
-        if: needs.ui-test.result
+        if: needs.ui-test.result != 'success'
         uses: actions/upload-artifact@v2
         with:
           name: combined_failed_spec
@@ -1496,7 +1536,7 @@ jobs:
       # Upload combined failed fat spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
-        if: needs.ui-test.result
+        if: needs.fat-container-test.result != 'success'
         uses: actions/upload-artifact@v2
         with:
           name: combined_failed_spec_fat

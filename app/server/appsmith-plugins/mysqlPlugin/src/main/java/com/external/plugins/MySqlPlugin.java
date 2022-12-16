@@ -1,7 +1,6 @@
 package com.external.plugins;
 
 import com.appsmith.external.datatypes.AppsmithType;
-import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -14,8 +13,9 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
@@ -214,7 +214,7 @@ public class MySqlPlugin extends BasePlugin {
 
             //This has to be executed as Prepared Statement
             // First extract all the bindings in order
-            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             // Set the query with bindings extracted and replaced with '?' back in config
@@ -225,7 +225,7 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> executeCommon(Connection connection,
                                                          ActionConfiguration actionConfiguration,
                                                          Boolean preparedStatement,
-                                                         List<String> mustacheValuesInOrder,
+                                                         List<MustacheBindingToken> mustacheValuesInOrder,
                                                          ExecuteActionDTO executeActionDTO,
                                                          Map<String, Object> requestData) {
 
@@ -351,7 +351,7 @@ public class MySqlPlugin extends BasePlugin {
         private Flux<Result> createAndExecuteQueryFromConnection(String query,
                                                                  Connection connection,
                                                                  Boolean preparedStatement,
-                                                                 List<String> mustacheValuesInOrder,
+                                                                 List<MustacheBindingToken> mustacheValuesInOrder,
                                                                  ExecuteActionDTO executeActionDTO,
                                                                  Map<String, Object> requestData,
                                                                  Map psParams) {
@@ -396,9 +396,8 @@ public class MySqlPlugin extends BasePlugin {
                                              Object... args) {
 
             Statement connectionStatement = (Statement) input;
-            ClientDataType clientDataType = (ClientDataType) args[0];
-            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(clientDataType, value, MySQLSpecificDataTypes.pluginSpecificTypes);
-
+            Param param = (Param) args[0];
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value, MySQLSpecificDataTypes.pluginSpecificTypes);
             Map.Entry<String, String> parameter = new SimpleEntry<>(value, appsmithType.type().toString());
             insertedParams.add(parameter);
 
@@ -667,23 +666,6 @@ public class MySqlPlugin extends BasePlugin {
             }
 
             return invalids;
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .flatMap(connection -> Mono.from(connection.close()))
-                    .then(Mono.just(new DatasourceTestResult()))
-                    .onErrorResume(error -> {
-                        // We always expect to have an error object, but the error object may not be well formed
-                        final String errorMessage = error.getMessage() == null
-                                ? AppsmithPluginError.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getMessage()
-                                : error.getMessage();
-                        log.debug("Error when testing MySQL datasource. {}", errorMessage);
-                        return Mono.just(new DatasourceTestResult(errorMessage));
-                    })
-                    .subscribeOn(scheduler);
-
         }
 
         /**

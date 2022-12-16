@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
   InlineEditingSaveOptions,
   TableWidgetProps,
@@ -11,6 +11,7 @@ import {
   updateColumnOrderHook,
   updateInlineEditingSaveOptionHook,
   updateInlineEditingOptionDropdownVisibilityHook,
+  updateCustomColumnAliasOnLabelChange,
 } from "../propertyUtils";
 import {
   createMessage,
@@ -50,6 +51,7 @@ export default [
         updateHook: composePropertyUpdateHook([
           updateColumnOrderHook,
           updateInlineEditingOptionDropdownVisibilityHook,
+          updateCustomColumnAliasOnLabelChange,
         ]),
         dependencies: [
           "columnOrder",
@@ -81,7 +83,8 @@ export default [
         propertyName: "inlineEditingSaveOption",
         helpText: "Choose the save experience to save the edited cell",
         label: "Update Mode",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) => {
@@ -100,11 +103,11 @@ export default [
         ],
         options: [
           {
-            label: "Row level",
+            label: "Single Row",
             value: InlineEditingSaveOptions.ROW_LEVEL,
           },
           {
-            label: "Custom",
+            label: "Multi Row",
             value: InlineEditingSaveOptions.CUSTOM,
           },
         ],
@@ -144,8 +147,6 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        hidden: (props: TableWidgetProps) => !props.isVisiblePagination,
-        dependencies: ["isVisiblePagination"],
       },
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
@@ -166,9 +167,8 @@ export default [
             },
           },
         },
-        hidden: (props: TableWidgetProps) =>
-          !props.isVisiblePagination || !props.serverSidePaginationEnabled,
-        dependencies: ["serverSidePaginationEnabled", "isVisiblePagination"],
+        hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
       },
       {
         helpText: "Triggers an action when a table page is changed",
@@ -178,9 +178,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        hidden: (props: TableWidgetProps) =>
-          !props.isVisiblePagination || !props.serverSidePaginationEnabled,
-        dependencies: ["isVisiblePagination", "serverSidePaginationEnabled"],
+        hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
       },
       {
         helpText: "Triggers an action when a table page size is changed",
@@ -190,9 +189,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        hidden: (props: TableWidgetProps) =>
-          !props.isVisiblePagination || !props.serverSidePaginationEnabled,
-        dependencies: ["isVisiblePagination", "serverSidePaginationEnabled"],
+        hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
       },
     ],
   },
@@ -212,6 +210,7 @@ export default [
       {
         propertyName: "enableClientSideSearch",
         label: "Client Side Search",
+        helpText: "Searches all results only on the data which is loaded",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -221,6 +220,7 @@ export default [
       {
         propertyName: "defaultSearchText",
         label: "Default Search Text",
+        helpText: "Adds a search text by default",
         controlType: "INPUT_TEXT",
         placeholderText: "{{appsmith.user.name}}",
         isBindProperty: true,
@@ -232,6 +232,7 @@ export default [
       {
         propertyName: "onSearchTextChanged",
         label: "onSearchTextChanged",
+        helpText: "Triggers an action when search text is modified by the user",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,
@@ -302,6 +303,7 @@ export default [
       {
         propertyName: "multiRowSelection",
         label: "Enable Multi-row Selection",
+        helpText: "Allows users to select multiple rows",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -345,6 +347,84 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.isSortable,
         dependencies: ["isSortable"],
+      },
+    ],
+  },
+  {
+    sectionName: "Adding a row",
+    children: [
+      {
+        propertyName: "allowAddNewRow",
+        helpText: "Enables adding a new row",
+        isJSConvertible: true,
+        label: "Allow adding a row",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        propertyName: "onAddNewRowSave",
+        helpText:
+          "Triggers an action when a add new row save button is clicked",
+        label: "onSave",
+        controlType: "ACTION_SELECTOR",
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        dependencies: ["allowAddNewRow", "primaryColumns"],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: (props: TableWidgetProps) => {
+          const newRow: Record<string, unknown> = {};
+
+          if (props.primaryColumns) {
+            Object.values(props.primaryColumns)
+              .filter((column) => !column.isDerived)
+              .forEach((column) => {
+                newRow[column.alias] = "";
+              });
+          }
+
+          return {
+            newRow,
+          };
+        },
+      },
+      {
+        propertyName: "onAddNewRowDiscard",
+        helpText:
+          "Triggers an action when a add new row discard button is clicked",
+        label: "onDiscard",
+        controlType: "ACTION_SELECTOR",
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        dependencies: ["allowAddNewRow"],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+      {
+        propertyName: "defaultNewRow",
+        helpText: "Default new row values",
+        label: "Default Values",
+        controlType: "INPUT_TEXT",
+        dependencies: ["allowAddNewRow"],
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.OBJECT,
+          params: {
+            default: {},
+          },
+        },
       },
     ],
   },

@@ -23,6 +23,7 @@ export default {
         {
           propertyName: "discardActionLabel",
           label: "Text",
+          helpText: "Sets the label text of the button",
           controlType: "TABLE_COMPUTE_VALUE",
           dependencies: ["primaryColumns"],
           isBindProperty: true,
@@ -37,6 +38,7 @@ export default {
         {
           propertyName: "onDiscard",
           label: "onDiscard",
+          helpText: "Triggers an action when the discard button is clicked",
           controlType: "ACTION_SELECTOR",
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             const baseProperty = getBasePropertyPath(propertyPath);
@@ -60,7 +62,7 @@ export default {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.TABLE_PROPERTY,
+            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
               type: ValidationTypes.BOOLEAN,
             },
@@ -69,6 +71,7 @@ export default {
         {
           propertyName: "isDiscardDisabled",
           label: "Disabled",
+          helpText: "Disables clicks to the discard button",
           defaultValue: false,
           controlType: "SWITCH",
           customJSControl: "TABLE_COMPUTE_VALUE",
@@ -76,7 +79,7 @@ export default {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.TABLE_PROPERTY,
+            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
               type: ValidationTypes.BOOLEAN,
             },
@@ -113,7 +116,7 @@ export const discardButtonStyleConfig = {
           dependencies: ["primaryColumns"],
           isBindProperty: true,
           validation: {
-            type: ValidationTypes.TABLE_PROPERTY,
+            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
               type: ValidationTypes.TEXT,
               params: {
@@ -126,7 +129,8 @@ export const discardButtonStyleConfig = {
         {
           propertyName: "discardButtonVariant",
           label: "Button Variant",
-          controlType: "DROP_DOWN",
+          controlType: "ICON_TABS",
+          fullWidth: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
           isJSConvertible: true,
           helpText: "Sets the variant of the discard button",
@@ -149,7 +153,7 @@ export const discardButtonStyleConfig = {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.TABLE_PROPERTY,
+            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
               type: ValidationTypes.TEXT,
               params: {
@@ -175,7 +179,7 @@ export const discardButtonStyleConfig = {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.TABLE_PROPERTY,
+            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
               type: ValidationTypes.TEXT,
             },
@@ -198,7 +202,7 @@ export const discardButtonStyleConfig = {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.TABLE_PROPERTY,
+            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
               type: ValidationTypes.TEXT,
               params: {
@@ -212,6 +216,7 @@ export const discardButtonStyleConfig = {
           label: "Position",
           helpText: "Sets the icon alignment of the discard button",
           controlType: "ICON_TABS",
+          fullWidth: true,
           defaultValue: "left",
           options: [
             {

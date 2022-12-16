@@ -4,7 +4,6 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { useSelector } from "store";
 import { AppState } from "@appsmith/reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
@@ -20,7 +19,7 @@ import { DropTargetContext } from "components/editorComponents/DropTargetCompone
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";

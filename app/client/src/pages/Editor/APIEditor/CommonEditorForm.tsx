@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   HTTP_METHOD_OPTIONS,
@@ -28,21 +28,22 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Button,
+  Callout,
   Case,
+  Classes,
   Icon,
   IconSize,
   SearchSnippet,
   Size,
+  TabComponent,
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
-import { Classes, Variant } from "components/ads/common";
-import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -63,7 +64,14 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 import { getPlugin } from "selectors/entitiesSelector";
-import { executeCommandAction } from "../../../actions/apiPaneActions";
+import {
+  hasDeleteActionPermission,
+  hasExecuteActionPermission,
+  hasManageActionPermission,
+} from "@appsmith/utils/permissionHelpers";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
+import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
 
 const Form = styled.form`
   position: relative;
@@ -90,6 +98,7 @@ const Form = styled.form`
 `;
 
 const MainConfiguration = styled.div`
+  z-index: 7;
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
@@ -215,7 +224,7 @@ const Link = styled.a`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 110px);
+  height: calc(100% - 135px);
   position: relative;
 `;
 export interface CommonFormProps {
@@ -528,8 +537,10 @@ function ImportedDatas(props: { data: any; attributeName: string }) {
  * @returns Editor with respect to which type is using it
  */
 function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
-  const [selectedIndex, setSelectedIndex] = useState(
-    props.defaultTabSelected || 0,
+  const selectedIndex = useSelector(getApiPaneConfigSelectedTabIndex);
+  const setSelectedIndex = useCallback(
+    (index: number) => dispatch(setApiPaneConfigSelectedTabIndex(index)),
+    [],
   );
   const [
     apiBindHelpSectionVisible,
@@ -567,6 +578,15 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
+  const isChangePermitted = hasManageActionPermission(
+    currentActionConfig?.userPermissions,
+  );
+  const isExecutePermitted = hasExecuteActionPermission(
+    currentActionConfig?.userPermissions,
+  );
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentActionConfig?.userPermissions,
+  );
 
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, pluginId ?? ""),
@@ -601,12 +621,14 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
         <MainConfiguration>
           <FormRow className="form-row-header">
             <NameWrapper className="t--nameOfApi">
-              <ActionNameEditor page="API_PANE" />
+              <ActionNameEditor disabled={!isChangePermitted} page="API_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreActionsMenu
                 className="t--more-action-menu"
                 id={currentActionConfig ? currentActionConfig.id : ""}
+                isChangePermitted={isChangePermitted}
+                isDeletePermitted={isDeletePermitted}
                 name={currentActionConfig ? currentActionConfig.name : ""}
                 pageId={pageId}
               />
@@ -617,6 +639,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
               <Button
                 className="t--apiFormRunBtn"
+                disabled={!isExecutePermitted}
                 isLoading={isRunning}
                 onClick={() => {
                   onRunClick();
@@ -634,6 +657,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             >
               <RequestDropdownField
                 className={`t--apiFormHttpMethod ${replayHighlightClass}`}
+                disabled={!isChangePermitted}
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}
@@ -758,6 +782,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             </TabbedViewContainer>
             <ApiResponseView
               apiName={actionName}
+              disabled={!isExecutePermitted}
               onRunClick={onRunClick}
               responseDataTypes={responseDataTypes}
               responseDisplayFormat={responseDisplayFormat}

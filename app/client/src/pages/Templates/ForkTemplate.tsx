@@ -1,6 +1,11 @@
 import React, { ReactNode, useState } from "react";
-import Dialog from "components/ads/DialogComponent";
-import { Button, Category, Dropdown, Size } from "design-system";
+import {
+  Button,
+  Category,
+  DialogComponent as Dialog,
+  Dropdown,
+  Size,
+} from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {
@@ -87,7 +92,7 @@ function ForkTemplate({
         />
         <ButtonsWrapper>
           <Button
-            category={Category.tertiary}
+            category={Category.secondary}
             disabled={isImportingTemplate}
             onClick={onClose}
             size={Size.large}

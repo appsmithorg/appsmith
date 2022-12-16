@@ -4,10 +4,10 @@ let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Json & JsonB Datatype tests", function() {
   before(() => {
@@ -17,6 +17,14 @@ describe("Json & JsonB Datatype tests", function() {
     });
   });
 
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   //#region Json Datatype
 
   it("0. Importing App & setting theme", () => {
@@ -24,8 +32,7 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeThemeColor(33, "Primary");
-    propPane.ChangeThemeColor(39, "Background");
+    appSettings.OpenPaneAndChangeThemeColors(33, 39);
   });
 
   it("1. Creating table query - jsonbooks", () => {
@@ -35,7 +42,7 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-
+    ee.SelectEntityByName(dsName, "Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.jsonbooks"));
   });
@@ -349,8 +356,7 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeThemeColor(12, "Primary");
-    propPane.ChangeThemeColor(23, "Background");
+    appSettings.OpenPaneAndChangeThemeColors(12, 23);
   });
 
   it("15. Creating enum & table queries - jsonBbooks", () => {
@@ -368,6 +374,7 @@ describe("Json & JsonB Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
+    ee.SelectEntityByName(dsName, "Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer("public.jsonBbooks"),
