@@ -174,6 +174,9 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
+      if (this.props.serverSidePagination && !this.props.pageSize) {
+        this.onPageChange(this.props.pageNo);
+      }
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
