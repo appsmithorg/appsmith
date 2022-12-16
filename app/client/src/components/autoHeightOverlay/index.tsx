@@ -220,7 +220,10 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     function onMaxStop() {
       setIsMaxDotDragging(false);
 
-      if (mindY !== 0) {
+      // if dragging the max also changed the min
+      // change it only if there is a one row
+      // difference
+      if (mindY !== 0 && maxY + maxdY - (minY + mindY) === 10) {
         updateMinHeight(minY + mindY);
         setMindY(0);
       }
@@ -251,6 +254,10 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
 
       const snapped = getSnappedValues(dx, dy, snapGrid);
 
+      if (snapped.y === 0) {
+        return;
+      }
+
       if (minY + snapped.y >= maxY + maxdY) {
         setMaxdY(10 + snapped.y - (maxY - minY));
       }
@@ -266,21 +273,15 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
         setMindY(0);
       }
 
-      if (maxdY !== 0) {
+      // if dragging the min also changed the max
+      // change it only if there is a one row
+      // difference
+      if (maxdY !== 0 && maxY + maxdY - (minY + mindY) === 10) {
         updateMaxHeight(maxY + maxdY);
         setMaxdY(0);
       }
 
       onAnyDotStop();
-
-      // const heightToSet = minY + mindY;
-
-      // if (heightToSet === maxY + maxdY) {
-      //   batchUpdate(heightToSet);
-      // } else {
-      //   updateMinHeight(heightToSet);
-      //   setMindY(0);
-      // }
     }
 
     function onMinDotStart() {
