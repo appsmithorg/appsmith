@@ -17,6 +17,8 @@ describe("Property Pane Search", function() {
     // Initially the search input will only be soft focused
     // We need to press Enter to properly focus it
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
+    agHelper.Sleep(100);
+
     agHelper.PressEnter();
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
 
