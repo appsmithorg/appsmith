@@ -236,6 +236,13 @@ class SwitchGroupWidget extends BaseWidget<
         ],
       },
       {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
+      {
         sectionName: "Events",
         children: [
           {
@@ -255,13 +262,6 @@ class SwitchGroupWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return [
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
       {
         sectionName: "Label Styles",
         children: [

@@ -300,6 +300,13 @@ class SingleSelectTreeWidget extends BaseWidget<
         ],
       },
       {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
+      {
         sectionName: "Events",
         children: [
           {
@@ -344,13 +351,6 @@ class SingleSelectTreeWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return [
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
       {
         sectionName: "Label Styles",
         children: [

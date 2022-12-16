@@ -302,6 +302,13 @@ class ButtonGroupWidget extends BaseWidget<
                   ],
                 },
                 {
+                  sectionName: "Responsive Layout",
+                  children: [
+                    generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+                    generateVerticalAlignmentConfig(),
+                  ],
+                },
+                {
                   sectionName: "Events",
                   hidden: (
                     props: ButtonGroupWidgetProps,
@@ -518,13 +525,6 @@ class ButtonGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-        ],
-      },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
         ],
       },
       {

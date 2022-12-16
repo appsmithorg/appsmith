@@ -273,6 +273,13 @@ export const contentConfig = [
     ],
   },
   {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+      generateVerticalAlignmentConfig(),
+    ],
+  },
+  {
     sectionName: "Events",
     children: [
       {
@@ -460,13 +467,6 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
 ];
 
 export const styleConfig = [
-  {
-    sectionName: "Responsive Layout",
-    children: [
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-      generateVerticalAlignmentConfig(),
-    ],
-  },
   {
     sectionName: "Color",
     children: [

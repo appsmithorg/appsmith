@@ -98,6 +98,14 @@ export const PropertyPaneContentConfig = [
     ],
   },
   {
+    sectionName: "Responsive Layout",
+    children: [
+      generatePositioningConfig(Positioning.Fixed),
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+      generateVerticalAlignmentConfig(),
+    ],
+  },
+  {
     sectionName: "Events",
     children: [
       {
@@ -147,14 +155,6 @@ export const PropertyPaneStyleConfig = [
         inputType: "INTEGER",
         validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
       },
-    ],
-  },
-  {
-    sectionName: "Responsive Layout",
-    children: [
-      generatePositioningConfig(Positioning.Fixed),
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-      generateVerticalAlignmentConfig(),
     ],
   },
   {

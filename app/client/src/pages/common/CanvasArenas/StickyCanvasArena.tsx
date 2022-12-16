@@ -33,10 +33,6 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   overflow-y: auto;
 `;
 
-const StickyCanvas = styled.canvas`
-  position: absolute;
-`;
-
 export const StickyCanvasArena = forwardRef(
   (props: StickyCanvasArenaProps, ref: any) => {
     const {

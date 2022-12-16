@@ -130,11 +130,6 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           },
         ],
       },
-    ];
-  }
-
-  static getPropertyPaneStyleConfig() {
-    return [
       {
         sectionName: "Responsive Layout",
         children: [
@@ -142,6 +137,11 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           generateVerticalAlignmentConfig(),
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
         sectionName: "Color",
         children: [

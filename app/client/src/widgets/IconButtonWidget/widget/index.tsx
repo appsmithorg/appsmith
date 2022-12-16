@@ -114,6 +114,13 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
     ];
   }
 
@@ -157,13 +164,6 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
               },
             },
           },
-        ],
-      },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
         ],
       },
       {

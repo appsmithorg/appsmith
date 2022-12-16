@@ -47,11 +47,6 @@ class StatboxWidget extends ContainerWidget {
           },
         ],
       },
-    ];
-  }
-
-  static getPropertyPaneStyleConfig() {
-    return [
       {
         sectionName: "Responsive Layout",
         children: [
@@ -60,6 +55,11 @@ class StatboxWidget extends ContainerWidget {
           generateVerticalAlignmentConfig(),
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
         sectionName: "Color",
         children: [

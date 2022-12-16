@@ -98,6 +98,13 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
     ];
   }
 
@@ -214,13 +221,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
               type: ValidationTypes.TEXT,
             },
           },
-        ],
-      },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
         ],
       },
       {

@@ -69,11 +69,6 @@ export class ContainerWidget extends BaseWidget<
           },
         ],
       },
-    ];
-  }
-
-  static getPropertyPaneStyleConfig() {
-    return [
       {
         sectionName: "Responsive Layout",
         children: [
@@ -82,6 +77,11 @@ export class ContainerWidget extends BaseWidget<
           generateVerticalAlignmentConfig(),
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
         sectionName: "Color",
         children: [

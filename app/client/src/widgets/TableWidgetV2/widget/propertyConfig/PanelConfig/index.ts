@@ -1,21 +1,22 @@
-import Events from "./Events";
-import Data from "./Data";
-import General, { GeneralStyle } from "./General";
+import { updateCustomColumnAliasOnLabelChange } from "../../propertyUtils";
+import Alignment from "./Alignment";
 import Basic from "./Basic";
-import SaveButtonProperties, {
-  saveButtonStyleConfig,
-} from "./SaveButtonProperties";
+import BorderAndShadow from "./BorderAndShadow";
+import Color from "./Color";
+import Data from "./Data";
 import DiscardButtonproperties, {
   discardButtonStyleConfig,
 } from "./DiscardButtonproperties";
+import Events from "./Events";
+import General, { GeneralStyle } from "./General";
 import Icon from "./Icon";
-import TextFormatting from "./TextFormatting";
-import Alignment from "./Alignment";
-import Color from "./Color";
-import BorderAndShadow from "./BorderAndShadow";
-import Validations from "./Validation";
+import ResponsiveBehavior from "./ResponsiveBehavior";
+import SaveButtonProperties, {
+  saveButtonStyleConfig,
+} from "./SaveButtonProperties";
 import Select from "./Select";
-import { updateCustomColumnAliasOnLabelChange } from "../../propertyUtils";
+import TextFormatting from "./TextFormatting";
+import Validations from "./Validation";
 
 export default {
   editableTitle: true,
@@ -26,6 +27,7 @@ export default {
     Data,
     Basic,
     General,
+    ResponsiveBehavior,
     Validations,
     SaveButtonProperties,
     DiscardButtonproperties,

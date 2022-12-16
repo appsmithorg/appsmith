@@ -89,6 +89,13 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
         ],
       },
       {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
+      {
         sectionName: "Events",
         children: [
           {
@@ -118,13 +125,6 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: true,
           },
-        ],
-      },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
         ],
       },
     ];
