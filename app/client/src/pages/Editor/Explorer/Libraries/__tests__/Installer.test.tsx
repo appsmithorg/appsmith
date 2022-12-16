@@ -72,7 +72,7 @@ describe("Contains all UI tests for JS libraries", () => {
       </Provider>,
     );
     const input = screen.getByTestId("library-url");
-    fireEvent.change(input, { target: { value: "https://valid.com" } });
+    fireEvent.change(input, { target: { value: "https://valid.com/file.js" } });
     expect(screen.getByTestId("install-library-btn")).toBeEnabled();
     expect(screen.queryByText("Please enter a valid URL")).toBeNull();
     fireEvent.change(input, { target: { value: "23" } });
