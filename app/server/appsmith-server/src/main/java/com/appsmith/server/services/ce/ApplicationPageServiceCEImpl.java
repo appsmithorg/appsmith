@@ -569,7 +569,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
                                 return Mono.zip(layoutActionService.createAction(
                                                         action.getUnpublishedAction(),
-                                                        eventContext)
+                                                        eventContext, Boolean.FALSE)
                                                 .map(ActionDTO::getId),
                                         Mono.justOrEmpty(originalActionId)
                                 );
