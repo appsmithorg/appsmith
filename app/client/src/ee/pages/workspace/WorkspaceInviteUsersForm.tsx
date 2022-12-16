@@ -82,6 +82,8 @@ import { useHistory } from "react-router-dom";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
 import TagListField from "../../utils/TagInput";
+import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -159,9 +161,18 @@ const StyledInviteFieldGroupEE = styled(StyledInviteFieldGroup)`
   }
 `;
 
+const StyledUserList = styled(UserList)`
+  .user-icons {
+    width: 34px;
+    height: 34px;
+    justify-content: center;
+  }
+`;
+
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
+  const user = useSelector(getCurrentUser);
   const userRef = React.createRef<HTMLDivElement>();
   /*const featureFlags = useSelector(selectFeatureFlags);*/
   const history = useHistory();
@@ -252,7 +263,7 @@ function WorkspaceInviteUsersForm(props: any) {
           };
         });
 
-  if (isEEFeature) {
+  if (isEEFeature && showAdminSettings(user)) {
     styledRoles.push({
       id: "custom-pg",
       value: "Assign Custom Role",
@@ -457,7 +468,7 @@ function WorkspaceInviteUsersForm(props: any) {
               </MailConfigContainer>
             )}
             {!disableUserList && (
-              <UserList
+              <StyledUserList
                 ref={userRef}
                 style={{ justifyContent: "space-between" }}
               >
@@ -518,7 +529,7 @@ function WorkspaceInviteUsersForm(props: any) {
                   },
                 )}
                 <ScrollIndicator containerRef={userRef} mode="DARK" />
-              </UserList>
+              </StyledUserList>
             )}
           </>
         )}
