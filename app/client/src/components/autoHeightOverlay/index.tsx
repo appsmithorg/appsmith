@@ -63,7 +63,6 @@ interface AutoHeightOverlayProps extends AutoHeightOverlayContainerProps {
 
 const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
   ({
-    batchUpdate,
     isHidden,
     maxDynamicHeight,
     minDynamicHeight,
@@ -201,7 +200,9 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
       const snapped = getSnappedValues(dx, dy, snapGrid);
 
       if (maxY + snapped.y <= minY + mindY) {
-        setMindY(snapped.y + (maxY - minY) - 10);
+        setMindY(
+          snapped.y + (maxY - minY) - GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
       }
 
       setMaxdY(snapped.y);
@@ -223,7 +224,10 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
       // if dragging the max also changed the min
       // change it only if there is a one row
       // difference
-      if (mindY !== 0 && maxY + maxdY - (minY + mindY) === 10) {
+      if (
+        mindY !== 0 &&
+        maxY + maxdY - (minY + mindY) === GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ) {
         updateMinHeight(minY + mindY);
         setMindY(0);
       }
@@ -259,7 +263,9 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
       }
 
       if (minY + snapped.y >= maxY + maxdY) {
-        setMaxdY(10 + snapped.y - (maxY - minY));
+        setMaxdY(
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT + snapped.y - (maxY - minY),
+        );
       }
 
       setMindY(snapped.y);
@@ -276,7 +282,10 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
       // if dragging the min also changed the max
       // change it only if there is a one row
       // difference
-      if (maxdY !== 0 && maxY + maxdY - (minY + mindY) === 10) {
+      if (
+        maxdY !== 0 &&
+        maxY + maxdY - (minY + mindY) === GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ) {
         updateMaxHeight(maxY + maxdY);
         setMaxdY(0);
       }
