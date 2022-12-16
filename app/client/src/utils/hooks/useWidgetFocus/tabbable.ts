@@ -1,12 +1,13 @@
 export const CANVAS_WIDGET = '[type="CANVAS_WIDGET"]';
 export const CONTAINER_SELECTOR =
   ":is(.t--widget-containerwidget, .t--widget-formwidget)";
-const NON_FOCUSABLE_WIDGET_CLASS = ".t--widget-textwidget";
+const NON_FOCUSABLE_WIDGET_CLASS =
+  ".t--widget-textwidget, t--widget-ratewidget [disabled]";
 export const JSONFORM_WIDGET = ".t--widget-jsonformwidget";
 export const CHECKBOXGROUP_WIDGET = ".t--widget-checkboxgroupwidget";
 export const FOCUS_SELECTOR =
-  "a, input, select, textarea, button, object, audio, video";
-export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}):not([disabled]))`;
+  "a, input, select, textarea, button, object, audio, video, [tabindex='-1']";
+export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}))`;
 const TABBABLE_NODES = /input|select|textarea|button|object/;
 
 /**
@@ -47,6 +48,8 @@ export function getNextTabbableDescendant(
   descendants: HTMLElement[],
   shiftKey = false,
 ) {
+  console.log({ descendants });
+
   const nextTabbableDescendant = descendants[0];
 
   // if nextTabbableDescendant is a container,

@@ -46,6 +46,8 @@ export function scopeTab(event: KeyboardEvent) {
       }
   }
 
+  console.log({ nextTabbableDescendant });
+
   if (nextTabbableDescendant) {
     event.preventDefault();
 
