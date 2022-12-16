@@ -244,7 +244,10 @@ function PropertyPaneView(
       >
         {isContentConfigAvailable || isStyleConfigAvailable ? (
           <>
-            <PropertyPaneSearchInput onTextChange={setSearchText} />
+            <PropertyPaneSearchInput
+              id={widgetProperties.widgetId}
+              onTextChange={setSearchText}
+            />
             {searchText.length > 0 ? (
               <PropertyControlsGenerator
                 config={disableWidgetFeatures(

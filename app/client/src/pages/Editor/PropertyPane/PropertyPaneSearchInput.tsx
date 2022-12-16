@@ -3,13 +3,16 @@ import styled from "styled-components";
 import { SearchVariant } from "design-system";
 import { InputWrapper, SearchInput } from "design-system";
 import { Colors } from "constants/Colors";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getShouldFocusPanelPropertySearch,
   getShouldFocusPropertySearch,
 } from "selectors/propertyPaneSelectors";
 import { isCurrentFocusOnInput } from "utils/editorContextUtils";
 import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "@appsmith/constants/messages";
+import { setFocusableInputField } from "actions/editorContextActions";
+import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
+import { AppState } from "@appsmith/reducers";
 
 const SearchInputWrapper = styled.div`
   position: sticky;
@@ -32,6 +35,7 @@ const StyledSearchInput = React.memo(styled(SearchInput)`
 type PropertyPaneSearchInputProps = {
   onTextChange: (text: string) => void;
   isPanel?: boolean;
+  id: string;
 };
 
 export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
@@ -39,13 +43,17 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
   const inputRef = useRef<HTMLDivElement>(null);
   const shouldFocusSearch = useSelector(getShouldFocusPropertySearch);
   const shouldFocusPanelSearch = useSelector(getShouldFocusPanelPropertySearch);
+  const dispatch = useDispatch();
   const isPanel = !!props.isPanel;
 
+  const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
+    getIsInputFieldFocused(state, `${props.id}.property-pane-search`),
+  );
   useEffect(() => {
     // Checks if the property pane opened not because of focusing an input inside a widget
     const isActiveFocusNotFromWidgetInput = !isCurrentFocusOnInput();
     if (
-      shouldFocusSearch &&
+      (shouldFocusPropertyPath || shouldFocusSearch) &&
       isActiveFocusNotFromWidgetInput &&
       // while the panel transition happens, focus will be happening twice. Once on the main pane and then on the panel
       // The following check will make sure that the focus is only done once and prevents the UI jittering
@@ -60,7 +68,12 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
         isPanel ? 300 : 0,
       );
     }
-  }, [shouldFocusSearch, shouldFocusPanelSearch, isPanel]);
+  }, [
+    shouldFocusSearch,
+    shouldFocusPropertyPath,
+    shouldFocusPanelSearch,
+    isPanel,
+  ]);
 
   const handleInputKeydown = useCallback((e: KeyboardEvent) => {
     switch (e.key) {
@@ -86,9 +99,14 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
     };
   }, []);
 
+  const handleOnFocus = () => {
+    dispatch(setFocusableInputField(`${props.id}.property-pane-search`));
+  };
+
   return (
     <SearchInputWrapper
       className="t--property-pane-search-input-wrapper"
+      onFocus={handleOnFocus}
       onKeyDown={handleWrapperKeydown}
       ref={wrapperRef}
       tabIndex={0}
