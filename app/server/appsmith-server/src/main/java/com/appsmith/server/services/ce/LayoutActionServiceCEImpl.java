@@ -10,6 +10,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Layout;
@@ -97,10 +98,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action) {
         if (action.getCollectionId() == null) {
-            return this.createSingleAction(action);
+            return this.createSingleAction(action, Boolean.FALSE);
         }
 
-        return this.createSingleAction(action)
+        return this.createSingleAction(action, Boolean.FALSE)
                 .flatMap(savedAction -> collectionService.addSingleActionToCollection(action.getCollectionId(), savedAction));
     }
 
@@ -841,19 +842,19 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         defaultResources.setCollectionId(action.getCollectionId());
                     }
                     action.setDefaultResources(defaultResources);
-                    return createSingleAction(action);
+                    return createSingleAction(action, Boolean.FALSE);
                 })
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
-    public Mono<ActionDTO> createSingleAction(ActionDTO action) {
+    public Mono<ActionDTO> createSingleAction(ActionDTO action, Boolean isJsAction) {
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
-        return createAction(action, eventContext);
+        return createAction(action, eventContext, isJsAction);
     }
 
     @Override
-    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext) {
+    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction) {
 
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -875,8 +876,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         newAction.setPublishedAction(new ActionDTO());
         newAction.getPublishedAction().setDatasource(new Datasource());
 
+        // If the action is a JS action, then we don't need to validate the page. Fetch the page with read.
+        // Else fetch the page with create action permission to ensure that the user has the right to create an action
+        AclPermission aclPermission = isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
+
         Mono<NewPage> pageMono = newPageService
-                .findById(action.getPageId(), pagePermission.getActionCreatePermission())
+                .findById(action.getPageId(), aclPermission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .cache();
