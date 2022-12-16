@@ -23,6 +23,7 @@ import {
   migrateTableWidgetIconButtonVariant,
   migrateTableWidgetV2Validation,
   migrateTableWidgetV2ValidationBinding,
+  migrateTableWidgetV2SelectOption,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -1140,6 +1141,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 71) {
+    currentDSL = migrateTableWidgetV2SelectOption(currentDSL);
+    currentDSL.version = 72;
+  }
+
+  if (currentDSL.version === 72) {
     currentDSL = migrateInputWidgetShowStepArrows(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

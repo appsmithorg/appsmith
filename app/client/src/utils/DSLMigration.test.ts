@@ -694,11 +694,20 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetV2SelectOption",
+      },
+    ],
+    version: 71,
+  },
+  {
+    functionLookup: [
+      {
         moduleObj: inputCurrencyMigration,
         functionName: "migrateInputWidgetShowStepArrows",
       },
     ],
-    version: 71,
+    version: 72,
   },
 ];
 

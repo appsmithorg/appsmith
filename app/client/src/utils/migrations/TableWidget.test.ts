@@ -8,6 +8,7 @@ import {
   migrateTableSanitizeColumnKeys,
   migrateTableWidgetNumericColumnName,
   migrateTableWidgetV2ValidationBinding,
+  migrateTableWidgetV2SelectOption,
 } from "./TableWidget";
 
 const input1: DSLWidget = {
@@ -2670,6 +2671,57 @@ describe("migrateTableWidgetV2ValidationBinding", () => {
                   "step",
                 )}`,
               },
+            },
+          },
+        },
+      ],
+    });
+  });
+});
+
+describe("migrateTableWidgetV2SelectOption", () => {
+  it("should test that binding of selectOption is getting updated", () => {
+    expect(
+      migrateTableWidgetV2SelectOption(({
+        children: [
+          {
+            widgetName: "Table",
+            type: "TABLE_WIDGET_V2",
+            primaryColumns: {
+              step: {
+                columnType: "select",
+                selectOptions: "[{label: 1, value: 2}]",
+              },
+              task: {
+                columnType: "select",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+              status: {
+                columnType: "text",
+                selectOptions: "{{[{label: 1, value: 2}]}}",
+              },
+            },
+          },
+        ],
+      } as any) as DSLWidget),
+    ).toEqual({
+      children: [
+        {
+          widgetName: "Table",
+          type: "TABLE_WIDGET_V2",
+          primaryColumns: {
+            step: {
+              columnType: "select",
+              selectOptions: "[{label: 1, value: 2}]",
+            },
+            task: {
+              columnType: "select",
+              selectOptions:
+                "{{Table.processedTableData.map((currentRow, currentIndex) => ( [{label: 1, value: 2}]))}}",
+            },
+            status: {
+              columnType: "text",
+              selectOptions: "{{[{label: 1, value: 2}]}}",
             },
           },
         },
