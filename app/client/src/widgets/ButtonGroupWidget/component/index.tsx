@@ -347,25 +347,22 @@ function PopoverContent(props: PopoverContentProps) {
       onClick,
       textColor,
     } = menuItem;
-    if (iconAlign === Alignment.RIGHT) {
-      return (
-        <BaseMenuItem
-          backgroundColor={backgroundColor}
-          disabled={isDisabled}
-          key={id}
-          labelElement={<Icon color={iconColor} icon={iconName} />}
-          onClick={() => onItemClicked(onClick, buttonId)}
-          text={label}
-          textColor={textColor}
-        />
-      );
-    }
+
     return (
       <BaseMenuItem
         backgroundColor={backgroundColor}
         disabled={isDisabled}
-        icon={<Icon color={iconColor} icon={iconName} />}
+        icon={
+          iconAlign !== Alignment.RIGHT && iconName ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : null
+        }
         key={id}
+        labelElement={
+          iconAlign === Alignment.RIGHT && iconName ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : null
+        }
         onClick={() => onItemClicked(onClick, buttonId)}
         text={label}
         textColor={textColor}
