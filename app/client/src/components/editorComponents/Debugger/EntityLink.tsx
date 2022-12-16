@@ -14,9 +14,9 @@ import {
   getAllWidgetsMap,
   getDatasource,
 } from "selectors/entitiesSelector";
-import { getSelectedWidget } from "selectors/ui";
+import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL, jsCollectionIdURL } from "RouteBuilder";
 
@@ -79,7 +79,7 @@ function JSCollectionLink(props: EntityLinkProps) {
 
 function WidgetLink(props: EntityLinkProps) {
   const widgetMap = useSelector(getAllWidgetsMap);
-  const selectedWidgetId = useSelector(getSelectedWidget);
+  const selectedWidgetId = useSelector(getLastSelectedWidget);
   const { navigateToWidget } = useNavigateToWidget();
 
   const onClick = useCallback(() => {
@@ -90,8 +90,8 @@ function WidgetLink(props: EntityLinkProps) {
       props.id,
       widget.type,
       widget.pageId,
+      NavigationMethod.EntityExplorer,
       props.id === selectedWidgetId,
-      widget.parentModalId,
     );
     AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
       entityType: "WIDGET",

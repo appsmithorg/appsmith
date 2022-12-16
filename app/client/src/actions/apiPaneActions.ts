@@ -53,9 +53,10 @@ export const setLastSelectedPage = (
 export const createNewApiAction = (
   pageId: string,
   from: EventLocation,
-): ReduxAction<{ pageId: string; from: EventLocation }> => ({
+  apiType?: string,
+): ReduxAction<{ pageId: string; from: EventLocation; apiType?: string }> => ({
   type: ReduxActionTypes.CREATE_NEW_API_ACTION,
-  payload: { pageId, from },
+  payload: { pageId, from, apiType },
 });
 
 export const createNewQueryAction = (
@@ -93,4 +94,32 @@ export const redirectToNewIntegrations = (
 export const executeCommandAction = (payload: SlashCommandPayload) => ({
   type: ReduxActionTypes.EXECUTE_COMMAND,
   payload: payload,
+});
+
+export const setApiPaneConfigSelectedTabIndex: (
+  payload: number,
+) => ReduxAction<{ selectedTabIndex: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_API_PANE_CONFIG_SELECTED_TAB,
+  payload: { selectedTabIndex: payload },
+});
+
+export const setApiPaneResponseSelectedTab: (
+  payload: string,
+) => ReduxAction<{ selectedTab: string }> = (payload: string) => ({
+  type: ReduxActionTypes.SET_API_PANE_RESPONSE_SELECTED_TAB,
+  payload: { selectedTab: payload },
+});
+
+export const setApiPaneResponsePaneHeight: (
+  payload: number,
+) => ReduxAction<{ height: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_API_PANE_RESPONSE_PANE_HEIGHT,
+  payload: { height: payload },
+});
+
+export const setApiRightPaneSelectedTab: (
+  payload: number,
+) => ReduxAction<{ selectedTab: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_API_RIGHT_PANE_SELECTED_TAB,
+  payload: { selectedTab: payload },
 });

@@ -19,11 +19,12 @@ import com.arangodb.model.CollectionCreateOptions;
 import com.arangodb.model.CollectionSchema;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -33,15 +34,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Unit tests for ArangoDBPlugin
- */
-
+@Testcontainers
 public class ArangoDBPluginTest {
 
     ArangoDBPlugin.ArangoDBPluginExecutor pluginExecutor = new ArangoDBPlugin.ArangoDBPluginExecutor();
@@ -55,14 +53,14 @@ public class ArangoDBPluginTest {
     private static ArangoDB arangoDB;
 
     @SuppressWarnings("rawtypes")
-    @ClassRule
+    @Container
     public static GenericContainer container = new GenericContainer(DockerImageName.parse("arangodb/arangodb:3.7.12"))
             .withEnv(Map.of("ARANGO_ROOT_PASSWORD", password))
             .withExposedPorts(8529)
             .waitingFor(Wait.forHttp("/"));
 
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         address = container.getContainerIpAddress();
         port = container.getFirstMappedPort();
@@ -149,17 +147,17 @@ public class ArangoDBPluginTest {
 
         //insert test documents
         collection.insertDocuments(
-        List.of(Map.of(
-                        "name", "Cierra Vega",
-                        "gender", "F",
-                        "age", 20,
-                        "luckyNumber", 987654321L,
-                        "dob", LocalDate.of(2018, 12, 31),
-                        "netWorth", new BigDecimal("123456.789012")
-                ),
-                Map.of("name", "Alden Cantrell", "gender", "M", "age", 30),
-                Map.of("name", "Kierra Gentry", "gender", "F", "age", 40)
-        ));
+                List.of(Map.of(
+                                "name", "Cierra Vega",
+                                "gender", "F",
+                                "age", 20,
+                                "luckyNumber", 987654321L,
+                                "dob", LocalDate.of(2018, 12, 31),
+                                "netWorth", new BigDecimal("123456.789012")
+                        ),
+                        Map.of("name", "Alden Cantrell", "gender", "M", "age", 30),
+                        Map.of("name", "Kierra Gentry", "gender", "F", "age", 40)
+                ));
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {

@@ -32,10 +32,16 @@ describe("Git sync modal: merge tab", function() {
       .should("eq", "true");
 
     cy.get(gitSyncLocators.mergeButton).should("be.disabled");
+    cy.wait(3000);
     cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
     cy.get(commonLocators.dropdownmenu)
       .contains(mainBranch)
       .click();
+    cy.wait("@mergeStatus").should(
+      "have.nested.property",
+      "response.body.data.isMergeAble",
+      true,
+    );
     cy.wait(2000);
     cy.get(gitSyncLocators.mergeButton).should("be.enabled");
     cy.get(gitSyncLocators.closeGitSyncModal).click();

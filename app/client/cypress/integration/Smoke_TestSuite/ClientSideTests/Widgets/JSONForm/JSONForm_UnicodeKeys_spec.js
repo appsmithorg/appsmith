@@ -1,11 +1,21 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormUnicodeDSLWithoutSourceData = require("../../../../../fixtures/jsonFormUnicodeDSLWithoutSourceData.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = ".t--property-pane-back-btn";
 
 describe("JSON Form Widget Unicode keys", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
   it("generates fields with valid source data json", () => {
     cy.addDsl(dslWithoutSchema);
     const sourceData = {
@@ -209,7 +219,7 @@ describe("JSON Form Widget Unicode keys", () => {
 
     // open field суроға -> شارع
     cy.openFieldConfiguration("xn__80a1afdk69b");
-    cy.openFieldConfiguration("xn__mgbuhw");
+    cy.openFieldConfiguration("xn__mgbuhw", false);
     cy.testJsontext("propertyname", "شارع1 شارع");
     cy.get(backBtn)
       .click({ force: true })
@@ -226,8 +236,8 @@ describe("JSON Form Widget Unicode keys", () => {
 
     // open field การศึกษา -> array item -> କଲେଜ
     cy.openFieldConfiguration("xn__12ca5huag4ce3a");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("xn__ohco9d4d");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("xn__ohco9d4d", false);
     cy.testJsontext("propertyname", "ସ୍ନାତକ କଲେଜ");
 
     cy.wait(5000);

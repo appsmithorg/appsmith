@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -16,6 +17,8 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Flux<PermissionGroup> findAllByIds(Set<String> ids);
 
     Mono<PermissionGroup> bulkUnassignFromUsers(String permissionGroupId, List<User> users);
+
+    Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(Set<String> userIds, Set<String> permissionGroupIds);
 
     Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace, AclPermission permission);
 
@@ -35,6 +38,8 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     
     Mono<Void> delete(String id);
 
+    Mono<Void> deleteWithoutPermission(String id);
+
     Mono<PermissionGroup> findById(String permissionGroupId);
 
     Mono<PermissionGroup> bulkUnassignFromUsers(PermissionGroup permissionGroup, List<User> users);
@@ -42,4 +47,10 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Flux<PermissionGroup> getByDefaultWorkspaces(Set<String> workspaceIds, AclPermission permission);
 
     Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds);
+
+    Mono<PermissionGroup> getPublicPermissionGroup();
+
+    Mono<String> getPublicPermissionGroupId();
+
+    boolean isEntityAccessible(BaseDomain object, String permission, String publicPermissionGroupId);
 }

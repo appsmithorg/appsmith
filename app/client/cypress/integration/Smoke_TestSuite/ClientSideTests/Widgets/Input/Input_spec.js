@@ -49,7 +49,7 @@ describe("Input Widget Functionality", function() {
       .invoke("attr", "value")
       .should("contain", this.data.para);
     //cy.openPropertyPane("inputwidgetv2");
-    cy.testJsontext("defaulttext", this.data.defaultdata);
+    cy.testJsontext("defaultvalue", this.data.defaultdata);
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.defaultdata);
@@ -177,6 +177,8 @@ describe("Input Widget Functionality", function() {
 
   it("Input icon shows on icon select", () => {
     cy.selectDropdownValue(commonlocators.dataType, "Text");
+    cy.wait(1000);
+    cy.moveToStyleTab();
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
     });
@@ -187,11 +189,12 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input value of number type should reflect the default text value 0", () => {
+    cy.moveToContentTab();
     cy.selectDropdownValue(commonlocators.dataType, "Number");
     /*cy.get(widgetsPage.defaultInput)
       .click({ force: true })
       .type("0");*/
-    cy.testJsontext("defaulttext", "0");
+    cy.testJsontext("defaultvalue", "0");
     cy.closePropertyPane("inputwidgetv2");
     cy.get(widgetsPage.innertext)
       .invoke("val")

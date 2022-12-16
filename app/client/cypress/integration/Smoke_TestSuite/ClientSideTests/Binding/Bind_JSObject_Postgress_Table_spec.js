@@ -15,7 +15,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
   it("1. Create a query and populate response by choosing addWidget and validate in Table Widget & Bug 7413", () => {
     cy.addDsl(dsl);
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.NavigateToActiveDSQueryPane(datasourceName);
@@ -33,7 +33,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
       cy.onlyQueryRun();
       cy.get(queryEditor.suggestedTableWidget).click();
       cy.createJSObject("return Query1.data;");
-      cy.CheckAndUnfoldEntityItem("WIDGETS");
+      cy.CheckAndUnfoldEntityItem("Widgets");
       cy.get(".t--entity-name")
         .contains("Table1")
         .click({ force: true });

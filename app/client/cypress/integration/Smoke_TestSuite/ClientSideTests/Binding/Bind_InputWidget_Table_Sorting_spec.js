@@ -9,7 +9,7 @@ describe("Binding the Table and input Widget", function() {
 
   it("1. Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
+    cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -51,7 +51,7 @@ describe("Binding the Table and input Widget", function() {
 
   it("3. Validation of column id displayed in input widgets based on sorted column", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.testJsontext("defaulttext", testdata.sortedColumn + "}}");
+    cy.testJsontext("defaultvalue", testdata.sortedColumn + "}}");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

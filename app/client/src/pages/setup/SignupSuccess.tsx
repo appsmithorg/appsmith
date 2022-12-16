@@ -13,9 +13,8 @@ import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import React from "react";
 import { useCallback } from "react";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "store";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
 import PerformanceTracker, {

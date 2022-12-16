@@ -391,13 +391,13 @@ describe("Input widget V2 - ", () => {
       `{{Input1.text}}:{{Input1.value}}:{{Input1.isValid}}`,
     );
     cy.openPropertyPane(widgetName);
-    cy.updateCodeInput(".t--property-control-defaulttext", `test`);
+    cy.updateCodeInput(".t--property-control-defaultvalue", `test`);
     // wait for evaluations
     cy.wait(300);
     cy.get(`.t--widget-${widgetName} input`).should("contain.value", "test");
     cy.get(".t--widget-textwidget").should("contain", "test:test:true");
 
-    cy.updateCodeInput(".t--property-control-defaulttext", `anotherText`);
+    cy.updateCodeInput(".t--property-control-defaultvalue", `anotherText`);
     // wait for evaluations
     cy.wait(300);
     cy.get(`.t--widget-${widgetName} input`).should(
@@ -411,13 +411,13 @@ describe("Input widget V2 - ", () => {
 
     cy.selectDropdownValue(".t--property-control-datatype", "Number");
 
-    cy.updateCodeInput(".t--property-control-defaulttext", `{{1}}`);
+    cy.updateCodeInput(".t--property-control-defaultvalue", `{{1}}`);
     // wait for evaluations
     cy.wait(300);
     cy.get(`.t--widget-${widgetName} input`).should("contain.value", "1");
     cy.get(".t--widget-textwidget").should("contain", "1:1:true");
 
-    cy.updateCodeInput(".t--property-control-defaulttext", `{{1.00010000}}`);
+    cy.updateCodeInput(".t--property-control-defaultvalue", `{{1.00010000}}`);
     // wait for evaluations
     cy.wait(300);
     cy.get(`.t--widget-${widgetName} input`).should("contain.value", "1.0001");
@@ -430,7 +430,7 @@ describe("Input widget V2 - ", () => {
     // Init isDirty
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype", "Text");
-    cy.updateCodeInput(".t--property-control-defaulttext", "a");
+    cy.updateCodeInput(".t--property-control-defaultvalue", "a");
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -442,7 +442,7 @@ describe("Input widget V2 - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
     cy.openPropertyPane(widgetName);
-    cy.updateCodeInput(".t--property-control-defaulttext", "c");
+    cy.updateCodeInput(".t--property-control-defaultvalue", "c");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });

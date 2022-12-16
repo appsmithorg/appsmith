@@ -1,13 +1,9 @@
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
 const homePage = require("../../../locators/HomePage");
 const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
-const widgetsPage = require("../../../locators/Widgets.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const jsEditorLocators = require("../../../locators/JSEditor.json");
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  jsEditor = ObjectsRegistry.JSEditor;
-const newPage = "TableTest";
+let jsEditor = ObjectsRegistry.JSEditor;
 
 describe("JSEditor tests", function() {
   before(() => {
@@ -16,6 +12,7 @@ describe("JSEditor tests", function() {
   beforeEach(() => {
     cy.startServerAndRoutes();
   });
+
   it("Testing promises with resetWidget, storeValue action and API call", () => {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("TC1api");
@@ -44,7 +41,7 @@ describe("JSEditor tests", function() {
         },
         clearStore: async () => { //function to clear store values
           Object.keys(appsmith.store).forEach((eachKey) => {
-            storeValue(eachKey, 'undefined')	
+            storeValue(eachKey, 'undefined')
             //return showAlert(eachKey)
            })
         }
@@ -56,7 +53,7 @@ describe("JSEditor tests", function() {
         shouldCreateNewJSObj: true,
       },
     );
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("Page1")`).click();
     cy.wait(2000);
     // verify text in the text widget
@@ -125,7 +122,7 @@ describe("JSEditor tests", function() {
     ); */
   });
   it.skip("Testing dynamic widgets display using consecutive storeValue calls", () => {
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-item:contains(JSObject1)");
     cy.xpath("//span[name='expand-more']").click();
     cy.get("[data-cy='t--dropdown-option-clearStore']").click();

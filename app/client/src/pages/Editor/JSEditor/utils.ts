@@ -17,6 +17,7 @@ import {
   NodeTypes,
   SourceType,
 } from "@shared/ast";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;
@@ -101,7 +102,7 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
 
 export const getJSFunctionLineGutter = (
   jsActions: JSAction[],
-  runFuction: (jsAction: JSAction) => void,
+  runFuction: (jsAction: JSAction, from: EventLocation) => void,
   showGutters: boolean,
   onFocusAction: (jsAction: JSAction) => void,
 ): CodeEditorGutter => {
@@ -118,7 +119,9 @@ export const getJSFunctionLineGutter = (
       return config && action
         ? {
             line: config.line,
-            element: createGutterMarker(() => runFuction(action)),
+            element: createGutterMarker(() =>
+              runFuction(action, "JS_OBJECT_GUTTER_RUN_BUTTON"),
+            ),
             isFocusedAction: () => {
               onFocusAction(action);
             },

@@ -25,8 +25,9 @@ import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
-import { LabelWithTooltip } from "design-system";
 import useDropdown from "widgets/useDropdown";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import { isNil } from "lodash";
 
 export interface TreeSelectProps
   extends Required<
@@ -44,11 +45,15 @@ export interface TreeSelectProps
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
+  onDropdownOpen?: () => void;
+  onDropdownClose?: () => void;
   labelStyle?: string;
+  labelTooltip?: string;
   compactMode: boolean;
   dropDownWidth: number;
   width: number;
   isValid: boolean;
+  isDynamicHeightEnabled: boolean;
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
@@ -109,6 +114,7 @@ function SingleSelectTreeComponent({
   dropDownWidth,
   expandAll,
   filterText,
+  isDynamicHeightEnabled,
   isFilterable,
   isValid,
   labelAlignment,
@@ -117,9 +123,12 @@ function SingleSelectTreeComponent({
   labelText,
   labelTextColor,
   labelTextSize,
+  labelTooltip,
   labelWidth,
   loading,
   onChange,
+  onDropdownClose,
+  onDropdownOpen,
   options,
   placeholder,
   renderMode,
@@ -145,6 +154,8 @@ function SingleSelectTreeComponent({
   } = useDropdown({
     inputRef,
     renderMode,
+    onDropdownOpen,
+    onDropdownClose,
   });
 
   // treeDefaultExpandAll is uncontrolled after first render,
@@ -220,6 +231,12 @@ function SingleSelectTreeComponent({
     // Clear the search input on closing the widget
     setFilter("");
   };
+  const allowClearMemo = useMemo(
+    () => allowClear && !isNil(value) && value !== "",
+    [allowClear, value],
+  );
+
+  const memoValue = useMemo(() => (value !== "" ? value : undefined), [value]);
 
   return (
     <TreeSelectContainer
@@ -245,9 +262,12 @@ function SingleSelectTreeComponent({
           className={`tree-select-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="tree-select-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
           ref={labelRef}
@@ -257,7 +277,7 @@ function SingleSelectTreeComponent({
       )}
       <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
         <TreeSelect
-          allowClear={allowClear}
+          allowClear={allowClearMemo}
           animation="slide-up"
           choiceTransitionName="rc-tree-select-selection__choice-zoom"
           className="rc-tree-select"
@@ -304,7 +324,7 @@ function SingleSelectTreeComponent({
           treeDefaultExpandAll={expandAll}
           treeIcon
           treeNodeFilterProp="label"
-          value={filter ? "" : value} // value should empty when filter value exist otherwise dropdown flickers #12714
+          value={memoValue}
         />
       </InputContainer>
     </TreeSelectContainer>

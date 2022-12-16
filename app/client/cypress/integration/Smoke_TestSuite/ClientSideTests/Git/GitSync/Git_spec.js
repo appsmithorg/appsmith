@@ -124,7 +124,7 @@ describe("Git sync:", function() {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
     cy.get(explorerLocators.explorerSwitchId).click({ force: true });
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("NewPage");
     cy.commitAndPush();
     cy.merge(mainBranch);
@@ -151,7 +151,7 @@ describe("Git sync:", function() {
     });
 
     cy.switchGitBranch(mainBranch);
-
+    cy.get(gitSyncLocators.bottomBarCommitButton).should("be.visible");
     cy.get(gitSyncLocators.gitPullCount);
 
     cy.intercept("GET", "/api/v1/git/pull/app/*").as("gitPull");

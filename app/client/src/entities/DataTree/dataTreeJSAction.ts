@@ -1,17 +1,18 @@
 import {
-  DataTreeJSAction,
   ENTITY_TYPE,
-  MetaArgs,
+  UnEvalTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
+
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
+import { MetaArgs } from "./types";
 
 const reg = /this\./g;
 
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
-): DataTreeJSAction => {
+): UnEvalTreeJSAction => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
@@ -43,6 +44,7 @@ export const generateDataTreeJSAction = (
         arguments: action.actionConfiguration.jsArguments,
         isAsync: action.actionConfiguration.isAsync,
         confirmBeforeExecute: !!action.confirmBeforeExecute,
+        body: action.actionConfiguration.body,
       };
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
@@ -54,17 +56,20 @@ export const generateDataTreeJSAction = (
   }
   return {
     ...variableList,
-    name: js.config.name,
-    actionId: js.config.id,
-    pluginType: js.config.pluginType,
-    ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body: removeThisReference,
-    meta: meta,
-    bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
-    reactivePaths: { ...bindingPaths },
-    dynamicBindingPathList: dynamicBindingPathList,
-    variables: listVariables,
-    dependencyMap: dependencyMap,
     ...actionsData,
+    body: removeThisReference,
+    ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+    __config__: {
+      meta: meta,
+      name: js.config.name,
+      actionId: js.config.id,
+      pluginType: js.config.pluginType,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
+      reactivePaths: { ...bindingPaths },
+      dynamicBindingPathList: dynamicBindingPathList,
+      variables: listVariables,
+      dependencyMap: dependencyMap,
+    },
   };
 };

@@ -20,14 +20,14 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("1. Input widget test with default value from another Input widget", () => {
-        ee.SelectEntityByName("Input1", 'WIDGETS')
-        propPane.UpdatePropertyFieldValue("Default Text", dataSet.defaultInputBinding + "}}");
+        ee.SelectEntityByName("Input1", 'Widgets')
+        propPane.UpdatePropertyFieldValue("Default Value", dataSet.defaultInputBinding + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 
     it("2. Binding second input widget with first input widget and validating", function () {
         ee.SelectEntityByName("Input2")
-        propPane.UpdatePropertyFieldValue("Default Text", dataSet.momentInput + "}}");
+        propPane.UpdatePropertyFieldValue("Default Value", dataSet.momentInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });
 

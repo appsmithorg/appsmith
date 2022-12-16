@@ -70,6 +70,16 @@ before(function() {
         Cypress.env("TESTPASSWORD2"),
       );
       cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME3"),
+        Cypress.env("TESTPASSWORD3"),
+      );
+      cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME4"),
+        Cypress.env("TESTPASSWORD4"),
+      );
+      cy.LogOut();
     }
   });
 });
@@ -114,7 +124,8 @@ after(function() {
   //-- LogOut Application---//
   cy.LogOut();
 
-  const testUrl = "http://localhost:5001/v1/parent/cmd";
-  cy.log("Start the appsmith container");
-  cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
+  //Commenting until Upgrade Appsmith cases are fixed
+  // const testUrl = "http://localhost:5001/v1/parent/cmd";
+  // cy.log("Start the appsmith container");
+  // cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
 });

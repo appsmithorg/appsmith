@@ -82,7 +82,7 @@ describe("MultiSelect Widget Functionality", function() {
       ]`,
     );
     cy.updateCodeInput(
-      ".t--property-control-defaultvalue",
+      ".t--property-control-defaultselectedvalues",
       `[
         {
           "label": "Green",
@@ -93,9 +93,9 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(".t--property-control-options .t--codemirror-has-error").should(
       "not.exist",
     );
-    cy.get(".t--property-control-defaultvalue .t--codemirror-has-error").should(
-      "not.exist",
-    );
+    cy.get(
+      ".t--property-control-defaultselectedvalues .t--codemirror-has-error",
+    ).should("not.exist");
     cy.wait(100);
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-item-content")
@@ -122,7 +122,7 @@ describe("MultiSelect Widget Functionality", function() {
       ]`,
     );
     cy.updateCodeInput(
-      ".t--property-control-defaultvalue",
+      ".t--property-control-defaultselectedvalues",
       `[
       "GREEN",
       "RED"
@@ -131,9 +131,9 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(".t--property-control-options .t--codemirror-has-error").should(
       "not.exist",
     );
-    cy.get(".t--property-control-defaultvalue .t--codemirror-has-error").should(
-      "not.exist",
-    );
+    cy.get(
+      ".t--property-control-defaultselectedvalues .t--codemirror-has-error",
+    ).should("not.exist");
     cy.wait(100);
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-item-content")

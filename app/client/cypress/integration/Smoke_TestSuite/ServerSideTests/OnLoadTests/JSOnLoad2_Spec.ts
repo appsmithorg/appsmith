@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let datasourceName: any;
+let datasourceName: any, jsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -175,7 +175,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("7. Tc #1909 - Verify the sequence of of JS object on page load", () => {
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1");
     jsEditor.EnableDisableAsyncFuncSettings("astros", true, false);
     jsEditor.EnableDisableAsyncFuncSettings("city", true, false);
@@ -189,6 +189,56 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.RefreshPage();
 
     agHelper.ValidateToastMessage("ran successfully", 0, 5);
+  });
+
+  it("8. Tc 51, 52 Verify that JS editor function has a settings button available for functions marked async", () => {
+    jsEditor.CreateJSObject(
+      `export default {
+        myVar1: [],
+        myVar2: {},
+        myFun1: () => {	},
+        myFun2: async () => {	},
+        myFun3: async () => {	},
+        myFun4: async () => {	},
+        myFun5: async () => {	},
+        myFun6: async () => {	},
+        myFun7: () => {	},
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+
+    jsEditor.VerifyAsyncFuncSettings("myFun2", false, false);
+    jsEditor.VerifyAsyncFuncSettings("myFun3", false, false);
+    jsEditor.VerifyAsyncFuncSettings("myFun4", false, false);
+    jsEditor.VerifyAsyncFuncSettings("myFun5", false, false);
+    jsEditor.VerifyAsyncFuncSettings("myFun6", false, false);
+
+    VerifyFunctionDropdown(
+      ["myFun1", "myFun7"],
+      [
+        "myFun2Async",
+        "myFun3Async",
+        "myFun4Async",
+        "myFun5Async",
+        "myFun6Async",
+      ],
+    );
+
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsName = jsObjName;
+      ee.SelectEntityByName(jsName as string, "Queries/JS");
+      ee.ActionContextMenuByEntityName(
+        jsName as string,
+        "Delete",
+        "Are you sure?",
+        true,
+      );
+    });
   });
 
   function AssertJSOnPageLoad(
@@ -214,5 +264,22 @@ describe("JSObjects OnLoad Actions tests", function() {
     deployMode.NavigateBacktoEditor();
     agHelper.ClickButton("No");
     agHelper.Sleep(2000);
+  }
+
+  function VerifyFunctionDropdown(
+    syncFunctions: string[],
+    asyncFunctions: string[],
+  ) {
+    cy.get(jsEditor._funcDropdown).click();
+    cy.get(jsEditor._funcDropdownOptions).then(function($ele) {
+      expect($ele.eq(0).text()).to.be.oneOf(syncFunctions);
+      expect($ele.eq(1).text()).to.be.oneOf(asyncFunctions);
+      expect($ele.eq(2).text()).to.be.oneOf(asyncFunctions);
+      expect($ele.eq(3).text()).to.be.oneOf(asyncFunctions);
+      expect($ele.eq(4).text()).to.be.oneOf(asyncFunctions);
+      expect($ele.eq(5).text()).to.be.oneOf(asyncFunctions);
+      expect($ele.eq(6).text()).to.be.oneOf(syncFunctions);
+    });
+    cy.get(jsEditor._funcDropdown).click();
   }
 });

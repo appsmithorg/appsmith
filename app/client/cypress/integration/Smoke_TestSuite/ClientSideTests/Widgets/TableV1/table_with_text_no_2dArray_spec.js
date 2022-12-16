@@ -13,7 +13,7 @@ describe("Table widget edge case scenario testing", function() {
     cy.openPropertyPane("tablewidget");
 
     //Enable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
+    cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)
       .first()
       .click({ force: true });
 
@@ -21,14 +21,14 @@ describe("Table widget edge case scenario testing", function() {
     cy.updateCodeInput(".t--property-control-defaultselectedrow", "1");
 
     //Disable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
+    cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)
       .first()
       .click({ force: true });
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should("have.text", "[]");
 
     //Enable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
+    cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)
       .first()
       .click({ force: true });
 
@@ -38,12 +38,12 @@ describe("Table widget edge case scenario testing", function() {
     );
 
     //Disable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
+    cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)
       .first()
       .click({ force: true });
 
     //Enable Multi row select
-    cy.get(widgetsPage.toggleEnableMultirowselection)
+    cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)
       .first()
       .click({ force: true });
 

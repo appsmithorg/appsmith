@@ -4,24 +4,23 @@ import { connect, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import CopyToClipBoard from "components/ads/CopyToClipBoard";
+import { CopyToClipboard } from "design-system";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "../Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import WorkspaceInviteUsersForm, {
   InviteButtonWidth,
-} from "./WorkspaceInviteUsersForm";
+} from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Text, TextType } from "design-system";
-import Toggle from "components/ads/Toggle";
+import { Text, TextType, Toggle } from "design-system";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
-import { fetchWorkspace } from "actions/workspaceActions";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import useWorkspace from "utils/hooks/useWorkspace";
 
-const StyledCopyToClipBoard = styled(CopyToClipBoard)`
+const StyledCopyToClipBoard = styled(CopyToClipboard)`
   margin-bottom: 24px;
 `;
 
@@ -119,6 +118,7 @@ function AppInviteUsersForm(props: any) {
       </Title>
       <StyledCopyToClipBoard
         btnWidth={InviteButtonWidth}
+        className="t--deployed-url"
         copyText={appViewEndPoint}
       />
 

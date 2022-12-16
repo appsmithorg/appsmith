@@ -11,7 +11,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -19,7 +19,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +40,9 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-//@RunWith(SpringRunner.class)
 @Slf4j
 @SpringBootTest
 @DirtiesContext
@@ -147,14 +146,6 @@ public class UserWorkspaceServiceTest {
         this.workspace = workspaceRepository.save(workspace).block();
     }
 
-    @After
-    public void clear() {
-        User currentUser = userRepository.findByEmail("api_user").block();
-        currentUser.getWorkspaceIds().remove(workspace.getId());
-        userRepository.save(currentUser);
-        workspaceRepository.deleteById(workspace.getId()).block();
-    }
-
     @Test
     @WithUserDetails(value = "api_user")
     public void leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser() {
@@ -171,7 +162,7 @@ public class UserWorkspaceServiceTest {
 
         Set<String> uniqueUsersInWorkspaceBefore = userWorkspaceService.getWorkspaceMembers(workspace.getId())
                 .flatMapMany(workspaceMembers -> Flux.fromIterable(workspaceMembers))
-                .map(UserAndPermissionGroupDTO::getUserId)
+                .map(WorkspaceMemberInfoDTO::getUserId)
                 .collect(Collectors.toSet())
                 .block();
 
@@ -254,7 +245,7 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
-        Mono<UserAndPermissionGroupDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+        Mono<WorkspaceMemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
 
         StepVerifier.create(updateUserRoleMono).expectErrorMessage(
                 AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()
@@ -294,7 +285,7 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
-        Mono<UserAndPermissionGroupDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+        Mono<WorkspaceMemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
 
         StepVerifier.create(updateUserRoleMono)
                 .assertNext(userRole1 -> {
@@ -305,4 +296,13 @@ public class UserWorkspaceServiceTest {
                 )
                 .verifyComplete();
     }
+
+    @AfterEach
+    public void clear() {
+        User currentUser = userRepository.findByEmail("api_user").block();
+        currentUser.getWorkspaceIds().remove(workspace.getId());
+        userRepository.save(currentUser);
+        workspaceRepository.deleteById(workspace.getId()).block();
+    }
+
 }

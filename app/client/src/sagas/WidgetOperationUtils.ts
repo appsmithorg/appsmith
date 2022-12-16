@@ -4,7 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import _, { isString, remove } from "lodash";
+import _, { find, isString, reduce, remove } from "lodash";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -34,7 +34,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
-import { areIntersecting } from "utils/WidgetPropsUtils";
+import { areIntersecting } from "utils/boxHelpers";
 import {
   GridProps,
   PrevReflowState,
@@ -52,7 +52,9 @@ import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "../workers/evaluationUtils";
+import { isWidget } from "workers/Evaluation/evaluationUtils";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { MetaState } from "reducers/entityReducers/metaReducer";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -300,53 +302,114 @@ export function getWidgetChildrenIds(
   }
   return childrenIds;
 }
+function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
+  return reduce(
+    widgetsMeta,
+    function(
+      result: {
+        childrenWidgetsMeta: MetaState;
+        otherWidgetsMeta: MetaState;
+      },
+      currentWidgetMeta,
+      key,
+    ) {
+      return key.startsWith(parentId + "_")
+        ? {
+            ...result,
+            childrenWidgetsMeta: {
+              ...result.childrenWidgetsMeta,
+              [key]: currentWidgetMeta,
+            },
+          }
+        : {
+            ...result,
+            otherWidgetsMeta: {
+              ...result.otherWidgetsMeta,
+              [key]: currentWidgetMeta,
+            },
+          };
+    },
+    {
+      childrenWidgetsMeta: {},
+      otherWidgetsMeta: {},
+    },
+  );
+}
 
-export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };
+export type DescendantWidgetMap = {
+  id: string;
+  // To accomodate metaWidgets which might not be present on the evalTree, evaluatedWidget might be undefined
+  evaluatedWidget: DataTreeWidget | undefined;
+};
+
 /**
- * getWidgetChildren: It gets all the child widgets of given widget's id with evaluated values
- *
+ * As part of widget's descendant, we add both children and metaWidgets.
+ * children are assessed from "widget.children"
+ * metaWidgets are assessed from the metaState, since we care about only metawidgets whose values have been changed.
+ * NB: metaWidgets id start with parentId + "_"
  */
-export function getWidgetChildren(
+export function getWidgetDescendantToReset(
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   evaluatedDataTree: DataTree,
-): ChildrenWidgetMap[] {
-  const childrenList: ChildrenWidgetMap[] = [];
+  widgetsMeta: MetaState,
+): DescendantWidgetMap[] {
+  const descendantList: DescendantWidgetMap[] = [];
   const widget = _.get(canvasWidgets, widgetId);
-  // When a form widget tries to resetChildrenMetaProperties
-  // But one or more of its container like children
-  // have just been deleted, widget can be undefined
-  if (widget === undefined) {
-    return [];
+
+  const sortedWidgetsMeta = sortWidgetsMetaByParent(widgetsMeta, widgetId);
+  for (const childMetaWidgetId of Object.keys(
+    sortedWidgetsMeta.childrenWidgetsMeta,
+  )) {
+    const evaluatedChildWidget = find(evaluatedDataTree, function(entity) {
+      return isWidget(entity) && entity.widgetId === childMetaWidgetId;
+    }) as DataTreeWidget | undefined;
+    descendantList.push({
+      id: childMetaWidgetId,
+      evaluatedWidget: evaluatedChildWidget,
+    });
+    const grandChildren = getWidgetDescendantToReset(
+      canvasWidgets,
+      childMetaWidgetId,
+      evaluatedDataTree,
+      sortedWidgetsMeta.otherWidgetsMeta,
+    );
+    if (grandChildren.length) {
+      descendantList.push(...grandChildren);
+    }
   }
 
-  const { children = [] } = widget;
-  if (children && children.length) {
-    for (const childIndex in children) {
-      if (children.hasOwnProperty(childIndex)) {
-        const childWidgetId = children[childIndex];
+  if (widget) {
+    const { children = [] } = widget;
+    if (children && children.length) {
+      for (const childIndex in children) {
+        if (children.hasOwnProperty(childIndex)) {
+          const childWidgetId = children[childIndex];
 
-        const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
-        const childWidgetName = childCanvasWidget.widgetName;
-        const childWidget = evaluatedDataTree[childWidgetName];
-        if (isWidget(childWidget)) {
-          childrenList.push({
-            id: childWidgetId,
-            evaluatedWidget: childWidget,
-          });
-          const grandChildren = getWidgetChildren(
-            canvasWidgets,
-            childWidgetId,
-            evaluatedDataTree,
-          );
-          if (grandChildren.length) {
-            childrenList.push(...grandChildren);
+          const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
+          const childWidgetName = childCanvasWidget.widgetName;
+          const childWidget = evaluatedDataTree[childWidgetName];
+          if (isWidget(childWidget)) {
+            descendantList.push({
+              id: childWidgetId,
+              evaluatedWidget: childWidget,
+            });
+            const grandChildren = getWidgetDescendantToReset(
+              canvasWidgets,
+              childWidgetId,
+              evaluatedDataTree,
+              sortedWidgetsMeta.otherWidgetsMeta,
+            );
+            if (grandChildren.length) {
+              descendantList.push(...grandChildren);
+            }
           }
         }
       }
     }
   }
-  return childrenList;
+
+  return descendantList;
 }
 
 export const getParentWidgetIdForPasting = function*(
@@ -1456,16 +1519,13 @@ export const getParentBottomRowAfterAddingWidget = (
 ) => {
   const parentRowSpace =
     newWidget.parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const newBottomRow =
+    (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+    parentRowSpace;
   const updateBottomRow =
     stateParent.type === "CANVAS_WIDGET" &&
-    newWidget.bottomRow * parentRowSpace > stateParent.bottomRow;
-  return updateBottomRow
-    ? Math.max(
-        (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-          parentRowSpace,
-        stateParent.bottomRow,
-      )
-    : stateParent.bottomRow;
+    newBottomRow > stateParent.bottomRow;
+  return updateBottomRow ? newBottomRow : stateParent.bottomRow;
 };
 
 /**
@@ -1668,4 +1728,83 @@ export function mergeDynamicPropertyPaths(
   b?: DynamicPath[],
 ) {
   return _.unionWith(a, b, (a, b) => a.key === b.key);
+}
+
+/**
+ * returns the BottomRow for CANVAS_WIDGET
+ * @param finalWidgets
+ * @param canvasWidgetId
+ */
+export function resizeCanvasToLowestWidget(
+  finalWidgets: CanvasWidgetsReduxState,
+  canvasWidgetId: string | undefined,
+  currentBottomRow: number,
+  mainCanvasMinHeight?: number, //defined only if canvasWidgetId is MAIN_CONTAINER_ID
+) {
+  if (!canvasWidgetId) return currentBottomRow;
+
+  if (
+    !finalWidgets[canvasWidgetId] ||
+    finalWidgets[canvasWidgetId].type !== "CANVAS_WIDGET"
+  ) {
+    return currentBottomRow;
+  }
+
+  const defaultLowestBottomRow =
+    mainCanvasMinHeight ||
+    finalWidgets[canvasWidgetId].minHeight ||
+    CANVAS_DEFAULT_MIN_HEIGHT_PX;
+
+  const childIds = finalWidgets[canvasWidgetId].children || [];
+
+  let lowestBottomRow = 0;
+  // find the lowest row
+  childIds.forEach((cId) => {
+    const child = finalWidgets[cId];
+
+    if (!child.detachFromLayout && child.bottomRow > lowestBottomRow) {
+      lowestBottomRow = child.bottomRow;
+    }
+  });
+
+  const canvasOffset =
+    canvasWidgetId === MAIN_CONTAINER_WIDGET_ID
+      ? GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET
+      : GridDefaults.CANVAS_EXTENSION_OFFSET;
+
+  return Math.max(
+    defaultLowestBottomRow,
+    (lowestBottomRow + canvasOffset) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+}
+
+/**
+ * Note: Mutates widgets[0].bottomRow for CANVAS_WIDGET
+ * @param widgets
+ * @param parentId
+ */
+export function resizePublishedMainCanvasToLowestWidget(
+  widgets: CanvasWidgetsReduxState,
+) {
+  if (!widgets[MAIN_CONTAINER_WIDGET_ID]) {
+    return;
+  }
+
+  const childIds = widgets[MAIN_CONTAINER_WIDGET_ID].children || [];
+
+  let lowestBottomRow = 0;
+  // find the lowest row
+  childIds.forEach((cId) => {
+    const child = widgets[cId];
+
+    if (!child.detachFromLayout && child.bottomRow > lowestBottomRow) {
+      lowestBottomRow = child.bottomRow;
+    }
+  });
+
+  widgets[MAIN_CONTAINER_WIDGET_ID].bottomRow = Math.max(
+    CANVAS_DEFAULT_MIN_HEIGHT_PX,
+    (lowestBottomRow + GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET) *
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
 }

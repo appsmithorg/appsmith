@@ -14,14 +14,14 @@ describe("JSON Form Widget Custom Field", () => {
     cy.openPropertyPane("jsonformwidget");
 
     // Add new custom field
-    cy.get(".t--property-pane-section-general button")
+    cy.get(".t--add-column-btn")
       .contains("Add a new field")
       .click({ force: true });
 
     cy.openFieldConfiguration("customField1");
 
     cy.testJsontext("propertyname", "gender");
-    cy.testJsontext("label", "Gender");
+    cy.testJsontext("text", "Gender");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Select");
     cy.closePropertyPane();
 
@@ -46,6 +46,7 @@ describe("JSON Form Widget Custom Field", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
+    cy.backFromPropertyPanel();
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
 
     cy.wait(500);

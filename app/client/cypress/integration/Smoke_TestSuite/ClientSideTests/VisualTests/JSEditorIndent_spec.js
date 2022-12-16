@@ -66,7 +66,7 @@ myFun2: async () => {
     homePage.NavigateToHome();
     homePage.DuplicateApplication(appname);
     agHelper.WaitUntilAllToastsDisappear();
-    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
+    ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });
@@ -123,7 +123,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     ee.ClonePage("Page1");
-    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
+    ee.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.Sleep(3000);
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");

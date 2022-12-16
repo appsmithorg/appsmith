@@ -1,5 +1,8 @@
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { createMessage, UPGRADE_TO_EE_GENERIC } from "ce/constants/messages";
+import {
+  createMessage,
+  UPGRADE_TO_EE_GENERIC,
+} from "@appsmith/constants/messages";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 
 const { intercomAppID } = getAppsmithConfigs();

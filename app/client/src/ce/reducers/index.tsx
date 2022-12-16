@@ -12,13 +12,13 @@ import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigRe
 import { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";
 import { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import { DatasourcePaneReduxState } from "reducers/uiReducers/datasourcePaneReducer";
-import { ApplicationsReduxState } from "reducers/uiReducers/applicationsReducer";
+import { ApplicationsReduxState } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
-import { WorkspaceReduxState } from "reducers/uiReducers/workspaceReducer";
+import { WorkspaceReduxState } from "@appsmith/reducers/uiReducers/workspaceReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import { ThemeState } from "reducers/uiReducers/themeReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
@@ -58,8 +58,20 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
+import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import { CanvasWidgetStructure } from "widgets/constants";
+import { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
+import tenantReducer, {
+  TenantReduxState,
+} from "@appsmith/reducers/tenantReducer";
+import { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
+import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
+import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
+import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
+import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import lintErrorReducer from "reducers/lintingReducers";
+import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -67,6 +79,8 @@ export const reducerObject = {
   evaluations: evaluationsReducer,
   form: formReducer,
   settings: SettingsReducer,
+  tenant: tenantReducer,
+  linting: lintErrorReducer,
 };
 
 export interface AppState {
@@ -97,6 +111,7 @@ export interface AppState {
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
+    guidedTour: GuidedTourState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
     websocket: WebsocketReducerState;
@@ -111,6 +126,10 @@ export interface AppState {
     widgetReflow: widgetReflow;
     appTheming: AppThemingState;
     mainCanvas: MainCanvasReduxState;
+    appSettingsPane: AppSettingsPaneReduxState;
+    focusHistory: FocusHistoryState;
+    editorContext: EditorContextState;
+    autoHeightUI: AutoHeightUIState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
@@ -123,6 +142,8 @@ export interface AppState {
     meta: MetaState;
     app: AppDataState;
     jsActions: JSCollectionDataState;
+    autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
+    canvasLevels: CanvasLevelsReduxState;
   };
   evaluations: {
     tree: EvaluatedTreeState;
@@ -131,8 +152,12 @@ export interface AppState {
     formEvaluation: FormEvaluationState;
     triggers: TriggerValuesEvaluationState;
   };
+  linting: {
+    errors: LintErrors;
+  };
   form: {
     [key: string]: any;
   };
   settings: SettingsReduxState;
+  tenant: TenantReduxState;
 }

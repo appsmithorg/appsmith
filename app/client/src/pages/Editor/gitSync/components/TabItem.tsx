@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
-import { TabProp } from "components/ads/Tabs";
+import { Theme } from "constants/DefaultTheme";
+import { getTypographyByKey, TabProp } from "design-system";
 import { Colors } from "constants/Colors";
 
 type WrapperProps = {
@@ -22,7 +22,7 @@ const getSelectedStyles = (props: WrapperProps) =>
 
 const Wrapper = styled.div<WrapperProps>`
   display: flex;
-  ${(props) => getTypographyByKey(props, "p0")};
+  ${getTypographyByKey("p0")};
   ${(props) => getSelectedStyles(props)};
 
   &:hover,

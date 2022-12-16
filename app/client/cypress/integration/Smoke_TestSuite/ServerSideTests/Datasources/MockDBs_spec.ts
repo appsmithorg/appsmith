@@ -1,17 +1,12 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources;
-let mockDBName: any;
 
 describe("Validate Mock Query Active Ds querying & count", () => {
   it("1. Create Query from Mock Mongo DB & verify active queries count", () => {
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Movies"));
-    cy.wait("@getMockDb").then(($createdMock) => {
-      mockDBName = $createdMock.response?.body.data.name;
-
+    dataSources.CreateMockDB("Movies").then((mockDBName) => {
       dataSources.CreateQuery(mockDBName);
       dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
       agHelper.EnterValue("movies", {
@@ -42,7 +37,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
           expect($queryCount).to.eq("2 queries on this page"),
         );
 
-      ee.ExpandCollapseEntity("QUERIES/JS");
+      ee.ExpandCollapseEntity("Queries/JS");
       ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
       ee.ActionContextMenuByEntityName("Query2", "Delete", "Are you sure?");
       dataSources.NavigateToActiveTab();
@@ -58,11 +53,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
   });
 
   it("2. Create Query from Mock Postgres DB & verify active queries count", () => {
-    dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Users"));
-
-    cy.wait("@getMockDb").then(($createdMock) => {
-      mockDBName = $createdMock.response?.body.data.name;
+    dataSources.CreateMockDB("Users").then((mockDBName) => {
       dataSources.CreateQuery(mockDBName);
       agHelper.GetNClick(dataSources._templateMenuOption("Select"));
       dataSources.RunQueryNVerifyResponseViews(10);
@@ -83,7 +74,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
           expect($queryCount).to.eq("2 queries on this page"),
         );
 
-      ee.ExpandCollapseEntity("QUERIES/JS");
+      ee.ExpandCollapseEntity("Queries/JS");
       ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
       ee.ActionContextMenuByEntityName("Query2", "Delete", "Are you sure?");
       dataSources.NavigateToActiveTab();

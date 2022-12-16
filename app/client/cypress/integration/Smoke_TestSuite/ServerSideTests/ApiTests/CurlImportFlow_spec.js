@@ -39,7 +39,7 @@ describe("Test curl import flow", function() {
     });
   });
   it("Bug:15175 Creating new cURL import query from entity explorer crashes the app", function() {
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });

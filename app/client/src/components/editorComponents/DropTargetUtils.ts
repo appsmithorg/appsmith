@@ -1,11 +1,15 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 
 export const calculateDropTargetRows = (
   widgetIdsToExclude: string[],
   widgetBottomRow: number,
   defaultRows: number,
   occupiedSpacesByChildren?: OccupiedSpace[],
+  canvasWidgetId?: string,
 ) => {
   /* Max bottom row including the existing widgets as well as the widget we just dropped */
   let minBottomRow = widgetBottomRow;
@@ -18,7 +22,10 @@ export const calculateDropTargetRows = (
     }, widgetBottomRow);
   }
 
-  return Math.ceil(
-    Math.max(minBottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET, defaultRows),
-  );
+  const canvasOffset =
+    canvasWidgetId === MAIN_CONTAINER_WIDGET_ID
+      ? GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET
+      : GridDefaults.CANVAS_EXTENSION_OFFSET;
+
+  return Math.ceil(Math.max(minBottomRow + canvasOffset, defaultRows));
 };

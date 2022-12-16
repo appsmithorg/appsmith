@@ -322,16 +322,16 @@ export const BlueprintRadioSwitchGroupTransform = css<{
   width: 100%;
   height: 100%;
 
-  ${({ alignment, inline, optionCount }) => `
-    display: ${
-      inline ? "inline-flex" : alignment === Alignment.RIGHT ? "block" : "flex"
-    };
+  ${({ inline, optionCount }) => `
+  display: ${inline ? "inline-flex" : "flex"};
     flex-direction: ${inline ? "row" : "column"};
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
     justify-content: ${
       optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`
     };
+    gap: 10px;
+    flex-grow: 1;
   `}
 
   ${BlueprintControlTransform};
@@ -342,42 +342,17 @@ export const BlueprintRadioSwitchGroupTransform = css<{
       }
       return "flex";
     }};
+    width: ${({ alignment, inline }) => {
+      if (alignment === Alignment.RIGHT) {
+        return inline ? "auto" : "100%";
+      }
+      return "auto";
+    }};
     align-items: center;
     border: 1px solid transparent;
     color: ${Colors.GREY_10};
     line-height: 16px;
-    min-height: ${({ alignment }) =>
-      alignment === Alignment.RIGHT ? 23 : 30}px;
-    margin-top: ${({ alignment }) => (alignment === Alignment.RIGHT ? 7 : 0)}px;
 
-    margin-bottom: ${({
-      alignment,
-      height,
-      inline,
-      labelPosition,
-      optionCount,
-    }) => {
-      if (
-        alignment === Alignment.RIGHT &&
-        !inline &&
-        optionCount > 1 &&
-        height
-      ) {
-        return Math.max(
-          (height -
-            (labelPosition === LabelPosition.Left ? 0 : 35) -
-            optionCount * 31) /
-            (optionCount - 1),
-          8,
-        );
-      } else {
-        return 0;
-      }
-    }}px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
     .bp3-control-indicator {
       margin-top: 0;
       border: 1px solid ${Colors.GREY_5};
@@ -449,7 +424,6 @@ export type Theme = {
   canvasBottomPadding: number;
   navbarMenuHeight: string;
   navbarMenuLineHeight: string;
-  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -1280,7 +1254,6 @@ type ColorType = {
   debugger: {
     background: string;
     messageTextColor: string;
-    time: string;
     label: string;
     entity: string;
     entityLink: string;
@@ -1304,15 +1277,18 @@ type ColorType = {
       color: string;
     };
     info: {
+      time: string;
       borderBottom: string;
     };
     warning: {
+      time: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
       hoverIconColor: string;
     };
     error: {
+      time: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
@@ -1342,9 +1318,6 @@ type ColorType = {
     highlightBackground: string;
     highlightTextColor: string;
     textColor: string;
-  };
-  pagesEditor: {
-    iconColor: string;
   };
   numberedStep: {
     line: string;
@@ -1406,10 +1379,6 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
-};
-
-const pagesEditor = {
-  iconColor: "#A2A6A8",
 };
 
 const toggleMode = {
@@ -2098,7 +2067,6 @@ export const dark: ColorType = {
   debugger: {
     background: darkShades[11],
     messageTextColor: "#D4D4D4",
-    time: "#D4D4D4",
     label: "#D4D4D4",
     entity: "rgba(212, 212, 212, 0.5)",
     entityLink: "#D4D4D4",
@@ -2124,15 +2092,18 @@ export const dark: ColorType = {
       shortcut: "#D4D4D4",
     },
     info: {
+      time: "#D4D4D4",
       borderBottom: "black",
     },
     warning: {
+      time: "#D4D4D4",
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
+      time: "#D4D4D4",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
       borderBottom: "black",
@@ -2145,7 +2116,6 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],
@@ -2730,10 +2700,9 @@ export const light: ColorType = {
   debugger: {
     background: "#FFFFFF",
     messageTextColor: "#716e6e",
-    time: "#4b4848",
-    label: "#4b4848",
+    label: "#575757",
     entity: "rgba(75, 72, 72, 0.7)",
-    entityLink: "#6d6d6d",
+    entityLink: "#575757",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
     evalDebugButton: {
@@ -2756,19 +2725,22 @@ export const light: ColorType = {
       shortcut: "black",
     },
     info: {
-      borderBottom: "rgba(0, 0, 0, 0.05)",
+      time: "#939393",
+      borderBottom: "#E8E8E8",
     },
     warning: {
+      time: "#575757",
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
-      borderBottom: "white",
-      backgroundColor: "rgba(254, 184, 17, 0.1)",
+      borderBottom: "#E8E8E8",
+      backgroundColor: "#FFF8E2",
     },
     error: {
+      time: "#575757",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
-      borderBottom: "white",
-      backgroundColor: "rgba(242, 43, 43, 0.08)",
+      borderBottom: "#E8E8E8",
+      backgroundColor: "#F9E9E9",
     },
   },
   guidedTour,
@@ -2777,7 +2749,6 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],
@@ -2814,7 +2785,7 @@ export const theme: Theme = {
       darkText: lightShades[0],
     },
     appBackground: "#EDEDED",
-    artboard: "#F6F6F6",
+    artboard: "#F8FAFC",
     primaryOld: Colors.GREEN,
     primaryDarker: Colors.JUNGLE_GREEN,
     primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
@@ -2990,7 +2961,6 @@ export const theme: Theme = {
   },
   pageContentWidth: 1224,
   tabPanelHeight: 34,
-  actionsBottomTabInitialHeight: "40%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,

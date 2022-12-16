@@ -24,15 +24,15 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -45,7 +45,7 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -95,17 +95,20 @@ public class ShareWorkspacePermissionTests {
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
 
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+
     Application savedApplication;
 
     Workspace savedWorkspace;
 
     String workspaceId;
 
-    @Before
+    @BeforeEach
     @WithUserDetails(value = "api_user")
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
-        
+
         Workspace workspace = new Workspace();
         workspace.setName("Share Test Workspace");
         savedWorkspace = workspaceService.create(workspace).block();
@@ -119,23 +122,23 @@ public class ShareWorkspacePermissionTests {
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         ArrayList<String> emails = new ArrayList<>();
 
-        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUPS)
-               .collectList().block()
-               .stream()
-               .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
-               .findFirst().get();
+        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList().block()
+                .stream()
+                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
 
-        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUPS)
-               .collectList().block()
-               .stream()
-               .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
-               .findFirst().get();
+        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList().block()
+                .stream()
+                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst().get();
 
         // Invite Admin
         emails.add("admin@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
         inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         emails.clear();
 
@@ -143,7 +146,7 @@ public class ShareWorkspacePermissionTests {
         emails.add("developer@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
         inviteUsersDTO.setPermissionGroupId(developerPermissionGroup.getId());
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         User userAdmin = userService.findByEmail("admin@solutiontest.com").block();
         User userDeveloper = userService.findByEmail("developer@solutiontest.com").block();
@@ -158,23 +161,23 @@ public class ShareWorkspacePermissionTests {
     @Test
     @WithUserDetails(value = "admin@solutiontest.com")
     public void testAdminPermissionsForInviteAndMakePublic() {
-        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUPS)
-               .collectList().block()
-               .stream()
-               .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
-               .findFirst().get();
+        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList().block()
+                .stream()
+                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
 
-        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUPS)
-               .collectList().block()
-               .stream()
-               .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
-               .findFirst().get();
+        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList().block()
+                .stream()
+                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst().get();
 
-        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUPS)
-               .collectList().block()
-               .stream()
-               .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
-               .findFirst().get();
+        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList().block()
+                .stream()
+                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
+                .findFirst().get();
 
         Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
                 .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
@@ -218,23 +221,23 @@ public class ShareWorkspacePermissionTests {
     @Test
     @WithUserDetails(value = "developer@solutiontest.com")
     public void testDevPermissionsForInvite() {
-        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUPS)
-               .collectList().block()
-               .stream()
-               .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
-               .findFirst().get();
+        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList().block()
+                .stream()
+                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
 
-        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUPS)
-               .collectList().block()
-               .stream()
-               .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
-               .findFirst().get();
+        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList().block()
+                .stream()
+                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst().get();
 
-        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUPS)
-               .collectList().block()
-               .stream()
-               .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
-               .findFirst().get();
+        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList().block()
+                .stream()
+                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
+                .findFirst().get();
 
         Policy inviteUserPolicy = Policy.builder().permission(WORKSPACE_INVITE_USERS.getValue())
                 .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))

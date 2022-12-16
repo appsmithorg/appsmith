@@ -55,7 +55,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
   });
 
   it("4. Verify Deletion of the datasource", () => {
-    ee.SelectEntityByName(dsName, "DATASOURCES");
+    ee.SelectEntityByName(dsName, "Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
   });

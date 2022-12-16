@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryEntity;
@@ -19,6 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
@@ -77,6 +79,9 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
+    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
+
     GitApplicationMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -94,13 +99,15 @@ public class Application extends BaseDomain {
      */
     Integer applicationVersion;
 
-    /*
-    Changing name, change in pages, widgets and datasources will set lastEditedAt.
-    Other activities e.g. changing policy will not change this property.
-    We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
+    /**
+     * Changing name, change in pages, widgets and datasources will set lastEditedAt.
+     * Other activities e.g. changing policy will not change this property.
+     * We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
      */
     @JsonIgnore
     Instant lastEditedAt;
+
+    EmbedSetting embedSetting;
 
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
@@ -151,6 +158,7 @@ public class Application extends BaseDomain {
     Boolean exportWithConfiguration;
 
     @JsonIgnore
+    @Deprecated
     String defaultPermissionGroup;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
@@ -165,6 +173,7 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+        this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
@@ -236,5 +245,17 @@ public class Application extends BaseDomain {
             MOBILE,
             FLUID,
         }
+    }
+
+    /**
+     * EmbedSetting is used for embedding Appsmith apps on other platforms
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EmbedSetting {
+        private String height;
+        private String width;
+        private Boolean showNavigationBar;
     }
 }

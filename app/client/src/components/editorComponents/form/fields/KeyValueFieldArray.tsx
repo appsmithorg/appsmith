@@ -6,21 +6,19 @@ import FormRow from "components/editorComponents/FormRow";
 import FormLabel from "components/editorComponents/FormLabel";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
-import { Icon, IconSize } from "design-system";
 import {
   CodeEditorBorder,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Text, Case, TextType } from "design-system";
-import { Classes } from "components/ads/common";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Case, Classes, Icon, IconSize, Text, TextType } from "design-system";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
   DEFAULT_MULTI_PART_DROPDOWN_HEIGHT,
   MULTI_PART_DROPDOWN_OPTIONS,
-} from "constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 import { Colors } from "constants/Colors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
@@ -132,10 +130,12 @@ const expected = {
 
 function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   useEffect(() => {
-    // Always maintain 2 rows
-    if (props.fields.length < 2 && props.pushFields) {
-      for (let i = props.fields.length; i < 2; i += 1) {
-        props.fields.push({ key: "", value: "" });
+    const allProps = props.fields?.getAll();
+    if (!!allProps) {
+      if (props.fields.length < 2 && props.pushFields) {
+        for (let i = props.fields.length; i < 2; i += 1) {
+          props.fields.push({ key: "", value: "" });
+        }
       }
     }
   }, [props.fields, props.pushFields]);

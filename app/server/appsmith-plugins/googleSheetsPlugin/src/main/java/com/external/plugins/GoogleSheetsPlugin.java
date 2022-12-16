@@ -8,8 +8,9 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
@@ -106,7 +107,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         if (property != null) {
 
                             // First extract all the bindings in order
-                            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(property);
+                            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(property);
                             // Replace all the bindings with a placeholder
                             String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(property, mustacheKeysInOrder);
 
@@ -268,7 +269,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         @Override
         public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.empty();
+            return Mono.empty().then();
         }
 
         @Override
@@ -279,12 +280,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             return Set.of();
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            // This plugin would not have the option to test
-            return Mono.just(new DatasourceTestResult());
         }
 
         @Override
@@ -303,7 +298,8 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+            Param param = (Param) args[0];
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null, param);
         }
 
         @Override
@@ -370,8 +366,9 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         /**
          * This overridden implementation conforms to the form/JS mode data structure that was introduced in UQI
-         * @param formData form data from action configuration object
-         * @param mappedColumns column name map from template table to user defined table
+         *
+         * @param formData                     form data from action configuration object
+         * @param mappedColumns                column name map from template table to user defined table
          * @param pluginSpecificTemplateParams plugin specified fields like S3 bucket name etc
          */
         @Override

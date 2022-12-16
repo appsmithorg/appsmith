@@ -21,10 +21,10 @@ export class AggregateHelper {
 
   private isMac = Cypress.platform === "darwin";
   private selectLine = `${
-    this.isMac
-      ? "{cmd}{shift}{leftArrow}{backspace}"
-      : "{shift}{home}{backspace}"
+    this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
+  private removeLine = "{backspace}";
+  private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -59,8 +59,8 @@ export class AggregateHelper {
     dsl: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
-    let pageid: string;
-    let layoutId;
+    let pageid: string, layoutId;
+    const appId: string | null = localStorage.getItem("applicationId");
     cy.url().then((url) => {
       pageid = url
         .split("/")[5]
@@ -74,7 +74,12 @@ export class AggregateHelper {
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
-          "api/v1/layouts/" + layoutId + "/pages/" + pageid,
+          "api/v1/layouts/" +
+            layoutId +
+            "/pages/" +
+            pageid +
+            "?applicationId=" +
+            appId,
           dsl,
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
@@ -99,11 +104,21 @@ export class AggregateHelper {
   public RenameWithInPane(renameVal: string, query = true) {
     const name = query ? this.locator._queryName : this.locator._dsName;
     const text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
-    cy.get(name).click({ force: true });
+    this.GetNClick(name, 0, true);
     cy.get(text)
       .clear({ force: true })
       .type(renameVal, { force: true })
       .should("have.value", renameVal)
+      .blur();
+    this.Sleep();
+  }
+
+  public RenameWidget(oldName: string, newName: string) {
+    this.GetNClick(this.locator._widgetName(oldName));
+    cy.get(this.locator._widgetNameTxt)
+      .clear({ force: true })
+      .type(newName, { force: true })
+      .should("have.value", newName)
       .blur();
     this.Sleep();
   }
@@ -125,9 +140,10 @@ export class AggregateHelper {
   public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
-      locator = selector.startsWith("//")
-        ? cy.xpath(selector, { timeout: timeout })
-        : cy.get(selector, { timeout: timeout });
+      locator =
+        selector.startsWith("//") || selector.startsWith("(//")
+          ? cy.xpath(selector, { timeout: timeout })
+          : cy.get(selector, { timeout: timeout });
     } else locator = cy.wrap(selector);
     return locator;
   }
@@ -138,11 +154,11 @@ export class AggregateHelper {
     textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
     index = 0,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    if (index >= 0) locator.eq(index).should(textPresence, text);
-    else locator.should(textPresence, text);
+    if (index >= 0)
+      this.GetElement(selector)
+        .eq(index)
+        .should(textPresence, text);
+    else this.GetElement(selector).should(textPresence, text);
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
@@ -193,7 +209,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleDisappear(selector: string) {
-    let locator = selector.includes("//")
+    const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("have.length", 0), {
@@ -204,7 +220,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilAllToastsDisappear() {
-    cy.get(this.locator._toastConatiner).waitUntil(
+    cy.get(this.locator._toastContainer).waitUntil(
       ($ele) =>
         cy
           .wrap($ele)
@@ -219,7 +235,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    let locator = selector.includes("//")
+    const locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("be.visible"), {
@@ -261,6 +277,18 @@ export class AggregateHelper {
     );
   }
 
+  public ValidateNetworkDataAssert(
+    aliasName: string,
+    expectedPath: string,
+    expectedRes: any,
+  ) {
+    cy.wait(aliasName).should(
+      "have.nested.property",
+      expectedPath,
+      expectedRes,
+    );
+  }
+
   public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
@@ -284,6 +312,11 @@ export class AggregateHelper {
       });
 
     this.Sleep(); //for selected value to reflect!
+  }
+
+  public SelectFromMutliTree(dropdownOption: string) {
+    this.GetNClick(this.locator._dropDownMultiTreeSelect);
+    this.GetNClick(this.locator._dropDownMultiTreeValue(dropdownOption));
   }
 
   public SelectFromDropDown(
@@ -344,15 +377,17 @@ export class AggregateHelper {
       options.forEach(($each) => {
         cy.get(this.locator._multiSelectOptions($each))
           .check({ force: true })
-          .wait(1000)
-          .should("be.checked");
+          .wait(1000);
+        cy.get(this.locator._multiSelectOptions($each)).should("be.checked");
       });
     } else {
       options.forEach(($each) => {
         cy.get(this.locator._multiSelectOptions($each))
           .uncheck({ force: true })
-          .wait(1000)
-          .should("not.be.checked");
+          .wait(1000);
+        cy.get(this.locator._multiSelectOptions($each)).should(
+          "not.be.checked",
+        );
       });
     }
 
@@ -365,6 +400,10 @@ export class AggregateHelper {
 
   public PressEscape() {
     cy.get("body").type("{esc}");
+  }
+
+  public PressEnter() {
+    cy.get("body").type("{enter}");
   }
 
   public PressDelete() {
@@ -387,9 +426,15 @@ export class AggregateHelper {
       .invoke("text");
   }
 
-  public EnterActionValue(actionName: string, value: string, paste = true) {
+  public EnterActionValue(
+    actionName: string,
+    value: string,
+    paste = true,
+    index = 0,
+  ) {
     cy.xpath(this.locator._actionTextArea(actionName))
-      .first()
+      .eq(index)
+      .scrollIntoView()
       .focus()
       .type("{uparrow}", { force: true })
       .type("{ctrl}{shift}{downarrow}{del}", { force: true });
@@ -397,7 +442,8 @@ export class AggregateHelper {
       if ($cm.contents != "") {
         cy.log("The field is not empty");
         cy.xpath(this.locator._actionTextArea(actionName))
-          .first()
+          .eq(index)
+          .scrollIntoView()
           .click({ force: true })
           .focused()
           .clear({
@@ -406,7 +452,8 @@ export class AggregateHelper {
       }
       this.Sleep();
       cy.xpath(this.locator._actionTextArea(actionName))
-        .first()
+        .eq(index)
+        .scrollIntoView()
         .then((el: any) => {
           if (paste) {
             //input.invoke("val", value);
@@ -427,21 +474,39 @@ export class AggregateHelper {
     force = false,
     waitTimeInterval = 500,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator
+    return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
       .click({ force: force })
       .wait(waitTimeInterval);
   }
 
+  public GetSiblingNClick(
+    selector: string,
+    siblingSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    return this.GetElement(selector)
+      .siblings(siblingSelector)
+      .first()
+      .eq(index)
+      .scrollIntoView()
+      .click({ force: force })
+      .wait(waitTimeInterval);
+  }
+
+  public GoBack() {
+    this.GetNClick(this.locator._visibleTextSpan("Back"));
+  }
+
   public SelectNRemoveLineText(selector: string) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectLine);
+    locator.type(this.selectLine);
+    return locator.type(this.removeLine);
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -457,7 +522,16 @@ export class AggregateHelper {
     }
   }
 
-  public TypeText(selector: string, value: string, index = 0) {
+  public ClearTextField(selector: string) {
+    this.GetElement(selector).clear();
+  }
+
+  public TypeText(
+    selector: string,
+    value: string,
+    index = 0,
+    parseSpecialCharSeq = false,
+  ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
@@ -465,9 +539,9 @@ export class AggregateHelper {
       .eq(index)
       .focus()
       .type(value, {
-        parseSpecialCharSequences: false,
-        delay: 2,
-        force: true,
+        parseSpecialCharSequences: parseSpecialCharSeq,
+        //delay: 3,
+        //force: true,
       });
   }
 
@@ -497,13 +571,14 @@ export class AggregateHelper {
   }
 
   public CheckUncheck(selector: string, check = true) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
     if (check) {
-      locator.check({ force: true }).should("be.checked");
+      this.GetElement(selector)
+        .check({ force: true })
+        .should("be.checked");
     } else {
-      locator.uncheck({ force: true }).should("not.be.checked");
+      this.GetElement(selector)
+        .uncheck({ force: true })
+        .should("not.be.checked");
     }
     this.Sleep();
   }
@@ -525,6 +600,18 @@ export class AggregateHelper {
         expect(classes).includes(toggle);
       });
     }
+  }
+
+  public AssertAttribute(
+    selector: string,
+    attribName: string,
+    attribValue: string,
+  ) {
+    return this.GetElement(selector).should(
+      "have.attr",
+      attribName,
+      attribValue,
+    );
   }
 
   public ToggleSwitch(
@@ -667,7 +754,7 @@ export class AggregateHelper {
     toClear && this.ClearInputText(name);
     cy.xpath(this.locator._inputWidgetValueField(name, isInput))
       .trigger("click")
-      .type(input);
+      .type(input, { parseSpecialCharSequences: false });
   }
 
   public ClearInputText(name: string, isInput = true) {
@@ -692,13 +779,17 @@ export class AggregateHelper {
   public UpdateInput(selector: string, value: string) {
     this.GetElement(selector)
       .find("input")
-      .then((ins: any) => {
-        //const input = ins[0].input;
-        ins.focus();
-        this.Sleep(200);
-        ins.val(value);
-        this.Sleep(200);
-      });
+      .type(this.selectAll)
+      .type(value, { delay: 1 });
+    // .type(selectAllJSObjectContentShortcut)
+    // .then((ins: any) => {
+    //   //const input = ins[0].input;
+    //   ins.clear();
+    //   this.Sleep(200);
+    //   //ins.setValue(value);
+    //   ins.val(value).trigger('change');
+    //   this.Sleep(200);
+    // });
   }
 
   public BlurCodeInput(selector: string) {
@@ -724,6 +815,12 @@ export class AggregateHelper {
         this.Sleep(200);
         expect(inputVal).to.eq(expectedValue);
       });
+  }
+
+  public VerifyEvaluatedErrorMessage(errorMessage: string) {
+    cy.get(this.locator._evaluatedErrorMessage)
+      .should("be.visible")
+      .should("have.text", errorMessage);
   }
 
   public VerifyEvaluatedValue(currentValue: string) {
@@ -764,29 +861,16 @@ export class AggregateHelper {
     return val;
   }
 
-  public UploadFile(fixtureName: string, execStat = true) {
+  public UploadFile(fixtureName: string, toClickUpload = true) {
     cy.get(this.locator._uploadFiles)
       .attachFile(fixtureName)
       .wait(2000);
-    cy.get(this.locator._uploadBtn)
-      .click()
-      .wait(3000);
+    toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
   }
 
-  public AssertDebugError(label: string, messgae: string) {
-    this.GetNClick(this.locator._debuggerIcon, 0, true, 0);
-    this.GetNClick(this.locator._errorTab, 0, true, 0);
-    this.GetText(this.locator._debuggerLabel, "text", 0).then(($text) => {
-      expect($text).to.eq(label);
-    });
-    this.GetText(this.locator._debugErrorMsg, "text", 0).then(($text) => {
-      expect($text).to.contains(messgae);
-    });
-  }
-
-  public AssertElementAbsence(selector: ElementType) {
+  public AssertElementAbsence(selector: ElementType, timeout = 0) {
     //Should not exists - cannot take indexes
-    return this.GetElement(selector, 0).should("not.exist");
+    return this.GetElement(selector, timeout).should("not.exist");
   }
 
   public GetText(
@@ -797,6 +881,29 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(index)
       .invoke(textOrValue);
+  }
+
+  AssertHeight(selector: ElementType, height: number) {
+    return this.GetElement(selector)
+      .invoke("height")
+      .should("be.equal", height);
+  }
+
+  public AssertText(
+    selector: ElementType,
+    textOrValue: "text" | "val" = "text",
+    expectedData: string,
+    index = 0,
+  ) {
+    this.GetElement(selector)
+      .eq(index)
+      .invoke(textOrValue)
+      .should("deep.equal", expectedData);
+  }
+
+  public AssertElementFocus(selector: ElementType, isFocused = true) {
+    if (isFocused) return this.GetElement(selector).should("be.focused");
+    return this.GetElement(selector).should("not.be.focused");
   }
 
   public AssertElementVisible(selector: ElementType, index = 0) {
@@ -831,18 +938,34 @@ export class AggregateHelper {
   public AssertContains(
     text: string | RegExp,
     exists: "exist" | "not.exist" = "exist",
+    selector?: string,
   ) {
+    if (selector) {
+      return cy.contains(selector, text).should(exists);
+    }
     return cy.contains(text).should(exists);
   }
 
   public GetNAssertContains(
     selector: ElementType,
-    text: string | RegExp,
+    text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
+    index?: number,
+    timeout?: number,
   ) {
-    return this.GetElement(selector)
-      .contains(text)
-      .should(exists);
+    if (index)
+      return this.GetElement(selector, timeout)
+        .eq(index)
+        .contains(text)
+        .should(exists);
+    else
+      return this.GetElement(selector, timeout)
+        .contains(text)
+        .should(exists);
+  }
+
+  public ValidateURL(url: string) {
+    cy.url().should("include", url);
   }
 
   public ScrollTo(

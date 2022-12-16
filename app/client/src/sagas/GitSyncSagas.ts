@@ -49,6 +49,7 @@ import {
   getSSHKeyPairSuccess,
   GetSSHKeyResponseData,
   gitPullSuccess,
+  importAppViaGitStatusReset,
   importAppViaGitSuccess,
   mergeBranchSuccess,
   setIsDisconnectGitModalOpen,
@@ -63,8 +64,7 @@ import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 import { ApiResponse } from "api/ApiResponses";
 import { GitConfig, GitSyncModalTab } from "entities/GitSync";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
@@ -89,7 +89,7 @@ import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { Workspace } from "constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "RouteBuilder";
@@ -146,6 +146,14 @@ function* commitToGitRepoSaga(
         });
       }
       yield put(fetchGitStatusInit());
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
+        payload: {
+          error: response?.responseMeta?.error,
+          show: true,
+        },
+      });
     }
   } catch (error) {
     const isRepoLimitReachedError: boolean = yield call(
@@ -159,9 +167,13 @@ function* commitToGitRepoSaga(
         type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
         payload: {
           error: response?.responseMeta?.error,
-          show: false,
+          show: true,
         },
       });
+      yield put({
+        type: ReduxActionTypes.FETCH_GIT_STATUS_INIT,
+      });
+      // yield call(fetchGitStatusSaga);
     } else {
       throw error;
     }
@@ -624,7 +636,7 @@ function* disconnectGitSaga() {
       name: string;
     } = yield select(getDisconnectingGitApplication);
     const currentApplicationId: string = yield select(getCurrentApplicationId);
-    response = yield GitSyncAPI.disconnectGit({
+    response = yield GitSyncAPI.revokeGit({
       applicationId: application.id,
     });
     const isValidResponse: boolean = yield validateResponse(
@@ -642,11 +654,15 @@ function* disconnectGitSaga() {
         payload: { id: "", name: "" },
       });
       yield put(setIsDisconnectGitModalOpen(false));
+      yield put(importAppViaGitStatusReset());
       yield put(
         setIsGitSyncModalOpen({
           isOpen: false,
         }),
       );
+      yield put({
+        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+      });
 
       // while disconnecting another application, i.e. not the current one
       if (currentApplicationId !== application.id) {
@@ -862,15 +878,22 @@ function* discardChanges() {
     if (isValidResponse) {
       yield put(discardChangesSuccess(response.data));
       // const applicationId: string = response.data.id;
-      const pageId: string = response.data.pages.filter(
-        (page: any) => page.isDefault,
-      )[0].id;
+      const pageId: string =
+        response.data?.pages?.find((page: any) => page.isDefault)?.id || "";
       localStorage.setItem("GIT_DISCARD_CHANGES", "success");
       const branch = response.data.gitApplicationMetadata.branchName;
       window.open(builderURL({ pageId, branch }), "_self");
+    } else {
+      yield put(
+        discardChangesFailure({
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        }),
+      );
+      localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
     }
   } catch (error) {
-    yield put(discardChangesFailure({ error }));
+    yield put(discardChangesFailure({ error, show: true }));
     localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
   }
 }
@@ -911,7 +934,7 @@ export default function* gitSyncSagas() {
     ),
     takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
     takeLatest(ReduxActionTypes.SHOW_CONNECT_GIT_MODAL, showConnectGitModal),
-    takeLatest(ReduxActionTypes.DISCONNECT_GIT, disconnectGitSaga),
+    takeLatest(ReduxActionTypes.REVOKE_GIT, disconnectGitSaga),
     takeLatest(
       ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT,
       importAppFromGitSaga,

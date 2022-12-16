@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/autocomp.json");
-const pages = require("../../../../locators/Pages.json");
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
@@ -8,6 +7,9 @@ describe("Dynamic input autocomplete", () => {
     cy.addDsl(dsl);
   });
   it("opens autocomplete for bindings", () => {
+    cy.selectEntityByName("TestModal");
+    cy.wait(3000);
+    cy.selectEntityByName("Aditya");
     cy.openPropertyPane("buttonwidget");
     cy.get(dynamicInputLocators.input)
       .first()

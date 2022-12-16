@@ -23,7 +23,13 @@ export type EventLocation =
   | "QUERY_TEMPLATE"
   | "QUICK_COMMANDS"
   | "OMNIBAR"
-  | "SUBMENU";
+  | "SUBMENU"
+  | "ACTION_SELECTOR"
+  | "ENTITY_EXPLORER"
+  | "KEYBOARD_SHORTCUT"
+  | "JS_OBJECT_GUTTER_RUN_BUTTON" // Gutter: https://codemirror.net/examples/gutter/
+  | "JS_OBJECT_MAIN_RUN_BUTTON"
+  | "JS_OBJECT_RESPONSE_RUN_BUTTON";
 
 export type EventName =
   | "APP_CRASH"
@@ -85,6 +91,7 @@ export type EventName =
   | "CREATE_DATA_SOURCE_CLICK"
   | "SAVE_DATA_SOURCE"
   | "SAVE_DATA_SOURCE_CLICK"
+  | "CONSOLE_LOG_CREATED"
   | "TEST_DATA_SOURCE_SUCCESS"
   | "TEST_DATA_SOURCE_CLICK"
   | "CREATE_QUERY_CLICK"
@@ -117,6 +124,7 @@ export type EventName =
   | "CORRECT_BAD_BINDING"
   | "OPEN_DEBUGGER"
   | "DEBUGGER_TAB_SWITCH"
+  | "DEBUGGER_FILTER_CHANGED"
   | "DEBUGGER_ENTITY_NAVIGATION"
   | "GSHEET_AUTH_INIT"
   | "GSHEET_AUTH_COMPLETE"
@@ -210,6 +218,7 @@ export type EventName =
   | "GS_REGENERATE_SSH_KEY_CONFIRM_CLICK"
   | "GS_REGENERATE_SSH_KEY_MORE_CLICK"
   | "GS_SWITCH_BRANCH"
+  | "ADMIN_SETTINGS_CLICK"
   | "ADMIN_SETTINGS_RESET"
   | "ADMIN_SETTINGS_SAVE"
   | "ADMIN_SETTINGS_ERROR"
@@ -217,6 +226,7 @@ export type EventName =
   | "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD"
   | "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
   | "ADMIN_SETTINGS_ENABLE_AUTH_METHOD"
+  | "ADMIN_SETTINGS_UPGRADE_HOOK"
   | "REFLOW_BETA_FLAG"
   | "CONTAINER_JUMP"
   | "CONNECT_GIT_CLICK"
@@ -242,7 +252,6 @@ export type EventName =
   | "MANUAL_UPGRADE_CLICK"
   | "PAGE_NOT_FOUND"
   | "SIMILAR_TEMPLATE_CLICK"
-  | "RUN_JS_FUNCTION"
   | "PROPERTY_PANE_KEYPRESS"
   | "PAGE_NAME_CLICK"
   | "BACK_BUTTON_CLICK"
@@ -251,7 +260,31 @@ export type EventName =
   | "ADMIN_SETTINGS_UPGRADE_WATERMARK"
   | "ADMIN_SETTINGS_UPGRADE"
   | "PRETTIFY_CODE_MANUAL_TRIGGER"
-  | "PRETTIFY_CODE_KEYBOARD_SHORTCUT";
+  | "PRETTIFY_CODE_KEYBOARD_SHORTCUT"
+  | "JS_OBJECT_CREATED"
+  | "JS_OBJECT_FUNCTION_ADDED"
+  | "JS_OBJECT_FUNCTION_RUN"
+  | "JS_OBJECT_SETTINGS_CHANGED"
+  | "SHOW_BINDINGS_TRIGGERED"
+  | "BINDING_COPIED"
+  | "AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE"
+  | "ENTITY_EXPLORER_ADD_PAGE_CLICK"
+  | "CANVAS_BLANK_PAGE_CTA_CLICK"
+  | AUDIT_LOGS_EVENT_NAMES
+  | "BRANDING_UPGRADE_CLICK"
+  | "BRANDING_PROPERTY_UPDATE"
+  | "BRANDING_SUBMIT_CLICK"
+  | "Cmd+Click Navigation"
+  | "WIDGET_PROPERTY_SEARCH";
+
+export type AUDIT_LOGS_EVENT_NAMES =
+  | "AUDIT_LOGS_CLEAR_FILTERS"
+  | "AUDIT_LOGS_FILTER_BY_RESOURCE_ID"
+  | "AUDIT_LOGS_FILTER_BY_EMAIL"
+  | "AUDIT_LOGS_FILTER_BY_EVENT"
+  | "AUDIT_LOGS_FILTER_BY_DATE"
+  | "AUDIT_LOGS_COLLAPSIBLE_ROW_OPENED"
+  | "AUDIT_LOGS_COLLAPSIBLE_ROW_CLOSED";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -267,6 +300,7 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
+
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
@@ -314,10 +348,8 @@ class AnalyticsUtil {
           const n = document.createElement("script");
           n.type = "text/javascript";
           n.async = !0;
-          n.src =
-            "https://cdn.segment.com/analytics.js/v1/" +
-            t +
-            "/analytics.min.js";
+          // Ref: https://www.notion.so/appsmith/530051a2083040b5bcec15a46121aea3
+          n.src = "https://a.appsmith.com/reroute/" + t + "/main.js";
           const a: any = document.getElementsByTagName("script")[0];
           a.parentNode.insertBefore(n, a);
           analytics._loadOptions = e;

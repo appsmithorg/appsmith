@@ -17,7 +17,8 @@ describe("Table Widget V2 property pane feature validation", function() {
       widgetsPage.tableWidgetV2,
       commonlocators.tableV2Inner,
     );
-    cy.createModal("Modal", this.data.ModalName);
+    //cy.createModal("Modal", this.data.ModalName);
+    cy.createModalWithIndex("Modal", 1);
     cy.isSelectRow(1);
     cy.get(".bp3-overlay-backdrop").click({ force: true });
     cy.isSelectRow(2);
@@ -34,6 +35,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     cy.changeColumnType("Button");
+    cy.moveToStyleTab();
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
       .clear()
@@ -55,6 +57,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     cy.editColumn("id");
     // Change Column type to icon Button
+    cy.moveToContentTab();
     cy.changeColumnType("Icon Button");
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({

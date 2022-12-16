@@ -29,6 +29,7 @@ function IconButton(props: {
   borderRadius: string;
   boxShadow: string;
   disabled: boolean;
+  compactMode?: string;
 }): JSX.Element {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
@@ -55,6 +56,7 @@ function IconButton(props: {
         boxShadow={props.boxShadow}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
+        compactMode={props.compactMode}
         disabled={props.disabled}
         icon={props.iconName}
         loading={loading}
@@ -78,6 +80,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
     fontStyle,
     horizontalAlignment,
     iconName,
+    isCellDisabled,
     isCellVisible,
     isHidden,
     isSelected,
@@ -94,6 +97,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
         cellBackground={cellBackground}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isHidden={isHidden}
         textColor={textColor}
         textSize={textSize}
@@ -108,6 +112,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
       compactMode={compactMode}
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
+      isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}
@@ -122,6 +127,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
             boxShadow={boxShadow}
             buttonColor={buttonColor}
             buttonVariant={buttonVariant}
+            compactMode={compactMode}
             disabled={disabled}
             iconName={iconName}
             isSelected={isSelected}

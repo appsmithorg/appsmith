@@ -1,13 +1,12 @@
 import React from "react";
-import { Button } from "design-system";
-import StyledFormGroup from "components/ads/formFields/FormGroup";
-import FormTextField from "components/ads/formFields/TextField";
+import { Button, FormGroup as StyledFormGroup } from "design-system";
+import FormTextField from "components/utils/ReduxFormTextField";
 import {
   WELCOME_FORM_ROLE_FIELD_NAME,
   WELCOME_FORM_ROLE_NAME_FIELD_NAME,
   WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_NON_SUPER_FORM_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import {
   createMessage,
   WELCOME_ACTION,

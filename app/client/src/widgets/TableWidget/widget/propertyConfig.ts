@@ -2,7 +2,7 @@ import { get } from "lodash";
 import { TableWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ButtonVariantTypes } from "components/constants";
 import {
@@ -199,7 +199,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.BOOLEAN,
                     },
@@ -216,7 +216,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.BOOLEAN,
                     },
@@ -244,7 +244,7 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: true,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.BOOLEAN,
                     },
@@ -367,7 +367,7 @@ export default [
                   ],
                   isBindProperty: true,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -504,7 +504,7 @@ export default [
                   ],
                   isBindProperty: true,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -606,7 +606,7 @@ export default [
                   ],
                   isBindProperty: true,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -645,7 +645,7 @@ export default [
                     },
                   ],
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                     },
@@ -688,7 +688,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                     },
@@ -723,7 +723,7 @@ export default [
                   ],
                   isBindProperty: true,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -747,7 +747,7 @@ export default [
                   ],
                   isBindProperty: true,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -771,7 +771,7 @@ export default [
                   ],
                   isBindProperty: true,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -820,7 +820,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -924,7 +924,7 @@ export default [
                   ],
                   isBindProperty: true,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -970,7 +970,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -1008,7 +1008,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                     },
@@ -1038,7 +1038,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                     },
@@ -1057,7 +1057,7 @@ export default [
                   isTriggerProperty: false,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: {
-                    type: ValidationTypes.TABLE_PROPERTY,
+                    type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {

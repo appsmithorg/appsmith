@@ -1,6 +1,6 @@
 package com.appsmith.server.helpers;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
@@ -30,7 +30,7 @@ public class TextUtilsTest {
         assertThat(TextUtils.makeSlug("测试页")).isEqualTo("");
     }
 
-    private void checkFromCsv(String inputString, int expectedSize, String ... parts) {
+    private void checkFromCsv(String inputString, int expectedSize, String... parts) {
         Set<String> s1 = TextUtils.csvToSet(inputString);
         assertThat(s1.size()).isEqualTo(expectedSize);
         assertThat(s1).contains(parts);

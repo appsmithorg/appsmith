@@ -5,7 +5,7 @@ import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "@appsmith/reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { CURL_IMPORT_FORM } from "constants/forms";
+import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { BuilderRouteParams } from "constants/routes";
 import { curlImportFormValues, curlImportSubmitHandler } from "./helpers";
 import { createNewApiName } from "utils/AppsmithUtils";

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only run for PRs, not issue comments
     if: |
-      ${{ github.event.issue.pull_request }}
+      github.event.issue.pull_request
     steps:
       - name: Generate token
         id: generate_token
@@ -20,13 +20,14 @@ jobs:
           private_key: ${{ secrets.APPSMITH_INTEGRATION_TESTING_KEY }}
 
       - name: Slash Command Dispatch
-        uses: peter-evans/slash-command-dispatch@v1
+        uses: peter-evans/slash-command-dispatch@v3
         env:
           TOKEN: ${{ steps.generate_token.outputs.token }}
         with:
           token: ${{ env.TOKEN }} # GitHub App installation access token
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
           issue-type: pull-request
-          commands: ok-to-test
-          named-args: true
+          commands: |
+            ok-to-test
+            perf-test
           permission: write

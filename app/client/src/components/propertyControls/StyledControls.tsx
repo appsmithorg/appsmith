@@ -30,7 +30,10 @@ export const ControlWrapper = styled.div<ControlWrapperProps>`
   align-items: center;
   flex-direction: ${(props) =>
     props.orientation === "VERTICAL" ? "column" : "row"};
-  padding: ${(props) => (props.isAction ? "0" : "4px 0 ")};
+  padding-top: 4px;
+  &:not(:last-of-type) {
+    padding-bottom: 4px;
+  }
   & > label {
     color: ${(props) => props.theme.colors.propertyPane.label};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
@@ -51,7 +54,7 @@ export const ControlPropertyLabelContainer = styled.div`
   display: flex;
   align-items: center;
   label {
-    color: ${(props) => props.theme.colors.propertyPane.label};
+    color: ${Colors.GRAY_700};
     margin-bottom: ${(props) => props.theme.spaces[1]}px;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
@@ -123,6 +126,14 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
+
+  /*
+    We use this font family to show emoji flags
+    on windows devices
+  */
+  .left-icon-wrapper {
+    font-family: "Twemoji Country Flags";
+  }
 `;
 
 export const StyledMenu = styled(Menu)`
@@ -300,20 +311,6 @@ export const StyledPropertyPaneButton = styled(Button)`
   margin-left: auto;
   display: flex;
   justify-content: flex-end;
-  border: 1px solid ${Colors.GREY_8};
-
-  &,
-  &:active {
-    border: 1px solid ${Colors.GREY_8};
-    color: ${Colors.GREY_8};
-    background-color: transparent;
-  }
-
-  &:hover {
-    border: 1px solid ${Colors.GREY_8};
-    color: ${Colors.GREY_8};
-    background-color: ${Colors};
-  }
 
   &&& svg {
     width: 14px;
@@ -322,12 +319,6 @@ export const StyledPropertyPaneButton = styled(Button)`
       fill: ${Colors.GREY_8};
       stroke: ${Colors.GREY_8};
     }
-  }
-
-  &:disabled {
-    background-color: ${Colors.GREY_1};
-    color: var(--appsmith-color-black-400);
-    border-color: ${Colors.MERCURY};
   }
 `;
 
@@ -429,7 +420,22 @@ export const StyledDeleteIcon = styled(
 `;
 
 export const StyledCheckbox = styled(Checkbox)<{ disabled?: boolean }>`
-  ${CommonIconStyles}
   cursor: ${(props) => (props.disabled ? "default" : "cursor")};
   width: 18px;
+  ${CommonIconStyles}
+`;
+
+export const StyledNavigateToFieldWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  height: auto;
+`;
+
+export const StyledDividerContainer = styled.div`
+  width: 1%;
+  margin-top: 9px;
+`;
+
+export const StyledNavigateToFieldsContainer = styled.div`
+  width: 95%;
 `;

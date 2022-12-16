@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { saveSettings } from "@appsmith/actions/settingsAction";
-import { SETTINGS_FORM_NAME } from "constants/forms";
+import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
@@ -29,7 +29,7 @@ import {
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "components/ads";
+import { Toaster, Variant } from "design-system";
 import {
   connectedMethods,
   saveAllowed,

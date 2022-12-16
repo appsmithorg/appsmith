@@ -1,9 +1,13 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { TabTitle, TabComponent, TabProp } from "components/ads/Tabs";
+import { TabComponent, TabProp, TabTitle } from "design-system";
 import { Tab, TabList, Tabs } from "react-tabs";
+import { useDispatch, useSelector } from "react-redux";
+import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
+import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
+import { AppState } from "@appsmith/reducers";
 
 const StyledTabComponent = styled(TabComponent)`
   height: auto;
@@ -14,12 +18,13 @@ const StyledTabComponent = styled(TabComponent)`
 
   .react-tabs__tab-panel {
     overflow: initial;
+    padding-bottom: 18px; // space for the BindingPrompt in case it shows at the last property
   }
 `;
 
 const StyledTabs = styled(Tabs)`
   position: sticky;
-  top: 90px;
+  top: 78px;
   z-index: 3;
   background: ${Colors.WHITE};
   padding: 0px 12px;
@@ -30,9 +35,15 @@ const StyledTabs = styled(Tabs)`
     border: 0;
     margin: 0;
   }
+
   .react-tabs__tab .tab-title {
     font-weight: 500;
     color: ${Colors.GRAY_700};
+  }
+
+  .react-tabs__tab {
+    border: 2px solid transparent;
+    bottom: -2px;
   }
 
   .react-tabs__tab--selected .tab-title {
@@ -47,8 +58,9 @@ const StyledTabs = styled(Tabs)`
   }
 
   .react-tabs__tab--selected {
-    border: 0;
+    border-width: 2px;
     border-radius: 0;
+    border-color: transparent;
     border-bottom: 2px solid ${Colors.PRIMARY_ORANGE};
   }
 
@@ -60,10 +72,19 @@ const StyledTabs = styled(Tabs)`
 type PropertyPaneTabProps = {
   styleComponent: JSX.Element | null;
   contentComponent: JSX.Element | null;
+  isPanelProperty?: boolean;
+  panelPropertyPath?: string;
 };
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const dispatch = useDispatch();
+  const selectedIndex = useSelector((state: AppState) =>
+    getSelectedPropertyTabIndex(state, props.panelPropertyPath),
+  );
+
+  const setSelectedIndex = (index: number) => {
+    dispatch(setSelectedPropertyTabIndex(index, props.panelPropertyPath));
+  };
 
   const tabs = useMemo(() => {
     const arr: TabProp[] = [];

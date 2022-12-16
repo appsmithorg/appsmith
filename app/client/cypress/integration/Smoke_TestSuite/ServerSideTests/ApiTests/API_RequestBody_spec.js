@@ -9,7 +9,7 @@ describe("API Panel request body", function() {
 
     cy.SelectAction(testdata.postAction);
 
-    cy.contains(apiEditor.bodyTab).click();
+    cy.contains(apiEditor.bodyTab).click({ force: true });
     cy.contains(testdata.apiFormDataBodyType).click();
 
     cy.get(apiwidget.formEncoded).should("be.visible");

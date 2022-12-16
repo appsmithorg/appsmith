@@ -1,14 +1,23 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   apiPage = ObjectsRegistry.ApiPage,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Validate API request body panel", () => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");
@@ -85,7 +94,7 @@ describe("Validate API request body panel", () => {
   });
 
   it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
-    let imageNameToUpload = "ConcreteHouse.jpg";
+    const imageNameToUpload = "ConcreteHouse.jpg";
     cy.fixture("multiPartFormDataDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
@@ -93,7 +102,8 @@ describe("Validate API request body panel", () => {
     apiPage.CreateAndFillApi(
       "https://api.cloudinary.com/v1_1/appsmithautomationcloud/image/upload?upload_preset=fbbhg4xu",
       "CloudinaryUploadApi",
-      30000, "POST"
+      30000,
+      "POST",
     );
     apiPage.EnterBodyFormData(
       "MULTIPART_FORM_DATA",
@@ -119,23 +129,23 @@ describe("Validate API request body panel", () => {
       },
     );
 
-    ee.SelectEntityByName("FilePicker1", "WIDGETS");
-    propPane.EnterJSContext(
-      "onFilesSelected",
-      `{{JSObject1.upload()}}`
-    );
+    ee.SelectEntityByName("FilePicker1", "Widgets");
+    propPane.EnterJSContext("onFilesSelected", `{{JSObject1.upload()}}`);
 
     ee.SelectEntityByName("Image1");
-    propPane.UpdatePropertyFieldValue("Image", "{{CloudinaryUploadApi.data.url}}");
+    propPane.UpdatePropertyFieldValue(
+      "Image",
+      "{{CloudinaryUploadApi.data.url}}",
+    );
 
-    ee.SelectEntityByName("CloudinaryUploadApi", "QUERIES/JS");
+    ee.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
 
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");//validating Cloudinary api call
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
     agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully");
     agHelper.Sleep();
     cy.xpath(apiPage._imageSrc)
@@ -149,8 +159,8 @@ describe("Validate API request body panel", () => {
   });
 
   it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
-    let imageNameToUpload = "AAAFlowerVase.jpeg";
-    ee.SelectEntityByName("CloudinaryUploadApi", "QUERIES/JS");
+    const imageNameToUpload = "AAAFlowerVase.jpeg";
+    ee.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
     apiPage.EnterBodyFormData(
       "MULTIPART_FORM_DATA",
       "file",
@@ -158,11 +168,11 @@ describe("Validate API request body panel", () => {
       "Array",
       true,
     );
-    ee.SelectEntityByName("FilePicker1", "WIDGETS");
+    ee.SelectEntityByName("FilePicker1", "Widgets");
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
-    agHelper.AssertDebugError(
+    debuggerHelper.AssertDebugError(
       "Execution failed with status 400 BAD_REQUEST",
       '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"',
     );
