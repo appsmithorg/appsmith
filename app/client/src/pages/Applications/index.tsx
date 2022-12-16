@@ -705,7 +705,7 @@ function ApplicationsSection(props: any) {
           canInviteToWorkspace ||
           hasManageWorkspacePermissions ||
           hasCreateNewApplicationPermission ||
-          canDeleteWorkspace;
+          (canDeleteWorkspace && applications.length === 0);
 
         return (
           <WorkspaceSection

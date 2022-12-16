@@ -29,7 +29,10 @@
   <b><a href="https://www.youtube.com/appsmith">YouTube</a></b>
   •
   <b><a href="https://www.appsmith.com/templates?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=top">Templates</a></b> 
-  </h3>
+</h3>
+
+<br />
+<img alt="How Appsmith Works" src="static/images/how-it-works.svg" style="width: 100%; height: auto;" />
 
 ---
 
@@ -181,8 +184,8 @@ Lets build great software together.
 [![Rishabh-Rathod](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/23132741?v=4&w=50&h=50&mask=circle)](https://github.com/Rishabh-Rathod)
 [![sbalaji1192](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/5328605?v=4&w=50&h=50&mask=circle)](https://github.com/sbalaji1192)
 [![ohansFavour](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/46670083?v=4&w=50&h=50&mask=circle)](https://github.com/ohansFavour)
-[![Aishwarya-U-R](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/91450662?v=4&w=50&h=50&mask=circle)](https://github.com/Aishwarya-U-R)
 [![ankitakinger](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/28362912?v=4&w=50&h=50&mask=circle)](https://github.com/ankitakinger)
+[![Aishwarya-U-R](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/91450662?v=4&w=50&h=50&mask=circle)](https://github.com/Aishwarya-U-R)
 [![Irongade](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/37867493?v=4&w=50&h=50&mask=circle)](https://github.com/Irongade)
 [![prsidhu](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/5424788?v=4&w=50&h=50&mask=circle)](https://github.com/prsidhu)
 [![pranavkanade](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13262095?v=4&w=50&h=50&mask=circle)](https://github.com/pranavkanade)
@@ -209,16 +212,16 @@ Lets build great software together.
 [![eco-monk](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/66776129?v=4&w=50&h=50&mask=circle)](https://github.com/eco-monk)
 [![ChandanBalajiBP](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/104058110?v=4&w=50&h=50&mask=circle)](https://github.com/ChandanBalajiBP)
 [![souma-ghosh](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/103924539?v=4&w=50&h=50&mask=circle)](https://github.com/souma-ghosh)
+[![berzerkeer](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/74818788?v=4&w=50&h=50&mask=circle)](https://github.com/berzerkeer)
 [![subrata71](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/3524599?v=4&w=50&h=50&mask=circle)](https://github.com/subrata71)
 [![dhruvikn](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/22471214?v=4&w=50&h=50&mask=circle)](https://github.com/dhruvikn)
-[![berzerkeer](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/74818788?v=4&w=50&h=50&mask=circle)](https://github.com/berzerkeer)
 [![sum35h](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/20785806?v=4&w=50&h=50&mask=circle)](https://github.com/sum35h)
 [![tanvibhakta](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13763558?v=4&w=50&h=50&mask=circle)](https://github.com/tanvibhakta)
 [![sneha122](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/30018882?v=4&w=50&h=50&mask=circle)](https://github.com/sneha122)
 [![nsarupr](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/20905988?v=4&w=50&h=50&mask=circle)](https://github.com/nsarupr)
 [![iamrkcheers](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/16760643?v=4&w=50&h=50&mask=circle)](https://github.com/iamrkcheers)
-[![pratapaprasanna](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/15846947?v=4&w=50&h=50&mask=circle)](https://github.com/pratapaprasanna)
 [![sondermanish](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/107841575?v=4&w=50&h=50&mask=circle)](https://github.com/sondermanish)
+[![pratapaprasanna](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/15846947?v=4&w=50&h=50&mask=circle)](https://github.com/pratapaprasanna)
 [![Pranay105](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48308728?v=4&w=50&h=50&mask=circle)](https://github.com/Pranay105)
 [![ankitsrivas14](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/67647761?v=4&w=50&h=50&mask=circle)](https://github.com/ankitsrivas14)
 [![vaibh1297](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/40293928?v=4&w=50&h=50&mask=circle)](https://github.com/vaibh1297)
@@ -234,6 +237,7 @@ Lets build great software together.
 [![Rhitottam](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/4265002?v=4&w=50&h=50&mask=circle)](https://github.com/Rhitottam)
 [![Rishabhkaul](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/1650391?v=4&w=50&h=50&mask=circle)](https://github.com/Rishabhkaul)
 [![rohan-arthur](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/94514895?v=4&w=50&h=50&mask=circle)](https://github.com/rohan-arthur)
+[![tejasahluwalia](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/39881648?v=4&w=50&h=50&mask=circle)](https://github.com/tejasahluwalia)
 [![appsmithguru](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/116803038?v=4&w=50&h=50&mask=circle)](https://github.com/appsmithguru)
 [![hiteshjoshi](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/217911?v=4&w=50&h=50&mask=circle)](https://github.com/hiteshjoshi)
 [![rlnorthcutt](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/673633?v=4&w=50&h=50&mask=circle)](https://github.com/rlnorthcutt)
@@ -248,7 +252,6 @@ Lets build great software together.
 [![GreenFlux](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/24459976?v=4&w=50&h=50&mask=circle)](https://github.com/GreenFlux)
 [![danciaclara](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/32227135?v=4&w=50&h=50&mask=circle)](https://github.com/danciaclara)
 [![Debsourabh](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/34486435?v=4&w=50&h=50&mask=circle)](https://github.com/Debsourabh)
-[![tejasahluwalia](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/39881648?v=4&w=50&h=50&mask=circle)](https://github.com/tejasahluwalia)
 [![shadabbuchh](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/39921438?v=4&w=50&h=50&mask=circle)](https://github.com/shadabbuchh)
 [![harshilp24](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/43263619?v=4&w=50&h=50&mask=circle)](https://github.com/harshilp24)
 [![sarojsarab](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/43822041?v=4&w=50&h=50&mask=circle)](https://github.com/sarojsarab)
@@ -273,6 +276,7 @@ Lets build great software together.
 [![laveena-en](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/109572422?v=4&w=50&h=50&mask=circle)](https://github.com/laveena-en)
 [![kamakshibhat-appsmith](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/113327629?v=4&w=50&h=50&mask=circle)](https://github.com/kamakshibhat-appsmith)
 [![felix-appsmith](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/114161539?v=4&w=50&h=50&mask=circle)](https://github.com/felix-appsmith)
+[![Vijetha-Kaja](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/119562824?v=4&w=50&h=50&mask=circle)](https://github.com/Vijetha-Kaja)
 [![AnandShahs123](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/119847783?v=4&w=50&h=50&mask=circle)](https://github.com/AnandShahs123)
 [![rishabhsaxena](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/1944800?v=4&w=50&h=50&mask=circle)](https://github.com/rishabhsaxena)
 [![wmdev0808](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/82799722?v=4&w=50&h=50&mask=circle)](https://github.com/wmdev0808)

@@ -83,7 +83,9 @@ export default function(request: EvalWorkerSyncRequest) {
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree);
+      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
+        evalProps: dataTreeEvaluator.evalProps,
+      });
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -120,7 +122,9 @@ export default function(request: EvalWorkerSyncRequest) {
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree);
+      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
+        evalProps: dataTreeEvaluator.evalProps,
+      });
     } else {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         dataTreeEvaluator.setAllActionValidationConfig(
@@ -153,7 +157,9 @@ export default function(request: EvalWorkerSyncRequest) {
         evalOrder,
         nonDynamicFieldValidationOrder,
       );
-      dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree);
+      dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
+        evalProps: dataTreeEvaluator.evalProps,
+      });
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );
@@ -185,7 +191,10 @@ export default function(request: EvalWorkerSyncRequest) {
       console.error(error);
     }
     dataTree = getSafeToRenderDataTree(
-      makeEntityConfigsAsObjProperties(unevalTree),
+      makeEntityConfigsAsObjProperties(unevalTree, {
+        sanitizeDataTree: false,
+        evalProps: dataTreeEvaluator?.evalProps,
+      }),
       widgetTypeConfigMap,
     );
     unEvalUpdates = [];

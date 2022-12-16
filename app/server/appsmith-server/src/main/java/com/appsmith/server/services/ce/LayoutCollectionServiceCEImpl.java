@@ -127,7 +127,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         action.setDefaultResources(collection.getDefaultResources());
                         // Action doesn't exist. Create now.
                         return layoutActionService
-                                .createSingleAction(action)
+                                .createSingleAction(action, Boolean.TRUE)
                                 // return an empty action so that this action is disregarded from the list
                                 .onErrorResume(throwable -> {
                                     log.debug("Failed to create action with name {} for collection: {}", action.getName(), collection.getName());
@@ -492,7 +492,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 final String defaultPageId = branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId();
                                 actionDTO.getDefaultResources().setPageId(defaultPageId);
                                 // actionCollectionService is a new action, we need to create one
-                                return layoutActionService.createSingleAction(actionDTO);
+                                return layoutActionService.createSingleAction(actionDTO, Boolean.TRUE);
                             } else {
                                 actionDTO.setCollectionId(null);
                                 // Client only knows about the default action ID, fetch branched action id to update the action
@@ -525,7 +525,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 final String defaultPageId = branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId();
                                 actionDTO.getDefaultResources().setPageId(defaultPageId);
                                 // actionCollectionService is a new action, we need to create one
-                                return layoutActionService.createSingleAction(actionDTO)
+                                return layoutActionService.createSingleAction(actionDTO, Boolean.TRUE)
                                         // return an empty action so that the filter can remove it from the list
                                         .onErrorResume(throwable -> {
                                             log.debug("Failed to create action with name {} for collection: {}", actionDTO.getName(), actionCollectionDTO.getName());

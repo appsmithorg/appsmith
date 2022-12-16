@@ -223,7 +223,7 @@ public class ApplicationServiceTest {
         toCreate.setName("ApplicationServiceTest");
 
         if (workspaceId == null) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
             if (StringUtils.hasLength(gitConnectedApp.getId())) {
@@ -1196,7 +1196,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO savedAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -1456,7 +1456,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO savedAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(gitConnectedApp.getId(), branchName)
                 .cache();
@@ -1644,7 +1644,7 @@ public class ApplicationServiceTest {
 
                     return Mono.zip(
                             layoutCollectionService.createCollection(actionCollectionDTO),
-                            layoutActionService.createSingleAction(action),
+                            layoutActionService.createSingleAction(action, Boolean.FALSE),
                             layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
                             Mono.just(application)
                     );
@@ -1973,7 +1973,7 @@ public class ApplicationServiceTest {
 
                     return Mono.zip(
                             layoutCollectionService.createCollection(actionCollectionDTO),
-                            layoutActionService.createSingleAction(action),
+                            layoutActionService.createSingleAction(action, Boolean.FALSE),
                             Mono.just(application),
                             Mono.just(testPage),
                             Mono.just(layout)
@@ -2297,7 +2297,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setActions(List.of(action1));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
-                    return layoutActionService.createSingleAction(action)
+                    return layoutActionService.createSingleAction(action, Boolean.FALSE)
                             .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();
@@ -2623,7 +2623,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action1.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction1 = layoutActionService.createSingleAction(action1).block();
+        ActionDTO savedAction1 = layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
 
         ActionDTO action2 = new ActionDTO();
         action2.setName("Clone App Test action2");
@@ -2631,7 +2631,7 @@ public class ApplicationServiceTest {
         action2.setDatasource(savedDatasource);
         action2.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction2 = layoutActionService.createSingleAction(action2).block();
+        ActionDTO savedAction2 = layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
 
         ActionDTO action3 = new ActionDTO();
         action3.setName("Clone App Test action3");
@@ -2639,7 +2639,7 @@ public class ApplicationServiceTest {
         action3.setDatasource(savedDatasource);
         action3.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
+        ActionDTO savedAction3 = layoutActionService.createSingleAction(action3, Boolean.FALSE).block();
 
         // Testing JS Objects here
         ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
@@ -2828,7 +2828,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action1.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction1 = layoutActionService.createSingleAction(action1).block();
+        ActionDTO savedAction1 = layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
 
         ActionDTO action2 = new ActionDTO();
         action2.setName("Public View Test action2");
@@ -2836,7 +2836,7 @@ public class ApplicationServiceTest {
         action2.setDatasource(savedDatasource);
         action2.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction2 = layoutActionService.createSingleAction(action2).block();
+        ActionDTO savedAction2 = layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
 
         ActionDTO action3 = new ActionDTO();
         action3.setName("Public View Test action3");
@@ -2844,7 +2844,7 @@ public class ApplicationServiceTest {
         action3.setDatasource(savedDatasource);
         action3.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
+        ActionDTO savedAction3 = layoutActionService.createSingleAction(action3, Boolean.FALSE).block();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -3124,7 +3124,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setActions(List.of(action1));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
-                    return layoutActionService.createSingleAction(action)
+                    return layoutActionService.createSingleAction(action, Boolean.FALSE)
                             .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();

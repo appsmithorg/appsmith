@@ -9,7 +9,6 @@ export const routeChanged = (location: Location<AppsmithLocationState>) => {
     payload: { location },
   };
 };
-
 export const pageChanged = (
   pageId: string,
   currPath: string,
