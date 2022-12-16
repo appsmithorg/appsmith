@@ -103,7 +103,7 @@ public class MockDataServiceTest {
             Workspace toCreate = new Workspace();
             toCreate.setName("MockDataServiceTest");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
 
@@ -142,7 +142,7 @@ public class MockDataServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("MockDataServiceTest testCreateMockDataSetsMongo");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
@@ -273,7 +273,7 @@ public class MockDataServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("MockDataServiceTest testCreateMockDataSetsDuplicateName");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
