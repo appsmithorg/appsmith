@@ -179,7 +179,7 @@ public class GitServiceTest {
             toCreate.setName("Git Service Test");
 
             if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
-                Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+                Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
                 workspaceId = workspace.getId();
             }
         }
@@ -1036,7 +1036,7 @@ public class GitServiceTest {
                     actionCollectionDTO.setDefaultToBranchedActionIdsMap(Map.of("branchedId", "collectionId"));
 
                     return Mono.zip(
-                                    layoutActionService.createSingleAction(action)
+                                    layoutActionService.createSingleAction(action, Boolean.FALSE)
                                             .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
                                     layoutCollectionService.createCollection(actionCollectionDTO)
                             )

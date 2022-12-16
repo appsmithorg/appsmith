@@ -67,6 +67,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
@@ -116,9 +117,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @DirtiesContext
 @TestMethodOrder(MethodOrderer.MethodName.class)
-public class ImportExportApplicationServiceTests {
+public class ImportExportApplicationServiceV2Tests {
 
     @Autowired
+    @Qualifier("importExportServiceCEImplV2")
     ImportExportApplicationService importExportApplicationService;
 
     @Autowired
