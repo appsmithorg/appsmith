@@ -46,6 +46,18 @@ export type AuthenticationType = {
   action: string;
 };
 
+export type UserGroupType = {
+  invitedUsers?: string[];
+  removedUsers?: string[];
+};
+
+export type PermissionGroupType = {
+  assignedUsers?: string[];
+  unAssignedUsers?: string[];
+  assignedUserGroups?: string[];
+  unAssignedUserGroups?: string[];
+};
+
 /**
  * @property {string} id The id of the log in the database, aka "cursor".
  * @property {string} event is event name in the format <resource>.<action>
@@ -78,6 +90,8 @@ export type AuditLogType = {
   userPermissions?: string[];
   authentication?: AuthenticationType;
   invitedUsers?: string[];
+  userGroup?: UserGroupType;
+  permissionGroup?: PermissionGroupType;
 };
 
 /**

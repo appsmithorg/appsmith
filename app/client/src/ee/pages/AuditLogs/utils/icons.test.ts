@@ -1,7 +1,7 @@
 import { EVENT_ICON_MAP } from "./icons";
 
 describe("audit-logs/utils/icons", () => {
-  it("EVENT_ICON_MAP has 16, known keys", () => {
+  it("EVENT_ICON_MAP has 22, known keys", () => {
     const actualKeys = Object.keys(EVENT_ICON_MAP);
     const expectedKeys = [
       "cloned",
@@ -20,8 +20,14 @@ describe("audit-logs/utils/icons", () => {
       "signed_up",
       "updated",
       "viewed",
+      "invite_users",
+      "remove_users",
+      "assigned_users",
+      "unassigned_users",
+      "assigned_groups",
+      "unassigned_groups",
     ];
     expect(actualKeys).toEqual(expectedKeys);
-    expect(actualKeys.length).toEqual(16);
+    expect(actualKeys.length).toEqual(22);
   });
 });
