@@ -166,6 +166,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     skipEntityFunctions: !!skipEntityFunctions,
     requestId: context?.requestId,
     eventType: context?.eventType,
+    resolvedFunctions,
   });
 
   assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions);
@@ -399,11 +400,11 @@ export function isFunctionAsync(
     };
 
     addDataTreeToContext({
-      EVAL_CONTEXT: GLOBAL_DATA,
       dataTree,
     });
 
     assignJSFunctionsToContext(GLOBAL_DATA, resolvedFunctions);
+
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
