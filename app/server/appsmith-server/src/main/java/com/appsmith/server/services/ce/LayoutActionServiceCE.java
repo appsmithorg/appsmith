@@ -38,9 +38,9 @@ public interface LayoutActionServiceCE {
 
     Mono<ActionDTO> createSingleActionWithBranch(ActionDTO action, String branchName);
 
-    Mono<ActionDTO> createSingleAction(ActionDTO action);
+    Mono<ActionDTO> createSingleAction(ActionDTO action, Boolean isJsAction);
 
-    Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext);
+    Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
