@@ -13,7 +13,6 @@ import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
-import { JSAction } from "entities/JSCollection";
 import { keyBy } from "lodash";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -81,28 +80,29 @@ export const getEntitiesForNavigation = createSelector(
         children: getWidgetChildren(widget, dataTree, pageId),
       };
     });
-    console.log("cmd click", "getting data", navigationData);
     return navigationData;
   },
 );
 
 const getJsObjectChildren = (jsAction: JSCollectionData, pageId: string) => {
-  return keyBy(
-    jsAction.config.actions.map((func: JSAction) => ({
-      name: `${jsAction.config.name}.${func.name}`,
-      key: func.name,
-      id: `${jsAction.config.name}.${func.name}`,
-      type: ENTITY_TYPE.JSACTION,
-      url: jsCollectionIdURL({
-        pageId,
-        collectionId: jsAction.config.id,
-        functionName: func.name,
-      }),
-      navigable: true,
-      children: {},
-    })),
-    (data) => data.key,
-  );
+  const children = [
+    ...jsAction.config.actions,
+    ...jsAction.config.variables,
+  ].map((jsChild) => ({
+    name: `${jsAction.config.name}.${jsChild.name}`,
+    key: jsChild.name,
+    id: `${jsAction.config.name}.${jsChild.name}`,
+    type: ENTITY_TYPE.JSACTION,
+    url: jsCollectionIdURL({
+      pageId,
+      collectionId: jsAction.config.id,
+      functionName: jsChild.name,
+    }),
+    navigable: true,
+    children: {},
+  }));
+
+  return keyBy(children, (data) => data.key);
 };
 
 const getWidgetChildren = (
@@ -116,17 +116,19 @@ const getWidgetChildren = (
       widget.widgetName
     ] as DataTreeWidget;
     const formChildren: EntityNavigationData = {};
-    Object.keys(dataTreeWidget.data || {}).forEach((widgetName) => {
-      const childWidgetId = (dataTree[widgetName] as DataTreeWidget).widgetId;
-      formChildren[widgetName] = {
-        name: widgetName,
-        id: `${widget.widgetName}.data.${widgetName}`,
-        type: ENTITY_TYPE.WIDGET,
-        navigable: true,
-        children: {},
-        url: builderURL({ pageId, hash: childWidgetId }),
-      };
-    });
+    if (dataTreeWidget) {
+      Object.keys(dataTreeWidget.data || {}).forEach((widgetName) => {
+        const childWidgetId = (dataTree[widgetName] as DataTreeWidget).widgetId;
+        formChildren[widgetName] = {
+          name: widgetName,
+          id: `${widget.widgetName}.data.${widgetName}`,
+          type: ENTITY_TYPE.WIDGET,
+          navigable: true,
+          children: {},
+          url: builderURL({ pageId, hash: childWidgetId }),
+        };
+      });
+    }
     children.data = {
       name: "data",
       id: `${widget.widgetName}.data`,

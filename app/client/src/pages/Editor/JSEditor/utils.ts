@@ -81,7 +81,7 @@ export const getJSFunctionStartLineFromCode = (
   return result;
 };
 
-export const getJSFunctionLineFromName = (
+export const getJSPropertyLineFromName = (
   code: string,
   functionName: string,
 ): { line: number; ch: number } | null => {
@@ -99,8 +99,6 @@ export const getJSFunctionLineFromName = (
       const depth = ancestors.length - 3;
       if (
         isPropertyNode(node) &&
-        (node.value.type === NodeTypes.ArrowFunctionExpression ||
-          node.value.type === NodeTypes.FunctionExpression) &&
         node.loc &&
         getNameFromPropertyNode(node) === functionName &&
         ancestors[depth] &&

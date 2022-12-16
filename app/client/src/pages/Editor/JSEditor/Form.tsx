@@ -43,7 +43,7 @@ import {
   convertJSActionToDropdownOption,
   getActionFromJsCollection,
   getJSActionOption,
-  getJSFunctionLineFromName,
+  getJSPropertyLineFromName,
   getJSFunctionLineGutter,
   JSActionDropdownOption,
 } from "./utils";
@@ -122,12 +122,11 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   useEffect(() => {
     if (hash) {
       const actionName = hash.substring(1);
-      const position = getJSFunctionLineFromName(
+      const position = getJSPropertyLineFromName(
         currentJSCollection.body,
         actionName,
       );
       if (position) {
-        console.log("cmd click", "setting focus and cursor");
         dispatch(
           setFocusableCodeEditorField(`${currentJSCollection.name}.body`),
         );
