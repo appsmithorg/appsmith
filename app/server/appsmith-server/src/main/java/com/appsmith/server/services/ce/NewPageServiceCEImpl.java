@@ -364,7 +364,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         }
 
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, permission)
-                .flatMap(childApplicationId -> findApplicationPagesByApplicationIdViewMode(childApplicationId, view, markApplicationAsRecentlyAccessed))
+                .flatMap(childApplicationId ->
+                        findApplicationPagesByApplicationIdViewMode(childApplicationId, view, markApplicationAsRecentlyAccessed)
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.APPLICATION, childApplicationId)))
+                )
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
 
