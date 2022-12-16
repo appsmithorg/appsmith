@@ -1,9 +1,14 @@
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ResponsiveBehavior } from "components/constants";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { MenuItemsSource, MenuButtonWidgetProps } from "../../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
+import { MenuButtonWidgetProps, MenuItemsSource } from "../../constants";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 import menuItemsConfig from "./childPanels/menuItemsConfig";
 import { updateMenuItemsSource } from "./propertyUtils";
@@ -144,6 +149,13 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+    ],
+  },
+  {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+      generateVerticalAlignmentConfig(),
     ],
   },
 ] as PropertyPaneConfig[];
