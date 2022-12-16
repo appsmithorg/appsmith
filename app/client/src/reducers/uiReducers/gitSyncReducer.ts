@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 import { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
+import { PageDefaultMeta } from "api/ApplicationApi";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -529,12 +530,7 @@ export type GitDiscardResponse = {
   name: string;
   workspaceId: string;
   isPublic: boolean;
-  pages: {
-    id: string;
-    isDefault: boolean;
-    defaultPageId: string;
-    default: boolean;
-  }[];
+  pages: PageDefaultMeta[];
   appIsExample: boolean;
   color: string;
   icon: string;

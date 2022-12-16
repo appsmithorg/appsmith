@@ -1,22 +1,22 @@
+import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
 import SwitchComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import {
-  LabelPosition,
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
-import { AlignWidgetTypes } from "widgets/constants";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { AlignWidgetTypes } from "widgets/constants";
+
+import { Stylesheet } from "entities/AppTheming";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return [
@@ -43,6 +43,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
               { label: "Left", value: LabelPosition.Left },
               { label: "Right", value: LabelPosition.Right },
             ],
+            defaultValue: LabelPosition.Left,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -116,6 +117,13 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         ],
       },
       {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
+      {
         sectionName: "Events",
         children: [
           {
@@ -134,13 +142,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return [
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
       {
         sectionName: "Label Styles",
         children: [
@@ -242,12 +243,20 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     ];
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      boxShadow: "none",
+    };
+  }
+
   getPageView() {
     return (
       <SwitchComponent
         accentColor={this.props.accentColor}
         alignWidget={this.props.alignWidget}
         isDisabled={this.props.isDisabled}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isLoading={this.props.isLoading}
         isSwitchedOn={!!this.props.isSwitchedOn}
         key={this.props.widgetId}

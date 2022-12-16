@@ -1,25 +1,24 @@
 import * as Sentry from "@sentry/react";
-import React from "react";
-
-// import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
-// import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
-// import { LayoutDirection, Positioning } from "components/constants";
 import { Colors } from "constants/Colors";
-// import { Dropdown, DropdownOption, RenderOption } from "design-system";
-// import { useDispatch } from "react-redux";
-// import { getWidgets } from "sagas/selectors";
-// import { useSelector } from "store";
+import React from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
-import ThemeEditor from "../ThemePropertyPane/ThemeEditor";
+
+import { PopoverPosition } from "@blueprintjs/core";
+import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { Button, Category, Size, TooltipComponent } from "design-system";
 
 const Title = styled.p`
   color: ${Colors.GRAY_800};
 `;
 
-type Props = {
-  skipThemeEditor?: boolean;
-};
+// export function CanvasPropertyPane() {
+//   const dispatch = useDispatch();
+
+//   const openAppSettingsPane = () => {
+//     dispatch(openAppSettingsPaneAction());
+//   };
 
 // const PositioningOptions = () => {
 //   const dispatch = useDispatch();
@@ -89,7 +88,12 @@ type Props = {
 //   );
 // };
 
-export function CanvasPropertyPane(props: Props) {
+export function CanvasPropertyPane() {
+  const dispatch = useDispatch();
+
+  const openAppSettingsPane = () => {
+    dispatch(openAppSettingsPaneAction());
+  };
   return (
     <div className="relative ">
       <h3 className="px-4 py-3 text-sm font-medium uppercase">Properties</h3>
@@ -98,14 +102,26 @@ export function CanvasPropertyPane(props: Props) {
         <div className="px-4 space-y-2">
           <Title className="text-sm">Canvas Size</Title>
           <MainContainerLayoutControl />
+
+          <TooltipComponent
+            content={
+              <>
+                <p className="text-center">Update your app theme, URL</p>
+                <p className="text-center">and other settings</p>
+              </>
+            }
+            position={PopoverPosition.BOTTOM}
+          >
+            <Button
+              category={Category.secondary}
+              fill
+              id="t--app-settings-cta"
+              onClick={openAppSettingsPane}
+              size={Size.medium}
+              text="App Settings"
+            />
+          </TooltipComponent>
         </div>
-        {/* {!props.skipThemeEditor && (
-          <div className="px-3 space-y-2">
-            <p className="text-sm text-gray-700">Positioning</p>
-            <PositioningOptions />
-          </div>
-        )} */}
-        {!props.skipThemeEditor && <ThemeEditor />}
       </div>
     </div>
   );

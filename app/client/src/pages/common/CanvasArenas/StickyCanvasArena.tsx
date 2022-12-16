@@ -33,10 +33,6 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   overflow-y: auto;
 `;
 
-const StickyCanvas = styled.canvas`
-  position: absolute;
-`;
-
 export const StickyCanvasArena = forwardRef(
   (props: StickyCanvasArenaProps, ref: any) => {
     const {
@@ -126,7 +122,8 @@ export const StickyCanvasArena = forwardRef(
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
       it will only be as big as its viewable area so maximum size would be less
   than screen width and height in all cases. */}
-        <StickyCanvas
+        <canvas
+          data-sl="canvas-mq" // attribute to enable canvas on smartlook
           data-testid={canvasId}
           id={canvasId}
           ref={stickyCanvasRef}

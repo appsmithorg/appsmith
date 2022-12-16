@@ -17,6 +17,7 @@ import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { Positioning, ResponsiveBehavior } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
@@ -68,11 +69,6 @@ export class ContainerWidget extends BaseWidget<
           },
         ],
       },
-    ];
-  }
-
-  static getPropertyPaneStyleConfig() {
-    return [
       {
         sectionName: "Responsive Layout",
         children: [
@@ -81,6 +77,11 @@ export class ContainerWidget extends BaseWidget<
           generateVerticalAlignmentConfig(),
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
         sectionName: "Color",
         children: [
@@ -155,6 +156,12 @@ export class ContainerWidget extends BaseWidget<
   }
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   componentDidMount(): void {

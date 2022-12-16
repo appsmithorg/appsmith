@@ -205,6 +205,10 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
   return {};
 };
 
+export const getDatasourceActionRouteInfo = (state: AppState) => {
+  return state.ui.datasourcePane.actionRouteInfo;
+};
+
 export const getDatasourcesByPluginId = (
   state: AppState,
   id: string,
@@ -476,7 +480,10 @@ export const getCurrentPageWidgets = createSelector(
     currentPageId ? widgetsByPage[currentPageId] : {},
 );
 
-const getParentModalId = (widget: any, pageWidgets: Record<string, any>) => {
+export const getParentModalId = (
+  widget: any,
+  pageWidgets: Record<string, any>,
+) => {
   let parentModalId;
   let { parentId } = widget;
   let parentWidget = pageWidgets[parentId];

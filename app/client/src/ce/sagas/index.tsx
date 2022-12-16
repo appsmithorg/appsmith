@@ -28,7 +28,6 @@ import utilSagas from "sagas/UtilSagas";
 import saaSPaneSagas from "sagas/SaaSPaneSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import globalSearchSagas from "sagas/GlobalSearchSagas";
-import recentEntitiesSagas from "sagas/RecentEntitiesSagas";
 import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "sagas/DebuggerSagas";
 import replaySaga from "sagas/ReplaySaga";
@@ -41,6 +40,7 @@ import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import NavigationSagas from "sagas/NavigationSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
+import AutoHeightSagas from "sagas/autoHeightSagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
 import layoutUpdateSagas from "sagas/LayoutUpdateSagas";
 import autoLayoutDraggingSagas from "sagas/CanvasSagas/AutoLayoutDraggingSagas";
@@ -76,7 +76,6 @@ export const sagas = [
   formEvaluationChangeListener,
   utilSagas,
   globalSearchSagas,
-  recentEntitiesSagas,
   websocketSagas,
   debuggerSagas,
   saaSPaneSagas,
@@ -89,6 +88,7 @@ export const sagas = [
   NavigationSagas,
   editorContextSagas,
   PageVisibilitySaga,
+  AutoHeightSagas,
   tenantSagas,
   layoutUpdateSagas,
   autoLayoutDraggingSagas,

@@ -5,7 +5,7 @@ import {
 } from "./hooks";
 import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -33,6 +33,13 @@ import {
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+
+import { AppState } from "@appsmith/reducers";
+import {
+  hasCreateDatasourcePermission,
+  hasManageDatasourcePermission,
+} from "@appsmith/utils/permissionHelpers";
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;
@@ -55,6 +62,15 @@ const Datasources = React.memo(() => {
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const pluginGroups = React.useMemo(() => keyBy(plugins, "id"), [plugins]);
+
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateDatasource = hasCreateDatasourcePermission(
+    userWorkspacePermissions,
+  );
+
   const addDatasource = useCallback(() => {
     history.push(
       integrationEditorURL({
@@ -78,8 +94,14 @@ const Datasources = React.memo(() => {
   const datasourceElements = React.useMemo(
     () =>
       appWideDS.concat(datasourceSuggestions).map((datasource: Datasource) => {
+        const datasourcePermissions = datasource.userPermissions || [];
+
+        const canManageDatasource = hasManageDatasourcePermission(
+          datasourcePermissions,
+        );
         return (
           <ExplorerDatasourceEntity
+            canManageDatasource={canManageDatasource}
             datasource={datasource}
             isActive={datasource.id === activeDatasourceId}
             key={datasource.id}
@@ -106,24 +128,31 @@ const Datasources = React.memo(() => {
       className={"datasources"}
       entityId="datasources_section"
       icon={null}
-      isDefaultExpanded={isDatasourcesOpen === null ? true : isDatasourcesOpen}
+      isDefaultExpanded={
+        isDatasourcesOpen === null || isDatasourcesOpen === undefined
+          ? false
+          : isDatasourcesOpen
+      }
       isSticky
       name="Datasources"
       onCreate={addDatasource}
       onToggle={onDatasourcesToggle}
       searchKeyword={""}
+      showAddButton={canCreateDatasource}
       step={0}
     >
       {datasourceElements.length ? (
         datasourceElements
       ) : (
         <EmptyComponent
-          addBtnText={createMessage(EMPTY_DATASOURCE_BUTTON_TEXT)}
-          addFunction={addDatasource || noop}
           mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
+          {...(canCreateDatasource && {
+            addBtnText: createMessage(EMPTY_DATASOURCE_BUTTON_TEXT),
+            addFunction: addDatasource || noop,
+          })}
         />
       )}
-      {datasourceElements.length > 0 && (
+      {datasourceElements.length > 0 && canCreateDatasource && (
         <AddEntity
           action={addDatasource}
           entityId="add_new_datasource"

@@ -3,9 +3,9 @@ import {
   LayoutDirection,
   ResponsiveBehavior,
 } from "components/constants";
+import { useSelector } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
-import { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
