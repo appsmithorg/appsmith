@@ -200,8 +200,8 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
 
       const snapped = getSnappedValues(dx, dy, snapGrid);
 
-      if (maxY + snapped.y <= minY) {
-        setMindY(snapped.y + (maxY - minY));
+      if (maxY + snapped.y <= minY + mindY) {
+        setMindY(snapped.y + (maxY - minY) - 10);
       }
 
       setMaxdY(snapped.y);
@@ -219,12 +219,14 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
 
     function onMaxStop() {
       setIsMaxDotDragging(false);
-      const heightToSet = maxY + maxdY;
 
-      if (heightToSet === minY + mindY) {
-        batchUpdate(heightToSet);
-      } else {
-        updateMaxHeight(heightToSet);
+      if (mindY !== 0) {
+        updateMinHeight(minY + mindY);
+        setMindY(0);
+      }
+
+      if (maxdY !== 0) {
+        updateMaxHeight(maxY + maxdY);
         setMaxdY(0);
       }
 
@@ -249,8 +251,8 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
 
       const snapped = getSnappedValues(dx, dy, snapGrid);
 
-      if (minY + snapped.y >= maxY) {
-        setMaxdY(snapped.y - (maxY - minY));
+      if (minY + snapped.y >= maxY + maxdY) {
+        setMaxdY(10 + snapped.y - (maxY - minY));
       }
 
       setMindY(snapped.y);
@@ -258,16 +260,27 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
 
     function onMinStop() {
       setIsMinDotDragging(false);
-      const heightToSet = minY + mindY;
 
-      if (heightToSet === maxY + maxdY) {
-        batchUpdate(heightToSet);
-      } else {
-        updateMinHeight(heightToSet);
+      if (mindY !== 0) {
+        updateMinHeight(minY + mindY);
         setMindY(0);
       }
 
+      if (maxdY !== 0) {
+        updateMaxHeight(maxY + maxdY);
+        setMaxdY(0);
+      }
+
       onAnyDotStop();
+
+      // const heightToSet = minY + mindY;
+
+      // if (heightToSet === maxY + maxdY) {
+      //   batchUpdate(heightToSet);
+      // } else {
+      //   updateMinHeight(heightToSet);
+      //   setMindY(0);
+      // }
     }
 
     function onMinDotStart() {
