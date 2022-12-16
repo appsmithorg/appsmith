@@ -2,6 +2,7 @@ import CodeMirror from "codemirror";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import { MarkHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import { NavigationData } from "selectors/navigationSelectors";
+import { keyBy } from "lodash";
 
 export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
   editor.eachLine((line: CodeMirror.LineHandle) => {
@@ -48,20 +49,17 @@ export const entityMarker: MarkHelper = (
   editor: CodeMirror.Editor,
   entityNavigationData,
 ) => {
+  editor
+    .getAllMarks()
+    .filter((marker) => marker.className === NAVIGATION_CLASSNAME)
+    .forEach((marker) => marker.clear());
+
   editor.eachLine((line: CodeMirror.LineHandle) => {
     const lineNo = editor.getLineNumber(line) || 0;
     const tokens = editor.getLineTokens(lineNo);
     tokens.forEach((token) => {
       const tokenString = token.string;
-      const existingMarking = editor
-        .findMarks(
-          { ch: token.start, line: lineNo },
-          { ch: token.end, line: lineNo },
-        )
-        .filter((marker) => marker.className === NAVIGATION_CLASSNAME);
-
       if (token.type === "variable" && tokenString in entityNavigationData) {
-        if (existingMarking.length) return;
         const data = entityNavigationData[tokenString];
         editor.markText(
           { ch: token.start, line: lineNo },
@@ -74,6 +72,7 @@ export const entityMarker: MarkHelper = (
               [NAVIGATE_TO_ATTRIBUTE]: `${data.name}`,
             },
             atomic: false,
+            title: data.name,
           },
         );
         addMarksForChildren(
@@ -116,6 +115,7 @@ const addMarksForChildren = (
               [NAVIGATE_TO_ATTRIBUTE]: `${childLink.name}`,
             },
             atomic: false,
+            title: childLink.name,
           },
         );
       }

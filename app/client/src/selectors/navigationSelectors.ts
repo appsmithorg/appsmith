@@ -81,7 +81,7 @@ export const getEntitiesForNavigation = createSelector(
         children: getWidgetChildren(widget, dataTree, pageId),
       };
     });
-
+    console.log("cmd click", "getting data", navigationData);
     return navigationData;
   },
 );
