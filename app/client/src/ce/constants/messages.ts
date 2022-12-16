@@ -1400,6 +1400,11 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
 
+// Datasources
+export const SAVE_BUTTON_TEXT = () => "SAVE";
+export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
+export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
+
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },

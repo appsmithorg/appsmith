@@ -2,6 +2,7 @@ import React from "react";
 import {
   createMessage,
   DELETE_CONFIRMATION_MODAL_TITLE,
+  DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT,
   SAVE_OR_DISCARD_DATASOURCE_WARNING,
 } from "@appsmith/constants/messages";
 import {
@@ -59,7 +60,7 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
             className="t--datasource-modal-do-not-save"
             onClick={onDiscard}
             size={Size.medium}
-            text="DON'T SAVE"
+            text={createMessage(DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT)}
           />
           <Button
             category={Category.primary}

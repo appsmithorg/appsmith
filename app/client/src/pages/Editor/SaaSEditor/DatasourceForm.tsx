@@ -47,6 +47,10 @@ import {
   toggleSaveActionFromPopupFlag,
 } from "actions/datasourceActions";
 import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
+import {
+  createMessage,
+  SAVE_AND_AUTHORIZE_BUTTON_TEXT,
+} from "ce/constants/messages";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -329,7 +333,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           onClose={this.closeDialog}
           onDiscard={this.onDiscard}
           onSave={this.onSave}
-          saveButtonText="SAVE AND AUTHORIZE"
+          saveButtonText={createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)}
         />
       </>
     );
