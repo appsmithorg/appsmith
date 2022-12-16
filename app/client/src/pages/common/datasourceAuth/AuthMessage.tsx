@@ -38,7 +38,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   const extraInfo: Partial<React.ComponentProps<typeof CalloutV2>> = {};
 
   if (actionType === "authorize") {
-    extraInfo.actionLabel = "Re-Authorize Datasource";
+    extraInfo.actionLabel = "Authorize Datasource";
     extraInfo.onClick = handleOauthAuthorization;
   }
 
