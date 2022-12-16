@@ -32,7 +32,6 @@ const mainCanvasReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasLayoutPayload>,
   ) => {
     state.width = action.payload.width || state.width;
-    state.height = action.payload.height || state.height;
     state.initialized = true;
     state.isMobile = action.payload.width <= MOBILE_MAX_WIDTH;
   },

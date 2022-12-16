@@ -6,6 +6,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ResponsiveBehavior } from "components/constants";
 import { Colors } from "constants/Colors";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
@@ -163,6 +164,13 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      fillColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

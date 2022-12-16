@@ -3,10 +3,11 @@ import { AppState } from "@appsmith/reducers";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   DynamicValues,
+  FormEvalOutput,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import { createSelector } from "reselect";
-import { replace } from "lodash";
+import { isEmpty, replace } from "lodash";
 import { getDataTree } from "./dataTreeSelectors";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Action } from "entities/Action";
@@ -49,6 +50,22 @@ export const getDynamicFetchedValues = (
   return !!conditionalOutput.fetchDynamicValues
     ? conditionalOutput.fetchDynamicValues
     : ({} as DynamicValues);
+};
+
+export const getDynamicTriggers = (
+  state: AppState,
+  actionId: string,
+): FormEvalOutput | undefined => {
+  const allTriggers = state.evaluations.triggers[actionId];
+  const triggersAllowedToFetch: FormEvalOutput = {};
+  if (!isEmpty(allTriggers)) {
+    Object.entries(allTriggers).forEach(([key, value]) => {
+      if (value?.fetchDynamicValues?.allowedToFetch) {
+        triggersAllowedToFetch[key] = value;
+      }
+    });
+  }
+  return !isEmpty(triggersAllowedToFetch) ? triggersAllowedToFetch : undefined;
 };
 
 type ConfigErrorProps = { configProperty: string; formName: string };

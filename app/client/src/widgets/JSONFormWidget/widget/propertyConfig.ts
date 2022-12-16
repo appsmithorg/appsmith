@@ -8,7 +8,7 @@ import {
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import {
   generateResponsiveBehaviorConfig,

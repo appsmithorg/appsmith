@@ -1,8 +1,12 @@
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
+
+const appSettings = ObjectsRegistry.AppSettings;
 
 let themeBackgroudColor;
 let themeFont;
@@ -26,6 +30,8 @@ describe("Theme validation usecases", function() {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
@@ -69,7 +75,7 @@ describe("Theme validation usecases", function() {
       });
 
       cy.get(themelocator.fontsSelected)
-        .eq(0)
+        .eq(10)
         .should("have.text", "Nunito Sans");
 
       cy.get(".ads-dropdown-options-wrapper div")
@@ -131,6 +137,7 @@ describe("Theme validation usecases", function() {
     cy.get(themelocator.inputColor).should("have.value", "Black");
     cy.wait(2000);
     cy.contains("Color").click({ force: true });
+    appSettings.ClosePane();
   });
 
   it("2. Publish the App and validate Font across the app", function() {
@@ -177,6 +184,9 @@ describe("Theme validation usecases", function() {
       .should("have.css", "background-color")
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
+
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(themelocator.currentTheme).click({ force: true });
@@ -190,6 +200,7 @@ describe("Theme validation usecases", function() {
           .then((selectedBackgroudColor) => {
             expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
+            appSettings.ClosePane();
           });
       });
   });
@@ -236,6 +247,8 @@ describe("Theme validation usecases", function() {
 
     cy.get("#canvas-selection-0").click({ force: true });
 
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     // select a theme
@@ -283,6 +296,7 @@ describe("Theme validation usecases", function() {
           .then((selectedBackgroudColor) => {
             expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
+            appSettings.ClosePane();
           });
       });
     cy.get(formWidgetsPage.formD).click();

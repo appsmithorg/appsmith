@@ -1,15 +1,16 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { get } from "lodash";
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
+import { hideByColumnType, showByColumnType } from "../../propertyUtils";
 
 export default {
-  sectionName: (props: TableWidgetProps, propertyPath: string) => {
-    const columnType = get(props, `${propertyPath}.columnType`);
-    return columnType === ColumnTypes.CHECKBOX ||
-      columnType === ColumnTypes.SWITCH
-      ? "Alignment"
-      : "Text Formatting";
+  sectionName: "Text Formatting",
+  hidden: (props: TableWidgetProps, propertyPath: string) => {
+    return showByColumnType(
+      props,
+      propertyPath,
+      [ColumnTypes.CHECKBOX, ColumnTypes.SWITCH],
+      true,
+    );
   },
   children: [
     {
@@ -45,7 +46,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
         },
@@ -84,7 +85,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
         },
@@ -100,14 +101,7 @@ export default {
     },
     {
       propertyName: "horizontalAlignment",
-      label: (props: TableWidgetProps, propertyPath: string) => {
-        const basePropertyPath = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${basePropertyPath}.columnType`);
-        return columnType === ColumnTypes.CHECKBOX ||
-          columnType === ColumnTypes.SWITCH
-          ? "Horizontal Alignment"
-          : "Text Align";
-      },
+      label: "Text Align",
       helpText: "Sets the horizontal alignment of the content in the column",
       controlType: "ICON_TABS",
       fullWidth: true,
@@ -131,7 +125,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -177,7 +171,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {

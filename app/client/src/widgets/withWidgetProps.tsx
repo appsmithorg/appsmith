@@ -1,29 +1,32 @@
 import equal from "fast-deep-equal/es6";
 import React from "react";
 
-import BaseWidget, { WidgetProps } from "./BaseWidget";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { AppState } from "@appsmith/reducers";
+import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
+import { useDispatch, useSelector } from "react-redux";
+import { getWidget } from "sagas/selectors";
 import {
-  getWidgetEvalValues,
   getIsWidgetLoading,
+  getWidgetEvalValues,
 } from "selectors/dataTreeSelectors";
 import {
-  getMainCanvasProps,
   computeMainContainerWidget,
   getChildWidgets,
+  getMainCanvasProps,
   getRenderMode,
+  previewModeSelector,
 } from "selectors/editorSelectors";
-import { AppState } from "@appsmith/reducers";
-import { useSelector } from "react-redux";
-import { getWidget } from "sagas/selectors";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
+import BaseWidget, { WidgetProps } from "./BaseWidget";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -32,6 +35,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     props: WidgetProps & { skipWidgetPropsHydration?: boolean },
   ) {
     const { children, skipWidgetPropsHydration, type, widgetId } = props;
+    const isPreviewMode = useSelector(previewModeSelector);
 
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
@@ -47,6 +51,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
     const isMobile = useSelector(getIsMobile);
+
+    const dispatch = useDispatch();
 
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
@@ -84,9 +90,14 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         props.type === "CANVAS_WIDGET" &&
         widgetId !== MAIN_CONTAINER_WIDGET_ID
       ) {
+        const isListWidgetCanvas =
+          props.noPad && props.dropDisabled && props.openParentPropertyPane;
+
         widgetProps.rightColumn = props.rightColumn;
-        widgetProps.bottomRow = props.bottomRow;
-        widgetProps.minHeight = props.minHeight;
+        if (widgetProps.bottomRow === undefined || isListWidgetCanvas) {
+          widgetProps.bottomRow = props.bottomRow;
+          widgetProps.minHeight = props.minHeight;
+        }
         widgetProps.shouldScrollContents = props.shouldScrollContents;
         widgetProps.canExtend = props.canExtend;
         widgetProps.parentId = props.parentId;
@@ -113,9 +124,35 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       return null;
     }
 
+    const shouldCollapseWidgetInViewOrPreviewMode =
+      !widgetProps.isVisible &&
+      (renderMode === RenderModes.PAGE || isPreviewMode);
+
+    const shouldResetCollapsedContainerHeightInViewOrPreviewMode =
+      widgetProps.isVisible && widgetProps.topRow === widgetProps.bottomRow;
+
+    const shouldResetCollapsedContainerHeightInCanvasMode =
+      widgetProps.topRow === widgetProps.bottomRow &&
+      renderMode === RenderModes.CANVAS &&
+      !isPreviewMode;
+
     // We don't render invisible widgets in view mode
-    if (renderMode === RenderModes.PAGE && !widgetProps.isVisible) {
+    if (shouldCollapseWidgetInViewOrPreviewMode) {
+      if (widgetProps.bottomRow !== widgetProps.topRow) {
+        dispatch({
+          type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
+          payload: {
+            widgetId: props.widgetId,
+            height: 0,
+          },
+        });
+      }
       return null;
+    } else if (
+      shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
+      shouldResetCollapsedContainerHeightInCanvasMode
+    ) {
+      dispatch(checkContainersForAutoHeightAction());
     }
 
     return <WrappedWidget {...widgetProps} />;

@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
 import FormTitle from "./FormTitle";
-import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import {
   getFormMeta,
@@ -19,12 +18,14 @@ import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Toaster, Variant } from "design-system";
+import { Button, Category, Toaster, Variant } from "design-system";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
+  createDatasourceFromForm,
   deleteDatasource,
   redirectAuthorizationCode,
+  toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -49,12 +50,15 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { Callout } from "design-system";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  hasDeleteDatasourcePermission,
+  hasManageDatasourcePermission,
+} from "@appsmith/utils/permissionHelpers";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -81,6 +85,15 @@ interface DatasourceRestApiEditorProps {
   hiddenHeader?: boolean;
   responseStatus?: string;
   responseMessage?: string;
+  datasourceName: string;
+  createDatasource: (
+    data: Datasource,
+    onSuccess?: ReduxAction<unknown>,
+  ) => void;
+  toggleSaveActionFlag: (flag: boolean) => void;
+  triggerSave?: boolean;
+  isFormDirty: boolean;
+  datasourceDeleteTrigger: () => void;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -135,7 +148,7 @@ const SaveButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
-const ActionButton = styled(BaseButton)`
+const ActionButton = styled(Button)`
   &&& {
     width: auto;
     min-width: 74px;
@@ -177,7 +190,7 @@ class DatasourceRestAPIEditor extends React.Component<
     );
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
     if (!this.props.formData) return;
 
     if (this.state.confirmDelete) {
@@ -194,6 +207,14 @@ class DatasourceRestAPIEditor extends React.Component<
       this.ensureOAuthDefaultsAreCorrect();
     } else if (authType === AuthType.apiKey) {
       this.ensureAPIKeyDefaultsAreCorrect();
+    }
+
+    // if trigger save changed, save datasource
+    if (
+      prevProps.triggerSave !== this.props.triggerSave &&
+      this.props.triggerSave
+    ) {
+      this.save();
     }
   }
 
@@ -269,12 +290,21 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   disableSave = (): boolean => {
-    const { formData } = this.props;
+    const { datasource, datasourceId, formData } = this.props;
+    const createMode = datasourceId === TEMP_DATASOURCE_ID;
+    const canManageDatasource = hasManageDatasourcePermission(
+      datasource?.userPermissions || [],
+    );
     if (!formData) return true;
-    return !formData.url;
+    return (
+      !formData.url ||
+      !this.props.isFormDirty ||
+      (!createMode && !canManageDatasource)
+    );
   };
 
   save = (onSuccess?: ReduxAction<unknown>) => {
+    this.props.toggleSaveActionFlag(true);
     const normalizedValues = formValuesToDatasource(
       this.props.datasource,
       this.props.formData,
@@ -284,7 +314,17 @@ class DatasourceRestAPIEditor extends React.Component<
       appId: this.props.applicationId,
     });
 
-    this.props.updateDatasource(normalizedValues, onSuccess);
+    if (this.props.datasource.id !== TEMP_DATASOURCE_ID) {
+      return this.props.updateDatasource(normalizedValues, onSuccess);
+    }
+
+    this.props.createDatasource(
+      {
+        ...normalizedValues,
+        name: this.props.datasourceName,
+      },
+      onSuccess,
+    );
   };
 
   createApiAction = () => {
@@ -347,6 +387,11 @@ class DatasourceRestAPIEditor extends React.Component<
     return { isValid: true, message: "" };
   };
 
+  handleDeleteDatasource = (datasourceId: string) => {
+    this.props.deleteDatasource(datasourceId);
+    this.props.datasourceDeleteTrigger();
+  };
+
   render = () => {
     return (
       <>
@@ -368,56 +413,70 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderHeader = () => {
-    const { hiddenHeader, isNewDatasource, pluginImage } = this.props;
+    const {
+      datasource,
+      datasourceId,
+      hiddenHeader,
+      isNewDatasource,
+      pluginImage,
+    } = this.props;
+    const createMode = datasourceId === TEMP_DATASOURCE_ID;
+    const canManageDatasource = hasManageDatasourcePermission(
+      datasource?.userPermissions || [],
+    );
     return !hiddenHeader ? (
       <Header>
         <FormTitleContainer>
           <PluginImage alt="Datasource" src={pluginImage} />
-          <FormTitle focusOnMount={isNewDatasource} />
+          <FormTitle
+            disabled={!createMode && !canManageDatasource}
+            focusOnMount={isNewDatasource}
+          />
         </FormTitleContainer>
       </Header>
     ) : null;
   };
 
   renderSave = () => {
-    const {
-      datasourceId,
-      deleteDatasource,
-      hiddenHeader,
-      isDeleting,
-      isSaving,
-    } = this.props;
+    const { datasourceId, hiddenHeader, isDeleting, isSaving } = this.props;
+    const createMode = datasourceId === TEMP_DATASOURCE_ID;
+    const canDeleteDatasource = hasDeleteDatasourcePermission(
+      this.props.datasource?.userPermissions || [],
+    );
+
     return (
       <SaveButtonContainer>
         {!hiddenHeader && (
           <ActionButton
-            // accent="error"
-            buttonStyle="DANGER"
-            buttonVariant={ButtonVariantTypes.PRIMARY}
+            category={Category.primary}
             className="t--delete-datasource"
-            loading={isDeleting}
+            disabled={createMode || !canDeleteDatasource}
+            isLoading={isDeleting}
             onClick={() => {
               this.state.confirmDelete
-                ? deleteDatasource(datasourceId)
+                ? this.handleDeleteDatasource(datasourceId)
                 : this.setState({ confirmDelete: true });
             }}
+            size="medium"
+            tag="button"
             text={
               this.state.confirmDelete
                 ? createMessage(CONFIRM_CONTEXT_DELETE)
                 : createMessage(CONTEXT_DELETE)
             }
+            variant={Variant.danger}
           />
         )}
-
         <StyledButton
+          category={Category.primary}
           className="t--save-datasource"
           disabled={this.disableSave()}
-          filled
-          intent="primary"
-          loading={isSaving}
+          isLoading={isSaving}
           onClick={() => this.save()}
-          size="small"
+          size="medium"
+          tag="button"
           text="Save"
+          variant={Variant.success}
         />
       </SaveButtonContainer>
     );
@@ -458,7 +517,10 @@ class DatasourceRestAPIEditor extends React.Component<
             this.urlValidator,
           )}
         </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("headers")}>
+        <FormInputContainer
+          className="t--headers-array"
+          data-replay-id={btoa("headers")}
+        >
           {this.renderKeyValueControlViaFormControl(
             "headers",
             "Headers",
@@ -547,10 +609,10 @@ class DatasourceRestAPIEditor extends React.Component<
             GrantType.AuthorizationCode && (
             <FormInputContainer>
               <AuthorizeButton
+                category={Category.primary}
+                className="t--save-and-authorize-datasource"
                 disabled={this.disableSave()}
-                filled
-                intent="primary"
-                loading={isSaving}
+                isLoading={isSaving}
                 onClick={() =>
                   this.save(
                     redirectAuthorizationCode(
@@ -560,10 +622,11 @@ class DatasourceRestAPIEditor extends React.Component<
                     ),
                   )
                 }
-                size="small"
+                tag="button"
                 text={
                   isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
                 }
+                variant={Variant.success}
               />
             </FormInputContainer>
           )}
@@ -1201,6 +1264,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
+    datasourceName: datasource?.name ?? "",
   };
 };
 
@@ -1213,6 +1277,10 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteDatasource: (id: string) => {
       dispatch(deleteDatasource({ id }));
     },
+    createDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
+      dispatch(createDatasourceFromForm(formData, onSuccess)),
+    toggleSaveActionFlag: (flag: boolean) =>
+      dispatch(toggleSaveActionFlag(flag)),
   };
 };
 

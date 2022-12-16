@@ -11,6 +11,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
@@ -79,7 +80,7 @@ public class RestApiPlugin extends BasePlugin {
                 if (actionConfiguration.getBody() != null) {
 
                     // First extract all the bindings in order
-                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
+                    List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
                     // Replace all the bindings with a ? as expected in a prepared statement.
                     String updatedBody = MustacheHelper.replaceMustacheWithPlaceholder(actionConfiguration.getBody(), mustacheKeysInOrder);
 
@@ -106,8 +107,9 @@ public class RestApiPlugin extends BasePlugin {
             if (actionConfiguration.getPaginationType() != null &&
                     PaginationType.URL.equals(actionConfiguration.getPaginationType()) &&
                     executeActionDTO.getPaginationField() != null) {
-                updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, executeActionDTO.getPaginationField());
-                updateActionConfigurationForPagination(actionConfiguration, executeActionDTO.getPaginationField());
+                List<Property> paginationQueryParamsList = new ArrayList<>();
+                updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, paginationQueryParamsList,executeActionDTO.getPaginationField());
+                updateActionConfigurationForPagination(actionConfiguration, paginationQueryParamsList,executeActionDTO.getPaginationField());
             }
 
             // Filter out any empty headers
@@ -149,7 +151,7 @@ public class RestApiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
-            WebClient.Builder webClientBuilder = triggerUtils.getWebClientBuilder(actionConfiguration,
+            WebClient.Builder webClientBuilder = restAPIActivateUtils.getWebClientBuilder(actionConfiguration,
                     datasourceConfiguration);
             String reqContentType = headerUtils.getRequestContentType(actionConfiguration, datasourceConfiguration);
 
@@ -172,36 +174,89 @@ public class RestApiPlugin extends BasePlugin {
             Object requestBodyObj = dataUtils.getRequestBodyObject(actionConfiguration, reqContentType,
                     encodeParamsToggle,
                     httpMethod);
-            WebClient client = triggerUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
+            WebClient client = restAPIActivateUtils.getWebClient(webClientBuilder, apiConnection, reqContentType, objectMapper,
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
-            return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
+            return restAPIActivateUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper, hintMessages, errorResult, requestCaptureFilter);
         }
 
         private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
+                                                                           List<Property> queryParamsList,
                                                                            PaginationField paginationField) {
             if (PaginationField.NEXT.equals(paginationField) || PaginationField.PREV.equals(paginationField)) {
                 actionConfiguration.setPath("");
-                actionConfiguration.setQueryParameters(null);
+                actionConfiguration.setQueryParameters(queryParamsList);
             }
             return actionConfiguration;
         }
 
         private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
                                                                                    DatasourceConfiguration datasourceConfiguration,
+                                                                                   List<Property> paginationQueryParamsList,
                                                                                    PaginationField paginationField) {
+
             if (PaginationField.NEXT.equals(paginationField)) {
                 if (actionConfiguration.getNext() == null) {
                     datasourceConfiguration.setUrl(null);
                 } else {
-                    datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+                    paginationQueryParamsList.addAll(decodeUrlAndGetAllQueryParams(datasourceConfiguration,actionConfiguration.getNext()));
                 }
             } else if (PaginationField.PREV.equals(paginationField)) {
-                datasourceConfiguration.setUrl(actionConfiguration.getPrev());
+                paginationQueryParamsList.addAll(decodeUrlAndGetAllQueryParams(datasourceConfiguration,actionConfiguration.getPrev()));
             }
+
             return datasourceConfiguration;
+        }
+
+        private List<Property> decodeUrlAndGetAllQueryParams(DatasourceConfiguration datasourceConfiguration, String inputUrl) {
+
+            String decodedUrl = URLDecoder.decode(inputUrl,StandardCharsets.UTF_8);
+
+            String[] urlParts = decodedUrl.split("\\?");
+            datasourceConfiguration.setUrl(urlParts[0]);
+
+            if (urlParts.length >= 2) {
+
+                StringBuilder queryParamBuilder = new StringBuilder();
+
+                for (int i = 1; i < urlParts.length; i++) {
+
+                    if (queryParamBuilder.length() != 0) {
+                        queryParamBuilder.append("?");
+                    }
+
+                    queryParamBuilder.append(urlParts[i]);
+                }
+
+                return getQueryParamListFromUrlSuffix(queryParamBuilder.toString());
+            }
+
+            return new ArrayList<>();
+        }
+
+    private List<Property> getQueryParamListFromUrlSuffix(String queryParams) {
+
+            String[] queryParamArray = queryParams.split("&");
+
+            List<Property> queryParamList = new ArrayList<>();
+
+            for (String queryParam : queryParamArray) {
+                String[] keyValue = queryParam.split("=");
+
+                String key = keyValue.length > 0 ? keyValue[0] : "";
+                String value = keyValue.length > 1 ? keyValue[1] : "";
+
+                if (key.length() == 0) {
+                    continue;
+                }
+
+                Property property = new Property(key,value);
+                queryParamList.add(property);
+            }
+
+            return queryParamList;
         }
 
         @Override

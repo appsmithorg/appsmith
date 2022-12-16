@@ -2,16 +2,16 @@ import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from "../constants";
 
+import { Positioning, ResponsiveBehavior } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import { Positioning, ResponsiveBehavior } from "components/constants";
 
 export const PropertyPaneContentConfig = [
   {

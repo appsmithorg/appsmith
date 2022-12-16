@@ -1,56 +1,57 @@
-import React, { useContext, memo, useMemo } from "react";
-import {
-  WidgetOperations,
-  WidgetRowCols,
-  WidgetProps,
-} from "widgets/BaseWidget";
+import { AppState } from "@appsmith/reducers";
+import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
+import { focusWidget } from "actions/widgetActions";
+import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import { GridDefaults } from "constants/WidgetConstants";
+import { get, omit } from "lodash";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import React, { memo, useContext, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Resizable from "resizable/resizenreflow";
 import {
-  UIElementSize,
-  computeFinalRowCols,
-  computeRowCols,
-} from "./ResizableUtils";
+  previewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
+import {
+  getParentToOpenSelector,
+  isCurrentWidgetFocused,
+  isCurrentWidgetLastSelected,
+  isMultiSelectedWidget,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import Resizable from "resizable/resizenreflow";
-import { omit, get } from "lodash";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
-  VisibilityContainer,
+  WidgetOperations,
+  WidgetProps,
+  WidgetRowCols,
+} from "widgets/BaseWidget";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { DropTargetContext } from "./DropTargetComponent";
+import {
+  computeFinalRowCols,
+  computeRowCols,
+  UIElementSize,
+} from "./ResizableUtils";
+import {
+  BottomHandleStyles,
+  BottomLeftHandleStyles,
+  BottomRightHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
-  BottomHandleStyles,
   TopLeftHandleStyles,
   TopRightHandleStyles,
-  BottomLeftHandleStyles,
-  BottomRightHandleStyles,
+  VisibilityContainer,
 } from "./ResizeStyledComponents";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { focusWidget } from "actions/widgetActions";
-import { GridDefaults } from "constants/WidgetConstants";
-import { DropTargetContext } from "./DropTargetComponent";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
-import { getParentToOpenSelector } from "selectors/widgetSelectors";
-import {
-  isCurrentWidgetFocused,
-  isCurrentWidgetLastSelected,
-  isWidgetSelected,
-  isMultiSelectedWidget,
-} from "selectors/widgetSelectors";
-import { LayoutDirection, ResponsiveBehavior } from "components/constants";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
-import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -120,8 +121,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       width: newDimensions.width - dimensions.width,
     };
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
-    let canResizeHorizontally = true,
-      canResizeVertically = true;
+    let canResizeVertically = true;
+    let canResizeHorizontally = true;
 
     // this is required for list widget so that template have no collision
     if (props.ignoreCollision || props.isFlexChild)
@@ -145,7 +146,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     ) {
       canResizeVertically = false;
     }
-
     const resizedPositions = {
       id: props.widgetId,
       left: newRowCols.leftColumn,
@@ -153,6 +153,12 @@ export const ResizableComponent = memo(function ResizableComponent(
       bottom: newRowCols.bottomRow,
       right: newRowCols.rightColumn,
     };
+
+    if (isAutoHeightEnabledForWidget(props)) {
+      canResizeVertically = false;
+      resizedPositions.top = props.topRow;
+      resizedPositions.bottom = props.bottomRow;
+    }
 
     // Check if new row cols are occupied by sibling widgets
     return {
@@ -278,7 +284,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode;
-
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const gridProps = {
@@ -302,6 +307,17 @@ export const ResizableComponent = memo(function ResizableComponent(
   };
 
   const isAffectedByDrag: boolean = isDragging;
+  const snapGrid = useMemo(
+    () => ({
+      x: props.parentColumnSpace,
+      y: props.parentRowSpace,
+    }),
+    [props.parentColumnSpace, props.parentRowSpace],
+  );
+
+  const isVerticalResizeEnabled = useMemo(() => {
+    return !isAutoHeightEnabledForWidget(props) && isEnabled;
+  }, [props, isAutoHeightEnabledForWidget, isEnabled]);
 
   return (
     <Resizable
@@ -309,7 +325,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       direction={props.direction}
-      enable={isEnabled}
+      enableHorizontalResize={isEnabled}
+      enableVerticalResize={isVerticalResizeEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
@@ -322,7 +339,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       paddingOffset={props.paddingOffset}
       parentId={props.parentId}
       responsiveBehavior={props.responsiveBehavior}
-      snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      snapGrid={snapGrid}
       updateBottomRow={updateBottomRow}
       widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.

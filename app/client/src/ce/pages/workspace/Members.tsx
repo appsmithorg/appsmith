@@ -360,17 +360,18 @@ export default function MemberSettings(props: PageProps) {
           ? allRoles.map((role: any) => {
               return {
                 id: role.id,
-                name: role.name,
+                name: role.name?.split(" - ")[0],
                 desc: role.description,
               };
             })
           : [];
         const index = roles.findIndex(
           (role: { id: string; name: string; desc: string }) =>
-            role.name === cellProps.cell.value,
+            role.name?.split(" - ")[0] ===
+            cellProps.cell.value?.split(" - ")[0],
         );
         if (data.username === currentUser?.username) {
-          return cellProps.cell.value;
+          return cellProps.cell.value?.split(" - ")[0];
         }
         return (
           <TableDropdown
@@ -423,7 +424,7 @@ export default function MemberSettings(props: PageProps) {
     ? allRoles.map((role: any) => {
         return {
           id: role.id,
-          value: role.name,
+          value: role.name?.split(" - ")[0],
           label: role.description,
         };
       })
@@ -476,7 +477,7 @@ export default function MemberSettings(props: PageProps) {
                   </>
                   {isOwner && (
                     <Text className="user-role" type={TextType.P1}>
-                      {member.permissionGroupName}
+                      {member.permissionGroupName?.split(" - ")[0]}
                     </Text>
                   )}
                   {!isOwner && (

@@ -392,7 +392,13 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     assertThat(createdDatasource.getDatasourceConfiguration().getConnection().getSsl().getKeyFile().getName()).isEqualTo("ssl_key_file_id2");
-
+                    assertThat(createdDatasource.getUserPermissions()).isNotEmpty();
+                    assertThat(createdDatasource.getUserPermissions()).containsAll(
+                            Set.of(
+                                    READ_DATASOURCES.getValue(), EXECUTE_DATASOURCES.getValue(),
+                                    MANAGE_DATASOURCES.getValue(), DELETE_DATASOURCES.getValue()
+                            )
+                    );
                 })
                 .verifyComplete();
     }

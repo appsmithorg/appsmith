@@ -1,22 +1,23 @@
+import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
 import MapComponent from "../component";
 
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import styled from "styled-components";
-import { DEFAULT_CENTER } from "constants/WidgetConstants";
+import { ResponsiveBehavior } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
-import { MarkerProps } from "../constants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DEFAULT_CENTER } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import styled from "styled-components";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { MarkerProps } from "../constants";
 
 const { google } = getAppsmithConfigs();
 
@@ -306,6 +307,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   }
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   updateCenter = (lat: number, long: number, title?: string) => {

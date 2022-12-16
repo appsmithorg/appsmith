@@ -1,22 +1,23 @@
-import React from "react";
 import { IconName } from "@blueprintjs/icons";
+import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
-import IconButtonComponent from "../component";
 import { IconNames } from "@blueprintjs/icons";
 import {
   ButtonVariant,
   ButtonVariantTypes,
   ResponsiveBehavior,
 } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
+import IconButtonComponent from "../component";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -213,6 +214,14 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   getPageView() {

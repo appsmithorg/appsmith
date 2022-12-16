@@ -1,28 +1,37 @@
 import DataTreeEvaluator from ".";
 import {
   asyncTagUnevalTree,
+  emptyTreeWithAppsmithObject,
   lintingUnEvalTree,
   unEvalTree,
 } from "./mockData/mockUnEvalTree";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { DataTreeDiff } from "workers/Evaluation/evaluationUtils";
+import {
+  DataTreeDiff,
+  DataTreeDiffEvent,
+} from "workers/Evaluation/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
 import { parseJSActions } from "workers/Evaluation/JSObject";
+import { WidgetConfiguration } from "widgets/constants";
+import { JSUpdate, ParsedBody } from "../../../utils/JSPaneUtils";
 
-const widgetConfigMap = {};
+const widgetConfigMap: Record<
+  string,
+  {
+    defaultProperties: WidgetConfiguration["properties"]["default"];
+    derivedProperties: WidgetConfiguration["properties"]["derived"];
+    metaProperties: WidgetConfiguration["properties"]["meta"];
+  }
+> = {};
+
 ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
-  // @ts-expect-error: Types are not available
   if (config.type && config.properties) {
-    // @ts-expect-error: Types are not available
     widgetConfigMap[config.type] = {
-      // @ts-expect-error: properties does not exists
       defaultProperties: config.properties.default,
-      // @ts-expect-error: properties does not exists
       derivedProperties: config.properties.derived,
-      // @ts-expect-error: properties does not exists
       metaProperties: config.properties.meta,
     };
   }
@@ -206,17 +215,21 @@ describe("DataTreeEvaluator", () => {
 
   describe("parseJsActions", () => {
     beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree(({} as unknown) as DataTree);
+      dataTreeEvaluator.setupFirstTree(
+        (emptyTreeWithAppsmithObject as unknown) as DataTree,
+      );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
     it("set's isAsync tag for cross JsObject references", () => {
       const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
-      expect(
-        result.jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync,
-      ).toBe(true);
-      expect(
-        result.jsUpdates["JSObject2"]?.parsedBody?.actions[0].isAsync,
-      ).toBe(true);
+      const jsUpdatesForJsObject1 = (result as Record<string, JSUpdate>)[
+        "JSObject1"
+      ].parsedBody as ParsedBody;
+      const jsUpdatesForJsObject2 = (result as Record<string, JSUpdate>)[
+        "JSObject2"
+      ].parsedBody as ParsedBody;
+      expect(jsUpdatesForJsObject1.actions[0].isAsync).toBe(true);
+      expect(jsUpdatesForJsObject2.actions[0].isAsync).toBe(true);
     });
   });
 
