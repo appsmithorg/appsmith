@@ -3,24 +3,6 @@ const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServer
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 
-const simpleListData1 = [
-  {
-    id: "001",
-    name: "Blue",
-    img: "https://assets.appsmith.com/widgets/default.png",
-  },
-  {
-    id: "002",
-    name: "Green",
-    img: "https://assets.appsmith.com/widgets/default.png",
-  },
-  {
-    id: "003",
-    name: "Red",
-    img: "https://assets.appsmith.com/widgets/default.png",
-  },
-];
-
 describe("List widget v2 - Basic server side data tests", () => {
   before(() => {
     cy.addDsl(dslWithServerSide);
