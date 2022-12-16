@@ -38,6 +38,8 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
   CONFIRM_CONTEXT_DELETING,
+  GENERATE_NEW_PAGE_BUTTON_TEXT,
+  RECONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 import {
@@ -335,7 +337,9 @@ function DatasourceCard(props: DatasourceCardProps) {
                       : editDatasource
                   }
                   text={
-                    datasource.isConfigured ? "GENERATE NEW PAGE" : "RECONNECT"
+                    datasource.isConfigured
+                      ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
+                      : createMessage(RECONNECT_BUTTON_TEXT)
                   }
                 />
               )}

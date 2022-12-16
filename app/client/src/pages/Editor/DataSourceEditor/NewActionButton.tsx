@@ -8,7 +8,12 @@ import {
   Toaster,
   Variant,
 } from "design-system";
-import { ERROR_ADD_API_INVALID_URL } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  ERROR_ADD_API_INVALID_URL,
+  NEW_API_BUTTON_TEXT,
+  NEW_QUERY_BUTTON_TEXT,
+} from "@appsmith/constants/messages";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
@@ -99,8 +104,8 @@ function NewActionButton(props: NewActionButtonProps) {
       tag="button"
       text={
         pluginType === PluginType.DB || pluginType === PluginType.SAAS
-          ? "New Query"
-          : "New API"
+          ? createMessage(NEW_QUERY_BUTTON_TEXT)
+          : createMessage(NEW_API_BUTTON_TEXT)
       }
     />
   );

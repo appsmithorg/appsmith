@@ -1403,6 +1403,11 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
 
+export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
+export const NEW_API_BUTTON_TEXT = () => "New API";
+export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
+export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
+
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
