@@ -50,4 +50,6 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
     Flux<PermissionGroup> findAllByAssignedToUserId(String userId);
 
     Flux<PermissionGroup> findAllByAssignedToGroupId(String userGroupId);
+
+    Mono<Set<String>> getSessionUserPermissionGroupIds();
 }

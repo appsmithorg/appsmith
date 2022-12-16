@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -399,4 +400,9 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 .map(tuple -> tuple.getT1());
     }
 
+    @Override
+    public Mono<Set<String>> getSessionUserPermissionGroupIds() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(repository::getAllPermissionGroupsIdsForUser);
+    }
 }

@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ee;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -31,7 +32,10 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -340,4 +344,93 @@ public class UserAndAccessManagementServiceTest {
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds()).hasSize(1);
         assertThat(updatedAdminPermissionGroup.getAssignedToUserIds().contains(apiUser.getId())).isTrue();
     }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_changeRoleAssociation_assignPermissionsDontExist() {
+        Workspace workspace = new Workspace();
+        workspace.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_assignPermissionsDontExist");
+        Workspace createdWorkspace = workspaceService.create(workspace)
+                .block();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("test_changeRoleAssociation_assignPermissionsDontExist");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        Set<Policy> existingPolicies = createdPermissionGroup.getPolicies();
+        /*
+         * We take away all Manage Page permissions for existing page.
+         * Now since, no one has the permissions to existing page, the application forking will fail.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
+                .collect(Collectors.toSet());
+        createdPermissionGroup.setPolicies(newPoliciesWithoutEdit);
+        PermissionGroup updatedPermissionGroup = permissionGroupRepository.save(createdPermissionGroup).block();
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_assignPermissionsDontExist");
+        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
+                .block();
+        UserGroupCompactDTO userGroupCompactDTO = new UserGroupCompactDTO();
+        userGroupCompactDTO.setId(createdUserGroup.getId());
+        userGroupCompactDTO.setName(createdUserGroup.getName());
+        PermissionGroupCompactDTO permissionGroupCompactDTO = new PermissionGroupCompactDTO();
+        permissionGroupCompactDTO.setId(updatedPermissionGroup.getId());
+        permissionGroupCompactDTO.setName(updatedPermissionGroup.getName());
+        UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
+        updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
+        updateRoleAssociationDTO.setRolesAdded(Set.of(permissionGroupCompactDTO));
+        StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithException &&
+                                throwable.getMessage().contains(AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
+                                        .getMessage("PermissionGroup", updatedPermissionGroup.getId())))
+                .verify();
+        PermissionGroup setPoliciesBack = permissionGroupRepository.save(updatedPermissionGroup).block();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void test_changeRoleAssociation_unassignPermissionsDontExist() {
+        Workspace workspace = new Workspace();
+        workspace.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_unassignPermissionsDontExist");
+        Workspace createdWorkspace = workspaceService.create(workspace)
+                .block();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("test_changeRoleAssociation_assignPermissionsDontExist");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        Set<Policy> existingPolicies = createdPermissionGroup.getPolicies();
+        /*
+         * We take away all Manage Page permissions for existing page.
+         * Now since, no one has the permissions to existing page, the application forking will fail.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
+                .collect(Collectors.toSet());
+        createdPermissionGroup.setPolicies(newPoliciesWithoutEdit);
+        PermissionGroup updatedPermissionGroup = permissionGroupRepository.save(createdPermissionGroup).block();
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("UserAndAccessManagementServiceTest - test_changeRoleAssociation_unassignPermissionsDontExist");
+        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
+                .block();
+        UserGroupCompactDTO userGroupCompactDTO = new UserGroupCompactDTO();
+        userGroupCompactDTO.setId(createdUserGroup.getId());
+        userGroupCompactDTO.setName(createdUserGroup.getName());
+        PermissionGroupCompactDTO permissionGroupCompactDTO = new PermissionGroupCompactDTO();
+        permissionGroupCompactDTO.setId(updatedPermissionGroup.getId());
+        permissionGroupCompactDTO.setName(updatedPermissionGroup.getName());
+        UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
+        updateRoleAssociationDTO.setGroups(Set.of(userGroupCompactDTO));
+        updateRoleAssociationDTO.setRolesRemoved(Set.of(permissionGroupCompactDTO));
+        StepVerifier.create(userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithException &&
+                                throwable.getMessage().contains(AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
+                                        .getMessage("PermissionGroup", updatedPermissionGroup.getId())))
+                .verify();
+        PermissionGroup setPoliciesBack = permissionGroupRepository.save(updatedPermissionGroup).block();
+    }
+
 }
