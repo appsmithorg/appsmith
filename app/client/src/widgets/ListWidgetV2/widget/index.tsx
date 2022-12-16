@@ -37,6 +37,7 @@ const getCurrentItemsViewBindingTemplate = () => ({
 });
 
 const MINIMUM_ROW_GAP = -8;
+export const DEFAULT_TEMPLATE_BOTTOM_ROW = 10;
 
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
@@ -59,11 +60,12 @@ export type LevelData = {
     currentIndex: number;
     currentItem: string;
     currentRowCache: MetaWidgetRowCache;
+    autocomplete: Record<string, unknown>;
   };
 };
 
 export type MetaWidgetCacheProps = {
-  entityDefinition: Record<string, string>;
+  entityDefinition: Record<string, string> | string;
   rowIndex: number;
   metaWidgetId: string;
   metaWidgetName: string;
@@ -86,7 +88,11 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
-class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
+class ListWidget extends BaseWidget<
+  ListWidgetProps,
+  WidgetState,
+  MetaWidgetCache
+> {
   componentRef: RefObject<HTMLDivElement>;
   metaWidgetGenerator: MetaWidgetGenerator;
   prevFlattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
@@ -133,8 +139,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
     this.metaWidgetGenerator = new MetaWidgetGenerator({
       renderMode: props.renderMode,
-      // eslint-disable-next-line
-      // @ts-ignore
       getWidgetCache: this.getWidgetCache,
       setWidgetCache: this.setWidgetCache,
       infiniteScroll: props.infiniteScroll ?? false,
@@ -203,7 +207,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       this.metaWidgetGenerator.recalculateVirtualList(() => {
         return (
           this.props.itemGap !== prevProps.itemGap ||
-          // eslint-disable-next-line
           this.props.flattenedChildCanvasWidgets !==
             prevProps.flattenedChildCanvasWidgets ||
           this.props.listData?.length !== prevProps?.listData?.length ||
@@ -341,22 +344,13 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     this.prevMetaContainerNames = [...currMetaContainerNames];
   };
 
-  getMainContainer = (
-    passedFlattenedWidgets?: Record<string, FlattenedWidgetProps>,
-  ) => {
-    const {
-      mainContainerId = "",
-      flattenedChildCanvasWidgets = {},
-    } = this.props;
-    return (
-      (passedFlattenedWidgets || flattenedChildCanvasWidgets)[
-        mainContainerId
-      ] || {}
-    );
+  getMainContainer = () => {
+    const { flattenedChildCanvasWidgets, mainContainerId = "" } = this.props;
+    return flattenedChildCanvasWidgets?.[mainContainerId];
   };
 
   getTemplateBottomRow = () => {
-    return this.getMainContainer()?.bottomRow;
+    return this.getMainContainer()?.bottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW;
   };
 
   getContainerRowHeight = () => {
