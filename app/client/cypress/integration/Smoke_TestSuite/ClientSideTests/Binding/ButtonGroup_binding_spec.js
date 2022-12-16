@@ -5,7 +5,7 @@ describe("Widget Grouping", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Button widgets widget on click info message valdiation ", function () {
+  it("Button widgets widget on click info message valdiation with font family", function () {
     cy.get(".t--buttongroup-widget button")
       .contains("Add")
       .click({ force: true });

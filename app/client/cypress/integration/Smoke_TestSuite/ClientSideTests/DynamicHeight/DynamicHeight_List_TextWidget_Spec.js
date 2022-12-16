@@ -21,6 +21,7 @@ describe("Dynamic Height Width validation list widget", function () {
         cy.get(explorer.addWidget).click();
         cy.dragAndDropToCanvas("multiselecttreewidget", { x: 300, y: 500 });
         cy.openPropertyPane("listwidget");
+        //Widgets which were not possible to be added to list widget cannot be pasted/moved into the list widget.
         cy.openPropertyPane("multiselecttreewidget");
         cy.get("body").type(`{${modifierKey}}c`);
         cy.selectEntityByName("List1");
@@ -35,7 +36,9 @@ describe("Dynamic Height Width validation list widget", function () {
         cy.get(".t--widget-listwidget")
             .invoke("css", "height")
             .then((lheight) => {
+                //Widgets within list widget have no dynamic height
                 cy.get(commonlocators.generalSectionHeight).should("not.exist");
+                //Widgets within list widget in existing applications have no dynamic height
                 cy.openPropertyPaneWithIndex("textwidget", 0);
                 cy.get(commonlocators.generalSectionHeight).should("not.exist");
                 cy.testCodeMirror(textMsg);
@@ -50,6 +53,7 @@ describe("Dynamic Height Width validation list widget", function () {
                 cy.get(".t--entity-item:contains('List1') .t--entity-collapse-toggle").click({ force: true })
                 cy.selectEntityByName("Container1");
                 cy.get(commonlocators.generalSectionHeight).should("not.exist");
+                //Widgets when moved into the list widget have no dynamic height
                 cy.selectEntityByName("Text3");
                 cy.get("body").type(`{${modifierKey}}c`);
                 cy.selectEntityByName("List1");
@@ -72,6 +76,7 @@ describe("Dynamic Height Width validation list widget", function () {
                     "response.body.responseMeta.status",
                     200,
                 );
+              //Widgets when moved out of the list widget have dynamic height in property pane
                 cy.selectEntityByName("Text3CopyCopy");
                 cy.wait(2000);
                 cy.get(commonlocators.generalSectionHeight).should("be.visible");
@@ -104,8 +109,23 @@ describe("Dynamic Height Width validation list widget", function () {
                     200,
                 );
                 cy.wait(2000);
+                //Widgets when copied and pasted into the list widget no longer have dynamic height
                 cy.get(".t--entity-item:contains('Container1') .t--entity-collapse-toggle").click({ force: true });
                 cy.selectEntityByName("Text3CopyCopyCopy");
+                cy.wait(2000);
+                cy.get(commonlocators.generalSectionHeight).should("not.exist");
+                cy.selectEntityByName("Text3CopyCopy");
+                cy.wait(2000);
+                cy.get("body").type(`{${modifierKey}}x`);
+                cy.selectEntityByName("List1");
+                cy.get("body").type(`{${modifierKey}}v`);
+                cy.wait("@updateLayout").should(
+                    "have.nested.property",
+                    "response.body.responseMeta.status",
+                    200,
+                );
+                cy.wait(2000);
+                cy.selectEntityByName("Text3CopyCopy");
                 cy.wait(2000);
                 cy.get(commonlocators.generalSectionHeight).should("not.exist");
             });
