@@ -329,6 +329,8 @@ export const addDataTreeToContext = (args: {
   self.TRIGGER_COLLECTOR = [];
 
   for (const [entityName, entity] of dataTreeEntries) {
+    EVAL_CONTEXT[entityName] = entity;
+
     if (skipEntityFunctions) continue;
     for (const [functionName, funcCreator] of entityFunctionEntries) {
       if (!funcCreator.qualifier(entity)) continue;

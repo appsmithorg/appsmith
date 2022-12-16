@@ -166,7 +166,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     skipEntityFunctions: !!skipEntityFunctions,
     requestId: context?.requestId,
     eventType: context?.eventType,
-    resolvedFunctions,
   });
 
   assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions);
@@ -401,6 +400,7 @@ export function isFunctionAsync(
 
     addDataTreeToContext({
       dataTree,
+      EVAL_CONTEXT: GLOBAL_DATA,
     });
 
     assignJSFunctionsToContext(GLOBAL_DATA, resolvedFunctions);
