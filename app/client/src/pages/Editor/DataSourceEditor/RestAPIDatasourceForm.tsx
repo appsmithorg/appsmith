@@ -708,7 +708,7 @@ class DatasourceRestAPIEditor extends React.Component<
             dataType: "PASSWORD",
             encrypted: true,
             isRequired: false,
-            valueExistPath: "authentication.secretExists.password",
+            isSecretExistsPath: "authentication.secretExists.password",
           })}
         </FormInputContainer>
       </>
@@ -826,7 +826,7 @@ class DatasourceRestAPIEditor extends React.Component<
             dataType: "PASSWORD",
             encrypted: true,
             isRequired: false,
-            valueExistPath: "authentication.secretExists.clientSecret",
+            isSecretExistsPath: "authentication.secretExists.clientSecret",
           })}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("authentication.scopeString")}>
@@ -1049,9 +1049,9 @@ class DatasourceRestAPIEditor extends React.Component<
     encrypted,
     fieldValidator,
     isRequired,
+    isSecretExistsPath,
     label,
     placeholderText,
-    valueExistPath,
   }: {
     configProperty: string;
     label: string;
@@ -1060,7 +1060,7 @@ class DatasourceRestAPIEditor extends React.Component<
     encrypted: boolean;
     isRequired: boolean;
     fieldValidator?: (value: string) => { isValid: boolean; message: string };
-    valueExistPath?: string;
+    isSecretExistsPath?: string;
   }) {
     return (
       <FormControl
@@ -1077,7 +1077,7 @@ class DatasourceRestAPIEditor extends React.Component<
           placeholderText: placeholderText,
           formName: DATASOURCE_REST_API_FORM,
           validator: fieldValidator,
-          valueExistPath,
+          isSecretExistsPath,
         }}
         formName={DATASOURCE_REST_API_FORM}
         multipleConfig={[]}

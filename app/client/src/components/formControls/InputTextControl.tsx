@@ -96,8 +96,8 @@ class InputTextControl extends BaseControl<InputControlProps> {
   checkForSecretOverlayIndicator = () => {
     return (
       this.props.dataType === "PASSWORD" &&
-      this.props.valueExistPath &&
-      this.props.valueExistData
+      this.props.isSecretExistsPath &&
+      this.props.isSecretExistsData
     );
   };
 
@@ -205,17 +205,17 @@ export interface InputControlProps extends ControlProps {
   encrypted?: boolean;
   disabled?: boolean;
   validator?: (value: string) => { isValid: boolean; message: string };
-  valueExistData?: boolean;
+  isSecretExistsData?: boolean;
 }
 
 const mapStateToProps = (state: AppState, props: InputControlProps) => {
   const valueSelector = formValueSelector(props.formName);
-  let valueExistData;
-  if (props.valueExistPath) {
-    valueExistData = valueSelector(state, props.valueExistPath);
+  let isSecretExistsData;
+  if (props.isSecretExistsPath) {
+    isSecretExistsData = valueSelector(state, props.isSecretExistsPath);
   }
   return {
-    valueExistData,
+    isSecretExistsData,
   };
 };
 
