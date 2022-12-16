@@ -4,6 +4,9 @@ import {
   UnEvalTree,
   UnEvalTreeEntityObject,
 } from "entities/DataTree/dataTreeFactory";
+import { set } from "lodash";
+import { EvalProps } from "workers/common/DataTreeEvaluator";
+import { removeFunctions } from "./evaluationUtils";
 
 /**
  * This method accept an entity object as input and if it has __config__ property than it moves the __config__ to object's prototype
@@ -39,16 +42,35 @@ export function createUnEvalTreeForEval(unevalTree: UnEvalTree) {
  */
 export function makeEntityConfigsAsObjProperties(
   dataTree: DataTree,
-  option = {} as { sanitizeDataTree: boolean },
-) {
-  const { sanitizeDataTree = true } = option;
+  option = {} as {
+    sanitizeDataTree?: boolean;
+    evalProps?: EvalProps;
+  },
+): DataTree {
+  const { evalProps, sanitizeDataTree = true } = option;
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
     const entityConfig = Object.getPrototypeOf(dataTree[entityName]) || {};
     const entity = dataTree[entityName];
     newDataTree[entityName] = { ...entityConfig, ...entity };
   }
-  return sanitizeDataTree
+  const dataTreeToReturn = sanitizeDataTree
     ? JSON.parse(JSON.stringify(newDataTree))
     : newDataTree;
+
+  if (!evalProps) return dataTreeToReturn;
+
+  const sanitizedEvalProps = removeFunctions(evalProps) as EvalProps;
+  for (const [entityName, entityEvalProps] of Object.entries(
+    sanitizedEvalProps,
+  )) {
+    if (!entityEvalProps.__evaluation__) continue;
+    set(
+      dataTreeToReturn[entityName],
+      "__evaluation__",
+      entityEvalProps.__evaluation__,
+    );
+  }
+
+  return dataTreeToReturn;
 }

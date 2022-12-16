@@ -95,4 +95,5 @@ export default {
   optionsIcon: ".t--options-icon",
   reconnectDatasourceModal: ".reconnect-datasource-modal",
   importAppProgressWrapper: ".t-import-app-progress-wrapper",
+  backtoHome: ".t--back-to-home",
 };
