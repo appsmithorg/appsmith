@@ -41,7 +41,7 @@ import {
   checkContainersForAutoHeightAction,
   updateWidgetAutoHeightAction,
 } from "actions/autoHeightActions";
-export type EditorContextType = {
+export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
     operation: WidgetOperation,
@@ -71,9 +71,8 @@ export type EditorContextType = {
   updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
   checkContainersForAutoHeight?: () => void;
   modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
-  // TODO (ashit) - Use generics instead of unknown
-  setWidgetCache?: (widgetId: string, data: unknown) => void;
-  getWidgetCache?: (widgetId: string) => unknown;
+  setWidgetCache?: (widgetId: string, data: TCache) => void;
+  getWidgetCache?: (widgetId: string) => TCache;
   deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
@@ -138,7 +137,6 @@ function extractFromObj<T, K extends keyof T>(
 function EditorContextProvider(props: EditorContextProviderProps) {
   const widgetCache = useRef<Record<string, unknown>>({});
 
-  // TODO: (Ashit) - Use generics for data.
   const setWidgetCache = useCallback((widgetId: string, data: unknown) => {
     widgetCache.current[widgetId] = data;
   }, []);
