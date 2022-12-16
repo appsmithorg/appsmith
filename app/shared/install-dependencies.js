@@ -11,10 +11,9 @@ async function main() {
   console.log("\x1b[33m", "*******************************************");
 
   const dependencies = sharedJSON[SCOPE_DIRECTORY];
-
   if ((dependencies && dependencies.length > 0) || !SCOPE_DIRECTORY) {
     try {
-      // Linking Dependencies
+        // Linking Dependencies
       await Promise.all(
         dependencies.map(
           (dependencyFolder) =>
@@ -23,6 +22,9 @@ async function main() {
                 "\x1b[0m",
                 `Linking Dependency for \x1b[34m${dependencyFolder} to ${SCOPE_DIRECTORY}`
               );
+            console.log(
+                "CURRENT_DIRECTORY",CURRENT_DIRECTORY
+            );
               exec(
                 `
             cd ${CURRENT_DIRECTORY}/${SCOPE_DIRECTORY};
