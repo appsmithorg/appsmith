@@ -141,7 +141,7 @@ public class ActionCollectionServiceTest {
         toCreate.setName("ActionCollectionServiceTest");
 
         if (workspaceId == null) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
 

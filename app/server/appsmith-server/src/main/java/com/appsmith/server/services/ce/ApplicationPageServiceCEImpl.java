@@ -211,7 +211,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
-        AclPermission permission = viewMode ? pagePermission.getReadPermission() : pagePermission.getEditPermission();
+        AclPermission permission = pagePermission.getReadPermission();
         return newPageService.findPageById(pageId, permission, viewMode)
                 .map(newPage -> {
                     List<Layout> layouts = newPage.getLayouts();
@@ -569,7 +569,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
                                 return Mono.zip(layoutActionService.createAction(
                                                         action.getUnpublishedAction(),
-                                                        eventContext)
+                                                        eventContext, Boolean.FALSE)
                                                 .map(ActionDTO::getId),
                                         Mono.justOrEmpty(originalActionId)
                                 );

@@ -76,12 +76,6 @@ const propertyPaneReducer = createImmerReducer(initialState, {
   ) => {
     state.width = action.payload;
   },
-  [ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD]: (
-    state: PropertyPaneReduxState,
-    action: ReduxAction<{ path: string }>,
-  ) => {
-    state.focusedProperty = action.payload.path;
-  },
   [ReduxActionTypes.SET_SELECTED_PANEL_PROPERTY]: (
     state: PropertyPaneReduxState,
     action: {

@@ -18,20 +18,26 @@ export const Wrapper = styled.div`
     props.theme.homePage.leftPane.leftPadding}px;
   padding: 0 0 0 ${(props) => props.theme.homePage.leftPane.leftPadding}px;
   overflow-y: auto;
+  border-right: 1px solid var(--appsmith-color-black-200);
+  flex-shrink: 0;
 
   &::-webkit-scrollbar {
     display: none;
   }
 `;
 
-export const HeaderContainer = styled.div``;
+export const HeaderContainer = styled.div`
+  border-top: 1px solid var(--appsmith-color-black-200);
+  padding: 20px 0;
+  margin: 0 12px;
+`;
 
 export const StyledHeader = styled.div`
   font-size: 16px;
   height: 20px;
   line-height: 1.5;
   letter-spacing: -0.24px;
-  margin: 40px 16px 8px;
+  margin: 8px 16px 8px;
   color: var(--appsmith-color-black-900);
   font-weight: 500;
 `;
@@ -43,7 +49,7 @@ export const CategoryList = styled.ul`
 `;
 
 export const CategoryItem = styled.li`
-  width: 80%;
+  width: 90%;
 `;
 
 export const StyledLink = styled(Link)<{ $active: boolean }>`
@@ -142,20 +148,16 @@ export default function LeftPane() {
 
   return (
     <Wrapper>
-      <>
-        <HeaderContainer>
-          <StyledHeader>Admin Settings</StyledHeader>
-        </HeaderContainer>
+      <HeaderContainer>
+        <StyledHeader>Admin Settings</StyledHeader>
         <Categories
           categories={categories}
           currentCategory={category}
           currentSubCategory={subCategory}
         />
-      </>
-      <>
-        <HeaderContainer>
-          <StyledHeader>Business</StyledHeader>
-        </HeaderContainer>
+      </HeaderContainer>
+      <HeaderContainer>
+        <StyledHeader>Business</StyledHeader>
         <CategoryList data-testid="t--enterprise-settings-category-list">
           {features.RBAC && (
             <CategoryItem>
@@ -200,7 +202,7 @@ export default function LeftPane() {
             </CategoryItem>
           )}
         </CategoryList>
-      </>
+      </HeaderContainer>
     </Wrapper>
   );
 }

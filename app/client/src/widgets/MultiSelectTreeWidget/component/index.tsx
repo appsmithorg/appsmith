@@ -250,6 +250,7 @@ function MultiTreeSelectComponent({
           className={`multitree-select-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="multitree-select-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
