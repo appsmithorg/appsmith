@@ -34,7 +34,6 @@ import {
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
-  getShouldFocusPropertyPath,
   getWidgetPropsForPropertyName,
   WidgetProperties,
 } from "selectors/propertyPaneSelectors";
@@ -55,8 +54,9 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
-import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
+import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
+import { setFocusableInputField } from "actions/editorContextActions";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -91,7 +91,7 @@ const PropertyControl = memo((props: Props) => {
   const hasDispatchedPropertyFocus = useRef<boolean>(false);
   const shouldFocusPropertyPath: boolean = useSelector(
     (state: AppState) =>
-      getShouldFocusPropertyPath(
+      getIsInputFieldFocused(
         state,
         dataTreePath,
         hasDispatchedPropertyFocus.current,
@@ -576,7 +576,7 @@ const PropertyControl = memo((props: Props) => {
       if (!shouldFocusPropertyPath) {
         hasDispatchedPropertyFocus.current = true;
         setTimeout(() => {
-          dispatch(setFocusablePropertyPaneField(dataTreePath));
+          dispatch(setFocusableInputField(dataTreePath));
         }, 0);
       }
     };
