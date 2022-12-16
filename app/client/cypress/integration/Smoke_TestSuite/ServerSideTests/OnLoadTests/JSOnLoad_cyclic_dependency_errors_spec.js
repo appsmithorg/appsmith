@@ -37,7 +37,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
     //Step3 & 4
     cy.get(`${datasource.datasourceCard}`)
-      .contains("users")
+      .contains("Users")
       .get(`${datasource.createQuery}`)
       .last()
       .click({ force: true });
@@ -75,7 +75,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
   it("2. Create Input Widget & Bind Input Widget Default text to Query Created", () => {
     cy.get(widgetsPage.widgetSwitchId).click();
     cy.openPropertyPane("inputwidgetv2");
-    cy.get(widgetsPage.defaultInput).type("{{gender");
+    cy.get(widgetsPage.defaultInput).type("{{" + queryName + ".data[0].gender");
     cy.widgetText("gender", widgetsPage.inputWidget, widgetsPage.inputval);
     cy.assertPageSave();
   });

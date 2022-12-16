@@ -520,7 +520,7 @@ export class DataSources {
   public CloseReconnectDataSourceModal() {
     cy.get('body').then(($ele) =>{
       if($ele.find(this._reconnectDataSourceModal).length){
-    cy.get(this._closeDataSourceModal).click();
+    this.agHelper.GetNClick(this._closeDataSourceModal)
       }
     })
   }
