@@ -680,6 +680,13 @@ export default function RolesTree(props: RoleTreeProps) {
               : [],
           [isChecked],
         );
+        const [isDisabled, setIsDisabled] = useState(false);
+
+        useEffect(() => {
+          if (disableMap.length > 0 && !isDisabled) {
+            setIsDisabled(getDisabledState());
+          }
+        }, [disableMap, isChecked]);
 
         const removeHoverClass = (id: string, rIndex: number) => {
           const values = getEntireHoverMap(tabData.hoverMap, id);
@@ -750,10 +757,7 @@ export default function RolesTree(props: RoleTreeProps) {
           >
             <Checkbox
               className="design-system-checkbox"
-              disabled={
-                !canEditRole ||
-                (disableMap.length > 0 ? getDisabledState() : false)
-              }
+              disabled={!canEditRole || isDisabled}
               /* indeterminate={row.permissions[i] === 3 ? true : false} */
               isDefaultChecked={isChecked}
               onCheckChange={(value: boolean) =>
