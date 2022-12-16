@@ -130,7 +130,7 @@ export function FlexComponent(props: AutoLayoutProps) {
   const resizedWidth: number = isAffectedByDrag
     ? props.componentWidth -
       dragMargin -
-      (props.parentId !== MAIN_CONTAINER_WIDGET_ID && siblingCount > 0
+      (siblingCount > 0
         ? (DEFAULT_MARGIN * siblingCount + 2) / siblingCount
         : 0)
     : props.componentWidth;

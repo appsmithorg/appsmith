@@ -65,6 +65,7 @@ export const FlexContainer = styled.div<{
   leaveSpaceForWidgetName: boolean;
   isMobile?: boolean;
   isMainContainer: boolean;
+  isDragging: boolean;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
   flex-direction: ${({ direction }) =>
@@ -81,8 +82,8 @@ export const FlexContainer = styled.div<{
   overflow-y: ${({ isMainContainer, isMobile }) =>
     isMainContainer || isMobile ? "auto" : "hidden"};
 
-  padding: ${({ leaveSpaceForWidgetName }) =>
-    leaveSpaceForWidgetName ? "4px 4px 22px 4px;" : "4px;"};
+  padding: ${({ isDragging, leaveSpaceForWidgetName }) =>
+    !isDragging && leaveSpaceForWidgetName ? "4px 4px 22px 4px;" : "4px;"};
 `;
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
@@ -130,7 +131,8 @@ function FlexBoxComponent(props: FlexBoxProps) {
     ? dragDetails?.draggingGroupCenter?.widgetId
     : "";
 
-  const isDragging = useSelector(isCurrentCanvasDragging(props.widgetId));
+  // const isDragging = useSelector(isCurrentCanvasDragging(props.widgetId));
+  const isDragging: boolean = dragDetails?.draggedOn !== undefined;
 
   const renderChildren = () => {
     if (!props.children) return null;
@@ -444,6 +446,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     <FlexContainer
       className={`flex-container-${props.widgetId}`}
       direction={direction}
+      isDragging={isDragging}
       isMainContainer={props.widgetId === "0"}
       isMobile={isMobile}
       leaveSpaceForWidgetName={leaveSpaceForWidgetName}

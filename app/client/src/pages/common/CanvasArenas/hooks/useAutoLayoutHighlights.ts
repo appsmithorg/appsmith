@@ -195,7 +195,7 @@ export const useAutoLayoutHighlights = ({
       ? highlight.alignment === FlexLayerAlignment.Start
         ? containerDimensions.width
         : 0
-      : blocksToDraw[0].width;
+      : containerDimensions?.width / 3;
     highlight.height = rect.height;
     (highlight.el as HTMLElement).style.width = `${highlight.width}px`;
     highlights[index] = highlight;
