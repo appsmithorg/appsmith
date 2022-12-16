@@ -9,7 +9,6 @@
     "entityExplorer": ".t--entity-explorer",
     "entityWidget": ".t--entity-name:contains('Widgets')",
     "entityTable": ".t--entity-name:contains('Table1')",
-    "entityModal": ".t--entity-name:contains('Modal1')",
     "entityText": ".t--entity-name:contains('Text1')",
     "popover": "//div[contains(@class,'t--entity page')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
     "datsourceEntityPopover": "//div[contains(@class,'t--entity datasource')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
