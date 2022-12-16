@@ -440,7 +440,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         onClose={this.closeDialog}
         onDiscard={this.onDiscard}
         onSave={this.onSave}
-        saveButtonText="Save"
+        saveButtonText="SAVE"
       />
     );
   }
