@@ -17,7 +17,6 @@ import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
-import cleanSet from "clean-set";
 
 export type EvalResult = {
   result: any;
@@ -182,6 +181,7 @@ export const assignJSFunctionsToContext = (
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];
     const jsObject = EVAL_CONTEXT[jsObjectName];
+    const jsObjectFunction: Record<string, Record<"data", unknown>> = {};
     if (!jsObject) continue;
     for (const fnName of Object.keys(resolvedObject)) {
       const fn = resolvedObject[fnName];
@@ -190,13 +190,13 @@ export const assignJSFunctionsToContext = (
       // Task: https://github.com/appsmithorg/appsmith/issues/13289
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
       const data = jsObject[fnName]?.data;
-      const jsObjectFunction: Record<string, Record<"data", unknown>> = {};
       jsObjectFunction[fnName] = fn;
       if (!!data) {
         jsObjectFunction[fnName]["data"] = data;
       }
-      EVAL_CONTEXT[jsObjectName] = cleanSet(jsObject, fnName, jsObjectFunction);
     }
+
+    EVAL_CONTEXT[jsObjectName] = Object.assign({}, jsObject, jsObjectFunction);
   }
 };
 
