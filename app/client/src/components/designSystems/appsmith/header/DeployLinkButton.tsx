@@ -10,6 +10,10 @@ import { Colors } from "constants/Colors";
 
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  CONNECT_TO_GIT_OPTION,
+  CURRENT_DEPLOY_PREVIEW_OPTION,
+} from "@appsmith/constants/messages";
 
 const DeployLinkDialog = styled.div`
   flex-direction: column;
@@ -102,7 +106,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
               <IconWrapper>
                 <GitBranchIcon />
               </IconWrapper>
-              <DeployUrl>Connect to Git Repository</DeployUrl>
+              <DeployUrl>{CONNECT_TO_GIT_OPTION()}</DeployUrl>
             </DeployLink>
           )}
 
@@ -118,7 +122,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
                 icon="share"
               />
             </IconWrapper>
-            <DeployUrl>Current deployed version</DeployUrl>
+            <DeployUrl>{CURRENT_DEPLOY_PREVIEW_OPTION()}</DeployUrl>
           </DeployLink>
         </DeployLinkDialog>
       }

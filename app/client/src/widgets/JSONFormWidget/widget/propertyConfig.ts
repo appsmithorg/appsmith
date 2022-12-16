@@ -8,7 +8,7 @@ import {
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import {
   generateResponsiveBehaviorConfig,
@@ -273,6 +273,13 @@ export const contentConfig = [
     ],
   },
   {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+      generateVerticalAlignmentConfig(),
+    ],
+  },
+  {
     sectionName: "Events",
     children: [
       {
@@ -460,13 +467,6 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
 ];
 
 export const styleConfig = [
-  {
-    sectionName: "Responsive Layout",
-    children: [
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-      generateVerticalAlignmentConfig(),
-    ],
-  },
   {
     sectionName: "Color",
     children: [

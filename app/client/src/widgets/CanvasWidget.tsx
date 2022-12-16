@@ -10,16 +10,15 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import React, { CSSProperties } from "react";
+import { CSSProperties, default as React } from "react";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  ContainerWidget,
+import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
-import { CanvasWidgetStructure } from "./constants";
+import { CanvasWidgetStructure, DSLWidget } from "./constants";
 import ContainerComponent from "./ContainerWidget/component";
 
 class CanvasWidget extends ContainerWidget {
@@ -33,7 +32,7 @@ class CanvasWidget extends ContainerWidget {
     super.componentDidMount();
   }
 
-  getCanvasProps(): ContainerWidgetProps<WidgetProps> {
+  getCanvasProps(): DSLWidget & { minHeight: number } {
     return {
       ...this.props,
       parentRowSpace: 1,
@@ -42,6 +41,7 @@ class CanvasWidget extends ContainerWidget {
       leftColumn: 0,
       containerStyle: "none",
       detachFromLayout: true,
+      minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
     };
   }
 
@@ -146,12 +146,8 @@ class CanvasWidget extends ContainerWidget {
 
   getPageView() {
     let height = 0;
-    const snapRows = getCanvasSnapRows(
-      this.props.bottomRow,
-      this.props.canExtend,
-    );
+    const snapRows = getCanvasSnapRows(this.props.bottomRow, false);
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
     const style: CSSProperties = {
       width: "100%",
       height: this.props.useAutoLayout ? "100%" : `${height}px`,

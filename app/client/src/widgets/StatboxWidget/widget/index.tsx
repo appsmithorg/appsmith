@@ -3,6 +3,7 @@ import { ContainerWidget } from "widgets/ContainerWidget/widget";
 
 import { Positioning, ResponsiveBehavior } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
 import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
@@ -46,11 +47,6 @@ class StatboxWidget extends ContainerWidget {
           },
         ],
       },
-    ];
-  }
-
-  static getPropertyPaneStyleConfig() {
-    return [
       {
         sectionName: "Responsive Layout",
         children: [
@@ -59,6 +55,11 @@ class StatboxWidget extends ContainerWidget {
           generateVerticalAlignmentConfig(),
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
         sectionName: "Color",
         children: [
@@ -124,6 +125,13 @@ class StatboxWidget extends ContainerWidget {
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   static getWidgetType(): WidgetType {

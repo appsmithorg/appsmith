@@ -1,9 +1,3 @@
-import {
-  ReduxActionTypes,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { all, put, takeLatest } from "redux-saga/effects";
-import { updateRecentEntity } from "actions/globalSearchActions";
 import { matchPath } from "react-router";
 import { matchBasePath } from "pages/Editor/Explorer/helpers";
 import {
@@ -14,7 +8,6 @@ import {
   matchBuilderPath,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export const getEntityInCurrentPath = (pathName: string) => {
   const builderMatch = matchBuilderPath(pathName);
@@ -77,35 +70,3 @@ export const getEntityInCurrentPath = (pathName: string) => {
     id: "",
   };
 };
-
-function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
-  const builderMatch = matchBuilderPath(window.location.pathname);
-  const { payload } = action;
-  const selectedWidget = payload.widgetId;
-  if (selectedWidget && selectedWidget !== MAIN_CONTAINER_WIDGET_ID)
-    yield put(
-      updateRecentEntity({
-        type: "widget",
-        id: selectedWidget,
-        params: builderMatch?.params,
-      }),
-    );
-}
-
-function* handlePathUpdated(
-  action: ReduxAction<{ location: typeof window.location }>,
-) {
-  const { id, params, type } = getEntityInCurrentPath(
-    action.payload.location.pathname,
-  );
-  if (type && id && id.indexOf(":") === -1) {
-    yield put(updateRecentEntity({ type, id, params }));
-  }
-}
-
-export default function* recentEntitiesSagas() {
-  yield all([
-    takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, handleSelectWidget),
-    takeLatest(ReduxActionTypes.HANDLE_PATH_UPDATED, handlePathUpdated),
-  ]);
-}

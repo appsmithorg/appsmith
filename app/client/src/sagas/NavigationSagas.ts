@@ -1,8 +1,4 @@
-import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import { all, call, fork, put, select, takeEvery } from "redux-saga/effects";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
@@ -11,26 +7,46 @@ import {
   FocusEntity,
   FocusEntityInfo,
   identifyEntityFromPath,
+  isSameBranch,
+  shouldStoreURLforFocus,
 } from "navigation/FocusEntity";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action } from "entities/Action";
 import { Plugin } from "api/PluginApi";
 import log from "loglevel";
-import FeatureFlags from "entities/FeatureFlags";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { Location } from "history";
+import history, {
+  AppsmithLocationState,
+  NavigationMethod,
+} from "utils/history";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "ce/constants/ReduxActionConstants";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
+import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 
 let previousPath: string;
 let previousHash: string | undefined;
 
+function* appBackgroundHandler() {
+  const currentTheme: BackgroundTheme = yield select(getCurrentThemeDetails);
+  changeAppBackground(currentTheme);
+}
+
 function* handleRouteChange(
-  action: ReduxAction<{ pathname: string; hash?: string }>,
+  action: ReduxAction<{ location: Location<AppsmithLocationState> }>,
 ) {
-  const { hash, pathname } = action.payload;
+  const { hash, pathname, state } = action.payload.location;
   try {
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    if (featureFlags.CONTEXT_SWITCHING) {
-      yield call(contextSwitchingSaga, pathname, hash);
-    }
+    yield call(logNavigationAnalytics, action.payload);
+    yield call(contextSwitchingSaga, pathname, state, hash);
+    yield call(appBackgroundHandler);
+    const entityInfo = identifyEntityFromPath(pathname, hash);
+    yield fork(updateRecentEntitySaga, entityInfo);
   } catch (e) {
     log.error("Error in focus change", e);
   } finally {
@@ -39,7 +55,62 @@ function* handleRouteChange(
   }
 }
 
-function* contextSwitchingSaga(pathname: string, hash?: string) {
+function* logNavigationAnalytics(payload: {
+  location: Location<AppsmithLocationState>;
+}) {
+  const {
+    location: { hash, pathname, state },
+  } = payload;
+  const recentEntityIds: Array<string> = yield select(getRecentEntityIds);
+  const currentEntity = identifyEntityFromPath(pathname, hash);
+  const previousEntity = identifyEntityFromPath(previousPath, previousHash);
+  const isRecent = recentEntityIds.some(
+    (entityId) => entityId === currentEntity.id,
+  );
+  AnalyticsUtil.logEvent("ROUTE_CHANGE", {
+    toPath: pathname + hash,
+    fromPath: previousPath + previousHash || undefined,
+    navigationMethod: state?.invokedBy,
+    isRecent,
+    recentLength: recentEntityIds.length,
+    toType: currentEntity.entity,
+    fromType: previousEntity.entity,
+  });
+}
+
+function* handlePageChange(
+  action: ReduxAction<{
+    pageId: string;
+    currPath: string;
+    currParamString: string;
+    fromPath: string;
+    fromParamString: string;
+  }>,
+) {
+  const {
+    currParamString,
+    currPath,
+    fromParamString,
+    fromPath,
+    pageId,
+  } = action.payload;
+  try {
+    const fromPageId = identifyEntityFromPath(fromPath)?.pageId;
+    if (fromPageId && fromPageId !== pageId) {
+      yield call(storeStateOfPage, fromPageId, fromPath, fromParamString);
+
+      yield call(setStateOfPage, pageId, currPath, currParamString);
+    }
+  } catch (e) {
+    log.error("Error on page change", e);
+  }
+}
+
+function* contextSwitchingSaga(
+  pathname: string,
+  state: AppsmithLocationState,
+  hash?: string,
+) {
   if (previousPath) {
     // store current state
     yield call(storeStateOfPath, previousPath, previousHash);
@@ -49,7 +120,7 @@ function* contextSwitchingSaga(pathname: string, hash?: string) {
     }
   }
   // Check if it should restore the stored state of the path
-  if (shouldSetState(previousPath, pathname, previousHash, hash)) {
+  if (shouldSetState(previousPath, pathname, previousHash, hash, state)) {
     // restore old state for new path
     yield call(setStateOfPath, pathname, hash);
   }
@@ -111,6 +182,67 @@ function* setStateOfPath(path: string, hash?: string) {
   }
 }
 
+function* storeStateOfPage(
+  pageId: string,
+  fromPath: string,
+  fromParam: string | undefined,
+) {
+  const entity = FocusEntity.PAGE;
+
+  const selectors = FocusElementsConfig[entity];
+  const state: Record<string, any> = {};
+  for (const selectorInfo of selectors) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    state[selectorInfo.name] = yield select(selectorInfo.selector);
+  }
+  if (shouldStoreURLforFocus(fromPath)) {
+    if (fromPath) {
+      state._routingURL = fromPath;
+    }
+
+    if (fromParam !== undefined) {
+      state._paramString = fromParam;
+    }
+  }
+
+  const entityInfo = { entity, id: pageId };
+  yield put(setFocusHistory(pageId, { entityInfo, state }));
+}
+
+function* setStateOfPage(
+  pageId: string,
+  currPath: string,
+  paramString: string,
+) {
+  const focusHistory: FocusState = yield select(getCurrentFocusInfo, pageId);
+
+  const entity = FocusEntity.PAGE;
+
+  const selectors = FocusElementsConfig[entity];
+
+  if (focusHistory) {
+    for (const selectorInfo of selectors) {
+      yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
+    }
+    if (
+      focusHistory.state._routingURL &&
+      focusHistory.state._routingURL !== currPath &&
+      isSameBranch(focusHistory.state._paramString, paramString)
+    ) {
+      history.push(
+        `${focusHistory.state._routingURL}${focusHistory.state._paramString ||
+          ""}`,
+      );
+    }
+  } else {
+    for (const selectorInfo of selectors) {
+      if ("defaultValue" in selectorInfo)
+        yield put(selectorInfo.setter(selectorInfo.defaultValue));
+    }
+  }
+}
+
 function* getEntitySubType(entityInfo: FocusEntityInfo) {
   if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
     const action: Action = yield select(getAction, entityInfo.id);
@@ -125,6 +257,7 @@ function* getEntitySubType(entityInfo: FocusEntityInfo) {
  * @param currPath
  * @param prevHash
  * @param currHash
+ * @param state
  * @returns
  */
 function shouldSetState(
@@ -132,7 +265,16 @@ function shouldSetState(
   currPath: string,
   prevHash?: string,
   currHash?: string,
+  state?: AppsmithLocationState,
 ) {
+  if (
+    state &&
+    state.invokedBy &&
+    state.invokedBy === NavigationMethod.CommandClick
+  ) {
+    // If it is a command click navigation, we will set the state
+    return true;
+  }
   const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash).entity;
   const currFocusEntity = identifyEntityFromPath(currPath, currHash).entity;
 
@@ -170,7 +312,7 @@ function shouldStoreStateForCanvas(
     (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
   );
 }
-
 export default function* rootSaga() {
   yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
+  yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);
 }

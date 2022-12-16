@@ -322,16 +322,16 @@ export const BlueprintRadioSwitchGroupTransform = css<{
   width: 100%;
   height: 100%;
 
-  ${({ alignment, inline, optionCount }) => `
-    display: ${
-      inline ? "inline-flex" : alignment === Alignment.RIGHT ? "block" : "flex"
-    };
+  ${({ inline, optionCount }) => `
+  display: ${inline ? "inline-flex" : "flex"};
     flex-direction: ${inline ? "row" : "column"};
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
     justify-content: ${
       optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`
     };
+    gap: 10px;
+    flex-grow: 1;
   `}
 
   ${BlueprintControlTransform};
@@ -342,42 +342,17 @@ export const BlueprintRadioSwitchGroupTransform = css<{
       }
       return "flex";
     }};
+    width: ${({ alignment, inline }) => {
+      if (alignment === Alignment.RIGHT) {
+        return inline ? "auto" : "100%";
+      }
+      return "auto";
+    }};
     align-items: center;
     border: 1px solid transparent;
     color: ${Colors.GREY_10};
     line-height: 16px;
-    min-height: ${({ alignment }) =>
-      alignment === Alignment.RIGHT ? 23 : 30}px;
-    margin-top: ${({ alignment }) => (alignment === Alignment.RIGHT ? 7 : 0)}px;
 
-    margin-bottom: ${({
-      alignment,
-      height,
-      inline,
-      labelPosition,
-      optionCount,
-    }) => {
-      if (
-        alignment === Alignment.RIGHT &&
-        !inline &&
-        optionCount > 1 &&
-        height
-      ) {
-        return Math.max(
-          (height -
-            (labelPosition === LabelPosition.Left ? 0 : 35) -
-            optionCount * 31) /
-            (optionCount - 1),
-          8,
-        );
-      } else {
-        return 0;
-      }
-    }}px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
     .bp3-control-indicator {
       margin-top: 0;
       border: 1px solid ${Colors.GREY_5};
@@ -1344,9 +1319,6 @@ type ColorType = {
     highlightTextColor: string;
     textColor: string;
   };
-  pagesEditor: {
-    iconColor: string;
-  };
   numberedStep: {
     line: string;
   };
@@ -1407,10 +1379,6 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
-};
-
-const pagesEditor = {
-  iconColor: "#A2A6A8",
 };
 
 const toggleMode = {
@@ -2148,7 +2116,6 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],
@@ -2782,7 +2749,6 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
   link: "#f86a2b",
   welcomePage: {
     text: lightShades[5],

@@ -1,14 +1,14 @@
+import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
 import DividerComponent from "../component";
 
+import { ResponsiveBehavior } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -37,6 +37,13 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+        ],
+      },
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
         ],
       },
     ];
@@ -68,13 +75,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-        ],
-      },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
         ],
       },
       {

@@ -1,16 +1,16 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import DocumentViewerComponent from "../component";
+import { ResponsiveBehavior } from "components/constants";
 import {
-  ValidationTypes,
   ValidationResponse,
+  ValidationTypes,
 } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import React from "react";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import DocumentViewerComponent from "../component";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist

@@ -12,7 +12,7 @@ export type AutoHeightLayoutTreePayload = {
 };
 
 export type AutoHeightLayoutTreeReduxState = {
-  [widgetId: string]: TreeNode & { level?: number };
+  [widgetId: string]: TreeNode;
 };
 const initialState: AutoHeightLayoutTreeReduxState = {};
 
@@ -22,7 +22,7 @@ const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {
     action: ReduxAction<AutoHeightLayoutTreePayload>,
   ) => {
     const { tree } = action.payload;
-    const diff = xor(Object.keys(state), ...Object.keys(tree));
+    const diff = xor(Object.keys(state), [...Object.keys(tree)]);
     for (const widgetId in diff) {
       delete state[widgetId];
     }
@@ -46,6 +46,8 @@ const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {
 
         state[widgetId].topRow = tree[widgetId].topRow;
         state[widgetId].bottomRow = tree[widgetId].bottomRow;
+        state[widgetId].originalTopRow = tree[widgetId].originalTopRow;
+        state[widgetId].originalBottomRow = tree[widgetId].originalBottomRow;
       } else {
         state[widgetId] = tree[widgetId];
       }

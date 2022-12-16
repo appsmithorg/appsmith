@@ -5,7 +5,6 @@ import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
 import WidgetStyleContainer, {
   WidgetStyleContainerProps,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
@@ -96,7 +95,6 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
 }
 
 function ContainerComponent(props: ContainerComponentProps) {
-  useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);
   return props.widgetId === MAIN_CONTAINER_WIDGET_ID ? (
     <ContainerComponentWrapper {...props} />
   ) : (

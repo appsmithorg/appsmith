@@ -5,6 +5,12 @@ import { AlignWidgetTypes } from "widgets/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 2,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "Checkbox",
   iconSVG: IconSVG,
@@ -32,6 +38,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

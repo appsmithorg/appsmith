@@ -1,10 +1,11 @@
 import React, { ReactNode, useCallback } from "react";
 import styled from "styled-components";
 
+import { AppState } from "ce/reducers";
 import {
+  FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
-  FlexVerticalAlignment,
 } from "components/constants";
 import {
   MAIN_CONTAINER_WIDGET_ID,
@@ -12,15 +13,14 @@ import {
   widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import { useSelector } from "react-redux";
+import { getSiblingCount } from "selectors/autoLayoutSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { useSelector } from "store";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
-import { checkIsDropTarget } from "../PositionedContainer";
-import { AppState } from "ce/reducers";
 import { DRAG_MARGIN } from "widgets/constants";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
-import { getSiblingCount } from "selectors/autoLayoutSelectors";
+import { checkIsDropTarget } from "../PositionedContainer";
 
 export type AutoLayoutProps = {
   children: ReactNode;

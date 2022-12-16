@@ -17,6 +17,7 @@ import {
 } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { quickScrollToWidget } from "utils/helpers";
+import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PerformanceTracker, {
@@ -71,16 +72,24 @@ function WidgetsEditor() {
   }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
+  const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
 
   const handleWrapperClick = useCallback(() => {
-    if (allowDragToSelect) {
+    // Making sure that we don't deselect the widget
+    // after we are done dragging the limits in auto height with limits
+    if (allowDragToSelect && !isAutoHeightWithLimitsChanging) {
       focusWidget && focusWidget();
       deselectAll && deselectAll();
       dispatch(closePropertyPane());
       dispatch(closeTableFilterPane());
       dispatch(setCanvasSelectionFromEditor(false));
     }
-  }, [allowDragToSelect, focusWidget, deselectAll]);
+  }, [
+    allowDragToSelect,
+    focusWidget,
+    deselectAll,
+    isAutoHeightWithLimitsChanging,
+  ]);
 
   /**
    *  drag event handler for selection drawing

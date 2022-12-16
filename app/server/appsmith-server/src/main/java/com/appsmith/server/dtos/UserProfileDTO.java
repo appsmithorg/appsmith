@@ -35,6 +35,9 @@ public class UserProfileDTO {
     @JsonProperty("isConfigurable")
     boolean isConfigurable = false;
 
+    @JsonProperty("adminSettingsVisible")
+    boolean adminSettingsVisible = false;
+
     CommentOnboardingState commentOnboardingState;
 
     String photoId;
