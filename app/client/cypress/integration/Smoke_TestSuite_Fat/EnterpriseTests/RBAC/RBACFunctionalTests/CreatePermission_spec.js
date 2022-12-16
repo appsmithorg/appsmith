@@ -254,6 +254,7 @@ describe("Create Permission flow ", function() {
     cy.get(RBAC.newPage)
       .first()
       .click();
+    cy.wait(2000);
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
     cy.get(".t--widget-tablewidgetv2").should("exist");
