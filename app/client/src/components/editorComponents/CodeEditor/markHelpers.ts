@@ -45,6 +45,11 @@ export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
 export const NAVIGATE_TO_ATTRIBUTE = "data-navigate-to";
 export const NAVIGATION_CLASSNAME = "navigable-entity-highlight";
 
+const hasReference = (token: CodeMirror.Token) => {
+  const tokenString = token.string;
+  return token.type === "variable" || tokenString === "this";
+};
+
 export const entityMarker: MarkHelper = (
   editor: CodeMirror.Editor,
   entityNavigationData,
@@ -59,7 +64,7 @@ export const entityMarker: MarkHelper = (
     const tokens = editor.getLineTokens(lineNo);
     tokens.forEach((token) => {
       const tokenString = token.string;
-      if (token.type === "variable" && tokenString in entityNavigationData) {
+      if (hasReference(token) && tokenString in entityNavigationData) {
         const data = entityNavigationData[tokenString];
         editor.markText(
           { ch: token.start, line: lineNo },
