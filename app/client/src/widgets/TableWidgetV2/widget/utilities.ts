@@ -248,7 +248,7 @@ export const getPropertyValue = (
     return value;
   }
 };
-export const getBooleanPropertyValue = (value: any, index: number) => {
+export const getBooleanPropertyValue = (value: unknown, index: number) => {
   if (isBoolean(value)) {
     return value;
   }
@@ -256,6 +256,20 @@ export const getBooleanPropertyValue = (value: any, index: number) => {
     return value[index];
   }
   return !!value;
+};
+
+export const getArrayPropertyValue = (value: unknown, index: number) => {
+  if (Array.isArray(value) && value.length > 0) {
+    if (Array.isArray(value[0])) {
+      // value is array of arrays of label value
+      return value[index];
+    } else {
+      // value is array of label value
+      return value;
+    }
+  } else {
+    return value;
+  }
 };
 
 export const getCellProperties = (
@@ -436,6 +450,10 @@ export const getCellProperties = (
       ),
       resetFilterTextOnClose: getBooleanPropertyValue(
         columnProperties.resetFilterTextOnClose,
+        rowIndex,
+      ),
+      selectOptions: getArrayPropertyValue(
+        columnProperties.selectOptions,
         rowIndex,
       ),
     } as CellLayoutProperties;

@@ -150,6 +150,9 @@ export default {
       propertyName: "computedValue",
       label: "Computed Value",
       controlType: "TABLE_COMPUTE_VALUE",
+      additionalControlData: {
+        isArrayValue: true,
+      },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.DATE,
