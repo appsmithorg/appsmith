@@ -250,7 +250,7 @@ public class AuditLogServiceTest {
             toCreate.setName(workspaceName);
 
             if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
-                Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+                Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
                 workspaceId = workspace.getId();
             }
 
@@ -2323,7 +2323,7 @@ public class AuditLogServiceTest {
         action.setPageId(createdPageDTO.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -2442,7 +2442,7 @@ public class AuditLogServiceTest {
         action.setPageId(createdPageDTO.getId());
         action.setName("testActionExecutev2");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         // Publish application for testing action execution in view mode
         applicationPageService.publish(createdApplication.getId(), true).block();

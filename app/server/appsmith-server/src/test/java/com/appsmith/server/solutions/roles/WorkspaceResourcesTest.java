@@ -59,7 +59,6 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -774,7 +773,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("validActionCollection");
@@ -860,7 +859,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing");
@@ -959,7 +958,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenViewOnApp_assertViewOnWorkspace");
@@ -1065,7 +1064,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenRemoveViewOnApp_assertNoViewOnWorkspace");
