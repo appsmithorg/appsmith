@@ -128,6 +128,10 @@ export const borderRadiusOptions: Record<string, string> = {
   L: "1.5rem",
 };
 
+export const invertedBorderRadiusOptions: Record<string, string> = invert(
+  borderRadiusOptions,
+);
+
 export const boxShadowPropertyName = "boxShadow";
 
 /**
