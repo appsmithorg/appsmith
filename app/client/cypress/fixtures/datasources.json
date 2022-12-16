@@ -6,7 +6,7 @@
   "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
 
   "postgres-host": "localhost",
-  "postgres-host-fat":"host.docker.internal",
+  "postgres-host-fat": "host.docker.internal",
   "postgres-port": 5432,
   "postgres-databaseName": "fakeapi",
   "postgres-username": "docker",

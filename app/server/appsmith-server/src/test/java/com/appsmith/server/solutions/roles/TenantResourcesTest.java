@@ -220,6 +220,8 @@ public class TenantResourcesTest {
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing");
+        String description = "New role for editing description";
+        permissionGroup.setDescription(description);
         PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup)
                 .flatMap(permissionGroup1 -> permissionGroupService.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS))
                 .block();
@@ -251,6 +253,8 @@ public class TenantResourcesTest {
                     Assertions.assertThat(roleViewDTO).isNotNull();
                     assertThat(roleViewDTO.getId()).isEqualTo(createdPermissionGroup.getId());
                     assertThat(roleViewDTO.getUserPermissions()).isEqualTo(createdPermissionGroup.getUserPermissions());
+                    assertThat(roleViewDTO.getDescription()).isEqualTo(description);
+
                     BaseView workspaceView = roleViewDTO.getTabs().get(RoleTab.OTHERS.getName())
                             .getData()
                             .getEntities()

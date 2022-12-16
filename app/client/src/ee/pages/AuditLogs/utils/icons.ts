@@ -1,10 +1,12 @@
+import { Colors } from "constants/Colors";
+
 export type IconInfo = [/* iconName */ string, /* iconFillColor */ string];
 
 export const EVENT_ICON_MAP: Record<string, IconInfo> = {
   cloned: ["duplicate", ""],
   copied: ["duplicate", ""],
   created: ["add-box-line", ""],
-  deleted: ["delete", "#E32525"],
+  deleted: ["delete", Colors.RED_600],
   deployed: ["rocket", ""],
   duplicated: ["duplicate", ""],
   executed: ["execute", ""],
@@ -17,4 +19,10 @@ export const EVENT_ICON_MAP: Record<string, IconInfo> = {
   signed_up: ["user-follow-line", ""],
   updated: ["edit-box-line", ""],
   viewed: ["eye-on", ""],
+  invite_users: ["user-shared-line", ""],
+  remove_users: ["user-received-2-line", Colors.RED_600],
+  assigned_users: ["user-add-line", ""],
+  unassigned_users: ["user-unfollow-line", Colors.RED_600],
+  assigned_groups: ["user-add-line", ""],
+  unassigned_groups: ["user-unfollow-line", Colors.RED_600],
 };
