@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
   extraLibraries,
@@ -166,21 +166,20 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     skipEntityFunctions: !!skipEntityFunctions,
     requestId: context?.requestId,
     eventType: context?.eventType,
+    resolvedFunctions,
   });
-
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions);
 
   return EVAL_CONTEXT;
 };
 
 export const assignJSFunctionsToContext = (
-  EVAL_CONTEXT: GlobalData,
+  dataTree: DataTree,
   resolvedFunctions: ResolvedFunctions,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];
-    const jsObject = EVAL_CONTEXT[jsObjectName];
+    const jsObject = dataTree[jsObjectName] as DataTreeJSAction;
     if (!jsObject) continue;
     for (const fnName of Object.keys(resolvedObject)) {
       const fn = resolvedObject[fnName];
@@ -396,11 +395,10 @@ export function isFunctionAsync(
     };
 
     addDataTreeToContext({
-      EVAL_CONTEXT: GLOBAL_DATA,
       dataTree,
+      resolvedFunctions,
     });
 
-    assignJSFunctionsToContext(GLOBAL_DATA, resolvedFunctions);
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context

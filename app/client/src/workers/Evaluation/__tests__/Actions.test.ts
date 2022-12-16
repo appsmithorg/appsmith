@@ -868,6 +868,7 @@ describe("Test addDataTreeToContext method", () => {
   beforeAll(() => {
     addDataTreeToContext({
       EVAL_CONTEXT: evalContext,
+      resolvedFunctions: {},
       dataTree: (dataTree as unknown) as DataTree,
     });
   });

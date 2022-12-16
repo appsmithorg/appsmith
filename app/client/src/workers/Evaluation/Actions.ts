@@ -10,7 +10,9 @@ import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
-import { GlobalData } from "./evaluate";
+import { assignJSFunctionsToContext, GlobalData } from "./evaluate";
+import produce from "immer";
+
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -309,61 +311,69 @@ const ENTITY_FUNCTIONS: Record<
 export const addDataTreeToContext = (args: {
   EVAL_CONTEXT: GlobalData;
   dataTree: Readonly<DataTree>;
+  resolvedFunctions: Record<string, any>;
   requestId?: string;
   skipEntityFunctions?: boolean;
   eventType?: EventType;
 }) => {
-  const {
-    dataTree,
-    EVAL_CONTEXT,
-    eventType,
-    requestId = "",
-    skipEntityFunctions = false,
-  } = args;
-  const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
-  const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
-  const dataTreeEntries = Object.entries(dataTree);
-  const entityFunctionCollection = {};
+  const dataTreeWithFunctions = produce(() => {
+    const {
+      dataTree,
+      eventType,
+      requestId = "",
+      resolvedFunctions,
+      skipEntityFunctions = false,
+    } = args;
+    const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
+    const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
 
-  self.TRIGGER_COLLECTOR = [];
+    const dataTreeEntries = Object.entries(dataTree);
 
-  for (const [entityName, entity] of dataTreeEntries) {
-    EVAL_CONTEXT[entityName] = entity;
-    if (skipEntityFunctions) continue;
-    for (const [functionName, funcCreator] of entityFunctionEntries) {
-      if (!funcCreator.qualifier(entity)) continue;
-      const func = funcCreator.func(entity);
-      const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
-      set(
-        entityFunctionCollection,
-        fullPath,
-        pusher.bind(
-          {
-            TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-            REQUEST_ID: requestId,
-            EVENT_TYPE: eventType,
-          },
-          func,
-        ),
+    self.TRIGGER_COLLECTOR = [];
+
+    for (const [entityName, entity] of dataTreeEntries) {
+      if (skipEntityFunctions) continue;
+      for (const [functionName, funcCreator] of entityFunctionEntries) {
+        if (!funcCreator.qualifier(entity)) continue;
+        const func = funcCreator.func(entity);
+        const fullPath = `${funcCreator.path ||
+          `${entityName}.${functionName}`}`;
+        set(
+          entity,
+          fullPath,
+          pusher.bind(
+            {
+              TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+              REQUEST_ID: requestId,
+              EVENT_TYPE: eventType,
+            },
+            func,
+          ),
+        );
+      }
+    }
+
+    for (const [name, fn] of platformFunctionEntries) {
+      // @ts-expect-error: a
+      dataTree[name] = pusher.bind(
+        {
+          TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+          REQUEST_ID: requestId,
+          EVENT_TYPE: eventType,
+        },
+        fn,
       );
     }
-  }
 
-  for (const [entityName, funcObj] of Object.entries(
-    entityFunctionCollection,
-  )) {
-    EVAL_CONTEXT[entityName] = Object.assign({}, dataTree[entityName], funcObj);
-  }
+    assignJSFunctionsToContext(dataTree, resolvedFunctions);
 
-  for (const [name, fn] of platformFunctionEntries) {
-    EVAL_CONTEXT[name] = pusher.bind(
-      {
-        TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-        REQUEST_ID: requestId,
-        EVENT_TYPE: eventType,
-      },
-      fn,
-    );
+    return dataTree;
+  });
+
+  const { EVAL_CONTEXT } = args;
+
+  for (const [entityName, entity] of Object.entries(dataTreeWithFunctions)) {
+    EVAL_CONTEXT[entityName] = entity;
   }
 };
 
