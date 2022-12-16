@@ -292,7 +292,6 @@ const jsActionsReducer = createReducer(initialState, {
   [ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<{
-      results: any;
       collectionId: string;
       actionId: string;
       isDirty: boolean;
@@ -302,10 +301,6 @@ const jsActionsReducer = createReducer(initialState, {
       if (a.config.id === action.payload.collectionId) {
         return {
           ...a,
-          data: {
-            ...a.data,
-            [action.payload.actionId]: action.payload.results,
-          },
           isExecuting: {
             ...a.isExecuting,
             [action.payload.actionId]: false,
@@ -313,6 +308,26 @@ const jsActionsReducer = createReducer(initialState, {
           isDirty: {
             ...a.isDirty,
             [action.payload.actionId]: action.payload.isDirty,
+          },
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      data: unknown;
+      collectionId: string;
+      actionId: string;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.collectionId) {
+        return {
+          ...a,
+          data: {
+            ...a.data,
+            [action.payload.actionId]: action.payload.data,
           },
         };
       }

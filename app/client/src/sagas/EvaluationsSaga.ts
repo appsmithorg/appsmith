@@ -376,12 +376,11 @@ export function* executeDynamicTriggerRequest(
           );
           if (jsAction) {
             yield put({
-              type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
+              type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
               payload: {
-                results: dataStore[key],
+                data: dataStore[key],
                 collectionId: jsAction.collectionId,
                 actionId: jsAction.id,
-                isDirty: false,
               },
             });
           }

@@ -379,7 +379,6 @@ export function* handleExecuteJSFunctionSaga(data: {
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
-        results: result,
         collectionId,
         actionId,
         isDirty,
