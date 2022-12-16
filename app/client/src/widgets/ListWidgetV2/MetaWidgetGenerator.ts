@@ -16,6 +16,7 @@ import { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import {
+  DEFAULT_TEMPLATE_BOTTOM_ROW,
   DynamicPathType,
   LevelData,
   ListWidgetProps,
@@ -47,9 +48,9 @@ export type GeneratorOptions = {
   pageNo?: number;
   pageSize?: number;
   primaryKeys?: (string | number | undefined)[];
-  scrollElement: ConstructorProps["scrollElement"];
-  serverSidePagination: ConstructorProps["serverSidePagination"];
-  templateBottomRow: ConstructorProps["templateBottomRow"];
+  scrollElement: HTMLDivElement | null;
+  serverSidePagination: boolean;
+  templateBottomRow: number;
   widgetName: string;
 };
 
@@ -61,10 +62,7 @@ type ConstructorProps = {
   onVirtualListScroll: () => void;
   primaryWidgetType: string;
   renderMode: string;
-  scrollElement: HTMLDivElement | null;
-  serverSidePagination: boolean;
   setWidgetCache: (data: MetaWidgetCache) => void;
-  templateBottomRow: number;
   widgetId: string;
 };
 
@@ -177,10 +175,10 @@ class MetaWidgetGenerator {
   private primaryKeys: GeneratorOptions["primaryKeys"];
   private primaryWidgetType: ConstructorProps["primaryWidgetType"];
   private renderMode: ConstructorProps["renderMode"];
-  private scrollElement: ConstructorProps["scrollElement"];
-  private serverSidePagination: ConstructorProps["serverSidePagination"];
+  private scrollElement: GeneratorOptions["scrollElement"];
+  private serverSidePagination: GeneratorOptions["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
-  private templateBottomRow: ConstructorProps["templateBottomRow"];
+  private templateBottomRow: GeneratorOptions["templateBottomRow"];
   private templateWidgetStatus: TemplateWidgetStatus;
   private virtualizer?: VirtualizerInstance;
   private widgetName: GeneratorOptions["widgetName"];
@@ -206,14 +204,14 @@ class MetaWidgetGenerator {
     this.pageNo = 1;
     this.pageSize = 0;
     this.prevTemplateWidgets = {};
-    this.primaryWidgetType = props.primaryWidgetType;
     this.prevViewMetaWidgetIds = [];
+    this.primaryWidgetType = props.primaryWidgetType;
+    this.serverSidePagination = false;
     this.renderMode = props.renderMode;
     this.modificationsQueue = new Queue<MODIFICATION_TYPE>();
-    this.scrollElement = props.scrollElement;
-    this.serverSidePagination = props.serverSidePagination;
+    this.scrollElement = null;
     this.setWidgetCache = props.setWidgetCache;
-    this.templateBottomRow = props.templateBottomRow;
+    this.templateBottomRow = DEFAULT_TEMPLATE_BOTTOM_ROW;
     this.templateWidgetStatus = {
       added: new Set(),
       updated: new Set(),
@@ -422,6 +420,7 @@ class MetaWidgetGenerator {
 
     const metaWidget = klona(templateWidget) as MetaWidget;
     const metaCacheProps = this.getRowTemplateCache(key, templateWidgetId);
+
     if (!metaCacheProps) {
       return {
         childMetaWidgets: undefined,
