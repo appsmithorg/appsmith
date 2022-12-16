@@ -67,7 +67,7 @@
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
-              "valueExistPath": "datasourceConfiguration.authentication.secretExists.password"
+              "isSecretExistsPath": "datasourceConfiguration.authentication.secretExists.password"
             }
           ]
         }

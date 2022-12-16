@@ -152,7 +152,7 @@
           "dataType": "PASSWORD",
           "initialValue": "",
           "encrypted": true,
-          "valueExistPath": "datasourceConfiguration.authentication.secretExists.password"
+          "isSecretExistsPath": "datasourceConfiguration.authentication.secretExists.password"
         }
       ]
     }
