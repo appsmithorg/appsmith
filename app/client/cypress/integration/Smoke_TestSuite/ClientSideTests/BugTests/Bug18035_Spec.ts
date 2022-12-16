@@ -9,7 +9,7 @@ describe("Bug 18035: Updates save button text on datasource discard popup", func
     dataSources.CreatePlugIn("Google Sheets");
     agHelper.GoBack();
     agHelper.AssertContains(
-      "Save and Authorize",
+      "SAVE AND AUTHORIZE",
       "exist",
       dataSources._datasourceModalSave,
     );
@@ -20,7 +20,7 @@ describe("Bug 18035: Updates save button text on datasource discard popup", func
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
     agHelper.GoBack();
-    agHelper.AssertContains("Save", "exist", dataSources._datasourceModalSave);
+    agHelper.AssertContains("SAVE", "exist", dataSources._datasourceModalSave);
     cy.get(dataSources._datasourceModalDoNotSave).click();
   });
 });
