@@ -30,6 +30,7 @@ import {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetState } from "../../BaseWidget";
+import { Stylesheet } from "entities/AppTheming";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -106,6 +107,14 @@ class ListWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return PropertyPaneStyleConfig;
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   static getDerivedPropertiesMap() {
