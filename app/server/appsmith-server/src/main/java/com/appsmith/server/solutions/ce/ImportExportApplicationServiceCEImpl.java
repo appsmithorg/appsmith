@@ -21,6 +21,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -31,6 +32,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -50,6 +52,7 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
@@ -85,6 +88,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -126,6 +131,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ThemeService themeService;
     private final PolicyUtils policyUtils;
     private final AnalyticsService analyticsService;
+    private final CustomJSLibService customJSLibService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
@@ -176,6 +182,30 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         AclPermission permission = isGitSync ? applicationPermission.getEditPermission() : applicationPermission.getExportPermission();
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+
+        Mono<List<CustomJSLib>> unpublishedCustomJSLibListMono =
+                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, false);
+        Mono<List<CustomJSLib>> publishedCustomJSLibListMono =
+                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, true);
+        Mono<List<CustomJSLib>> allCustomJSLibListMono = Mono.zip(unpublishedCustomJSLibListMono,
+                        publishedCustomJSLibListMono)
+                .map(tuple -> {
+                    List<CustomJSLib> unpublishedCustomJSLibList = tuple.getT1();
+                    List<CustomJSLib> publishedCustomJSLibList = tuple.getT2();
+
+                    Set<CustomJSLib> allCustomJSLibSet = new HashSet<>();
+                    allCustomJSLibSet.addAll(unpublishedCustomJSLibList);
+                    allCustomJSLibSet.addAll(publishedCustomJSLibList);
+                    List<CustomJSLib> allCustomJSLibList = new ArrayList<>(allCustomJSLibSet);
+
+                    /*
+                        Previously it was a Set and as Set is an unordered collection of elements that resulted in
+                        uncommitted changes. Making it a list and sorting it by the UidString ensure that the order
+                        will be maintained. And this solves the issue.
+                     */
+                    Collections.sort(allCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
+                    return allCustomJSLibList;
+                });
 
         Mono<Application> applicationMono =
                 // Find the application with appropriate permission
@@ -471,6 +501,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
                     return applicationJson;
                 })
+                .then(allCustomJSLibListMono)
+                .map(allCustomLibList -> {
+                    applicationJson.setCustomJSLibList(allCustomLibList);
+                    return applicationJson;
+                })
                 .then(sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
                 .thenReturn(applicationJson);
     }
@@ -679,11 +714,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Map<String, List<String>> publishedActionIdToCollectionIdMap = new HashMap<>();
 
         Application importedApplication = importedDoc.getExportedApplication();
-
         List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
+        List<CustomJSLib> customJSLibs = importedDoc.getCustomJSLibList() == null ? new ArrayList<>() :
+                importedDoc.getCustomJSLibList();
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
@@ -919,9 +955,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return newPage;
                             });
 
+                    Mono<List<CustomJSLibApplicationDTO>> installedJSLibMono = Flux.fromIterable(customJSLibs)
+                            .flatMap(customJSLib -> {
+                                customJSLib.setId(null);
+                                customJSLib.setCreatedAt(null);
+                                customJSLib.setUpdatedAt(null);
+                                return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false);
+                            })
+                            .collectList()
+                            .map(jsLibDTOList -> {
+                                importedApplication.setUnpublishedCustomJSLibs(new HashSet<>(jsLibDTOList));
+                                return jsLibDTOList;
+                            });
+
                     return importedNewPagesMono
                             .collectList()
-                            .map(newPageList -> {
+                            .zipWith(installedJSLibMono)
+                            .map(tuple2 -> {
                                 Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
                                 applicationPages.put(EDIT, unpublishedPages);
                                 applicationPages.put(VIEW, publishedPages);

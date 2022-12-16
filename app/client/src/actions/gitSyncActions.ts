@@ -42,6 +42,10 @@ export const clearCommitSuccessfulState = () => ({
   type: ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE,
 });
 
+export const clearCommitErrorState = () => ({
+  type: ReduxActionTypes.CLEAR_COMMIT_ERROR_STATE,
+});
+
 export type ConnectToGitResponse = {
   gitApplicationMetadata: GitApplicationMetadata;
 };
