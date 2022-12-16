@@ -60,7 +60,7 @@ describe("Git sync apps", function() {
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
 
     cy.wait("@getDatasourceStructure").should(
@@ -187,12 +187,10 @@ describe("Git sync apps", function() {
       });
     cy.wait(2000);
     // clone the page from page settings
-    cy.xpath("//span[contains(@class,'entity-right-icon')]").click({
-      force: true,
+    cy.get(`.t--entity-item:contains(${newPage})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
     });
-    cy.xpath("(//button[@type='button'])")
-      .eq(9)
-      .click();
+    cy.selectAction("Clone");
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -322,7 +320,7 @@ describe("Git sync apps", function() {
       .click({ force: true });
     ee.ActionContextMenuByEntityName("JSObject1", "Move to page", "Child_Page");
     cy.wait(2000);
-    cy.get(explorer.addWidget).click();
+    cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
@@ -460,6 +458,7 @@ describe("Git sync apps", function() {
     cy.get(`.t--entity-item:contains(Child_Page Copy)`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
+    cy.wait(2000);
     cy.selectAction("Hide");
 
     cy.get(`.t--entity-item:contains(Child_Page)`)

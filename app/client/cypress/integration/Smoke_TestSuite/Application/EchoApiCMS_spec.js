@@ -11,7 +11,7 @@ describe("Content Management System App", function() {
     cy.startRoutesForDatasource();
   });
 
-  it.only("1.Create Get echo Api call", function() {
+  it("1.Create Get echo Api call", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("get_data");
     // creating get request using echo
@@ -97,6 +97,7 @@ describe("Content Management System App", function() {
       .click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
     //cy.xpath(appPage.datasourcesbutton).click({ force: true });
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.xpath(appPage.postApi).click({ force: true });
     cy.ResponseCheck("Test");
     // cy.ResponseCheck("Task completed");

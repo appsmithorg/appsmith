@@ -11,20 +11,30 @@ import WithSuperUserHOC from "pages/Settings/WithSuperUserHoc";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
 import { LoaderContainer } from "pages/Settings/components";
+import { useParams } from "react-router";
+import AdminConfig from "@appsmith/pages/AdminSettings/config";
 
 const FlexContainer = styled.div`
   display: flex;
+  height: 100%;
 `;
 
 function Settings() {
   const dispatch = useDispatch();
   const user = useSelector(getCurrentUser);
   const isLoading = useSelector(getSettingsLoadingState);
+  const params = useParams() as any;
+  const { category, selected: subCategory } = params;
+  const isSavable = AdminConfig.savableCategories.includes(
+    subCategory ?? category,
+  );
 
   useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
-    });
+    if (user?.isSuperUser) {
+      dispatch({
+        type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -32,7 +42,7 @@ function Settings() {
   }, [user?.email]);
 
   return (
-    <PageWrapper isFixed>
+    <PageWrapper isFixed isSavable={isSavable}>
       <FlexContainer>
         {isLoading ? (
           <LoaderContainer>

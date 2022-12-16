@@ -65,6 +65,7 @@ import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
+  DEPLOY_MENU_OPTION,
   INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
   LOCK_ENTITY_EXPLORER_MESSAGE,
@@ -187,9 +188,9 @@ const StyledDeployIcon = styled(Icon)`
   height: 20px;
   width: 20px;
   align-self: center;
-  background: ${(props) => props.theme.colors.header.shareBtnHighlight};
+  background: var(--ads-color-brand);
   &:hover {
-    background: rgb(191, 65, 9);
+    background: var(--ads-color-brand-hover);
   }
 `;
 
@@ -402,12 +403,10 @@ export function EditorHeader(props: EditorHeaderProps) {
             <EditorAppName
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
-              currentDeployLink={deployLink}
               defaultSavingState={
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
               defaultValue={currentApplication?.name || ""}
-              deploy={() => handleClickDeploy(false)}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
               isError={isErroredSavingName}
@@ -491,7 +490,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   isLoading={isPublishing}
                   onClick={() => handleClickDeploy(true)}
                   size={Size.small}
-                  text={"Deploy"}
+                  text={DEPLOY_MENU_OPTION()}
                 />
               </TooltipComponent>
 
@@ -499,7 +498,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 link={deployLink}
                 trigger={
                   <StyledDeployIcon
-                    fillColor="#fff"
+                    fillColor="var(--ads-color-brand-text)"
                     name={"down-arrow"}
                     size={IconSize.XXL}
                   />

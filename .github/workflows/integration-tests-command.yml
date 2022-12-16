@@ -19,7 +19,7 @@ jobs:
             Workflow: `${{ github.workflow }}`.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
-            Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-63465d4789020c7ac296d08d?pr=${{ github.event.client_payload.pull_request.number }}&runId=${{ github.run_id }}_${{github.run_attempt}}>
+            Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-638dd7cd2913ba43778b915e?pr=${{ github.event.client_payload.pull_request.number }}&runId=${{ github.run_id }}_${{github.run_attempt}}>
 
   server-build:
     name: server-build
@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1]
+        job: [0, 1, 2, 3, 4]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -245,6 +245,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -280,6 +284,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -319,6 +327,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -375,7 +387,7 @@ jobs:
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_fat/failed_spec-${{ matrix.job }}
+          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_fat/failed_spec_fat-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
@@ -590,20 +602,17 @@ jobs:
           # Run the server in the background and redirect logs to a log file
           ./scripts/start-dev-server.sh &> server-logs.log &
 
-      - name: Wait for 30 seconds for server to start
+      - name: Wait for 30s and check if server is running
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           sleep 30s
-
-      - name: Exit if Server hasnt started
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          if [[ `ps -ef | grep "server-.*-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
-             echo "Server Not Started";
-             exit 1;
-           else
-             echo "Server Found";
-           fi
+          if lsof -i :8080; then
+            echo "Server Found"
+          else
+            echo "Server Not Started. Printing logs from server process"
+            cat app/server/nohup.out
+            exit 1
+          fi
 
       - name: Installing Yarn serve
         if: steps.run_result.outputs.run_result != 'success'
@@ -632,6 +641,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -665,6 +678,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -703,6 +720,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
@@ -804,8 +825,18 @@ jobs:
       # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
+  perf-test:
+    needs: [client-build, server-build, rts-build]
+    # Only run if the build step is successful
+    if: success()
+    name: perf-test
+    uses: ./.github/workflows/perf-test.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
   ui-test-result:
-    needs: [ui-test, fat-container-test]
+    needs: [ui-test, fat-container-test, perf-test]
     # Only run if the ui-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest
@@ -954,7 +985,7 @@ jobs:
         run: echo "$PAYLOAD_CONTEXT"
 
       - name: Check ui-test set status
-        if: needs.ui-test.result != 'success' || needs.fat-container-test.result != 'success'
+        if: needs.ui-test.result != 'success' || needs.fat-container-test.result != 'success' || needs.perf-test.result != 'success'
         run: exit 1
 
   package:
@@ -1025,12 +1056,3 @@ jobs:
 
             return result;
             }
-  perf-test:
-    needs: [client-build, server-build, rts-build]
-    # Only run if the build step is successful
-    if: success()
-    name: perf-test
-    uses: ./.github/workflows/perf-test.yml
-    secrets: inherit
-    with:
-      pr: ${{ github.event.client_payload.pull_request.number }}

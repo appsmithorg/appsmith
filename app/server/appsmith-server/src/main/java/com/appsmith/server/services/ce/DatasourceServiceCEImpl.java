@@ -7,6 +7,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -28,6 +29,8 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
@@ -55,8 +58,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -69,8 +70,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
-
     private final DatasourceContextService datasourceContextService;
+    private final DatasourcePermission datasourcePermission;
+    private final WorkspacePermission workspacePermission;
 
     @Autowired
     public DatasourceServiceCEImpl(Scheduler scheduler,
@@ -86,7 +88,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    PolicyGenerator policyGenerator,
                                    SequenceService sequenceService,
                                    NewActionRepository newActionRepository,
-                                   DatasourceContextService datasourceContextService) {
+                                   DatasourceContextService datasourceContextService,
+                                   DatasourcePermission datasourcePermission,
+                                   WorkspacePermission workspacePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -97,6 +101,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
         this.datasourceContextService = datasourceContextService;
+        this.datasourcePermission = datasourcePermission;
+        this.workspacePermission = workspacePermission;
     }
 
     @Override
@@ -140,7 +146,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_DATASOURCES)
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), workspacePermission.getDatasourceCreatePermission())
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
                     return workspaceMono.map(workspace -> {
@@ -328,7 +334,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                 savedDatasource.setPluginName(unsavedDatasource.getPluginName());
                                 return savedDatasource;
                             });
-                });
+                })
+                .flatMap(repository::setUserPermissionsInObject);
     }
 
     /**
@@ -394,7 +401,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Set<String> extractKeysFromDatasource(Datasource datasource) {
+    public Set<MustacheBindingToken> extractKeysFromDatasource(Datasource datasource) {
         if (datasource == null || datasource.getDatasourceConfiguration() == null) {
             return new HashSet<>();
         }
@@ -410,7 +417,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         if (params.getFirst(fieldName(QDatasource.datasource.workspaceId)) != null) {
-            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), AclPermission.READ_DATASOURCES)
+            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), datasourcePermission.getReadPermission())
                     .collectList()
                     .map(datasourceList -> {
                         markRecentlyUsed(datasourceList, 3);
@@ -440,7 +447,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Mono<Datasource> archiveById(String id) {
         return repository
-                .findById(id, MANAGE_DATASOURCES)
+                .findById(id, datasourcePermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))
                 .flatMap(objects -> {

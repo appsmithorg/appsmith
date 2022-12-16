@@ -5,6 +5,7 @@ import {
   ImportApplicationRequest,
   FetchApplicationPayload,
 } from "api/ApplicationApi";
+import { AppIconName } from "design-system";
 import { Datasource } from "entities/Datasource";
 
 export enum ApplicationVersion {
@@ -57,6 +58,13 @@ export const updateApplication = (
       ...data,
       callback,
     },
+  };
+};
+
+export const updateCurrentApplicationIcon = (icon: AppIconName) => {
+  return {
+    type: ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE,
+    payload: icon,
   };
 };
 

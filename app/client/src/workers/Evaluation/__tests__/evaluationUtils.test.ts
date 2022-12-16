@@ -1,4 +1,8 @@
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  DependencyMap,
+  EvaluationError,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
@@ -6,9 +10,10 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
+import { PrivateWidgets } from "entities/DataTree/types";
 import {
+  addErrorToEntityProperty,
   DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
@@ -30,6 +35,10 @@ import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
+import { WidgetConfiguration } from "widgets/constants";
+import { createNewEntity } from "../dataTreeUtils";
+import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import { Severity } from "entities/AppsmithConsole";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -137,8 +146,8 @@ const testDataTree: Record<string, DataTreeWidget> = {
   },
 };
 
-describe("Correctly handle paths", () => {
-  it("getsAllPaths", () => {
+describe("1. Correctly handle paths", () => {
+  it("1. getsAllPaths", () => {
     const myTree = {
       WidgetName: {
         1: "yo",
@@ -177,8 +186,8 @@ describe("Correctly handle paths", () => {
   });
 });
 
-describe("privateWidgets", () => {
-  it("correctly checks if path is a PrivateEntityPath", () => {
+describe("2. privateWidgets", () => {
+  it("1. correctly checks if path is a PrivateEntityPath", () => {
     const privateWidgets: PrivateWidgets = {
       Button1: true,
       Image1: true,
@@ -196,7 +205,7 @@ describe("privateWidgets", () => {
     expect(isPrivateEntityPath(privateWidgets, "Image2.data")).toBeTruthy();
   });
 
-  it("Returns list of all privateWidgets", () => {
+  it("2. Returns list of all privateWidgets", () => {
     const expectedPrivateWidgetsList = {
       Text2: true,
       Text3: true,
@@ -209,7 +218,7 @@ describe("privateWidgets", () => {
     expect(expectedPrivateWidgetsList).toStrictEqual(actualPrivateWidgetsList);
   });
 
-  it("Returns data tree without privateWidgets", () => {
+  it("3. Returns data tree without privateWidgets", () => {
     const expectedDataTreeWithoutPrivateWidgets: Record<
       string,
       DataTreeWidget
@@ -274,8 +283,8 @@ describe("privateWidgets", () => {
   });
 });
 
-describe("makeParentsDependOnChildren", () => {
-  it("makes parent properties depend on child properties", () => {
+describe("3. makeParentsDependOnChildren", () => {
+  it("1. makes parent properties depend on child properties", () => {
     let depMap: DependencyMap = {
       Widget1: [],
       "Widget1.defaultText": [],
@@ -294,7 +303,7 @@ describe("makeParentsDependOnChildren", () => {
     });
   });
 
-  it("logs warning for child properties not listed in allKeys", () => {
+  it("2. logs warning for child properties not listed in allKeys", () => {
     const depMap: DependencyMap = {
       Widget1: [],
       "Widget1.defaultText": [],
@@ -310,8 +319,8 @@ describe("makeParentsDependOnChildren", () => {
   });
 });
 
-describe("translateDiffEvent", () => {
-  it("noop when diff path does not exist", () => {
+describe("4. translateDiffEvent", () => {
+  it("1. noop when diff path does not exist", () => {
     const noDiffPath: Diff<any, any> = {
       kind: "E",
       lhs: undefined,
@@ -326,7 +335,7 @@ describe("translateDiffEvent", () => {
       event: DataTreeDiffEvent.NOOP,
     });
   });
-  it("translates new and delete events", () => {
+  it("2. translates new and delete events", () => {
     const diffs: Diff<any, any>[] = [
       {
         kind: "N",
@@ -397,7 +406,7 @@ describe("translateDiffEvent", () => {
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
-  it("properly categorises the edit events", () => {
+  it("3. properly categorises the edit events", () => {
     const diffs: Diff<any, any>[] = [
       {
         kind: "E",
@@ -423,7 +432,7 @@ describe("translateDiffEvent", () => {
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
-  it("handles JsObject function renaming", () => {
+  it("4. handles JsObject function renaming", () => {
     // cyclic dependency case
     const lhs = new String("() => {}");
     _.set(lhs, "data", {});
@@ -465,7 +474,7 @@ describe("translateDiffEvent", () => {
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
-  it("lists array accessors when object is replaced by an array", () => {
+  it("5. lists array accessors when object is replaced by an array", () => {
     const diffs: Diff<any, any>[] = [
       {
         kind: "E",
@@ -497,7 +506,7 @@ describe("translateDiffEvent", () => {
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
-  it("lists array accessors when array is replaced by an object", () => {
+  it("6. lists array accessors when array is replaced by an object", () => {
     const diffs: Diff<any, any>[] = [
       {
         kind: "E",
@@ -529,7 +538,7 @@ describe("translateDiffEvent", () => {
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
-  it("deletes member expressions when Array changes to string", () => {
+  it("7. deletes member expressions when Array changes to string", () => {
     const diffs: Diff<any, any>[] = [
       {
         kind: "E",
@@ -569,10 +578,13 @@ describe("translateDiffEvent", () => {
   });
 });
 
-describe("overrideWidgetProperties", () => {
+describe("5. overrideWidgetProperties", () => {
   beforeAll(() => {
     registerWidget(TableWidget, TableWidgetConfig);
-    registerWidget(InputWidget, InputWidgetV2Config);
+    registerWidget(
+      InputWidget,
+      (InputWidgetV2Config as unknown) as WidgetConfiguration,
+    );
   });
 
   describe("1. Input widget ", () => {
@@ -596,7 +608,7 @@ describe("overrideWidgetProperties", () => {
         },
         {},
       );
-      currentTree["Input1"] = inputWidgetDataTree;
+      currentTree["Input1"] = createNewEntity(inputWidgetDataTree);
     });
     // When default text is re-evaluated it will override values of meta.text and text in InputWidget
     it("1. defaultText updating meta.text and text", () => {
@@ -673,7 +685,7 @@ describe("overrideWidgetProperties", () => {
         },
         {},
       );
-      currentTree["Table1"] = tableWidgetDataTree;
+      currentTree["Table1"] = createNewEntity(tableWidgetDataTree);
     });
     // When default defaultSelectedRow is re-evaluated it will override values of meta.selectedRowIndices, selectedRowIndices, meta.selectedRowIndex & selectedRowIndex.
     it("1. On change of defaultSelectedRow ", () => {
@@ -730,7 +742,7 @@ describe("overrideWidgetProperties", () => {
 });
 
 //A set of test cases to evaluate the logic for finding a given value's datatype
-describe("Evaluated Datatype of a given value", () => {
+describe("6. Evaluated Datatype of a given value", () => {
   it("1. Numeric datatypes", () => {
     expect(findDatatype(37)).toBe("number");
     expect(findDatatype(3.14)).toBe("number");
@@ -777,5 +789,28 @@ describe("Evaluated Datatype of a given value", () => {
     expect(findDatatype([1, 2, 3])).toBe("array");
     expect(findDatatype(Array.of("a", "b", "c"))).toBe("array");
     expect(findDatatype("a, b, c")).not.toBe("array");
+  });
+});
+
+describe("7. Test addErrorToEntityProperty method", () => {
+  it("Add error to dataTreeEvaluator.evalProps", () => {
+    const dataTreeEvaluator = new DataTreeEvaluator({});
+    const error = {
+      errorMessage: "some error",
+      errorType: PropertyEvaluationErrorType.VALIDATION,
+      raw: "undefined",
+      severity: Severity.ERROR,
+      originalBinding: "",
+    } as EvaluationError;
+    addErrorToEntityProperty({
+      errors: [error],
+      dataTree: dataTreeEvaluator.evalTree,
+      evalProps: dataTreeEvaluator.evalProps,
+      fullPropertyPath: "Api1.data",
+    });
+
+    expect(
+      dataTreeEvaluator.evalProps.Api1.__evaluation__?.errors.data[0],
+    ).toEqual(error);
   });
 });

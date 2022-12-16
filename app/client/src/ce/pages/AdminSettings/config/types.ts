@@ -107,6 +107,8 @@ export const SettingCategories = {
   GOOGLE_AUTH: "google-auth",
   GITHUB_AUTH: "github-auth",
   AUDIT_LOGS: "audit-logs",
+  ACCESS_CONTROL: "access-control",
+  BRANDING: "branding",
 };
 
 export const SettingSubCategories = {
@@ -126,4 +128,5 @@ export type AdminConfigType = {
   canSave: boolean;
   isConnected?: boolean;
   icon?: string;
+  needsUpgrade?: boolean;
 };
