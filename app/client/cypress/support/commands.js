@@ -1151,7 +1151,7 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess).should("exist");
+  cy.get(commonlocators.saveStatusSuccess).should("exist", {timeout:30000});
 });
 
 Cypress.Commands.add(
