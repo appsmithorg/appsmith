@@ -15,8 +15,14 @@ import { OverflowTypes } from "../constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";
 import { Stylesheet } from "entities/AppTheming";
+import styled from "styled-components";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
+
+const TextContainer = styled(WidgetStyleContainer)`
+  overflow: hidden;
+`;
+
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return [
@@ -345,6 +351,28 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
           },
+          {
+            helpText: "Enter value for border radius",
+            propertyName: "borderRadius",
+            label: "Border Radius (E.g: 1px)",
+            placeholderText: "Enter text border radius",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Enter value for border shadow",
+            propertyName: "boxShadow",
+            label: "Box shadow",
+            placeholderText: "Enter value box shadow",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
       },
     ];
@@ -368,13 +396,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       ? true
       : this.shouldDisableLink();
     return (
-      <WidgetStyleContainer
+      <TextContainer
         className="t--text-widget-container"
         {...pick(this.props, [
           "widgetId",
           "containerStyle",
           "borderColor",
           "borderWidth",
+          "borderRadius",
+          "boxShadow",
+          "backgroundColor",
         ])}
       >
         <TextComponent
@@ -399,7 +430,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           }
           widgetId={this.props.widgetId}
         />
-      </WidgetStyleContainer>
+      </TextContainer>
     );
   }
 
