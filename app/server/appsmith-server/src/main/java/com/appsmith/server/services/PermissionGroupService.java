@@ -53,4 +53,7 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
     Flux<PermissionGroup> findAllByAssignedToGroupId(String userGroupId);
 
     Mono<Boolean> bulkAssignToUsersWithoutPermission(PermissionGroup pg, List<User> users);
+
+    Mono<Set<String>> getSessionUserPermissionGroupIds();
+
 }

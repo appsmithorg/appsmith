@@ -39,4 +39,18 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
                 NO_RECORD_LIMIT
         );
     }
+
+    @Override
+    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields) {
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
+        return queryAll(
+                List.of(applicationCriteria),
+                includeFields,
+                null,
+                null,
+                NO_RECORD_LIMIT
+        );
+    }
+
+
 }

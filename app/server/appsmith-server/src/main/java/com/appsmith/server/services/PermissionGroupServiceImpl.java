@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -348,9 +350,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     }
 
     @Override
-    public Mono<PermissionGroup> assignToUserGroup(PermissionGroup permissionGroup, UserGroup userGroup)  {
+    public Mono<PermissionGroup> assignToUserGroup(PermissionGroup permissionGroup, UserGroup userGroup) {
         return this.bulkAssignToUserGroups(permissionGroup, Set.of(userGroup));
     }
+
     public Mono<PermissionGroup> bulkAssignToUserGroups(PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
         ensureAssignedToUserGroups(permissionGroup);
         // Get the userIds from all the user groups that we are unassigning
@@ -391,4 +394,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 .thenReturn(TRUE);
     }
 
+    public Mono<Set<String>> getSessionUserPermissionGroupIds() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(repository::getAllPermissionGroupsIdsForUser);
+    }
 }
