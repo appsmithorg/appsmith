@@ -764,42 +764,41 @@ public class WorkspaceResources {
                         page -> page.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PAGES.getValue())).findFirst().map(policy -> policy.getPermissionGroups()).get()
                 );
 
-        Mono<Boolean> datasourceActionsAddedToHoverMapDto = Mono.zip(datasourceActionsMapMono, pageIdToReadPagePermissionGroupsMono)
-                .flatMapMany(tuple -> {
-                    Map<String, Collection<NewAction>> datasourceActionsMap = tuple.getT1();
-                    Map<String, Set<String>> pageIdToReadPagePermissionGroups = tuple.getT2();
-
-                    return datasourceFlux
-                            .flatMap(datasource -> {
-                                String datasourceId = datasource.getId();
-                                Collection<NewAction> actions = datasourceActionsMap.get(datasourceId);
-                                PermissionViewableName datasourcePermissionViewableName = getPermissionViewableName(EXECUTE_DATASOURCES);
-                                PermissionViewableName actionPermissionViewableName = getPermissionViewableName(EXECUTE_ACTIONS);
-                                if (!CollectionUtils.isEmpty(actions)) {
-                                    String sourceIdPermissionDto = datasourceId + "_" + datasourcePermissionViewableName;
-                                    actions.stream()
-                                            .forEach(action -> {
-                                                if (action.getUnpublishedAction() == null || action.getUnpublishedAction().getPageId() == null) {
-                                                    return;
-                                                }
-
-                                                String pageId = action.getUnpublishedAction().getPageId();
-                                                Set<String> readPagePermissionGroups = pageIdToReadPagePermissionGroups.get(pageId);
-                                                // All we care about is if the page has view permission on it, we can show the action on hover
-                                                // of execute on the datasource
-                                                if (!readPagePermissionGroups.contains(permissionGroupId)) {
-                                                    return;
-                                                }
-                                                // generate execute datasource -> execute action relationship in the hovermap
-                                                IdPermissionDTO actionPermissionDto = new IdPermissionDTO(action.getId(), actionPermissionViewableName);
-                                                hoverMap.merge(sourceIdPermissionDto, Set.of(actionPermissionDto), Sets::union);
-                                            });
-                                }
-                                return Mono.just(TRUE);
-                            });
-                })
-                .then(Mono.just(TRUE));
-
+//        Mono<Boolean> datasourceActionsAddedToHoverMapDto = Mono.zip(datasourceActionsMapMono, pageIdToReadPagePermissionGroupsMono)
+//                .flatMapMany(tuple -> {
+//                    Map<String, Collection<NewAction>> datasourceActionsMap = tuple.getT1();
+//                    Map<String, Set<String>> pageIdToReadPagePermissionGroups = tuple.getT2();
+//
+//                    return datasourceFlux
+//                            .flatMap(datasource -> {
+//                                String datasourceId = datasource.getId();
+//                                Collection<NewAction> actions = datasourceActionsMap.get(datasourceId);
+//                                PermissionViewableName datasourcePermissionViewableName = getPermissionViewableName(EXECUTE_DATASOURCES);
+//                                PermissionViewableName actionPermissionViewableName = getPermissionViewableName(EXECUTE_ACTIONS);
+//                                if (!CollectionUtils.isEmpty(actions)) {
+//                                    String sourceIdPermissionDto = datasourceId + "_" + datasourcePermissionViewableName;
+//                                    actions.stream()
+//                                            .forEach(action -> {
+//                                                if (action.getUnpublishedAction() == null || action.getUnpublishedAction().getPageId() == null) {
+//                                                    return;
+//                                                }
+//
+//                                                String pageId = action.getUnpublishedAction().getPageId();
+//                                                Set<String> readPagePermissionGroups = pageIdToReadPagePermissionGroups.get(pageId);
+//                                                // All we care about is if the page has view permission on it, we can show the action on hover
+//                                                // of execute on the datasource
+//                                                if (!readPagePermissionGroups.contains(permissionGroupId)) {
+//                                                    return;
+//                                                }
+//                                                // generate execute datasource -> execute action relationship in the hovermap
+//                                                IdPermissionDTO actionPermissionDto = new IdPermissionDTO(action.getId(), actionPermissionViewableName);
+//                                                hoverMap.merge(sourceIdPermissionDto, Set.of(actionPermissionDto), Sets::union);
+//                                            });
+//                                }
+//                                return Mono.just(TRUE);
+//                            });
+//                })
+//                .then(Mono.just(TRUE));
 
         // Trim the hover map before returning
         Mono<Map<String, Set<IdPermissionDTO>>> trimmedHoverMapMono = Mono.just(hoverMap)
@@ -808,8 +807,7 @@ public class WorkspaceResources {
                     return hoverMap1;
                 });
 
-        return Mono.when(workspaceDatasourcesHoverMapMono, datasourceActionsAddedToHoverMapDto)
-                .then(trimmedHoverMapMono);
+        return workspaceDatasourcesHoverMapMono.then(trimmedHoverMapMono);
 
     }
 
