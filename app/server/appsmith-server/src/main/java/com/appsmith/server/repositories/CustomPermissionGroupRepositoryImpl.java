@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.ce.CustomPermissionGroupRepositoryCEImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -87,5 +88,9 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 null,
                 NO_RECORD_LIMIT
         );
+    }
+
+    public Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user) {
+        return super.getAllPermissionGroupsForUser(user);
     }
 }

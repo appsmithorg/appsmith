@@ -209,4 +209,8 @@ public class FieldName {
     public static final String DEFAULT_USER_PERMISSION_GROUP = "Default Role For All Users";
     public static final String ENVIRONMENT_NAME ="environmentName";
 
+    public static final String IS_FORCE_INSTALL = "forceInstall";
+    public static final String IS_FORCE_REMOVE = "forceRemove";
+    public static final String UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "unpublishedCustomJSLibs";
+    public static final String PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "publishedCustomJSLibs";
 }

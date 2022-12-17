@@ -34,8 +34,7 @@ public interface Url {
     String ENVIRONMENT_URL = BASE_URL + VERSION + "/environments";
     String ENVIRONMENT_VARIABLE_URL = BASE_URL + VERSION + "/environment-variables";
     String TENANT_URL = BASE_URL + VERSION + "/tenants";
-
-
+    String CUSTOM_JS_LIB_URL = BASE_URL + VERSION + "/libraries";
 
     // EE specific endpoints.
     String AUDIT_LOGS_URL = BASE_URL + VERSION + "/audit-logs";
@@ -43,5 +42,4 @@ public interface Url {
     String USER_GROUP_URL = BASE_URL + VERSION + "/user-groups";
     // For sending special FE only events for Audit Logs
     String ANALYTICS_URL = BASE_URL + VERSION + "/analytics";
-
 }
