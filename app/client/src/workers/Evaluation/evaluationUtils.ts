@@ -805,3 +805,15 @@ export const isATriggerPath = (
 ) => {
   return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
 };
+
+const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
+  "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute async framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
+export const ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR =
+  "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
+
+export const getAsyncError = (actionName: string) => {
+  return UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+    "{{actionName}}",
+    actionName + "()",
+  );
+};
