@@ -1,14 +1,14 @@
-export const CANVAS_WIDGET = '[type="CANVAS_WIDGET"]';
+export const CANVAS_WIDGET = '[type="CANVAS_WIDGET"]:not(:scope)';
 export const CONTAINER_SELECTOR =
   ":is(.t--widget-containerwidget, .t--widget-formwidget)";
 const NON_FOCUSABLE_WIDGET_CLASS =
   ".t--widget-textwidget, .t--widget-ratewidget, [disabled]";
 export const JSONFORM_WIDGET = ".t--widget-jsonformwidget";
+export const MODAL_WIDGET = ".t--modal-widget";
 export const CHECKBOXGROUP_WIDGET = ".t--widget-checkboxgroupwidget";
 export const FOCUS_SELECTOR =
   "a, input, select, textarea, button, object, audio, video, [tabindex='-1']";
 export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}))`;
-const TABBABLE_NODES = /input|select|textarea|button|object/;
 
 /**
  * returns the tabbable descendants of the current node
@@ -20,8 +20,11 @@ const TABBABLE_NODES = /input|select|textarea|button|object/;
 export function getTabbableDescendants(
   currentNode: HTMLElement,
   shiftKey = false,
+  shouldTrap = false,
 ): HTMLElement[] {
   const activeWidget = currentNode.closest(WIDGET_SELECTOR) as HTMLElement;
+
+  console.log({ currentNode });
 
   const siblings = getWidgetSiblingsOfNode(currentNode);
   const domRect = activeWidget.getBoundingClientRect();
@@ -32,7 +35,16 @@ export function getTabbableDescendants(
     shiftKey,
   );
 
-  return sortedSiblings;
+  if (sortedSiblings.length) return sortedSiblings;
+
+  // there are no siblings, which means we are at the end of the tabbable list
+  const currentCanvas = currentNode.closest(CANVAS_WIDGET) as HTMLElement;
+
+  if (currentCanvas) {
+    return getTabbableDescendants(currentCanvas, shiftKey);
+  }
+
+  return [];
 }
 
 /**
@@ -48,8 +60,6 @@ export function getNextTabbableDescendant(
   descendants: HTMLElement[],
   shiftKey = false,
 ) {
-  console.log({ descendants });
-
   const nextTabbableDescendant = descendants[0];
 
   // if nextTabbableDescendant is a container,
@@ -217,40 +227,6 @@ export function sortWidgetsByPosition(
   return tabbableElementsByPosition.map((element) => element.element);
 }
 
-function hidden(element: HTMLElement) {
-  return element.style.display === "none";
-}
-
-function visible(element: HTMLElement) {
-  const isHidden =
-    element.getAttribute("aria-hidden") ||
-    element.getAttribute("hidden") ||
-    element.getAttribute("type") === "hidden";
-
-  if (isHidden) {
-    return false;
-  }
-
-  let parentElement: HTMLElement = element;
-  while (parentElement) {
-    if (parentElement === document.body) {
-      break;
-    }
-
-    if (hidden(parentElement)) {
-      return false;
-    }
-
-    parentElement = parentElement.parentNode as HTMLElement;
-  }
-
-  return true;
-}
-
-export function focusable(element: HTMLElement) {
-  return visible(element);
-}
-
 /**
  * get next item to focus if the current widget is json form
  *
@@ -282,6 +258,8 @@ export function getNextTabbableDescendantForJSONForm(
     const descendents = getTabbableDescendants(currentWidget, shiftKey);
     nextTabbableDescendant = getNextTabbableDescendant(descendents, shiftKey);
   }
+
+  console.log({ nextTabbableDescendant });
 
   return nextTabbableDescendant;
 }
