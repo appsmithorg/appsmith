@@ -700,6 +700,15 @@ const migrations: Migration[] = [
     ],
     version: 71,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateAutoHeight,
+        functionName: "migrateListWidgetChildrenForAutoHeight",
+      },
+    ],
+    version: 72,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};
