@@ -130,7 +130,11 @@ export const ERROR_403 = (entity: string, userEmail: string) =>
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
-
+export const MARK_APPLICATION_PUBLIC = () => "Mark application public";
+export const MAKE_APPLICATION_PUBLIC = () => "Mark the application public";
+export const MAKE_APPLICATION_PUBLIC_TOOLTIP = () =>
+  "A public app is accessible to anyone who can access your instance of appsmith";
+export const INVITE_TAB = () => "Invite";
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
   `Invalid Email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
@@ -1399,6 +1403,29 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
+
+export const IN_APP_EMBED_SETTING = {
+  applicationUrl: () => "application url",
+  allowEmbeddingLabel: () => "Embedding enabled",
+  allowEmbeddingTooltip: () =>
+    "This app can be embedded in all domains, including malicious ones",
+  copy: () => "Copy",
+  copied: () => "Copied",
+  limitEmbeddingLabel: () => "Embedding restricted",
+  limitEmbeddingTooltip: () => "This app can be embedded in approved URLs only",
+  disableEmbeddingLabel: () => "Embedding disabled",
+  disableEmbeddingTooltip: () =>
+    "This app cannot be embedded anywhere on the Internet",
+  embed: () => "Embed",
+  embedSnippetTitle: () => "Copy embed code",
+  change: () => "Change",
+  copiedEmbedCode: () => "Copied embed code",
+  embedSize: () => "Embed size",
+  sectionHeader: () => "Share & Embed",
+  sectionContentHeader: () => "Share",
+  sectionHeaderDesc: () => "Make public, embed properties",
+  showNavigationBar: () => "Show navigation bar",
+};
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

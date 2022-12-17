@@ -7,6 +7,7 @@ import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import {
+  AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
 } from "api/ApplicationApi";
@@ -487,9 +488,12 @@ export const ReduxActionTypes = {
   UPDATE_CANVAS_STRUCTURE: "UPDATE_CANVAS_STRUCTURE",
   SET_SELECTED_WIDGET_ANCESTORY: "SET_SELECTED_WIDGET_ANCESTORY",
   START_EVALUATION: "START_EVALUATION",
+  UPDATE_CURRENT_APPLICATION: "UPDATE_CURRENT_APPLICATION",
   CURRENT_APPLICATION_NAME_UPDATE: "CURRENT_APPLICATION_NAME_UPDATE",
   CURRENT_APPLICATION_LAYOUT_UPDATE: "CURRENT_APPLICATION_LAYOUT_UPDATE",
   CURRENT_APPLICATION_ICON_UPDATE: "CURRENT_APPLICATION_ICON_UPDATE",
+  CURRENT_APPLICATION_EMBED_SETTING_UPDATE:
+    "CURRENT_APPLICATION_EMBED_SETTING_UPDATE",
   FORK_APPLICATION_INIT: "FORK_APPLICATION_INIT",
   FORK_APPLICATION_SUCCESS: "FORK_APPLICATION_SUCCESS",
   IMPORT_APPLICATION_INIT: "IMPORT_APPLICATION_INIT",
@@ -1039,6 +1043,7 @@ export interface ApplicationPayload {
   applicationVersion: ApplicationVersion;
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
+  embedSetting?: AppEmbedSetting;
 }
 
 export type WorkspaceDetails = {
