@@ -72,7 +72,10 @@ import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskin
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
-import { migratePropertiesForDynamicHeight } from "./migrations/autoHeightMigrations";
+import {
+  migrateListWidgetChildrenForAutoHeight,
+  migratePropertiesForDynamicHeight,
+} from "./migrations/autoHeightMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1139,6 +1142,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 71) {
     currentDSL = migrateTableWidgetV2SelectOption(currentDSL);
+    currentDSL.version = 72;
+  }
+
+  if (currentDSL.version === 72) {
+    currentDSL = migrateListWidgetChildrenForAutoHeight(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
