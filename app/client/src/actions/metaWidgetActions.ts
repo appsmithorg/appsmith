@@ -11,6 +11,12 @@ export const modifyMetaWidgets = (payload: ModifyMetaWidgetPayload) => ({
   type: ReduxActionTypes.MODIFY_META_WIDGETS,
   payload,
 });
+export const deleteTemplateMetaWidgets = (payload: {
+  deleteIds: string[];
+}) => ({
+  type: ReduxActionTypes.DELETE_TEMPLATE_META_WIDGETS,
+  payload,
+});
 
 export const deleteMetaWidgets = (
   payload: DeleteMetaWidgetsPayload,

@@ -28,6 +28,7 @@ import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllMetaWidgetCreatorIds,
   getAllWidgetsInTree,
+  getMetaWidgetIds,
   resizeCanvasToLowestWidget,
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
@@ -39,10 +40,14 @@ import {
   isExploringSelector,
 } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { getMainCanvasProps } from "selectors/editorSelectors";
+import { getMainCanvasProps, getMetaWidgets } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { deleteMetaWidgets } from "actions/metaWidgetActions";
+import {
+  deleteMetaWidgets,
+  deleteTemplateMetaWidgets,
+} from "actions/metaWidgetActions";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -231,10 +236,20 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       );
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
+        const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
+        const metaWidgetIds = getMetaWidgetIds(metaWidgets, [widget.widgetId]);
+
         if (widget.hasMetaWidgets) {
           yield put(
             deleteMetaWidgets({
               creatorIds: [widget.widgetId],
+            }),
+          );
+        }
+        if (metaWidgetIds) {
+          yield put(
+            deleteTemplateMetaWidgets({
+              deleteIds: metaWidgetIds,
             }),
           );
         }
@@ -282,10 +297,15 @@ function* deleteAllSelectedWidgetsSaga(
       }),
     );
     const flattenedWidgets = flattenDeep(widgetsToBeDeleted);
+    const flattenedWidgetIds = flattenedWidgets.map(
+      (widgets: any) => widgets.widgetId,
+    );
     const metaCreatorWidgetIds: string[] = yield call(
       getAllMetaWidgetCreatorIds,
       flattenedWidgets,
     );
+    const metaWidgets: MetaWidgetsReduxState = yield select(getMetaWidgets);
+    const metaWidgetIds = getMetaWidgetIds(metaWidgets, flattenedWidgetIds);
 
     const parentUpdatedWidgets = flattenedWidgets.reduce(
       (allWidgets: any, eachWidget: any) => {
@@ -305,7 +325,7 @@ function* deleteAllSelectedWidgetsSaga(
     );
     const finalWidgets: CanvasWidgetsReduxState = omit(
       parentUpdatedWidgets,
-      flattenedWidgets.map((widgets: any) => widgets.widgetId),
+      flattenedWidgetIds,
     );
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
@@ -336,7 +356,13 @@ function* deleteAllSelectedWidgetsSaga(
     }
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
-
+    if (metaWidgetIds) {
+      yield put(
+        deleteTemplateMetaWidgets({
+          deleteIds: metaWidgetIds,
+        }),
+      );
+    }
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");
     if (!disallowUndo) {

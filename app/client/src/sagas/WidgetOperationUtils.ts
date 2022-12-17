@@ -54,6 +54,7 @@ import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1759,4 +1760,11 @@ export function resizePublishedMainCanvasToLowestWidget(
     (lowestBottomRow + GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET) *
       GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
+}
+
+export function getMetaWidgetIds(
+  widgets: MetaWidgetsReduxState,
+  widgetIds: string[],
+) {
+  return widgetIds.filter((widgetId) => Boolean(widgets[widgetId]));
 }

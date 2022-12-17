@@ -94,6 +94,20 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
 
     return state;
   },
+  [ReduxActionTypes.DELETE_TEMPLATE_META_WIDGETS]: (
+    state: MetaWidgetsReduxState,
+    action: ReduxAction<{
+      deleteIds: string[];
+    }>,
+  ) => {
+    const { deleteIds } = action.payload;
+
+    deleteIds?.forEach((deleteId) => {
+      delete state[deleteId];
+    });
+
+    return state;
+  },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
     return {};
   },
