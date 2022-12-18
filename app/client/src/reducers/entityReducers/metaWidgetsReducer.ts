@@ -30,6 +30,15 @@ export type ModifyMetaWidgetPayload = {
 export type DeleteMetaWidgetsPayload = {
   creatorIds: string[];
 };
+
+export type DeleteTemplateMetaWidgets = {
+  deleteIds: string[];
+};
+
+export type AddTemplateMetaWidgets = {
+  templateMetaWidgets: MetaWidgetsReduxState;
+};
+
 type MetaWidgetPropertyUpdate = {
   path: string;
   value: unknown;
@@ -105,6 +114,22 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
     deleteIds?.forEach((deleteId) => {
       delete state[deleteId];
     });
+
+    return state;
+  },
+  [ReduxActionTypes.ADD_TEMPLATE_META_WIDGETS]: (
+    state: MetaWidgetsReduxState,
+    action: ReduxAction<{
+      templateMetaWidgets: Record<string, FlattenedWidgetProps>;
+    }>,
+  ) => {
+    if (action.payload.templateMetaWidgets) {
+      Object.entries(action.payload.templateMetaWidgets).forEach(
+        ([metaWidgetId, widgetProps]) => {
+          state[metaWidgetId] = widgetProps;
+        },
+      );
+    }
 
     return state;
   },
