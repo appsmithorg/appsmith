@@ -38,7 +38,6 @@ export const promisifyAction = (
     const actionName = ActionTriggerFunctionNames[actionDescription.type];
 
     if (!actionName) throw new Error("Async function called in a sync field");
-
     throw new Error(getAsyncError(actionName));
   }
   const workerRequestIdCopy = workerRequestId.concat("");
