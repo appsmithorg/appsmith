@@ -11,6 +11,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -18,8 +19,10 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -28,6 +31,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
@@ -62,8 +66,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -118,6 +127,15 @@ public class WorkspaceResourcesTest {
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
+
+    @Autowired
+    ThemeService themeService;
+
+    @Autowired
+    ApplicationRepository applicationRepository;
+
+    @Autowired
+    ThemeRepository themeRepository;
 
     User api_user = null;
 
@@ -1276,6 +1294,108 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(createdDatasource.getId(), PermissionViewableName.VIEW),
                 new IdPermissionDTO(createdDatasource.getId(), PermissionViewableName.EXECUTE)
         ));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    @DirtiesContext
+    public void testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Workspace workspace = new Workspace();
+        workspace.setName("testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions application");
+        Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
+
+        Theme systemDefaultTheme = themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES).block();
+
+        String applicationId = application.getId();
+        // publish the app to ensure system theme gets set
+        applicationPageService.publish(application.getId(), TRUE).block();
+
+        // Create and apply custom theme in edit mode.
+        Theme customTheme = new Theme();
+        customTheme.setDisplayName("My custom theme");
+        themeService.persistCurrentTheme(application.getId(), null, customTheme)
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), applicationId, null))
+                .block();
+        application = applicationRepository.findById(applicationId).block();
+
+        // Apply theme customization.
+        Theme themeCustomization = new Theme();
+        themeCustomization.setDisplayName("Updated name");
+        Mono<Theme> updateThemeMono = themeService.updateTheme(application.getId(), null, themeCustomization);
+
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+
+        // Add entity changes
+        // Application : Give edit and view permissions to the application
+        UpdateRoleEntityDTO applicationEntity = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 1, 0, 1, 0, 0),
+                createdApplication.getName()
+        );
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(
+                applicationEntity
+        ));
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+
+        // Make the role configuration changes in a blocking manner
+        roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+
+        // Fetch the application again to ensure the changes are persisted
+        // Fetch the themes : 1. Edit mode theme is custom, so we should hav gotten edit and view theme permissions. 2. View mode theme is system default, so we should not have updated the policies.
+
+        Application updatedApplication = applicationRepository.findById(createdApplication.getId()).block();
+
+        Theme editModeTheme = themeRepository.findById(updatedApplication.getEditModeThemeId(), READ_THEMES).block();
+
+        Theme publishedModeTheme = themeRepository.findById(updatedApplication.getPublishedModeThemeId(), READ_THEMES).block();
+
+
+        // Assert that application policy update happened
+        updatedApplication.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that edit mode theme policy update happened
+        editModeTheme.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that published mode theme policy update did not happen
+        assertThat(publishedModeTheme.isSystemTheme()).isTrue();
+        publishedModeTheme.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    }
+                }
+        );
 
     }
 
