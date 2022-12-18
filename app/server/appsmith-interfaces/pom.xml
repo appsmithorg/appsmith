@@ -152,7 +152,7 @@
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty-http</artifactId>
-            <version>1.0.17</version>
+            <version>1.0.26</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.projectreactor</groupId>
