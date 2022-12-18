@@ -1,4 +1,4 @@
-FROM node:16.14.0
+FROM node:16.19
 
 LABEL maintainer="tech@appsmith.com"
 
