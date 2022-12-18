@@ -297,7 +297,9 @@ export default function evaluateSync(
         throw new Error(ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR);
       }
     } catch (error) {
-      const errorMessage = (error as Error).message;
+      const errorMessage = `${(error as Error).name}: ${
+        (error as Error).message
+      }`;
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
