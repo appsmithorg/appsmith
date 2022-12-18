@@ -14,7 +14,7 @@ import {
 import { takeLatest, all, call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import { ApiResponse } from "api/ApiResponses";
-/* import { User } from "constants/userConstants"; */
+import { User } from "constants/userConstants";
 import { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
 import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/AccessControl/components";
@@ -25,6 +25,7 @@ import {
   ACL_DELETED_SUCCESS,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
+import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 
 export function* fetchAclUsersSaga() {
   try {
@@ -742,42 +743,51 @@ export function* fetchIconLocationsSagas() {
   }
 }
 
-export function* InitAclSaga(/*action: ReduxAction<User>*/) {
-  /* const user = action.payload;
-   if (user.isSuperUser) { */
-  yield all([
-    takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
-    takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),
-    takeLatest(ReduxActionTypes.FETCH_ACL_USERS, fetchAclUsersSaga),
-    takeLatest(ReduxActionTypes.FETCH_ACL_USER_BY_ID, fetchAclUserByIdSaga),
-    takeLatest(ReduxActionTypes.UPDATE_GROUPS_IN_USER, updateGroupsInUserSaga),
-    takeLatest(ReduxActionTypes.UPDATE_ROLES_IN_USER, updateRolesInUserSaga),
-    takeLatest(ReduxActionTypes.CREATE_ACL_GROUP, createAclGroupSaga),
-    takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
-    takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
-    takeLatest(ReduxActionTypes.FETCH_ACL_GROUPS, fetchAclGroupsSaga),
-    takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupSagaById),
-    takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_NAME, updateGroupNameSaga),
-    takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_ROLES, updateRolesInGroupSaga),
-    takeLatest(ReduxActionTypes.ADD_USERS_IN_GROUP, addUsersInGroupSaga),
-    takeLatest(
-      ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
-      removeUsersFromGroupSaga,
-    ),
-    takeLatest(ReduxActionTypes.CREATE_ACL_ROLE, createAclRoleSaga),
-    takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
-    takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
-    takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
-    takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
-    takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE_NAME, updateRoleNameSaga),
-    takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE, updateRoleSaga),
-    takeLatest(
-      ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE,
-      fetchRolesGroupsForInviteSaga,
-    ),
-    takeLatest(ReduxActionTypes.FETCH_ICON_LOCATIONS, fetchIconLocationsSagas),
-  ]);
-  /* } */
+export function* InitAclSaga(action: ReduxAction<User>) {
+  const user = action.payload;
+  if (showAdminSettings(user)) {
+    yield all([
+      takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
+      takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_USERS, fetchAclUsersSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_USER_BY_ID, fetchAclUserByIdSaga),
+      takeLatest(
+        ReduxActionTypes.UPDATE_GROUPS_IN_USER,
+        updateGroupsInUserSaga,
+      ),
+      takeLatest(ReduxActionTypes.UPDATE_ROLES_IN_USER, updateRolesInUserSaga),
+      takeLatest(ReduxActionTypes.CREATE_ACL_GROUP, createAclGroupSaga),
+      takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
+      takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_GROUPS, fetchAclGroupsSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupSagaById),
+      takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_NAME, updateGroupNameSaga),
+      takeLatest(
+        ReduxActionTypes.UPDATE_ACL_GROUP_ROLES,
+        updateRolesInGroupSaga,
+      ),
+      takeLatest(ReduxActionTypes.ADD_USERS_IN_GROUP, addUsersInGroupSaga),
+      takeLatest(
+        ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
+        removeUsersFromGroupSaga,
+      ),
+      takeLatest(ReduxActionTypes.CREATE_ACL_ROLE, createAclRoleSaga),
+      takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
+      takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
+      takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE_NAME, updateRoleNameSaga),
+      takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE, updateRoleSaga),
+      takeLatest(
+        ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE,
+        fetchRolesGroupsForInviteSaga,
+      ),
+      takeLatest(
+        ReduxActionTypes.FETCH_ICON_LOCATIONS,
+        fetchIconLocationsSagas,
+      ),
+    ]);
+  }
 }
 
 export default function* AclSagas() {

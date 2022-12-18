@@ -1,3 +1,4 @@
+export * from "ce/pages/AdminSettings/LeftPane";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -9,15 +10,13 @@ import {
   Wrapper,
 } from "ce/pages/AdminSettings/LeftPane";
 import { AclFactory } from "./config";
-import { getCurrentUser } from "selectors/usersSelectors"; //selectFeatureFlags removed for now
+import { getCurrentUser } from "selectors/usersSelectors";
 import { Category } from "./config/types";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-
-export * from "ce/pages/AdminSettings/LeftPane";
 
 function getAclCategory() {
   return Array.from(AclFactory.categories);
@@ -31,7 +30,6 @@ export default function LeftPane() {
    * */
   const othersCategories: Category[] = [categories.splice(-1, 1)[0]];
   const { category, selected: subCategory } = useParams() as any;
-  // const featureFlags = useSelector(selectFeatureFlags);
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
 
@@ -62,7 +60,6 @@ export default function LeftPane() {
           />
         </HeaderContainer>
       )}
-      {/* {featureFlags.RBAC && ( */}
       <HeaderContainer>
         <StyledHeader>Access Control</StyledHeader>
         <Categories
@@ -71,7 +68,6 @@ export default function LeftPane() {
           currentSubCategory={subCategory}
         />
       </HeaderContainer>
-      {/* )} */}
       {isAuditLogsEnabled && (
         <HeaderContainer>
           <StyledHeader>Others</StyledHeader>

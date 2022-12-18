@@ -78,7 +78,6 @@ import ManageUsers from "pages/workspace/ManageUsers";
 import UserApi from "@appsmith/api/UserApi";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
-/*import { selectFeatureFlags } from "selectors/usersSelectors";*/
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
 import TagListField from "../../utils/TagInput";
@@ -174,7 +173,6 @@ function WorkspaceInviteUsersForm(props: any) {
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
   const user = useSelector(getCurrentUser);
   const userRef = React.createRef<HTMLDivElement>();
-  /*const featureFlags = useSelector(selectFeatureFlags);*/
   const history = useHistory();
   const selectedId = props?.selected?.id;
 
@@ -225,8 +223,7 @@ function WorkspaceInviteUsersForm(props: any) {
     userWorkspacePermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
-  /*const isEEFeature = (featureFlags.RBAC && !isAclFlow) || false;*/
-  const isEEFeature = !isAclFlow || false; /* Temp change */
+  const isEEFeature = !isAclFlow || false;
 
   useEffect(() => {
     if (!isAclFlow) {

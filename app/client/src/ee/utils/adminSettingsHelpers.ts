@@ -53,7 +53,6 @@ export const saveAllowed = (settings: any) => {
   }
 };
 
-/* get default admin settings path */
 export const getDefaultAdminSettingsPath = ({
   isSuperUser,
   tenantPermissions = [],

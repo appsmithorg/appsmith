@@ -3,8 +3,6 @@ import { RoleProps } from "../types";
 export const rolesTableData: RoleProps[] = [
   {
     id: "1",
-    // isEditing: false,
-    // isDeleting: false,
     name: "HR_Appsmith",
     autoCreated: false,
     userPermissions: [
@@ -17,8 +15,6 @@ export const rolesTableData: RoleProps[] = [
   },
   {
     id: "2",
-    // isEditing: false,
-    // isDeleting: false,
     name: "devops_design",
     autoCreated: false,
     userPermissions: [
@@ -31,8 +27,6 @@ export const rolesTableData: RoleProps[] = [
   },
   {
     id: "3",
-    // isEditing: false,
-    // isDeleting: false,
     name: "devops_eng_nov",
     autoCreated: false,
     userPermissions: [
@@ -44,8 +38,6 @@ export const rolesTableData: RoleProps[] = [
   },
   {
     id: "4",
-    // isEditing: false,
-    // isDeleting: false,
     name: "marketing_nov",
     autoCreated: false,
     userPermissions: [
@@ -58,8 +50,6 @@ export const rolesTableData: RoleProps[] = [
   },
   {
     id: "5",
-    // isEditing: false,
-    // isDeleting: false,
     name: "Administrator",
     autoCreated: true,
     userPermissions: [
@@ -72,8 +62,6 @@ export const rolesTableData: RoleProps[] = [
   },
   {
     id: "6",
-    // isEditing: false,
-    // isDeleting: false,
     name: "App Viewer",
     autoCreated: true,
     userPermissions: [],

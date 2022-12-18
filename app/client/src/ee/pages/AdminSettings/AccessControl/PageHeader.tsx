@@ -31,10 +31,10 @@ import {
 } from "@appsmith/constants/messages";
 import { PageHeaderProps } from "./types";
 
-const Container = styled.div`
+const Container = styled.div<{ alignItems?: string }>`
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: ${({ alignItems }) => alignItems || `baseline`};
 
   > div:first-child {
     flex: 1 0 50%;
@@ -253,7 +253,7 @@ export function PageHeader(props: PageHeaderProps) {
           </StyledSettingsSubHeader>
         )}
       </HeaderWrapper>
-      <Container>
+      <Container alignItems="center">
         {onSearch && (
           <StyledSearchInput
             className="acl-search-input"

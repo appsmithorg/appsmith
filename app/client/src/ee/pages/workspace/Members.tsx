@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getAllUsers,
   getAllRoles,
-  // getCurrentWorkspace,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
 import { RouteComponentProps } from "react-router";
@@ -232,8 +231,6 @@ export default function MemberSettings(props: PageProps) {
       params: { workspaceId },
     },
     searchValue = "",
-    // deleteWorkspaceUser,
-    // changeWorkspaceUserRole,
   } = props;
 
   const dispatch = useDispatch();

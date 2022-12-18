@@ -152,7 +152,6 @@ export function GroupAddEdit(props: GroupEditProps) {
   const dispatch = useDispatch();
   const params = useParams() as any;
 
-  // TODO: Get it from redux selector once the API is fixed and mock this for tests.
   const userPermissions = useSelector(getGroupPermissions);
 
   const canAddUsersToGroup = isPermitted(

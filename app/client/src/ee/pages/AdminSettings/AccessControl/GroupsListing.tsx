@@ -124,18 +124,6 @@ export function GroupListing() {
   ];
 
   const listMenuItems: MenuItemProps[] = [
-    /*{
-      className: "clone-menu-item",
-      icon: "duplicate",
-      onSelect: (e: React.MouseEvent, id: string) => {
-        const selectedUserGroup = data.find((userGroup) => userGroup.id === id);
-        selectedUserGroup &&
-          onCloneHandler({
-            ...selectedUserGroup,
-          });
-      },
-      text: createMessage(CLONE_GROUP),
-    },*/
     {
       label: "edit",
       className: "edit-menu-item",
