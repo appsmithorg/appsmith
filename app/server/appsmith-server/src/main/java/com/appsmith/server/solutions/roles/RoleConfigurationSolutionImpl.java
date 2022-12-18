@@ -1,14 +1,19 @@
 package com.appsmith.server.solutions.roles;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -40,10 +45,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
@@ -60,6 +67,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final WorkspaceRepository workspaceRepository;
     private final PermissionGroupRepository permissionGroupRepository;
     private final ThemeRepository themeRepository;
+    private final NewActionRepository newActionRepository;
+    private final ActionCollectionRepository actionCollectionRepository;
 
     public RoleConfigurationSolutionImpl(WorkspaceResources workspaceResources,
                                          TenantResources tenantResources,
@@ -67,8 +76,9 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                          ApplicationRepository applicationRepository,
                                          WorkspaceRepository workspaceRepository,
                                          PermissionGroupRepository permissionGroupRepository,
-                                         ThemeRepository themeRepository) {
-
+                                         ThemeRepository themeRepository,
+                                         NewActionRepository newActionRepository,
+                                         ActionCollectionRepository actionCollectionRepository) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -77,6 +87,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.workspaceRepository = workspaceRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.themeRepository = themeRepository;
+        this.newActionRepository = newActionRepository;
+        this.actionCollectionRepository = actionCollectionRepository;
     }
 
     @Override
@@ -313,10 +325,52 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             // If the application is given permissions, we should give custom theme same permissions
             sideEffectOnCustomThemeGivenApplicationUpdate(sideEffects, id, permissionGroupId, added, removed);
 
+        } else if (tab == RoleTab.APPLICATION_RESOURCES && NewPage.class.equals(aClazz)) {
+
+            // If the tab is application resources, and the entity is a page, then we need to give actions and action
+            // collections execute permission if view is given on the page.
+            sideEffectOnActionsGivenPageUpdate(sideEffects, id, permissionGroupId, added, removed);
+
         } else if (tab == RoleTab.GROUPS_ROLES && PermissionGroup.class.equals(aClazz)) {
 
             sideEffectOnAssociateRoleGivenPermissionGroupUpdate(sideEffects, id, permissionGroupId, added, removed);
         }
+    }
+
+    private void sideEffectOnActionsGivenPageUpdate(List<Mono<Long>> sideEffects,
+                                                    String pageId,
+                                                    String permissionGroupId,
+                                                    List<AclPermission> added,
+                                                    List<AclPermission> removed) {
+
+        Mono<Long> actionsUpdated = Mono.just(0L);
+        Mono<Long> actionCollectionsUpdated = Mono.just(0L);
+
+        Flux<String> actionFlux = newActionRepository.findByPageId(pageId).map(NewAction::getId);
+        Flux<String> actionCollectionFlux = actionCollectionRepository.findByPageId(pageId).map(ActionCollection::getId);
+
+        if (added.contains(READ_PAGES)) {
+            actionsUpdated = actionFlux
+                    .flatMap(actionId -> genericDatabaseOperation.updatePolicies(actionId, permissionGroupId, List.of(EXECUTE_ACTIONS), List.of(), NewAction.class))
+                    .reduce(0L, Long::sum);
+            actionCollectionsUpdated = actionCollectionFlux
+                    .flatMap(actionCollectionId -> genericDatabaseOperation.updatePolicies(actionCollectionId, permissionGroupId, List.of(EXECUTE_ACTIONS), List.of(), ActionCollection.class))
+                    .reduce(0L, Long::sum);
+
+        } else if (removed.contains(READ_PAGES)) {
+            actionsUpdated = actionFlux
+                    .flatMap(actionId -> genericDatabaseOperation.updatePolicies(actionId, permissionGroupId, List.of(), List.of(EXECUTE_ACTIONS), NewAction.class))
+                    .reduce(0L, Long::sum);
+            actionCollectionsUpdated = actionCollectionFlux
+                    .flatMap(actionCollectionId -> genericDatabaseOperation.updatePolicies(actionCollectionId, permissionGroupId, List.of(), List.of(EXECUTE_ACTIONS), ActionCollection.class))
+                    .reduce(0L, Long::sum);
+        }
+
+        Mono<Long> updateAllActionsOnPageUpdateMono = Mono.zip(actionsUpdated, actionCollectionsUpdated)
+                .map(tuple -> tuple.getT1() + tuple.getT2());
+
+        sideEffects.add(updateAllActionsOnPageUpdateMono);
+
     }
 
     private void sideEffectOnAssociateRoleGivenPermissionGroupUpdate(List<Mono<Long>> sideEffects,
