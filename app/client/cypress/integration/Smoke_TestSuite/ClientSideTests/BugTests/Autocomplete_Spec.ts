@@ -87,6 +87,6 @@ describe("Autocomplete bug fixes", function() {
     ee.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
     installer.uninstallLibrary("uuidjs");
     propPane.TypeTextIntoField("Text", "{{UUID.");
-    agHelper.GetNAssertContains(locator._hints, "UUID", "not.exist");
+    agHelper.GetNAssertContains(locator._hints, "UUID.generate", "not.exist");
   });
 });
