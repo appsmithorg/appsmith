@@ -5,13 +5,15 @@
   "mongo-databaseName": "mongo_samples",
   "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
 
-  "postgres-host": "host.docker.internal",
+  "postgres-host": "localhost",
+  "postgres-host-fat": "host.docker.internal",
   "postgres-port": 5432,
   "postgres-databaseName": "fakeapi",
   "postgres-username": "docker",
   "postgres-password": "docker",
 
-  "mysql-host": "host.docker.internal",
+  "mysql-host": "localhost",
+  "mysql-host-fat": "host.docker.internal",
   "mysql-port": 3306,
   "mysql-databaseName": "fakeapi",
   "mysql-username": "root",

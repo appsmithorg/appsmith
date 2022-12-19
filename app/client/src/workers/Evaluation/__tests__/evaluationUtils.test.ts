@@ -1,4 +1,8 @@
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  DependencyMap,
+  EvaluationError,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
@@ -9,6 +13,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { PrivateWidgets } from "entities/DataTree/types";
 import {
+  addErrorToEntityProperty,
   DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
@@ -32,6 +37,8 @@ import InputWidget, {
 import { registerWidget } from "utils/WidgetRegisterHelpers";
 import { WidgetConfiguration } from "widgets/constants";
 import { createNewEntity } from "../dataTreeUtils";
+import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import { Severity } from "entities/AppsmithConsole";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -782,5 +789,28 @@ describe("6. Evaluated Datatype of a given value", () => {
     expect(findDatatype([1, 2, 3])).toBe("array");
     expect(findDatatype(Array.of("a", "b", "c"))).toBe("array");
     expect(findDatatype("a, b, c")).not.toBe("array");
+  });
+});
+
+describe("7. Test addErrorToEntityProperty method", () => {
+  it("Add error to dataTreeEvaluator.evalProps", () => {
+    const dataTreeEvaluator = new DataTreeEvaluator({});
+    const error = {
+      errorMessage: "some error",
+      errorType: PropertyEvaluationErrorType.VALIDATION,
+      raw: "undefined",
+      severity: Severity.ERROR,
+      originalBinding: "",
+    } as EvaluationError;
+    addErrorToEntityProperty({
+      errors: [error],
+      dataTree: dataTreeEvaluator.evalTree,
+      evalProps: dataTreeEvaluator.evalProps,
+      fullPropertyPath: "Api1.data",
+    });
+
+    expect(
+      dataTreeEvaluator.evalProps.Api1.__evaluation__?.errors.data[0],
+    ).toEqual(error);
   });
 });
