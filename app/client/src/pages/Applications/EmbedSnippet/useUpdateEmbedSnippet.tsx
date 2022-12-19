@@ -88,6 +88,7 @@ function useUpdateEmbedSnippet() {
       dispatch(
         updateApplication(applicationId, {
           embedSetting,
+          currentApp: true,
         }),
       );
     }, 1000),
