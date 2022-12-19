@@ -1162,7 +1162,7 @@ export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
 export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
   `Logo should  be atleast 256px in height`;
 export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
-  `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
+  `Uploaded file must be in .SVG .PNG, and .JPG formats`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
   `.SVG, .PNG, or .JPG only • Max 2MB`;
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>

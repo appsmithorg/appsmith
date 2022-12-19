@@ -682,7 +682,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param actionDTOMono
      * @return datasourceMono
      */
-    protected Mono<Datasource> getCachedDatasourceForActionExecution(Mono<ActionDTO> actionDTOMono) {
+    protected Mono<Datasource> getCachedDatasourceForActionExecution(Mono<ActionDTO> actionDTOMono, String environmentName) {
 
         return actionDTOMono
                 .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO,
@@ -976,7 +976,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<ActionDTO> actionDTOMono = getCachedActionDTOForActionExecution(actionMono, executeActionDTO, actionId);
 
         // 3. Instantiate the implementation class based on the query type
-        Mono<Datasource> datasourceMono = getCachedDatasourceForActionExecution(actionDTOMono);
+        Mono<Datasource> datasourceMono = getCachedDatasourceForActionExecution(actionDTOMono, environmentName);
         Mono<Plugin> pluginMono = getCachedPluginForActionExecution(datasourceMono, actionId);
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
