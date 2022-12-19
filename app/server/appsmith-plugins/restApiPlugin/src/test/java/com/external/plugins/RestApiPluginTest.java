@@ -66,7 +66,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Slf4j
 public class RestApiPluginTest {
 
     private static HintMessageUtils hintMessageUtils;
@@ -270,9 +269,21 @@ public class RestApiPluginTest {
             StepVerifier.create(resultMono)
                     .assertNext(result -> {
                         assertTrue(result.getIsExecutionSuccess());
-                        assertNotNull(result.getBody());
+                        JsonNode body = (JsonNode) result.getBody();
+                        assertNotNull(body);
+                        JsonNode args = body.get("args");
+                        int index = 0;
+                        StringBuilder actualRequestBody = new StringBuilder();
+                        while (true) {
+                            if (!args.has(String.valueOf(index))) {
+                                break;
+                            }
+                            JsonNode ans = args.get(String.valueOf(index));
+                            index++;
+                            actualRequestBody.append(ans.asText());
+                        }
+                        assertEquals(finalRequestBodyList[currentIndex],actualRequestBody.toString());
                         final ActionExecutionRequest request = result.getRequest();
-                        assertEquals(finalRequestBodyList[currentIndex],request.getBody());
                         assertEquals(HttpMethod.GET, request.getHttpMethod());
                     })
                     .verifyComplete();
