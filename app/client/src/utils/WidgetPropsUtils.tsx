@@ -106,11 +106,11 @@ export const getMousePositionsOnCanvas = (
   e: MouseEvent,
   gridProps: GridProps,
 ) => {
-  const mouseTop = Math.floor(
+  const mouseTop = Math.round(
     (e.offsetY - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
       gridProps.parentRowSpace,
   );
-  const mouseLeft = Math.floor(
+  const mouseLeft = Math.round(
     (e.offsetX - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
       gridProps.parentColumnSpace,
   );
@@ -302,6 +302,63 @@ export const getCanvasSnapRows = (
 
 export const getSnapColumns = (): number => {
   return GridDefaults.DEFAULT_GRID_COLUMNS;
+};
+
+export const modifyBlockDimension = (
+  draggingBlock: WidgetDraggingBlock,
+  snapColumnSpace: number,
+  snapRowSpace: number,
+  parentBottomRow: number,
+  canExtend: boolean,
+) => {
+  const { columnWidth, height, left, rowHeight, top, width } = draggingBlock;
+  const [leftColumn, topRow] = getDropZoneOffsets(
+    snapColumnSpace,
+    snapRowSpace,
+    {
+      x: left,
+      y: top,
+    },
+    {
+      x: 0,
+      y: 0,
+    },
+  );
+  let leftOffset = 0,
+    rightOffset = 0,
+    topOffset = 0,
+    bottomOffset = 0;
+  if (leftColumn < 0) {
+    leftOffset = leftColumn + columnWidth > 4 ? leftColumn : 4 - columnWidth;
+  } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
+    rightOffset = GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
+    rightOffset =
+      columnWidth + rightOffset >= 4
+        ? rightOffset
+        : GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - 4;
+  }
+
+  if (topRow < 0) {
+    topOffset = topRow + rowHeight > 4 ? topRow : 4 - rowHeight;
+  }
+
+  if (topRow + rowHeight > parentBottomRow && !canExtend) {
+    bottomOffset = parentBottomRow - topRow - rowHeight;
+    bottomOffset =
+      rowHeight + bottomOffset >= 4
+        ? bottomOffset
+        : parentBottomRow - topRow - 4;
+  }
+
+  return {
+    ...draggingBlock,
+    left: left - leftOffset * snapColumnSpace,
+    top: top - topOffset * snapRowSpace,
+    width: width + (leftOffset + rightOffset) * snapColumnSpace,
+    height: height + (topOffset + bottomOffset) * snapRowSpace,
+    columnWidth: columnWidth + leftOffset + rightOffset,
+    rowHeight: rowHeight + topOffset + bottomOffset,
+  };
 };
 
 export const generateWidgetProps = (

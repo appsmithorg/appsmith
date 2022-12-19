@@ -8,9 +8,12 @@ import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggi
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import {
+  HORIZONTAL_RESIZE_LIMIT,
   MovementLimitMap,
   ReflowDirection,
   ReflowedSpaceMap,
+  SpaceMap,
+  VERTICAL_RESIZE_LIMIT,
 } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
@@ -19,8 +22,8 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
 import {
   getDraggingSpacesFromBlocks,
-  getDropZoneOffsets,
   getMousePositionsOnCanvas,
+  modifyBlockDimension,
   noCollision,
 } from "utils/WidgetPropsUtils";
 import {
@@ -28,21 +31,10 @@ import {
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
-import ContainerJumpMetrics from "./ContainerJumpMetric";
-
 export interface XYCord {
   x: number;
   y: number;
 }
-
-const CONTAINER_JUMP_ACC_THRESHOLD = 8000;
-const CONTAINER_JUMP_SPEED_THRESHOLD = 800;
-
-//Since useCanvasDragging's Instance changes during container jump, metrics is stored outside
-const containerJumpThresholdMetrics = new ContainerJumpMetrics<{
-  speed?: number;
-  acceleration?: number;
-}>();
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
@@ -72,7 +64,6 @@ export const useCanvasDragging = (
     isNewWidgetInitialTargetCanvas,
     isResizing,
     lastDraggedCanvas,
-    logContainerJump,
     occSpaces,
     onDrop,
     parentDiff,
@@ -96,7 +87,10 @@ export const useCanvasDragging = (
     paddingOffset: 0,
   };
 
-  const reflow = useRef<ReflowInterface>();
+  const reflow = useRef<{
+    reflowSpaces: ReflowInterface;
+    resetReflow: () => void;
+  }>();
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
 
   const {
@@ -105,32 +99,6 @@ export const useCanvasDragging = (
     setDraggingState,
   } = useWidgetDragResize();
 
-  const mouseAttributesRef = useRef<{
-    prevEvent: any;
-    currentEvent: any;
-    prevSpeed: number;
-    prevAcceleration: number;
-    maxPositiveAcc: number;
-    maxNegativeAcc: number;
-    maxSpeed: number;
-    lastMousePositionOutsideCanvas: {
-      x: number;
-      y: number;
-    };
-  }>({
-    prevSpeed: 0,
-    prevAcceleration: 0,
-    maxPositiveAcc: 0,
-    maxNegativeAcc: 0,
-    maxSpeed: 0,
-    prevEvent: null,
-    currentEvent: null,
-    lastMousePositionOutsideCanvas: {
-      x: 0,
-      y: 0,
-    },
-  });
-
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
     isCurrentDraggedCanvas,
@@ -138,56 +106,6 @@ export const useCanvasDragging = (
     snapRows,
     canExtend,
   );
-
-  useEffect(() => {
-    const speedCalculationInterval = setInterval(function() {
-      const {
-        currentEvent,
-        maxNegativeAcc,
-        maxPositiveAcc,
-        maxSpeed,
-        prevEvent,
-        prevSpeed,
-      } = mouseAttributesRef.current;
-      if (prevEvent && currentEvent) {
-        const movementX = Math.abs(currentEvent.screenX - prevEvent.screenX);
-        const movementY = Math.abs(currentEvent.screenY - prevEvent.screenY);
-        const movement = Math.sqrt(
-          movementX * movementX + movementY * movementY,
-        );
-
-        const speed = 10 * movement; //current speed
-
-        const acceleration = 10 * (speed - prevSpeed);
-        mouseAttributesRef.current.prevAcceleration = acceleration;
-        mouseAttributesRef.current.prevSpeed = speed;
-        if (speed > maxSpeed) {
-          mouseAttributesRef.current.maxSpeed = speed;
-        }
-        if (acceleration > 0 && acceleration > maxPositiveAcc) {
-          mouseAttributesRef.current.maxPositiveAcc = acceleration;
-        } else if (acceleration < 0 && acceleration < maxNegativeAcc) {
-          mouseAttributesRef.current.maxNegativeAcc = acceleration;
-        }
-      }
-      mouseAttributesRef.current.prevEvent = currentEvent;
-    }, 100);
-    const stopSpeedCalculation = () => {
-      clearInterval(speedCalculationInterval);
-    };
-    const registerMouseMoveEvent = (e: any) => {
-      mouseAttributesRef.current.currentEvent = e;
-      mouseAttributesRef.current.lastMousePositionOutsideCanvas = {
-        x: e.clientX,
-        y: e.clientY,
-      };
-    };
-    window.addEventListener("mousemove", registerMouseMoveEvent);
-    return () => {
-      stopSpeedCalculation();
-      window.removeEventListener("mousemove", registerMouseMoveEvent);
-    };
-  }, []);
 
   useEffect(() => {
     if (
@@ -210,24 +128,24 @@ export const useCanvasDragging = (
         movementLimitMap?: MovementLimitMap;
         bottomMostRow: number;
         movementMap: ReflowedSpaceMap;
-        isIdealToJumpContainer: boolean;
+        spacePositionMap: SpaceMap | undefined;
       } = {
         movementLimitMap: {},
         bottomMostRow: 0,
         movementMap: {},
-        isIdealToJumpContainer: false,
+        spacePositionMap: {},
       };
-      let lastMousePosition = {
-        x: 0,
-        y: 0,
-      };
-      let lastSnappedPosition = {
-        leftColumn: 0,
-        topRow: 0,
+      let lastSnappedPosition: OccupiedSpace = {
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        id: "",
       };
 
       const resetCanvasState = () => {
         throttledStopReflowing();
+        reflow.current?.resetReflow();
         if (stickyCanvasRef.current && slidingArenaRef.current) {
           const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
           canvasCtx.clearRect(
@@ -240,6 +158,7 @@ export const useCanvasDragging = (
           canvasIsDragging = false;
         }
       };
+
       if (isDragging) {
         const startPoints = defaultHandlePositions;
         const onMouseUp = () => {
@@ -280,7 +199,15 @@ export const useCanvasDragging = (
                 return each;
               });
 
-            onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
+            onDrop(
+              modifyDrawingRectangles(
+                currentRectanglesToDraw,
+                currentReflowParams.spacePositionMap,
+                snapColumnSpace,
+                snapRowSpace,
+              ),
+              reflowedPositionsUpdatesWidgets,
+            );
           }
           startPoints.top = defaultHandlePositions.top;
           startPoints.left = defaultHandlePositions.left;
@@ -312,142 +239,127 @@ export const useCanvasDragging = (
                 relativeStartPoints.top || defaultHandlePositions.top;
             }
             if (!isCurrentDraggedCanvas) {
-              //Called when canvas Changes
-              const {
-                acceleration,
-                speed,
-              } = containerJumpThresholdMetrics.getMetrics();
-              logContainerJump(widgetId, speed, acceleration);
-              containerJumpThresholdMetrics.clearMetrics();
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
               setDraggingCanvas(widgetId);
             }
             canvasIsDragging = true;
             slidingArenaRef.current.style.zIndex = "2";
-            if (over) {
-              lastMousePosition = {
-                ...mouseAttributesRef.current.lastMousePositionOutsideCanvas,
-              };
-            } else {
-              lastMousePosition = {
-                x: e.clientX,
-                y: e.clientY,
-              };
-            }
-
             onMouseMove(e, over);
           }
         };
 
-        const canReflowForCurrentMouseMove = () => {
-          const { prevAcceleration, prevSpeed } = mouseAttributesRef.current;
-          const acceleration = Math.abs(prevAcceleration);
-          return (
-            acceleration < CONTAINER_JUMP_ACC_THRESHOLD ||
-            prevSpeed < CONTAINER_JUMP_SPEED_THRESHOLD
-          );
-        };
-        const getMouseMoveDirection = (event: any) => {
-          if (lastMousePosition) {
-            const deltaX = lastMousePosition.x - event.clientX,
-              deltaY = lastMousePosition.y - event.clientY;
-            lastMousePosition = {
-              x: event.clientX,
-              y: event.clientY,
-            };
-            if (
-              deltaX === 0 &&
-              ["TOP", "BOTTOM"].includes(currentDirection.current)
-            ) {
-              return currentDirection.current;
-            }
-            if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0) {
-              return ReflowDirection.TOP;
-            } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
-              return ReflowDirection.BOTTOM;
-            }
-            if (
-              deltaY === 0 &&
-              ["LEFT", "RIGHT"].includes(currentDirection.current)
-            ) {
-              return currentDirection.current;
-            }
-            if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
-              return ReflowDirection.LEFT;
-            } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
-              return ReflowDirection.RIGHT;
-            }
-          }
+        const getMoveDirection = (
+          prevPosition: OccupiedSpace,
+          currentPosition: OccupiedSpace,
+        ) => {
+          if (!prevPosition || !currentPosition)
+            return currentDirection.current;
+
+          if (
+            currentPosition.right - prevPosition.right > 0 ||
+            currentPosition.left - prevPosition.left < 0
+          )
+            return ReflowDirection.RIGHT;
+
+          if (
+            currentPosition.right - prevPosition.right < 0 ||
+            currentPosition.left - prevPosition.left > 0
+          )
+            return ReflowDirection.LEFT;
+
+          if (
+            currentPosition.bottom - prevPosition.bottom > 0 ||
+            currentPosition.top - prevPosition.top < 0
+          )
+            return ReflowDirection.BOTTOM;
+
+          if (
+            currentPosition.bottom - prevPosition.bottom < 0 ||
+            currentPosition.top - prevPosition.top > 0
+          )
+            return ReflowDirection.TOP;
+
           return currentDirection.current;
         };
+
+        const getClosestEdge = (
+          x: number,
+          y: number,
+          width: number | undefined,
+        ) => {
+          if (width === undefined) return currentDirection.current;
+          const topEdgeDist = Math.abs(y);
+          const leftEdgeDist = Math.abs(x);
+          const rightEdgeDist = Math.abs(width - x);
+          const min = Math.min(topEdgeDist, leftEdgeDist, rightEdgeDist);
+          switch (min) {
+            case leftEdgeDist:
+              return ReflowDirection.RIGHT;
+            case rightEdgeDist:
+              return ReflowDirection.LEFT;
+            case topEdgeDist:
+              return ReflowDirection.BOTTOM;
+            default:
+              return currentDirection.current;
+          }
+        };
+
         const triggerReflow = (e: any, firstMove: boolean) => {
-          const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove();
-          const isReflowing = !isEmpty(currentReflowParams.movementMap);
           const canReflow =
             !currentRectanglesToDraw[0].detachFromLayout && !dropDisabled;
-          const currentBlock = currentRectanglesToDraw[0];
-          const [leftColumn, topRow] = getDropZoneOffsets(
+
+          //The position array of dragging Widgets.
+          const resizedPositions = getDraggingSpacesFromBlocks(
+            currentRectanglesToDraw,
             snapColumnSpace,
             snapRowSpace,
-            {
-              x: currentBlock.left,
-              y: currentBlock.top,
-            },
-            {
-              x: 0,
-              y: 0,
-            },
           );
+          const currentBlock = resizedPositions[0];
           const mousePosition = getMousePositionsOnCanvas(e, gridProps);
           const needsReflow = !(
-            lastSnappedPosition.leftColumn === leftColumn &&
-            lastSnappedPosition.topRow === topRow
+            lastSnappedPosition.left === currentBlock.left &&
+            lastSnappedPosition.top === currentBlock.top &&
+            lastSnappedPosition.bottom === currentBlock.bottom &&
+            lastSnappedPosition.right === currentBlock.right
           );
-          lastSnappedPosition = {
-            leftColumn,
-            topRow,
-          };
           if (canReflow && reflow.current) {
             if (needsReflow) {
-              //The position array of dragging Widgets.
-              const resizedPositions = getDraggingSpacesFromBlocks(
-                currentRectanglesToDraw,
-                snapColumnSpace,
-                snapRowSpace,
+              currentDirection.current = getMoveDirection(
+                lastSnappedPosition,
+                currentBlock,
               );
-              currentDirection.current = getMouseMoveDirection(e);
-              const immediateExitContainer = lastDraggedCanvas.current;
+              if (firstMove) {
+                currentDirection.current = getClosestEdge(
+                  e.offsetX,
+                  e.offsetY,
+                  slidingArenaRef.current?.clientWidth,
+                );
+              }
+              lastSnappedPosition = { ...currentBlock };
+              let immediateExitContainer;
               if (lastDraggedCanvas.current) {
+                immediateExitContainer = lastDraggedCanvas.current;
                 lastDraggedCanvas.current = undefined;
               }
-              currentReflowParams = reflow.current(
+              currentReflowParams = reflow.current?.reflowSpaces(
                 resizedPositions,
                 currentDirection.current,
                 false,
-                !canReflowBasedOnMouseSpeed,
+                true,
                 firstMove,
                 immediateExitContainer,
                 mousePosition,
+                reflowAfterTimeoutCallback,
               );
             }
 
-            if (isReflowing) {
-              const {
-                isIdealToJumpContainer,
-                movementLimitMap,
-              } = currentReflowParams;
+            const isReflowing =
+              !isEmpty(currentReflowParams.movementMap) ||
+              (!isEmpty(currentReflowParams.movementLimitMap) &&
+                currentRectanglesToDraw.length === 1);
 
-              if (isIdealToJumpContainer) {
-                const {
-                  prevAcceleration,
-                  prevSpeed: speed,
-                } = mouseAttributesRef.current;
-                const acceleration = Math.abs(prevAcceleration);
-                containerJumpThresholdMetrics.setMetrics({
-                  speed,
-                  acceleration,
-                });
-              }
+            if (isReflowing) {
+              const { movementLimitMap } = currentReflowParams;
 
               for (const block of currentRectanglesToDraw) {
                 const isWithinParentBoundaries = noCollision(
@@ -494,11 +406,19 @@ export const useCanvasDragging = (
               top: e.offsetY - startPoints.top - parentDiff.top,
             };
 
-            const drawingBlocks = blocksToDraw.map((each) => ({
-              ...each,
-              left: each.left + delta.left,
-              top: each.top + delta.top,
-            }));
+            const drawingBlocks = blocksToDraw.map((each) =>
+              modifyBlockDimension(
+                {
+                  ...each,
+                  left: each.left + delta.left,
+                  top: each.top + delta.top,
+                },
+                snapColumnSpace,
+                snapRowSpace,
+                rowRef.current - 1,
+                canExtend,
+              ),
+            );
             const newRows = updateRelativeRows(drawingBlocks, rowRef.current);
             const rowDelta = newRows ? newRows - rowRef.current : 0;
             rowRef.current = newRows ? newRows : rowRef.current;
@@ -526,7 +446,14 @@ export const useCanvasDragging = (
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
               triggerReflow(e, firstMove);
-              renderBlocks();
+              renderBlocks(
+                modifyDrawingRectangles(
+                  currentRectanglesToDraw,
+                  currentReflowParams.spacePositionMap,
+                  snapColumnSpace,
+                  snapRowSpace,
+                ),
+              );
             }
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
@@ -544,24 +471,35 @@ export const useCanvasDragging = (
             const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
 
             currentRectanglesToDraw = blocksToDraw.map((each) => {
+              const block = modifyBlockDimension(
+                {
+                  ...each,
+                  left: each.left + delta.left,
+                  top: each.top + delta.top,
+                },
+                snapColumnSpace,
+                snapRowSpace,
+                rowRef.current - 1,
+                canExtend,
+              );
               return {
-                ...each,
-                left: each.left + delta.left,
-                top: each.top + delta.top,
+                ...block,
+                left: block.left,
+                top: block.top,
                 isNotColliding:
                   !dropDisabled &&
                   noCollision(
-                    { x: each.left + delta.left, y: each.top + delta.top },
+                    { x: block.left, y: block.top },
                     snapColumnSpace,
                     snapRowSpace,
                     { x: 0, y: 0 },
-                    each.columnWidth,
-                    each.rowHeight,
-                    each.widgetId,
+                    block.columnWidth,
+                    block.rowHeight,
+                    block.widgetId,
                     occSpaces,
                     rowRef.current,
                     GridDefaults.DEFAULT_GRID_COLUMNS,
-                    each.detachFromLayout,
+                    block.detachFromLayout,
                   ),
               };
             });
@@ -574,7 +512,7 @@ export const useCanvasDragging = (
               stickyCanvasRef.current.height,
             );
             canvasCtx.restore();
-            renderBlocks();
+            renderBlocks(currentRectanglesToDraw);
             canScroll.current = false;
             endRenderRows.cancel();
             endRenderRows();
@@ -592,7 +530,22 @@ export const useCanvasDragging = (
           },
         );
 
-        const renderBlocks = () => {
+        const reflowAfterTimeoutCallback = (reflowParams: {
+          movementMap: ReflowedSpaceMap;
+          spacePositionMap: SpaceMap | undefined;
+        }) => {
+          currentReflowParams = { ...currentReflowParams, ...reflowParams };
+          renderBlocks(
+            modifyDrawingRectangles(
+              currentRectanglesToDraw,
+              currentReflowParams.spacePositionMap,
+              snapColumnSpace,
+              snapRowSpace,
+            ),
+          );
+        };
+
+        const renderBlocks = (rectanglesToDraw: WidgetDraggingBlock[]) => {
           if (
             slidingArenaRef.current &&
             isCurrentDraggedCanvas &&
@@ -610,7 +563,7 @@ export const useCanvasDragging = (
             isUpdatingRows = false;
             canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
             if (canvasIsDragging) {
-              currentRectanglesToDraw.forEach((each) => {
+              rectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);
               });
             }
@@ -647,7 +600,9 @@ export const useCanvasDragging = (
             );
 
             canvasCtx.fillStyle = `${
-              blockDimensions.isNotColliding ? "rgb(104,	113,	239, 0.6)" : "red"
+              blockDimensions.isNotColliding
+                ? "rgb(104,	113,	239, 0.6)"
+                : "rgb(255,	55,	35, 0.6)"
             }`;
             canvasCtx.fillRect(
               blockDimensions.left -
@@ -705,12 +660,9 @@ export const useCanvasDragging = (
               });
             }
           }, 0);
-        const captureMousePosition = (e: any) => {
-          if (isDragging && !canvasIsDragging) {
-            currentDirection.current = getMouseMoveDirection(e);
-          }
+        const onMouseOver = (e: any) => {
+          onFirstMoveOnCanvas(e, true);
         };
-        const onMouseOver = (e: any) => onFirstMoveOnCanvas(e, true);
         const initializeListeners = () => {
           slidingArenaRef.current?.addEventListener(
             "mousemove",
@@ -741,7 +693,6 @@ export const useCanvasDragging = (
           );
           document.body.addEventListener("mouseup", onMouseUp, false);
           window.addEventListener("mouseup", onMouseUp, false);
-          window.addEventListener("mousemove", captureMousePosition);
         };
         const startDragging = () => {
           if (
@@ -781,7 +732,6 @@ export const useCanvasDragging = (
           );
           document.body.removeEventListener("mouseup", onMouseUp);
           window.removeEventListener("mouseup", onMouseUp);
-          window.removeEventListener("mousemove", captureMousePosition);
         };
       } else {
         resetCanvasState();
@@ -792,3 +742,42 @@ export const useCanvasDragging = (
     showCanvas: isDragging && !isResizing,
   };
 };
+
+function modifyDrawingRectangles(
+  rectanglesToDraw: WidgetDraggingBlock[],
+  spaceMap: SpaceMap | undefined,
+  snapColumnSpace: number,
+  snapRowSpace: number,
+): WidgetDraggingBlock[] {
+  if (
+    rectanglesToDraw.length !== 1 ||
+    !spaceMap?.[rectanglesToDraw[0]?.widgetId]
+  )
+    return rectanglesToDraw;
+
+  const { bottom, left, right, top } = spaceMap[rectanglesToDraw[0].widgetId];
+
+  const resizedPosition = getDraggingSpacesFromBlocks(
+    rectanglesToDraw,
+    snapColumnSpace,
+    snapRowSpace,
+  )[0];
+
+  return [
+    {
+      ...rectanglesToDraw[0],
+      left:
+        (left - resizedPosition.left) * snapColumnSpace +
+        rectanglesToDraw[0].left,
+      top: (top - resizedPosition.top) * snapRowSpace + rectanglesToDraw[0].top,
+      width: (right - left) * snapColumnSpace,
+      height: (bottom - top) * snapRowSpace,
+      rowHeight: bottom - top,
+      columnWidth: right - left,
+      isNotColliding:
+        rectanglesToDraw[0].isNotColliding &&
+        bottom - top >= VERTICAL_RESIZE_LIMIT &&
+        right - left >= HORIZONTAL_RESIZE_LIMIT,
+    },
+  ];
+}

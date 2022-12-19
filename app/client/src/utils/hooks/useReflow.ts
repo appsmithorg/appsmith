@@ -14,6 +14,7 @@ import {
   ReflowDirection,
   ReflowedSpaceMap,
   SecondOrderCollisionMap,
+  SpaceMap,
 } from "reflow/reflowTypes";
 import {
   getBottomMostRow,
@@ -21,13 +22,13 @@ import {
   getSpacesMapFromArray,
 } from "reflow/reflowUtils";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { AppState } from "@appsmith/reducers";
-import { areIntersecting } from "utils/WidgetPropsUtils";
+import { isCurrentCanvasDragging } from "sagas/selectors";
 
 type WidgetCollidingSpace = CollidingSpace & {
   type: string;
+  isDropTarget: boolean;
 };
 
 type WidgetCollidingSpaceMap = {
@@ -47,11 +48,15 @@ export interface ReflowInterface {
     forceDirection?: boolean,
     immediateExitContainer?: string,
     mousePosition?: OccupiedSpace,
+    reflowAfterTimeoutCallback?: (reflowParams: {
+      movementMap: ReflowedSpaceMap;
+      spacePositionMap: SpaceMap | undefined;
+    }) => void,
   ): {
     movementLimitMap?: MovementLimitMap;
     movementMap: ReflowedSpaceMap;
     bottomMostRow: number;
-    isIdealToJumpContainer: boolean;
+    spacePositionMap: SpaceMap | undefined;
   };
 }
 
@@ -59,11 +64,12 @@ export const useReflow = (
   OGPositions: OccupiedSpace[],
   parentId: string,
   gridProps: GridProps,
-): ReflowInterface => {
+): { reflowSpaces: ReflowInterface; resetReflow: () => void } => {
   const dispatch = useDispatch();
   const isReflowingGlobal = useSelector(getIsReflowing);
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
+
+  const isDraggingCanvas = useSelector((state: AppState) =>
+    isCurrentCanvasDragging(state, parentId),
   );
 
   const throttledDispatch = throttle(dispatch, 50);
@@ -80,110 +86,174 @@ export const useReflow = (
   const prevMovementMap = useRef<ReflowedSpaceMap>({});
   const prevSecondOrderCollisionMap = useRef<SecondOrderCollisionMap>({});
 
+  const shouldReflowDropTargets = useRef<boolean>(false);
+  const timeOutFunction = useRef<any>();
+
+  const exitContainer = useRef<string | undefined>(undefined);
+
   useEffect(() => {
     //only have it run when the user has completely stopped dragging and stopped Reflowing
-    if (!isReflowingGlobal && !isDragging) {
+    if (!isReflowingGlobal && !isDraggingCanvas) {
       isReflowing.current = false;
       prevPositions.current = [...OGPositions];
       prevCollidingSpaces.current = { horizontal: {}, vertical: {} };
       prevMovementMap.current = {};
       prevSecondOrderCollisionMap.current = {};
+      shouldReflowDropTargets.current = false;
     }
-  }, [isReflowingGlobal, isDragging]);
+
+    if (!isDraggingCanvas) {
+      clearTimeout(timeOutFunction.current);
+      exitContainer.current = undefined;
+    }
+  }, [isReflowingGlobal, isDraggingCanvas]);
 
   // will become a state if we decide that resize should be a "toggle on-demand" feature
   const shouldResize = true;
-  return function reflowSpaces(
-    newPositions: OccupiedSpace[],
-    direction: ReflowDirection,
-    stopMoveAfterLimit = false,
-    shouldSkipContainerReflow = false,
-    forceDirection = false,
-    immediateExitContainer?: string,
-    mousePosition?: OccupiedSpace,
-  ) {
-    const prevReflowState: PrevReflowState = {
-      prevSpacesMap: getSpacesMapFromArray(prevPositions.current),
-      prevCollidingSpaceMap: prevCollidingSpaces.current as CollidingSpaceMap,
-      prevMovementMap: prevMovementMap.current,
-      prevSecondOrderCollisionMap: prevSecondOrderCollisionMap.current,
-    };
-
-    // To track container jumps
-    let isIdealToJumpContainer = false;
-
-    const {
-      collidingSpaceMap,
-      movementLimitMap,
-      movementMap,
-      secondOrderCollisionMap,
-    } = reflow(
-      newPositions,
-      OGPositions,
-      widgetSpaces,
-      direction,
-      gridProps,
-      forceDirection,
-      shouldResize,
-      prevReflowState,
-      immediateExitContainer,
-    );
-
-    prevPositions.current = newPositions;
-    prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
-    prevSecondOrderCollisionMap.current = secondOrderCollisionMap || {};
-
-    let correctedMovementMap = movementMap || {};
-
-    if (stopMoveAfterLimit)
-      correctedMovementMap = getLimitedMovementMap(
+  return {
+    reflowSpaces: (
+      newPositions: OccupiedSpace[],
+      direction: ReflowDirection,
+      stopMoveAfterLimit = false,
+      shouldSkipContainerReflow = false,
+      forceDirection = false,
+      immediateExitContainer?: string,
+      mousePosition?: OccupiedSpace,
+      reflowAfterTimeoutCallback?: (reflowParams: {
+        movementMap: ReflowedSpaceMap;
+        spacePositionMap: SpaceMap | undefined;
+      }) => void,
+    ) => {
+      const prevReflowState: PrevReflowState = {
+        prevSpacesMap: getSpacesMapFromArray(prevPositions.current),
+        prevCollidingSpaceMap: prevCollidingSpaces.current as CollidingSpaceMap,
+        prevMovementMap: prevMovementMap.current,
+        prevSecondOrderCollisionMap: prevSecondOrderCollisionMap.current,
+      };
+      clearTimeout(timeOutFunction.current);
+      const {
+        collidingSpaceMap,
+        movementLimitMap,
         movementMap,
-        prevMovementMap.current,
-        { canHorizontalMove: true, canVerticalMove: true },
+        secondOrderCollisionMap,
+        shouldRegisterContainerTimeout,
+        spacePositionMap,
+      } = reflow(
+        newPositions,
+        OGPositions,
+        widgetSpaces,
+        direction,
+        gridProps,
+        forceDirection,
+        shouldResize,
+        prevReflowState,
+        immediateExitContainer,
+        mousePosition,
+        !shouldSkipContainerReflow || shouldReflowDropTargets.current,
       );
 
-    if (shouldSkipContainerReflow && collidingSpaceMap) {
-      const collidingSpaces = [
-        ...Object.values(collidingSpaceMap.horizontal),
-        ...Object.values(collidingSpaceMap.vertical),
-      ] as WidgetCollidingSpace[];
+      prevPositions.current = newPositions;
+      prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
+      prevSecondOrderCollisionMap.current = secondOrderCollisionMap || {};
 
-      for (const collidingSpace of collidingSpaces) {
-        if (
-          checkIsDropTarget(collidingSpace.type) &&
-          mousePosition &&
-          areIntersecting(mousePosition, collidingSpace)
+      if (!shouldReflowDropTargets.current && !exitContainer.current)
+        exitContainer.current = immediateExitContainer;
+
+      let correctedMovementMap = movementMap || {};
+
+      if (stopMoveAfterLimit) {
+        correctedMovementMap = getLimitedMovementMap(
+          movementMap,
+          prevMovementMap.current,
+          { canHorizontalMove: true, canVerticalMove: true },
+        );
+      }
+
+      prevMovementMap.current = correctedMovementMap;
+      const collidingSpaces = [
+        ...Object.values(collidingSpaceMap?.horizontal || []),
+        ...Object.values(collidingSpaceMap?.vertical || []),
+      ] as WidgetCollidingSpace[];
+      if (shouldSkipContainerReflow) {
+        if (shouldRegisterContainerTimeout) {
+          timeOutFunction.current = setTimeout(() => {
+            const {
+              collidingSpaceMap,
+              movementMap,
+              secondOrderCollisionMap,
+            } = reflow(
+              newPositions,
+              OGPositions,
+              widgetSpaces,
+              direction,
+              gridProps,
+              forceDirection,
+              shouldResize,
+              prevReflowState,
+              exitContainer.current,
+              mousePosition,
+              true,
+              true,
+            );
+            exitContainer.current = undefined;
+            if (!isEmpty(movementMap)) {
+              shouldReflowDropTargets.current = true;
+              isReflowing.current = true;
+              dispatch(reflowMoveAction(movementMap || {}));
+              reflowAfterTimeoutCallback &&
+                reflowAfterTimeoutCallback({
+                  movementMap: prevMovementMap.current,
+                  spacePositionMap: undefined,
+                });
+
+              prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
+              prevSecondOrderCollisionMap.current =
+                secondOrderCollisionMap || {};
+              prevMovementMap.current = movementMap || {};
+            } else if (isReflowing.current) {
+              isReflowing.current = false;
+              throttledDispatch.cancel();
+              dispatch(stopReflowAction());
+              shouldReflowDropTargets.current = false;
+            }
+          }, 1000);
+        } else if (
+          !collidingSpaces.some(
+            (collidingSpaces) => collidingSpaces.isDropTarget,
+          )
         ) {
-          isIdealToJumpContainer = true;
-          correctedMovementMap = {};
+          shouldReflowDropTargets.current = false;
         }
       }
-    }
 
-    prevMovementMap.current = correctedMovementMap;
+      if (!isEmpty(correctedMovementMap)) {
+        isReflowing.current = true;
+        if (forceDirection) dispatch(reflowMoveAction(correctedMovementMap));
+        else throttledDispatch(reflowMoveAction(correctedMovementMap));
+      } else if (isReflowing.current) {
+        isReflowing.current = false;
+        throttledDispatch.cancel();
+        dispatch(stopReflowAction());
+        shouldReflowDropTargets.current = false;
+      }
 
-    if (!isEmpty(correctedMovementMap)) {
-      isReflowing.current = true;
-      if (forceDirection) dispatch(reflowMoveAction(correctedMovementMap));
-      else throttledDispatch(reflowMoveAction(correctedMovementMap));
-    } else if (isReflowing.current) {
-      isReflowing.current = false;
-      throttledDispatch.cancel();
-      dispatch(stopReflowAction());
-    }
+      const bottomMostRow = getBottomRowAfterReflow(
+        movementMap,
+        getBottomMostRow(newPositions),
+        widgetSpaces,
+        gridProps,
+      );
 
-    const bottomMostRow = getBottomRowAfterReflow(
-      movementMap,
-      getBottomMostRow(newPositions),
-      widgetSpaces,
-      gridProps,
-    );
-
-    return {
-      movementLimitMap,
-      movementMap: correctedMovementMap,
-      bottomMostRow,
-      isIdealToJumpContainer,
-    };
+      return {
+        movementLimitMap,
+        movementMap: correctedMovementMap,
+        bottomMostRow,
+        spacePositionMap,
+      };
+    },
+    resetReflow: () => {
+      clearTimeout(timeOutFunction.current);
+      shouldReflowDropTargets.current = false;
+    },
   };
 };

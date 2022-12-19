@@ -11,6 +11,7 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
+import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
@@ -142,6 +143,14 @@ export const getPluginIdOfPackageName = (
 export const getDragDetails = (state: AppState) => {
   return state.ui.widgetDragResize.dragDetails;
 };
+export const isCurrentCanvasDragging = createSelector(
+  (state: AppState) => state.ui.widgetDragResize.isDragging,
+  getDragDetails,
+  (state: AppState, canvasId: string) => canvasId,
+  (isDragging: boolean, dragDetails: DragDetails, canvasId: string) => {
+    return dragDetails?.draggedOn === canvasId && isDragging;
+  },
+);
 
 export const getSelectedWidget = (
   state: AppState,

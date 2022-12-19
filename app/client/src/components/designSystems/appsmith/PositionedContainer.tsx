@@ -153,7 +153,14 @@ export function PositionedContainer(props: PositionedContainerProps) {
       ...dropTargetStyles,
     };
     return styles;
-  }, [style, isReflowEffected, onHoverZIndex, zIndex, reflowedPosition]);
+  }, [
+    style,
+    isReflowEffected,
+    isReflowEffected,
+    onHoverZIndex,
+    zIndex,
+    reflowedPosition,
+  ]);
 
   // TODO: Experimental fix for sniping mode. This should be handled with a single event
   const stopEventPropagation = (e: any) => {

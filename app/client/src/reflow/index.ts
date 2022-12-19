@@ -58,6 +58,9 @@ export function reflow(
   shouldResize = true,
   prevReflowState: PrevReflowState = {} as PrevReflowState,
   exitContainerId?: string,
+  mousePosition?: OccupiedSpace,
+  shouldReflowDropTarget = true,
+  onTimeout = false,
 ) {
   const newSpacePositionsMap = getSpacesMapFromArray(newSpacePositions);
   const OGSpacePositionsMap = getSpacesMapFromArray(OGSpacePositions);
@@ -112,10 +115,12 @@ export function reflow(
   //Reflow in the primary orientation
   const {
     collidingSpaces: primaryCollidingSpaces,
+    currSpacePositionMap: primarySpacePositionMap,
     isColliding: primaryIsColliding,
     movementMap: primaryMovementMap,
     movementVariablesMap: primaryMovementVariablesMap,
     secondOrderCollisionMap: primarySecondOrderCollisionMap,
+    shouldRegisterContainerTimeout: primaryShouldRegisterContainerTimeout,
   } = getOrientationalMovementInfo(
     newSpacePositionsMap,
     occupiedSpacesMap,
@@ -126,6 +131,9 @@ export function reflow(
     shouldResize,
     forceDirection,
     exitContainerId,
+    shouldReflowDropTarget,
+    onTimeout,
+    mousePosition,
     maxSpaceAttributes.primary,
     prevReflowState,
   );
@@ -141,12 +149,15 @@ export function reflow(
 
   const {
     collidingSpaces: secondaryCollidingSpaces,
+    currSpacePositionMap: secondarySpacePositionMap,
     isColliding: secondaryIsColliding,
     movementMap,
     movementVariablesMap: secondaryMovementVariablesMap,
     secondOrderCollisionMap,
+    shouldRegisterContainerTimeout: secondaryShouldRegisterContainerTimeout,
   } = getOrientationalMovementInfo(
-    newSpacePositionsMap,
+    primarySpacePositionMap,
+
     occupiedSpacesMap,
     currentDirection,
     !isHorizontal,
@@ -155,6 +166,9 @@ export function reflow(
     shouldResize,
     forceDirection,
     exitContainerId,
+    shouldReflowDropTarget,
+    onTimeout,
+    mousePosition,
     maxSpaceAttributes.secondary,
     prevReflowState,
     primaryMovementMap || {},
@@ -170,7 +184,13 @@ export function reflow(
   }
 
   if (!primaryIsColliding && !secondaryIsColliding) {
-    return { movementLimitMap };
+    return {
+      movementLimitMap,
+      spacePositionMap: secondarySpacePositionMap,
+      shouldRegisterContainerTimeout:
+        primaryShouldRegisterContainerTimeout ||
+        secondaryShouldRegisterContainerTimeout,
+    };
   }
 
   return {
@@ -179,6 +199,10 @@ export function reflow(
     collidingSpaceMap: globalCollidingSpaces,
     secondOrderCollisionMap:
       secondOrderCollisionMap || primarySecondOrderCollisionMap,
+    shouldRegisterContainerTimeout:
+      primaryShouldRegisterContainerTimeout ||
+      secondaryShouldRegisterContainerTimeout,
+    spacePositionMap: secondarySpacePositionMap,
   };
 }
 
@@ -211,6 +235,9 @@ function getOrientationalMovementInfo(
   shouldResize: boolean,
   forceDirection: boolean,
   exitContainerId: string | undefined,
+  shouldReflowDropTarget = true,
+  onTimeout = false,
+  mousePosition: OccupiedSpace | undefined,
   maxSpaceAttributes: { max: SpaceAttributes; min: SpaceAttributes },
   prevReflowState: PrevReflowState,
   primaryMovementMap?: ReflowedSpaceMap,
@@ -250,7 +277,12 @@ function getOrientationalMovementInfo(
     (prevCollidingSpaceMap && prevCollidingSpaceMap[orientationAccessor]) || {};
 
   //gets a map of all colliding spaces of the current dragging spaces
-  const { collidingSpaceMap, isColliding } = getCollidingSpaceMap(
+  const {
+    collidingSpaceMap,
+    currSpacePositions,
+    isColliding,
+    shouldRegisterContainerTimeout,
+  } = getCollidingSpaceMap(
     newSpacePositions,
     sortedOccupiedSpaces,
     direction,
@@ -259,18 +291,27 @@ function getOrientationalMovementInfo(
     prevSpacesMap,
     forceDirection,
     primaryCollisionMap,
+    shouldReflowDropTarget,
+    onTimeout,
+    mousePosition,
   );
 
+  const currSpacePositionMap = getSpacesMapFromArray(currSpacePositions);
   const collidingSpaces = getSortedCollidingSpaces(
     collidingSpaceMap,
     isHorizontal,
     prevCollisionMap,
   );
 
-  if (!collidingSpaces.length) return {};
+  if (!collidingSpaces.length)
+    return { currSpacePositionMap, shouldRegisterContainerTimeout };
 
-  if (!primaryMovementMap) {
-    changeExitContainerDirection(collidingSpaceMap, exitContainerId, direction);
+  if (!primaryMovementMap && shouldReflowDropTarget) {
+    changeExitContainerDirection(
+      collidingSpaceMap,
+      exitContainerId,
+      mousePosition,
+    );
   }
 
   //if it is the first orientation, we use the original positions of the occupiedSpaces
@@ -286,8 +327,8 @@ function getOrientationalMovementInfo(
     movementVariablesMap,
     secondOrderCollisionMap,
   } = getMovementMap(
-    newSpacePositions,
-    newSpacePositionsMap,
+    currSpacePositions,
+    currSpacePositionMap,
     currentOccupiedSpaces,
     currentOccupiedSpacesMap,
     occupiedSpacesMap,
@@ -309,5 +350,7 @@ function getOrientationalMovementInfo(
     secondOrderCollisionMap,
     isColliding,
     collidingSpaces,
+    currSpacePositionMap,
+    shouldRegisterContainerTimeout,
   };
 }
