@@ -20,6 +20,7 @@ import {
   CameraModeTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {

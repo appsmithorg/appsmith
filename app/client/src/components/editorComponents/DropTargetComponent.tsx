@@ -210,6 +210,19 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }
   };
 
+  const handleFocus = (e: any) => {
+    // Making sure that we don't deselect the widget
+    // after we are done dragging the limits in auto height with limits
+    if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
+      if (!props.parentId) {
+        deselectAll();
+        focusWidget && focusWidget(props.widgetId);
+        showPropertyPane && showPropertyPane();
+      }
+    }
+    e.preventDefault();
+  };
+
   /** PREPARE CONTEXT */
 
   // Function which computes and updates the height of the dropTarget
@@ -235,20 +248,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }
     return false;
   };
-
-  const handleFocus = (e: any) => {
-    if (!isResizing && !isDragging) {
-      if (!props.parentId) {
-        deselectAll();
-        focusWidget && focusWidget(props.widgetId);
-        showPropertyPane && showPropertyPane();
-      }
-    }
-    // commenting this out to allow propagation of click events
-    // e.stopPropagation();
-    e.preventDefault();
-  };
-
   // memoizing context values
   const contextValue = useMemo(() => {
     return {

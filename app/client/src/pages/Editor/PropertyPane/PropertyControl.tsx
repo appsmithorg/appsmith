@@ -31,8 +31,8 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
+import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
 import {
-  getShouldFocusPropertyPath,
   getWidgetPropsForPropertyName,
   WidgetProperties,
 } from "selectors/propertyPaneSelectors";
@@ -91,7 +91,7 @@ const PropertyControl = memo((props: Props) => {
   const hasDispatchedPropertyFocus = useRef<boolean>(false);
   const shouldFocusPropertyPath: boolean = useSelector(
     (state: AppState) =>
-      getShouldFocusPropertyPath(
+      getIsInputFieldFocused(
         state,
         dataTreePath,
         hasDispatchedPropertyFocus.current,
@@ -602,6 +602,7 @@ const PropertyControl = memo((props: Props) => {
         hasDispatchedPropertyFocus.current = true;
         setTimeout(() => {
           dispatch(setFocusablePropertyPaneField(dataTreePath));
+          dispatch(setFocusableInputField(dataTreePath));
         }, 0);
       }
     };

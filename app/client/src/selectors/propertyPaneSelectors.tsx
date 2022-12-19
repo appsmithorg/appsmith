@@ -1,25 +1,26 @@
-import { find, get, pick, set } from "lodash";
 import { AppState } from "@appsmith/reducers";
+import { find, get, pick, set } from "lodash";
 import { createSelector } from "reselect";
 
-import { WidgetProps } from "widgets/BaseWidget";
-import { getCanvasWidgets } from "./entitiesSelector";
-import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   DataTree,
   DataTreeEntity,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   PropertyPaneReduxState,
   SelectedPropertyPanel,
 } from "reducers/uiReducers/propertyPaneReducer";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
+import { getWidgets } from "sagas/selectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
-import { getWidgets } from "sagas/selectors";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getFocusableInputField } from "./editorContextSelectors";
+import { getCanvasWidgets } from "./entitiesSelector";
+import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -242,7 +243,7 @@ export const getIsPropertyPaneVisible = createSelector(
     const el = document.getElementsByClassName(
       generateClassName(pane.widgetId),
     )[0];
-    const isWidgetSelected = pane.widgetId
+    const isWidgetSelected: boolean = pane.widgetId
       ? lastSelectedWidget === pane.widgetId || widgets.includes(pane.widgetId)
       : false;
     const multipleWidgetsSelected = !!(widgets && widgets.length >= 2);
@@ -266,18 +267,6 @@ export const getIsPropertyPaneVisible = createSelector(
 export const getPropertyPaneWidth = (state: AppState) => {
   return state.ui.propertyPane.width;
 };
-export const getFocusablePropertyPaneField = (state: AppState) =>
-  state.ui.propertyPane.focusedProperty;
-
-export const getShouldFocusPropertyPath = createSelector(
-  [
-    getFocusablePropertyPaneField,
-    (_state: AppState, key: string | undefined) => key,
-  ],
-  (focusableField: string | undefined, key: string | undefined): boolean => {
-    return !!(key && focusableField === key);
-  },
-);
 
 export const getSelectedPropertyPanelIndex = createSelector(
   [
@@ -296,7 +285,7 @@ export const getSelectedPropertyPanelIndex = createSelector(
 
 export const getShouldFocusPropertySearch = createSelector(
   getIsCurrentWidgetRecentlyAdded,
-  getFocusablePropertyPaneField,
+  getFocusableInputField,
   (
     isCurrentWidgetRecentlyAdded: boolean,
     focusableField: string | undefined,

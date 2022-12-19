@@ -113,6 +113,15 @@ export const useDynamicAppLayout = () => {
     ) {
       calculatedWidth -= explorerWidth;
     }
+
+    // if explorer is closed or its preview mode, we don't need to subtract the EE width
+    if (
+      isExplorerPinned === true &&
+      !isPreviewMode &&
+      appMode === APP_MODE.EDIT
+    ) {
+      calculatedWidth -= explorerWidth;
+    }
     const ele: any = document.getElementById("canvas-viewport");
     if (
       appMode === "EDIT" &&

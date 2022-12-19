@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import { default as React, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useLocation } from "react-router";
 import styled from "styled-components";

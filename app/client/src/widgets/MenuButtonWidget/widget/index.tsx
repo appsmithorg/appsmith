@@ -5,7 +5,7 @@ import {
 import { Stylesheet } from "entities/AppTheming";
 import equal from "fast-deep-equal/es6";
 import { isArray, orderBy } from "lodash";
-import React from "react";
+import { default as React } from "react";
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
 import MenuButtonComponent from "../component";
