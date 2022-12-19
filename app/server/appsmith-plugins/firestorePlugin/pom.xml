@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.google.firebase</groupId>
             <artifactId>firebase-admin</artifactId>
-            <version>7.3.0</version>
+            <version>9.1.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>

@@ -54,8 +54,10 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.junit.ssh</artifactId>
-            <version>5.13.0.202109080827-r</version>
+            <version>6.4.0.202211300538-r</version>
+            <scope>test</scope>
         </dependency>
+
 
 
         <dependency>

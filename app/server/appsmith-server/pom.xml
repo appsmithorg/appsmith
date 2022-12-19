@@ -17,7 +17,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <ff4j.version>1.8.11</ff4j.version>
+        <ff4j.version>1.8.12</ff4j.version>
         <org.modelmapper.version>2.4.4</org.modelmapper.version>
         <jmh.version>1.35</jmh.version>
     </properties>
