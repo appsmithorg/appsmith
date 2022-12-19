@@ -12,7 +12,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
 import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
-import { klona } from "klona";
+import { getMetaWidgetResetObj } from "./metaReducerUtils";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;
@@ -104,25 +104,7 @@ export const metaReducer = createReducer(initialState, {
 
     if (widgetId in state) {
       // only reset widgets whose meta properties were changed.
-      // reset widget: sets the meta values to current default values of widget
-      const resetMetaObj: WidgetMetaState = {};
-
-      // evaluatedWidget is widget data inside dataTree, this will have latest default values of widget
-      if (evaluatedWidget) {
-        const { propertyOverrideDependency } = evaluatedWidget;
-        // propertyOverrideDependency has defaultProperty name for each meta property of widget
-        Object.entries(propertyOverrideDependency).map(
-          ([propertyName, dependency]) => {
-            const defaultPropertyValue =
-              dependency.DEFAULT && evaluatedWidget[dependency.DEFAULT];
-            if (defaultPropertyValue !== undefined) {
-              // cloning data to avoid mutation
-              resetMetaObj[propertyName] = klona(defaultPropertyValue);
-            }
-          },
-        );
-      }
-      return { ...state, [widgetId]: resetMetaObj };
+      state = { ...state, [widgetId]: getMetaWidgetResetObj(evaluatedWidget) };
     }
     return state;
   },

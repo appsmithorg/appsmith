@@ -81,6 +81,12 @@ const gitSyncReducer = createReducer(initialState, {
     isCommitting: false,
     commitAndPushError: action.payload,
   }),
+  [ReduxActionTypes.CLEAR_COMMIT_ERROR_STATE]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    commitAndPushError: null,
+  }),
   [ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE]: (
     state: GitSyncReducerState,
   ) => ({
@@ -230,7 +236,6 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingGitStatus: true,
     connectError: null,
-    commitAndPushError: null,
     pullError: null,
     mergeError: null,
   }),
