@@ -28,6 +28,11 @@ import {
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
+import { unsubscribeParentMessages } from "./ActionExecution/ParentMessageListenerSaga";
+import {
+  hasNavigatedToNewPage,
+  isEditorPath,
+} from "pages/Editor/Explorer/helpers";
 
 let previousPath: string;
 let previousHash: string | undefined;
@@ -42,11 +47,19 @@ function* handleRouteChange(
 ) {
   const { hash, pathname, state } = action.payload.location;
   try {
-    yield call(logNavigationAnalytics, action.payload);
-    yield call(contextSwitchingSaga, pathname, state, hash);
+    // handled only on edit mode
+    if (isEditorPath(pathname)) {
+      yield call(logNavigationAnalytics, action.payload);
+      yield call(contextSwitchingSaga, pathname, state, hash);
+      const entityInfo = identifyEntityFromPath(pathname, hash);
+      yield fork(updateRecentEntitySaga, entityInfo);
+    }
+
+    // handled on both edit and view mode
     yield call(appBackgroundHandler);
-    const entityInfo = identifyEntityFromPath(pathname, hash);
-    yield fork(updateRecentEntitySaga, entityInfo);
+    if (hasNavigatedToNewPage(previousPath, pathname)) {
+      yield call(clearParentMessageSubscriptions);
+    }
   } catch (e) {
     log.error("Error in focus change", e);
   } finally {
@@ -312,6 +325,11 @@ function shouldStoreStateForCanvas(
     (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
   );
 }
+
+function* clearParentMessageSubscriptions() {
+  yield call(unsubscribeParentMessages, { origin: "*" });
+}
+
 export default function* rootSaga() {
   yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
   yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);

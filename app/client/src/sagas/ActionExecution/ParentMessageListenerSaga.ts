@@ -38,7 +38,6 @@ function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
       });
     }
   } finally {
-    // console.log("------------- cancelled task");
     channel.close();
   }
 }
@@ -48,7 +47,6 @@ export function* listenToParentMessages(
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {
-  // console.log("------------- Parent listener called");
   const existingSubscription = subscriptionsMap.get(
     actionPayload.acceptedOrigin,
   );
@@ -73,7 +71,11 @@ export function* listenToParentMessages(
   const messageHandler = (event: MessageEvent) => {
     if (event.currentTarget !== window) return;
     if (event.type !== "message") return;
-    if (event.origin !== actionPayload.acceptedOrigin) return;
+    if (
+      actionPayload.acceptedOrigin !== "*" &&
+      event.origin !== actionPayload.acceptedOrigin
+    )
+      return;
 
     messageChannel.put({
       callbackString: actionPayload.callbackString,
@@ -95,19 +97,27 @@ export function* listenToParentMessages(
 
 export function* unsubscribeParentMessages(
   actionPayload: UnsubscribeParentDescription["payload"],
-  triggerMeta: TriggerMeta,
+  triggerMeta?: TriggerMeta,
 ) {
-  const existingSubscription = subscriptionsMap.get(actionPayload.origin);
-  if (!existingSubscription) {
-    logActionExecutionError(
-      `No subcriptions to ${actionPayload.origin}`,
-      triggerMeta.source,
-      triggerMeta.triggerPropertyName,
-    );
-    return;
-  }
+  if (actionPayload.origin === "*") {
+    for (const [, value] of subscriptionsMap) {
+      value.windowListenerUnSubscribe();
+      yield cancel(value.spawnedTask);
+    }
+    subscriptionsMap.clear();
+  } else {
+    const existingSubscription = subscriptionsMap.get(actionPayload.origin);
+    if (!existingSubscription) {
+      logActionExecutionError(
+        `No subcriptions to ${actionPayload.origin}`,
+        triggerMeta?.source,
+        triggerMeta?.triggerPropertyName,
+      );
+      return;
+    }
 
-  existingSubscription.windowListenerUnSubscribe();
-  yield cancel(existingSubscription.spawnedTask);
-  subscriptionsMap.delete(actionPayload.origin);
+    existingSubscription.windowListenerUnSubscribe();
+    yield cancel(existingSubscription.spawnedTask);
+    subscriptionsMap.delete(actionPayload.origin);
+  }
 }

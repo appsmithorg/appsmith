@@ -8,6 +8,8 @@ import {
   BUILDER_PATH_DEPRECATED,
   BUILDER_PATH,
   BUILDER_CUSTOM_PATH,
+  matchBuilderPath,
+  matchViewerPath,
 } from "constants/routes";
 
 import {
@@ -124,6 +126,32 @@ export const useDatasourceIdFromURL = () => {
   if (saasMatch?.params?.datasourceId) {
     return saasMatch.params.datasourceId;
   }
+};
+
+export const hasNavigatedToNewPage = (
+  previousUrl: string,
+  currentUrl: string,
+) => {
+  const matchBuilderPath_Previous = matchBuilderPath(previousUrl);
+  const matchBuilderPath_Current = matchBuilderPath(currentUrl);
+  const matchViewerPath_Previous = matchViewerPath(previousUrl);
+  const matchViewerPath_Current = matchViewerPath(currentUrl);
+
+  if (matchBuilderPath_Previous && matchBuilderPath_Current)
+    return (
+      matchBuilderPath_Previous.params.pageId !==
+      matchBuilderPath_Current.params.pageId
+    );
+  else if (matchViewerPath_Previous && matchViewerPath_Current)
+    return (
+      matchViewerPath_Previous.params.pageId !==
+      matchViewerPath_Current.params.pageId
+    );
+  return false;
+};
+
+export const isEditorPath = (path: string) => {
+  return !!matchBuilderPath(path);
 };
 
 const EXPLORER_STORAGE_PREFIX = "explorerState_";

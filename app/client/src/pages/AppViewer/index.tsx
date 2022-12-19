@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router";
+import { withRouter, RouteComponentProps, useLocation } from "react-router";
 import { AppState } from "@appsmith/reducers";
 import {
   AppViewerRouteParams,
@@ -49,6 +49,8 @@ import {
   checkContainersForAutoHeightAction,
   updateWidgetAutoHeightAction,
 } from "actions/autoHeightActions";
+import { AppsmithLocationState } from "utils/history";
+import { routeChanged } from "actions/focusHistoryActions";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -157,6 +159,11 @@ function AppViewer(props: Props) {
 
     dispatch(setAppViewHeaderHeight(header?.clientHeight || 0));
   }, [pages.length, isInitialized]);
+
+  const location = useLocation<AppsmithLocationState>();
+  useEffect(() => {
+    dispatch(routeChanged(location));
+  }, [location.pathname, location.hash]);
 
   /**
    * returns the font to be used for the canvas
