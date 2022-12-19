@@ -21,7 +21,7 @@ describe("Dynamic Height Width validation list widget", function () {
         cy.get(explorer.addWidget).click();
         cy.dragAndDropToCanvas("multiselecttreewidget", { x: 300, y: 500 });
         cy.openPropertyPane("listwidget");
-        //Widgets which were not possible to be added to list widget cannot be pasted/moved into the list widget.
+        //Widgets which were not possible to be added to list widget cannot be pasted/moved into the list widget with multitreeselect
         cy.openPropertyPane("multiselecttreewidget");
         cy.get("body").type(`{${modifierKey}}c`);
         cy.selectEntityByName("List1");
