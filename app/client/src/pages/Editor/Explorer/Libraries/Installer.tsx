@@ -389,6 +389,22 @@ export function Installer(props: { left: number }) {
     [URL, installedLibraries, queuedLibraries],
   );
 
+  const handleEnterKey = useCallback(
+    (e) => {
+      if (e.key === "Enter" && isValid) {
+        installLibrary();
+      }
+    },
+    [isValid],
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleEnterKey);
+    return () => {
+      document.removeEventListener("mousedown", handleEnterKey);
+    };
+  }, [isOpen]);
+
   return !isOpen ? null : (
     <Wrapper className="bp3-popover" left={left} ref={installerRef}>
       <div className="installation-header">
@@ -408,6 +424,7 @@ export function Installer(props: { left: number }) {
           <FormGroup className="flex-1" label={"Library URL"}>
             <TextInput
               $padding="12px"
+              autoFocus
               data-testid="library-url"
               height="30px"
               label={"Library URL"}
