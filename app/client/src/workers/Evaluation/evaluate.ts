@@ -18,6 +18,7 @@ import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
 import { ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR } from "./evaluationUtils";
+import { getErrorMessage } from "./evaluationUtils";
 
 export type EvalResult = {
   result: any;
@@ -297,11 +298,8 @@ export default function evaluateSync(
         throw new Error(ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR);
       }
     } catch (error) {
-      const errorMessage = `${(error as Error).name}: ${
-        (error as Error).message
-      }`;
       errors.push({
-        errorMessage: errorMessage,
+        errorMessage: getErrorMessage(error as Error),
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
