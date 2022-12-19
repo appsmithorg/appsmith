@@ -21,11 +21,15 @@ export class LibraryInstaller {
     this._aggregateHelper.GetNClick(this._installer_close_locator);
   }
 
-  public installLibrary(libraryName: string, accessor: string) {
+  public installLibrary(
+    libraryName: string,
+    accessor: string,
+    checkIfSuccessful = true,
+  ) {
     cy.get(this.getLibraryCardLocator(libraryName))
       .find(".t--download")
       .click();
-    this.assertInstall(libraryName, accessor);
+    if (checkIfSuccessful) this.assertInstall(libraryName, accessor);
   }
 
   private assertInstall(libraryName: string, accessor: string) {
