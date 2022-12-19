@@ -199,7 +199,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     if (dropTargetRef.current) {
       const height = getDropTargetHeight(
         canDropTargetExtend,
-        isMobile,
+        isMobile && props.widgetId !== MAIN_CONTAINER_WIDGET_ID,
         isPreviewMode,
         rowRef.current,
         props.snapRowSpace,
@@ -262,7 +262,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const height = getDropTargetHeight(
     canDropTargetExtend,
-    isMobile,
+    isMobile && props.widgetId !== MAIN_CONTAINER_WIDGET_ID,
     isPreviewMode,
     rowRef.current,
     props.snapRowSpace,
@@ -289,7 +289,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     ((isDragging && draggedOn === props.widgetId) ||
       isResizing ||
       isAutoHeightWithLimitsChanging) &&
-    !isPreviewMode;
+    !isPreviewMode &&
+    !props.useAutoLayout;
 
   const dropTargetRef = useRef<HTMLDivElement>(null);
 
