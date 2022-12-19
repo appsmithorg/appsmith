@@ -1,5 +1,6 @@
 import RBAC from "../locators/RBAClocators.json";
-import homePage from "../locators/HomePage";
+import { ObjectsRegistry } from "./Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 Cypress.Commands.add(
   "CreatePermissionWorkspaceLevel",
@@ -886,6 +887,26 @@ Cypress.Commands.add("DeleteRole", (Role) => {
   cy.wait(2000);
 });
 
+Cypress.Commands.add("DeleteGroup", (Group) => {
+  cy.get(RBAC.searchBar)
+    .clear()
+    .type(Group);
+  cy.wait(2000);
+  cy.get(RBAC.groupsRow)
+    .first()
+    .click();
+  cy.wait(2000);
+  cy.get(RBAC.contextMenu).click();
+  cy.xpath("//span[text()='Delete']").click();
+  cy.xpath(RBAC.deleteConfirmation).click();
+  cy.wait("@deleteGroup").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.wait(2000);
+});
+
 Cypress.Commands.add("DeleteUser", (User) => {
   cy.get(RBAC.usersTab).click();
   cy.wait("@fetchUsers").should(
@@ -910,6 +931,48 @@ Cypress.Commands.add("DeleteUser", (User) => {
   );
   cy.wait(2000);
 });
+
+Cypress.Commands.add(
+  "InviteGroupToWorkspace",
+  (workspaceName, groupName, role) => {
+    const successMessage = "The user has been invited successfully";
+    const _email =
+      "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
+    cy.stubPostHeaderReq();
+    agHelper.AssertElementVisible(
+      ".t--workspace-section:contains(" + workspaceName + ")",
+    );
+    agHelper.GetNClick(
+      ".t--workspace-section:contains(" +
+        workspaceName +
+        ") button:contains('Share')",
+      0,
+      true,
+    );
+    cy.xpath(_email)
+      .click({ force: true })
+      .type(groupName);
+    cy.get(".suggestions-list").should("be.visible");
+    cy.get(".each-suggestion")
+      .first()
+      .click();
+    cy.xpath("//span[text()='Select a role']/ancestor::div")
+      .first()
+      .click({ force: true });
+    agHelper.Sleep(500);
+    cy.xpath(
+      "//div[contains(@class, 'label-container')]//span[1][text()='" +
+        role +
+        "']",
+    ).click({ force: true });
+    agHelper.ClickButton("Invite");
+    cy.wait("@mockPostInvite")
+      .its("request.headers")
+      .should("have.property", "origin", "Cypress");
+    cy.contains(groupName, { matchCase: false });
+    cy.contains(successMessage);
+  },
+);
 
 Cypress.Commands.add("AddIntercepts", () => {
   cy.intercept("PUT", "/api/v1/roles/*").as("updateRoles");

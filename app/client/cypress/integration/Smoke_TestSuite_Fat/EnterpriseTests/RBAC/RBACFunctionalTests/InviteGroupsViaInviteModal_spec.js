@@ -1,11 +1,30 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import HomePage from "../../../../locators/HomePage";
-let workspaceId: any, appid: any;
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import HomePage from "../../../../../locators/HomePage";
+import locators from "../../../../../locators/AuditLogsLocators";
+let workspaceId, appid;
 const agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage;
 
 describe("Create new workspace and invite user & validate all roles", () => {
-  it("1. Create new Workspace, Share with a user from UI & verify", () => {
+  const GroupName = "group1" + `${Math.floor(Math.random() * 1000)}`;
+
+  beforeEach(() => {
+    cy.AddIntercepts();
+  });
+
+  before(() => {
+    cy.AddIntercepts();
+    cy.visit("/applications");
+    cy.get(locators.AdminSettingsEntryLink).should("be.visible");
+    cy.get(locators.AdminSettingsEntryLink).click();
+    cy.createGroupAndAddUser(
+      GroupName,
+      Cypress.env("TESTUSERNAME1"),
+      Cypress.env("TESTUSERNAME2"),
+    );
+  });
+
+  it("1. Create new Workspace, Share with a group from UI & verify", () => {
     homePage.NavigateToHome();
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -14,22 +33,17 @@ describe("Create new workspace and invite user & validate all roles", () => {
       //localStorage.setItem("WorkspaceName", workspaceId);
       homePage.CreateNewWorkspace(workspaceId);
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
-      homePage.InviteUserToWorkspace(
-        workspaceId,
-        Cypress.env("TESTUSERNAME1"),
-        "App Viewer",
-      );
+      cy.InviteGroupToWorkspace(workspaceId, GroupName, "App Viewer");
       cy.xpath(homePage._visibleTextSpan("MANAGE USERS")).click({
         force: true,
       });
       homePage.NavigateToHome();
-      homePage.CheckWorkspaceShareUsersCount(workspaceId, 2);
       homePage.CreateAppInWorkspace(workspaceId, appid);
     });
     homePage.LogOutviaAPI();
   });
 
-  it("2. Login as Invited user and validate Viewer role", function() {
+  it("2. Login as a user from the Invited group and validate Viewer role", function() {
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
@@ -55,22 +69,22 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.LogOutviaAPI();
   });
 
-  it("3. Login as Workspace owner and Update the Invited user role to Developer", function() {
+  it("3. Login as Workspace owner and Update the Invited group role to Developer", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
     homePage.UpdateUserRoleInWorkspace(
       workspaceId,
-      Cypress.env("TESTUSERNAME1"),
+      GroupName,
       "App Viewer",
       "Developer",
     );
     homePage.LogOutviaAPI();
   });
 
-  it("4. Login as Invited user and validate Developer role", function() {
+  it("4. Login as a user from the Invited group and validate Developer role", function() {
     homePage.LogintoApp(
-      Cypress.env("TESTUSERNAME1"),
-      Cypress.env("TESTPASSWORD1"),
+      Cypress.env("TESTUSERNAME2"),
+      Cypress.env("TESTPASSWORD2"),
       "Developer",
     );
     homePage.FilterApplication(appid, workspaceId);
@@ -92,19 +106,19 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.LogOutviaAPI();
   });
 
-  it("5. Login as Workspace owner and Update the Invited user role to Administrator", function() {
+  it("5. Login as Workspace owner and Update the Invited user group to Administrator", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
     homePage.UpdateUserRoleInWorkspace(
       workspaceId,
-      Cypress.env("TESTUSERNAME1"),
+      GroupName,
       "Developer",
       "Administrator",
     );
     homePage.LogOutviaAPI();
   });
 
-  it("6. Login as Invited user and validate Administrator role", function() {
+  it("6. Login as a user from the Invited group and validate Administrator role", function() {
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
@@ -137,12 +151,12 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.LogOutviaAPI();
   });
 
-  it("7. Login as Workspace owner and verify all 3 users are present", function() {
+  it("7. Login as Workspace owner and verify all 3 members are present", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
     homePage.UpdateUserRoleInWorkspace(
       workspaceId,
-      Cypress.env("TESTUSERNAME1"),
+      GroupName,
       "Administrator",
       "Developer",
     );
@@ -151,7 +165,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(homePage._usersEmailList).then(function($list) {
       expect($list).to.have.length(3);
       expect($list.eq(0)).to.contain(Cypress.env("USERNAME"));
-      expect($list.eq(1)).to.contain(Cypress.env("TESTUSERNAME1"));
+      expect($list.eq(1)).to.contain(GroupName);
       expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
     homePage.NavigateToHome();
@@ -174,5 +188,12 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.FilterApplication(appid, workspaceId);
     homePage.leaveWorkspace(workspaceId);
     homePage.LogOutviaAPI();
+  });
+
+  after(() => {
+    cy.LogOut();
+    cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.visit("/settings/groups");
+    cy.DeleteGroup(GroupName);
   });
 });

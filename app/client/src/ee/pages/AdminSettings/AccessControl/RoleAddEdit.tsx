@@ -77,6 +77,8 @@ export function RoleAddEdit(props: RoleEditProps) {
     PERMISSION_TYPE.DELETE_PERMISSIONGROUPS,
   );
 
+  const isNotDefaultUserRole = selected.name !== "Default Role For All Users";
+
   useEffect(() => {
     dispatch({
       type: ReduxActionTypes.FETCH_ICON_LOCATIONS,
@@ -120,18 +122,20 @@ export function RoleAddEdit(props: RoleEditProps) {
   };
 
   const menuItems: MenuItemProps[] = [
-    canManageRole && {
-      className: "rename-menu-item",
-      icon: "edit-underline",
-      text: createMessage(ACL_RENAME),
-      label: "rename",
-    },
-    canManageRole && {
-      className: "rename-desc-menu-item",
-      icon: "edit-underline",
-      text: createMessage(ACL_EDIT_DESC),
-      label: "rename-desc",
-    },
+    canManageRole &&
+      isNotDefaultUserRole && {
+        className: "rename-menu-item",
+        icon: "edit-underline",
+        text: createMessage(ACL_RENAME),
+        label: "rename",
+      },
+    canManageRole &&
+      isNotDefaultUserRole && {
+        className: "rename-desc-menu-item",
+        icon: "edit-underline",
+        text: createMessage(ACL_EDIT_DESC),
+        label: "rename-desc",
+      },
     canDeleteRole && {
       className: "delete-menu-item",
       icon: "delete-blank",
@@ -166,7 +170,7 @@ export function RoleAddEdit(props: RoleEditProps) {
       <PageHeader
         description={selected.description}
         isEditingTitle={isNew}
-        isHeaderEditable={canManageRole}
+        isHeaderEditable={canManageRole && isNotDefaultUserRole}
         onEditDesc={onEditDesc}
         onEditTitle={onEditTitle}
         onSearch={onSearch}

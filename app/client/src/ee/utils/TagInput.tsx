@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactElement } from "react";
+import React, { useState, useEffect, ReactElement, useMemo } from "react";
 import styled from "styled-components";
 import { Classes, Intent, TagInput } from "@blueprintjs/core";
 import _ from "lodash";
@@ -144,14 +144,22 @@ function TagInputComponent(props: TagInputProps) {
   const [suggestions, setSuggestions] = useState<
     { id: string; name: string }[]
   >(props?.suggestions || []);
-  const mappedSuggestions = (showSuggestions ? suggestions : []).map(
-    (each: any) => (
-      <Suggestion key={each.id} onClick={() => handleSuggestionClick(each.id)}>
+  const mappedSuggestions = useMemo(() => {
+    return (showSuggestions ? suggestions : []).map((each: any) => (
+      <Suggestion
+        className="each-suggestion"
+        key={each.id}
+        onClick={() => handleSuggestionClick(each.id)}
+      >
         {props.suggestionLeftIcon ?? null}
         <HighlightText highlight={currentValue} text={each.name} />
       </Suggestion>
-    ),
-  );
+    ));
+  }, [showSuggestions, suggestions]);
+
+  useEffect(() => {
+    setSuggestions(props?.suggestions || []);
+  }, [props.suggestions]);
 
   useEffect(() => {
     setValues(getValues(props?.input?.value, selectedSuggestions));
@@ -191,9 +199,6 @@ function TagInputComponent(props: TagInputProps) {
         values.includes(suggestion.name),
       ),
     );
-    if (props?.suggestions) {
-      setSuggestions(props.suggestions);
-    }
 
     commitValues(_values);
   };
@@ -227,8 +232,15 @@ function TagInputComponent(props: TagInputProps) {
       }
       resetSuggestions = true;
     }
+
     if (resetSuggestions && props?.suggestions) {
       setSuggestions(props.suggestions);
+    }
+
+    if (/^[a-zA-Z0-9`!@#$%^&*()_+\-=\[\]{};':"\\|.<>\/?~]+$/.test(e.key)) {
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
     }
   };
 
@@ -244,7 +256,6 @@ function TagInputComponent(props: TagInputProps) {
             s.name?.toLowerCase().includes(e.target.value.toLowerCase()),
           );
         setSuggestions(results);
-        setShowSuggestions(true);
       }
     } else {
       setCurrentValue("");
@@ -316,7 +327,7 @@ function TagInputComponent(props: TagInputProps) {
       />
       {mappedSuggestions.length > 0 && (
         <SuggestionsWrapper>
-          <div>{mappedSuggestions}</div>
+          <div className="suggestions-list">{mappedSuggestions}</div>
         </SuggestionsWrapper>
       )}
     </TagInputWrapper>
