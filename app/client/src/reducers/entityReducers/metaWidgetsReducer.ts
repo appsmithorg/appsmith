@@ -31,10 +31,6 @@ export type DeleteMetaWidgetsPayload = {
   creatorIds: string[];
 };
 
-export type DeleteTemplateMetaWidgets = {
-  deleteIds: string[];
-};
-
 type MetaWidgetPropertyUpdate = {
   path: string;
   value: unknown;
@@ -95,20 +91,6 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
       ) {
         delete state[metaWidgetId];
       }
-    });
-
-    return state;
-  },
-  [ReduxActionTypes.DELETE_TEMPLATE_META_WIDGETS]: (
-    state: MetaWidgetsReduxState,
-    action: ReduxAction<{
-      deleteIds: string[];
-    }>,
-  ) => {
-    const { deleteIds } = action.payload;
-
-    deleteIds?.forEach((deleteId) => {
-      delete state[deleteId];
     });
 
     return state;
