@@ -34,10 +34,11 @@ import {
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
+  getShouldFocusPropertyPath,
   getWidgetPropsForPropertyName,
   WidgetProperties,
 } from "selectors/propertyPaneSelectors";
-import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
+import { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -54,14 +55,14 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
+import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
-import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
-import { setFocusableInputField } from "actions/editorContextActions";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
   isSearchResult: boolean;
+  enhancements: EnhancementFns | undefined;
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
@@ -91,7 +92,7 @@ const PropertyControl = memo((props: Props) => {
   const hasDispatchedPropertyFocus = useRef<boolean>(false);
   const shouldFocusPropertyPath: boolean = useSelector(
     (state: AppState) =>
-      getIsInputFieldFocused(
+      getShouldFocusPropertyPath(
         state,
         dataTreePath,
         hasDispatchedPropertyFocus.current,
@@ -101,14 +102,8 @@ const PropertyControl = memo((props: Props) => {
     },
   );
 
-  const enhancementSelector = getWidgetEnhancementSelector(
-    widgetProperties.widgetId,
-  );
-
-  const { enhancementFns, parentIdWithEnhancementFn } = useSelector(
-    enhancementSelector,
-    equal,
-  );
+  const { enhancementFns, parentIdWithEnhancementFn } =
+    props.enhancements || {};
 
   useEffect(() => {
     // This is required because layered panels like Column Panel have Animation of 300ms
@@ -177,8 +172,9 @@ const PropertyControl = memo((props: Props) => {
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
     propertyPaneEnhancementFn: childWidgetPropertyUpdateEnhancementFn,
+    shouldHidePropertyFn: childWidgetShouldHidePropertyFn,
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
-  } = enhancementFns;
+  } = enhancementFns || {};
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -475,7 +471,9 @@ const PropertyControl = memo((props: Props) => {
     // Do not render the control if it needs to be hidden
     if (
       (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
-      props.invisible
+      props.invisible ||
+      (childWidgetShouldHidePropertyFn &&
+        childWidgetShouldHidePropertyFn(props.propertyName))
     ) {
       return null;
     }
@@ -576,7 +574,7 @@ const PropertyControl = memo((props: Props) => {
       if (!shouldFocusPropertyPath) {
         hasDispatchedPropertyFocus.current = true;
         setTimeout(() => {
-          dispatch(setFocusableInputField(dataTreePath));
+          dispatch(setFocusablePropertyPaneField(dataTreePath));
         }, 0);
       }
     };
