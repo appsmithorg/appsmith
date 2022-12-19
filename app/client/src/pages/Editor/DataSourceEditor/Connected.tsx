@@ -7,8 +7,11 @@ import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
-import { renderDatasourceSection } from "./DatasourceSection";
+import RenderDatasourceInformation from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
+
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 const ConnectedText = styled.div`
   color: ${Colors.OXFORD_BLUE};
@@ -37,6 +40,7 @@ const Wrapper = styled.div`
 
 function Connected() {
   const params = useParams<{ datasourceId: string }>();
+
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
@@ -48,6 +52,15 @@ function Connected() {
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, datasource?.pluginId ?? ""),
   );
+
+  const datasourcePermissions = datasource?.userPermissions || [];
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
 
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
@@ -67,14 +80,20 @@ function Connected() {
 
         <NewActionButton
           datasource={datasource}
+          disabled={!canCreateDatasourceActions}
           eventFrom="datasource-pane"
           plugin={plugin}
         />
       </Header>
       <div style={{ marginTop: "30px" }}>
-        {!isNil(currentFormConfig) && !isNil(datasource)
-          ? renderDatasourceSection(currentFormConfig[0], datasource)
-          : undefined}
+        {!isNil(currentFormConfig) && !isNil(datasource) ? (
+          <RenderDatasourceInformation
+            config={currentFormConfig[0]}
+            datasource={datasource}
+          />
+        ) : (
+          undefined
+        )}
       </div>
     </Wrapper>
   );

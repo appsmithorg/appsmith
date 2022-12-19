@@ -16,8 +16,8 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   DataTreeJSAction,
-  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
+
 import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
@@ -27,6 +27,8 @@ import { EvalMetaUpdates } from "../common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
+import { PrivateWidgets } from "entities/DataTree/types";
+import { EvalProps } from "workers/common/DataTreeEvaluator";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -496,8 +498,8 @@ export const getAllPaths = (
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
       getAllPaths(records[i], tempKey, result);
     }
-  } else if (typeof records === "object") {
-    for (const key in records) {
+  } else if (typeof records === "object" && records) {
+    for (const key of Object.keys(records)) {
       const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
       getAllPaths(records[key], tempKey, result);
     }
@@ -559,11 +561,17 @@ export function getSafeToRenderDataTree(
   }, tree);
 }
 
-export const addErrorToEntityProperty = (
-  errors: EvaluationError[],
-  dataTree: DataTree,
-  fullPropertyPath: string,
-) => {
+export const addErrorToEntityProperty = ({
+  dataTree,
+  errors,
+  evalProps,
+  fullPropertyPath,
+}: {
+  errors: EvaluationError[];
+  dataTree: DataTree;
+  fullPropertyPath: string;
+  evalProps: EvalProps;
+}) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
     fullPropertyPath,
   );
@@ -573,32 +581,34 @@ export const addErrorToEntityProperty = (
   const logBlackList = get(dataTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
-    const existingErrors = get(dataTree, errorPath, []) as EvaluationError[];
-    set(dataTree, errorPath, existingErrors.concat(errors));
+    const existingErrors = get(evalProps, errorPath, []) as EvaluationError[];
+    set(evalProps, errorPath, existingErrors.concat(errors));
   }
 
   return dataTree;
 };
 
-export const resetValidationErrorsForEntityProperty = (
-  dataTree: DataTree,
-  fullPropertyPath: string,
-) => {
+export const resetValidationErrorsForEntityProperty = ({
+  evalProps,
+  fullPropertyPath,
+}: {
+  fullPropertyPath: string;
+  evalProps: EvalProps;
+}) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
     fullPropertyPath,
   );
   if (propertyPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrorsExceptValidation = (_.get(
-      dataTree,
+      evalProps,
       errorPath,
       [],
     ) as EvaluationError[]).filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.VALIDATION,
     );
-    _.set(dataTree, errorPath, existingErrorsExceptValidation);
+    _.set(evalProps, errorPath, existingErrorsExceptValidation);
   }
-  return dataTree;
 };
 
 // For the times when you need to know if something truly an object like { a: 1, b: 2}

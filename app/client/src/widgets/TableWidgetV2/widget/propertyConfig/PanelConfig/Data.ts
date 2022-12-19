@@ -13,7 +13,7 @@ import {
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
 export default {
@@ -93,6 +93,8 @@ export default {
       propertyName: "alias",
       label: "Property Name",
       controlType: "INPUT_TEXT",
+      helperText: () =>
+        "Changing the name of the column overrides any changes to this field",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
         let isDerivedProperty = false;
@@ -148,6 +150,9 @@ export default {
       propertyName: "computedValue",
       label: "Computed Value",
       controlType: "TABLE_COMPUTE_VALUE",
+      additionalControlData: {
+        isArrayValue: true,
+      },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.DATE,
@@ -263,7 +268,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -392,7 +397,7 @@ export default {
       dependencies: ["primaryColumns", "columnType"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {

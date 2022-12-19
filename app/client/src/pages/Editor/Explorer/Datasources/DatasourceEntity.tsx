@@ -5,18 +5,16 @@ import DataSourceContextMenu from "./DataSourceContextMenu";
 import { getPluginIcon } from "../ExplorerIcons";
 import { getQueryIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import {
-  fetchDatasourceStructure,
-  saveDatasourceName,
   expandDatasourceEntity,
-  setDatsourceEditorMode,
+  fetchDatasourceStructure,
+  updateDatasourceName,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import { getQueryParams } from "utils/URLUtils";
 import { getAction } from "selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
@@ -26,6 +24,8 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import omit from "lodash/omit";
+import { getQueryParams } from "utils/URLUtils";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -34,6 +34,7 @@ type ExplorerDatasourceEntityProps = {
   searchKeyword?: string;
   pageId: string;
   isActive: boolean;
+  canManageDatasource?: boolean;
 };
 
 const ExplorerDatasourceEntity = React.memo(
@@ -50,18 +51,12 @@ const ExplorerDatasourceEntity = React.memo(
           pageId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
-          params: {
-            viewMode: true,
-          },
         });
       } else {
-        dispatch(
-          setDatsourceEditorMode({ id: props.datasource.id, viewMode: true }),
-        );
         url = datasourcesEditorIdURL({
           pageId,
           datasourceId: props.datasource.id,
-          params: getQueryParams(),
+          params: omit(getQueryParams(), "viewMode"),
         });
       }
 
@@ -71,7 +66,7 @@ const ExplorerDatasourceEntity = React.memo(
         toUrl: url,
         name: props.datasource.name,
       });
-      history.push(url);
+      history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
     }, [props.datasource.id, props.datasource.name, location.pathname]);
 
     const queryId = getQueryIdFromURL();
@@ -79,8 +74,8 @@ const ExplorerDatasourceEntity = React.memo(
       getAction(state, queryId || ""),
     );
 
-    const updateDatasourceName = (id: string, name: string) =>
-      saveDatasourceName({ id: props.datasource.id, name });
+    const updateDatasourceNameCall = (id: string, name: string) =>
+      updateDatasourceName({ id: props.datasource.id, name });
 
     const datasourceStructure = useSelector((state: AppState) => {
       return state.entities.datasources.structure[props.datasource.id];
@@ -93,7 +88,7 @@ const ExplorerDatasourceEntity = React.memo(
     const getDatasourceStructure = useCallback(
       (isOpen: boolean) => {
         if (!datasourceStructure && isOpen) {
-          dispatch(fetchDatasourceStructure(props.datasource.id));
+          dispatch(fetchDatasourceStructure(props.datasource.id, true));
         }
 
         dispatch(expandDatasourceEntity(isOpen ? props.datasource.id : ""));
@@ -121,6 +116,7 @@ const ExplorerDatasourceEntity = React.memo(
       <Entity
         action={switchDatasource}
         active={props.isActive}
+        canEditEntityName={props.canManageDatasource}
         className="datasource"
         contextMenu={
           <DataSourceContextMenu
@@ -138,7 +134,7 @@ const ExplorerDatasourceEntity = React.memo(
         onToggle={getDatasourceStructure}
         searchKeyword={props.searchKeyword}
         step={props.step}
-        updateEntityName={updateDatasourceName}
+        updateEntityName={updateDatasourceNameCall}
       >
         <DatasourceStructureContainer
           datasourceId={props.datasource.id}

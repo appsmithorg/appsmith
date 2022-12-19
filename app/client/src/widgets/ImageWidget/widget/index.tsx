@@ -1,16 +1,17 @@
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import ImageComponent from "../component";
 
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ResponsiveBehavior } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
@@ -158,6 +159,13 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         ],
       },
       {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
+      {
         sectionName: "Events",
         children: [
           {
@@ -176,13 +184,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return [
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
       {
         sectionName: "Border and Shadow",
         children: [
@@ -223,6 +224,13 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   getPageView() {

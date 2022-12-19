@@ -1,5 +1,10 @@
+import { ResponsiveBehavior } from "components/constants";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 import {
   CodeScannerWidgetProps,
   ScannerLayout,
@@ -93,6 +98,13 @@ export default [
           props.scannerLayout === ScannerLayout.ALWAYS_ON,
         dependencies: ["scannerLayout"],
       },
+    ],
+  },
+  {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+      generateVerticalAlignmentConfig(),
     ],
   },
   {

@@ -28,6 +28,9 @@ import InputTextControl, {
   InputControlProps,
 } from "components/propertyControls/InputTextControl";
 import LocationSearchControl from "components/propertyControls/LocationSearchControl";
+import MenuButtonDynamicItemsControl, {
+  MenuButtonDynamicItemsControlProps,
+} from "components/propertyControls/MenuButtonDynamicItemsControl";
 import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
@@ -66,6 +69,7 @@ import MenuItemsControl from "./MenuItemsControl";
 import NumericInputControl, {
   NumericInputControlProps,
 } from "./NumericInputControl";
+import OpenConfigPanelControl from "./OpenConfigPanelControl";
 import SelectDefaultValueControl, {
   SelectDefaultValueControlProps,
 } from "./SelectDefaultValueControl";
@@ -97,6 +101,8 @@ export const PropertyControls = {
   ComputeTablePropertyControl,
   ComputeTablePropertyControlV2,
   MenuItemsControl,
+  MenuButtonDynamicItemsControl,
+  OpenConfigPanelControl,
   ButtonListControl,
   IconSelectControl,
   BoxShadowOptionsControl,
@@ -131,6 +137,7 @@ export type PropertyControlPropsType =
   | NumericInputControlProps
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
+  | MenuButtonDynamicItemsControlProps
   | PrimaryColumnDropdownControlProps
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps

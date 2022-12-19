@@ -21,8 +21,9 @@ import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
-import { Icon, LabelWithTooltip } from "design-system";
+import { Icon } from "design-system";
 import useDropdown from "widgets/useDropdown";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
@@ -50,6 +51,7 @@ export interface MultiSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  labelTooltip?: string;
   isValid: boolean;
   allowSelectAll?: boolean;
   filterText?: string;
@@ -60,7 +62,10 @@ export interface MultiSelectProps
   accentColor?: string;
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
+  onDropdownOpen?: () => void;
+  onDropdownClose?: () => void;
   renderMode?: RenderMode;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
@@ -75,6 +80,7 @@ function MultiSelectComponent({
   dropdownStyle,
   dropDownWidth,
   filterText,
+  isDynamicHeightEnabled,
   isFilterable,
   isValid,
   labelAlignment,
@@ -83,12 +89,13 @@ function MultiSelectComponent({
   labelText,
   labelTextColor,
   labelTextSize,
+  labelTooltip,
   labelWidth,
   loading,
-  onBlur,
   onChange,
+  onDropdownClose,
+  onDropdownOpen,
   onFilterChange,
-  onFocus,
   options,
   placeholder,
   renderMode,
@@ -116,6 +123,8 @@ function MultiSelectComponent({
   } = useDropdown({
     inputRef,
     renderMode,
+    onDropdownOpen,
+    onDropdownClose,
   });
 
   // SelectAll if all options are in Value
@@ -301,9 +310,12 @@ function MultiSelectComponent({
           className={`multiselect-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="multiselect-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
           ref={labelRef}
@@ -339,10 +351,8 @@ function MultiSelectComponent({
           menuItemSelectedIcon={menuItemSelectedIcon}
           mode="multiple"
           notFoundContent="No Results Found"
-          onBlur={onBlur}
           onChange={onChange}
           onDropdownVisibleChange={onDropdownVisibleChange}
-          onFocus={onFocus}
           open={isOpen}
           options={filteredOptions}
           placeholder={placeholder || "select option(s)"}

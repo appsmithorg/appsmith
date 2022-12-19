@@ -82,7 +82,7 @@ public class CurlImporterServiceTest {
         toCreate.setName("CurlImporterServiceTest");
 
         if (workspaceId == null) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
     }

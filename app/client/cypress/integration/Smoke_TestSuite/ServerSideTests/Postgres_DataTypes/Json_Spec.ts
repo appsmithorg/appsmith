@@ -4,10 +4,10 @@ let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Json & JsonB Datatype tests", function() {
   before(() => {
@@ -32,8 +32,7 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeThemeColor(33, "Primary");
-    propPane.ChangeThemeColor(39, "Background");
+    appSettings.OpenPaneAndChangeThemeColors(33, 39);
   });
 
   it("1. Creating table query - jsonbooks", () => {
@@ -357,8 +356,7 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeThemeColor(12, "Primary");
-    propPane.ChangeThemeColor(23, "Background");
+    appSettings.OpenPaneAndChangeThemeColors(12, 23);
   });
 
   it("15. Creating enum & table queries - jsonBbooks", () => {

@@ -1,14 +1,15 @@
-import React from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ResponsiveBehavior } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import IframeComponent from "../component";
-import { IframeWidgetProps } from "../constants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
+import React from "react";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import BaseWidget, { WidgetState } from "widgets/BaseWidget";
+import IframeComponent from "../component";
+import { IframeWidgetProps } from "../constants";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -72,6 +73,13 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         ],
       },
       {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
+      {
         sectionName: "Events",
         children: [
           {
@@ -108,13 +116,6 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return [
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
       {
         sectionName: "Color",
         children: [
@@ -190,6 +191,13 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     return {
       message: undefined,
       messageMetadata: undefined,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
   }
 

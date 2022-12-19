@@ -13,7 +13,7 @@ import {
 import { TooltipComponent, Text, TextType } from "design-system";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -26,6 +26,7 @@ import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
 import { useLocation } from "react-router";
 import DisclaimerIcon from "remixicon-react/ErrorWarningLineIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import classNames from "classnames";
 
 const StyledList = styled.ul`
   list-style: disc;
@@ -110,7 +111,7 @@ function UpdatesModal({
       scrollContents
       width={600}
     >
-      <BodyContainer className="p-6">
+      <BodyContainer className="p-6" id="manual-upgrades-modal">
         <div className="flex justify-between items-center">
           <div className="flex items-center justify-start">
             <StyledIconContainer>
@@ -152,7 +153,7 @@ function UpdatesModal({
         ))}
         <div className="flex justify-end gap-2 items-center">
           <Button
-            category={Category.tertiary}
+            category={Category.secondary}
             onClick={closeModal}
             size={Size.large}
             tag="button"
@@ -185,7 +186,11 @@ function UpdatesModal({
   );
 }
 
-function ManualUpgrades() {
+function ManualUpgrades(props: {
+  children: ReactNode;
+  inline?: boolean;
+  showTooltip?: boolean;
+}) {
   const applicationVersion = useSelector(selectApplicationVersion);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
@@ -237,22 +242,27 @@ function ManualUpgrades() {
   if (applicationVersion === latestVersion) return null;
 
   return (
-    <div className="relative" data-testid="update-indicator">
+    <div
+      className={classNames({
+        relative: true,
+        "inline-block": props.inline,
+      })}
+      data-testid="update-indicator"
+    >
       <TooltipComponent
         content={tooltipContent}
+        disabled={!props.showTooltip}
         modifiers={{
           preventOverflow: { enabled: true },
         }}
       >
-        <Icon
-          className="t--upgrade"
-          fillColor={Colors.SCORPION}
-          name="upgrade"
+        <div
           onClick={() => {
             setShowModal(applicationVersion < latestVersion);
           }}
-          size={IconSize.XXXL}
-        />
+        >
+          {props.children}
+        </div>
       </TooltipComponent>
       <UpdatesModal
         applicationVersion={applicationVersion}

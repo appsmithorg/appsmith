@@ -9,13 +9,15 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import RadioGroupComponent from "../component";
 import { RadioOption } from "../constants";
@@ -229,6 +231,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -296,6 +299,16 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current input",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             label: "Visible",
@@ -340,6 +353,13 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         ],
       },
       {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
+      {
         sectionName: "Events",
         children: [
           {
@@ -359,13 +379,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return [
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
       {
         sectionName: "Label Styles",
         children: [
@@ -508,6 +521,13 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      boxShadow: "none",
+    };
+  }
+
   componentDidUpdate(prevProps: RadioGroupWidgetProps): void {
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
@@ -546,6 +566,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         disabled={isDisabled}
         height={componentHeight}
         inline={Boolean(isInline)}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         key={widgetId}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
@@ -553,6 +574,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelText={label}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={isLoading}
         onRadioSelectionChange={this.onRadioSelectionChange}

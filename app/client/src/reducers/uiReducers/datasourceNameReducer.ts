@@ -11,7 +11,7 @@ const initialState: DatasourceNameReduxState = {
 };
 
 const datasourceNameReducer = createReducer(initialState, {
-  [ReduxActionErrorTypes.SAVE_DATASOURCE_NAME_ERROR]: (
+  [ReduxActionErrorTypes.UPDATE_DATASOURCE_NAME_ERROR]: (
     state: DatasourceNameReduxState,
     action: ReduxAction<{ id: string }>,
   ) => {
@@ -28,7 +28,7 @@ const datasourceNameReducer = createReducer(initialState, {
     };
   },
 
-  [ReduxActionTypes.SAVE_DATASOURCE_NAME]: (
+  [ReduxActionTypes.UPDATE_DATASOURCE_NAME]: (
     state: DatasourceNameReduxState,
     action: ReduxAction<{ id: string }>,
   ) => {
@@ -44,7 +44,7 @@ const datasourceNameReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_DATASOURCE_NAME_SUCCESS]: (
     state: DatasourceNameReduxState,
     action: ReduxAction<{ id: string }>,
   ) => {

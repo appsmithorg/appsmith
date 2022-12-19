@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import React, { memo, useCallback, useEffect } from "react";
-import store, { useSelector } from "store";
+import store from "store";
 import styled from "styled-components";
 import WidgetFactory from "utils/WidgetFactory";
 import { CanvasWidgetStructure } from "widgets/constants";
@@ -13,7 +13,7 @@ import { throttle } from "lodash";
 import CanvasMultiPointerArena, {
   POINTERS_CANVAS_ID,
 } from "pages/common/CanvasArenas/CanvasMultiPointerArena";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";

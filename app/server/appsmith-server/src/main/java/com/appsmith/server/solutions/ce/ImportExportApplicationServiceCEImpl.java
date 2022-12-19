@@ -21,6 +21,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -31,6 +32,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -50,6 +52,7 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
@@ -57,8 +60,12 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
-import com.github.zafarkhaja.semver.util.Stream;
+import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -81,6 +88,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -90,10 +99,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -125,6 +131,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ThemeService themeService;
     private final PolicyUtils policyUtils;
     private final AnalyticsService analyticsService;
+    private final CustomJSLibService customJSLibService;
+    private final DatasourcePermission datasourcePermission;
+    private final WorkspacePermission workspacePermission;
+    private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -167,9 +179,33 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor);
 
         // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
-        AclPermission permission = isGitSync ? AclPermission.MANAGE_APPLICATIONS : AclPermission.EXPORT_APPLICATIONS;
+        AclPermission permission = isGitSync ? applicationPermission.getEditPermission() : applicationPermission.getExportPermission();
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+
+        Mono<List<CustomJSLib>> unpublishedCustomJSLibListMono =
+                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, false);
+        Mono<List<CustomJSLib>> publishedCustomJSLibListMono =
+                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, true);
+        Mono<List<CustomJSLib>> allCustomJSLibListMono = Mono.zip(unpublishedCustomJSLibListMono,
+                        publishedCustomJSLibListMono)
+                .map(tuple -> {
+                    List<CustomJSLib> unpublishedCustomJSLibList = tuple.getT1();
+                    List<CustomJSLib> publishedCustomJSLibList = tuple.getT2();
+
+                    Set<CustomJSLib> allCustomJSLibSet = new HashSet<>();
+                    allCustomJSLibSet.addAll(unpublishedCustomJSLibList);
+                    allCustomJSLibSet.addAll(publishedCustomJSLibList);
+                    List<CustomJSLib> allCustomJSLibList = new ArrayList<>(allCustomJSLibSet);
+
+                    /*
+                        Previously it was a Set and as Set is an unordered collection of elements that resulted in
+                        uncommitted changes. Making it a list and sorting it by the UidString ensure that the order
+                        will be maintained. And this solves the issue.
+                     */
+                    Collections.sort(allCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
+                    return allCustomJSLibList;
+                });
 
         Mono<Application> applicationMono =
                 // Find the application with appropriate permission
@@ -235,8 +271,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
                     Flux<NewPage> pageFlux = TRUE.equals(application.getExportWithConfiguration())
-                            ? newPageRepository.findByApplicationId(applicationId, READ_PAGES)
-                            : newPageRepository.findByApplicationId(applicationId, MANAGE_PAGES);
+                            ? newPageRepository.findByApplicationId(applicationId, pagePermission.getReadPermission())
+                            : newPageRepository.findByApplicationId(applicationId, pagePermission.getEditPermission());
 
                     return pageFlux
                             .collectList()
@@ -284,8 +320,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }});
 
                                 Flux<Datasource> datasourceFlux = TRUE.equals(application.getExportWithConfiguration())
-                                        ? datasourceRepository.findAllByWorkspaceId(workspaceId, AclPermission.READ_DATASOURCES)
-                                        : datasourceRepository.findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES);
+                                        ? datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getReadPermission())
+                                        : datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission());
 
                                 return datasourceFlux.collectList();
                             })
@@ -295,8 +331,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.setDatasourceList(datasourceList);
 
                                 Flux<ActionCollection> actionCollectionFlux = TRUE.equals(application.getExportWithConfiguration())
-                                        ? actionCollectionRepository.findByApplicationId(applicationId, READ_ACTIONS, null)
-                                        : actionCollectionRepository.findByApplicationId(applicationId, MANAGE_ACTIONS, null);
+                                        ? actionCollectionRepository.findByApplicationId(applicationId, actionPermission.getReadPermission(), null)
+                                        : actionCollectionRepository.findByApplicationId(applicationId, actionPermission.getEditPermission(), null);
                                 return actionCollectionFlux;
                             })
                             .map(actionCollection -> {
@@ -351,8 +387,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.getUpdatedResources().put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
                                 Flux<NewAction> actionFlux = TRUE.equals(application.getExportWithConfiguration())
-                                        ? newActionRepository.findByApplicationId(applicationId, READ_ACTIONS, null)
-                                        : newActionRepository.findByApplicationId(applicationId, MANAGE_ACTIONS, null);
+                                        ? newActionRepository.findByApplicationId(applicationId, actionPermission.getReadPermission(), null)
+                                        : newActionRepository.findByApplicationId(applicationId, actionPermission.getEditPermission(), null);
 
                                 return actionFlux;
                             })
@@ -465,12 +501,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
                     return applicationJson;
                 })
+                .then(allCustomJSLibListMono)
+                .map(allCustomLibList -> {
+                    applicationJson.setCustomJSLibList(allCustomLibList);
+                    return applicationJson;
+                })
                 .then(sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
                 .thenReturn(applicationJson);
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
-        return applicationService.findBranchedApplicationId(branchName, applicationId, EXPORT_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getExportPermission())
                 .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
     }
 
@@ -673,15 +714,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Map<String, List<String>> publishedActionIdToCollectionIdMap = new HashMap<>();
 
         Application importedApplication = importedDoc.getExportedApplication();
-
         List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
+        List<CustomJSLib> customJSLibs = importedDoc.getCustomJSLibList() == null ? new ArrayList<>() :
+                importedDoc.getCustomJSLibList();
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES)
+                .findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission())
                 .cache();
 
         assert importedApplication != null : "Received invalid application object!";
@@ -703,7 +745,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                .then(workspaceService.findById(workspaceId, AclPermission.WORKSPACE_MANAGE_APPLICATIONS))
+                .then(workspaceService.findById(workspaceId, workspacePermission.getApplicationCreatePermission()))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )
@@ -729,6 +771,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // Check if the destination org have all the required plugins installed
                     for (Datasource datasource : importedDatasourceList) {
                         if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
+                            log.error("Unable to find the plugin ", datasource.getPluginId());
                             return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
                         }
                     }
@@ -796,7 +839,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     importedApplication.setWorkspaceId(workspaceId);
                                     // Application Id will be present for GIT sync
                                     if (!StringUtils.isEmpty(applicationId)) {
-                                        return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                                        return applicationService.findById(applicationId, applicationPermission.getEditPermission())
                                                 .switchIfEmpty(
                                                         Mono.error(new AppsmithException(
                                                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
@@ -864,7 +907,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // For git-sync this will not be empty
                     Mono<List<NewPage>> existingPagesMono = newPageService
-                            .findNewPagesByApplicationId(importedApplication.getId(), MANAGE_PAGES)
+                            .findNewPagesByApplicationId(importedApplication.getId(), pagePermission.getEditPermission())
                             .collectList()
                             .cache();
 
@@ -912,9 +955,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return newPage;
                             });
 
+                    Mono<List<CustomJSLibApplicationDTO>> installedJSLibMono = Flux.fromIterable(customJSLibs)
+                            .flatMap(customJSLib -> {
+                                customJSLib.setId(null);
+                                customJSLib.setCreatedAt(null);
+                                customJSLib.setUpdatedAt(null);
+                                return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false);
+                            })
+                            .collectList()
+                            .map(jsLibDTOList -> {
+                                importedApplication.setUnpublishedCustomJSLibs(new HashSet<>(jsLibDTOList));
+                                return jsLibDTOList;
+                            });
+
                     return importedNewPagesMono
                             .collectList()
-                            .map(newPageList -> {
+                            .zipWith(installedJSLibMono)
+                            .map(tuple2 -> {
                                 Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
                                 applicationPages.put(EDIT, unpublishedPages);
                                 applicationPages.put(VIEW, publishedPages);
@@ -1130,7 +1187,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // Don't update gitAuth as we are using @Encrypted for private key
                     importedApplication.setGitApplicationMetadata(null);
                     // Map layoutOnLoadActions ids with relevant actions
-                    return newPageService.findNewPagesByApplicationId(importedApplication.getId(), MANAGE_PAGES)
+                    return newPageService.findNewPagesByApplicationId(importedApplication.getId(), pagePermission.getEditPermission())
                             .flatMap(newPage -> {
                                 if (newPage.getDefaultResources() != null) {
                                     newPage.getDefaultResources().setBranchName(branchName);
@@ -1160,6 +1217,14 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
                                 return application;
                             });
+                })
+                .onErrorResume(throwable -> {
+                    log.error("Error while importing the application ", throwable.getMessage());
+                    if (importedApplication.getId() != null && applicationId == null) {
+                        return applicationPageService.deleteApplication(importedApplication.getId())
+                                .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE));
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
@@ -1274,7 +1339,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             return newPageService.save(existingPage);
                         } else if (application.getGitApplicationMetadata() != null) {
                             final String defaultApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
-                            return newPageService.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newPage.getGitSyncId(), MANAGE_PAGES)
+                            return newPageService.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newPage.getGitSyncId(), pagePermission.getEditPermission())
                                     .switchIfEmpty(Mono.defer(() -> {
                                         // This is the first page we are saving with given gitSyncId in this instance
                                         DefaultResources defaultResources = new DefaultResources();
@@ -1291,6 +1356,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         newPage.getUnpublishedPage().setDeletedAt(branchedPage.getUnpublishedPage().getDeletedAt());
                                         newPage.setDeletedAt(branchedPage.getDeletedAt());
                                         newPage.setDeleted(branchedPage.getDeleted());
+                                        // Set policies from existing branch object
+                                        newPage.setPolicies(branchedPage.getPolicies());
                                         return newPageService.save(newPage);
                                     });
                         }
@@ -1392,7 +1459,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         return newActionService.save(existingAction);
                     } else if (importedApplication.getGitApplicationMetadata() != null) {
                         final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
-                        return newActionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newAction.getGitSyncId(), MANAGE_ACTIONS)
+                        return newActionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newAction.getGitSyncId(), actionPermission.getEditPermission())
                                 .switchIfEmpty(Mono.defer(() -> {
                                     // This is the first page we are saving with given gitSyncId in this instance
                                     DefaultResources defaultResources = new DefaultResources();
@@ -1422,6 +1489,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     newAction.getUnpublishedAction().setDeletedAt(branchedAction.getUnpublishedAction().getDeletedAt());
                                     newAction.setDeletedAt(branchedAction.getDeletedAt());
                                     newAction.setDeleted(branchedAction.getDeleted());
+                                    // Set policies from existing branch object
+                                    newAction.setPolicies(branchedAction.getPolicies());
                                     return newActionService.save(newAction);
                                 });
                     }
@@ -1546,7 +1615,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         );
                     } else if (importedApplication.getGitApplicationMetadata() != null) {
                         final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
-                        return actionCollectionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, actionCollection.getGitSyncId(), MANAGE_ACTIONS)
+                        return actionCollectionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, actionCollection.getGitSyncId(), actionPermission.getEditPermission())
                                 .switchIfEmpty(Mono.defer(() -> {
                                     // This is the first page we are saving with given gitSyncId in this instance
                                     DefaultResources defaultResources = new DefaultResources();
@@ -1576,6 +1645,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             .setDeletedAt(branchedActionCollection.getUnpublishedCollection().getDeletedAt());
                                     actionCollection.setDeletedAt(branchedActionCollection.getDeletedAt());
                                     actionCollection.setDeleted(branchedActionCollection.getDeleted());
+                                    // Set policies from existing branch object
+                                    actionCollection.setPolicies(branchedActionCollection.getPolicies());
                                     return Mono.zip(
                                             Mono.just(importedActionCollectionId),
                                             actionCollectionService.save(actionCollection)
@@ -1615,7 +1686,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         actionIds.addAll(unpublishedActionIdToCollectionIdMap.keySet());
         actionIds.addAll(publishedActionIdToCollectionIdMap.keySet());
         return Flux.fromIterable(actionIds)
-                .flatMap(actionId -> newActionRepository.findById(actionId, MANAGE_ACTIONS))
+                .flatMap(actionId -> newActionRepository.findById(actionId, actionPermission.getEditPermission()))
                 .map(newAction -> {
                     // Update collectionId and defaultCollectionIds in actionDTOs
                     ActionDTO unpublishedAction = newAction.getUnpublishedAction();
@@ -1886,7 +1957,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // No matching existing datasource found, so create a new one.
                     datasource.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
                     return datasourceService
-                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, AclPermission.MANAGE_DATASOURCES)
+                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, datasourcePermission.getEditPermission())
                             .flatMap(duplicateNameDatasource ->
                                     getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspaceId)
                             )
@@ -1979,8 +2050,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
-        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES).collectList();
-        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
+        // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
+        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission()).collectList();
+        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getReadPermission(), null)
                 .collectList()
                 .zipWith(listMono)
                 .flatMap(objects -> {
@@ -2129,7 +2201,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
 
-        return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
+        return applicationService.findById(applicationId, applicationPermission.getReadPermission())
                 .flatMap(application -> {
                     return Mono.zip(Mono.just(application), workspaceService.getById(application.getWorkspaceId()));
                 })

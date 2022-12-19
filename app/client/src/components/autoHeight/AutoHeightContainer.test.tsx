@@ -16,15 +16,16 @@ describe("<AutoHeightContainer />", () => {
           maxDynamicHeight={0}
           minDynamicHeight={0}
           onHeightUpdate={onHeightUpdate}
+          widgetHeightInPixels={200}
         >
           <div data-testid="test" />
         </AutoHeightContainer>,
       )
       .toJSON();
-    expect(tree).toHaveStyleRule("height", "auto");
+    expect(tree).toHaveStyleRule("height", "auto !important");
   });
 
-  describe("when isAutoHeightWithLimits is false", () => {
+  describe("when isAutoHeightWithLimits is false.", () => {
     it("should wrap the children in a simple div with class auto-height-container", async () => {
       const getTestComponent = () => (
         <AutoHeightContainer
@@ -32,6 +33,7 @@ describe("<AutoHeightContainer />", () => {
           maxDynamicHeight={0}
           minDynamicHeight={0}
           onHeightUpdate={onHeightUpdate}
+          widgetHeightInPixels={200}
         >
           <div data-testid="test" />
         </AutoHeightContainer>
@@ -53,6 +55,7 @@ describe("<AutoHeightContainer />", () => {
           maxDynamicHeight={0}
           minDynamicHeight={0}
           onHeightUpdate={onHeightUpdate}
+          widgetHeightInPixels={200}
         >
           <div data-testid="test" />
         </AutoHeightContainer>

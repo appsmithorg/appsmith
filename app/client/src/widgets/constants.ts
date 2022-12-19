@@ -7,6 +7,7 @@ import {
 import { Theme } from "constants/DefaultTheme";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
@@ -25,15 +26,17 @@ export interface WidgetConfiguration {
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
+  canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
   properties: {
-    config: PropertyPaneConfig[];
+    config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
     styleConfig?: PropertyPaneConfig[];
     default: Record<string, string>;
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
     loadingProperties?: Array<RegExp>;
+    stylesheetConfig?: Stylesheet;
   };
 }
 

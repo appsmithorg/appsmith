@@ -3,7 +3,6 @@ import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
-  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
   ADMIN_SETTINGS_CATEGORY_PATH,
   ADMIN_SETTINGS_PATH,
   APPLICATIONS_URL,
@@ -36,17 +35,14 @@ import LandingScreen from "./LandingScreen";
 import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
 import ErrorPage from "pages/common/ErrorPage";
-import PageNotFound from "pages/common/PageNotFound";
+import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "@appsmith/reducers";
-import { setThemeMode } from "actions/themeActions";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
+import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { trimTrailingSlash } from "utils/helpers";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
@@ -54,58 +50,46 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "@appsmith/pages/AdminSettings";
 import SignupSuccess from "pages/setup/SignupSuccess";
-import { Theme } from "constants/DefaultTheme";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";
 import WDSPage from "components/wds/Showcase";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
+import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
+import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import useBrandingTheme from "utils/hooks/useBrandingTheme";
+
+/*
+    We use this polyfill to show emoji flags
+    on windows devices, this polyfill loads a font family
+  */
+polyfillCountryFlagEmojis();
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const loadingIndicator = <PageLoadingBar />;
-
-function changeAppBackground(currentTheme: any) {
-  if (
-    trimTrailingSlash(window.location.pathname) === "/applications" ||
-    window.location.pathname.indexOf("/settings/") !== -1 ||
-    trimTrailingSlash(window.location.pathname) === "/profile" ||
-    trimTrailingSlash(window.location.pathname) === "/signup-success"
-  ) {
-    document.body.style.backgroundColor =
-      currentTheme.colors.homepageBackground;
-  } else {
-    document.body.style.backgroundColor = currentTheme.colors.appBackground;
-  }
-}
 
 function AppRouter(props: {
   safeCrash: boolean;
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
-  currentTheme: Theme;
   safeCrashCode?: ERROR_CODES;
   featureFlags: FeatureFlags;
-  setTheme: (theme: ThemeMode) => void;
 }) {
   const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
   useEffect(() => {
-    AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
-    const stopListener = history.listen((location: any) => {
-      AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: location.pathname });
-      changeAppBackground(props.currentTheme);
-    });
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
-    return stopListener;
   }, []);
 
-  useEffect(() => {
-    changeAppBackground(props.currentTheme);
-  }, [props.currentTheme]);
+  useBrandingTheme();
+
+  const user = useSelector(getCurrentUserSelector);
+  const tenantPermissions = useSelector(getTenantPermissions);
 
   return (
     <Router history={history}>
@@ -146,7 +130,14 @@ function AppRouter(props: {
               <Redirect
                 exact
                 from={ADMIN_SETTINGS_PATH}
-                to={ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH}
+                to={
+                  !user
+                    ? ADMIN_SETTINGS_PATH
+                    : getDefaultAdminSettingsPath({
+                        isSuperUser: user?.isSuperUser || false,
+                        tenantPermissions,
+                      })
+                }
               />
               <SentryRoute
                 component={Settings}
@@ -183,16 +174,12 @@ function AppRouter(props: {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  currentTheme: getCurrentThemeDetails(state),
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
   featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  setTheme: (mode: ThemeMode) => {
-    dispatch(setThemeMode(mode));
-  },
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant()),

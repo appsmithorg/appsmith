@@ -16,7 +16,6 @@ import {
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
-import { AppTheme } from "entities/AppTheming";
 import { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -27,6 +26,7 @@ import {
 import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
+import { Stylesheet } from "entities/AppTheming";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -248,7 +248,7 @@ export const getPropertyValue = (
     return value;
   }
 };
-export const getBooleanPropertyValue = (value: any, index: number) => {
+export const getBooleanPropertyValue = (value: unknown, index: number) => {
   if (isBoolean(value)) {
     return value;
   }
@@ -256,6 +256,20 @@ export const getBooleanPropertyValue = (value: any, index: number) => {
     return value[index];
   }
   return !!value;
+};
+
+export const getArrayPropertyValue = (value: unknown, index: number) => {
+  if (Array.isArray(value) && value.length > 0) {
+    if (Array.isArray(value[0])) {
+      // value is array of arrays of label value
+      return value[index];
+    } else {
+      // value is array of label value
+      return value;
+    }
+  } else {
+    return value;
+  }
 };
 
 export const getCellProperties = (
@@ -438,6 +452,10 @@ export const getCellProperties = (
         columnProperties.resetFilterTextOnClose,
         rowIndex,
       ),
+      selectOptions: getArrayPropertyValue(
+        columnProperties.selectOptions,
+        rowIndex,
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
@@ -513,7 +531,7 @@ export const getSelectedRowBgColor = (accentColor: string) => {
 export const getStylesheetValue = (
   props: TableWidgetProps,
   propertyPath: string,
-  widgetStylesheet?: AppTheme["stylesheet"][string],
+  widgetStylesheet?: Stylesheet,
 ) => {
   const propertyName = propertyPath.split(".").slice(-1)[0];
   const columnName = propertyPath.split(".").slice(-2)[0];

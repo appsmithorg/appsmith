@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
   MultipleWidgetDeletePayload,
@@ -250,6 +251,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           parentId,
         );
         yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
+        yield put(generateAutoHeightLayoutTreeAction(true, true));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
           : "WIDGET_DELETE";
@@ -346,6 +348,8 @@ function* deleteAllSelectedWidgetsSaga(
     }
 
     yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
+
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");
     if (!disallowUndo) {

@@ -1,21 +1,21 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { WidgetType } from "constants/WidgetConstants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import BaseInputComponent from "../component";
-import { InputTypes } from "../constants";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import React from "react";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseInputComponent from "../component";
+import { InputTypes } from "../constants";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -51,6 +51,7 @@ class BaseInputWidget<
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -236,12 +237,37 @@ class BaseInputWidget<
         ],
       },
       {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
+      {
         sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the text is changed",
             propertyName: "onTextChanged",
             label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the input field receives focus",
+            propertyName: "onFocus",
+            label: "onFocus",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the input field loses focus",
+            propertyName: "onBlur",
+            label: "onBlur",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -274,13 +300,6 @@ class BaseInputWidget<
 
   static getPropertyPaneStyleConfig() {
     return [
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
       {
         sectionName: "Label Styles",
         children: [
@@ -437,7 +456,6 @@ class BaseInputWidget<
      * 2. Dragging across the text (for text selection) in input won't cause the widget to drag.
      */
     this.props.updateWidgetMetaProperty("dragDisabled", focusState);
-    this.props.updateWidgetMetaProperty("isFocused", focusState);
   }
 
   resetWidgetText() {

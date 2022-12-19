@@ -17,6 +17,7 @@ import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { Positioning, ResponsiveBehavior } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 import {
   ColumnSplitRatio,
   ColumnSplitTypes,
@@ -74,22 +75,19 @@ export class ContainerWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Layout",
-        children: [getColumnSplittingConfig()],
+        sectionName: "Responsive Layout",
+        children: [
+          generatePositioningConfig(Positioning.Vertical),
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+          getColumnSplittingConfig(),
+        ],
       },
     ];
   }
 
   static getPropertyPaneStyleConfig() {
     return [
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generatePositioningConfig(Positioning.Vertical),
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
       {
         sectionName: "Color",
         children: [
@@ -168,6 +166,13 @@ export class ContainerWidget extends BaseWidget<
 
   componentDidMount(): void {
     super.componentDidMount();
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   getSnapSpaces = () => {

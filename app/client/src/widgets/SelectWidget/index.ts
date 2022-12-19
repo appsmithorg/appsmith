@@ -1,11 +1,18 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { ResponsiveBehavior } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 4,
+      defaultValue: DynamicHeight.FIXED,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "Select",
   iconSVG: IconSVG,
@@ -43,6 +50,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

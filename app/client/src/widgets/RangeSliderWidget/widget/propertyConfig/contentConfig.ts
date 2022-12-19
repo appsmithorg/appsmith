@@ -1,7 +1,11 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 import { RangeSliderWidgetProps } from "..";
 import {
   endValueValidation,
@@ -161,6 +165,7 @@ export default [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
         ],
+        defaultValue: LabelPosition.Left,
         isBindProperty: false,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -211,6 +216,16 @@ export default [
   {
     sectionName: "General",
     children: [
+      {
+        helpText: "Show help text or details about current input",
+        propertyName: "labelTooltip",
+        label: "Tooltip",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Value must be atleast 6 chars",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
       {
         propertyName: "showMarksLabel",
         helpText: "Show the marks label below the slider",
@@ -296,13 +311,20 @@ export default [
       {
         propertyName: "tooltipAlwaysOn",
         helpText: "Keep showing the label with value",
-        label: "Tooltip Always On",
+        label: "Show value always",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+    ],
+  },
+  {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+      generateVerticalAlignmentConfig(),
     ],
   },
   {

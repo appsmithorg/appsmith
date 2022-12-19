@@ -9,8 +9,9 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { ResponsiveBehavior } from "components/constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { Color } from "constants/Colors";
+import { Stylesheet } from "entities/AppTheming";
 import { pick } from "lodash";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
@@ -97,7 +98,22 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      truncateButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+      fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
   }
 
   static getPropertyPaneStyleConfig() {
@@ -205,13 +221,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
               type: ValidationTypes.TEXT,
             },
           },
-        ],
-      },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
         ],
       },
       {

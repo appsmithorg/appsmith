@@ -1,31 +1,32 @@
-import React, { ReactNode, useState, useEffect, useRef } from "react";
-import styled, { StyledComponent } from "styled-components";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { useDrag } from "react-use-gesture";
-import { animated, Spring } from "react-spring";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { useReflow } from "utils/hooks/useReflow";
-import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import { useSelector } from "react-redux";
+import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { animated, Spring } from "react-spring";
+import { useDrag } from "react-use-gesture";
 import {
   GridProps,
   MovementLimitMap,
   ReflowDirection,
   ReflowedSpace,
 } from "reflow/reflowTypes";
-import { getNearestParentCanvas } from "utils/generators";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
+import { getReflowSelector } from "selectors/widgetReflowSelectors";
+import styled, { StyledComponent } from "styled-components";
+import { getNearestParentCanvas } from "utils/generators";
+import { useReflow } from "utils/hooks/useReflow";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
-import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 
-const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
+const ResizeWrapper = styled(animated.div)<{ $prevents: boolean }>`
   display: block;
   & {
     * {
-      pointer-events: ${(props) => !props.prevents && "none"};
+      pointer-events: ${(props) => !props.$prevents && "none"};
     }
   }
 `;
@@ -55,6 +56,7 @@ export type DimensionProps = {
 type ResizableHandleProps = {
   allowResize: boolean;
   scrollParent: HTMLDivElement | null;
+  disableDot: boolean;
   checkForCollision: (widgetNewSize: {
     left: number;
     top: number;
@@ -69,6 +71,7 @@ type ResizableHandleProps = {
     x: number;
     y: number;
   };
+  direction?: ReflowDirection;
 };
 
 function ResizableHandle(props: ResizableHandleProps) {
@@ -113,9 +116,15 @@ function ResizableHandle(props: ResizableHandleProps) {
   const propsToPass = {
     ...bind(),
     showAsBorder: !props.allowResize,
+    disableDot: props.disableDot,
   };
 
-  return <props.component {...propsToPass} />;
+  return (
+    <props.component
+      data-cy={`t--resizable-handle-${props.direction}`}
+      {...propsToPass}
+    />
+  );
 }
 
 type ResizableProps = {
@@ -149,7 +158,8 @@ type ResizableProps = {
     position: { x: number; y: number },
   ) => void;
   snapGrid: { x: number; y: number };
-  enable: boolean;
+  enableVerticalResize: boolean;
+  enableHorizontalResize: boolean;
   className?: string;
   parentId?: string;
   widgetId: string;
@@ -336,7 +346,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.left,
-      affectsWidth: true,
+      handleDirection: ReflowDirection.LEFT,
     });
   }
 
@@ -353,7 +363,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.top,
-      affectsWidth: false,
+      handleDirection: ReflowDirection.TOP,
     });
   }
 
@@ -370,7 +380,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.right,
-      affectsWidth: true,
+      handleDirection: ReflowDirection.RIGHT,
     });
   }
 
@@ -387,7 +397,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.bottom,
-      affectsWidth: false,
+      handleDirection: ReflowDirection.BOTTOM,
     });
   }
 
@@ -478,6 +488,11 @@ export function ReflowResizable(props: ResizableProps) {
   };
 
   const renderHandles = handles.map((handle, index) => {
+    const disableDot = !isHandleResizeAllowed(
+      props.enableHorizontalResize,
+      props.enableVerticalResize,
+      handle.handleDirection,
+    );
     return (
       <ResizableHandle
         {...handle}
@@ -489,10 +504,12 @@ export function ReflowResizable(props: ResizableProps) {
           )
         }
         checkForCollision={checkForCollision}
+        direction={handle.handleDirection}
+        disableDot={disableDot}
         key={index}
         onStart={() => {
           togglePointerEvents(false);
-          props.onStart(handle?.affectsWidth);
+          props.onStart();
           setResizing(true);
         }}
         onStop={onResizeStop}
@@ -530,13 +547,13 @@ export function ReflowResizable(props: ResizableProps) {
     >
       {(_props) => (
         <ResizeWrapper
+          $prevents={pointerEvents}
           className={props.className}
-          prevents={pointerEvents}
           ref={resizableRef}
           style={_props}
         >
           {props.children}
-          {props.enable && renderHandles}
+          {props.enableHorizontalResize && renderHandles}
         </ResizeWrapper>
       )}
     </Spring>
