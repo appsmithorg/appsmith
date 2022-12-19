@@ -3,7 +3,6 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
-  AddTemplateMetaWidgets,
   DeleteMetaWidgetsPayload,
   DeleteTemplateMetaWidgets,
   ModifyMetaWidgetPayload,
@@ -18,11 +17,6 @@ export const deleteTemplateMetaWidgets = (
   payload: DeleteTemplateMetaWidgets,
 ) => ({
   type: ReduxActionTypes.DELETE_TEMPLATE_META_WIDGETS,
-  payload,
-});
-
-export const addTemplateMetaWidgets = (payload: AddTemplateMetaWidgets) => ({
-  type: ReduxActionTypes.ADD_TEMPLATE_META_WIDGETS,
   payload,
 });
 

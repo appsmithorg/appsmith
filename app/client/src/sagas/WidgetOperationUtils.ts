@@ -4,7 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import _, { get, isString, remove } from "lodash";
+import _, { isString, remove } from "lodash";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -270,6 +270,7 @@ export const handleSpecificCasesWhilePasting = (
     });
   }
 
+  widgets = handleListWidgetV2Pasting(widget, widgets, widgetNameMap);
   widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
 
   return widgets;
@@ -1768,134 +1769,46 @@ export function getMetaWidgetIds(
   return widgetIds.filter((widgetId) => Boolean(widgets[widgetId]));
 }
 
-export function hasMetaWidgets(copiedWidgets: CopiedWidgetGroup) {
-  return copiedWidgets.list.some((widgets) => widgets.hasMetaWidgets);
-}
-
-function generateTemplateMetaWidgets(
-  metaWidgets: MetaWidgetsReduxState,
-  widgets: CanvasWidgetsReduxState,
-  widgetIdMap: Record<string, string>,
-  newWidgetList: FlattenedWidgetProps[],
-) {
-  const parentWidgetId = newWidgetList.find((widgets) => widgets.hasMetaWidgets)
-    ?.widgetId;
-
-  const templateMetaWidgets: MetaWidgetsReduxState = {};
-
-  const metaWidgetIdsToUpdate = getMetaWidgetIdsToUpdate(
-    widgets,
-    parentWidgetId,
-  );
-
-  metaWidgetIdsToUpdate.forEach((widgetId) => {
-    if (widgetId === parentWidgetId) {
-      templateMetaWidgets[widgetId] = widgets[widgetId];
-    } else {
-      const initialWidgetId = Object.keys(widgetIdMap).find(
-        (key) => widgetId === widgetIdMap[key],
-      );
-      let initialMetaWidget = {};
-      if (initialWidgetId) initialMetaWidget = metaWidgets[initialWidgetId];
-
-      const metaWidget = { ...initialMetaWidget, ...widgets[widgetId] };
-
-      metaWidget.referencedWidgetId = widgetId;
-      metaWidget.isMetaWidget = true;
-      metaWidget.creatorId = parentWidgetId;
-      templateMetaWidgets[widgetId] = metaWidget;
-    }
-  });
-  return { templateMetaWidgets, parentWidgetId };
-}
-
-const getMetaWidgetIdsToUpdate = (
-  widgets: CanvasWidgetsReduxState,
-  rootMetaWidgetId?: string,
-) => {
-  const widgetIds: string[] = [];
-  if (!rootMetaWidgetId) {
-    return widgetIds;
-  }
-  return getChildMetaWidgetIds(widgets, rootMetaWidgetId);
-};
-
-const getChildMetaWidgetIds = (
-  widgets: CanvasWidgetsReduxState,
-  widgetId: string,
-) => {
-  const childrenIds: string[] = [];
-  const widget = get(widgets, widgetId);
-  if (widget === undefined) {
-    return [];
-  }
-  const { children = [] } = widget;
-  if (children && children.length) {
-    childrenIds.push(...children);
-    for (const metaWidgetId of children) {
-      if (widgets[metaWidgetId]) {
-        const grandChildrenId = getChildMetaWidgetIds(widgets, metaWidgetId);
-        if (grandChildrenId && grandChildrenId.length) {
-          childrenIds.push(...grandChildrenId);
-        }
-      }
-    }
-  }
-  return childrenIds;
-};
-
 export const handleListWidgetV2Pasting = (
-  metaWidgets: MetaWidgetsReduxState,
+  widget: FlattenedWidgetProps,
   widgets: CanvasWidgetsReduxState,
-  widgetIdMap: Record<string, string>,
   widgetNameMap: Record<string, string>,
-  newWidgetList: FlattenedWidgetProps[],
 ) => {
-  const { parentWidgetId, templateMetaWidgets } = generateTemplateMetaWidgets(
-    metaWidgets,
-    widgets,
-    widgetIdMap,
-    newWidgetList,
-  );
+  if (widget?.type !== "LIST_WIDGET_V2") return widgets;
 
-  widgets = updateListWidgetBindings(widgetNameMap, widgets, parentWidgetId);
+  widgets = updateListWidgetBindings(widgetNameMap, widgets, widget.widgetId);
 
-  return {
-    widgets,
-    templateMetaWidgets,
-  };
+  return widgets;
 };
 
 // Updating PrimaryKeys, mainCanvasId and mainContainerId for ListWidgetV2
 const updateListWidgetBindings = (
   widgetNameMap: Record<string, string>,
   widgets: CanvasWidgetsReduxState,
-  parentWidgetId = "",
+  listWidgetId: string,
 ) => {
   let mainCanvasId = "";
   let mainContainerId = "";
   const oldWidgetName =
     Object.keys(widgetNameMap).find(
       (widgetName) =>
-        widgetNameMap[widgetName] === widgets[parentWidgetId].widgetName,
+        widgetNameMap[widgetName] === widgets[listWidgetId].widgetName,
     ) ?? "";
-  if (widgets[parentWidgetId].type === "LIST_WIDGET_V2") {
-    Object.keys(widgets).forEach((widgetId) => {
-      if (widgets[widgetId].parentId === parentWidgetId) {
-        mainCanvasId = widgetId;
-        mainContainerId = widgets[widgetId].children?.[0] ?? "";
-      }
-    });
+  Object.keys(widgets).forEach((widgetId) => {
+    if (widgets[widgetId].parentId === listWidgetId) {
+      mainCanvasId = widgetId;
+      mainContainerId = widgets[widgetId].children?.[0] ?? "";
+    }
+  });
 
-    widgets[parentWidgetId].mainCanvasId = mainCanvasId;
-    widgets[parentWidgetId].mainContainerId = mainContainerId;
-    const primaryKeys = widgets[parentWidgetId].primaryKeys.replaceAll(
-      oldWidgetName,
-      widgets[parentWidgetId].widgetName,
-    );
+  widgets[listWidgetId].mainCanvasId = mainCanvasId;
+  widgets[listWidgetId].mainContainerId = mainContainerId;
+  const primaryKeys = widgets[listWidgetId].primaryKeys.replaceAll(
+    oldWidgetName,
+    widgets[listWidgetId].widgetName,
+  );
 
-    widgets[parentWidgetId].primaryKeys = primaryKeys;
-  }
+  widgets[listWidgetId].primaryKeys = primaryKeys;
 
   return widgets;
 };

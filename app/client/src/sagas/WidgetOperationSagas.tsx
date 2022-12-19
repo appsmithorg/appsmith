@@ -59,7 +59,6 @@ import {
   getCurrentPageId,
   getContainerWidgetSpacesSelector,
   getCanvasHeightOffset,
-  getMetaWidgets,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -116,8 +115,6 @@ import {
   getValueFromTree,
   getVerifiedSelectedWidgets,
   mergeDynamicPropertyPaths,
-  hasMetaWidgets,
-  handleListWidgetV2Pasting,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -147,8 +144,6 @@ import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import { addTemplateMetaWidgets } from "actions/metaWidgetActions";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -1683,31 +1678,6 @@ function* pasteWidgetSaga(
             widgets,
             widgetNameMap,
             newWidgetList,
-          );
-        }
-        if (hasMetaWidgets(copiedWidgets)) {
-          const metaWidgets: MetaWidgetsReduxState = yield select(
-            getMetaWidgets,
-          );
-
-          // 1. generate template MetaWidgets for Parent Widget
-          // 2. Update List v2 bindings
-          const {
-            templateMetaWidgets,
-            widgets: updatedWidgets,
-          } = handleListWidgetV2Pasting(
-            metaWidgets,
-            widgets,
-            widgetIdMap,
-            widgetNameMap,
-            newWidgetList,
-          );
-          widgets = updatedWidgets;
-
-          yield put(
-            addTemplateMetaWidgets({
-              templateMetaWidgets,
-            }),
           );
         }
       }),
