@@ -9,9 +9,12 @@ describe("RBAC for git connected apps tests", function() {
   let newWorkspaceName;
   let repoName;
   const mainBranch = "master";
-  const childBranch = "test/childBranch";
-  const childBranch2 = "test/childBranch2";
-  const childBranch3 = "test/childBranch3";
+  const childBranch =
+    "test/childBranch" + `${Math.floor(Math.random() * 1000)}`;
+  const childBranch2 =
+    "test/childBranch2" + `${Math.floor(Math.random() * 1000)}`;
+  const childBranch3 =
+    "test/childBranch3" + `${Math.floor(Math.random() * 1000)}`;
   const importedApp = "gitImportedApp";
   const PermissionWorkspaceLevel =
     "CreatePermissionWorkspaceLevel" + `${Math.floor(Math.random() * 1000)}`;
@@ -110,6 +113,7 @@ describe("RBAC for git connected apps tests", function() {
     cy.visit("/settings/roles");
     cy.get(RBAC.searchBar)
       .clear()
+      .wait(2000)
       .type(PermissionWorkspaceLevel);
     cy.wait(2000);
     cy.get(RBAC.roleRow)

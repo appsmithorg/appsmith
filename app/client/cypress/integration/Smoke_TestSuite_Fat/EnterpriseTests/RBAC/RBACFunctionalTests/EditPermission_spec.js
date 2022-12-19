@@ -187,7 +187,7 @@ describe("Edit Permission flow ", function() {
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
-    cy.intercept("GET", "/api/v1/datasources/*").as("saveEditedDatasouce");
+    cy.intercept("PUT", "/api/v1/datasources/*").as("saveEditedDatasouce");
     cy.wait(2000);
     cy.get(homePage.searchInput)
       .clear()
@@ -316,7 +316,8 @@ describe("Edit Permission flow ", function() {
     cy.get(".t--entity-name")
       .contains("SelectQuery")
       .click();
-    ee.ActionContextMenuByEntityName("SelectQueryEdited", "Edit Name");
+    cy.get(".t--action-name-edit-icon").type("SelectQueryEdited{enter}");
+    cy.wait("@getPage");
   });
 
   it("4. Edit permission : App level, Verify user is not able to create or delete resources", function() {
