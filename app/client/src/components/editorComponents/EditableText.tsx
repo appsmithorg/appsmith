@@ -71,6 +71,14 @@ const EditableTextWrapper = styled.div<{
       width: 100%;
     }
   }
+
+  ${({ isEditing }) =>
+    isEditing &&
+    `
+    > div {
+    width: 100%;
+    }
+  `}
 `;
 
 // using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
