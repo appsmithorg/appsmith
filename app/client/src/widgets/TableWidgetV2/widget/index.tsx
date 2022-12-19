@@ -47,6 +47,7 @@ import {
   OnColumnEventArgs,
   ORIGINAL_INDEX_KEY,
   TableWidgetProps,
+  TABLE_COLUMN_ORDER,
   TransientDataPayload,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
@@ -87,7 +88,7 @@ import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
-import { handleColumnSticky } from "./utilities";
+import { generateNewColumnOrderFromStickyValue } from "./utilities";
 import { Stylesheet } from "entities/AppTheming";
 
 const ReactTableComponent = lazy(() =>
@@ -216,21 +217,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (isArray(orderedTableColumns)) {
       orderedTableColumns.forEach((column: any) => {
         const isHidden = !column.isVisible;
-        let stickyValue;
 
-        /**
-         * Set the sticky value for the columns that are frozen by the users.
-         * We refer to the leftOrder and rightOrder meta property for user frozen columns.
-         */
-        if (_.find(this.props.leftOrder, (col) => col === column.alias)) {
-          stickyValue = "left";
-        } else if (
-          _.find(this.props.rightOrder, (col) => col === column.alias)
-        ) {
-          stickyValue = "right";
-        } else {
-          stickyValue = column.sticky;
-        }
         const columnData = {
           id: column.id,
           Header: column.label,
@@ -242,7 +229,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isHidden: false,
           isAscOrder: column.isAscOrder,
           isDerived: column.isDerived,
-          sticky: stickyValue,
+          sticky: column.sticky,
           metaProperties: {
             isHidden: isHidden,
             type: column.columnType,
@@ -599,24 +586,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const { canFreezeColumn, renderMode, tableData } = this.props;
 
     if (canFreezeColumn && renderMode === RenderModes.PAGE) {
-      /**
-       * When in PAGE view mode:
-       * 1. If columnOrder not in local storage add it.
-       * 2. if column order preesent in the localstorage update it.
-       */
-      const localTableColumnOrder = this.getSingleLocalColumnOrder(
+      const localTableColumnOrder = this.getColumnOrderByWidgetIdFromLS(
         this.props.widgetId,
       );
       if (localTableColumnOrder) {
-        const { columnOrder, left, right } = localTableColumnOrder;
+        const { columnOrder, leftOrder, rightOrder } = localTableColumnOrder;
         this.props.updateWidgetMetaProperty("columnOrder", columnOrder);
-        this.props.updateWidgetMetaProperty("leftOrder", left);
-        this.props.updateWidgetMetaProperty("rightOrder", right);
-      } else {
-        this.props.updateWidgetMetaProperty(
-          "columnOrder",
-          this.props.columnOrder,
-        );
+        this.props.updateWidgetMetaProperty("leftOrder", leftOrder);
+        this.props.updateWidgetMetaProperty("rightOrder", rightOrder);
       }
     }
 
@@ -986,33 +963,27 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   }
 
-  /**
-   * Function to read the column order for a given table widget.
-   */
-  getSingleLocalColumnOrder = (widgetId: string) => {
+  getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
     const localTableWidgetColumnOrder = localStorage.getItem(
-      "tableWidgetColumnOrder",
+      TABLE_COLUMN_ORDER,
     );
     if (localTableWidgetColumnOrder) {
       const parsedTableWidgetColumnOrder = JSON.parse(
         localTableWidgetColumnOrder,
       );
 
-      // Check if the column orders for the current widget exists
       if (parsedTableWidgetColumnOrder[widgetId]) {
-        const { columnOrder, left, right } = parsedTableWidgetColumnOrder[
-          widgetId
-        ];
+        const {
+          columnOrder,
+          leftOrder,
+          rightOrder,
+        } = parsedTableWidgetColumnOrder[widgetId];
         return {
           columnOrder,
-          left,
-          right,
+          leftOrder,
+          rightOrder,
         };
-      } else {
-        return;
       }
-    } else {
-      return;
     }
   };
 
@@ -1021,31 +992,34 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * tableWidgetColumnOrder = {
    *  <widget-id>: {
    *    columnOrder: [],
-   *    left: [],
-   *    right: []
+   *    leftOrder: [],
+   *    rightOrder: []
    *  }
    * }
    */
   persistColumnOrder = (
     newColumnOrder?: string[],
-    left?: string[],
-    right?: string[],
+    leftOrder?: string[],
+    rightOrder?: string[],
   ) => {
     const widgetId = this.props.widgetId;
     const localTableWidgetColumnOrder = localStorage.getItem(
-      "tableWidgetColumnOrder",
+      TABLE_COLUMN_ORDER,
     );
+    let newTableColumnOrder;
+
     if (localTableWidgetColumnOrder) {
       let parsedTableWidgetColumnOrder = JSON.parse(
         localTableWidgetColumnOrder,
       );
 
-      let columnOrder = parsedTableWidgetColumnOrder[widgetId];
+      let columnOrder;
 
-      // Update the existing attributes:
       if (newColumnOrder) {
         columnOrder = newColumnOrder;
-      } else if (!columnOrder) {
+      } else if (parsedTableWidgetColumnOrder[widgetId]) {
+        columnOrder = parsedTableWidgetColumnOrder[widgetId];
+      } else {
         columnOrder = this.props.columnOrder;
       }
 
@@ -1053,29 +1027,26 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ...parsedTableWidgetColumnOrder,
         [widgetId]: {
           columnOrder,
-          left,
-          right,
+          leftOrder,
+          rightOrder,
         },
       };
 
-      localStorage.setItem(
-        "tableWidgetColumnOrder",
-        JSON.stringify(parsedTableWidgetColumnOrder),
-      );
+      newTableColumnOrder = parsedTableWidgetColumnOrder;
     } else {
       const tableWidgetColumnOrder = {
         [widgetId]: {
           columnOrder: newColumnOrder,
-          left,
-          right,
+          leftOrder,
+          rightOrder,
         },
       };
-
-      localStorage.setItem(
-        "tableWidgetColumnOrder",
-        JSON.stringify(tableWidgetColumnOrder),
-      );
+      newTableColumnOrder = tableWidgetColumnOrder;
     }
+    localStorage.setItem(
+      TABLE_COLUMN_ORDER,
+      JSON.stringify(newTableColumnOrder),
+    );
   };
 
   handleColumnFreeze = (columnName: string, sticky?: string) => {
@@ -1084,7 +1055,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         /**
          * Handles the freezing of the columns from the dropdown in Edit mode
          */
-        const newColumnOrder = handleColumnSticky(
+        const newColumnOrder = generateNewColumnOrderFromStickyValue(
           this.props.primaryColumns,
           this.props.columnOrder,
           columnName,
@@ -1110,9 +1081,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
          * Get the columns that are frozen by developers. Columns that are frozen by developers will have sticky value in its primary column
          * We need to reset it to ""
          */
-        if (get(this.props.primaryColumns, `${columnName}.sticky`)) {
-          super.updateWidgetProperty(`primaryColumns.${columnName}.sticky`, "");
-        }
+        // if (get(this.props.primaryColumns, `${columnName}.sticky`)) {
+        //   super.updateWidgetProperty(`primaryColumns.${columnName}.sticky`, "");
+        // }
         if (sticky === "left") {
           /**
            * leftOrder and rightOrder are mutually exclusive i.e. a column cannot appear in both of these order at the same time.
@@ -1160,7 +1131,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           }
         }
 
-        const newColumnOrder = handleColumnSticky(
+        const newColumnOrder = generateNewColumnOrderFromStickyValue(
           this.props.primaryColumns,
           this.props.columnOrder,
           columnName,

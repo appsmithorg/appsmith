@@ -5,13 +5,16 @@ import {
   InlineEditingSaveOptions,
   TableWidgetProps,
 } from "../constants";
-import _, { get, isBoolean } from "lodash";
+import _, { findIndex, get, isBoolean, some } from "lodash";
 import { Colors } from "constants/Colors";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { createEditActionColumn, handleColumnSticky } from "./utilities";
+import {
+  createEditActionColumn,
+  generateNewColumnOrderFromStickyValue,
+} from "./utilities";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 
 export function totalRecordsCountValidation(
@@ -187,25 +190,17 @@ export const updateColumnOrderHook = (
     propertyValue: any;
   }> = [];
   if (props && propertyValue && /^primaryColumns\.\w+$/.test(propertyPath)) {
-    const oldColumnOrder = props.columnOrder || [];
-    let newColumnOrder;
-    // get index of first right frozen column:
-    let rightColumnIndex = -1;
+    const newColumnOrder = [...(props.columnOrder || [])];
 
-    oldColumnOrder.forEach((colName: string, idx: number) => {
-      const column = props.primaryColumns[colName];
-      if (column.sticky === "right") {
-        rightColumnIndex = idx;
-      }
-    });
+    const rightColumnIndex = findIndex(
+      newColumnOrder,
+      (colName: string) => props.primaryColumns[colName].sticky === "right",
+    );
+
     if (rightColumnIndex !== -1) {
-      newColumnOrder = [
-        ...oldColumnOrder.slice(0, rightColumnIndex),
-        propertyValue.id,
-        ...oldColumnOrder.slice(rightColumnIndex),
-      ];
+      newColumnOrder.splice(rightColumnIndex, 0, propertyValue.id);
     } else {
-      newColumnOrder = [...oldColumnOrder, propertyValue.id];
+      newColumnOrder.splice(newColumnOrder.length, 0, propertyValue.id);
     }
 
     propertiesToUpdate.push({
@@ -328,7 +323,7 @@ export const updateColumnOrderWhenFrozen = (
   propertyValue: string,
 ) => {
   if (props && props.columnOrder) {
-    const newColumnOrder = handleColumnSticky(
+    const newColumnOrder = generateNewColumnOrderFromStickyValue(
       props.primaryColumns,
       props.columnOrder,
       propertyPath.split(".")[1],

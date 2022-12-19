@@ -570,21 +570,7 @@ export const createColumn = (props: TableWidgetProps, baseName: string) => {
     .sort()
     .pop();
 
-  /**
-   * Check if any right column frozen are existing
-   * If yes place before them
-   * If no place normally.
-   */
-  let nextIndex;
-  if (
-    lastItemIndex &&
-    props.columnOrder &&
-    columns[props.columnOrder[lastItemIndex]].sticky === "right"
-  ) {
-    nextIndex = lastItemIndex;
-  } else {
-    nextIndex = lastItemIndex ? lastItemIndex + 1 : columnIds.length;
-  }
+  const nextIndex = lastItemIndex ? lastItemIndex + 1 : columnIds.length;
 
   return {
     ...getDefaultColumnProperties(
@@ -698,7 +684,7 @@ export const getColumnType = (
 /**
  * Function to get new column order when there is a change in column's sticky value.
  */
-export const handleColumnSticky = (
+export const generateNewColumnOrderFromStickyValue = (
   primaryColumns: Record<string, ColumnProperties>,
   columnOrder: string[],
   columnName: string,
@@ -717,13 +703,13 @@ export const handleColumnSticky = (
      * This position is calculated by iterating over the columns that are already frozen.
      * lastLeftIndex: stores the index position of the new frozen column.
      */
-    let lastLeftIndex = 0;
+    let newLeftIndex = 0;
 
     // Iterate over the columns that are frozen by developers. Developer frozen columns are present in the primaryColumns[columnName].sticky property.
     for (let i = 0; i < columnOrder.length; i++) {
       const leftCol = columnOrder[i];
       if (primaryColumns[leftCol].sticky === "left") {
-        lastLeftIndex = i + 1;
+        newLeftIndex = i + 1;
       }
     }
 
@@ -732,27 +718,27 @@ export const handleColumnSticky = (
      * For column that are frozen by the user we refer to meta property
      */
     if (renderMode === RenderModes.PAGE && canFreezeColumn && leftOrder) {
-      lastLeftIndex = lastLeftIndex + leftOrder.length - 1;
+      newLeftIndex = newLeftIndex + leftOrder.length - 1;
     }
 
-    newColumnOrder.splice(lastLeftIndex, 0, columnName);
+    newColumnOrder.splice(newLeftIndex, 0, columnName);
   } else if (sticky === "right") {
-    let lastRightIndex = columnOrder.length - 1;
+    let newRightIndex = columnOrder.length - 1;
 
     for (let j = 0; j < columnOrder.length; j++) {
       const rightCol = columnOrder[j];
       if (primaryColumns[rightCol].sticky === "right") {
-        lastRightIndex = j - 1;
+        newRightIndex = j - 1;
         break;
       }
     }
 
     // Check local right columns: local + normal:
     if (renderMode === RenderModes.PAGE && canFreezeColumn && rightOrder) {
-      lastRightIndex = lastRightIndex - rightOrder.length + 1;
+      newRightIndex = newRightIndex - rightOrder.length + 1;
     }
 
-    newColumnOrder.splice(lastRightIndex, 0, columnName);
+    newColumnOrder.splice(newRightIndex, 0, columnName);
   } else {
     /**
      * This block will manage the column order when column is unfrozen.
