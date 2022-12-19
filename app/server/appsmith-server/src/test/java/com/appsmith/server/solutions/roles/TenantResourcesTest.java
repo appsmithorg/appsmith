@@ -41,7 +41,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -353,10 +355,90 @@ public class TenantResourcesTest {
                             new IdPermissionDTO(createdRole.getId(), PermissionViewableName.ASSOCIATE_ROLE)
                     ));
 
-
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSaveRoleConfigurationChangesForGroupsRolesTab_givenAssignPermission_assertUnassignPermissions() {
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        String roleName = UUID.randomUUID().toString();
+        permissionGroup.setName(roleName);
+        PermissionGroup roleToBeUpdated = permissionGroupService.create(permissionGroup).block();
+
+        PermissionGroup permissionGroup1 = new PermissionGroup();
+        permissionGroup1.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup1).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+
+        // Add entity changes
+        // Permission Group : Give associate role permission to the roleToBeUpdated role
+        UpdateRoleEntityDTO permissionGroupEntity = new UpdateRoleEntityDTO(
+                PermissionGroup.class.getSimpleName(),
+                roleToBeUpdated.getId(),
+                List.of(-1, 0, 0, 0, -1, -1, 1),
+                roleToBeUpdated.getName()
+        );
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(
+                permissionGroupEntity
+        ));
+        updateRoleConfigDTO.setTabName(RoleTab.GROUPS_ROLES.getName());
+
+        // Make the role configuration changes in a blocking manner
+        roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+
+        // Assert that the roleToBeUpdated role has the assign as well as unassign permission
+        Mono<PermissionGroup> permissionGroupMono = permissionGroupService.findById(roleToBeUpdated.getId());
+        StepVerifier.create(permissionGroupMono)
+                .assertNext(pg -> {
+                    assertThat(pg).isNotNull();
+                    // Assert that pg policy update happened
+                    pg.getPolicies().stream().forEach(
+                            policy -> {
+                                if (policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue())) {
+                                    assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                                } else if (policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue())) {
+                                    assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                                }
+                            }
+                    );
+                })
+                .verifyComplete();
+
+        // Now remove the assign permission from the roleToBeUpdated role
+        permissionGroupEntity = new UpdateRoleEntityDTO(
+                PermissionGroup.class.getSimpleName(),
+                roleToBeUpdated.getId(),
+                List.of(-1, 0, 0, 0, -1, -1, 0),
+                roleToBeUpdated.getName()
+        );
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(
+                permissionGroupEntity
+        ));
+        updateRoleConfigDTO.setTabName(RoleTab.GROUPS_ROLES.getName());
+
+        // Make the role configuration changes in a blocking manner
+        roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+
+        StepVerifier.create(permissionGroupMono)
+                .assertNext(pg -> {
+                    assertThat(pg).isNotNull();
+                    // Assert that pg policy update happened
+                    pg.getPolicies().stream().forEach(
+                            policy -> {
+                                if (policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue())) {
+                                    assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                                } else if (policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue())) {
+                                    assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                                }
+                            }
+                    );
+                })
+                .verifyComplete();
     }
 
 }

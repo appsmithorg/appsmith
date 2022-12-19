@@ -1,16 +1,23 @@
 package com.appsmith.server.solutions.roles;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
@@ -40,8 +47,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORIZED;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
@@ -57,6 +72,9 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final WorkspaceRepository workspaceRepository;
     private final PermissionGroupRepository permissionGroupRepository;
     private final PermissionGroupUtils permissionGroupUtils;
+    private final ThemeRepository themeRepository;
+    private final NewActionRepository newActionRepository;
+    private final ActionCollectionRepository actionCollectionRepository;
 
     public RoleConfigurationSolutionImpl(WorkspaceResources workspaceResources,
                                          TenantResources tenantResources,
@@ -64,8 +82,10 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                          ApplicationRepository applicationRepository,
                                          WorkspaceRepository workspaceRepository,
                                          PermissionGroupRepository permissionGroupRepository,
-                                         PermissionGroupUtils permissionGroupUtils) {
-
+                                         PermissionGroupUtils permissionGroupUtils,
+                                         ThemeRepository themeRepository,
+                                         NewActionRepository newActionRepository,
+                                         ActionCollectionRepository actionCollectionRepository) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -74,6 +94,9 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.workspaceRepository = workspaceRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.permissionGroupUtils = permissionGroupUtils;
+        this.themeRepository = themeRepository;
+        this.newActionRepository = newActionRepository;
+        this.actionCollectionRepository = actionCollectionRepository;
     }
 
     @Override
@@ -175,11 +198,6 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     }
 
                     List<Integer> permissions = entity.getPermissions();
-
-                    // Compute the side effects for this entity and add to the list.
-                    computeSideEffectOfPermissionChange(sideEffects, tab, aClass, id, permissions, permissionGroupId,
-                            applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect);
-
                     List<AclPermission> added = new ArrayList<>();
                     List<AclPermission> removed = new ArrayList<>();
                     ListIterator<Integer> permissionsIterator = permissions.listIterator();
@@ -217,6 +235,11 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                             removed.add(aclPermission);
                         }
                     }
+
+                    // Compute the side effects for this entity and add to the list.
+                    computeSideEffectOfPermissionChange(sideEffects, tab, aClass, id, permissions, permissionGroupId,
+                            applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect, added, removed);
+
 
                     // Add the entity to the map of entities to be updated
                     entityPermissionsAddedMap.merge(id, added, ListUtils::union);
@@ -308,27 +331,176 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                                      List<Integer> permissions,
                                                      String permissionGroupId,
                                                      List<String> applicationsRevokedInApplicationResourcesTab,
-                                                     Set<String> workspaceReadGivenAsSideEffect) {
+                                                     Set<String> workspaceReadGivenAsSideEffect,
+                                                     List<AclPermission> added,
+                                                     List<AclPermission> removed) {
 
         if (tab == RoleTab.APPLICATION_RESOURCES && Application.class.equals(aClazz)) {
+
             // If the tab is application resources, and the entity is an application, then we need to
-            // update the READ_WORKSPACE permission for the workspace
+            // update the READ_WORKSPACE permission for the workspace to ensure that if atleast view access is given
+            // on an application, the said application loads up on the homepage.
+            sideEffectOnReadWorkspaceGivenApplicationUpdate(sideEffects, id, permissions, permissionGroupId,
+                    applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect);
 
-            // If any of the permissions are true in this tab for application, give workspace read so that
-            // the application is visible on the home page.
-            boolean anyPermissionTrue = permissions.stream().anyMatch(permission -> permission == 1);
+            // If the application is given permissions, we should give custom theme same permissions
+            sideEffectOnCustomThemeGivenApplicationUpdate(sideEffects, id, permissionGroupId, added, removed);
 
-            if (anyPermissionTrue && !workspaceReadGivenAsSideEffect.contains(id)) {
-                sideEffects.add(addReadPermissionToWorkspaceGivenApplication(id, permissionGroupId));
-                // Don't give the same workspace read permission again if done already.
-                workspaceReadGivenAsSideEffect.add(id);
-            }
+        } else if (tab == RoleTab.APPLICATION_RESOURCES && NewPage.class.equals(aClazz)) {
 
-            boolean allPermissionsFalse = permissions.stream().allMatch(permission -> permission == 0);
+            // If the tab is application resources, and the entity is a page, then we need to give actions and action
+            // collections execute permission if view is given on the page.
+            sideEffectOnActionsGivenPageUpdate(sideEffects, id, permissionGroupId, added, removed);
 
-            if (allPermissionsFalse) {
-                applicationsRevokedInApplicationResourcesTab.add(id);
-            }
+        } else if (tab == RoleTab.GROUPS_ROLES && PermissionGroup.class.equals(aClazz)) {
+
+            sideEffectOnAssociateRoleGivenPermissionGroupUpdate(sideEffects, id, permissionGroupId, added, removed);
+        }
+    }
+
+    private void sideEffectOnActionsGivenPageUpdate(List<Mono<Long>> sideEffects,
+                                                    String pageId,
+                                                    String permissionGroupId,
+                                                    List<AclPermission> added,
+                                                    List<AclPermission> removed) {
+
+        Mono<Long> actionsUpdated = Mono.just(0L);
+        Mono<Long> actionCollectionsUpdated = Mono.just(0L);
+
+        Flux<String> actionFlux = newActionRepository.findByPageId(pageId).map(NewAction::getId);
+        Flux<String> actionCollectionFlux = actionCollectionRepository.findByPageId(pageId).map(ActionCollection::getId);
+
+        if (added.contains(READ_PAGES)) {
+            actionsUpdated = actionFlux
+                    .flatMap(actionId -> genericDatabaseOperation.updatePolicies(actionId, permissionGroupId, List.of(EXECUTE_ACTIONS), List.of(), NewAction.class))
+                    .reduce(0L, Long::sum);
+            actionCollectionsUpdated = actionCollectionFlux
+                    .flatMap(actionCollectionId -> genericDatabaseOperation.updatePolicies(actionCollectionId, permissionGroupId, List.of(EXECUTE_ACTIONS), List.of(), ActionCollection.class))
+                    .reduce(0L, Long::sum);
+
+        } else if (removed.contains(READ_PAGES)) {
+            actionsUpdated = actionFlux
+                    .flatMap(actionId -> genericDatabaseOperation.updatePolicies(actionId, permissionGroupId, List.of(), List.of(EXECUTE_ACTIONS), NewAction.class))
+                    .reduce(0L, Long::sum);
+            actionCollectionsUpdated = actionCollectionFlux
+                    .flatMap(actionCollectionId -> genericDatabaseOperation.updatePolicies(actionCollectionId, permissionGroupId, List.of(), List.of(EXECUTE_ACTIONS), ActionCollection.class))
+                    .reduce(0L, Long::sum);
+        }
+
+        Mono<Long> updateAllActionsOnPageUpdateMono = Mono.zip(actionsUpdated, actionCollectionsUpdated)
+                .map(tuple -> tuple.getT1() + tuple.getT2());
+
+        sideEffects.add(updateAllActionsOnPageUpdateMono);
+
+    }
+
+    private void sideEffectOnAssociateRoleGivenPermissionGroupUpdate(List<Mono<Long>> sideEffects,
+                                                                     String id,
+                                                                     String permissionGroupId,
+                                                                     List<AclPermission> added,
+                                                                     List<AclPermission> removed) {
+        // If assign permission is given/taken away, we must replicate the same for unassign permission as well
+        if (added.contains(ASSIGN_PERMISSION_GROUPS)) {
+            sideEffects.add(genericDatabaseOperation.updatePolicies(id, permissionGroupId, List.of(UNASSIGN_PERMISSION_GROUPS), List.of(), PermissionGroup.class));
+        } else if (removed.contains(ASSIGN_PERMISSION_GROUPS)) {
+            sideEffects.add(genericDatabaseOperation.updatePolicies(id, permissionGroupId, List.of(), List.of(UNASSIGN_PERMISSION_GROUPS), PermissionGroup.class));
+        }
+    }
+
+    private void sideEffectOnCustomThemeGivenApplicationUpdate(List<Mono<Long>> sideEffects,
+                                                               String applicationId,
+                                                               String permissionGroupId,
+                                                               List<AclPermission> added,
+                                                               List<AclPermission> removed) {
+
+        Mono<Long> themeUpdateSideEffectMono = applicationRepository.findById(applicationId)
+                .flatMap(application -> {
+                    String editModeThemeId = application.getEditModeThemeId();
+                    String publishedModeThemeId = application.getPublishedModeThemeId();
+
+                    if (editModeThemeId == null || publishedModeThemeId == null) {
+                        // Do nothing. These are old applications which were created (and not yet edited) before theme feature
+                        return Mono.empty();
+                    }
+
+                    Mono<Theme> editModeThemeMono = themeRepository.findById(editModeThemeId);
+                    Mono<Theme> publishedModeThemeMono = themeRepository.findById(publishedModeThemeId);
+
+                    return Mono.zip(editModeThemeMono, publishedModeThemeMono)
+                            .flatMap(tuple -> {
+                                Theme editModeTheme = tuple.getT1();
+                                Theme publishedModeTheme = tuple.getT2();
+
+                                Mono<Long> editModeThemeUpdateMono = Mono.empty();
+                                Mono<Long> publishedModeThemeUpdateMono = Mono.empty();
+
+                                if (editModeTheme.isSystemTheme() && publishedModeTheme.isSystemTheme()) {
+                                    // Do nothing. These are system themes. We don't want to give system themes permissions
+                                    // since they are already accessible to everyone.
+                                    return Mono.empty();
+                                }
+
+                                // Translate application permissions to theme permissions
+                                List<AclPermission> themeAdded = new ArrayList<>();
+                                List<AclPermission> themeRemoved = new ArrayList<>();
+
+                                for (AclPermission permission : added) {
+                                    themeAdded.add(translateThemePermissionGivenApplicationPermission(permission));
+                                }
+                                for (AclPermission permission : removed) {
+                                    themeRemoved.add(translateThemePermissionGivenApplicationPermission(permission));
+                                }
+
+                                if (!editModeTheme.isSystemTheme()) {
+                                    editModeThemeUpdateMono = genericDatabaseOperation.updatePolicies(editModeThemeId,
+                                            permissionGroupId, themeAdded, themeRemoved, Theme.class);
+                                }
+                                if (!publishedModeTheme.isSystemTheme()) {
+                                    publishedModeThemeUpdateMono = genericDatabaseOperation.updatePolicies(publishedModeThemeId,
+                                            permissionGroupId, themeAdded, themeRemoved, Theme.class);
+                                }
+
+                                return Mono.when(editModeThemeUpdateMono, publishedModeThemeUpdateMono)
+                                        .thenReturn(1L);
+                            })
+                            .map(obj -> obj);
+
+                });
+
+        sideEffects.add(themeUpdateSideEffectMono);
+
+    }
+
+    private AclPermission translateThemePermissionGivenApplicationPermission(AclPermission permission) {
+        if (permission == READ_APPLICATIONS) {
+            return READ_THEMES;
+        } else if (permission == MANAGE_APPLICATIONS) {
+            return MANAGE_THEMES;
+        }
+        return permission;
+    }
+
+    private void sideEffectOnReadWorkspaceGivenApplicationUpdate(List<Mono<Long>> sideEffects,
+                                                                 String id,
+                                                                 List<Integer> permissions,
+                                                                 String permissionGroupId,
+                                                                 List<String> applicationsRevokedInApplicationResourcesTab,
+                                                                 Set<String> workspaceReadGivenAsSideEffect) {
+
+        // If any of the permissions are true in this tab for application, give workspace read so that
+        // the application is visible on the home page.
+        boolean anyPermissionTrue = permissions.stream().anyMatch(permission -> permission == 1);
+
+        if (anyPermissionTrue && !workspaceReadGivenAsSideEffect.contains(id)) {
+            sideEffects.add(addReadPermissionToWorkspaceGivenApplication(id, permissionGroupId));
+            // Don't give the same workspace read permission again if done already.
+            workspaceReadGivenAsSideEffect.add(id);
+        }
+
+        boolean allPermissionsFalse = permissions.stream().allMatch(permission -> permission == 0);
+
+        if (allPermissionsFalse) {
+            applicationsRevokedInApplicationResourcesTab.add(id);
         }
     }
 
