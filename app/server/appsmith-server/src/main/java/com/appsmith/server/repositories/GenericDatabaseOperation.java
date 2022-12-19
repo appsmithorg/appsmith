@@ -13,6 +13,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.helpers.CollectionUtils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -51,17 +52,22 @@ public class GenericDatabaseOperation {
             .map(BaseDomain::getId)
             .collectList();
 
+        Mono<List<String>> pageIdsMono = getBranchedPageIdList(page);
+
         // Get only action collections which are in feature branch
-        Flux<ActionCollection> actionCollectionsFlux = actionCollectionIdsMono.flatMapMany(actionCollectionIds -> {
+        Flux<ActionCollection> actionCollectionsFlux = actionCollectionIdsMono.zipWith(pageIdsMono).flatMapMany(tuple -> {
+            List<String> actionCollectionIds = tuple.getT1();
+            List<String> pageIdList = tuple.getT2();
             return mongoOperations.query(ActionCollection.class)
                     .matching(
-                        new Criteria().andOperator(
-                            Criteria.where("defaultResources.collectionId").not().in(actionCollectionIds),
-                            new Criteria().norOperator(
-                                Criteria.where("deleted").is(true),
-                                Criteria.where("deletedAt").ne(null)
+                            new Criteria().andOperator(
+                                    Criteria.where("defaultResources.collectionId").not().in(actionCollectionIds),
+                                    Criteria.where("unpublishedCollection.pageId").in(pageIdList),
+                                    new Criteria().norOperator(
+                                            Criteria.where("deleted").is(true),
+                                            Criteria.where("deletedAt").ne(null)
+                                    )
                             )
-                        )
                     )
                     .all();
         });
@@ -88,12 +94,17 @@ public class GenericDatabaseOperation {
             .map(BaseDomain::getId)
             .collectList();
 
+        Mono<List<String>> pageIdsMono = getBranchedPageIdList(page);
+
         // Get only actions which are in feature branch
-        Flux<NewAction> actionsFlux = actionIdsMono.flatMapMany(actionIds -> {
+        Flux<NewAction> actionsFlux = actionIdsMono.zipWith(pageIdsMono).flatMapMany(tuple -> {
+            List<String> actionIdList = tuple.getT1();
+            List<String> pageIdList = tuple.getT2();
             return mongoOperations.query(NewAction.class)
                     .matching(
                         new Criteria().andOperator(
-                            Criteria.where("defaultResources.actionId").not().in(actionIds),
+                            Criteria.where("defaultResources.actionId").not().in(actionIdList),
+                            Criteria.where("unpublishedAction.pageId").in(pageIdList),
                             new Criteria().norOperator(
                                 Criteria.where("deleted").is(true),
                                 Criteria.where("deletedAt").ne(null)
@@ -111,6 +122,28 @@ public class GenericDatabaseOperation {
         })
         .then()
         .thenReturn(1L);
+    }
+
+    /**
+     * Get all the pageIds from the branches for this specific page
+     * For Example if the page 1 of default branch is passed as input, we get all the pageIds of the specific branches
+     * @param page
+     * @return
+     */
+    private Mono<List<String>> getBranchedPageIdList(NewPage page) {
+        Mono<List<String>> pageIdsMono = mongoOperations.query(NewPage.class)
+                .matching(
+                        new Criteria().andOperator(
+                                Criteria.where("defaultResources.pageId").is(page.getId()),
+                                new Criteria().norOperator(
+                                        Criteria.where("deleted").is(true),
+                                        Criteria.where("deletedAt").ne(null))
+                        )
+                )
+                .all()
+                .map(BaseDomain::getId)
+                .collectList();
+        return pageIdsMono;
     }
 
     /**
@@ -132,6 +165,7 @@ public class GenericDatabaseOperation {
                             .matching(
                                 new Criteria().andOperator(
                                     Criteria.where("defaultResources.pageId").not().in(pageIds),
+                                    Criteria.where("defaultResources.applicationId").is(application.getId()),
                                     new Criteria().norOperator(
                                         Criteria.where("deleted").is(true),
                                         Criteria.where("deletedAt").ne(null)
