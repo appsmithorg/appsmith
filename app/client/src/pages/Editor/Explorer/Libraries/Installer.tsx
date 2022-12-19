@@ -277,7 +277,9 @@ function ProgressTracker({
                 {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
               </div>
               <div className="footer text-xs font-medium gap-2 flex flex-row">
-                <a>{createMessage(customJSLibraryMessages.REPORT_ISSUE)}</a>
+                <a onClick={(e) => openDoc(e, EXT_LINK.reportIssue)}>
+                  {createMessage(customJSLibraryMessages.REPORT_ISSUE)}
+                </a>
                 <a onClick={(e) => openDoc(e, EXT_LINK.learnMore)}>
                   {createMessage(customJSLibraryMessages.LEARN_MORE)}
                 </a>
@@ -314,6 +316,7 @@ function InstallationProgress() {
 const EXT_LINK = {
   learnMore:
     "https://docs.appsmith.com/core-concepts/writing-code/ext-libraries",
+  reportIssue: "https://github.com/appsmithorg/appsmith/issues/19037",
   jsDelivr: "https://www.jsdelivr.com/",
 };
 
