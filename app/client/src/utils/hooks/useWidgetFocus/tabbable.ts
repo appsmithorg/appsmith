@@ -41,7 +41,6 @@ export function getTabbableDescendants(
 
   let siblings;
 
-  console.log({ currentNode, active: document.activeElement });
   if (document.activeElement?.matches(FOCUS_SELECTOR)) {
     siblings = getWidgetSiblingsOfNode(currentNode);
   } else {
