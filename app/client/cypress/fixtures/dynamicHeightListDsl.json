@@ -547,9 +547,6 @@
                                 "isDeletable": false,
                                 "disallowCopy": true,
                                 "disablePropertyPane": true,
-                                "disabledWidgetFeatures": [
-                                    "dynamicHeight"
-                                ],
                                 "openParentPropertyPane": true,
                                 "widgetId": "z1hyon6hsf",
                                 "renderMode": "CANVAS",

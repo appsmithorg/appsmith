@@ -7,7 +7,7 @@ import { getSettingsLoadingState } from "selectors/settingsSelectors";
 import styled from "styled-components";
 import LeftPane from "@appsmith/pages/AdminSettings/LeftPane";
 import Main from "@appsmith/pages/AdminSettings/Main";
-import WithSuperUserHOC from "pages/Settings/WithSuperUserHoc";
+import WithSuperUserHOC from "@appsmith/pages/AdminSettings/WithSuperUserHoc";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
 import { LoaderContainer } from "pages/Settings/components";
