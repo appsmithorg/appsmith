@@ -238,4 +238,8 @@ export class EntityExplorer {
     this.AssertEntityPresenceInExplorer(renameVal);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
+
+  public getEntityItem(entityName: string) {
+    return cy.get(`.t--entity-item:contains(${entityName})`);
+  }
 }
