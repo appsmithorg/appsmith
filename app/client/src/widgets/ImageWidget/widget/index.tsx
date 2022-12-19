@@ -12,7 +12,6 @@ import {
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { Stylesheet } from "entities/AppTheming";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {

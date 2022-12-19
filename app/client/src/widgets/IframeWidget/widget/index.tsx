@@ -10,7 +10,6 @@ import {
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
-import { Stylesheet } from "entities/AppTheming";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
