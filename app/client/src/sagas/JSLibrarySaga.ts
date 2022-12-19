@@ -60,7 +60,7 @@ function* handleInstallationFailure(
   });
 
   Toaster.show({
-    text: message,
+    text: message || `Failed to install library script at ${url}`,
     variant: Variant.danger,
   });
   yield put({
@@ -98,7 +98,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
 
   if (!success) {
     log.debug("Failed to install locally");
-    yield call(handleInstallationFailure, url as string, error.message);
+    yield call(handleInstallationFailure, url as string, error?.message);
     return;
   }
 
