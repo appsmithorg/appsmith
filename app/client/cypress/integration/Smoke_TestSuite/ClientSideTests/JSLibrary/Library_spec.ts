@@ -4,6 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const explorer = ObjectsRegistry.EntityExplorer;
 const installer = ObjectsRegistry.LibraryInstaller;
 const aggregateHelper = ObjectsRegistry.AggregateHelper;
+const homePage = ObjectsRegistry.HomePage;
 
 describe("Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
@@ -21,5 +22,15 @@ describe("Tests JS Libraries", () => {
     installer.openInstaller();
     installer.installLibrary("jsonwebtoken", "jsonwebtoken", false);
     aggregateHelper.AssertContains("Name collision detected: jsonwebtoken");
+  });
+  it("3. Checks installation in exported app", () => {
+    homePage.NavigateToHome();
+    homePage.ImportApp("library_export.json");
+    aggregateHelper.AssertContains("true");
+  });
+  it("4. Checks installation in duplicated app", () => {
+    homePage.NavigateToHome();
+    homePage.DuplicateApplication("Library_export");
+    aggregateHelper.AssertContains("true");
   });
 });
