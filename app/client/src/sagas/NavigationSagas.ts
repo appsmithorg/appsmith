@@ -57,9 +57,9 @@ function* handleRouteChange(
 
     // handled on both edit and view mode
     yield call(appBackgroundHandler);
-    if (hasNavigatedToNewPage(previousPath, pathname)) {
-      yield call(clearParentMessageSubscriptions);
-    }
+    // if (hasNavigatedToNewPage(previousPath, pathname)) {
+    //   yield call(clearParentMessageSubscriptions);
+    // }
   } catch (e) {
     log.error("Error in focus change", e);
   } finally {
