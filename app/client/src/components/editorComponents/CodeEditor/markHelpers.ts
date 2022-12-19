@@ -2,7 +2,6 @@ import CodeMirror from "codemirror";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import { MarkHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import { NavigationData } from "selectors/navigationSelectors";
-import { keyBy } from "lodash";
 
 export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
   editor.eachLine((line: CodeMirror.LineHandle) => {
