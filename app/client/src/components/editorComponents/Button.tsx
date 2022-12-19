@@ -57,7 +57,15 @@ const buttonStyles = css<Partial<ButtonProps>>`
 `;
 const StyledButton = styled((props: IButtonProps & Partial<ButtonProps>) => (
   <BlueprintButton
-    {...omit(props, ["iconAlignment", "fluid", "filled", "outline"])}
+    {...omit(props, [
+      "borderRadius",
+      "boxShadow",
+      "boxShadowColor",
+      "iconAlignment",
+      "fluid",
+      "filled",
+      "outline",
+    ])}
   />
 ))`
   ${buttonStyles}

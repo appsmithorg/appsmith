@@ -1,0 +1,321 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1224,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 670,
+        "containerStyle": "none",
+        "snapRows": 50,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 64,
+        "minHeight": 510,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                "isVisibleDownload": true,
+                "iconSVG": "/static/media/icon.db8a9cbd2acd22a31ea91cc37ea2a46c.svg",
+                "topRow": 8,
+                "isSortable": true,
+                "type": "TABLE_WIDGET_V2",
+                "inlineEditingSaveOption": "ROW_LEVEL",
+                "animateLoading": true,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "accentColor"
+                    },
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "boxShadow"
+                    },
+                    {
+                        "key": "childStylesheet.button.buttonColor"
+                    },
+                    {
+                        "key": "childStylesheet.button.borderRadius"
+                    },
+                    {
+                        "key": "childStylesheet.menuButton.menuColor"
+                    },
+                    {
+                        "key": "childStylesheet.menuButton.borderRadius"
+                    },
+                    {
+                        "key": "childStylesheet.iconButton.buttonColor"
+                    },
+                    {
+                        "key": "childStylesheet.iconButton.borderRadius"
+                    },
+                    {
+                        "key": "childStylesheet.editActions.saveButtonColor"
+                    },
+                    {
+                        "key": "childStylesheet.editActions.saveBorderRadius"
+                    },
+                    {
+                        "key": "childStylesheet.editActions.discardButtonColor"
+                    },
+                    {
+                        "key": "childStylesheet.editActions.discardBorderRadius"
+                    },
+                    {
+                        "key": "primaryColumns.albumId.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.id.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.title.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.url.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.thumbnailUrl.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.image.computedValue"
+                    }
+                ],
+                "leftColumn": 0,
+                "delimiter": ",",
+                "defaultSelectedRowIndex": 0,
+                "showInlineEditingOptionDropdown": true,
+                "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                "isVisibleFilters": true,
+                "isVisible": true,
+                "enableClientSideSearch": true,
+                "version": 1,
+                "totalRecordsCount": 0,
+                "isLoading": false,
+                "childStylesheet": {
+                    "button": {
+                        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "boxShadow": "none"
+                    },
+                    "menuButton": {
+                        "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "boxShadow": "none"
+                    },
+                    "iconButton": {
+                        "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "boxShadow": "none"
+                    },
+                    "editActions": {
+                        "saveButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "saveBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "discardButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "discardBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+                    }
+                },
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "defaultSelectedRowIndices": [
+                    0
+                ],
+                "widgetName": "Table1",
+                "defaultPageSize": 0,
+                "columnOrder": [
+                    "albumId",
+                    "id",
+                    "title",
+                    "image",
+                    "url",
+                    "thumbnailUrl"
+                ],
+                "dynamicPropertyPathList": [],
+                "displayName": "Table",
+                "bottomRow": 59,
+                "columnWidthMap": {
+                    "task": 245,
+                    "step": 62,
+                    "status": 75,
+                    "image": 270
+                },
+                "parentRowSpace": 10,
+                "hideCard": false,
+                "parentColumnSpace": 19.8125,
+                "dynamicTriggerPathList": [],
+                "primaryColumns": {
+                    "albumId": {
+                        "allowCellWrapping": false,
+                        "index": 0,
+                        "width": 150,
+                        "originalId": "albumId",
+                        "id": "albumId",
+                        "alias": "albumId",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "number",
+                        "textSize": "0.875rem",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellEditable": false,
+                        "isEditable": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "albumId",
+                        "isSaveVisible": true,
+                        "isDiscardVisible": true,
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"albumId\"]))}}",
+                        "validation": {}
+                    },
+                    "id": {
+                        "allowCellWrapping": false,
+                        "index": 1,
+                        "width": 150,
+                        "originalId": "id",
+                        "id": "id",
+                        "alias": "id",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "number",
+                        "textSize": "0.875rem",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellEditable": false,
+                        "isEditable": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "id",
+                        "isSaveVisible": true,
+                        "isDiscardVisible": true,
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"id\"]))}}",
+                        "validation": {}
+                    },
+                    "title": {
+                        "allowCellWrapping": false,
+                        "index": 2,
+                        "width": 150,
+                        "originalId": "title",
+                        "id": "title",
+                        "alias": "title",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "0.875rem",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellEditable": false,
+                        "isEditable": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "title",
+                        "isSaveVisible": true,
+                        "isDiscardVisible": true,
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"title\"]))}}",
+                        "validation": {}
+                    },
+                    "url": {
+                        "allowCellWrapping": false,
+                        "index": 3,
+                        "width": 150,
+                        "originalId": "url",
+                        "id": "url",
+                        "alias": "url",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "0.875rem",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellEditable": false,
+                        "isEditable": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "url",
+                        "isSaveVisible": true,
+                        "isDiscardVisible": true,
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"url\"]))}}",
+                        "validation": {}
+                    },
+                    "thumbnailUrl": {
+                        "allowCellWrapping": false,
+                        "index": 4,
+                        "width": 150,
+                        "originalId": "thumbnailUrl",
+                        "id": "thumbnailUrl",
+                        "alias": "thumbnailUrl",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "0.875rem",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellEditable": false,
+                        "isEditable": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "thumbnailUrl",
+                        "isSaveVisible": true,
+                        "isDiscardVisible": true,
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"thumbnailUrl\"]))}}",
+                        "validation": {}
+                    },
+                    "image": {
+                        "allowCellWrapping": false,
+                        "index": 5,
+                        "width": 150,
+                        "originalId": "image",
+                        "id": "image",
+                        "alias": "image",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "image",
+                        "textSize": "0.875rem",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellEditable": false,
+                        "isEditable": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "image",
+                        "isSaveVisible": true,
+                        "isDiscardVisible": true,
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"image\"]))}}",
+                        "validation": {},
+                        "imageSize": "DEFAULT"
+                    }
+                },
+                "key": "cxsiy5oy6h",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "textSize": "0.875rem",
+                "widgetId": "gu00tyfnjm",
+                "tableData": "[\n{\n    \"albumId\": 1,\n    \"id\": 1,\n    \"title\": \"accusamus beatae ad facilis cum similique qui sunt\",\n    \"url\": \"https://via.placeholder.com/600/92c952\",\n    \"thumbnailUrl\": \"https://via.placeholder.com/150/92c952\",\n    \"image\": \"https://picsum.photos/200/300\"\n  },\n  {\n    \"albumId\": 1,\n    \"id\": 2,\n    \"title\": \"reprehenderit est deserunt velit ipsam\",\n    \"url\": \"https://via.placeholder.com/600/771796\",\n    \"thumbnailUrl\": \"https://via.placeholder.com/150/771796\",\n    \"image\": \"https://picsum.photos/300/300\"\n  },\n  {\n    \"albumId\": 1,\n    \"id\": 3,\n    \"title\": \"officia porro iure quia iusto qui ipsa ut modi\",\n    \"url\": \"https://via.placeholder.com/600/24f355\",\n    \"thumbnailUrl\": \"https://via.placeholder.com/150/24f355\",\n    \"image\": \"https://picsum.photos/400/300\"\n  },\n  {\n    \"albumId\": 1,\n    \"id\": 4,\n    \"title\": \"culpa odio esse rerum omnis laboriosam voluptate repudiandae\",\n    \"url\": \"https://via.placeholder.com/600/d32776\",\n    \"thumbnailUrl\": \"https://via.placeholder.com/150/d32776\",\n    \"image\": \"https://picsum.photos/500/300\"\n  },\n  {\n    \"albumId\": 1,\n    \"id\": 5,\n    \"title\": \"natus nisi omnis corporis facere molestiae rerum in\",\n    \"url\": \"https://via.placeholder.com/600/f66b97\",\n    \"thumbnailUrl\": \"https://via.placeholder.com/150/f66b97\",\n    \"image\": \"https://picsum.photos/100/300\"\n  }\n]",
+                "label": "Data",
+                "searchKey": "",
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "horizontalAlignment": "LEFT",
+                "isVisibleSearch": true,
+                "isVisiblePagination": true,
+                "verticalAlignment": "CENTER"
+            }
+        ]
+    }
+}

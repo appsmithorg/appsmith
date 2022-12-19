@@ -1,7 +1,7 @@
-import { Node } from 'acorn';
-import { getAST } from '../index';
-import { generate } from 'astring';
-import { simple } from 'acorn-walk';
+import { Node } from "acorn";
+import { getAST } from "../index";
+import { generate } from "astring";
+import { simple } from "acorn-walk";
 import {
   getFunctionalParamsFromNode,
   isPropertyAFunctionNode,
@@ -9,14 +9,19 @@ import {
   isObjectExpression,
   PropertyNode,
   functionParam,
-} from '../index';
+} from "../index";
 
-type JsObjectProperty = {
+export type JsObjectProperty = {
   key: string;
   value: string;
   type: string;
   arguments?: Array<functionParam>;
 };
+
+const jsObjectVariableName =
+  "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
+
+export const jsObjectDeclaration = `var ${jsObjectVariableName} =`;
 
 export const parseJSObjectWithAST = (
   jsObjectBody: string
@@ -26,9 +31,7 @@ export const parseJSObjectWithAST = (
       if the variable name will be same then also we won't have problem here as jsObjectVariableName will be last node in VariableDeclarator hence overriding the previous JSObjectProperties.
       Keeping this just for sanity check if any caveat was missed.
     */
-  const jsObjectVariableName =
-    '____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____';
-  const jsCode = `var ${jsObjectVariableName} = ${jsObjectBody}`;
+  const jsCode = `${jsObjectDeclaration} ${jsObjectBody}`;
 
   const ast = getAST(jsCode);
 

@@ -5,19 +5,19 @@ import styled from "constants/DefaultTheme";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import { Button, Category, Size, Text, TextType } from "design-system";
+import { Button, Category, Classes, Size, Text, TextType } from "design-system";
 import {
   CodeEditorBorder,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { GifPlayer } from "design-system";
-import { Classes } from "components/ads/common";
 import lightmodeGif from "assets/icons/gifs/config_pagination_lightmode.gif";
 import darkmodeGif from "assets/icons/gifs/config_pagination_darkmode.gif";
 import lightmodeThumbnail from "assets/icons/gifs/lightmode_thumbnail.png";
 import darkmodeThumbnail from "assets/icons/gifs/darkmode_thumbnail.png";
 
 interface PaginationProps {
+  actionName: string;
   onTestClick: (test?: "PREV" | "NEXT") => void;
   paginationType: PaginationType;
   theme?: EditorTheme;
@@ -184,12 +184,13 @@ export default function Pagination(props: PaginationProps) {
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationPrev"
                     fill={!!true}
+                    focusElementName={`${props.actionName}.actionConfiguration.prev`}
                     height="100%"
                     name="actionConfiguration.prev"
                     theme={props.theme}
                   />
                   <Button
-                    category={Category.tertiary}
+                    category={Category.secondary}
                     className="t--apiFormPaginationPrevTest"
                     height="auto"
                     onClick={() => {
@@ -209,12 +210,13 @@ export default function Pagination(props: PaginationProps) {
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationNext"
                     fill={!!true}
+                    focusElementName={`${props.actionName}.actionConfiguration.next`}
                     height="100%"
                     name="actionConfiguration.next"
                     theme={props.theme}
                   />
                   <Button
-                    category={Category.tertiary}
+                    category={Category.secondary}
                     className="t--apiFormPaginationNextTest"
                     height="auto"
                     onClick={() => {

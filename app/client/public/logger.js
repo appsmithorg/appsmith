@@ -15,22 +15,31 @@ function getCurrentUTCHourTimestamp() {
 
 const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
 
-// Use standard fetch to POST (fire and forget)
+/**
+ * Sends HTTP pulse to the server, when beaconAPI is not available.
+ * Fire and forget.
+ */
 function sendHTTPPulse() {
   fetch(PULSE_API_ENDPOINT, {
     method: "POST",
     credentials: "same-origin",
-  });
+  })
+    .then(() => {
+      // Fire and forget
+    })
+    .catch(() => {
+      // Ignore errors; fire and forget
+    });
 }
 
-// Use the Beacon API to POST (fire and forget)
+/**
+ * Sends a usage-pulse to the server using the Beacon API.
+ * If the Beacon API is not available, falls back to a standard fetch.
+ * Note: Only sends pulse when user is on "/app/" pages: editor and viewer.
+ */
 function sendPulse() {
-  const url = PULSE_API_ENDPOINT;
-
-  // In case the beacon fails to queue, use HTTPRequest
-  // TODO(abhinav): What about when the request itself fails?
-  if (!navigator.sendBeacon(url)) {
-    sendHTTPPulse();
+  if (window.location.href.includes("/app/")) {
+    navigator.sendBeacon(PULSE_API_ENDPOINT, "") || sendHTTPPulse();
   }
 }
 

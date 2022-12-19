@@ -8,6 +8,7 @@ import {
   ButtonVariant,
 } from "components/constants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
+import { ColumnTypes } from "../constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -17,6 +18,7 @@ export type TableSizes = {
   VERTICAL_PADDING: number;
   EDIT_ICON_TOP: number;
   ROW_VIRTUAL_OFFSET: number;
+  VERTICAL_EDITOR_PADDING: number;
 };
 
 export enum CompactModeTypes {
@@ -37,6 +39,12 @@ export enum VerticalAlignmentTypes {
   CENTER = "CENTER",
 }
 
+export enum ImageSizes {
+  DEFAULT = "32px",
+  MEDIUM = "64px",
+  LARGE = "128px",
+}
+
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 32,
@@ -44,6 +52,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
     VERTICAL_PADDING: 6,
+    VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 10,
     ROW_VIRTUAL_OFFSET: 3,
   },
@@ -53,6 +62,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 30,
     ROW_FONT_SIZE: 12,
     VERTICAL_PADDING: 0,
+    VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 5,
     ROW_VIRTUAL_OFFSET: 1,
   },
@@ -62,6 +72,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 18,
     VERTICAL_PADDING: 16,
+    VERTICAL_EDITOR_PADDING: 16,
     EDIT_ICON_TOP: 21,
     ROW_VIRTUAL_OFFSET: 3,
   },
@@ -91,6 +102,7 @@ export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
 export type CellAlignment = keyof typeof CellAlignmentTypes;
 export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
+export type ImageSize = keyof typeof ImageSizes;
 
 export interface ReactTableFilter {
   column: string;
@@ -154,6 +166,11 @@ export interface SelectCellProperties {
   serverSideFiltering?: boolean;
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
+  selectOptions?: DropdownOption[];
+}
+
+export interface ImageCellProperties {
+  imageSize?: ImageSize;
 }
 
 export interface BaseCellProperties {
@@ -168,6 +185,7 @@ export interface BaseCellProperties {
   borderRadius: string;
   boxShadow: string;
   isCellVisible: boolean;
+  isCellDisabled?: boolean;
 }
 
 export interface CellLayoutProperties
@@ -178,6 +196,7 @@ export interface CellLayoutProperties
     URLCellProperties,
     MenuButtonCellProperties,
     SelectCellProperties,
+    ImageCellProperties,
     BaseCellProperties {}
 
 export type MenuItems = Record<
@@ -202,7 +221,7 @@ export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
   inputFormat?: string;
-  type: string;
+  type: ColumnTypes;
 }
 
 export interface TableColumnProps {
@@ -290,7 +309,7 @@ export interface EditActionColumnProperties {
   serverSideFiltering?: boolean;
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
-  selectOptions?: DropdownOption[];
+  selectOptions?: DropdownOption[] | DropdownOption[][];
 }
 
 export interface ColumnProperties
@@ -319,6 +338,7 @@ export interface ColumnProperties
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
+  imageSize?: ImageSize;
 }
 
 export const ConditionFunctions: {
@@ -416,15 +436,15 @@ export enum ALIGN_ITEMS {
 }
 
 export enum IMAGE_HORIZONTAL_ALIGN {
-  LEFT = "left",
+  LEFT = "flex-start",
   CENTER = "center",
-  RIGHT = "right",
+  RIGHT = "flex-end",
 }
 
 export enum IMAGE_VERTICAL_ALIGN {
-  TOP = "top",
+  TOP = "flex-start",
   CENTER = "center",
-  BOTTOM = "bottom",
+  BOTTOM = "flex-end",
 }
 
 export type BaseCellComponentProps = {
@@ -438,6 +458,7 @@ export type BaseCellComponentProps = {
   fontStyle?: string;
   textColor?: string;
   textSize?: string;
+  isCellDisabled?: boolean;
 };
 
 export enum CheckboxState {
@@ -470,3 +491,10 @@ export const scrollbarOnHoverCSS = `
 `;
 
 export const MULTISELECT_CHECKBOX_WIDTH = 40;
+
+export enum AddNewRowActions {
+  SAVE = "SAVE",
+  DISCARD = "DISCARD",
+}
+
+export const EDITABLE_CELL_PADDING_OFFSET = 8;

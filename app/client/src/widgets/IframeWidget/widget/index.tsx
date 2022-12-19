@@ -4,6 +4,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -109,6 +110,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           {
             propertyName: "borderColor",
             label: "Border Color",
+            helpText: "Controls the color of the border",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -123,6 +125,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           {
             propertyName: "borderWidth",
             label: "Border Width (px)",
+            helpText: "Controls the size of the border in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -135,6 +138,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           {
             propertyName: "borderOpacity",
             label: "Border Opacity (%)",
+            helpText: "Controls the opacity of the border in percentage",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -175,6 +179,13 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     return {
       message: undefined,
       messageMetadata: undefined,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
   }
 
@@ -232,6 +243,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       srcDoc,
       title,
       widgetId,
+      widgetName,
     } = this.props;
 
     return (
@@ -249,6 +261,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         srcDoc={srcDoc}
         title={title}
         widgetId={widgetId}
+        widgetName={widgetName}
       />
     );
   }

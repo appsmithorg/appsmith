@@ -1,20 +1,22 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { get } from "lodash";
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
+import { hideByColumnType, showByColumnType } from "../../propertyUtils";
 
 export default {
-  sectionName: (props: TableWidgetProps, propertyPath: string) => {
-    const columnType = get(props, `${propertyPath}.columnType`);
-    return columnType === ColumnTypes.CHECKBOX ||
-      columnType === ColumnTypes.SWITCH
-      ? "Alignment"
-      : "Text Formatting";
+  sectionName: "Text Formatting",
+  hidden: (props: TableWidgetProps, propertyPath: string) => {
+    return showByColumnType(
+      props,
+      propertyPath,
+      [ColumnTypes.CHECKBOX, ColumnTypes.SWITCH],
+      true,
+    );
   },
   children: [
     {
       propertyName: "textSize",
       label: "Text Size",
+      helpText: "Controls the size of text in the column",
       controlType: "DROP_DOWN",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -44,7 +46,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
         },
@@ -61,6 +63,7 @@ export default {
     {
       propertyName: "fontStyle",
       label: "Emphasis",
+      helpText: "Controls the style of the text in the column",
       controlType: "BUTTON_TABS",
       options: [
         {
@@ -82,7 +85,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
         },
@@ -98,15 +101,10 @@ export default {
     },
     {
       propertyName: "horizontalAlignment",
-      label: (props: TableWidgetProps, propertyPath: string) => {
-        const basePropertyPath = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${basePropertyPath}.columnType`);
-        return columnType === ColumnTypes.CHECKBOX ||
-          columnType === ColumnTypes.SWITCH
-          ? "Horizontal Alignment"
-          : "Text Align";
-      },
+      label: "Text Align",
+      helpText: "Sets the horizontal alignment of the content in the column",
       controlType: "ICON_TABS",
+      fullWidth: true,
       options: [
         {
           icon: "LEFT_ALIGN",
@@ -127,7 +125,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -150,7 +148,9 @@ export default {
     {
       propertyName: "verticalAlignment",
       label: "Vertical Alignment",
+      helpText: "Sets the vertical alignment of the content in the column",
       controlType: "ICON_TABS",
+      fullWidth: true,
       options: [
         {
           icon: "VERTICAL_TOP",
@@ -171,7 +171,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {

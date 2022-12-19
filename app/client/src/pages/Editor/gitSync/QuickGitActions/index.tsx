@@ -21,7 +21,6 @@ import {
 } from "@appsmith/constants/messages";
 
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import {
@@ -43,6 +42,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   Button,
   Category,
+  getTypographyByKey,
   Icon,
   IconName,
   IconSize,
@@ -50,7 +50,6 @@ import {
   TooltipComponent as Tooltip,
 } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type QuickActionButtonProps = {
   className?: string;
@@ -87,7 +86,7 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
     top: ${(props) => -1 * props.theme.spaces[3]}px;
     left: ${(props) => props.theme.spaces[8]}px;
     border-radius: ${(props) => props.theme.spaces[3]}px;
-    ${(props) => getTypographyByKey(props, "p3")};
+    ${getTypographyByKey("p3")};
     z-index: 1;
     padding: ${(props) => props.theme.spaces[1]}px
       ${(props) => props.theme.spaces[2]}px;
@@ -225,7 +224,7 @@ const PlaceholderButton = styled.div`
   padding: ${(props) =>
     `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
   border: solid 1px ${Colors.MERCURY};
-  ${(props) => getTypographyByKey(props, "btnSmall")};
+  ${getTypographyByKey("btnSmall")};
   text-transform: uppercase;
   background-color: ${Colors.ALABASTER_ALT};
   color: ${Colors.GRAY};
@@ -234,9 +233,8 @@ const PlaceholderButton = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
-  const featureFlags = useSelector(selectFeatureFlags);
 
-  const isTooltipEnabled = !featureFlags.GIT || isInGuidedTour;
+  const isTooltipEnabled = isInGuidedTour;
   const tooltipContent = !isInGuidedTour ? (
     <>
       <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
@@ -248,7 +246,7 @@ function ConnectGitPlaceholder() {
       <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
     </>
   );
-  const isGitConnectionEnabled = featureFlags.GIT && !isInGuidedTour;
+  const isGitConnectionEnabled = !isInGuidedTour;
 
   return (
     <Container>
@@ -265,7 +263,7 @@ function ConnectGitPlaceholder() {
           <StyledIcon />
           {isGitConnectionEnabled ? (
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               className="t--connect-git-bottom-bar"
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
@@ -303,7 +301,6 @@ export default function QuickGitActions() {
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
@@ -352,7 +349,7 @@ export default function QuickGitActions() {
     showPullLoadingState,
     changesToCommit,
   });
-  return featureFlags.GIT && isGitConnected ? (
+  return isGitConnected ? (
     <Container>
       <BranchButton />
       {quickActionButtons.map((button) => (

@@ -19,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
@@ -69,6 +70,9 @@ public class UserServiceTest {
     UserService userService;
 
     @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+
+    @Autowired
     WorkspaceService workspaceService;
 
     @Autowired
@@ -116,9 +120,9 @@ public class UserServiceTest {
         String expectedUrl = inviteUrl + "/applications#" + workspace.getId();
 
         Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, false);
-        assertEquals(expectedUrl, params.get("inviteUrl"));
-        assertEquals("inviterUserToApplication", params.get("Inviter_First_Name"));
-        assertEquals("UserServiceTest Update Org", params.get("inviter_org_name"));
+        assertEquals(expectedUrl, params.get("primaryLinkUrl"));
+        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
+        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
     }
 
     @Test
@@ -133,9 +137,9 @@ public class UserServiceTest {
         String inviteUrl = "http://localhost:8080";
 
         Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, true);
-        assertEquals(inviteUrl, params.get("inviteUrl"));
-        assertEquals("inviterUserToApplication", params.get("Inviter_First_Name"));
-        assertEquals("UserServiceTest Update Org", params.get("inviter_org_name"));
+        assertEquals(inviteUrl, params.get("primaryLinkUrl"));
+        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
+        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
     }
 
     //Test the update workspace flow.
@@ -346,7 +350,7 @@ public class UserServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(workspace1.getDefaultPermissionGroups().stream().findFirst().get());
 
-                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 }).block();
 
         // Now Sign Up as the new user

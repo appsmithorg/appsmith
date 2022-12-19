@@ -9,6 +9,7 @@ import {
   isPropertyAFunctionNode,
   getAST,
   extractIdentifierInfoFromCode,
+  entityRefactorFromCode,
   extractInvalidTopLevelMemberExpressionsFromCode,
   getFunctionalParamsFromNode,
   isTypeOfFunction,
@@ -20,14 +21,15 @@ import {
 import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 
 // JSObjects
-import { parseJSObjectWithAST } from "./src/jsObject";
+import { parseJSObjectWithAST, JsObjectProperty } from "./src/jsObject";
 
-// types or intefaces should be exported with type keyword, while enums can be exported like normal functions
+// types or interfaces should be exported with type keyword, while enums can be exported like normal functions
 export type {
   ObjectExpression,
   PropertyNode,
   MemberExpressionData,
   IdentifierInfo,
+  JsObjectProperty,
 };
 
 export {
@@ -39,6 +41,7 @@ export {
   isPropertyAFunctionNode,
   getAST,
   extractIdentifierInfoFromCode,
+  entityRefactorFromCode,
   extractInvalidTopLevelMemberExpressionsFromCode,
   getFunctionalParamsFromNode,
   isTypeOfFunction,

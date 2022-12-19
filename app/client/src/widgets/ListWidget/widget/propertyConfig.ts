@@ -5,7 +5,7 @@ import { ListWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export const PropertyPaneContentConfig = [
   {
@@ -149,6 +149,7 @@ export const PropertyPaneStyleConfig = [
       {
         propertyName: "itemBackgroundColor",
         label: "Item Background Color",
+        helpText: "Background color of the list item",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -168,6 +169,7 @@ export const PropertyPaneStyleConfig = [
       {
         propertyName: "backgroundColor",
         label: "Background Color",
+        helpText: "Background color of the list container",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,

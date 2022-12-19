@@ -74,8 +74,9 @@ public class ActionControllerCE {
 
     @PostMapping(value = "/execute", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody Flux<Part> partFlux,
-                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newActionService.executeAction(partFlux, branchName)
+                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
+        return newActionService.executeAction(partFlux, branchName, environmentName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

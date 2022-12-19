@@ -18,9 +18,11 @@ import {
   Icon,
   IconSize,
   Size,
+  Toaster,
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
 import { Colors } from "constants/Colors";
 
@@ -61,7 +63,6 @@ import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "components/ads";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
@@ -577,7 +578,7 @@ function ReconnectDatasourceModal() {
             position="bottom-right"
           >
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               className="t--skip-to-application-btn"
               href={appURL}
               onClick={() => {

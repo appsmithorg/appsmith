@@ -10,8 +10,8 @@ describe("Phone input widget - ", () => {
   it("1. Should show empty dropdown for a typo", () => {
     cy.openPropertyPane(widgetName);
 
-    // Turn on allowCountryCodeChange
-    cy.get(".t--property-control-allowcountrycodechange label")
+    // Turn on changecountrycode
+    cy.get(".t--property-control-changecountrycode label")
       .last()
       .click({ force: true });
     // Click on the country code change option

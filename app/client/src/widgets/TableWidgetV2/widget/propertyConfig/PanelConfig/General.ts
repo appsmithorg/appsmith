@@ -26,7 +26,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -35,6 +35,7 @@ export default {
     {
       propertyName: "isDisabled",
       label: "Disabled",
+      helpText: "Controls the disabled state of the button",
       defaultValue: false,
       controlType: "SWITCH",
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -42,7 +43,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -65,7 +66,7 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -88,7 +89,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -124,7 +125,7 @@ export default {
         updateInlineEditingOptionDropdownVisibilityHook,
       ]),
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -145,7 +146,8 @@ export const GeneralStyle = {
     {
       propertyName: "buttonVariant",
       label: "Button Variant",
-      controlType: "DROP_DOWN",
+      controlType: "ICON_TABS",
+      fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       helpText: "Sets the variant",
@@ -174,7 +176,7 @@ export const GeneralStyle = {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -191,7 +193,8 @@ export const GeneralStyle = {
     {
       propertyName: "menuVariant",
       label: "Button Variant",
-      controlType: "DROP_DOWN",
+      controlType: "ICON_TABS",
+      fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       helpText: "Sets the variant of the menu button",
       options: [
@@ -217,7 +220,7 @@ export const GeneralStyle = {
       isTriggerProperty: false,
       defaultValue: ButtonVariantTypes.PRIMARY,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -229,6 +232,35 @@ export const GeneralStyle = {
             ],
           },
         },
+      },
+    },
+
+    {
+      propertyName: "imageSize",
+      dependencies: ["primaryColumns", "columnType"],
+      label: "Image Size",
+      helpText: "Sets the size of the image",
+      defaultValue: "DEFAULT",
+      controlType: "ICON_TABS",
+      fullWidth: true,
+      options: [
+        {
+          label: "Default",
+          value: "DEFAULT",
+        },
+        {
+          label: "Medium",
+          value: "MEDIUM",
+        },
+        {
+          label: "Large",
+          value: "LARGE",
+        },
+      ],
+      isBindProperty: false,
+      isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.IMAGE]);
       },
     },
   ],

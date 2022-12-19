@@ -31,6 +31,8 @@ export const CONFIG = {
     totalRecordsCount: 0,
     defaultPageSize: 0,
     dynamicPropertyPathList: [],
+    borderColor: Colors.GREY_5,
+    borderWidth: "1",
     dynamicBindingPathList: [
       {
         key: "primaryColumns.step.computedValue",
@@ -232,6 +234,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
     loadingProperties: Widget.getLoadingProperties(),
   },
 };

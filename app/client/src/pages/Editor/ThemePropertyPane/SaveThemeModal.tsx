@@ -120,43 +120,45 @@ function SaveThemeModal(props: SaveThemeModalProps) {
       onClose={onClose}
       title="Save Theme"
     >
-      <form data-cy="save-theme-form" noValidate onSubmit={onSubmit}>
-        <div className="pb-6 space-y-3">
-          <p>
-            You can save your custom themes to use across applications and use
-            them when you need.
-          </p>
-          <div className="mt-6 space-y-2">
-            <h3 className="text-gray-700">Your theme name</h3>
-            <TextInput
-              autoFocus
-              errorMsg={!inputValidator.isValid ? inputValidator.message : ""}
-              fill
-              name="name"
-              onChange={onChangeName}
-              placeholder="My theme"
-            />
+      <div id="save-theme-modal">
+        <form data-cy="save-theme-form" noValidate onSubmit={onSubmit}>
+          <div className="pb-6 space-y-3">
+            <p>
+              You can save your custom themes to use across applications and use
+              them when you need.
+            </p>
+            <div className="mt-6 space-y-2">
+              <h3 className="text-gray-700">Your theme name</h3>
+              <TextInput
+                autoFocus
+                errorMsg={!inputValidator.isValid ? inputValidator.message : ""}
+                fill
+                name="name"
+                onChange={onChangeName}
+                placeholder="My theme"
+              />
+            </div>
           </div>
-        </div>
-        <div className="">
-          <div className="flex items-center space-x-3">
-            <Button
-              category={Category.tertiary}
-              onClick={onClose}
-              size={Size.medium}
-              text="Cancel"
-            />
-            <Button
-              category={Category.primary}
-              disabled={!name}
-              onClick={onSubmit}
-              size={Size.medium}
-              text="Save theme"
-              type="submit"
-            />
+          <div className="">
+            <div className="flex items-center space-x-3">
+              <Button
+                category={Category.secondary}
+                onClick={onClose}
+                size={Size.medium}
+                text="Cancel"
+              />
+              <Button
+                category={Category.primary}
+                disabled={!name}
+                onClick={onSubmit}
+                size={Size.medium}
+                text="Save theme"
+                type="submit"
+              />
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </Dialog>
   );
 }

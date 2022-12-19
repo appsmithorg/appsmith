@@ -3,7 +3,7 @@ import apiPaneSagas from "../src/sagas/ApiPaneSagas";
 import jsPaneSagas from "../src/sagas/JSPaneSagas";
 import userSagas from "@appsmith/sagas/userSagas";
 import pluginSagas from "../src/sagas/PluginSagas";
-import workspaceSagas from "../src/sagas/WorkspaceSagas";
+import workspaceSagas from "@appsmith/sagas/WorkspaceSagas";
 import importedCollectionsSagas from "../src/sagas/CollectionSagas";
 import providersSagas from "../src/sagas/ProvidersSaga";
 import curlImportSagas from "../src/sagas/CurlImportSagas";

@@ -8,7 +8,6 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
-import { DroppableComponent } from "./DraggableListComponent";
 import { Size, Category } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -21,18 +20,20 @@ import {
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
+import {
+  getDataTreeForAutocomplete,
+  getPathEvalErrors,
+} from "selectors/dataTreeSelectors";
 import {
   EvaluationError,
-  getEvalErrorPath,
   getEvalValuePath,
   isDynamicValue,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox, CheckboxType } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { Colors } from "constants/Colors";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -58,9 +59,9 @@ const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
+  errors: EvaluationError[];
 }
-
-type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
+interface EvaluatedValueProps {
   isFocused: boolean;
   theme: EditorTheme;
   popperPlacement?: Placement;
@@ -71,7 +72,9 @@ type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
   hideEvaluatedValue?: boolean;
   useValidationMessage?: boolean;
   children: JSX.Element;
-};
+}
+
+type EvaluatedValuePopupWrapperProps = ReduxStateProps & EvaluatedValueProps;
 
 type ColumnsType = Record<string, ColumnProperties>;
 
@@ -221,7 +224,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
         </div>
         <TabsWrapper>
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
-            <DroppableComponent
+            <DraggableListControl
               className={LIST_CLASSNAME}
               deleteOption={this.deleteOption}
               fixedHeight={370}
@@ -229,7 +232,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               itemHeight={45}
               items={draggableComponentColumns}
               onEdit={this.onEdit}
-              renderComponent={(props) =>
+              propertyPath={this.props.dataTreePath}
+              renderComponent={(props: any) =>
                 DraggableListCard({
                   ...props,
                   showCheckbox: true,
@@ -245,7 +249,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
           </EvaluatedValuePopupWrapper>
 
           <AddColumnButton
-            category={Category.tertiary}
+            category={Category.secondary}
             className="t--add-column-btn"
             icon="plus"
             onClick={this.addNewColumn}
@@ -476,6 +480,7 @@ class EvaluatedValuePopupWrapperClass extends Component<
     errors: EvaluationError[];
     pathEvaluatedValue: unknown;
   } => {
+    const { errors } = this.props;
     if (!dataTreePath) {
       return {
         isInvalid: false,
@@ -484,21 +489,11 @@ class EvaluatedValuePopupWrapperClass extends Component<
       };
     }
 
-    const errors = _.get(
-      dataTree,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
-
-    const filteredLintErrors = errors.filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
-      isInvalid: filteredLintErrors.length > 0,
-      errors: filteredLintErrors,
+      isInvalid: errors.length > 0,
+      errors: errors,
       pathEvaluatedValue,
     };
   };
@@ -540,10 +535,16 @@ class EvaluatedValuePopupWrapperClass extends Component<
     );
   };
 }
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getDataTreeForAutocomplete(state),
-  datasources: state.entities.datasources,
-});
+const mapStateToProps = (
+  state: AppState,
+  { dataTreePath }: EvaluatedValueProps,
+): ReduxStateProps => {
+  return {
+    dynamicData: getDataTreeForAutocomplete(state),
+    datasources: state.entities.datasources,
+    errors: dataTreePath ? getPathEvalErrors(state, dataTreePath) : [],
+  };
+};
 
 const EvaluatedValuePopupWrapper = Sentry.withProfiler(
   connect(mapStateToProps)(EvaluatedValuePopupWrapperClass),

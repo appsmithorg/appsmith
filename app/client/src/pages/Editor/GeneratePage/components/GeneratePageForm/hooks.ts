@@ -355,6 +355,7 @@ export const useSheetColumnHeaders = () => {
     (error: string) => {
       setIsFetchingColumnHeaderList(false);
       setErrorFetchingColumnHeaderList(error);
+      setColumnHeaderList([]);
     },
     [setErrorFetchingColumnHeaderList, setIsFetchingColumnHeaderList],
   );
@@ -396,6 +397,7 @@ export const useSheetColumnHeaders = () => {
         parameters: {
           sheetName: params.sheetName,
           sheetUrl: params.selectedSpreadsheetUrl,
+          tableHeaderIndex: params.tableHeaderIndex,
         },
         pluginId: params.pluginId,
         requestType: "COLUMNS_SELECTOR",

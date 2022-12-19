@@ -1,7 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import HomePage from "../../../../locators/HomePage";
 let workspaceId: any, appid: any;
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage;
 
 describe("Create new workspace and invite user & validate all roles", () => {
@@ -48,10 +48,10 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
+      // .should("have.length", Cypress.env("Edition") === 1 ? 1 : 2)
       .should("have.length", 1)
-      .and("contain.text", `App Viewer - ${workspaceId}`);
+      .and("contain.text", `App Viewer`);
     cy.get(HomePage.closeBtn).click();
-
     homePage.LaunchAppFromAppHover();
     homePage.LogOutviaAPI();
   });
@@ -87,12 +87,9 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
+      // .should("have.length", Cypress.env("Edition") === 0 ? 2 : 3)
       .should("have.length", 2)
-      .and(
-        "contain.text",
-        `App Viewer - ${workspaceId}`,
-        `Developer - ${workspaceId}`,
-      );
+      .and("contain.text", `App Viewer`, `Developer`);
     cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
   });
@@ -135,22 +132,23 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
+      // .should("have.length", Cypress.env("Edition") === 0 ? 3 : 4)
       .should("have.length", 3)
-      .should(
-        "contain.text",
-        `App Viewer - ${workspaceId}`,
-        `Developer - ${workspaceId}`,
-      );
-    cy.get(".t--dropdown-option").should(
-      "contain.text",
-      `Administrator - ${workspaceId}`,
-    );
+      .should("contain.text", `App Viewer`, `Developer`);
+    cy.get(".t--dropdown-option").should("contain.text", `Administrator`);
     cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
   });
 
   it("7. Login as Workspace owner and verify all 3 users are present", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    homePage.FilterApplication(appid, workspaceId);
+    homePage.UpdateUserRoleInWorkspace(
+      workspaceId,
+      Cypress.env("TESTUSERNAME1"),
+      "Administrator",
+      "Developer",
+    );
     homePage.FilterApplication(appid, workspaceId);
     homePage.OpenMembersPageForWorkspace(workspaceId);
     cy.get(homePage._usersEmailList).then(function($list) {
@@ -160,5 +158,24 @@ describe("Create new workspace and invite user & validate all roles", () => {
       expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
     homePage.NavigateToHome();
+  });
+
+  it("8. Login as Developer, Verify leave workspace flow", () => {
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME1"),
+      Cypress.env("TESTPASSWORD1"),
+    );
+    homePage.FilterApplication(appid, workspaceId);
+    homePage.leaveWorkspace(workspaceId);
+    homePage.LogOutviaAPI();
+  });
+  it("9. Login as App Viewer, Verify leave workspace flow", () => {
+    homePage.LogintoApp(
+      Cypress.env("TESTUSERNAME2"),
+      Cypress.env("TESTPASSWORD2"),
+    );
+    homePage.FilterApplication(appid, workspaceId);
+    homePage.leaveWorkspace(workspaceId);
+    homePage.LogOutviaAPI();
   });
 });

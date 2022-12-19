@@ -15,6 +15,7 @@ import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-
 @Slf4j
 public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlImporterServiceCE {
 
@@ -58,19 +57,22 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
     private final ObjectMapper objectMapper;
+    private final PagePermission pagePermission;
 
     public CurlImporterServiceCEImpl(
             PluginService pluginService,
             LayoutActionService layoutActionService,
             NewPageService newPageService,
             ResponseUtils responseUtils,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            PagePermission pagePermission
     ) {
         this.pluginService = pluginService;
         this.layoutActionService = layoutActionService;
         this.newPageService = newPageService;
         this.responseUtils = responseUtils;
         this.objectMapper = objectMapper;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -90,7 +92,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             return Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND));
         }
 
-        Mono<NewPage> pageMono = newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES);
+        Mono<NewPage> pageMono = newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission());
 
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
@@ -110,7 +112,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     action1.setPageId(newPage.getId());
                     return Mono.just(action1);
                 })
-                .flatMap(layoutActionService::createSingleAction)
+                .flatMap(action2 -> layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 

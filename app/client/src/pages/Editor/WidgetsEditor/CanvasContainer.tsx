@@ -110,6 +110,7 @@ function CanvasContainer() {
         "mt-4": showCanvasTopSection,
         "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
       })}
+      id={"canvas-viewport"}
       key={currentPageId}
       style={{
         height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",

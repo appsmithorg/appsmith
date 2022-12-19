@@ -13,6 +13,7 @@
         "PROPERTY_PANE_GROUPING": true,
         "AUDIT_LOGS": true,
         "JS_EDITOR": true,
-        "GIT_IMPORT": true
+        "GIT_IMPORT": true,
+        "CONTEXT_SWITCHING": true
     }
 }

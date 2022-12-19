@@ -14,6 +14,7 @@ import {
   CameraModeTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -24,7 +25,8 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           {
             propertyName: "mode",
             label: "Mode",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             helpText: "Whether a picture is taken or a video is recorded",
             options: [
               {
@@ -194,6 +196,13 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       videoDataURL: undefined,
       videoRawBinary: undefined,
       isDirty: false,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
     };
   }
 

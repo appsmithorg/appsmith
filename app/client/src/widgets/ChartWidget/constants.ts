@@ -15,6 +15,7 @@ export interface ChartDataPoint {
 export interface ChartData {
   seriesName?: string;
   data: ChartDataPoint[];
+  color?: string;
 }
 
 export interface CustomFusionChartConfig {
@@ -67,7 +68,7 @@ export const CUSTOM_CHART_TYPES = [
   "bulb",
   "realtimecolumn",
   "cylinder",
-  "HLinearGauge",
+  "hlineargauge",
   "realtimeline",
   "realtimelinedy",
   "realtimestackedarea",

@@ -1,6 +1,6 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { cloneDeep, isUndefined } from "lodash";
-import { Rect } from "utils/WidgetPropsUtils";
+import { Rect } from "utils/boxHelpers";
 import {
   BlockSpace,
   CollidingSpace,
@@ -10,7 +10,6 @@ import {
   CollisionTree,
   CollisionTreeCache,
   GridProps,
-  HORIZONTAL_RESIZE_LIMIT,
   MathComparators,
   MovementLimitMap,
   OrientationAccessors,
@@ -22,7 +21,6 @@ import {
   SpaceAttributes,
   SpaceMap,
   SpaceMovementMap,
-  VERTICAL_RESIZE_LIMIT,
 } from "./reflowTypes";
 
 /**
@@ -1040,7 +1038,7 @@ export function getAccessor(direction: ReflowDirection): CollisionAccessors {
  * @param collisionTree
  * @param gridProps
  * @param direction
- * @param depth
+ * @param occupiedLength
  * @param maxOccupiedSpace
  * @param shouldResize
  * @returns number
@@ -1049,14 +1047,12 @@ export function getMaxX(
   collisionTree: CollisionTree,
   gridProps: GridProps,
   direction: ReflowDirection,
-  depth: number,
+  occupiedLength: number,
   maxOccupiedSpace: number,
   shouldResize: boolean,
 ) {
   const accessors = getAccessor(direction);
-  const movementLimit = shouldResize
-    ? depth * HORIZONTAL_RESIZE_LIMIT
-    : maxOccupiedSpace;
+  const movementLimit = shouldResize ? occupiedLength : maxOccupiedSpace;
 
   let maxX = collisionTree[accessors.direction] - movementLimit;
 
@@ -1077,7 +1073,7 @@ export function getMaxX(
  * @param collisionTree
  * @param gridProps
  * @param direction
- * @param depth
+ * @param occupiedLength
  * @param maxOccupiedSpace
  * @param shouldResize
  * @returns number
@@ -1086,14 +1082,12 @@ export function getMaxY(
   collisionTree: CollisionTree,
   gridProps: GridProps,
   direction: ReflowDirection,
-  depth: number,
+  occupiedLength: number,
   maxOccupiedSpace: number,
   shouldResize: boolean,
 ) {
   const accessors = getAccessor(direction);
-  const movementLimit = shouldResize
-    ? depth * VERTICAL_RESIZE_LIMIT
-    : maxOccupiedSpace;
+  const movementLimit = shouldResize ? occupiedLength : maxOccupiedSpace;
 
   let maxY =
     (collisionTree[accessors.direction] - movementLimit) *
@@ -1179,6 +1173,9 @@ export function getReflowedDimension(
   shouldResize: boolean,
 ) {
   const accessors = getAccessor(direction);
+
+  if (direction === ReflowDirection.TOP && collisionTree.fixedHeight)
+    return collisionTree.fixedHeight * snapGridSpace;
 
   const currentDistanceBeforeCollision =
     travelDistance +
@@ -1908,7 +1905,7 @@ export function checkProcessNodeForTree(
   const {
     childNode,
     currentEmptySpaces,
-    depth,
+    occupiedLength,
     occupiedSpace,
     value,
   } = globalProcessedNodes[collidingSpace.id][direction];
@@ -1916,7 +1913,7 @@ export function checkProcessNodeForTree(
     return {
       shouldProcessNode: false,
       currentChildNode: childNode,
-      depth,
+      occupiedLength,
       occupiedSpace,
       currentEmptySpaces,
     };
@@ -1931,11 +1928,11 @@ export function checkProcessNodeForTree(
  * eg, If a widget is colliding with another, near the ege of the canvas.
  * After the point where the widget resizes full and can'yt move or resize, then the colliding value also should not increase
  *
- * @param depth
  * @param accessors
  * @param collidingValue
  * @param direction
  * @param gridProps
+ * @param occupiedLength
  * @returns number, colliding value to the edge of canvas
  */
 export function getRelativeCollidingValue(
@@ -1943,13 +1940,12 @@ export function getRelativeCollidingValue(
   collidingValue: number,
   direction: ReflowDirection,
   { maxGridColumns }: GridProps,
-  depth?: number,
+  occupiedLength?: number,
 ): number {
-  if (direction === ReflowDirection.BOTTOM || !depth) return collidingValue;
+  if (direction === ReflowDirection.BOTTOM || !occupiedLength)
+    return collidingValue;
 
-  let calculatedCollidingValue =
-    (accessors.isHorizontal ? HORIZONTAL_RESIZE_LIMIT : VERTICAL_RESIZE_LIMIT) *
-    depth;
+  let calculatedCollidingValue = occupiedLength;
 
   if (direction === ReflowDirection.RIGHT)
     calculatedCollidingValue = maxGridColumns - calculatedCollidingValue;
