@@ -5,7 +5,7 @@ import {
   InlineEditingSaveOptions,
   TableWidgetProps,
 } from "../constants";
-import _, { findIndex, get, isBoolean, some } from "lodash";
+import _, { findIndex, get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
 import {
   combineDynamicBindings,
