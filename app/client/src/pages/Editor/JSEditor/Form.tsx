@@ -70,7 +70,7 @@ import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 import {
   setCodeEditorCursorAction,
-  setFocusableCodeEditorField,
+  setFocusableInputField,
 } from "actions/editorContextActions";
 
 interface JSFormProps {
@@ -127,9 +127,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         actionName,
       );
       if (position) {
-        dispatch(
-          setFocusableCodeEditorField(`${currentJSCollection.name}.body`),
-        );
+        dispatch(setFocusableInputField(`${currentJSCollection.name}.body`));
         dispatch(
           setCodeEditorCursorAction(
             `${currentJSCollection.name}.body`,
