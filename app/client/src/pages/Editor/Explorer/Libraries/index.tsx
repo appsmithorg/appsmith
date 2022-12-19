@@ -252,11 +252,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
             </div>
           )}
         </div>
-        <Version
-          className="t--package-version"
-          onClick={openDocs(lib.url)}
-          version={lib.version}
-        >
+        <Version className="t--package-version" version={lib.version}>
           {lib.version}
         </Version>
         <PrimaryCTA lib={lib} />
