@@ -112,6 +112,7 @@ import {
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
 import { AppState } from "ce/reducers";
+import { JSFuncData } from "workers/Evaluation/JSObject/utils";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -365,27 +366,46 @@ export function* executeDynamicTriggerRequest(
     );
     log.debug({ requestData });
     if (requestData.JSData) {
-      if (!isEmpty(requestData.JSData)) {
-        const dataStore = requestData.JSData;
-
-        for (const key of Object.keys(dataStore)) {
+      const data = requestData.JSData as Array<JSFuncData>;
+      const dataStore: Record<
+        string,
+        {
+          data: unknown;
+          collectionId: string;
+          actionId: string;
+        }[]
+      > = {};
+      if (!isEmpty(data)) {
+        for (const key of data) {
           const jsAction:
             | JSAction
             | undefined = yield select((state: AppState) =>
-            getJSFunctionFromName(state, key),
+            getJSFunctionFromName(state, key.funcName),
           );
-          if (jsAction) {
-            yield put({
-              type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
-              payload: {
-                data: dataStore[key],
+          if (jsAction && jsAction.collectionId) {
+            if (dataStore[jsAction.collectionId]) {
+              dataStore[jsAction.collectionId].push({
+                data: key.data,
                 collectionId: jsAction.collectionId,
                 actionId: jsAction.id,
-              },
-            });
+              });
+            } else {
+              dataStore[jsAction.collectionId] = [
+                {
+                  data: key.data,
+                  collectionId: jsAction.collectionId,
+                  actionId: jsAction.id,
+                },
+              ];
+            }
           }
         }
       }
+
+      yield put({
+        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+        payload: dataStore,
+      });
     }
     if (requestData?.logs) {
       const { eventType, triggerMeta } = requestData;

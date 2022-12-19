@@ -315,20 +315,28 @@ const jsActionsReducer = createReducer(initialState, {
     }),
   [ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA]: (
     state: JSCollectionDataState,
-    action: ReduxAction<{
-      data: unknown;
-      collectionId: string;
-      actionId: string;
-    }>,
+    action: ReduxAction<
+      Record<
+        string,
+        {
+          data: unknown;
+          collectionId: string;
+          actionId: string;
+        }[]
+      >
+    >,
   ): JSCollectionDataState =>
     state.map((a) => {
-      if (a.config.id === action.payload.collectionId) {
+      if (a.config.id in action.payload) {
+        let data = {
+          ...a.data,
+        };
+        action.payload[a.config.id].forEach((item) => {
+          data = { ...data, [item.actionId]: item.data };
+        });
         return {
           ...a,
-          data: {
-            ...a.data,
-            [action.payload.actionId]: action.payload.data,
-          },
+          data,
         };
       }
       return a;

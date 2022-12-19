@@ -18,7 +18,7 @@ import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
-import { JSFunctionProxy } from "./JSObject/utils";
+import { JSFunctionExecution, JSFunctionProxy } from "./JSObject/utils";
 
 export type EvalResult = {
   result: any;
@@ -135,6 +135,7 @@ export interface createGlobalDataArgs {
   isTriggerBased: boolean;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
+  jsProxy?: JSFunctionProxy;
 }
 
 export const createGlobalData = (args: createGlobalDataArgs) => {
@@ -143,6 +144,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
+    jsProxy,
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
@@ -186,10 +188,9 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
           //do not remove we will be investigating this
           //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
           //const confirmBeforeExecute = dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
-          dataTreeKey[key] = JSFunctionProxy(
-            resolvedObject[key],
-            datum + "." + key,
-          );
+          dataTreeKey[key] = jsProxy
+            ? jsProxy(resolvedObject[key], datum + "." + key)
+            : resolvedObject[key];
           // if (isAsync && confirmBeforeExecute) {
           //   dataTreeKey[key] = confirmationPromise.bind(
           //     {},
@@ -262,6 +263,7 @@ export default function evaluateSync(
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
+    const jsFunctionExecutor = new JSFunctionExecution();
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
     if (!skipLogsOperations) {
@@ -274,6 +276,7 @@ export default function evaluateSync(
       isTriggerBased: isJSCollection,
       context,
       evalArguments,
+      jsProxy: jsFunctionExecutor.JSFunctionProxy,
     });
     GLOBAL_DATA.ALLOW_ASYNC = false;
     const { script } = getUserScriptToEvaluate(
@@ -300,6 +303,7 @@ export default function evaluateSync(
 
     try {
       result = indirectEval(script);
+      jsFunctionExecutor.setEvaluationEnd(true);
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${
         (error as Error).message
@@ -335,6 +339,7 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
     let logs;
+    const jsFunctionExecutor = new JSFunctionExecution();
     /**** Setting the eval context ****/
     userLogs.resetLogs();
     userLogs.setCurrentRequestInfo({
@@ -348,6 +353,7 @@ export async function evaluateAsync(
       isTriggerBased: true,
       context: { ...context, requestId },
       evalArguments,
+      jsProxy: jsFunctionExecutor.JSFunctionProxy,
     });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     GLOBAL_DATA.ALLOW_ASYNC = true;
@@ -362,6 +368,7 @@ export async function evaluateAsync(
     try {
       result = await indirectEval(script);
       logs = userLogs.flushLogs();
+      jsFunctionExecutor.setEvaluationEnd(true);
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
         (error as Error).message
