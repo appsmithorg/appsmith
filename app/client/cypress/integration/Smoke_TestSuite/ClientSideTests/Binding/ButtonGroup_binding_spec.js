@@ -14,17 +14,20 @@ describe("Widget Grouping", function () {
       .click({ force: true });
     cy.get(commonlocators.toastmsg).contains("test alert");
     cy.get(commonlocators.toastmsg).invoke("css", "font-family")
-    .then((dropdownFont) => {
-      expect(dropdownFont).to.equal('-apple-system, "system-ui", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue"');
-    });
-    cy.PublishtheApp();
-    cy.get(".t--buttongroup-widget button")
-      .contains("Add")
-      .click({ force: true });
-    cy.get(".t--buttongroup-widget button")
-      .contains("More")
-      .click({ force: true });
-    cy.get(commonlocators.toastmsg).contains("test alert");
-    cy.goToEditFromPublish();
+      .then((dropdownFont) => {
+        cy.PublishtheApp();
+        cy.get(".t--buttongroup-widget button")
+          .contains("Add")
+          .click({ force: true });
+        cy.get(".t--buttongroup-widget button")
+          .contains("More")
+          .click({ force: true });
+        cy.get(commonlocators.toastmsg).contains("test alert");
+        cy.get(commonlocators.toastmsg).invoke("css", "font-family")
+          .then((publishdropdownFont) => {
+            expect(dropdownFont).to.equal(publishdropdownFont);
+          })
+        cy.goToEditFromPublish();
+      });
   });
 });
