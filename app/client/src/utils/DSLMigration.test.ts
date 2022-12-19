@@ -703,11 +703,20 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
+        moduleObj: migrateAutoHeight,
+        functionName: "migrateListWidgetChildrenForAutoHeight",
+      },
+    ],
+    version: 72,
+  },
+  {
+    functionLookup: [
+      {
         moduleObj: inputCurrencyMigration,
         functionName: "migrateInputWidgetShowStepArrows",
       },
     ],
-    version: 72,
+    version: 73,
   },
 ];
 
