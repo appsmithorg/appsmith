@@ -60,6 +60,7 @@ import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelper
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
+import RouteChangeListener from "RouteChangeListener";
 
 /*
     We use this polyfill to show emoji flags
@@ -101,6 +102,7 @@ function AppRouter(props: {
           </>
         ) : (
           <>
+            <RouteChangeListener />
             <AppHeader />
             <Switch>
               <SentryRoute component={LandingScreen} exact path={BASE_URL} />

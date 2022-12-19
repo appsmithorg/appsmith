@@ -30,7 +30,7 @@ import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 import { unsubscribeParentMessages } from "./ActionExecution/ParentMessageListenerSaga";
 import {
-  hasNavigatedToNewPage,
+  hasNavigatedOutOfPage,
   isEditorPath,
 } from "pages/Editor/Explorer/helpers";
 
@@ -47,20 +47,22 @@ function* handleRouteChange(
 ) {
   const { hash, pathname, state } = action.payload.location;
   try {
+    const isAnEditorPath = isEditorPath(pathname);
+
     // handled only on edit mode
-    if (isEditorPath(pathname)) {
+    if (isAnEditorPath) {
       yield call(logNavigationAnalytics, action.payload);
       yield call(contextSwitchingSaga, pathname, state, hash);
+      yield call(appBackgroundHandler);
       const entityInfo = identifyEntityFromPath(pathname, hash);
       yield fork(updateRecentEntitySaga, entityInfo);
     }
 
-    // handled on both edit and view mode
-    yield call(appBackgroundHandler);
-    if (hasNavigatedToNewPage(previousPath, pathname)) {
+    if (hasNavigatedOutOfPage(previousPath, pathname)) {
       yield call(clearParentMessageSubscriptions);
     }
   } catch (e) {
+    // revisit where this error is caught and logged?
     log.error("Error in focus change", e);
   } finally {
     previousPath = pathname;

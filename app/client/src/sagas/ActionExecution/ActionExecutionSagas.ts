@@ -52,7 +52,6 @@ import {
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { get, set, size } from "lodash";
 import {
   listenToParentMessages,
   unsubscribeParentMessages,
