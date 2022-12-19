@@ -917,6 +917,49 @@ jobs:
         with:
           name: combined_failed_spec_fat
           path: ~/combined_failed_spec_fat
+      
+      - name: Get Latest flaky Tests
+        shell: bash
+        run: |
+          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+         
+      # Verify non-fat test failures against known failures
+      - name: Verify non-fat test failures against known failures
+        if: needs.ui-test.result != 'success'
+        shell: bash
+        run: |
+          new_failed_spec_env=$(comm -1 -3 <(sort  ~/knownfailures) <(sort ~/combined_failed_spec) | sed 's/|cypress|cypress/\n/g')
+          echo $new_failed_spec_env
+          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+      - name: Add a comment on the PR with new non fat failures
+        if: needs.ui-test.result != 'success'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            The following are new failures, please fix them before merging the PR ${{ env.new_failed_spec_env }}
+        
+        # Verify fat test failures against known failures
+      - name: Verify fat test failures against known failures
+        if: needs.fat-container-test.result != 'success'
+        shell: bash
+        run: |
+          new_failed_spec_env=$(comm -1 -3 <(sort ./release/app/client/cypress/knownfailures) <(sort ~/combined_failed_spec_fat) | sed 's/|cypress|cypress/\n/g')
+          echo $new_failed_spec_env
+          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+      - name: Add a comment on the PR with new fat failures
+        if: needs.fat-container-test.result != 'success'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            The following are new failures, please fix them before merging the PR ${{ env.new_failed_spec_env }}
 
       # Update check run called "ui-test-result"
       - name: Mark ui-test-result job as complete
