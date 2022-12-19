@@ -198,11 +198,6 @@ export function* getAllApplicationSaga() {
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
         payload: workspaceApplication,
       });
-      // const { newReleasesCount, releaseItems } = response.data || {};
-      // yield put({
-      //   type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
-      //   payload: { newReleasesCount, releaseItems },
-      // });
     }
   } catch (error) {
     yield put({
