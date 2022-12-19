@@ -384,7 +384,7 @@ public class UserAndAccessManagementServiceTest {
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
                                 throwable.getMessage().contains(AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
-                                        .getMessage("PermissionGroup", updatedPermissionGroup.getId())))
+                                        .getMessage("role", updatedPermissionGroup.getId())))
                 .verify();
         PermissionGroup setPoliciesBack = permissionGroupRepository.save(updatedPermissionGroup).block();
     }
@@ -428,7 +428,7 @@ public class UserAndAccessManagementServiceTest {
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
                                 throwable.getMessage().contains(AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
-                                        .getMessage("PermissionGroup", updatedPermissionGroup.getId())))
+                                        .getMessage("role", updatedPermissionGroup.getId())))
                 .verify();
         PermissionGroup setPoliciesBack = permissionGroupRepository.save(updatedPermissionGroup).block();
     }

@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -84,14 +85,14 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                         .flatMap(actionCollectionRepository::setUserPermissionsInObject));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(pageFlux,
-                permissionGroupService.getSessionUserPermissionGroupIds(), pagePermission.getEditPermission(),
-                AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+                FieldName.PAGE, permissionGroupService.getSessionUserPermissionGroupIds(),
+                pagePermission.getEditPermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
         Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(actionFlux,
-                permissionGroupService.getSessionUserPermissionGroupIds(), actionPermission.getEditPermission(),
-                AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+                FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
+                actionPermission.getEditPermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
         Mono<Boolean> actionCollectionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(actionCollectionFlux,
-                permissionGroupService.getSessionUserPermissionGroupIds(), actionPermission.getEditPermission(),
-                AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+                FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
+                actionPermission.getEditPermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
 
         return Mono.when(pagesValidatedForPermission, actionsValidatedForPermission, actionCollectionsValidatedForPermission)
                 .then(super.forkApplicationToWorkspace(srcApplicationId, targetWorkspaceId, branchName));

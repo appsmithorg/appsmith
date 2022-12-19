@@ -567,7 +567,7 @@ public class ApplicationForkingServiceTests {
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS
-                                .getMessage("Page", appPageId)))
+                                .getMessage("page", appPageId)))
                 .verify();
         updatedGitAppPage.setPolicies(existingPolicies);
         NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();

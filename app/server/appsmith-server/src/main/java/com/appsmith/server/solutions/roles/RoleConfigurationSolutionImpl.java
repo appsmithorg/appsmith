@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -54,6 +55,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
 
 @Component
@@ -334,7 +336,27 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         } else if (tab == RoleTab.GROUPS_ROLES && PermissionGroup.class.equals(aClazz)) {
 
             sideEffectOnAssociateRoleGivenPermissionGroupUpdate(sideEffects, id, permissionGroupId, added, removed);
+        } else if (tab == RoleTab.APPLICATION_RESOURCES && ActionCollection.class.equals(aClazz)) {
+
+            // If the tab is application resources, and the entity is an Action Collection, then we need  to give all
+            // associated actions the same permission as the entity.
+            sideEffectOnActionsGivenActionCollectionUpdate(sideEffects, id, permissionGroupId, added, removed);
         }
+    }
+
+    private void sideEffectOnActionsGivenActionCollectionUpdate(List<Mono<Long>> sideEffects,
+                                                                String actionCollectionId,
+                                                                String permissionGroupId,
+                                                                List<AclPermission> added,
+                                                                List<AclPermission> removed) {
+        List<String> includedFields = List.of(fieldName(QNewAction.newAction.id));
+        Flux<String> actionFlux = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionId), includedFields)
+                .map(NewAction::getId);
+
+        Mono<Long> actionsUpdated = actionFlux.flatMap(actionId -> genericDatabaseOperation.updatePolicies(actionId, permissionGroupId, added, removed, NewAction.class))
+                .reduce(0L, Long::sum);
+        sideEffects.add(actionsUpdated);
     }
 
     private void sideEffectOnActionsGivenPageUpdate(List<Mono<Long>> sideEffects,

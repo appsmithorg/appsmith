@@ -52,5 +52,17 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         );
     }
 
+    @Override
+    public Flux<NewAction> findAllByActionCollectionIdWithoutPermissions(List<String> collectionIds, List<String> includeFields) {
+        String actionCollectionCriteriaQueryString = fieldName(QNewAction.newAction.unpublishedAction) + "." +
+                fieldName(QNewAction.newAction.unpublishedAction.collectionId);
+        Criteria actionCollectionCriteria = Criteria.where(actionCollectionCriteriaQueryString).in(collectionIds);
+        return queryAll(
+                List.of(actionCollectionCriteria),
+                includeFields,
+                null,
+                null
+        );
+    }
 
 }

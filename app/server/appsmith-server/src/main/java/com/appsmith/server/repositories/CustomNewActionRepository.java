@@ -10,4 +10,5 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
 
     Flux<NewAction> findAllNonJSActionsByApplicationIds(List<String> applicationIds, List<String> includeFields);
     Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
+    Flux<NewAction> findAllByActionCollectionIdWithoutPermissions(List<String> collectionIds, List<String> includeFields);
 }
