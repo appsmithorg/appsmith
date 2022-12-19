@@ -1184,7 +1184,7 @@ export const ADMIN_BRANDING_COLOR_TOOLTIP_FONT = () =>
 export const ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED = () =>
   `Used as background color for disabled buttons.`;
 export const ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE = () =>
-  `I would like to enable Custom Branding for my workspace and am interested in Appsmith Business."`;
+  `I would like to enable Custom Branding for my workspace and am interested in Appsmith Business.`;
 
 // Guided tour
 // -- STEPS ---
