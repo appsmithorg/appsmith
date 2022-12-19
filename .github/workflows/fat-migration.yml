@@ -49,7 +49,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -84,7 +84,7 @@ jobs:
       - name: Cache npm dependencies
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -141,7 +141,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/build/
@@ -198,7 +198,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -225,7 +225,7 @@ jobs:
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -272,7 +272,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/server/dist/
@@ -314,7 +314,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -362,7 +362,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/rts/dist/
@@ -754,7 +754,7 @@ jobs:
           path: app/client/cypress/screenshots/
 
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/cypress/snapshots/
