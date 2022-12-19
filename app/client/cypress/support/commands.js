@@ -1933,6 +1933,7 @@ Cypress.Commands.add("AddPageFromTemplate", () => {
 Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {
   cy.wait(alias);
   cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
+});
 
 Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
   cy.wait(1000); //waiting for window to load
