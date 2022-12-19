@@ -1,10 +1,15 @@
 import CodeMirror from "codemirror";
+import "components/editorComponents/CodeEditor/modes";
 import "codemirror/addon/comment/comment";
+import { EditorModes } from "../EditorConfig";
 import { handleCodeComment } from "./codeComment";
+
+const JS_LINE_COMMENT = "//";
+const SQL_LINE_COMMENT = "--";
 
 describe("handleCodeComment", () => {
   it("should handle code comment for single line", () => {
-    const editor = CodeMirror(document.body, { mode: "javascript" });
+    const editor = CodeMirror(document.body, { mode: EditorModes.JAVASCRIPT });
 
     const code = `const a = 1;`;
     editor.setValue(code);
@@ -15,13 +20,13 @@ describe("handleCodeComment", () => {
       { line: editor.lastLine() + 1, ch: 0 },
     );
 
-    handleCodeComment(editor);
+    handleCodeComment(JS_LINE_COMMENT)(editor);
 
     expect(editor.getValue()).toEqual(`// const a = 1;`);
   });
 
   it("should handle code comment for multiple lines", () => {
-    const editor = CodeMirror(document.body, { mode: "javascript" });
+    const editor = CodeMirror(document.body, { mode: EditorModes.JAVASCRIPT });
 
     const code = `const a = 1;
       const b = 2;`;
@@ -33,14 +38,14 @@ describe("handleCodeComment", () => {
       { line: editor.lastLine() + 1, ch: 0 },
     );
 
-    handleCodeComment(editor);
+    handleCodeComment(JS_LINE_COMMENT)(editor);
 
     expect(editor.getValue()).toEqual(`// const a = 1;
       // const b = 2;`);
   });
 
   it("should handle code uncomment for multiple lines", () => {
-    const editor = CodeMirror(document.body, { mode: "javascript" });
+    const editor = CodeMirror(document.body, { mode: EditorModes.JAVASCRIPT });
 
     const code = `// const a = 1;
       // const b = 2;`;
@@ -52,14 +57,14 @@ describe("handleCodeComment", () => {
       { line: editor.lastLine() + 1, ch: 0 },
     );
 
-    handleCodeComment(editor);
+    handleCodeComment(JS_LINE_COMMENT)(editor);
 
     expect(editor.getValue()).toEqual(`const a = 1;
       const b = 2;`);
   });
 
   it("should handle code comment for multiple lines in between", () => {
-    const editor = CodeMirror(document.body, { mode: "javascript" });
+    const editor = CodeMirror(document.body, { mode: EditorModes.JAVASCRIPT });
 
     const code = `const a = 1;
       const b = 2;
@@ -70,7 +75,7 @@ describe("handleCodeComment", () => {
     // Select the code before commenting
     editor.setSelection({ line: 1, ch: 0 }, { line: 3, ch: 0 });
 
-    handleCodeComment(editor);
+    handleCodeComment(JS_LINE_COMMENT)(editor);
 
     expect(editor.getValue()).toEqual(`const a = 1;
       // const b = 2;
@@ -78,8 +83,8 @@ describe("handleCodeComment", () => {
       const d = 4;`);
   });
 
-  it("should handle code comment for JS fields with plain text", () => {
-    const editor = CodeMirror(document.body, { mode: "text" });
+  it("should not code comment for JS fields with plain text only", () => {
+    const editor = CodeMirror(document.body, { mode: EditorModes.TEXT });
 
     const code = `hello world`;
     editor.setValue(code);
@@ -90,13 +95,13 @@ describe("handleCodeComment", () => {
       { line: editor.lastLine() + 1, ch: 0 },
     );
 
-    handleCodeComment(editor);
+    handleCodeComment(JS_LINE_COMMENT)(editor);
 
-    expect(editor.getValue()).toEqual(`// hello world`);
+    expect(editor.getValue()).toEqual(`hello world`);
   });
 
   it("should handle code uncomment for JS fields with plain text", () => {
-    const editor = CodeMirror(document.body, { mode: "text" });
+    const editor = CodeMirror(document.body, { mode: EditorModes.TEXT });
 
     const code = `// hello world`;
     editor.setValue(code);
@@ -107,13 +112,13 @@ describe("handleCodeComment", () => {
       { line: editor.lastLine() + 1, ch: 0 },
     );
 
-    handleCodeComment(editor);
+    handleCodeComment(JS_LINE_COMMENT)(editor);
 
     expect(editor.getValue()).toEqual(`hello world`);
   });
 
   it("should handle code comment in JS fields with single line", () => {
-    const editor = CodeMirror(document.body, { mode: "javascript" });
+    const editor = CodeMirror(document.body, { mode: EditorModes.JAVASCRIPT });
 
     const code = `{{ appsmith.store.id }}`;
 
@@ -125,13 +130,53 @@ describe("handleCodeComment", () => {
       { line: editor.lastLine() + 1, ch: 0 },
     );
 
-    handleCodeComment(editor);
+    handleCodeComment(JS_LINE_COMMENT)(editor);
 
     expect(editor.getValue()).toEqual(`{{//  appsmith.store.id }}`);
   });
 
+  it("should handle code comment in JS fields with text", () => {
+    const editor = CodeMirror(document.body, {
+      mode: EditorModes.JAVASCRIPT,
+    });
+
+    const code = `Hello {{ appsmith.store.id }}`;
+
+    editor.setValue(code);
+
+    // Select the code before commenting
+    editor.setSelection(
+      { line: 0, ch: 0 },
+      { line: editor.lastLine() + 1, ch: 0 },
+    );
+
+    handleCodeComment(JS_LINE_COMMENT)(editor);
+
+    expect(editor.getValue()).toEqual(`Hello {{//  appsmith.store.id }}`);
+  });
+
+  it("should handle code uncomment in JS fields with text", () => {
+    const editor = CodeMirror(document.body, {
+      mode: EditorModes.JAVASCRIPT,
+    });
+
+    const code = `Hello {{//  appsmith.store.id }}`;
+
+    editor.setValue(code);
+
+    // Select the code before commenting
+    editor.setSelection(
+      { line: 0, ch: 0 },
+      { line: editor.lastLine() + 1, ch: 0 },
+    );
+
+    handleCodeComment(JS_LINE_COMMENT)(editor);
+
+    expect(editor.getValue()).toEqual(`Hello {{ appsmith.store.id }}`);
+  });
+
   it("should handle code comment in JS fields with multiple lines", () => {
-    const editor = CodeMirror(document.body, { mode: "javascript" });
+    const editor = CodeMirror(document.body, { mode: EditorModes.JAVASCRIPT });
 
     const code = `  {{  (() => {
       const a = "hello";
@@ -146,7 +191,7 @@ describe("handleCodeComment", () => {
       { line: editor.lastLine() + 1, ch: 0 },
     );
 
-    handleCodeComment(editor);
+    handleCodeComment(JS_LINE_COMMENT)(editor);
 
     expect(editor.getValue()).toEqual(`  {{//   (() => {
       // const a = "hello";
@@ -155,7 +200,7 @@ describe("handleCodeComment", () => {
   });
 
   it("should handle code uncomment in JS fields with multiple lines", () => {
-    const editor = CodeMirror(document.body, { mode: "javascript" });
+    const editor = CodeMirror(document.body, { mode: EditorModes.JAVASCRIPT });
 
     const code = `  {{// (() => {
       // const a = "hello";
@@ -170,11 +215,53 @@ describe("handleCodeComment", () => {
       { line: editor.lastLine() + 1, ch: 0 },
     );
 
-    handleCodeComment(editor);
+    handleCodeComment(JS_LINE_COMMENT)(editor);
 
     expect(editor.getValue()).toEqual(`  {{(() => {
       const a = "hello";
       return "Text";
     })()}}`);
+  });
+
+  it("should handle code comment for SQL queries", () => {
+    const editor = CodeMirror(document.body, {
+      mode: EditorModes.SQL,
+    });
+
+    const code = `Select * from users;`;
+
+    editor.setValue(code);
+
+    // Select the code before commenting
+    editor.setSelection(
+      { line: 0, ch: 0 },
+      { line: editor.lastLine() + 1, ch: 0 },
+    );
+
+    handleCodeComment(SQL_LINE_COMMENT)(editor);
+
+    expect(editor.getValue()).toEqual(`-- Select * from users;`);
+  });
+
+  it("should handle code comment for SQL queries with JS bindings", () => {
+    const editor = CodeMirror(document.body, {
+      mode: EditorModes.SQL,
+    });
+
+    const code = `Select * from users where name={{Select.selectedOptionValue}};`;
+
+    editor.setValue(code);
+
+    // Select the code before commenting
+    editor.setSelection(
+      { line: 0, ch: 0 },
+      { line: editor.lastLine() + 1, ch: 0 },
+    );
+
+    handleCodeComment(SQL_LINE_COMMENT)(editor);
+
+    expect(editor.getValue()).toEqual(
+      `-- Select * from users where name={{Select.selectedOptionValue}};`,
+    );
   });
 });

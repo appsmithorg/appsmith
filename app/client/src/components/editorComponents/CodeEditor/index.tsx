@@ -208,6 +208,7 @@ export type EditorProps = EditorStyleProps &
     // On focus and blur event handler
     onEditorBlur?: () => void;
     onEditorFocus?: () => void;
+    lineCommentString?: string;
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -230,6 +231,7 @@ class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker, entityMarker],
     hinting: [bindingHint, commandsHelper],
+    lineCommentString: "//",
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
@@ -297,7 +299,11 @@ class CodeEditor extends Component<Props, State> {
       const moveCursorLeftKey = getMoveCursorLeftKey();
       options.extraKeys = {
         [moveCursorLeftKey]: "goLineStartSmart",
-        [getCodeCommentKeyMap()]: handleCodeComment,
+        [getCodeCommentKeyMap()]: handleCodeComment(
+          // We've provided the default props value for lineCommentString
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.lineCommentString!,
+        ),
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {

@@ -1,5 +1,6 @@
 import CodeMirror from "codemirror";
 import { isMacOrIOS } from "utils/helpers";
+import { EditorModes } from "../EditorConfig";
 
 export const getCodeCommentKeyMap = () => {
   return isMacOrIOS() ? "Cmd-/" : "Ctrl-/";
@@ -42,8 +43,12 @@ const noOptions: CodeMirror.CommentOptions = {};
 /**
  * Gives index of the first non whitespace character in the line
  **/
-function firstNonWhitespace(str: string) {
-  const found = str.search(nonWhitespace);
+function firstNonWhitespace(str: string, mode: EditorModes) {
+  const found = str.search(
+    mode === EditorModes.JAVASCRIPT && str.includes(JS_FIELD_BEGIN)
+      ? JS_FIELD_BEGIN
+      : nonWhitespace,
+  );
   return found === -1 ? 0 : found;
 }
 
@@ -80,7 +85,10 @@ function performLineCommenting(
   const firstLine = self.getLine(from.line);
   if (firstLine === null || probablyInsideString(self, from, firstLine)) return;
 
-  const commentString = options.lineComment || mode.lineComment;
+  // When mode is TEXT, the name is null string, we skip commenting
+  const commentString =
+    mode.name === "null" ? "" : options.lineComment || mode.lineComment;
+
   if (!commentString) {
     if (options.blockCommentStart || mode.blockCommentStart) {
       options.fullLines = true;
@@ -101,7 +109,7 @@ function performLineCommenting(
         const baseString =
           line.search(nonWhitespace) === -1
             ? line
-            : line.slice(0, firstNonWhitespace(line));
+            : line.slice(0, firstNonWhitespace(line, mode.name as EditorModes));
 
         const offset = (baseString || "").length;
 
@@ -172,7 +180,7 @@ function performLineUncommenting(
       if (
         found > -1 &&
         // Handle JS fields with {{}}
-        !line.trim().startsWith(JS_FIELD_BEGIN) &&
+        !line.trim().includes(JS_FIELD_BEGIN) &&
         nonWhitespace.test(line.slice(0, found))
       )
         break lineComment;
@@ -290,7 +298,9 @@ function performLineUncommenting(
 }
 
 /** This function handles commenting which includes functions copied from comment add on with modifications */
-export const handleCodeComment = (cm: CodeMirror.Editor) => {
+export const handleCodeComment = (lineCommentingString: string) => (
+  cm: CodeMirror.Editor,
+) => {
   cm.lineComment = performLineCommenting;
 
   cm.uncomment = performLineUncommenting;
@@ -300,7 +310,7 @@ export const handleCodeComment = (cm: CodeMirror.Editor) => {
     commentBlankLines: true,
     // Always provide the line comment, otherwise it'll not work for JS fields when
     // the mode is set to text/plain (when whole text wrapped in {{}} is selected)
-    lineComment: "//",
+    lineComment: lineCommentingString,
     indent: true,
   });
 };

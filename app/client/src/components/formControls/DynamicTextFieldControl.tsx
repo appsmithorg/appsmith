@@ -31,6 +31,16 @@ const Wrapper = styled.div`
   }
 `;
 
+function getLineCommentString(mode: EditorModes) {
+  switch (mode) {
+    case EditorModes.SQL:
+    case EditorModes.SQL_WITH_BINDING:
+      return "--";
+    default:
+      return "//";
+  }
+}
+
 interface DynamicTextControlState {
   showTemplateMenu: boolean;
 }
@@ -65,6 +75,8 @@ class DynamicTextControl extends BaseControl<
         ? EditorModes.SQL_WITH_BINDING
         : EditorModes.JSON_WITH_BINDING;
 
+    const lineCommentString = getLineCommentString(mode);
+
     return (
       <Wrapper className={`t--${configProperty}`}>
         <DynamicTextField
@@ -72,6 +84,7 @@ class DynamicTextControl extends BaseControl<
           dataTreePath={dataTreePath}
           disabled={this.props.disabled}
           evaluationSubstitutionType={evaluationSubstitutionType}
+          lineCommentString={lineCommentString}
           mode={mode}
           name={this.props.configProperty}
           placeholder={placeholderText}
