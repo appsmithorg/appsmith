@@ -62,8 +62,8 @@ export const setSelectedPropertyTabIndex = (selectedIndex: number) => {
 
 export const setFocusablePropertyPaneField = (path?: string) => {
   return {
-    type: ReduxActionTypes.UNSET_SELECTED_PANEL_PROPERTY,
-    payload: path,
+    type: ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD,
+    payload: { path },
   };
 };
 

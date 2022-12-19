@@ -52,6 +52,7 @@ import {
 } from "actions/jsPaneActions";
 import {
   setAllPropertySectionState,
+  setFocusablePropertyPaneField,
   setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
@@ -74,6 +75,7 @@ import {
   getJSPaneResponseSelectedTab,
 } from "selectors/jsPaneSelectors";
 import {
+  getFocusablePropertyPaneField,
   getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
@@ -102,6 +104,7 @@ export enum FocusElement {
   JSPaneResponseTabs = "JSPaneResponseTabs",
   JSPaneResponseHeight = "JSPaneResponseHeight",
   PropertySections = "PropertySections",
+  PropertyField = "PropertyField",
   PropertyTabs = "PropertyTabs",
   PropertyPanelContext = "PropertyPanelContext",
   PropertyPaneWidth = "PropertyPaneWidth",
@@ -262,9 +265,9 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: 0,
     },
     {
-      name: FocusElement.InputField,
-      selector: getFocusableInputField,
-      setter: setFocusableInputField,
+      name: FocusElement.PropertyField,
+      selector: getFocusablePropertyPaneField,
+      setter: setFocusablePropertyPaneField,
       defaultValue: "",
     },
   ],

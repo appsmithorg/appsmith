@@ -117,6 +117,7 @@ import {
 import { updateChildrenSize } from "./AutoLayoutUtils";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
+import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import {
   changeIdsOfPastePositions,
@@ -1782,7 +1783,18 @@ function* pasteWidgetSaga(
     reflowedMovementMap,
   );
 
-  yield put(updateAndSaveLayout(reflowedWidgets));
+  // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
+  // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
+  // while traversing, if we find any widget which has CHILD_OPERATION, we will call the fn in it
+  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    traverseTreeAndExecuteBlueprintChildOperations,
+    reflowedWidgets[pastingIntoWidgetId],
+    newlyCreatedWidgetIds.filter(
+      (widgetId) => !reflowedWidgets[widgetId]?.detachFromLayout,
+    ),
+    reflowedWidgets,
+  );
+  yield put(updateAndSaveLayout(updatedWidgets));
 
   const pageId: string = yield select(getCurrentPageId);
 
