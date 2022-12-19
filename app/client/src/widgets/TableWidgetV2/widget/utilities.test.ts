@@ -3,6 +3,7 @@ import { ColumnTypes } from "../constants";
 import {
   escapeString,
   getAllTableColumnKeys,
+  getArrayPropertyValue,
   getColumnType,
   getDerivedColumns,
   getOriginalRowIndex,
@@ -1988,5 +1989,94 @@ describe("getColumnType", () => {
   it("returns Date column type for valid Date field", () => {
     const result = getColumnType(tableData, "dob");
     expect(ColumnTypes.DATE).toEqual(result);
+  });
+});
+
+describe("getArrayPropertyValue", () => {
+  it("should test that it returns the same value when value is not of expected type", () => {
+    expect(getArrayPropertyValue("test", 1)).toEqual("test");
+    expect(getArrayPropertyValue(1, 1)).toEqual(1);
+  });
+
+  it("should test that it returns the same value when value is empty", () => {
+    expect(getArrayPropertyValue([], 1)).toEqual([]);
+  });
+
+  it("should test that it returns the correct value when value is just array of label values", () => {
+    expect(
+      getArrayPropertyValue([{ label: "test", value: "test" }], 1),
+    ).toEqual([{ label: "test", value: "test" }]);
+    expect(
+      getArrayPropertyValue(
+        [
+          { label: "test", value: "test" },
+          { label: "test1", value: "test1" },
+        ],
+        1,
+      ),
+    ).toEqual([
+      { label: "test", value: "test" },
+      { label: "test1", value: "test1" },
+    ]);
+  });
+
+  it("should test that it returns the correct value when value is an array of array of label values", () => {
+    expect(
+      getArrayPropertyValue(
+        [
+          [
+            {
+              label: "test1",
+              value: "test1",
+            },
+          ],
+          [
+            {
+              label: "test2",
+              value: "test2",
+            },
+          ],
+        ],
+        1,
+      ),
+    ).toEqual([
+      {
+        label: "test2",
+        value: "test2",
+      },
+    ]);
+
+    expect(
+      getArrayPropertyValue(
+        [
+          [
+            {
+              label: "test1",
+              value: "test1",
+            },
+            {
+              label: "test2",
+              value: "test2",
+            },
+          ],
+          [
+            {
+              label: "test3",
+              value: "test3",
+            },
+          ],
+        ],
+        0,
+      ),
+    ).toEqual([
+      {
+        label: "test1",
+        value: "test1",
+      },
+      {
+        label: "test2",
+        value: "test2",
+      },
+    ]);
   });
 });
