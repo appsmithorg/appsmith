@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -126,15 +127,15 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                         .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
                         .flatMap(actionCollectionRepository::setUserPermissionsInObject));
 
-        Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(pageFlux,
-                permissionGroupService.getSessionUserPermissionGroupIds(), pagePermission.getEditPermission(),
-                expectedError);
-        Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(actionFlux,
-                permissionGroupService.getSessionUserPermissionGroupIds(), actionPermission.getEditPermission(),
-                expectedError);
-        Mono<Boolean> actionCollectionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(actionCollectionFlux,
-                permissionGroupService.getSessionUserPermissionGroupIds(), actionPermission.getEditPermission(),
-                expectedError);
+        Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                pageFlux, FieldName.PAGE, permissionGroupService.getSessionUserPermissionGroupIds(),
+                pagePermission.getEditPermission(), expectedError);
+        Mono<Boolean> actionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                actionFlux, FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
+                actionPermission.getEditPermission(), expectedError);
+        Mono<Boolean> actionCollectionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                actionCollectionFlux, FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
+                actionPermission.getEditPermission(), expectedError);
         return Mono.zip(pagesValidatedForPermission, actionsValidatedForPermission, actionCollectionsValidatedForPermission);
     }
 }

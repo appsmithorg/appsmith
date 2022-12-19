@@ -553,6 +553,12 @@ public class GenericDatabaseOperationTest {
                 .all()
                 .filter(page -> page.getPublishedPage().getName().equals("Page1")).next().block();
 
+        // Get resource of feature branch Page 2
+        NewPage page2FeatureBranch = reactiveMongoOperations.query(NewPage.class)
+                .matching(Criteria.where("applicationId").is(importedApplicationFeature1BranchId))
+                .all()
+                .filter(page -> page.getPublishedPage().getName().equals("Page2")).next().block();
+
         // Apply manage permission to application in master branch
         genericDatabaseOperation.updatePolicies(page1InMaster.getId(), createdPermissionGroup.getId(), List.of(AclPermission.MANAGE_PAGES), List.of(), NewPage.class).block();
 
@@ -561,6 +567,11 @@ public class GenericDatabaseOperationTest {
                 .matching(Criteria.where("applicationId").is(importedApplicationMasterBranchId))
                 .all()
                 .filter(page -> page.getPublishedPage().getName().equals("Page1")).next();
+
+        Mono<NewPage> page2InFeatureMono = reactiveMongoOperations.query(NewPage.class)
+                .matching(Criteria.where("applicationId").is(importedApplicationFeature1BranchId))
+                .all()
+                .filter(page -> page.getPublishedPage().getName().equals("Page2")).next();
 
         // Get mono for Page1 in feature1 branch
         Mono<NewPage> page1InFeature1Mono = reactiveMongoOperations.query(NewPage.class)
@@ -617,6 +628,13 @@ public class GenericDatabaseOperationTest {
                         return policy.getPermission().equals(AclPermission.MANAGE_ACTIONS.getValue())
                                 && policy.getPermissionGroups().contains(createdPermissionGroup.getId());
                     });
+                })
+                .verifyComplete();
+
+        // Verify the permission is not affected in page 2
+        StepVerifier.create(page2InFeatureMono)
+                .assertNext(newPage -> {
+                    assertThat(newPage.getPolicies()).isEqualTo(page2FeatureBranch.getPolicies());
                 })
                 .verifyComplete();
     }

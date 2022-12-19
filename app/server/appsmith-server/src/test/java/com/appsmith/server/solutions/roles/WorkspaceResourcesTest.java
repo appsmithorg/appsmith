@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -66,11 +67,13 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -1759,6 +1762,69 @@ public class WorkspaceResourcesTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Update restricted permissions")))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test_actionCollectionPermissionSideEffectToRelatedAction() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        Workspace workspace = new Workspace();
+        workspace.setName("test_actionCollectionPermissionSideEffectToRelatedAction workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("test_actionCollectionPermissionSideEffectToRelatedAction application");
+        Application createdApplication = applicationPageService.createApplication(application, workspace.getId()).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection");
+        actionCollectionDTO.setPageId(createdApplication.getPages().get(0).getId());
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setPluginId(pluginRepository.findByPackageName("installed-js-plugin").block().getId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        ActionDTO action = new ActionDTO();
+        action.setName("testAction");
+        action.setActionConfiguration(new ActionConfiguration());
+        action.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO.setActions(List.of(action));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setBody("export default { x: 1 }");
+
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService.createCollection(actionCollectionDTO).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(
+                new UpdateRoleEntityDTO(ActionCollection.class.getSimpleName(), createdActionCollectionDTO.getId(), List.of(-1, 1, 0, 1, -1, -1), createdActionCollectionDTO.getName())));
+        List<NewAction> actionsBeforeRoleUpdate = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionDTO.getId()), null)
+                .collectList().block();
+        RoleViewDTO roleViewDTO = roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+        List<NewAction> actionsAfterRoleUpdate = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionDTO.getId()), null)
+                .collectList().block();
+
+        assertThat(actionsBeforeRoleUpdate).hasSize(1);
+        NewAction newActionBeforeRoleUpdate = actionsBeforeRoleUpdate.get(0);
+        Optional<Policy> manageActionPolicyBeforeRoleUpdate = newActionBeforeRoleUpdate.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_ACTIONS.getValue()))
+                .findFirst();
+        assertThat(manageActionPolicyBeforeRoleUpdate.isPresent()).isTrue();
+        assertThat(manageActionPolicyBeforeRoleUpdate.get().getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+
+        assertThat(actionsAfterRoleUpdate).hasSize(1);
+        NewAction newActionAfterRoleUpdate = actionsAfterRoleUpdate.get(0);
+        Optional<Policy> manageActionPolicyAfterRoleUpdate = newActionAfterRoleUpdate.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_ACTIONS.getValue()))
+                .findFirst();
+        assertThat(manageActionPolicyAfterRoleUpdate.isPresent()).isTrue();
+        assertThat(manageActionPolicyAfterRoleUpdate.get().getPermissionGroups()).contains(createdPermissionGroup.getId());
     }
 
 }

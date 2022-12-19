@@ -29,6 +29,7 @@ module.exports = {
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",
     "design-system": "<rootDir>/node_modules/design-system/build",
+    "^proxy-memoize$": "<rootDir>/node_modules/proxy-memoize/dist/wrapper.cjs",
   },
   globals: {
     "ts-jest": {

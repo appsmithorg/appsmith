@@ -2414,7 +2414,7 @@ public class ApplicationServiceTest {
         StepVerifier.create(applicationPageService.publish(gitConnectedApp.getId(), null, true))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.UNABLE_TO_DEPLOY_MISSING_PERMISSION
-                                .getMessage("Page", gitAppPageId)))
+                                .getMessage("page", gitAppPageId)))
                 .verify();
         updatedGitAppPage.setPolicies(existingPolicies);
         NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
@@ -2440,7 +2440,7 @@ public class ApplicationServiceTest {
         StepVerifier.create(applicationPageService.cloneApplication(gitConnectedApp.getId(), null))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS
-                                .getMessage("Page", gitAppPageId)))
+                                .getMessage("page", gitAppPageId)))
                 .verify();
         updatedGitAppPage.setPolicies(existingPolicies);
         NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();

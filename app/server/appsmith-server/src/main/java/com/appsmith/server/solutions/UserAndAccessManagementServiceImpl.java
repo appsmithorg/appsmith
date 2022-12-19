@@ -221,6 +221,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             rolesAddedFlux = UserPermissionUtils
                     .validateDomainObjectPermissionsOrError(
                             rolesToBeAddedFlux.map(role -> role),
+                            FieldName.ROLE,
                             permissionGroupService.getSessionUserPermissionGroupIds(),
                             permissionGroupPermission.getAssignPermission(),
                             AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
@@ -233,6 +234,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
             rolesRemovedFlux = UserPermissionUtils
                     .validateDomainObjectPermissionsOrError(
                             rolesToBeRemovedFlux.map(role -> role),
+                            FieldName.ROLE,
                             permissionGroupService.getSessionUserPermissionGroupIds(),
                             permissionGroupPermission.getUnAssignPermission(),
                             AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION

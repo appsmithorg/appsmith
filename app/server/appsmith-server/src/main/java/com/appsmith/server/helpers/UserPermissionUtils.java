@@ -25,6 +25,7 @@ public class UserPermissionUtils {
     }
 
     public static Mono<Boolean> validateDomainObjectPermissionsOrError(Flux<BaseDomain> baseDomainFlux,
+                                                                       String domainEntity,
                                                                        Mono<Set<String>> permissionGroupIdsMono,
                                                                        AclPermission aclPermission,
                                                                        AppsmithError appsmithError) {
@@ -32,7 +33,7 @@ public class UserPermissionUtils {
                 .zipWith(permissionGroupIdsMono.repeat())
                 .map(tuple -> {
                     if (! validaDomainObjectPermissionExists(tuple.getT1(), aclPermission, tuple.getT2())) {
-                        throw new AppsmithException(appsmithError, aclPermission.getEntity().getSimpleName(), tuple.getT1().getId());
+                        throw new AppsmithException(appsmithError, domainEntity, tuple.getT1().getId());
                     }
                     return Boolean.TRUE;
                 })
