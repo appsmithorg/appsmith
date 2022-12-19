@@ -389,22 +389,6 @@ export function Installer(props: { left: number }) {
     [URL, installedLibraries, queuedLibraries],
   );
 
-  const handleEnterKey = useCallback(
-    (e) => {
-      if (e.key === "Enter" && isValid) {
-        installLibrary();
-      }
-    },
-    [isValid],
-  );
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleEnterKey);
-    return () => {
-      document.removeEventListener("mousedown", handleEnterKey);
-    };
-  }, [isOpen]);
-
   return !isOpen ? null : (
     <Wrapper className="bp3-popover" left={left} ref={installerRef}>
       <div className="installation-header">
