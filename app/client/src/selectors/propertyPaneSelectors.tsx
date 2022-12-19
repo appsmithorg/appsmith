@@ -23,7 +23,6 @@ import {
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
-import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -90,7 +89,6 @@ export const getWidgetPropsForPropertyPane = createSelector(
 );
 
 type WidgetPropertiesForPropertyPaneView = {
-  disabledWidgetFeatures?: RegisteredWidgetFeatures[];
   type: string;
   widgetId: string;
   widgetName: string;
@@ -105,7 +103,6 @@ export const getWidgetPropsForPropertyPaneView = createSelector(
       "widgetId",
       "widgetName",
       "displayName",
-      "disabledWidgetFeatures",
     ]) as WidgetPropertiesForPropertyPaneView,
 );
 
@@ -276,6 +273,7 @@ export const getIsPropertyPaneVisible = createSelector(
 export const getPropertyPaneWidth = (state: AppState) => {
   return state.ui.propertyPane.width;
 };
+
 export const getFocusablePropertyPaneField = (state: AppState) =>
   state.ui.propertyPane.focusedProperty;
 

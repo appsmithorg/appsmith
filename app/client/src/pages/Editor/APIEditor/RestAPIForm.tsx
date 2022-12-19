@@ -63,6 +63,7 @@ function ApiEditorForm(props: Props) {
       formName={API_EDITOR_FORM_NAME}
       paginationUIComponent={
         <Pagination
+          actionName={actionName}
           onTestClick={props.onRunClick}
           paginationType={props.paginationType}
           theme={theme}
