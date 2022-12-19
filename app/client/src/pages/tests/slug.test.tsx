@@ -13,7 +13,7 @@ import {
   updatedApplicationPayload,
   updatedPagePayload,
 } from "./mockData";
-import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
+import ManualUpgrades from "ce/components/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { Icon, IconSize } from "design-system";

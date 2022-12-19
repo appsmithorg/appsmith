@@ -5,7 +5,7 @@ import React, { useCallback, useEffect } from "react";
 import { Route, Switch, useLocation } from "react-router";
 
 import EditorsRouter from "./routes";
-import BottomBar from "./BottomBar";
+import BottomBar from "@appsmith/components/BottomBar";
 import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import {

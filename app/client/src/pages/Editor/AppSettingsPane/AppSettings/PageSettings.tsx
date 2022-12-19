@@ -21,7 +21,7 @@ import classNames from "classnames";
 import { Colors } from "constants/Colors";
 import { Text, TextInput, TextType } from "design-system";
 import AdsSwitch from "design-system/build/Switch";
-import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
+import ManualUpgrades from "ce/components/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
