@@ -1,4 +1,4 @@
-const dsl = require("../../../../fixtures/dynamicHeightListTextDsl.json");
+const dsl = require("../../../../fixtures/DynamicHeightListTextDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const explorer = require("../../../../locators/explorerlocators.json");
