@@ -15,7 +15,7 @@ describe("Checkbox Widget Functionality", function() {
     // Click on canvas to get global theme settings
     cy.get(commonlocators.canvas).click({ force: true });
 
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     cy.get(commonlocators.themeAppBorderRadiusBtn)
       .last()
@@ -61,7 +61,7 @@ describe("Checkbox Widget Functionality", function() {
 
     // Change the theme border radius to M and check if the remove file icon's border radius is 4px;
     cy.get(commonlocators.canvas).click({ force: true });
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     cy.get(commonlocators.themeAppBorderRadiusBtn)
       .eq(1)
@@ -85,7 +85,7 @@ describe("Checkbox Widget Functionality", function() {
     // Change the global theme primary color
     cy.get(commonlocators.canvas).click({ force: true });
     cy.wait(300);
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
 
     cy.get(themeLocator.inputColor).click({ force: true });
@@ -118,7 +118,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(".uppy-Dashboard-close").click({ force: true });
     cy.get(commonlocators.canvas).click({ force: true });
     cy.wait(300);
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
 
     cy.get(themeLocator.fontsSelected).click({ force: true });

@@ -174,7 +174,7 @@ jobs:
     defaults:
       run:
         working-directory: app/server
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
       github.event_name == 'workflow_dispatch' ||
@@ -648,7 +648,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1]
+        job: [0, 1, 2, 3, 4]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -1494,7 +1494,7 @@ jobs:
         with:
           name: failed-spec
           path: ~/failed_spec
-      
+
       # Download failed_spec_fat list for all fat container jobs
       - uses: actions/download-artifact@v3
         if: needs.fat-container-test.result
@@ -1543,7 +1543,7 @@ jobs:
         with:
           name: combined_failed_spec
           path: ~/combined_failed_spec
-      
+
       # Upload combined failed fat spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec

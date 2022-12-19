@@ -71,7 +71,7 @@ describe("Git import flow ", function() {
         cy.connectToGitRepo(repoName);
       });
     });
-    cy.wait(4000); // for git connection to settle!
+    cy.wait(5000); // for git connection to settle!
   });
 
   it("2. Import the previous app connected to Git and reconnect Postgres, MySQL and Mongo db ", () => {
@@ -90,7 +90,7 @@ describe("Git import flow ", function() {
       .next()
       .click();
     cy.importAppFromGit(repoName);
-    cy.wait(100);
+    cy.wait(5000);
     cy.get(reconnectDatasourceModal.Modal).should("be.visible");
     cy.ReconnectDatasource("TEDPostgres");
     cy.wait(500);
@@ -142,7 +142,8 @@ describe("Git import flow ", function() {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
-  // skipping these tests until bug #18776 is fixed
+
+  // skipping this due to open bug #18776
   it.skip("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     cy.createGitBranch(newBranch);
     cy.get(".tbody")
@@ -213,6 +214,7 @@ describe("Git import flow ", function() {
     cy.wait(2000);
   });
 
+  // skipping this due to open bug #18776
   it.skip("5. Switch to master and verify data in edit and view mode", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
@@ -236,6 +238,7 @@ describe("Git import flow ", function() {
     cy.wait(2000);
   });
 
+  // skipping this due to open bug #18776
   it.skip("6. Add widget to master, merge then checkout to child branch and verify data", () => {
     cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition

@@ -27,11 +27,9 @@ export class HomePage {
   private _email =
     "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
-  private _userRole = (role: string, workspaceName: string) =>
+  private _userRole = (role: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role +
-    " - " +
-    workspaceName +
     "']";
 
   private _manageUsers = ".manageUsers";
@@ -53,8 +51,7 @@ export class HomePage {
     "//td[text()='" +
     email +
     "']/following-sibling::td//span[contains(@class, 't--deleteUser')]";
-  private _userRoleDropDown = (role: string, WorkspaceName: string) =>
-    "//span[text()='" + role + " - " + WorkspaceName + "']";
+  private _userRoleDropDown = (role: string) => "//span[text()='" + role + "']";
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
@@ -146,7 +143,7 @@ export class HomePage {
       .first()
       .click({ force: true });
     this.agHelper.Sleep(500);
-    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
+    cy.xpath(this._userRole(role)).click({ force: true });
     this.agHelper.ClickButton("Invite");
     cy.wait("@mockPostInvite")
       .its("request.headers")
@@ -317,12 +314,12 @@ export class HomePage {
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
     cy.log(workspaceName, email, currentRole);
-    cy.xpath(this._userRoleDropDown(currentRole, workspaceName))
+    cy.xpath(this._userRoleDropDown(currentRole))
       .first()
       .click({ force: true });
 
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
-    cy.xpath(this._visibleTextSpan(`${newRole} - ${workspaceName}`))
+    cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
       .click({ force: true });
     this.agHelper.Sleep();
@@ -339,11 +336,7 @@ export class HomePage {
     cy.xpath(this._uploadFile).attachFile(fixtureJson);
     this.agHelper.Sleep(3500);
   }
-  public InviteUserToWorkspaceFromApp(
-    workspaceName: string,
-    email: string,
-    role: string,
-  ) {
+  public InviteUserToWorkspaceFromApp(email: string, role: string) {
     const successMessage = "The user has been invited successfully";
     this.StubPostHeaderReq();
     cy.xpath(this._email)
@@ -353,7 +346,7 @@ export class HomePage {
       .first()
       .click({ force: true });
     this.agHelper.Sleep(500);
-    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
+    cy.xpath(this._userRole(role)).click({ force: true });
     this.agHelper.ClickButton("Invite");
     cy.wait("@mockPostInvite")
       .its("request.headers")

@@ -55,8 +55,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
-      # Create a run record exactly at the time of merge to release to  
+
+      # Create a run record exactly at the time of merge to release to
       # ensure we compare run details with code at this point
       - name: Create Perf Meta
         continue-on-error: true

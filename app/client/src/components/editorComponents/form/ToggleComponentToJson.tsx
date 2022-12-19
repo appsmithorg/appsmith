@@ -14,7 +14,7 @@ import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { change } from "redux-form";
 import { JSToggleButton, TooltipComponent } from "design-system";
 import { get } from "lodash";
-import { JS_TOGGLE_DISABLED_MESSAGE } from "ce/constants/messages";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 
 type Props = {
   viewType: ViewTypes;

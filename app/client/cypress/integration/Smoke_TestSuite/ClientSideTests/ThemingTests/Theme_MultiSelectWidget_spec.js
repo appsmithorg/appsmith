@@ -17,7 +17,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
@@ -124,7 +124,7 @@ describe("Theme validation usecase for multi-select widget", function() {
 
   it("3. Validate current theme feature", function() {
     cy.get("#canvas-selection-0").click({ force: true });
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });

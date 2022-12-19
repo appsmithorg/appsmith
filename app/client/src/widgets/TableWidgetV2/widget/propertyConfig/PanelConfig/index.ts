@@ -10,6 +10,7 @@ import DiscardButtonproperties, {
 } from "./DiscardButtonproperties";
 import Icon from "./Icon";
 import TextFormatting from "./TextFormatting";
+import Alignment from "./Alignment";
 import Color from "./Color";
 import BorderAndShadow from "./BorderAndShadow";
 import Validations from "./Validation";
@@ -34,6 +35,7 @@ export default {
   styleChildren: [
     GeneralStyle,
     Icon,
+    Alignment,
     TextFormatting,
     Color,
     saveButtonStyleConfig,
