@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { MouseEvent, useCallback, useEffect, useRef } from "react";
 
 import { scopeTab } from "./scopeTab";
 
@@ -26,6 +26,20 @@ function useWidgetFocus(): (instance: HTMLElement | null) => void {
     };
 
     ref.current.addEventListener("keydown", handleKeyDown);
+
+    // focus the current element on click inside the widget
+    if (ref.current) {
+      ref.current.addEventListener("click", (event: any) => {
+        const target = event.target as HTMLElement;
+
+        console.log({ target, activeElement: document.activeElement });
+        if (target) {
+          target.focus();
+
+          console.log({ target, active: document.activeElement });
+        }
+      });
+    }
 
     return () => {
       ref?.current && ref.current.removeEventListener("keydown", handleKeyDown);

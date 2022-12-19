@@ -6,6 +6,7 @@ import {
   WIDGET_SELECTOR,
   getNextTabbableDescendantForJSONForm,
   CHECKBOXGROUP_WIDGET,
+  FOCUS_SELECTOR,
 } from "./tabbable";
 
 export function scopeTab(event: KeyboardEvent) {
@@ -15,15 +16,15 @@ export function scopeTab(event: KeyboardEvent) {
   const currentWidget = currentNode.closest(WIDGET_SELECTOR) as HTMLElement;
 
   switch (true) {
-    case currentWidget.matches(JSONFORM_WIDGET):
-    case currentWidget.matches(CHECKBOXGROUP_WIDGET):
+    case currentWidget && currentWidget.matches(JSONFORM_WIDGET):
+    case currentWidget && currentWidget.matches(CHECKBOXGROUP_WIDGET):
       nextTabbableDescendant = getNextTabbableDescendantForJSONForm(
         currentWidget,
         shiftKey,
       );
       break;
     default:
-      const tabbable = getTabbableDescendants(currentWidget, shiftKey);
+      const tabbable = getTabbableDescendants(currentNode, shiftKey);
 
       nextTabbableDescendant = getNextTabbableDescendant(tabbable, shiftKey);
   }

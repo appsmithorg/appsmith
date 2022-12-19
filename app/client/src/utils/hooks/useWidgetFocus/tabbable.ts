@@ -20,14 +20,37 @@ export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGE
 export function getTabbableDescendants(
   currentNode: HTMLElement,
   shiftKey = false,
-  shouldTrap = false,
 ): HTMLElement[] {
   const activeWidget = currentNode.closest(WIDGET_SELECTOR) as HTMLElement;
 
-  console.log({ currentNode });
+  // if the current node is not a widget, check if it is a modal
+  // if it is a modal, we have to trap the focus within the modal
+  if (!activeWidget) {
+    const modal = currentNode.closest(MODAL_WIDGET) as HTMLElement;
 
-  const siblings = getWidgetSiblingsOfNode(currentNode);
-  const domRect = activeWidget.getBoundingClientRect();
+    if (modal) {
+      const tabbableDescendants = Array.from(
+        modal.querySelectorAll(FOCUS_SELECTOR),
+      ) as HTMLElement[];
+
+      if (shiftKey) tabbableDescendants.reverse();
+
+      return tabbableDescendants;
+    }
+  }
+
+  let siblings;
+
+  console.log({ currentNode, active: document.activeElement });
+  if (document.activeElement?.matches(FOCUS_SELECTOR)) {
+    siblings = getWidgetSiblingsOfNode(currentNode);
+  } else {
+    siblings = getChildrenWidgetsOfNode(currentNode);
+  }
+
+  const domRect = activeWidget
+    ? activeWidget.getBoundingClientRect()
+    : currentNode.getBoundingClientRect();
 
   const sortedSiblings = sortWidgetsByPosition(
     { top: domRect.top, left: domRect.left },

@@ -75,9 +75,10 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)}`}
       containerStyle={containerStyle}
+      ref={containerRef}
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
       // getCanvasClassName is used to add a scrollable parent.
-      ref={containerRef}
+      tabIndex={props.shouldScrollContents ? undefined : 0}
     >
       {props.children}
     </StyledContainerComponent>
