@@ -23,6 +23,10 @@ export default function* autoHeightSagas() {
       ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
       updateWidgetAutoHeightSaga,
     ),
+    takeEvery(
+      ReduxActionTypes.IMMEDIATELY_UPDATE_AUTO_HEIGHT,
+      updateWidgetAutoHeightSaga,
+    ),
     takeLatest(
       [
         ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo

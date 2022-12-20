@@ -511,12 +511,12 @@ export function ReflowResizable(props: ResizableProps) {
       }}
       from={{
         width: props.componentWidth,
-        height: props.componentHeight,
+        height: props.enableVerticalResize ? props.componentHeight : undefined,
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
         width: widgetWidth,
-        height: widgetHeight,
+        height: props.enableVerticalResize ? widgetHeight : undefined,
         transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
       }}
     >

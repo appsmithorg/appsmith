@@ -19,7 +19,7 @@ import {
 import { calculateDropTargetRows } from "./DropTargetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import { AppState } from "@appsmith/reducers";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   useShowPropertyPane,
   useCanvasSnapRowsUpdateHook,
@@ -31,6 +31,7 @@ import {
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getDragDetails } from "sagas/selectors";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
+import { immediatelyUpdateAutoHeightAction } from "actions/autoHeightActions";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -216,6 +217,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   /** PREPARE CONTEXT */
 
+  const dispatch = useDispatch();
   // Function which computes and updates the height of the dropTarget
   // This is used in a context and hence in one of the children of this dropTarget
   const updateDropTargetRows = (
@@ -232,6 +234,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       );
       if (rowRef.current < newRows) {
         rowRef.current = newRows;
+        if (
+          props.parentId !== undefined &&
+          props.parentId !== MAIN_CONTAINER_WIDGET_ID
+        ) {
+          dispatch(immediatelyUpdateAutoHeightAction(props.parentId, newRows));
+        }
         updateHeight();
         return newRows;
       }
@@ -283,7 +291,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
-        className="t--drop-target"
+        className={`t--drop-target drop-target-${props.parentId}`}
         onClick={handleFocus}
         ref={dropTargetRef}
         style={dropTargetStyles}

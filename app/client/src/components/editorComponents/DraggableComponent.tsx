@@ -1,10 +1,10 @@
-import React, { CSSProperties, useMemo, useRef } from "react";
+import React, { CSSProperties, useRef } from "react";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+// import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { getColorWithOpacity } from "constants/DefaultTheme";
+// import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
   useShowTableFilterPane,
   useWidgetDragResize,
@@ -29,20 +29,18 @@ const DraggableWrapper = styled.div`
 `;
 
 // Widget Boundaries which is shown to indicate the boundaries of the widget
-const WidgetBoundaries = styled.div`
-  transform: translate3d(-${WIDGET_PADDING + 1}px, -${WIDGET_PADDING + 1}px, 0);
-  z-index: 0;
-  width: calc(100% + ${WIDGET_PADDING - 2}px);
-  height: calc(100% + ${WIDGET_PADDING - 2}px);
-  position: absolute;
-  border: 1px dashed
-    ${(props) => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
-  pointer-events: none;
-`;
+// const WidgetBoundaries = styled.div`
+//   transform: translate3d(-${WIDGET_PADDING + 1}px, -${WIDGET_PADDING + 1}px, 0);
+//   z-index: 0;
+//   width: calc(100% + ${WIDGET_PADDING - 2}px);
+//   height: calc(100% + ${WIDGET_PADDING - 2}px);
+//   position: absolute;
+//   border: 1px dashed
+//     ${(props) => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
+//   pointer-events: none;
+// `;
 
 type DraggableComponentProps = WidgetProps;
-
-/* eslint-disable react/display-name */
 
 /**
  * can drag helper function for react-dnd hook
@@ -105,7 +103,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
   const isCurrentWidgetDragging = isDragging && isSelected;
-  const isCurrentWidgetResizing = isResizing && isSelected;
+  // const isCurrentWidgetResizing = isResizing && isSelected;
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
     focusWidget &&
@@ -120,17 +118,17 @@ function DraggableComponent(props: DraggableComponentProps) {
   const dragWrapperStyle: CSSProperties = {
     display: isCurrentWidgetDragging ? "none" : "block",
   };
-  const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
-    return {
-      opacity: !isResizingOrDragging || isCurrentWidgetResizing ? 0 : 1,
-      position: "absolute",
-      transform: `translate(-50%, -50%)`,
-      top: "50%",
-      left: "50%",
-    };
-  }, [isResizingOrDragging, isCurrentWidgetResizing]);
+  // const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
+  //   return {
+  //     opacity: !isResizingOrDragging || isCurrentWidgetResizing ? 0 : 1,
+  //     position: "absolute",
+  //     transform: `translate(-50%, -50%)`,
+  //     top: "50%",
+  //     left: "50%",
+  //   };
+  // }, [isResizingOrDragging, isCurrentWidgetResizing]);
 
-  const widgetBoundaries = <WidgetBoundaries style={dragBoundariesStyle} />;
+  // const widgetBoundaries = null;
 
   const classNameForTesting = `t--draggable-${props.type
     .split("_")
@@ -194,7 +192,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       style={dragWrapperStyle}
     >
       {shouldRenderComponent && props.children}
-      {widgetBoundaries}
     </DraggableWrapper>
   );
 }

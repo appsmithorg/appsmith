@@ -2,6 +2,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { TreeNode } from "utils/autoHeight/constants";
 
 export interface UpdateWidgetAutoHeightPayload {
@@ -48,5 +49,18 @@ export function updateWidgetAutoHeightAction(
 export function checkContainersForAutoHeightAction() {
   return {
     type: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+  };
+}
+
+export function immediatelyUpdateAutoHeightAction(
+  widgetId: string,
+  height: number,
+) {
+  return {
+    type: ReduxActionTypes.IMMEDIATELY_UPDATE_AUTO_HEIGHT,
+    payload: {
+      height: height * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      widgetId,
+    },
   };
 }
