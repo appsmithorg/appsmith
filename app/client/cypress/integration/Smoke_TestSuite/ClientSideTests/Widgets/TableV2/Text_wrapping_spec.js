@@ -30,6 +30,14 @@ describe("Table Widget text wrapping functionality", function() {
     });
   });
 
+  it("2. should check that a tooltip is shown when hovered on a ellipsised content", () => {
+    cy.get(
+      `data-colindex="1" data-rowindex="0" .t--table-cell-tooltip-target`,
+    ).trigger("mouseenter");
+
+    cy.get("");
+  });
+
   it("2. should check that other cells in the row is not wrapped when one of the cell is wrapped", () => {
     cy.getTableCellHeight(2, 0).then((height) => {
       expect(height).to.equal("28px");

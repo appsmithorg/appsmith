@@ -29,6 +29,7 @@ export const Content = styled.span`
 
 const WIDTH_OFFSET = 32;
 const MAX_WIDTH = 300;
+const TOOLTIP_OPEN_DELAY = 1000;
 
 function useToolTip(
   children: React.ReactNode,
@@ -36,19 +37,34 @@ function useToolTip(
   title?: string,
 ) {
   const ref = createRef<HTMLDivElement>();
-  const [showTooltip, updateToolTip] = useState(false);
+  const [requiresTooltip, setRequiresTooltip] = useState(false);
 
   useEffect(() => {
-    const element = ref.current?.querySelector("div") as HTMLDivElement;
+    let timeout: number;
 
-    if (element && element.offsetWidth < element.scrollWidth) {
-      updateToolTip(true);
-    } else {
-      updateToolTip(false);
-    }
+    const mouseEnterHandler = () => {
+      const element = ref.current?.querySelector("div") as HTMLDivElement;
+
+      timeout = setTimeout(() => {
+        if (element && element.offsetWidth < element.scrollWidth) {
+          setRequiresTooltip(true);
+        } else {
+          setRequiresTooltip(false);
+        }
+      }, TOOLTIP_OPEN_DELAY);
+
+      ref.current?.removeEventListener("mouseenter", mouseEnterHandler);
+    };
+
+    ref.current?.addEventListener("mouseenter", mouseEnterHandler);
+
+    return () => {
+      ref.current?.removeEventListener("mouseenter", mouseEnterHandler);
+      clearTimeout(timeout);
+    };
   }, [children]);
 
-  return showTooltip && children ? (
+  return requiresTooltip && children ? (
     <Tooltip
       autoFocus={false}
       content={
@@ -56,10 +72,15 @@ function useToolTip(
           {title}
         </TooltipContentWrapper>
       }
-      hoverOpenDelay={1000}
+      defaultIsOpen
+      hoverOpenDelay={TOOLTIP_OPEN_DELAY * 10}
       position="top"
     >
-      {<Content ref={ref}>{children}</Content>}
+      {
+        <Content className="t--table-cell-tooltip-target" ref={ref}>
+          {children}
+        </Content>
+      }
     </Tooltip>
   ) : (
     <Content ref={ref}>{children}</Content>
