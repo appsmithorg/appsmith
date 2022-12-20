@@ -45,7 +45,10 @@ export interface TreeSelectProps
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
+  onDropdownOpen?: () => void;
+  onDropdownClose?: () => void;
   labelStyle?: string;
+  labelTooltip?: string;
   compactMode: boolean;
   dropDownWidth: number;
   width: number;
@@ -120,9 +123,12 @@ function SingleSelectTreeComponent({
   labelText,
   labelTextColor,
   labelTextSize,
+  labelTooltip,
   labelWidth,
   loading,
   onChange,
+  onDropdownClose,
+  onDropdownOpen,
   options,
   placeholder,
   renderMode,
@@ -148,6 +154,8 @@ function SingleSelectTreeComponent({
   } = useDropdown({
     inputRef,
     renderMode,
+    onDropdownOpen,
+    onDropdownClose,
   });
 
   // treeDefaultExpandAll is uncontrolled after first render,
@@ -254,9 +262,11 @@ function SingleSelectTreeComponent({
           className={`tree-select-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="tree-select-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}

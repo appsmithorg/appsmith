@@ -38,6 +38,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       "PageLoadApi2",
     );
     apiPage.ToggleOnPageLoadRun(true);
+    ee.ExpandCollapseEntity("Widgets")
     ee.ExpandCollapseEntity("Container3");
     ee.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue(
@@ -49,6 +50,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   after(() => {
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("PageLoadApi", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("PageLoadApi2", "Delete", "Are you sure?");
   });

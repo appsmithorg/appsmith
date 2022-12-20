@@ -60,6 +60,11 @@ import {
 } from "./styledComponents";
 import { getJSPaneConfigSelectedTabIndex } from "selectors/jsPaneSelectors";
 import { EventLocation } from "utils/AnalyticsUtil";
+import {
+  hasDeleteActionPermission,
+  hasExecuteActionPermission,
+  hasManageActionPermission,
+} from "@appsmith/utils/permissionHelpers";
 import { executeCommandAction } from "../../../actions/apiPaneActions";
 import { SlashCommand } from "../../../entities/Action";
 
@@ -215,6 +220,16 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     return [];
   }, [selectedJSActionOption.label, currentJSCollection.name]);
 
+  const isChangePermitted = hasManageActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+  const isExecutePermitted = hasExecuteActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTabIndex);
 
   const setSelectedConfigTab = useCallback((selectedIndex: number) => {
@@ -234,12 +249,17 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         <Form>
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
-              <JSObjectNameEditor page="JS_PANE" />
+              <JSObjectNameEditor
+                disabled={!isChangePermitted}
+                page="JS_PANE"
+              />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreJSCollectionsMenu
                 className="t--more-action-menu"
                 id={currentJSCollection.id}
+                isChangePermitted={isChangePermitted}
+                isDeletePermitted={isDeletePermitted}
                 name={currentJSCollection.name}
                 pageId={pageId}
               />
@@ -259,7 +279,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 }}
               />
               <JSFunctionRun
-                disabled={disableRunFunctionality}
+                disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}
                 jsCollection={currentJSCollection}
                 onButtonClick={(
@@ -291,6 +311,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                         className={"js-editor"}
                         customGutter={JSGutters}
                         dataTreePath={`${currentJSCollection.name}.body`}
+                        disabled={!isChangePermitted}
                         folding
                         height={"100%"}
                         hideEvaluatedValue
@@ -313,7 +334,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     key: "settings",
                     title: "Settings",
                     panelComponent: (
-                      <JSFunctionSettingsView actions={jsActions} />
+                      <JSFunctionSettingsView
+                        actions={jsActions}
+                        disabled={!isChangePermitted}
+                      />
                     ),
                   },
                 ]}
@@ -321,7 +345,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
             </TabbedViewContainer>
             <JSResponseView
               currentFunction={activeResponse}
-              disabled={disableRunFunctionality}
+              disabled={disableRunFunctionality || !isExecutePermitted}
               errors={parseErrors}
               isLoading={isExecutingCurrentJSAction}
               jsObject={currentJSCollection}

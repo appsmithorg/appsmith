@@ -16,6 +16,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,8 +30,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -68,6 +67,9 @@ public class DatasourceContextServiceTest {
     @Autowired
     WorkspaceService workspaceService;
 
+    @Autowired
+    DatasourcePermission datasourcePermission;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -97,8 +99,8 @@ public class DatasourceContextServiceTest {
         Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasource,
                 spyMockPluginExecutor, monitor);
 
-        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", MANAGE_DATASOURCES);
-        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", EXECUTE_DATASOURCES);
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getDeletePermission());
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getExecutePermission());
         doReturn(Mono.just(new Plugin())).when(pluginService).findById("mockPlugin");
         doReturn(Mono.just(0L)).when(newActionRepository).countByDatasourceId("id1");
         doReturn(Mono.just(datasource)).when(datasourceRepository).archiveById("id1");
@@ -130,7 +132,7 @@ public class DatasourceContextServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTOTest");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -179,7 +181,7 @@ public class DatasourceContextServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTONullPassword");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -265,7 +267,7 @@ public class DatasourceContextServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("testDatasourceCreate_withUpdatableConnection_recreatesConnectionAlways");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
