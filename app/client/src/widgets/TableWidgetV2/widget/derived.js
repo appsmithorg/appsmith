@@ -249,13 +249,6 @@ export default {
       /* guard to not allow columns without id */
       if (column.id) {
         column.isAscOrder = column.id === sortByColumn ? isAscOrder : undefined;
-
-        /* We refer to the leftOrder and rightOrder meta property for user frozen columns */
-        if (_.find(props.leftOrder, (col) => col === column.id)) {
-          column.sticky = "left";
-        } else if (_.find(props.rightOrder, (col) => col === column.id)) {
-          column.sticky = "right";
-        }
         columns.push(column);
       }
     });
