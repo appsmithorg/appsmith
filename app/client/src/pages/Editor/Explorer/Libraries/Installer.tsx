@@ -46,6 +46,7 @@ import {
 } from "actions/JSLibraryActions";
 import classNames from "classnames";
 import { TJSLibrary } from "workers/common/JSLibrary";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const openDoc = (e: React.MouseEvent, url: string) => {
   e.preventDefault();
@@ -359,6 +360,8 @@ export function Installer(props: { left: number }) {
   const validate = useCallback((text) => {
     const isValid = !text || isValidJSFileURL(text);
     setIsValid(isValid);
+    text &&
+      AnalyticsUtil.logEvent("EDIT_LIBRARY_URL", { url: text, valid: isValid });
     return {
       isValid,
       message: isValid ? "" : "Please enter a valid URL",

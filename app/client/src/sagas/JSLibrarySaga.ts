@@ -67,7 +67,7 @@ function* handleInstallationFailure(
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
     payload: { url, show: false },
   });
-  AnalyticsUtil.logEvent("INSTALL_FAILED", { url });
+  AnalyticsUtil.logEvent("INSTALL_LIBRARY", { url, success: false });
 }
 
 export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
@@ -150,6 +150,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
 
   try {
     CodemirrorTernService.updateDef(defs["!name"], defs);
+    AnalyticsUtil.logEvent("DEFINITIONS_GENERATION", { url, success: true });
   } catch (e) {
     Toaster.show({
       text: createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name),
@@ -158,7 +159,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     AppsmithConsole.warning({
       text: `Failed to generate code definitions for ${name}`,
     });
-    AnalyticsUtil.logEvent("DEFINITIONS_FAILED", { url });
+    AnalyticsUtil.logEvent("DEFINITIONS_GENERATION", { url, success: false });
     log.debug("Failed to update Tern defs", e);
   }
 
@@ -197,7 +198,11 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     ),
     variant: Variant.success,
   });
-  AnalyticsUtil.logEvent("INSTALL_SUCCESS", { url });
+  AnalyticsUtil.logEvent("INSTALL_LIBRARY", {
+    url,
+    namespace: accessor.join("."),
+    success: true,
+  });
 
   AppsmithConsole.info({
     text: `${name} installed successfully`,
@@ -222,8 +227,9 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
         type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
         payload: accessor,
       });
-      AnalyticsUtil.logEvent("UNINSTALL_FAILED", {
+      AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
         url: action.payload.url,
+        success: false,
       });
       return;
     }
@@ -265,16 +271,18 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       text: createMessage(customJSLibraryMessages.UNINSTALL_SUCCESS, name),
       variant: Variant.success,
     });
-    AnalyticsUtil.logEvent("UNINSTALL_SUCCESS", {
+    AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
       url: action.payload.url,
+      success: true,
     });
   } catch (e) {
     Toaster.show({
       text: createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
       variant: Variant.danger,
     });
-    AnalyticsUtil.logEvent("UNINSTALL_FAILED", {
+    AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
       url: action.payload.url,
+      success: false,
     });
   }
 }
