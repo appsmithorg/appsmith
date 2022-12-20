@@ -42,6 +42,10 @@ const Wrapper = styled.div`
 
 const SectionContent = styled.div`
   box-shadow: -1px 0 0 0 ${Colors.GRAY_300};
+  // property help label underline
+  .underline {
+    color: ${(props) => props.theme.colors.paneTextUnderline};
+  }
 `;
 
 const ThemeContentWrapper = styled.div`

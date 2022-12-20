@@ -31,6 +31,7 @@ function DimensionsInput(props: DimensionsInputProp) {
   return (
     <Wrapper className={`t--${props.prefix}-dimension`}>
       <TextInput
+        height={"28px"}
         onChange={props.onChange}
         prefix={props.prefix}
         validator={cssDimensionValidator}

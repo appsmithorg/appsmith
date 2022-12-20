@@ -111,6 +111,7 @@ function useUpdateEmbedSnippet() {
   }, [appViewEndPoint, embedSetting?.width, embedSetting?.height]);
 
   return {
+    appViewEndPoint,
     snippet,
     onChange,
     embedSettingContent,
