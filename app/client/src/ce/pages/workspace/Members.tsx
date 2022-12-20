@@ -66,10 +66,6 @@ export const MembersWrapper = styled.div<{
           color: var(--appsmith-color-black-700);
           padding: 8px 20px;
 
-          &:first-child {
-            width: 320px;
-          }
-
           &:last-child {
             width: 120px;
           }
