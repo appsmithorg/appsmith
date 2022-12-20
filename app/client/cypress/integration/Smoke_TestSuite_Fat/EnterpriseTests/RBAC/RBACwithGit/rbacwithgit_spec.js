@@ -160,7 +160,7 @@ describe("RBAC for git connected apps tests", function() {
     cy.LogOut();
   });
 
-  it("5. Login as test user, create new branch and verify given permission on new and old branch ", function() {
+  it.skip("5. Login as test user, create new branch and verify given permission on new and old branch ", function() {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.searchInput)
       .clear()
@@ -180,7 +180,7 @@ describe("RBAC for git connected apps tests", function() {
     cy.get(explorer.addEntityJSEditor).should("not.exist");
   });
 
-  it("6. Delete branch and verify permissions", function() {
+  it.skip("6. Delete branch and verify permissions", function() {
     cy.switchGitBranch(mainBranch);
     cy.wait(3000);
     cy.get(gitSyncLocators.branchButton).click();
@@ -201,6 +201,7 @@ describe("RBAC for git connected apps tests", function() {
   });
 
   it("7. Import an app from git and verify functionality", function() {
+    cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.get(homePage.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
     cy.createWorkspace();
