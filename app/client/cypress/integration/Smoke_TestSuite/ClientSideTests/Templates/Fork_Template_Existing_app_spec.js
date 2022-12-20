@@ -10,8 +10,8 @@ describe("Fork a template to the current app from new page popover", () => {
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]",
-    ).click();
+      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+      ).click();
     cy.wait(1000);
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
