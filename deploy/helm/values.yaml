@@ -1,7 +1,6 @@
 ## Redis parameters
 redis:
   enabled: true
-  initImages: alpine
   auth:
     enabled: false
   replica:
@@ -9,7 +8,6 @@ redis:
 
 mongodb:
   enabled: true
-  initImages: docker.io/bitnami/mongodb:4.4.11-debian-10-r12
   service:
     nameOverride: appsmith-mongodb
   auth:
@@ -51,6 +49,14 @@ schedulerName: ""
 ## It can be set to RollingUpdate or Recreate by default.
 ##
 strategyType: RollingUpdate
+##
+## Init containers for redis & mongodb
+##
+initContainer: {}
+  # redis:
+  #   image: alpine
+  # mongodb:
+  #   image:  docker.io/bitnami/mongodb:4.4.11-debian-10-r12
 ## Image
 ##
 image:
