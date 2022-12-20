@@ -7,6 +7,8 @@ const import_db = require("./import_db.js");
 const migrate = require("./migrate.js");
 const check_replica_set = require("./check_replica_set.js");
 const estimate_billing = require("./estimate_billing.js");
+const version = require("./version.js");
+const mongo_shell_utils = require("./mongo_shell_utils.js");
 
 const APPLICATION_CONFIG_PATH = "/appsmith-stacks/configuration/docker.env";
 
@@ -50,6 +52,14 @@ if (["backup", "restore"].includes(command)) {
 
 if (["estimate-billing", "estimate_billing"].includes(command)) {
   estimate_billing.run(process.argv.slice(3));
+  return;
+}
+if (["appsmith-version", "appsmith_version", "version"].includes(command)) {
+  version.exec();
+  return;
+}
+if (["mongo-eval", "mongo_eval", "mongoEval"].includes(command)) {
+  mongo_shell_utils.exec(process.argv.slice(3));
   return;
 }
 
