@@ -120,6 +120,7 @@ import {
 } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -699,10 +700,18 @@ class CodeEditor extends Component<Props, State> {
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
     // Check if it is a user focus
+    const { sticky } = cm.getCursor();
+    const isUserFocus = sticky !== null;
     if (this.props.editorLastCursorPosition) {
-      cm.setCursor(this.props.editorLastCursorPosition, undefined, {
-        scroll: true,
-      });
+      if (
+        !isUserFocus ||
+        this.props.editorLastCursorPosition.origin ===
+          CursorPositionOrigin.Navigation
+      ) {
+        cm.setCursor(this.props.editorLastCursorPosition, undefined, {
+          scroll: true,
+        });
+      }
     }
 
     if (!cm.state.completionActive) {

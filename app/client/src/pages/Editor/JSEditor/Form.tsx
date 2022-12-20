@@ -8,7 +8,7 @@ import React, {
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
-import { TabComponent } from "design-system";
+import { DropdownOnSelect, SearchSnippet, TabComponent } from "design-system";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
@@ -43,11 +43,10 @@ import {
   convertJSActionToDropdownOption,
   getActionFromJsCollection,
   getJSActionOption,
-  getJSPropertyLineFromName,
   getJSFunctionLineGutter,
+  getJSPropertyLineFromName,
   JSActionDropdownOption,
 } from "./utils";
-import { DropdownOnSelect, SearchSnippet } from "design-system";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import {
@@ -73,6 +72,7 @@ import {
   setFocusableInputField,
 } from "actions/editorContextActions";
 import history from "utils/history";
+import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -133,6 +133,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
           setCodeEditorCursorAction(
             `${currentJSCollection.name}.body`,
             position,
+            CursorPositionOrigin.Navigation,
           ),
         );
         history.replace(window.location.pathname);
