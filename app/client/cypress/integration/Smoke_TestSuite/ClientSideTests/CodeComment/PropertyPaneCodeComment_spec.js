@@ -16,7 +16,7 @@ describe("Property Pane Code Commenting", () => {
     PropertyPane.ValidatePropertyFieldValue("Label", "{{// appsmith}}");
   });
 
-  it("2. Should show Property Pane Suggestions on typing {{}}", () => {
+  it("2. Should uncomment code in Property Pane", () => {
     cy.openPropertyPane("buttonwidget");
     PropertyPane.TypeTextIntoField("Label", "{{// appsmith}}");
     PropertyPane.ToggleCommentInTextField("Label");
