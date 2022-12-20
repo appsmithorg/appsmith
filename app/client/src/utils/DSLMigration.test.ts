@@ -682,6 +682,33 @@ const migrations: Migration[] = [
     ],
     version: 69,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: themingMigration,
+        functionName: "migrateChildStylesheetFromDynamicBindingPathList",
+      },
+    ],
+    version: 70,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetV2SelectOption",
+      },
+    ],
+    version: 71,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateAutoHeight,
+        functionName: "migrateListWidgetChildrenForAutoHeight",
+      },
+    ],
+    version: 72,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};

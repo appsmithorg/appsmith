@@ -31,21 +31,21 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -54,11 +54,11 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -71,29 +71,30 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      # Incase of prior failure run the job
+      # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -112,12 +113,12 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         id: vars
         run: |
-          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+          echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
           if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+              echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
           fi
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+              echo "REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
@@ -125,7 +126,7 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
@@ -150,7 +151,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/build/
@@ -160,19 +161,20 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: client-build
           path: app/client/build/
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   buildServer:
     defaults:
       run:
         working-directory: app/server
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
       github.event_name == 'workflow_dispatch' ||
@@ -197,17 +199,17 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -220,21 +222,22 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      # Incase of prior failure run the job
+      # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       # Setup Java
       - name: Set up JDK 1.11
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -257,8 +260,8 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       - name: Test and Build package
         if: steps.run_result.outputs.run_result != 'success'
@@ -281,7 +284,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/server/dist/
@@ -291,12 +294,13 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: server-build
           path: app/server/dist/
 
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   buildRts:
     defaults:
@@ -313,17 +317,17 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -336,13 +340,13 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      # Incase of prior failure run the job
+      # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -360,8 +364,8 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
@@ -371,7 +375,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/rts/dist/
@@ -386,13 +390,14 @@ jobs:
           tar -cvf rts-dist.tar dist
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
       - name: Upload rts build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rts-dist
           path: app/rts/rts-dist.tar
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   perf-test:
     needs: [buildClient, buildServer, buildRts]
@@ -422,21 +427,21 @@ jobs:
     steps:
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -449,29 +454,30 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      # Incase of prior failure run the job
+      # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -487,14 +493,14 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: server-build
           path: app/server/dist
@@ -606,7 +612,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/perf/traces
@@ -614,13 +620,14 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: performance-summaries
           path: app/client/perf/traces
 
         # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   fat-container-test:
     needs: [buildClient, buildServer, buildRts]
@@ -641,7 +648,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1]
+        job: [0, 1, 2, 3, 4]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -661,17 +668,17 @@ jobs:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -700,7 +707,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       # failed_spec_env will contain list of all failed specs
-      # We are using evnironment variable instead of regular to support multiline
+      # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
@@ -721,24 +728,25 @@ jobs:
       # Setup Java
       - name: Set up JDK 1.11
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       - name: Download the react build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: rts-dist
           path: app/rts/dist
@@ -797,7 +805,7 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -889,7 +897,7 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      # Incase of second attemtp only run failed specs
+      # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v2
@@ -935,10 +943,10 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec_fat and add a dummy file
-      # This will ensure upload and download steps are successfull
+      # This will ensure upload and download steps are successful
       - name: Create directories for failed tests
         if: always()
         run: |
@@ -946,7 +954,7 @@ jobs:
           echo  "empty" >> ~/failed_spec_fat/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
-      - name: Incase of test failures copy them to a file
+      - name: In case of test failures copy them to a file
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
@@ -955,7 +963,7 @@ jobs:
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: failed-spec-fat
           path: ~/failed_spec_fat
@@ -983,14 +991,14 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
 
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/cypress/snapshots/
@@ -999,21 +1007,22 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: cypress-snapshots-visualRegression
           path: app/client/cypress/snapshots/
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test:
     needs: [buildClient, buildServer, buildRts]
@@ -1081,17 +1090,17 @@ jobs:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -1120,7 +1129,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       # failed_spec_env will contain list of all failed specs
-      # We are using evnironment variable instead of regular to support multiline
+      # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
@@ -1141,13 +1150,14 @@ jobs:
       # Setup Java
       - name: Set up JDK 1.11
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: server-build
           path: app/server/dist
@@ -1155,7 +1165,7 @@ jobs:
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -1178,8 +1188,8 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       # Start server
       - name: Start server
@@ -1217,20 +1227,20 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -1247,7 +1257,7 @@ jobs:
 
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: client-build
           path: app/client/build
@@ -1336,7 +1346,7 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      # Incase of second attemtp only run failed specs
+      # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v2
@@ -1381,18 +1391,18 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec and add a dummy file
-      # This will ensure upload and download steps are successfull
-      - name: Create direcotrs for failed tests
+      # This will ensure upload and download steps are successful
+      - name: Create directory for failed tests
         if: always()
         run: |
           mkdir -p  ~/failed_spec
           echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
-      - name: Incase of test failures copy them to a file
+      - name: In case of test failures copy them to a file
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
@@ -1401,7 +1411,7 @@ jobs:
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: failed-spec
           path: ~/failed_spec
@@ -1429,14 +1439,14 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
 
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/cypress/snapshots/
@@ -1445,21 +1455,22 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: cypress-snapshots-visualRegression
           path: app/client/cypress/snapshots/
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test-result:
     needs: [ui-test, fat-container-test]
@@ -1477,27 +1488,27 @@ jobs:
       - run: echo "All ui-test matrices completed"
 
       # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         if: needs.ui-test.result
         id: download
         with:
           name: failed-spec
           path: ~/failed_spec
-      
+
       # Download failed_spec_fat list for all fat container jobs
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         if: needs.fat-container-test.result
         id: download_fat
         with:
           name: failed-spec-fat
           path: ~/failed_spec_fat
 
-      # Incase for any ui-test job failure, create combined failed spec
+      # In case for any ui-test job failure, create combined failed spec
       - name: "combine all specs"
         if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
       
-      # Incase for any fat-container job failure, create combined failed spec
+      # In case for any fat-container job failure, create combined failed spec
       - name: "combine all specs for fat"
         if: needs.fat-container-test.result != 'success'
         run: cat ~/failed_spec_fat/failed_spec_fat* >> ~/combined_failed_spec_fat
@@ -1528,16 +1539,16 @@ jobs:
       # This is done for debugging.
       - name: upload combined failed spec
         if: needs.ui-test.result != 'success'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: combined_failed_spec
           path: ~/combined_failed_spec
-      
+
       # Upload combined failed fat spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
         if: needs.fat-container-test.result != 'success'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: combined_failed_spec_fat
           path: ~/combined_failed_spec_fat
@@ -1558,7 +1569,7 @@ jobs:
   package:
     needs: ui-test
     runs-on: buildjet-4vcpu-ubuntu-2004
-    # Set permissions since we're using OIDC token authentication between Depot and Github
+    # Set permissions since we're using OIDC token authentication between Depot and GitHub
     permissions:
       contents: read
       id-token: write
@@ -1582,28 +1593,28 @@ jobs:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download the react build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: rts-dist
           path: app/rts/dist
@@ -1618,7 +1629,7 @@ jobs:
       # first 11 characters. This can be used to build images for several branches
       - name: Get the version to tag the Docker image
         id: vars
-        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+        run: echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       - name: Set up Depot CLI
         uses: depot/setup-action@v1

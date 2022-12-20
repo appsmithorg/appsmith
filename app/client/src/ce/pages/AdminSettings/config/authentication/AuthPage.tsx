@@ -19,23 +19,23 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding-top: 40px;
+  padding: 40px 0 0 24px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
 `;
 
-const SettingsFormWrapper = styled.div``;
+export const SettingsFormWrapper = styled.div``;
 
-const SettingsHeader = styled.h2`
+export const SettingsHeader = styled.h2`
   font-size: 24px;
   font-weight: 500;
   text-transform: capitalize;
   margin-bottom: 0;
 `;
 
-const SettingsSubHeader = styled.div`
+export const SettingsSubHeader = styled.div`
   font-size: 14px;
   margin-bottom: 0;
 `;
@@ -107,10 +107,10 @@ const StyledAuthButton = styled(Button)`
   padding: 8px 16px;
 `;
 
-const Label = styled.span<{ enterprise?: boolean }>`
+const Label = styled.span<{ business?: boolean }>`
   display: inline;
   ${(props) =>
-    props.enterprise
+    props.business
       ? `
     border: 1px solid ${Colors.COD_GRAY};
     color: ${Colors.COD_GRAY};
@@ -177,7 +177,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     {method.label}&nbsp;
                     {method.needsUpgrade && (
                       <>
-                        <Label enterprise>Enterprise</Label>
+                        <Label business>Business</Label>
                         &nbsp;
                       </>
                     )}

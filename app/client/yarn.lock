@@ -6197,10 +6197,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.37":
-  version "1.0.37"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.37.tgz#1e38df952bc19b4542407b8b0666e62fd845ff04"
-  integrity sha512-1y424NBUHyRjSygjLvk9hTu2J+/WxzUFw9QeAjBxqfslvYEopZGCW8Y//nAG2jSKQ0Y1GnRmWmKfC8Px3ijgBA==
+"design-system@npm:@appsmithorg/design-system@1.0.39":
+  version "1.0.39"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.39.tgz#8f735ddca6768d647bb6187c8754e07b98a56f1b"
+  integrity sha512-ronzjAJyR1nc0Amya1jD1vsyrWKf+iSgOSg9mfRLfWBO52gn6fOStEAs9h+7FS8qvlXnww1MDGWfeK69pIXYRQ==
   dependencies:
     emoji-mart "3.0.1"
 
@@ -12104,6 +12104,11 @@ proxy-addr@~2.0.7:
     forwarded "0.2.0"
     ipaddr.js "1.9.1"
 
+proxy-compare@2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/proxy-compare/-/proxy-compare-2.3.0.tgz#ac9633ae52918ff9c9fcc54dfe6316c7a02d20ee"
+  integrity sha512-c3L2CcAi7f7pvlD0D7xsF+2CQIW8C3HaYx2Pfgq8eA4HAl3GAH6/dVYsyBbYF/0XJs2ziGLrzmz5fmzPm6A0pQ==
+
 proxy-from-env@1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-1.0.0.tgz"
@@ -12113,6 +12118,13 @@ proxy-from-env@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
   integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
+
+proxy-memoize@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/proxy-memoize/-/proxy-memoize-1.2.0.tgz#4805f6744461847cecf58f8c3a4b709703c5cb0d"
+  integrity sha512-0heYEZb4yMfhdduz8T+BPJOCKGukc81WRJaYF0k6ZsJz/NkPLhGFqe6OLdiZURr5kC1byps5wdqLN6DC2tYAFw==
+  dependencies:
+    proxy-compare "2.3.0"
 
 prr@~1.0.1:
   version "1.0.1"
@@ -13794,9 +13806,10 @@ slice-ansi@^5.0.0:
     ansi-styles "^6.0.0"
     is-fullwidth-code-point "^4.0.0"
 
-smartlook-client@^4.5.1:
-  version "4.6.1"
-  resolved "https://registry.npmjs.org/smartlook-client/-/smartlook-client-4.6.1.tgz"
+smartlook-client@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/smartlook-client/-/smartlook-client-8.0.0.tgz#71825b41bd467effe0091df40ec1e254bfccb202"
+  integrity sha512-gx0+mYv5hUKGE/ZcuPcft2OWR8BetnTw3QWZXX2QQjhJbgliKcioDC+NrczxZmnwUalpW4RjXb4iS8lQUAZkEQ==
 
 snake-case@^3.0.4:
   version "3.0.4"
@@ -14468,9 +14481,9 @@ tinycolor2@^1.4.2:
   resolved "https://registry.npmjs.org/tinycolor2/-/tinycolor2-1.4.2.tgz"
 
 tinymce@^5.5.1:
-  version "5.10.2"
-  resolved "https://registry.npmjs.org/tinymce/-/tinymce-5.10.2.tgz"
-  integrity sha512-5QhnZ6c8F28fYucLLc00MM37fZoAZ4g7QCYzwIl38i5TwJR5xGqzOv6YMideyLM4tytCzLCRwJoQen2LI66p5A==
+  version "5.10.7"
+  resolved "https://registry.yarnpkg.com/tinymce/-/tinymce-5.10.7.tgz#d89d446f1962f2a1df6b2b70018ce475ec7ffb80"
+  integrity sha512-9UUjaO0R7FxcFo0oxnd1lMs7H+D0Eh+dDVo5hKbVe1a+VB0nit97vOqlinj+YwgoBDt6/DSCUoWqAYlLI8BLYA==
 
 title-case@^3.0.3:
   version "3.0.3"

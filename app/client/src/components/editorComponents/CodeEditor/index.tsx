@@ -106,7 +106,7 @@ import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import {
   getCodeEditorLastCursorPosition,
-  getIsCodeEditorFocused,
+  getIsInputFieldFocused,
 } from "selectors/editorContextSelectors";
 import {
   CodeEditorFocusState,
@@ -120,7 +120,7 @@ import {
   EntityNavigationData,
   getEntitiesForNavigation,
 } from "selectors/navigationSelectors";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
@@ -175,12 +175,6 @@ export type CodeEditorGutter = {
     | ((editorValue: string, cursorLineNumber: number) => GutterConfig | null)
     | null;
   gutterId: string;
-};
-
-export type CustomKeyMap = {
-  // combination of keys
-  combination: string;
-  onKeyDown: (cm: CodeMirror.Editor) => void;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -618,7 +612,6 @@ class CodeEditor extends Component<Props, State> {
   }
 
   handleClick = (cm: CodeMirror.Editor, event: MouseEvent) => {
-    const entityInfo = this.getEntityInformation();
     if (
       event.target instanceof Element &&
       event.target.hasAttribute(NAVIGATE_TO_ATTRIBUTE)
@@ -640,17 +633,14 @@ class CodeEditor extends Component<Props, State> {
             const navigationData = this.props.entitiesForNavigation[
               entityToNavigate
             ];
-            history.push(navigationData.url, { directNavigation: true });
+            history.push(navigationData.url, {
+              invokedBy: NavigationMethod.CommandClick,
+            });
 
             // TODO fix the widget navigation issue to remove this
             if (navigationData.type === ENTITY_TYPE.WIDGET) {
               this.props.selectWidget(navigationData.id);
             }
-
-            AnalyticsUtil.logEvent("Cmd+Click Navigation", {
-              toType: navigationData.type,
-              fromType: entityInfo.entityType,
-            });
           },
         );
       }
@@ -1185,7 +1175,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
   lintErrors: getEntityLintErrors(state, props.dataTreePath),
-  editorIsFocused: getIsCodeEditorFocused(state, getEditorIdentifier(props)),
+  editorIsFocused: getIsInputFieldFocused(state, getEditorIdentifier(props)),
   editorLastCursorPosition: getCodeEditorLastCursorPosition(
     state,
     getEditorIdentifier(props),
