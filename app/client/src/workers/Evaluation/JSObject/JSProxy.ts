@@ -1,4 +1,4 @@
-import { filter, uniqueId } from "lodash";
+import { uniqueId } from "lodash";
 import { isPromise } from "./utils";
 
 // TO DO => Handle duplicate calls
@@ -11,11 +11,6 @@ export interface JSExecutionData {
   funcName: string;
 }
 
-interface JSExecutionTrigger {
-  funcName: string;
-  requestId: string;
-}
-
 export type JSFunctionProxy = (
   JSFunction: (...args: unknown[]) => unknown,
   fullName: string,
@@ -26,29 +21,19 @@ export const JSFunctionProxyHandler = (
   // function used to update list of js execution data
   updateJSData: (data: JSExecutionData) => void,
   // function used to update list of js execution calls
-  updateJSExecution: (trigger: JSExecutionTrigger, addToList: boolean) => void,
+  updateJSExecution: (funcName: string) => void,
 ) => ({
   apply: function(target: any, thisArg: unknown, argumentsList: any) {
-    const requestId = uniqueId();
     // As soon as a function call is made, update the list of js execution calls
-    updateJSExecution(
-      {
-        funcName: fullName,
-        requestId,
-      },
-      true,
-    );
+    updateJSExecution(fullName);
     let returnValue;
     try {
       returnValue = Reflect.apply(target, thisArg, argumentsList);
     } catch (e) {
-      updateJSExecution(
-        {
-          funcName: fullName,
-          requestId,
-        },
-        false,
-      );
+      updateJSData({
+        data: undefined,
+        funcName: fullName,
+      });
       throw e;
     }
 
@@ -63,13 +48,10 @@ export const JSFunctionProxyHandler = (
           });
         })
         .catch(() => {
-          updateJSExecution(
-            {
-              funcName: fullName,
-              requestId,
-            },
-            false,
-          );
+          updateJSData({
+            data: undefined,
+            funcName: fullName,
+          });
         });
       return returnValue;
     }
@@ -86,13 +68,15 @@ export class JSProxy {
   // Holds list of all js execution data during an eval cycle
   private dataList: JSExecutionData[] = [];
   // Holds list of all js execution calls during an eval cycle
-  private functionExecutionList: JSExecutionTrigger[] = [];
+  private functionExecutionList: string[] = [];
   private evaluationEnded = false;
 
   constructor() {
     this.JSFunctionProxy = this.JSFunctionProxy.bind(this);
     this.postData = this.postData.bind(this);
-    this.updateExecutionList = this.updateExecutionList.bind(this);
+    this.addFunctionToExecutionList = this.addFunctionToExecutionList.bind(
+      this,
+    );
     this.addExecutionDataToList = this.addExecutionDataToList.bind(this);
     this.setEvaluationEnd = this.setEvaluationEnd.bind(this);
   }
@@ -102,12 +86,8 @@ export class JSProxy {
     this.postData();
   }
 
-  private updateExecutionList(func: JSExecutionTrigger, addToList: boolean) {
-    if (addToList) {
-      this.functionExecutionList.push(func);
-    } else {
-      filter(this.functionExecutionList, { requestId: func.requestId });
-    }
+  private addFunctionToExecutionList(func: string) {
+    this.functionExecutionList.push(func);
     this.postData();
   }
 
@@ -145,7 +125,7 @@ export class JSProxy {
       JSFunctionProxyHandler(
         jsFunctionFullName,
         this.addExecutionDataToList,
-        this.updateExecutionList,
+        this.addFunctionToExecutionList,
       ),
     );
   }
