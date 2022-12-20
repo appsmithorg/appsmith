@@ -99,11 +99,12 @@ function useUpdateEmbedSnippet() {
     const url = viewerURL({
       pageId: defaultPageId,
     });
-    const fullUrl = window.location.origin.toString() + url;
+    const fullUrl = new URL(window.location.origin.toString() + url);
     if (embedSetting?.showNavigationBar) {
-      return fullUrl;
+      return fullUrl.toString();
     }
-    return fullUrl + `?embed=true`;
+    fullUrl.searchParams.append("embed", "true");
+    return fullUrl.toString();
   }, [defaultPageId, embedSetting?.showNavigationBar]);
 
   const snippet = useMemo(() => {

@@ -26,8 +26,12 @@ import {
   createMessage,
   IN_APP_EMBED_SETTING,
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
-  MARK_APPLICATION_PUBLIC,
+  MAKE_APPLICATION_PUBLIC,
 } from "@appsmith/constants/messages";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 const StyledLink = styled.a`
   position: relative;
@@ -41,48 +45,69 @@ const StyledLink = styled.a`
   }
 `;
 
+const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
+  .bp3-popover-content > div {
+    text-align: center;
+    max-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+`;
+
 function EmbedSettings() {
   const application = useSelector(getCurrentApplication);
   const dispatch = useDispatch();
   const isChangingViewAccess = useSelector(getIsChangingViewAccess);
   const isFetchingApplication = useSelector(getIsFetchingApplications);
   const embedSnippet = useUpdateEmbedSnippet();
+  const userAppPermissions = application?.userPermissions ?? [];
+  const canShareWithPublic = isPermitted(
+    userAppPermissions,
+    PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
+  );
 
   return (
     <div>
-      <div className="px-4">
-        <div className="flex justify-between content-center pb-4">
-          <div className="pt-0.5 text-[color:var(--appsmith-color-black-700)]">
-            <PropertyHelpLabel
-              label={createMessage(MARK_APPLICATION_PUBLIC)}
-              lineHeight="1.17"
-              maxWidth="217px"
-              tooltip={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
-            />
+      {canShareWithPublic && (
+        <>
+          <div className="px-4">
+            <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
+              {createMessage(IN_APP_EMBED_SETTING.sectionContentHeader)}
+            </div>
           </div>
-          <SwitchWrapper>
-            <Switch
-              checked={application?.isPublic}
-              className="mb-0"
-              disabled={isFetchingApplication || isChangingViewAccess}
-              id="t--embed-settings-application-public"
-              large
-              onChange={() =>
-                application &&
-                dispatch(
-                  changeAppViewAccessInit(
-                    application?.id,
-                    !application?.isPublic,
-                  ),
-                )
-              }
-            />
-          </SwitchWrapper>
-        </div>
-      </div>
-      <div
-        className={`border-t-[1px] border-[color:var(--appsmith-color-black-300)]`}
-      />
+          <div className="px-4">
+            <div className="flex justify-between content-center pb-4">
+              <StyledPropertyHelpLabel
+                label={createMessage(MAKE_APPLICATION_PUBLIC)}
+                lineHeight="1.17"
+                maxWidth="270px"
+                tooltip={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
+              />
+              <SwitchWrapper>
+                <Switch
+                  checked={application?.isPublic}
+                  className="mb-0"
+                  disabled={isFetchingApplication || isChangingViewAccess}
+                  id="t--embed-settings-application-public"
+                  large
+                  onChange={() =>
+                    application &&
+                    dispatch(
+                      changeAppViewAccessInit(
+                        application?.id,
+                        !application?.isPublic,
+                      ),
+                    )
+                  }
+                />
+              </SwitchWrapper>
+            </div>
+          </div>
+          <div
+            className={`border-t-[1px] border-[color:var(--appsmith-color-black-300)]`}
+          />
+        </>
+      )}
 
       <div className="px-4">
         <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
@@ -98,7 +123,7 @@ function EmbedSettings() {
                 name={embedSnippet.embedSettingContent.icon}
                 size={IconSize.XXL}
               />
-              <PropertyHelpLabel
+              <StyledPropertyHelpLabel
                 label={embedSnippet.embedSettingContent.label}
                 lineHeight="1.17"
                 maxWidth="217px"

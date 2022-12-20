@@ -23,6 +23,7 @@ import {
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
+import { PopoverPosition } from "@blueprintjs/core";
 
 const StyledLink = styled.a`
   position: relative;
@@ -61,11 +62,13 @@ function EmbedSnippetTab() {
                   </Text>
 
                   <TooltipComponent
+                    boundary="viewport"
                     content={
-                      <TooltipWrapper>
+                      <TooltipWrapper className="text-center max-h-11">
                         {embedSnippet.embedSettingContent.tooltip}
                       </TooltipWrapper>
                     }
+                    position={PopoverPosition.TOP}
                   >
                     <Icon
                       className={`ml-1`}
@@ -97,7 +100,7 @@ function EmbedSnippetTab() {
               "pt-3.5": embedSnippet.isSuperUser,
             })}
           >
-            <div className="flex justify-between content-center">
+            <div className="flex justify-between items-center">
               <Text type={TextType.P1}>
                 {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
               </Text>

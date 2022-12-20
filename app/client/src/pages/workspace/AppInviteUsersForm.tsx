@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
+import { PopoverPosition } from "@blueprintjs/core";
 import { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -113,10 +114,11 @@ function AppInviteUsersForm(props: any) {
             </Text>
             <TooltipComponent
               content={
-                <TooltipWrapper>
+                <TooltipWrapper className="text-center">
                   {createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
                 </TooltipWrapper>
               }
+              position={PopoverPosition.TOP_RIGHT}
             >
               <Icon
                 className="pl-1"

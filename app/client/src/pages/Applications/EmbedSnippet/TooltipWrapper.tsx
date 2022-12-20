@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const TooltipWrapper = styled.div`
-  max-width: 270px;
+  max-width: 260px;
 `;
 
 export default TooltipWrapper;

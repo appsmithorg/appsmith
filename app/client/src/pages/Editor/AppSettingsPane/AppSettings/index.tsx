@@ -171,16 +171,7 @@ function AppSettings() {
                 )
               );
             case AppSettingsTabs.Embed:
-              return (
-                <>
-                  <div className="px-4">
-                    <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
-                      {createMessage(IN_APP_EMBED_SETTING.sectionContentHeader)}
-                    </div>
-                  </div>
-                  <EmbedSettings />
-                </>
-              );
+              return <EmbedSettings />;
           }
         })()}
       </SectionContent>
