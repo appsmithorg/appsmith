@@ -1,4 +1,6 @@
-export const CANVAS_WIDGET = '[type="CANVAS_WIDGET"]:not(:scope)';
+export const CANVAS_WIDGET = '[type="CANVAS_WIDGET"]';
+export const CANVAS_WIDGET_EXCLUDING_SCOPE =
+  '[type="CANVAS_WIDGET"]:not(:scope)';
 export const CONTAINER_SELECTOR =
   ":is(.t--widget-containerwidget, .t--widget-formwidget)";
 const NON_FOCUSABLE_WIDGET_CLASS =
@@ -23,6 +25,8 @@ export function getTabbableDescendants(
 ): HTMLElement[] {
   const activeWidget = currentNode.closest(WIDGET_SELECTOR) as HTMLElement;
 
+  console.log({ activeWidget });
+
   // if the current node is not a widget, check if it is a modal
   // if it is a modal, we have to trap the focus within the modal
   if (!activeWidget) {
@@ -30,37 +34,71 @@ export function getTabbableDescendants(
 
     if (modal) {
       const tabbableDescendants = Array.from(
-        modal.querySelectorAll(FOCUS_SELECTOR),
+        modal.querySelectorAll(WIDGET_SELECTOR),
       ) as HTMLElement[];
 
-      if (shiftKey) tabbableDescendants.reverse();
+      const domRect = modal.getBoundingClientRect();
 
-      return tabbableDescendants;
+      const sortedTabbableDescendants = sortWidgetsByPosition(
+        {
+          top: shiftKey ? domRect.bottom : domRect.top,
+          left: shiftKey ? domRect.right : domRect.left,
+        },
+        tabbableDescendants,
+        shiftKey,
+      );
+
+      return sortedTabbableDescendants;
+    }
+
+    if (currentNode.matches(CANVAS_WIDGET)) {
+      const tabbableDescendants = Array.from(
+        currentNode.querySelectorAll(WIDGET_SELECTOR),
+      ) as HTMLElement[];
+
+      const domRect = currentNode.getBoundingClientRect();
+
+      const sortedTabbableDescendants = sortWidgetsByPosition(
+        {
+          top: shiftKey ? domRect.bottom : domRect.top,
+          left: shiftKey ? domRect.right : domRect.left,
+        },
+        tabbableDescendants,
+        shiftKey,
+      );
+
+      return sortedTabbableDescendants;
     }
   }
 
-  let siblings;
-
-  if (document.activeElement?.matches(FOCUS_SELECTOR)) {
-    siblings = getWidgetSiblingsOfNode(currentNode);
-  } else {
-    siblings = getChildrenWidgetsOfNode(currentNode);
-  }
-
-  const domRect = activeWidget
-    ? activeWidget.getBoundingClientRect()
-    : currentNode.getBoundingClientRect();
+  const siblings = getWidgetSiblingsOfNode(activeWidget);
+  const domRect = activeWidget.getBoundingClientRect();
 
   const sortedSiblings = sortWidgetsByPosition(
-    { top: domRect.top, left: domRect.left },
+    {
+      top: domRect.top,
+      left: domRect.left,
+    },
     siblings,
     shiftKey,
   );
 
+  console.log({
+    currentNode,
+    activeElement: document.activeElement,
+    siblings,
+    match: document.activeElement?.matches(CANVAS_WIDGET),
+    sortedSiblings,
+    domRect,
+    activeWidget,
+  });
+
   if (sortedSiblings.length) return sortedSiblings;
 
   // there are no siblings, which means we are at the end of the tabbable list
-  const currentCanvas = currentNode.closest(CANVAS_WIDGET) as HTMLElement;
+  const currentCanvas = currentNode.closest(
+    CANVAS_WIDGET_EXCLUDING_SCOPE,
+  ) as HTMLElement;
 
   if (currentCanvas) {
     return getTabbableDescendants(currentCanvas, shiftKey);
@@ -157,7 +195,7 @@ export function getChildrenWidgetsOfNode(node: HTMLElement) {
  * @returns
  */
 function getWidgetSiblingsOfNode(node: HTMLElement) {
-  const canvas = node.closest(CANVAS_WIDGET) as HTMLElement;
+  const canvas = node.closest(CANVAS_WIDGET_EXCLUDING_SCOPE) as HTMLElement;
 
   if (!canvas) return [];
 
@@ -202,9 +240,15 @@ export function sortWidgetsByPosition(
         element,
         topDiff,
         leftDiff,
+        top,
+        left,
+        elementTop,
+        elementLeft,
       };
     },
   );
+
+  console.log({ tabbableElementsByPosition, top, left });
 
   tabbableElementsByPosition = tabbableElementsByPosition.filter((element) => {
     // if tabbing forward, only consider elements below and to the right
@@ -245,6 +289,8 @@ export function sortWidgetsByPosition(
 
     return 0;
   });
+
+  console.log({ tabbableElementsByPosition });
 
   return tabbableElementsByPosition.map((element) => element.element);
 }

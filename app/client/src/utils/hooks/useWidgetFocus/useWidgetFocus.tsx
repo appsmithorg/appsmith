@@ -1,6 +1,7 @@
 import { MouseEvent, useCallback, useEffect, useRef } from "react";
 
 import { scopeTab } from "./scopeTab";
+import { CANVAS_WIDGET } from "./tabbable";
 
 function useWidgetFocus(): (instance: HTMLElement | null) => void {
   const ref = useRef<HTMLElement | null>();
@@ -31,12 +32,8 @@ function useWidgetFocus(): (instance: HTMLElement | null) => void {
     if (ref.current) {
       ref.current.addEventListener("click", (event: any) => {
         const target = event.target as HTMLElement;
-
-        console.log({ target, activeElement: document.activeElement });
-        if (target) {
+        if (target.matches(CANVAS_WIDGET)) {
           target.focus();
-
-          console.log({ target, active: document.activeElement });
         }
       });
     }
