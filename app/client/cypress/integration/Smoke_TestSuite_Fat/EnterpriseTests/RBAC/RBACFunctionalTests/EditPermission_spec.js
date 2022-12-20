@@ -308,6 +308,7 @@ describe("Edit Permission flow ", function() {
     cy.get(jsEditorLocators.runButton)
       .first()
       .click();
+    cy.wait(3000);
     // verify user is not able to edit datasource but edit queries
     cy.CheckAndUnfoldEntityItem("Datasources");
     cy.get(`.t--entity-item:contains(${datasourceName})`).should("not.exist");
@@ -316,6 +317,7 @@ describe("Edit Permission flow ", function() {
     cy.get(".t--entity-name")
       .contains("SelectQuery")
       .click();
+    cy.wait(5000);
     cy.get(".t--action-name-edit-icon").type("SelectQueryEdited{enter}");
     cy.wait("@getPage");
   });
