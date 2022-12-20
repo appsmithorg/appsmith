@@ -102,6 +102,7 @@ export const CONFIG = {
                     disabledWidgetFeatures: [
                       RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
                     ],
+                    shouldScrollContents: false,
                     dynamicHeight: "FIXED",
                     children: [],
                     blueprint: {

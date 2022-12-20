@@ -206,5 +206,7 @@
   "showTabsControl": ".t--property-control-showtabs .bp3-control-indicator",
   "checkboxIndicator": ".t--draggable-checkboxwidget .bp3-control-indicator",
   "generalSectionHeight": ".t--property-pane-section-general .t--property-control-label:contains('Height')",
-  "listPaginateNextButton":".t--widget-listwidgetv2 .rc-pagination-next .rc-pagination-item-link"
+  "listPaginateNextButton":".t--widget-listwidgetv2 .rc-pagination-next .rc-pagination-item-link",
+  "PropertyPaneSearchInput": ".t--property-pane-search-input-wrapper input",
+  "BorderRadius0px": ".t--property-control-borderradius .t--button-tab-0px"
 }
