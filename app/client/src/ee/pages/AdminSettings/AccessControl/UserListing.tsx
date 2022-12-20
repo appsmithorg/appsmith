@@ -173,7 +173,7 @@ export function UserListing() {
 
   const columns = [
     {
-      Header: `User (${data.length})`,
+      Header: `Users (${data.length})`,
       accessor: "username",
       Cell: function UserCell(cellProps: any) {
         return (

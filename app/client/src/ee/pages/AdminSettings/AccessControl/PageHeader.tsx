@@ -101,6 +101,7 @@ const StyledSettingsSubHeader = styled(SettingsSubHeader)`
 
       &.bp3-editable-text-editing {
         padding: 5px;
+        width: 100%;
       }
     }
 
@@ -242,6 +243,7 @@ export function PageHeader(props: PageHeaderProps) {
               onTextChanged={(desc) => onEditDesc?.(desc)}
               placeholder={createMessage(ENTER_ENTITY_DESC)}
               type="text"
+              useFullWidth
             />
           </StyledSettingsSubHeader>
         ) : (

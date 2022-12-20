@@ -1,4 +1,13 @@
 export * from "ce/pages/workspace/Members";
+import {
+  PageProps,
+  EachUser,
+  MembersWrapper,
+  NoResultsText,
+  UserCard,
+  UserCardContainer,
+  DeleteIcon,
+} from "ce/pages/workspace/Members";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -6,7 +15,6 @@ import {
   getAllRoles,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
-import { RouteComponentProps } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Table } from "design-system";
 import {
@@ -17,7 +25,6 @@ import {
   deleteWorkspaceUser,
 } from "@appsmith/actions/workspaceActions";
 import {
-  Classes as AppClass,
   Dropdown,
   HighlightText,
   Icon,
@@ -27,10 +34,8 @@ import {
   Text,
   TextType,
 } from "design-system";
-import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
-import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
@@ -44,186 +49,6 @@ import { MEMBERS_TAB_TITLE as CE_MEMBERS_TAB_TITLE } from "ce/constants/messages
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { cloudHosting } = getAppsmithConfigs();
-
-export type PageProps = RouteComponentProps<{
-  workspaceId: string;
-}> & {
-  searchValue?: string;
-};
-
-export const MembersWrapper = styled.div<{
-  isMobile?: boolean;
-}>`
-  ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
-  table {
-    margin-top: 12px;
-    table-layout: fixed;
-
-    thead {
-      z-index: 1;
-      tr {
-        border-bottom: 1px solid #e8e8e8;
-        th {
-          font-size: 14px;
-          font-weight: 500;
-          line-height: 1.5;
-          color: var(--appsmith-color-black-700);
-          padding: 8px 20px;
-
-          &:first-child {
-            width: 320px;
-          }
-
-          &:last-child {
-            width: 120px;
-          }
-
-          svg {
-            margin: auto 8px;
-            display: initial;
-          }
-        }
-      }
-    }
-
-    tbody {
-      tr {
-        td {
-          word-break: break-word;
-
-          &:first-child {
-            text-align: left;
-          }
-
-          .t--deleteUser {
-            justify-content: center;
-          }
-
-          .selected-item {
-            .cs-text {
-              width: auto;
-            }
-          }
-
-          .cs-text {
-            text-align: left;
-          }
-
-          .bp3-overlay {
-            position: relative;
-
-            .bp3-transition-container {
-              transform: none !important;
-              top: 8px !important;
-
-              .bp3-popover-content {
-                > div {
-                  width: 440px;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-export const UserCardContainer = styled.div`
-  display: flex;
-  flex-grow: 1;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-  margin: auto;
-`;
-
-export const UserCard = styled(Card)`
-  display: flex;
-  flex-direction: column;
-  box-shadow: none;
-  background-color: ${Colors.GREY_1};
-  border: 1px solid ${Colors.GREY_3};
-  border-radius: 0px;
-  padding: ${(props) =>
-    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
-  width: 343px;
-  height: 201px;
-  margin: auto;
-  margin-bottom: ${(props) => props.theme.spaces[7] - 1}px;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-
-  .avatar {
-    min-height: 71px;
-
-    .${AppClass.TEXT} {
-      margin: auto;
-    }
-  }
-
-  .${AppClass.TEXT} {
-    color: ${Colors.GREY_10};
-    margin-top: ${(props) => props.theme.spaces[1]}px;
-    &.user-name {
-      margin-top: ${(props) => props.theme.spaces[4]}px;
-    }
-    &.user-email {
-      color: ${Colors.GREY_7};
-    }
-    &.user-role {
-      margin-bottom: ${(props) => props.theme.spaces[3]}px;
-    }
-  }
-
-  .approve-btn {
-    padding: ${(props) =>
-      `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
-  }
-  .delete-btn {
-    position: absolute;
-  }
-
-  .t--user-status {
-    background: transparent;
-    border: 0px;
-    width: fit-content;
-    margin: auto;
-    .${AppClass.TEXT} {
-      width: fit-content;
-      margin-top: 0px;
-      color: ${Colors.GREY_10};
-    }
-  }
-`;
-
-export const EachUser = styled.div`
-  display: flex;
-  align-items: center;
-
-  .user-icons {
-    margin-right: 8px;
-    cursor: initial;
-
-    span {
-      color: var(--appsmith-color-black-0);
-    }
-  }
-`;
-
-export const DeleteIcon = styled(Icon)`
-  position: absolute;
-  top: ${(props) => props.theme.spaces[9]}px;
-  right: ${(props) => props.theme.spaces[7]}px;
-`;
-
-export const NoResultsText = styled.div`
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: var(--appsmith-color-black-700);
-`;
 
 export default function MemberSettings(props: PageProps) {
   const {
