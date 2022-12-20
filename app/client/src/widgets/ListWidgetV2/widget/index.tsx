@@ -87,6 +87,12 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   shouldScrollContents?: boolean;
 };
 
+type RenderChildrenOption = {
+  componentWidth: number;
+  parentColumnSpace: number;
+  selectedItemIndex?: number;
+};
+
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
 class ListWidget extends BaseWidget<
@@ -620,19 +626,25 @@ class ListWidget extends BaseWidget<
     return startIndex + viewIndex;
   };
 
+  /**
+   * Note: Do not use this.props inside the renderChildren method if the expectation is that
+   * the renderChildren would re-render when the particular prop changes.
+   * Instead pass that prop as part of options and make sure that an equality check if
+   * added to the isMatchingKey method.
+   */
   renderChildren = memoize(
     (
       metaWidgetChildrenStructure: ListWidgetProps["metaWidgetChildrenStructure"],
+      options: RenderChildrenOption,
     ) => {
-      const { componentWidth } = this.getComponentDimensions();
-      const { selectedItemIndex } = this.props;
+      const { componentWidth, parentColumnSpace, selectedItemIndex } = options;
 
       const childWidgets = (metaWidgetChildrenStructure || []).map(
         (childWidgetStructure) => {
           const child: ExtendedCanvasWidgetStructure = {
             ...childWidgetStructure,
           };
-          child.parentColumnSpace = this.props.parentColumnSpace;
+          child.parentColumnSpace = parentColumnSpace;
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.children = child.children?.map((container, viewIndex) => {
@@ -657,6 +669,21 @@ class ListWidget extends BaseWidget<
       );
 
       return childWidgets;
+    },
+    {
+      isMatchingKey: (prevArgs, nextArgs) => {
+        const prevMetaChildrenStructure = prevArgs[0];
+        const nextMetaChildrenStructure = nextArgs[0];
+        const prevOptions: RenderChildrenOption = prevArgs[1];
+        const nextOptions: RenderChildrenOption = nextArgs[1];
+
+        return (
+          prevMetaChildrenStructure === nextMetaChildrenStructure &&
+          prevOptions.componentWidth === nextOptions.componentWidth &&
+          prevOptions.parentColumnSpace === nextOptions.parentColumnSpace &&
+          prevOptions.selectedItemIndex === nextOptions.selectedItemIndex
+        );
+      },
     },
   );
 
@@ -751,8 +778,13 @@ class ListWidget extends BaseWidget<
   };
 
   getPageView() {
-    const { componentHeight } = this.getComponentDimensions();
-    const { isLoading, parentRowSpace } = this.props;
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const {
+      isLoading,
+      parentColumnSpace,
+      parentRowSpace,
+      selectedItemIndex,
+    } = this.props;
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
 
     if (isLoading) {
@@ -801,7 +833,11 @@ class ListWidget extends BaseWidget<
           updateWidget={this.overrideUpdateWidget}
           updateWidgetProperty={this.overrideUpdateWidgetProperty}
         >
-          {this.renderChildren(this.props.metaWidgetChildrenStructure)}
+          {this.renderChildren(this.props.metaWidgetChildrenStructure, {
+            componentWidth,
+            parentColumnSpace,
+            selectedItemIndex,
+          })}
         </MetaWidgetContextProvider>
         {this.renderPaginationUI()}
       </ListComponent>
