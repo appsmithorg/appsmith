@@ -20,7 +20,10 @@ import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "workers/Evaluation/evaluation.worker";
 import { ActionTriggerFunctionNames } from "entities/DataTree/actionTriggers";
-import { getActionNotDefinedError } from "./evaluationUtils";
+import {
+  AsyncFunctionCalledInSyncFieldError,
+  getAsyncFunctionCalledInSyncFieldError,
+} from "./evaluationUtils";
 
 export const promisifyAction = (
   workerRequestId: string,
@@ -37,10 +40,7 @@ export const promisifyAction = (
 
     const actionName = ActionTriggerFunctionNames[actionDescription.type];
 
-    if (!actionName) throw new Error("Async function called in a sync field");
-    const error = new Error(getActionNotDefinedError(actionName));
-    error.name = "";
-    throw error;
+    throw new AsyncFunctionCalledInSyncFieldError(actionName);
   }
   const workerRequestIdCopy = workerRequestId.concat("");
   return new Promise((resolve, reject) => {

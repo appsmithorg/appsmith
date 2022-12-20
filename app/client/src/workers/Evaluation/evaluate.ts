@@ -17,7 +17,7 @@ import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
-import { ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR } from "./evaluationUtils";
+import { FoundPromiseInSyncEvalError } from "./evaluationUtils";
 import { getErrorMessage } from "./evaluationUtils";
 
 export type EvalResult = {
@@ -292,7 +292,7 @@ export default function evaluateSync(
          * If a promise is returned in sync field then show the error to help understand sync field doesn't await to resolve promise.
          * NOTE: Awaiting for promise will make sync field evaluation slower.
          */
-        throw new Error(ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR);
+        throw new FoundPromiseInSyncEvalError();
       }
     } catch (error) {
       errors.push({

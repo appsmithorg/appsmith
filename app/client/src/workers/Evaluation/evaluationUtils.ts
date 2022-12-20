@@ -808,15 +808,31 @@ export const isATriggerPath = (
 
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute async framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
-export const ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR =
-  "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
 
-export const getActionNotDefinedError = (actionName: string) => {
-  return UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
-    "{{actionName}}",
-    actionName + "()",
-  );
-};
+export class FoundPromiseInSyncEvalError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.message =
+      "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
+  }
+}
+
+export class AsyncFunctionCalledInSyncFieldError extends Error {
+  constructor(actionName: string) {
+    super(actionName);
+
+    if (!actionName) {
+      this.message = "Async function called in a sync field";
+      return;
+    }
+
+    this.name = "";
+    this.message = UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+      "{{actionName}}",
+      actionName + "()",
+    );
+  }
+}
 
 export const getErrorMessage = (error: Error) => {
   return error.name ? `${error.name}: ${error.message}` : error.message;
