@@ -142,7 +142,7 @@ export const INVITE_USERS_ROLE_SELECT_LABEL = () => `Role`;
 export const INVITE_USERS_EMAIL_LIST_LABEL = () => `User emails`;
 export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_MESSAGE = () => `Invite users`;
-export const INVITE_USERS_PLACEHOLDER = () => `Enter email address`;
+export const INVITE_USERS_PLACEHOLDER = () => `Enter email address(es)`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () =>
   `The users have been invited successfully`;
@@ -314,6 +314,9 @@ export const OAUTH_AUTHORIZATION_FAILED =
 // Todo: improve this for appsmith_error error message
 export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
 export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
+
+export const GSHEET_AUTHORIZATION_ERROR =
+  "Data source is not authorized, please authorize to continue.";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -1401,6 +1404,10 @@ export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
 
 // Datasources
+export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
+export const NEW_API_BUTTON_TEXT = () => "New API";
+export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
+export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
 export const SAVE_BUTTON_TEXT = () => "SAVE";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
