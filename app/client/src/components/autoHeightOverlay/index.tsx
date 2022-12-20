@@ -189,20 +189,34 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     }
 
     function onMaxUpdate(dx: number, dy: number) {
+      const snapped = getSnappedValues(dx, dy, snapGrid);
+
+      if (snapped.y === maxdY) {
+        return;
+      }
+
       if (
         maxY + dy <=
-        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS *
+        (WidgetHeightLimits.MIN_HEIGHT_IN_ROWS + 1) * // now max will always be minimum GridDefaults.DEFAULT_GRID_ROW_HEIGHT + 1 rows
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT
       ) {
         return;
       }
 
-      const snapped = getSnappedValues(dx, dy, snapGrid);
-
       if (maxY + snapped.y <= minY + mindY) {
         setMindY(
           snapped.y + (maxY - minY) - GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         );
+      } else {
+        // Moving together after min has been decreased
+        // while moving with the max
+        if (
+          snapped.y - maxdY > 0 && // to check whether max is increasing now
+          mindY < 0 && // to check whether we want to increase the min because it may have decreased with the max
+          maxY + maxdY - GridDefaults.DEFAULT_GRID_ROW_HEIGHT >= minY + mindY // to check whether we still have one row difference
+        ) {
+          setMindY(Math.min(mindY + (snapped.y - maxdY), 0));
+        }
       }
 
       setMaxdY(snapped.y);
@@ -248,6 +262,12 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     }, [minDynamicHeight]);
 
     function onMinUpdate(dx: number, dy: number) {
+      const snapped = getSnappedValues(dx, dy, snapGrid);
+
+      if (snapped.y === mindY) {
+        return;
+      }
+
       if (
         minY + dy <=
         WidgetHeightLimits.MIN_HEIGHT_IN_ROWS *
@@ -256,16 +276,21 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
         return;
       }
 
-      const snapped = getSnappedValues(dx, dy, snapGrid);
-
-      if (snapped.y === 0) {
-        return;
-      }
-
+      // Moving together when increasing the min
       if (minY + snapped.y >= maxY + maxdY) {
         setMaxdY(
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT + snapped.y - (maxY - minY),
         );
+      } else {
+        // Moving together after max has been increased
+        // while moving with the min
+        if (
+          snapped.y - mindY < 0 && // to check whether min is decreasing now
+          maxdY > 0 && // to check whether we want to decrease the max because it may have increased with the min
+          minY + mindY + GridDefaults.DEFAULT_GRID_ROW_HEIGHT <= maxY + maxdY // to check whether we still have one row difference
+        ) {
+          setMaxdY(Math.max(maxdY + (snapped.y - mindY), 0));
+        }
       }
 
       setMindY(snapped.y);
