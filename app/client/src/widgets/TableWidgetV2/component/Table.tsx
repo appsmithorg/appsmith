@@ -31,6 +31,7 @@ import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell, TableVariant } from "../constants";
 import { TableBody } from "./TableBody";
+import TableBodyHasNoData from "./TableBody/TableBodyHasNoData";
 
 interface TableProps {
   width: number;
@@ -227,13 +228,12 @@ export function Table(props: TableProps) {
     // loop over subPage rows and toggleRowSelected if required
     e.stopPropagation();
   };
-  // const isHeaderVisible =
-  //   props.isVisibleSearch ||
-  //   props.isVisibleFilters ||
-  //   props.isVisibleDownload ||
-  //   props.isVisiblePagination;
+  const isHeaderVisible =
+    props.isVisibleSearch ||
+    props.isVisibleFilters ||
+    props.isVisibleDownload ||
+    props.isVisiblePagination;
 
-  const isHeaderVisible = true;
   const style = useMemo(
     () => ({
       width: props.width,
@@ -255,6 +255,7 @@ export function Table(props: TableProps) {
     }
   }, [props.isAddRowInProgress]);
 
+  const hasNoData = !props.loadingTable && subPage.length === 0;
   return (
     <TableWrapper
       accentColor={props.accentColor}
@@ -347,29 +348,32 @@ export function Table(props: TableProps) {
                   prepareRow,
                 )}
             </div>
-            <TableBody
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
-              columns={props.columns}
-              getTableBodyProps={getTableBodyProps}
-              height={props.height}
-              isAddRowInProgress={props.isAddRowInProgress}
-              multiRowSelection={!!props.multiRowSelection}
-              pageSize={props.pageSize}
-              prepareRow={prepareRow}
-              primaryColumnId={props.primaryColumnId}
-              ref={tableBodyRef}
-              rows={subPage}
-              selectTableRow={props.selectTableRow}
-              selectedRowIndex={props.selectedRowIndex}
-              selectedRowIndices={props.selectedRowIndices}
-              tableSizes={tableSizes}
-              useVirtual={shouldUseVirtual}
-              width={props.width}
-              loadingTable={props.loadingTable}
-            />
+            {!hasNoData && (
+              <TableBody
+                accentColor={props.accentColor}
+                borderRadius={props.borderRadius}
+                columns={props.columns}
+                getTableBodyProps={getTableBodyProps}
+                height={props.height}
+                isAddRowInProgress={props.isAddRowInProgress}
+                multiRowSelection={!!props.multiRowSelection}
+                pageSize={props.pageSize}
+                prepareRow={prepareRow}
+                primaryColumnId={props.primaryColumnId}
+                ref={tableBodyRef}
+                rows={subPage}
+                selectTableRow={props.selectTableRow}
+                selectedRowIndex={props.selectedRowIndex}
+                selectedRowIndices={props.selectedRowIndices}
+                tableSizes={tableSizes}
+                useVirtual={shouldUseVirtual}
+                width={props.width}
+                loadingTable={props.loadingTable}
+              />
+            )}
           </div>
         </Scrollbars>
+        {hasNoData && <TableBodyHasNoData />}
       </div>
       {isHeaderVisible && (
         <TableHeaderWrapper
