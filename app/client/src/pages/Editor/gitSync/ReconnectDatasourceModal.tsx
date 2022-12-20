@@ -106,6 +106,13 @@ const ContentWrapper = styled.div`
   .t--json-to-form-wrapper {
     width: 100%;
 
+    .t--json-to-form-body {
+      padding: 0 20px;
+      .t--collapse-section-container {
+        margin-top: 20px;
+      }
+    }
+
     .t--close-editor {
       display: none;
     }
@@ -226,7 +233,6 @@ const TooltipWrapper = styled.div`
 `;
 
 const DBFormWrapper = styled.div`
-  padding: 10px;
   width: calc(100% - 206px);
   overflow: auto;
 
