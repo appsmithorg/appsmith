@@ -89,7 +89,7 @@ describe("MaintainContext&Focus", function() {
     cy.get(`.t--entity-name:contains("Page1")`).click();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
-    cy.assertCursorOnCodeInput(".t--property-control-text", {
+    cy.assertSoftFocusOnCodeInput(".t--property-control-text", {
       ch: 2,
       line: 0,
     });

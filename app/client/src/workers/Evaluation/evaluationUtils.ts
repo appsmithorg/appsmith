@@ -5,7 +5,7 @@ import {
   isChildPropertyPath,
   isDynamicValue,
   PropertyEvaluationErrorType,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
 import {
@@ -803,5 +803,5 @@ export const isATriggerPath = (
   entity: DataTreeEntity,
   propertyPath: string,
 ) => {
-  return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
+  return isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
 };
