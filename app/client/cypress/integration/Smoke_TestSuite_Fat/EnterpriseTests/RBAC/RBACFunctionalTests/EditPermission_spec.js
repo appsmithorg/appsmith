@@ -307,7 +307,7 @@ describe("Edit Permission flow ", function() {
     cy.wait(1000);
     cy.get(jsEditorLocators.runButton)
       .first()
-      .click();
+      .click({ force: true });
     cy.wait(3000);
     // verify user is not able to edit datasource but edit queries
     cy.CheckAndUnfoldEntityItem("Datasources");
@@ -317,6 +317,11 @@ describe("Edit Permission flow ", function() {
     cy.get(".t--entity-name")
       .contains("SelectQuery")
       .click();
+    cy.get(".t--switch-datasource").click();
+    //verify it doesn't contain create new datasource option from dropdown
+    cy.get(".appsmith-select__menu > div")
+      .last()
+      .should("not.contain", "Create new datasource");
     cy.wait(5000);
     cy.get(".t--action-name-edit-icon").type("SelectQueryEdited{enter}");
     cy.wait("@getPage");

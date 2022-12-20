@@ -225,8 +225,12 @@ describe("Create Permission flow ", function() {
       datasourceName2 = `MySQL MOCKDS ${UUID}`;
       cy.renameDatasource(datasourceName2);
       cy.testSaveDatasource();
-      // verify user is able to create new query
+      // verify user is able to create new query & verify create new datasource dropdown cta is visible
       cy.NavigateToActiveDSQueryPane(datasourceName2);
+      cy.get(".t--switch-datasource").click();
+      cy.get(".appsmith-select__menu > div")
+        .last()
+        .contains("Create new datasource");
       cy.get(queryLocators.templateMenu).click();
       cy.get(".CodeMirror textarea")
         .first()
