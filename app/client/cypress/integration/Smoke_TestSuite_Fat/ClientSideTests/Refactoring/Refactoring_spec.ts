@@ -39,7 +39,7 @@ describe("Validate basic Promises", () => {
   });
 
   it("1. Create Mysql DS", function() {
-    dataSources.CreateDataSource("MySql");
+    dataSources.CreateDataSource("MySql", true, false);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
