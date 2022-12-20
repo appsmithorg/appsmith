@@ -3,7 +3,7 @@ import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, NonResizableWidgets } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import React, { memo, useContext, useMemo } from "react";
@@ -318,10 +318,12 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isVerticalResizeEnabled = useMemo(() => {
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
-
+  const allowResize = !(
+    NonResizableWidgets.includes(props.type) || isMultiSelected
+  );
   return (
     <Resizable
-      allowResize={!isMultiSelected}
+      allowResize={allowResize}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       direction={props.direction}
