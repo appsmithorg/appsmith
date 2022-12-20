@@ -69,6 +69,20 @@ export const TableWrapper = styled.div<{
       border-radius: ${(props) => props.theme.radii[3]}px;
       background: ${(props) => props.theme.colors.scrollbarLight} !important;
     }
+    .has-no-data {
+      display: inline-flex;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #757575;
+      svg {
+        font-size: 1.5rem;
+        height: 24px;
+        margin-right: 5px;
+        color: #00000061;
+      }
+    }
   }
   .table {
     border-spacing: 0;
