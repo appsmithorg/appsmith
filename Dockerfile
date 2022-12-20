@@ -32,7 +32,7 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
   && rm -rf /var/lib/apt/lists/*
 
 # Untar & install keycloak - Service Layer
-RUN curl -o /tmp/keycloak/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/16.1.1/keycloak-16.1.1.tar.gz \
+RUN curl --location --output /tmp/keycloak/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/16.1.1/keycloak-16.1.1.tar.gz \
     && cd /tmp/keycloak \
     && tar -C /opt/keycloak -zxvf keycloak.tar.gz --strip-components 1 \
     && mkdir -p /etc/keycloak \
