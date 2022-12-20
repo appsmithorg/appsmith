@@ -73,7 +73,7 @@ function useToolTip(
         </TooltipContentWrapper>
       }
       defaultIsOpen
-      hoverOpenDelay={TOOLTIP_OPEN_DELAY * 10}
+      hoverOpenDelay={TOOLTIP_OPEN_DELAY}
       position="top"
     >
       {
@@ -83,7 +83,9 @@ function useToolTip(
       }
     </Tooltip>
   ) : (
-    <Content ref={ref}>{children}</Content>
+    <Content className="t--table-cell-tooltip-target" ref={ref}>
+      {children}
+    </Content>
   );
 }
 
