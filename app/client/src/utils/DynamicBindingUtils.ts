@@ -264,7 +264,7 @@ export const getWidgetDynamicTriggerPathList = (
   return [];
 };
 
-export const isPathADynamicTrigger = (
+export const isPathDynamicTrigger = (
   widget: WidgetProps,
   path: string,
 ): boolean => {
@@ -291,7 +291,7 @@ export const getWidgetDynamicPropertyPathList = (
   return [];
 };
 
-export const isPathADynamicProperty = (
+export const isPathDynamicProperty = (
   widget: WidgetProps,
   path: string,
 ): boolean => {
@@ -351,7 +351,7 @@ export const EVAL_ERROR_PATH = `${EVALUATION_PATH}.errors`;
 export const EVAL_VALUE_PATH = `${EVALUATION_PATH}.evaluatedValues`;
 
 /**
- * non-populated object 
+ * non-populated object
  {
    __evaluation__:{
      evaluatedValues:{
