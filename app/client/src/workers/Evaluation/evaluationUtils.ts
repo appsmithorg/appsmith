@@ -810,8 +810,8 @@ const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute async framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
 
 export class FoundPromiseInSyncEvalError extends Error {
-  constructor(message: string) {
-    super(message);
+  constructor() {
+    super();
     this.message =
       "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
   }
