@@ -36,7 +36,7 @@ export default memo(function NewsletterForm() {
   return (
     <NewsletterContainer>
       <FormHeaderWrapper className="relative flex-col items-start">
-        <FormHeaderIndex className="absolute -left-6">3.</FormHeaderIndex>
+        <FormHeaderIndex className="absolute -left-6">2.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_NEWLETTER_HEADER)}
         </FormHeaderLabel>

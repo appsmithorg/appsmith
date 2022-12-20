@@ -10,7 +10,6 @@
   "useCaseDropdown": ".t--welcome-form-role-usecase",
   "useCaseDropdownOption": ".t--welcome-form-role-usecase .t--dropdown-option",
   "nextButton": ".t--welcome-form-next-button",
-  "dataCollection": ".t--welcome-form-datacollection",
   "newsLetter": ".t--welcome-form-newsletter",
   "createButton": ".t--welcome-form-create-button"
 }
