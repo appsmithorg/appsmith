@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -19,7 +20,6 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -60,8 +60,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationServiceCE {
@@ -140,7 +141,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     @Override
     public Mono<Application> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, id, applicationPermission.getReadPermission())
+        return findByIdAndBranchName(id, null, branchName);
+    }
+
+    @Override
+    public Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, id, projectionFieldNames,
+                        applicationPermission.getReadPermission())
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
@@ -280,6 +287,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         }));
     }
 
+    public Mono<UpdateResult> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
+        String defaultIdPath = "id";
+        if (!isBlank(branchName)) {
+            defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
+        }
+        return repository.updateFieldByDefaultIdAndBranchName(defaultApplicationId, defaultIdPath, fieldNameValueMap,
+                branchName, "gitApplicationMetadata.branchName", MANAGE_APPLICATIONS);
+    }
+
     public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
         return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
@@ -307,19 +323,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                     boolean isApplicationPublic = permissionGroupService.isEntityAccessible(application, applicationPermission.getReadPermission().getValue(), publicPermissionGroupId);
 
-                    // Validity checks before proceeding further
-                    if (isApplicationPublic && applicationAccessDTO.getPublicAccess()) {
-                        // No change. The required public access is the same as current public access. Do nothing
+                    if (applicationAccessDTO.getPublicAccess().equals(isApplicationPublic)) {
+                        // No change. Return the application as is.
                         return Mono.just(application);
                     }
 
-                    if (!isApplicationPublic && applicationAccessDTO.getPublicAccess().equals(false)) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-
                     // Now update the policies to change the access to the application
-                    return generateAndSetPoliciesForView(application, publicPermissionGroupId,
-                            applicationAccessDTO.getPublicAccess());
+                    return generateAndSetPoliciesForView(
+                            application,
+                            publicPermissionGroupId,
+                            applicationAccessDTO.getPublicAccess()
+                    );
                 })
                 .flatMap(this::setTransientFields);
 
@@ -601,16 +615,42 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    @Override
     public Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
                                                                      String defaultApplicationId,
                                                                      AclPermission aclPermission) {
+        return findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, null, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
+                                                                     String defaultApplicationId,
+                                                                     List<String> projectionFieldNames,
+                                                                     AclPermission aclPermission) {
+        if (StringUtils.isEmpty(branchName)) {
+            return repository.findById(defaultApplicationId, projectionFieldNames, aclPermission)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                    );
+        }
+        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, projectionFieldNames
+                        , branchName, aclPermission)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
+                );
+    }
+
+    @Override
+    public Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(String branchName,
+                                                                                 String defaultApplicationId,
+                                                                                 String fieldName,
+                                                                                 AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
                     );
         }
+
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
