@@ -59,13 +59,15 @@ export function parseUrlForQueryParams(url: string) {
       return { key: keyValue[0] || "", value: keyValue[1] || "" };
     });
 
-    params = paramsWithDynamicValues.map((queryParam, index) => {
+    params = paramsWithDynamicValues.map((queryParam) => {
       if (queryParam.value.includes("~")) {
         const newVal = queryParam?.value?.replace(
           /~/,
-          dynamicValuesDetected[index],
+          dynamicValuesDetected[0],
         );
 
+        // remove the first index from detected dynamic values.
+        dynamicValuesDetected.shift();
         return { key: queryParam.key, value: newVal };
       }
 
