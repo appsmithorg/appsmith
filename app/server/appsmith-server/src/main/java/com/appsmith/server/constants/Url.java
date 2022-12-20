@@ -31,6 +31,15 @@ public interface Url {
     String THEME_URL = BASE_URL + VERSION + "/themes";
     String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
     String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
+    String ENVIRONMENT_URL = BASE_URL + VERSION + "/environments";
+    String ENVIRONMENT_VARIABLE_URL = BASE_URL + VERSION + "/environment-variables";
     String TENANT_URL = BASE_URL + VERSION + "/tenants";
     String CUSTOM_JS_LIB_URL = BASE_URL + VERSION + "/libraries";
+
+    // EE specific endpoints.
+    String AUDIT_LOGS_URL = BASE_URL + VERSION + "/audit-logs";
+    String PERMISSION_GROUP_URL = BASE_URL + VERSION + "/roles";
+    String USER_GROUP_URL = BASE_URL + VERSION + "/user-groups";
+    // For sending special FE only events for Audit Logs
+    String ANALYTICS_URL = BASE_URL + VERSION + "/analytics";
 }

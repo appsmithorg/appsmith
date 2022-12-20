@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -20,11 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
 @Import({GitExecutorImpl.class})
 public class GitServiceImpl extends GitServiceCEImpl implements GitService {
+
+    GitCloudServicesUtils gitCloudServicesUtils;
+    CommonConfig commonConfig;
+
     public GitServiceImpl(UserService userService,
                           UserDataService userDataService,
                           SessionUserService sessionUserService,
@@ -43,6 +49,7 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           GitDeployKeysRepository gitDeployKeysRepository,
                           DatasourceService datasourceService,
                           PluginService pluginService,
+                          CommonConfig commonConfig,
                           DatasourcePermission datasourcePermission,
                           ApplicationPermission applicationPermission,
                           PagePermission pagePermission,
@@ -53,5 +60,16 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
                 datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
                 actionPermission);
+        this.gitCloudServicesUtils = gitCloudServicesUtils;
+        this.commonConfig = commonConfig;
+    }
+
+    // Override the repo limit check for EE. Unlimited repos for the EE image
+    @Override
+    public Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache) {
+        if(commonConfig.isCloudHosting()) {
+            return super.isRepoLimitReached(workspaceId, isClearCache);
+        }
+        return Mono.just(Boolean.FALSE);
     }
 }

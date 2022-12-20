@@ -6,12 +6,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_TENANT_AUDIT_LOGS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
@@ -19,6 +24,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
@@ -36,7 +42,7 @@ public enum AppsmithRole {
     APPLICATION_VIEWER("Application Viewer", "", Set.of(READ_APPLICATIONS)),
     ORGANIZATION_ADMIN(ADMINISTRATOR, WORKSPACE_ADMINISTRATOR_DESCRIPTION,
             Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS, WORKSPACE_CREATE_APPLICATION, WORKSPACE_CREATE_DATASOURCE,
-                    WORKSPACE_DELETE_DATASOURCES, WORKSPACE_DELETE_APPLICATIONS, DELETE_WORKSPACES)),
+                    WORKSPACE_DELETE_DATASOURCES, WORKSPACE_DELETE_APPLICATIONS, DELETE_WORKSPACES, WORKSPACE_MAKE_PUBLIC_APPLICATIONS)),
     ORGANIZATION_DEVELOPER(DEVELOPER, WORKSPACE_DEVELOPER_DESCRIPTION,
             Set.of(READ_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_MANAGE_DATASOURCES, WORKSPACE_READ_APPLICATIONS,
                     WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS, WORKSPACE_CREATE_APPLICATION, WORKSPACE_CREATE_DATASOURCE,
@@ -46,7 +52,14 @@ public enum AppsmithRole {
             WORKSPACE_VIEWER_DESCRIPTION,
             Set.of(READ_WORKSPACES, WORKSPACE_READ_APPLICATIONS, WORKSPACE_INVITE_USERS, WORKSPACE_EXECUTE_DATASOURCES)
     ),
-    TENANT_ADMIN("", "", Set.of(MANAGE_TENANT)),
+
+    // This is a role to create tenant admin policies. Since this is an internal construct, we wouldn't expose name and description
+    TENANT_ADMIN("", "",
+            Set.of(
+                    CREATE_WORKSPACES, CREATE_PERMISSION_GROUPS, CREATE_USER_GROUPS,
+                    READ_TENANT_AUDIT_LOGS, MANAGE_TENANT, TENANT_MANAGE_ALL_USERS
+            )
+    ),
     ;
 
     private Set<AclPermission> permissions;

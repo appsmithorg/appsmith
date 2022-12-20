@@ -1,0 +1,3 @@
+#!/bin/bash
+
+REACT_APP_ENVIRONMENT=$REACT_APP_ENVIRONMENT yarn build

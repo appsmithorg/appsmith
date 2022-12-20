@@ -1,46 +1,49 @@
 import {
-  ReduxAction,
   EvaluationReduxAction,
-  ReduxActionTypes,
+  ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
+  call,
   put,
+  select,
   takeEvery,
   takeLatest,
-  select,
-  call,
 } from "redux-saga/effects";
 import { FetchActionsPayload } from "actions/pluginActionActions";
-import { JSCollection, JSAction } from "entities/JSCollection";
+import { JSAction, JSCollection } from "entities/JSCollection";
 import {
-  createJSCollectionSuccess,
-  deleteJSCollectionSuccess,
-  deleteJSCollectionError,
-  copyJSCollectionSuccess,
   copyJSCollectionError,
-  moveJSCollectionSuccess,
-  moveJSCollectionError,
+  copyJSCollectionSuccess,
+  createJSCollectionSuccess,
+  deleteJSCollectionError,
+  deleteJSCollectionSuccess,
   fetchJSCollectionsForPage,
   fetchJSCollectionsForPageSuccess,
+  moveJSCollectionError,
+  moveJSCollectionSuccess,
 } from "actions/jsActionActions";
 import {
   getJSCollection,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
+import { getCurrentPageId, getIsViewMode } from "selectors/editorSelectors";
+import JSActionAPI, {
+  CreateJSCollectionRequest,
+  JSCollectionCreateUpdateResponse,
+} from "api/JSActionAPI";
 import { Toaster, Variant } from "design-system";
 import {
   createMessage,
-  JS_ACTION_COPY_SUCCESS,
   ERROR_JS_ACTION_COPY_FAIL,
-  JS_ACTION_DELETE_SUCCESS,
-  JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
+  JS_ACTION_COPY_SUCCESS,
+  JS_ACTION_DELETE_SUCCESS,
+  JS_ACTION_MOVE_SUCCESS,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import PageApi, { FetchPageResponse, PageLayout } from "api/PageApi";
@@ -50,7 +53,6 @@ import { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
@@ -419,6 +421,32 @@ export function* fetchJSCollectionsForViewModeSaga(
   }
 }
 
+export function* logActionExecutionSaga(
+  action: ReduxAction<{
+    actionId: string;
+    pageId: string;
+    collectionId: string;
+    actionName: string;
+    pageName: string;
+  }>,
+) {
+  try {
+    const response: ApiResponse = yield JSActionAPI.logActionExecution({
+      metadata: {
+        ...action.payload,
+        origin: "client",
+        viewMode: yield select(getIsViewMode),
+      },
+      event: "EXECUTE",
+      resourceType: "ACTION",
+      resourceId: action.payload.actionId,
+    });
+    yield validateResponse(response);
+  } catch (error) {
+    log.error(error);
+  }
+}
+
 export function* watchJSActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_JS_ACTIONS_INIT, fetchJSCollectionsSaga),
@@ -439,6 +467,10 @@ export function* watchJSActionSagas() {
     takeEvery(
       ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
       fetchJSCollectionsForViewModeSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.AUDIT_LOGS_LOG_ACTION_EXECUTION,
+      logActionExecutionSaga,
     ),
   ]);
 }

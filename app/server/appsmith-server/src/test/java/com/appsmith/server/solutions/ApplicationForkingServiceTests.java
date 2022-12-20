@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -28,6 +29,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -77,8 +79,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
@@ -155,6 +160,9 @@ public class ApplicationForkingServiceTests {
 
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
+
+    @Autowired
+    NewPageRepository newPageRepository;
 
     private static String sourceAppId;
 
@@ -531,6 +539,44 @@ public class ApplicationForkingServiceTests {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test5_failForkApplication_noPageEditPermission() {
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("Target Workspace");
+        targetWorkspace = workspaceService.create(targetWorkspace).block();
+
+        Application application = applicationService.findById(sourceAppId).block();
+        String appPageId = application.getPages().get(0).getId();
+        NewPage appPage = newPageRepository.findById(appPageId).block();
+        Set<Policy> existingPolicies = appPage.getPolicies();
+        /*
+         * We take away all Manage Page permissions for existing page.
+         * Now since, no one has the permissions to existing page, the application forking will fail.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission().equals(MANAGE_PAGES.getValue()))
+                .collect(Collectors.toSet());
+        appPage.setPolicies(newPoliciesWithoutEdit);
+        NewPage updatedGitAppPage = newPageRepository.save(appPage).block();
+
+        final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS
+                                .getMessage("page", appPageId)))
+                .verify();
+        updatedGitAppPage.setPolicies(existingPolicies);
+        NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
+
+        Mono<List<Application>> applicationsInWorkspace = applicationService.findAllApplicationsByWorkspaceId(targetWorkspace.getId()).collectList();
+        /*
+         * Check that no applications have been created in the Target Workspace
+         */
+        StepVerifier.create(applicationsInWorkspace).assertNext(applications -> assertThat(applications).isEmpty());
     }
 
     @Test

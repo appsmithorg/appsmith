@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.solutions.LicenseValidator;
 import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +31,17 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final CloudServicesConfig cloudServicesConfig;
 
+    private final LicenseValidator licenseValidator;
+    
     private final CommonConfig commonConfig;
 
     private boolean isRtsAccessible = false;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+        // On startup, check the license key
+        licenseValidator.check();
+
         configService.getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(registerInstance())
@@ -46,6 +52,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                     log.debug(e.getMessage());
                     Sentry.captureException(e);
                 });
+
     }
 
     private Mono<? extends Config> registerInstance() {

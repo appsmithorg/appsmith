@@ -74,7 +74,7 @@ server {
   }
 
   # If the path has an extension at the end, then respond with 404 status if the file not found.
-  location ~ ^/(?!supervisor/).*\.[a-z]+$ {
+  location ~ ^/(?!supervisor/|auth/).*\.[a-z]+$ {
     try_files \$uri =404;
   }
 
@@ -96,6 +96,15 @@ server {
     proxy_set_header Host \$host;
     proxy_set_header Connection 'upgrade';
     proxy_set_header Upgrade \$http_upgrade;
+  }
+
+  location /auth {
+    proxy_pass http://localhost:8081;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$origin_scheme;
+    proxy_set_header X-Forwarded-Host \$host;
   }
 }
 EOF

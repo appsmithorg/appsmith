@@ -1,5 +1,10 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.AppsmithDomain;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -11,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
@@ -18,6 +24,8 @@ import javax.validation.Validator;
 @Slf4j
 @Service
 public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements DatasourceService {
+
+    private final VariableReplacementService variableReplacementService;
 
     public DatasourceServiceImpl(Scheduler scheduler,
                                  Validator validator,
@@ -33,6 +41,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                  SequenceService sequenceService,
                                  NewActionRepository newActionRepository,
                                  DatasourceContextService datasourceContextService,
+                                 VariableReplacementService variableReplacementService,
                                  DatasourcePermission datasourcePermission,
                                  WorkspacePermission workspacePermission) {
 
@@ -41,5 +50,20 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 sequenceService, newActionRepository, datasourceContextService, datasourcePermission,
                 workspacePermission);
 
+        this.variableReplacementService = variableReplacementService;
+    }
+
+    @Override
+    public Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission) {
+        return super.getValidDatasourceFromActionMono(actionDTO, aclPermission)
+                .flatMap(datasource1 -> {
+                    Mono<AppsmithDomain> datasourceConfigurationMono = this.variableReplacementService
+                            .replaceAll(datasource1.getDatasourceConfiguration());
+                    return datasourceConfigurationMono.flatMap(
+                            configuration -> {
+                                datasource1.setDatasourceConfiguration((DatasourceConfiguration) configuration);
+                                return Mono.just(datasource1);
+                            });
+                });
     }
 }

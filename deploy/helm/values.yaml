@@ -17,6 +17,15 @@ mongodb:
   architecture: "replicaset"
   replicaSetName: rs0
 
+## postgresql parameters
+postgresql:
+  enabled: true
+  auth:
+    username: root
+    password: password
+    postgresPassword: password
+    database: keycloak
+
 ## @section Global parameters
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
@@ -52,9 +61,7 @@ strategyType: RollingUpdate
 ## Image
 ##
 image:
-  registry: index.docker.io
-  repository: appsmith/appsmith-ce
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 ## ServiceAccount
@@ -186,7 +193,15 @@ resources:
   #   cpu: 100m
   #   memory: 128Mi
   limits: {}
-  requests: {}
+  requests:
+     cpu: 2000m
+     memory: 3000Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 5
 
 nodeSelector: {}
 
@@ -212,15 +227,39 @@ persistence:
   storagePath: /tmp/hostpath_pv
   ## @param persistence.localCluster
   ##
-  localCluster:
-    - minikube
+  localCluster: {}
   ## @param persistence.accessModes PV Access Mode
   ##
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   ## @param persistence.size PVC Storage Request
   ##
   size: 10Gi
+  ## Fine tuning for volumeClaimTemplates
+  ##
+  reclaimPolicy: Retain
+  existingClaim:
+    enabled:
+    name:
+    claimName:
+  efs:
+    enabled:
+    driver:
+    volumeHandle:
+  volumeClaimTemplates:
+    ## @param persistence.volumeClaimTemplates.selector A label query over volumes to consider for binding (e.g. when using local volumes)
+    ## A label query over volumes to consider for binding (e.g. when using local volumes)
+    ## See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#labelselector-v1-meta for more details
+    ##
+    selector: {}
+    ## @param persistence.volumeClaimTemplates.requests Custom PVC requests attributes
+    ## Sometime cloud providers use additional requests attributes to provision custom storage instance
+    ## See https://cloud.ibm.com/docs/containers?topic=containers-file_storage#file_dynamic_statefulset
+    ##
+    requests: {}
+    ## @param persistence.volumeClaimTemplates.dataSource Add dataSource to the VolumeClaimTemplate
+    ##
+    dataSource: {}
 # tags:
 #   install-ingress-nginx: true
 storageClass:
@@ -290,3 +329,9 @@ applicationConfig:
   APPSMITH_ENCRYPTION_SALT: ""
   APPSMITH_CUSTOM_DOMAIN: ""
   APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
+  APPSMITH_LICENSE_KEY: ""
+  APPSMITH_KEYCLOAK_DB_DRIVER: ""
+  APPSMITH_KEYCLOAK_DB_USERNAME: ""
+  APPSMITH_KEYCLOAK_DB_PASSWORD: ""
+  APPSMITH_KEYCLOAK_DB_URL: ""
+  APPSMITH_KEYCLOAK_DB_NAME: "keycloak"

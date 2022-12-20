@@ -57,6 +57,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Load secrets from AWS
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID_FOR_SECRETS }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_SECRETS }}"
+          AWS_REGION: us-east-2
+        uses: abhilash1in/aws-secrets-manager-action@v2.1.0
+        with:
+          secrets: |
+            ga/segment_key
+          parse-json: true
+
+      - name: Check if required variables are available
+        run: |
+          test -n "${GA_SEGMENT_KEY_EE_LATEST-}"
+
       - name: Use Node.js 16.14.0
         uses: actions/setup-node@v3
         with:
@@ -82,12 +97,12 @@ jobs:
         env:
           REACT_APP_ENVIRONMENT: "PRODUCTION"
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}"
-          REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
           REACT_APP_VERSION_ID: "${{ needs.prelude.outputs.tag }}"
           REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID }}"
-          REACT_APP_VERSION_EDITION: "Community"
+          REACT_APP_VERSION_EDITION: "Business"
         run: |
           REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
+            REACT_APP_SEGMENT_CE_KEY="$GA_SEGMENT_KEY_EE_LATEST" \
             yarn build
           ls -l build
 
@@ -198,6 +213,20 @@ jobs:
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v3
 
+      - name: Load secrets from AWS
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID_FOR_SECRETS }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_SECRETS }}"
+          AWS_REGION: us-east-2
+        uses: abhilash1in/aws-secrets-manager-action@v2.1.0
+        with:
+          secrets: |
+            ga/segment_key
+          parse-json: true
+
+      - name: Check if required variables are available
+        run: |
+          test -n "${GA_SEGMENT_KEY_EE_LATEST-}"
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
@@ -237,7 +266,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push client image latest
@@ -247,7 +276,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:latest
 
       - name: Build and push fat image
         uses: depot/build-push-action@v1
@@ -258,7 +287,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{needs.prelude.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push fat image latest
@@ -271,7 +300,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:latest
 
       - name: Build and push server image
         uses: depot/build-push-action@v1
@@ -281,7 +310,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push server image latest
@@ -293,7 +322,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:latest
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest
 
       - name: Build and push RTS image
         uses: depot/build-push-action@v1
@@ -301,7 +330,7 @@ jobs:
           context: app/rts
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push RTS image latest
@@ -313,4 +342,4 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:latest

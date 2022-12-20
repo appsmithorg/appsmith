@@ -74,7 +74,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         this.mongoOperations = mongoOperations;
     }
 
-    private Criteria notDeleted() {
+    protected Criteria notDeleted() {
         return new Criteria().andOperator(
                 new Criteria().orOperator(
                         where(FieldName.DELETED).exists(false),
@@ -121,6 +121,16 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
+    public Mono<T> retrieveById(ID id) {
+        Query query = new Query(getIdCriteria(id));
+        query.addCriteria(notDeleted());
+
+        return mongoOperations.query(entityInformation.getJavaType())
+                .inCollection(entityInformation.getCollectionName())
+                .matching(query)
+                .one();
+    }
+
     public Mono<T> findById(ID id) {
         return this.findByIdAndFieldNames(id, null);
     }

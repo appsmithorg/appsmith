@@ -9,6 +9,10 @@ WORKDIR /opt/appsmith
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
+RUN mkdir -p /tmp/keycloak /opt/keycloak
+
+COPY ./app/keycloak-docker-config/launch.sh /tmp/keycloak/launch.sh
+
 # Update APT packages - Base Layer
 RUN apt-get update \
   && apt-get upgrade --yes \
@@ -26,6 +30,15 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
   && apt-get install --no-install-recommends --yes mongodb-org=5.0.14 nodejs redis build-essential \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+
+# Untar & install keycloak - Service Layer
+RUN curl -o /tmp/keycloak/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/16.1.1/keycloak-16.1.1.tar.gz \
+    && cd /tmp/keycloak \
+    && tar -C /opt/keycloak -zxvf keycloak.tar.gz --strip-components 1 \
+    && mkdir -p /etc/keycloak \
+    && cp /tmp/keycloak/launch.sh /opt/keycloak/bin/ \
+    && chmod +x /opt/keycloak/bin/launch.sh \
+    && chmod +x /opt/keycloak/bin/standalone.sh
 
 # Clean up cache file - Service layer
 RUN rm -rf \
@@ -64,6 +77,9 @@ COPY ./app/rts/package.json ./app/rts/dist rts/
 COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/mongo-init.js.sh\
   ./deploy/docker/templates/docker.env.sh \
+  ./deploy/docker/templates/keycloak-standalone.xml \
+  ./deploy/docker/templates/postgres-module.xml \
+  ./deploy/docker/templates/postgresql-42.2.20.jar \
   templates/
 
 # Add bootstrapfile

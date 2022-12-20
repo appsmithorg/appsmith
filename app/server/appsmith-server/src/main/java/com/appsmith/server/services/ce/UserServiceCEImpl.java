@@ -730,7 +730,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         isSuperUserMono
                 )
                 .map(tuple -> {
-                    final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
+                    final boolean isUsersEmpty = TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
                     final UserData userData = tuple.getT3();
                     Boolean isSuperUser = tuple.getT4();

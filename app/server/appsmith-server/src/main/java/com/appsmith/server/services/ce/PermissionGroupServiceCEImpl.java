@@ -18,6 +18,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
+import lombok.extern.slf4j.Slf4j;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -40,7 +41,7 @@ import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
-
+@Slf4j
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepository, PermissionGroup, String>
         implements PermissionGroupServiceCE {
 
@@ -158,8 +159,14 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         return bulkAssignToUsers(permissionGroup, List.of(user));
     }
 
-    private void ensureAssignedToUserIds(PermissionGroup permissionGroup) {
+    protected void ensureAssignedToUserIds(PermissionGroup permissionGroup) {
         if (permissionGroup.getAssignedToUserIds() == null) {
+            permissionGroup.setAssignedToUserIds(new HashSet<>());
+        }
+    }
+
+    protected void ensureAssignedToUserGroups(PermissionGroup permissionGroup) {
+        if (permissionGroup.getAssignedToGroupIds() == null) {
             permissionGroup.setAssignedToUserIds(new HashSet<>());
         }
     }

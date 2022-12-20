@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-appsmithctl backup --error-mail || exit 1
+appsmithctl backup --error-mail --upload-to-s3|| exit 1
