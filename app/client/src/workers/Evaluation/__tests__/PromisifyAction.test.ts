@@ -12,7 +12,7 @@ jest.mock("../evaluation.worker.ts", () => {
 describe("promise execution", () => {
   const postMessageMock = jest.fn();
   const requestId = _.uniqueId("TEST_REQUEST");
-  const dataTreeWithFunctions = createEvaluationContext({
+  const evalContext = createEvaluationContext({
     dataTree: {},
     resolvedFunctions: {},
     context: { requestId },
@@ -29,12 +29,12 @@ describe("promise execution", () => {
   it("throws when allow async is not enabled", () => {
     self.ALLOW_ASYNC = false;
     self.IS_ASYNC = false;
-    expect(dataTreeWithFunctions.showAlert).toThrowError();
+    expect(evalContext.showAlert).toThrowError();
     expect(self.IS_ASYNC).toBe(true);
     expect(postMessageMock).not.toHaveBeenCalled();
   });
   it("sends an event from the worker", () => {
-    dataTreeWithFunctions.showAlert("test alert", "info");
+    evalContext.showAlert("test alert", "info");
     expect(postMessageMock).toBeCalledWith({
       requestId,
       type: "PROCESS_TRIGGER",
@@ -53,10 +53,7 @@ describe("promise execution", () => {
   });
   it("returns a promise that resolves", async () => {
     postMessageMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
+    const returnedPromise = evalContext.showAlert("test alert", "info");
     const requestArgs = postMessageMock.mock.calls[0][0];
     const subRequestId = requestArgs.responseData.subRequestId;
 
@@ -76,10 +73,7 @@ describe("promise execution", () => {
 
   it("returns a promise that rejects", async () => {
     postMessageMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
+    const returnedPromise = evalContext.showAlert("test alert", "info");
     const requestArgs = postMessageMock.mock.calls[0][0];
     const subRequestId = requestArgs.responseData.subRequestId;
     self.dispatchEvent(
@@ -97,10 +91,7 @@ describe("promise execution", () => {
   });
   it("does not process till right event is triggered", async () => {
     postMessageMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
+    const returnedPromise = evalContext.showAlert("test alert", "info");
 
     const requestArgs = postMessageMock.mock.calls[0][0];
     const correctSubRequestId = requestArgs.responseData.subRequestId;
@@ -136,10 +127,7 @@ describe("promise execution", () => {
   });
   it("same subRequestId is not accepted again", async () => {
     postMessageMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
+    const returnedPromise = evalContext.showAlert("test alert", "info");
 
     const requestArgs = postMessageMock.mock.calls[0][0];
     const subRequestId = requestArgs.responseData.subRequestId;

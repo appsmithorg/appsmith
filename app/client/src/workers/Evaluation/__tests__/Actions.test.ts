@@ -2,7 +2,7 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import {
   createEvaluationContext,
-  GlobalData,
+  EvalContext,
 } from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
 import { addDataTreeToContext } from "../Actions";
@@ -34,7 +34,7 @@ describe("Add functions", () => {
     },
   };
   self.TRIGGER_COLLECTOR = [];
-  const dataTreeWithFunctions = createEvaluationContext({
+  const evalContext = createEvaluationContext({
     dataTree,
     resolvedFunctions: {},
     context: {
@@ -54,9 +54,9 @@ describe("Add functions", () => {
     const actionParams = { param1: "value1" };
 
     // Old syntax works with functions
-    expect(
-      dataTreeWithFunctions.action1.run(onSuccess, onError, actionParams),
-    ).toBe(undefined);
+    expect(evalContext.action1.run(onSuccess, onError, actionParams)).toBe(
+      undefined,
+    );
     expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
@@ -73,9 +73,9 @@ describe("Add functions", () => {
     self.TRIGGER_COLLECTOR.pop();
 
     // Old syntax works with one undefined value
-    expect(
-      dataTreeWithFunctions.action1.run(onSuccess, undefined, actionParams),
-    ).toBe(undefined);
+    expect(evalContext.action1.run(onSuccess, undefined, actionParams)).toBe(
+      undefined,
+    );
     expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
@@ -91,9 +91,9 @@ describe("Add functions", () => {
 
     self.TRIGGER_COLLECTOR.pop();
 
-    expect(
-      dataTreeWithFunctions.action1.run(undefined, onError, actionParams),
-    ).toBe(undefined);
+    expect(evalContext.action1.run(undefined, onError, actionParams)).toBe(
+      undefined,
+    );
     expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
@@ -119,9 +119,9 @@ describe("Add functions", () => {
     });
 
     // Old syntax works with null values is treated as new syntax
-    expect(
-      dataTreeWithFunctions.action1.run(null, null, actionParams),
-    ).resolves.toBe({ a: "b" });
+    expect(evalContext.action1.run(null, null, actionParams)).resolves.toBe({
+      a: "b",
+    });
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -141,7 +141,7 @@ describe("Add functions", () => {
 
     // Old syntax works with undefined values is treated as new syntax
     expect(
-      dataTreeWithFunctions.action1.run(undefined, undefined, actionParams),
+      evalContext.action1.run(undefined, undefined, actionParams),
     ).resolves.toBe({ a: "b" });
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
@@ -162,7 +162,7 @@ describe("Add functions", () => {
 
     // new syntax works
     expect(
-      dataTreeWithFunctions.action1
+      evalContext.action1
         .run(actionParams)
         .then(onSuccess)
         .catch(onError),
@@ -184,7 +184,7 @@ describe("Add functions", () => {
       },
     });
     // New syntax without params
-    expect(dataTreeWithFunctions.action1.run()).resolves.toBe({ a: "b" });
+    expect(evalContext.action1.run()).resolves.toBe({ a: "b" });
 
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
@@ -205,7 +205,7 @@ describe("Add functions", () => {
   });
 
   it("action.clear works", () => {
-    expect(dataTreeWithFunctions.action1.clear()).resolves.toBe({});
+    expect(evalContext.action1.clear()).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -228,9 +228,9 @@ describe("Add functions", () => {
     const params = "{ param1: value1 }";
     const target = "NEW_WINDOW";
 
-    expect(
-      dataTreeWithFunctions.navigateTo(pageNameOrUrl, params, target),
-    ).resolves.toBe({});
+    expect(evalContext.navigateTo(pageNameOrUrl, params, target)).resolves.toBe(
+      {},
+    );
 
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
@@ -254,7 +254,7 @@ describe("Add functions", () => {
   it("showAlert works", () => {
     const message = "Alert message";
     const style = "info";
-    expect(dataTreeWithFunctions.showAlert(message, style)).resolves.toBe({});
+    expect(evalContext.showAlert(message, style)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -276,7 +276,7 @@ describe("Add functions", () => {
   it("showModal works", () => {
     const modalName = "Modal 1";
 
-    expect(dataTreeWithFunctions.showModal(modalName)).resolves.toBe({});
+    expect(evalContext.showModal(modalName)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -296,7 +296,7 @@ describe("Add functions", () => {
 
   it("closeModal works", () => {
     const modalName = "Modal 1";
-    expect(dataTreeWithFunctions.closeModal(modalName)).resolves.toBe({});
+    expect(evalContext.closeModal(modalName)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -323,9 +323,7 @@ describe("Add functions", () => {
     // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
     uniqueId.mockReturnValueOnce(uniqueActionRequestId);
 
-    expect(dataTreeWithFunctions.storeValue(key, value, persist)).resolves.toBe(
-      {},
-    );
+    expect(evalContext.storeValue(key, value, persist)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -349,7 +347,7 @@ describe("Add functions", () => {
   it("removeValue works", () => {
     const key = "some";
 
-    expect(dataTreeWithFunctions.removeValue(key)).resolves.toBe({});
+    expect(evalContext.removeValue(key)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -368,7 +366,7 @@ describe("Add functions", () => {
   });
 
   it("clearStore works", () => {
-    expect(dataTreeWithFunctions.clearStore()).resolves.toBe({});
+    expect(evalContext.clearStore()).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -389,7 +387,7 @@ describe("Add functions", () => {
     const name = "downloadedFile.txt";
     const type = "text";
 
-    expect(dataTreeWithFunctions.download(data, name, type)).resolves.toBe({});
+    expect(evalContext.download(data, name, type)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -411,7 +409,7 @@ describe("Add functions", () => {
 
   it("copyToClipboard works", () => {
     const data = "file";
-    expect(dataTreeWithFunctions.copyToClipboard(data)).resolves.toBe({});
+    expect(evalContext.copyToClipboard(data)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -434,9 +432,9 @@ describe("Add functions", () => {
     const widgetName = "widget1";
     const resetChildren = true;
 
-    expect(
-      dataTreeWithFunctions.resetWidget(widgetName, resetChildren),
-    ).resolves.toBe({});
+    expect(evalContext.resetWidget(widgetName, resetChildren)).resolves.toBe(
+      {},
+    );
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
@@ -460,9 +458,7 @@ describe("Add functions", () => {
     const interval = 5000;
     const id = "myInterval";
 
-    expect(dataTreeWithFunctions.setInterval(callback, interval, id)).toBe(
-      undefined,
-    );
+    expect(evalContext.setInterval(callback, interval, id)).toBe(undefined);
     expect(self.TRIGGER_COLLECTOR).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -480,7 +476,7 @@ describe("Add functions", () => {
   it("clearInterval works", () => {
     const id = "myInterval";
 
-    expect(dataTreeWithFunctions.clearInterval(id)).toBe(undefined);
+    expect(evalContext.clearInterval(id)).toBe(undefined);
     expect(self.TRIGGER_COLLECTOR).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -500,9 +496,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as a string", () => {
       const message = "Hello world!";
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -521,9 +517,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as undefined", () => {
       const message = undefined;
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -542,9 +538,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as null", () => {
       const message = null;
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -563,9 +559,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as a number", () => {
       const message = 1826;
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -584,9 +580,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as a boolean", () => {
       const message = true;
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -605,9 +601,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as an array", () => {
       const message = [1, 2, 3, [1, 2, 3, [1, 2, 3]]];
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -633,9 +629,9 @@ describe("Add functions", () => {
         randomArr: [1, 2, 3],
       };
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -864,7 +860,7 @@ const dataTree = {
 };
 
 describe("Test addDataTreeToContext method", () => {
-  const evalContext: GlobalData = {};
+  const evalContext: EvalContext = {};
   beforeAll(() => {
     addDataTreeToContext({
       EVAL_CONTEXT: evalContext,

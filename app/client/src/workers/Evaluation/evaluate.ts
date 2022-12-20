@@ -127,7 +127,7 @@ export function setupEvaluationEnvironment() {
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
-export type GlobalData = Record<string, any>;
+export type EvalContext = Record<string, any>;
 type ResolvedFunctions = Record<string, any>;
 export interface createEvaluationContextArgs {
   dataTree: DataTree;
@@ -152,7 +152,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     skipEntityFunctions,
   } = args;
 
-  const EVAL_CONTEXT: GlobalData = {};
+  const EVAL_CONTEXT: EvalContext = {};
   ///// Adding callback data
   EVAL_CONTEXT.ARGUMENTS = evalArguments;
   //// Adding contextual data not part of data tree
@@ -176,7 +176,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
 };
 
 export const assignJSFunctionsToContext = (
-  EVAL_CONTEXT: GlobalData,
+  EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
@@ -259,13 +259,13 @@ export default function evaluateSync(
       userLogs.resetLogs();
     }
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: Record<string, any> = createEvaluationContext({
+    const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
       context,
       evalArguments,
     });
-    GLOBAL_DATA.ALLOW_ASYNC = false;
+    evalContext.ALLOW_ASYNC = false;
     const { script } = getUserScriptToEvaluate(
       userScript,
       false,
@@ -283,10 +283,7 @@ export default function evaluateSync(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    for (const entity in GLOBAL_DATA) {
-      // @ts-expect-error: Types are not available
-      self[entity] = GLOBAL_DATA[entity];
-    }
+    Object.assign(self, evalContext);
 
     try {
       result = indirectEval(script);
@@ -307,9 +304,11 @@ export default function evaluateSync(
       });
     } finally {
       if (!skipLogsOperations) logs = userLogs.flushLogs();
-      for (const entity in GLOBAL_DATA) {
-        // @ts-expect-error: Types are not available
-        delete self[entity];
+      for (const entityName in evalContext) {
+        if (evalContext.hasOwnProperty(entityName)) {
+          // @ts-expect-error: Types are not available
+          delete self[entityName];
+        }
       }
     }
 
@@ -337,21 +336,19 @@ export async function evaluateAsync(
       eventType: context?.eventType,
       triggerMeta: context?.triggerMeta,
     });
-    const GLOBAL_DATA: Record<string, any> = createEvaluationContext({
+    const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
       context: { ...context, requestId },
       evalArguments,
     });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
-    GLOBAL_DATA.ALLOW_ASYNC = true;
+    evalContext.ALLOW_ASYNC = true;
+
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    for (const entity in GLOBAL_DATA) {
-      // @ts-expect-error: Types are not available
-      self[entity] = GLOBAL_DATA[entity];
-    }
+    Object.assign(self, evalContext);
 
     try {
       result = await indirectEval(script);
@@ -399,7 +396,7 @@ export function isFunctionAsync(
 ) {
   return (function() {
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: GlobalData = {
+    const GLOBAL_DATA: EvalContext = {
       ALLOW_ASYNC: false,
       IS_ASYNC: false,
     };

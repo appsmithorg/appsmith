@@ -10,7 +10,7 @@ import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
-import { GlobalData } from "./evaluate";
+import { EvalContext } from "./evaluate";
 
 declare global {
   /** All identifiers added to the worker global scope should also
@@ -308,7 +308,7 @@ const ENTITY_FUNCTIONS: Record<
  * This method returns new dataTree with entity function and platform function
  */
 export const addDataTreeToContext = (args: {
-  EVAL_CONTEXT: GlobalData;
+  EVAL_CONTEXT: EvalContext;
   dataTree: Readonly<DataTree>;
   requestId?: string;
   skipEntityFunctions?: boolean;

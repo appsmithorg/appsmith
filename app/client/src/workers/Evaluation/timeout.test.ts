@@ -107,12 +107,12 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
       },
     };
     self.ALLOW_ASYNC = true;
-    const dataTreeWithFunctions = createEvaluationContext({
+    const evalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions: {},
       context: {},
     });
-    setTimeout(() => dataTreeWithFunctions.action1.run(), 1000);
+    setTimeout(() => evalContext.action1.run(), 1000);
     jest.runAllTimers();
     expect(self.postMessage).toBeCalled();
   });
