@@ -257,9 +257,7 @@ export function isPromise(value: any): value is Promise<unknown> {
   return Boolean(value && typeof value.then === "function");
 }
 
-export function* sortJSExecutionDataByCollectionId(
-  data: JSExecutionData[],
-): unknown {
+export function* sortJSExecutionDataByCollectionId(data: JSExecutionData[]) {
   // Sorted data by collectionId
   const sortedData: BatchedJSExecutionData = {};
   for (const key of data) {
