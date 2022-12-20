@@ -131,7 +131,7 @@ export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
 export const MARK_APPLICATION_PUBLIC = () => "Mark application public";
-export const MAKE_APPLICATION_PUBLIC = () => "Mark the application public";
+export const MAKE_APPLICATION_PUBLIC = () => "Make the application public";
 export const MAKE_APPLICATION_PUBLIC_TOOLTIP = () =>
   "A public app is accessible to anyone who can access your instance of appsmith";
 export const INVITE_TAB = () => "Invite";

@@ -91,14 +91,14 @@ function AppInviteUsersForm(props: any) {
       <BottomContainer className="flex space-between mt-6 pt-5">
         <div className="flex gap-1.5 cursor-pointer" onClick={copyToClipboard}>
           <Icon
-            fillColor={Colors.GRAY_700}
+            fillColor={Colors.GREY_900}
             name="links-line"
             size={IconSize.XL}
           />
           <Text
             case={Case.UPPERCASE}
             className="self-center"
-            color={Colors.GRAY_700}
+            color={Colors.GREY_900}
             type={TextType.P4}
           >{`${
             isCopied

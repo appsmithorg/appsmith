@@ -4,8 +4,8 @@ import styled from "styled-components";
 
 const Wrapper = styled.div`
   input {
-    padding-left: 0;
     text-align: right;
+    padding-left: 2px;
   }
 `;
 
@@ -16,7 +16,7 @@ type DimensionsInputProp = {
 };
 
 export function cssDimensionValidator(value: string) {
-  let isValid = true;
+  let isValid = false;
   const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
   if (value) {
     isValid = regex.test(value + "");
