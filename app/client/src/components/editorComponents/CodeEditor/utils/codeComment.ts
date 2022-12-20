@@ -87,7 +87,9 @@ function performLineCommenting(
 
   // When mode is TEXT, the name is null string, we skip commenting
   const commentString =
-    mode.name === "null" ? "" : options.lineComment || mode.lineComment;
+    mode.name === "null" && !firstLine.includes(JS_FIELD_BEGIN)
+      ? ""
+      : options.lineComment || mode.lineComment;
 
   if (!commentString) {
     if (options.blockCommentStart || mode.blockCommentStart) {
