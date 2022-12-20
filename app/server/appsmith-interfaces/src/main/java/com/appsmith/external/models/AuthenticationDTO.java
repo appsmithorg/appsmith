@@ -34,7 +34,8 @@ public class AuthenticationDTO implements AppsmithDomain {
     public enum AuthenticationStatus {
         NONE,
         IN_PROGRESS,
-        SUCCESS
+        SUCCESS,
+        FAILURE
     };
 
     String authenticationType;

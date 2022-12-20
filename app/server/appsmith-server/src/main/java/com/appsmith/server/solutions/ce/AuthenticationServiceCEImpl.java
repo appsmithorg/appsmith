@@ -377,7 +377,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     error -> new AppsmithException(
                                             AppsmithError.AUTHENTICATION_FAILURE,
                                             "Unable to connect to Appsmith authentication server."
-                                    ));
+                                    ))
+                            .onErrorMap(AppsmithException.class, error -> {
+                                datasourceMono.flatMap(datasource -> {
+                                        datasource.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
+                                        return datasourceService.update(datasource.getId(), datasource);
+                                });
+                                return error;
+                            });
                 });
     }
 
@@ -441,7 +448,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         error -> new AppsmithException(
                                 AppsmithError.AUTHENTICATION_FAILURE,
                                 "Unable to connect to Appsmith authentication server."
-                        ));
+                        ))
+                .onErrorMap(AppsmithException.class, error -> {
+                    datasourceMono.flatMap(datasource -> {
+                        datasource.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
+                        return datasourceService.update(datasource.getId(), datasource);
+                    });
+                    return error;
+                });
     }
 
     public Mono<Datasource> refreshAuthentication(Datasource datasource) {
