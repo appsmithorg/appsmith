@@ -1076,13 +1076,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         /**
          * Columns that will be frozen by the users will not have values set in its primary columns sticky property.
          * They are updated in the respective meta properties leftOrder or rightOrder.
-         *
-         * Get the columns that are frozen by developers. Columns that are frozen by developers will have sticky value in its primary column
-         * We need to reset it to ""
          */
-        // if (get(this.props.primaryColumns, `${columnName}.sticky`)) {
-        //   super.updateWidgetProperty(`primaryColumns.${columnName}.sticky`, "");
-        // }
         if (sticky === "left") {
           /**
            * leftOrder and rightOrder are mutually exclusive i.e. a column cannot appear in both of these order at the same time.
@@ -1103,11 +1097,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           }
         } else if (sticky === "right") {
           if (leftOrder) {
-            /**
-             * leftOrder and rightOrder are mutually exclusive i.e. a column cannot appear in both of these order at the same time.
-             * Whenever user moves a column from left to right, we make sure to remove the column from rightOrder and add it
-             * to the leftOrder.
-             */
             leftOrder = without(leftOrder, columnName);
             if (leftOrder.length === 0) {
               leftOrder = undefined;
