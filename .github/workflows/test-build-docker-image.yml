@@ -23,7 +23,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-4-cores
     defaults:
       run:
         working-directory: app/client
@@ -399,7 +399,7 @@ jobs:
 
     # Only run if the build step is successful
     if: success()
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-4-cores
 
     defaults:
       run:
@@ -634,7 +634,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-4-cores
     defaults:
       run:
         shell: bash
@@ -1483,7 +1483,7 @@ jobs:
         with:
           name: failed-spec
           path: ~/failed_spec
-      
+
       # Download failed_spec_fat list for all fat container jobs
       - uses: actions/download-artifact@v2
         if: needs.fat-container-test.result
@@ -1496,7 +1496,7 @@ jobs:
       - name: "combine all specs"
         if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
-      
+
       # Incase for any fat-container job failure, create combined failed spec
       - name: "combine all specs for fat"
         if: needs.fat-container-test.result != 'success'
@@ -1532,7 +1532,7 @@ jobs:
         with:
           name: combined_failed_spec
           path: ~/combined_failed_spec
-      
+
       # Upload combined failed fat spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
@@ -1557,8 +1557,8 @@ jobs:
 
   package:
     needs: ui-test
-    runs-on: buildjet-4vcpu-ubuntu-2004
-    # Set permissions since we're using OIDC token authentication between Depot and Github
+    runs-on: ubuntu-latest
+    # Set permissions since we're using OIDC token authentication between Depot and GitHub
     permissions:
       contents: read
       id-token: write

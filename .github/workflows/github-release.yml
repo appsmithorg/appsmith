@@ -44,7 +44,7 @@ jobs:
     needs:
       - prelude
 
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-4-cores
 
     defaults:
       run:
