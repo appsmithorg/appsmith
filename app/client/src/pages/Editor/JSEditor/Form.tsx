@@ -72,6 +72,7 @@ import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
+import history from "utils/history";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -134,6 +135,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
             position,
           ),
         );
+        history.replace(window.location.pathname);
       }
     }
   }, [hash]);

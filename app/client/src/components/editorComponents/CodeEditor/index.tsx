@@ -614,8 +614,13 @@ class CodeEditor extends Component<Props, State> {
         if (!navigationAttribute) return;
         const entityToNavigate = navigationAttribute.value.split(".");
 
-        // focus out of the input
-        document.body.focus();
+        if (
+          document.activeElement &&
+          document.activeElement instanceof HTMLElement
+        ) {
+          document.activeElement.blur();
+        }
+
         this.setState(
           {
             isFocused: false,
@@ -635,11 +640,11 @@ class CodeEditor extends Component<Props, State> {
                 history.push(navigationData.url, {
                   invokedBy: NavigationMethod.CommandClick,
                 });
-              }
 
-              // TODO fix the widget navigation issue to remove this
-              if (navigationData.type === ENTITY_TYPE.WIDGET) {
-                this.props.selectWidget(navigationData.id);
+                // TODO fix the widget navigation issue to remove this
+                if (navigationData.type === ENTITY_TYPE.WIDGET) {
+                  this.props.selectWidget(navigationData.id);
+                }
               }
             }
           },
@@ -693,15 +698,11 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
-    const { ch, line, sticky } = cm.getCursor();
     // Check if it is a user focus
-    if (
-      ch === 0 &&
-      line === 0 &&
-      sticky === null &&
-      this.props.editorLastCursorPosition
-    ) {
-      cm.setCursor(this.props.editorLastCursorPosition);
+    if (this.props.editorLastCursorPosition) {
+      cm.setCursor(this.props.editorLastCursorPosition, undefined, {
+        scroll: true,
+      });
     }
 
     if (!cm.state.completionActive) {
@@ -912,7 +913,7 @@ class CodeEditor extends Component<Props, State> {
       const prevChar = line[cursor.ch - 1];
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
-      /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
+      /* Autocomplete for "{" should show up only when a user attempts to write {{}} and not a code block. */
       const prevChar = line[cursor.ch - 2];
       showAutocomplete = prevChar === "{";
     } else if (key.length == 1) {
