@@ -360,13 +360,16 @@ export function Installer(props: { left: number }) {
   const validate = useCallback((text) => {
     const isValid = !text || isValidJSFileURL(text);
     setIsValid(isValid);
-    text &&
-      AnalyticsUtil.logEvent("EDIT_LIBRARY_URL", { url: text, valid: isValid });
     return {
       isValid,
       message: isValid ? "" : "Please enter a valid URL",
     };
   }, []);
+
+  useEffect(() => {
+    URL &&
+      AnalyticsUtil.logEvent("EDIT_LIBRARY_URL", { url: URL, valid: isValid });
+  }, [URL, isValid]);
 
   const installLibrary = useCallback(
     (lib?: Partial<TJSLibrary>) => {
