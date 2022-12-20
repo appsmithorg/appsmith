@@ -58,7 +58,7 @@ function execCommand(cmd, options) {
         return;
       }
       isPromiseDone = true;
-      log.error("Error running command", err);
+      console.error("Error running command", err);
       reject();
     });
   });
