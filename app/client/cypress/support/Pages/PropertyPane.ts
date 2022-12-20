@@ -85,6 +85,24 @@ export class PropertyPane {
     this.agHelper.ValidateNetworkStatus("@updateLayout");
   }
 
+  public OpenPropertyPane(
+    widgetType: string
+  ) {
+    const selector = `.t--draggable-${widgetType}`;
+    cy.wait(500);
+    this.agHelper.GetNClick(selector)
+      .first()
+      .trigger("mouseover", { force: true })
+      .wait(500);
+    this.agHelper.GetNClick(
+      `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+    )
+      .first()
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+  }
+
   public NavigateBackToPropertyPane() {
     this.agHelper.GetNClick(this._goBackToProperty);
     this.agHelper.AssertElementVisible(this._copyWidget);

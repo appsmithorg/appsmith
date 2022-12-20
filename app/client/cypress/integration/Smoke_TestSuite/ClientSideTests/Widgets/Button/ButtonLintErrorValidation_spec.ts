@@ -1,12 +1,15 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/buttonLintErrorDsl.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry"
+let agHelper = ObjectsRegistry.AggregateHelper,
+propPane = ObjectsRegistry.PropertyPane
 
 describe("Linting warning validation with button widget", function() {
   before(() => {
-    cy.addDsl(dsl);
+    agHelper.AddDsl(dsl);
   });
   it("Linting Error validation on mouseover and errorlog tab", function() {
-    cy.openPropertyPane("buttonwidget");
+    propPane.OpenPropertyPane("buttonwidget");
     /**
      * @param{Text} Random Text
      * @param{CheckboxWidget}Mouseover
