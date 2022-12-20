@@ -216,7 +216,7 @@ export const useReflow = (
               dispatch(stopReflowAction());
               shouldReflowDropTargets.current = false;
             }
-          }, 300);
+          }, 500);
         } else if (
           !collidingSpaces.some(
             (collidingSpaces) => collidingSpaces.isDropTarget,
