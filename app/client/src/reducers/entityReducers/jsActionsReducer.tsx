@@ -26,6 +26,15 @@ export interface PartialActionData {
   isExecuting: Record<string, boolean>;
 }
 
+interface JSExecutionData {
+  data: unknown;
+  collectionId: string;
+  actionId: string;
+}
+
+// Object of collectionIds to JSExecutionData
+export type BatchedJSExecutionData = Record<string, JSExecutionData[]>;
+
 const jsActionsReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS]: (
     state: JSCollectionDataState,

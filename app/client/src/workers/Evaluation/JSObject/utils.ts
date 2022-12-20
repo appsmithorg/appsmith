@@ -5,9 +5,15 @@ import {
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { unset, set, get, uniqueId } from "lodash";
+import { unset, set, get } from "lodash";
 import { isJSAction } from "workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "../../../entities/App";
+import { JSExecutionData } from "./JSProxy";
+import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
+import { select } from "redux-saga/effects";
+import { AppState } from "ce/reducers";
+import { JSAction } from "entities/JSCollection";
+import { getJSFunctionFromName } from "selectors/entitiesSelector";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -246,101 +252,38 @@ export function getAppMode(dataTree: DataTree) {
   const appsmithObj = dataTree.appsmith as DataTreeAppsmith;
   return appsmithObj.mode as APP_MODE;
 }
-function isPromise(value: any): value is Promise<unknown> {
+
+export function isPromise(value: any): value is Promise<unknown> {
   return Boolean(value && typeof value.then === "function");
 }
 
-export interface JSFuncData {
-  data: unknown;
-  funcName: string;
-}
-export type JSFunctionProxy = (
-  JSFunction: (...args: unknown[]) => unknown,
-  jsFunctionFullName: string,
-) => any;
-
-export const JSFunctionProxyHandler = (
-  jsFunctionFullName: string,
-  dataUpdateFunc: (data: JSFuncData) => void,
-  functionUpdateFunc: (funcName: string) => void,
-) => ({
-  apply: function(target: any, thisArg: any, argumentsList: any) {
-    functionUpdateFunc(jsFunctionFullName);
-    const returnValue = Reflect.apply(target, thisArg, argumentsList);
-    if (isPromise(returnValue)) {
-      return Promise.resolve(returnValue).then(function(result) {
-        dataUpdateFunc({
-          data: result,
-          funcName: jsFunctionFullName,
-        });
-
-        return new Promise((resolve) => {
-          resolve(result);
-        });
-      });
-    }
-    dataUpdateFunc({
-      data: returnValue,
-      funcName: jsFunctionFullName,
-    });
-
-    return returnValue;
-  },
-});
-
-export class JSFunctionExecution {
-  private dataList: Array<JSFuncData> = [];
-  private functionExecutionList: Array<string> = [];
-  private evaluationEnded = false;
-
-  constructor() {
-    this.JSFunctionProxy = this.JSFunctionProxy.bind(this);
-    this.postData = this.postData.bind(this);
-    this.addFunctionToExecutionList = this.addFunctionToExecutionList.bind(
-      this,
+export function* sortJSExecutionDataByCollectionId(
+  data: JSExecutionData[],
+): unknown {
+  // Sorted data by collectionId
+  const sortedData: BatchedJSExecutionData = {};
+  for (const key of data) {
+    const jsAction: JSAction | undefined = yield select((state: AppState) =>
+      getJSFunctionFromName(state, key.funcName),
     );
-    this.addExecutionDataToList = this.addExecutionDataToList.bind(this);
-    this.setEvaluationEnd = this.setEvaluationEnd.bind(this);
-  }
-
-  public setEvaluationEnd(val: boolean) {
-    this.evaluationEnded = val;
-    this.postData();
-  }
-
-  public addFunctionToExecutionList(func: string) {
-    this.functionExecutionList.push(func);
-  }
-
-  public addExecutionDataToList(data: JSFuncData) {
-    this.dataList.push(data);
-    this.postData();
-  }
-
-  private postData() {
-    const { dataList, evaluationEnded, functionExecutionList } = this;
-    if (evaluationEnded && dataList.length === functionExecutionList.length) {
-      self.postMessage({
-        promisified: true,
-        responseData: {
-          JSData: dataList,
-        },
-        requestId: uniqueId(),
-      });
+    if (jsAction && jsAction.collectionId) {
+      if (sortedData[jsAction.collectionId]) {
+        sortedData[jsAction.collectionId].push({
+          data: key.data,
+          collectionId: jsAction.collectionId,
+          actionId: jsAction.id,
+        });
+      } else {
+        sortedData[jsAction.collectionId] = [
+          {
+            data: key.data,
+            collectionId: jsAction.collectionId,
+            actionId: jsAction.id,
+          },
+        ];
+      }
     }
   }
 
-  public JSFunctionProxy(
-    JSFunction: (...args: unknown[]) => unknown,
-    jsFunctionFullName: string,
-  ) {
-    return new Proxy(
-      JSFunction,
-      JSFunctionProxyHandler(
-        jsFunctionFullName,
-        this.addExecutionDataToList,
-        this.addFunctionToExecutionList,
-      ),
-    );
-  }
+  return sortedData;
 }

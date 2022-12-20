@@ -18,7 +18,7 @@ import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
-import { JSFunctionExecution, JSFunctionProxy } from "./JSObject/utils";
+import { JSFunctionProxy, JSProxy } from "./JSObject/JSProxy";
 
 export type EvalResult = {
   result: any;
@@ -135,7 +135,7 @@ export interface createGlobalDataArgs {
   isTriggerBased: boolean;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
-  jsProxy?: JSFunctionProxy;
+  JSFunctionProxy?: JSFunctionProxy;
 }
 
 export const createGlobalData = (args: createGlobalDataArgs) => {
@@ -144,7 +144,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
-    jsProxy,
+    JSFunctionProxy,
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
@@ -188,8 +188,8 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
           //do not remove we will be investigating this
           //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
           //const confirmBeforeExecute = dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
-          dataTreeKey[key] = jsProxy
-            ? jsProxy(resolvedObject[key], datum + "." + key)
+          dataTreeKey[key] = JSFunctionProxy
+            ? JSFunctionProxy(resolvedObject[key], datum + "." + key)
             : resolvedObject[key];
           // if (isAsync && confirmBeforeExecute) {
           //   dataTreeKey[key] = confirmationPromise.bind(
@@ -263,7 +263,7 @@ export default function evaluateSync(
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
-    const jsFunctionExecutor = new JSFunctionExecution();
+    const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
     if (!skipLogsOperations) {
@@ -276,7 +276,7 @@ export default function evaluateSync(
       isTriggerBased: isJSCollection,
       context,
       evalArguments,
-      jsProxy: jsFunctionExecutor.JSFunctionProxy,
+      JSFunctionProxy,
     });
     GLOBAL_DATA.ALLOW_ASYNC = false;
     const { script } = getUserScriptToEvaluate(
@@ -303,7 +303,6 @@ export default function evaluateSync(
 
     try {
       result = indirectEval(script);
-      jsFunctionExecutor.setEvaluationEnd(true);
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${
         (error as Error).message
@@ -316,6 +315,7 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
+      setEvaluationEnd(true);
       if (!skipLogsOperations) logs = userLogs.flushLogs();
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
@@ -339,7 +339,7 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
     let logs;
-    const jsFunctionExecutor = new JSFunctionExecution();
+    const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
     /**** Setting the eval context ****/
     userLogs.resetLogs();
     userLogs.setCurrentRequestInfo({
@@ -353,7 +353,7 @@ export async function evaluateAsync(
       isTriggerBased: true,
       context: { ...context, requestId },
       evalArguments,
-      jsProxy: jsFunctionExecutor.JSFunctionProxy,
+      JSFunctionProxy,
     });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     GLOBAL_DATA.ALLOW_ASYNC = true;
@@ -368,7 +368,6 @@ export async function evaluateAsync(
     try {
       result = await indirectEval(script);
       logs = userLogs.flushLogs();
-      jsFunctionExecutor.setEvaluationEnd(true);
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
         (error as Error).message
@@ -382,6 +381,7 @@ export async function evaluateAsync(
       });
       logs = userLogs.flushLogs();
     } finally {
+      setEvaluationEnd(true);
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.

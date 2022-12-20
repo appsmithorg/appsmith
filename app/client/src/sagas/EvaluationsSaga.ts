@@ -55,7 +55,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isEmpty, isUndefined } from "lodash";
+import { get, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -93,10 +93,7 @@ import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationR
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
-import {
-  getAllActionValidationConfig,
-  getJSFunctionFromName,
-} from "selectors/entitiesSelector";
+import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 import {
   DataTree,
   UnEvalTree,
@@ -111,8 +108,9 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { AppState } from "ce/reducers";
-import { JSFuncData } from "workers/Evaluation/JSObject/utils";
+import { JSExecutionData } from "workers/Evaluation/JSObject/JSProxy";
+import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -365,46 +363,15 @@ export function* executeDynamicTriggerRequest(
       mainThreadRequestChannel,
     );
     log.debug({ requestData });
-    if (requestData.JSData) {
-      const data = requestData.JSData as Array<JSFuncData>;
-      const dataStore: Record<
-        string,
-        {
-          data: unknown;
-          collectionId: string;
-          actionId: string;
-        }[]
-      > = {};
-      if (!isEmpty(data)) {
-        for (const key of data) {
-          const jsAction:
-            | JSAction
-            | undefined = yield select((state: AppState) =>
-            getJSFunctionFromName(state, key.funcName),
-          );
-          if (jsAction && jsAction.collectionId) {
-            if (dataStore[jsAction.collectionId]) {
-              dataStore[jsAction.collectionId].push({
-                data: key.data,
-                collectionId: jsAction.collectionId,
-                actionId: jsAction.id,
-              });
-            } else {
-              dataStore[jsAction.collectionId] = [
-                {
-                  data: key.data,
-                  collectionId: jsAction.collectionId,
-                  actionId: jsAction.id,
-                },
-              ];
-            }
-          }
-        }
-      }
 
+    if (requestData.JSData) {
+      const data = requestData.JSData as JSExecutionData[];
+      const sortedData: BatchedJSExecutionData = yield sortJSExecutionDataByCollectionId(
+        data,
+      );
       yield put({
         type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
-        payload: dataStore,
+        payload: sortedData,
       });
     }
     if (requestData?.logs) {
