@@ -10,13 +10,14 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { Layers } from "constants/Layers";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import derivedProperties from "./parseDerivedProperties";
+import { Stylesheet } from "entities/AppTheming";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -222,6 +223,16 @@ class SingleSelectTreeWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -296,9 +307,35 @@ class SingleSelectTreeWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: true,
           },
+          {
+            helpText: "Triggers an action when the dropdown opens",
+            propertyName: "onDropdownOpen",
+            label: "onDropdownOpen",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the dropdown closes",
+            propertyName: "onDropdownClose",
+            label: "onDropdownClose",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   static getPropertyPaneStyleConfig() {
@@ -490,9 +527,12 @@ class SingleSelectTreeWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
+        onDropdownClose={this.onDropdownClose}
+        onDropdownOpen={this.onDropdownOpen}
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
@@ -518,6 +558,30 @@ class SingleSelectTreeWidget extends BaseWidget<
     });
   };
 
+  onDropdownOpen = () => {
+    if (this.props.onDropdownOpen) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownOpen",
+        dynamicString: this.props.onDropdownOpen,
+        event: {
+          type: EventType.ON_DROPDOWN_OPEN,
+        },
+      });
+    }
+  };
+
+  onDropdownClose = () => {
+    if (this.props.onDropdownClose) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownClose",
+        dynamicString: this.props.onDropdownClose,
+        event: {
+          type: EventType.ON_DROPDOWN_CLOSE,
+        },
+      });
+    }
+  };
+
   static getWidgetType(): WidgetType {
     return "SINGLE_SELECT_TREE_WIDGET";
   }
@@ -536,6 +600,8 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   flattenedOptions?: DropdownOption[];
   onOptionChange: string;
+  onDropdownOpen?: string;
+  onDropdownClose?: string;
   defaultOptionValue: string;
   isRequired: boolean;
   isLoading: boolean;

@@ -219,7 +219,7 @@ describe("JSON Form Widget Unicode keys", () => {
 
     // open field суроға -> شارع
     cy.openFieldConfiguration("xn__80a1afdk69b");
-    cy.openFieldConfiguration("xn__mgbuhw");
+    cy.openFieldConfiguration("xn__mgbuhw", false);
     cy.testJsontext("propertyname", "شارع1 شارع");
     cy.get(backBtn)
       .click({ force: true })
@@ -236,8 +236,8 @@ describe("JSON Form Widget Unicode keys", () => {
 
     // open field การศึกษา -> array item -> କଲେଜ
     cy.openFieldConfiguration("xn__12ca5huag4ce3a");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("xn__ohco9d4d");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("xn__ohco9d4d", false);
     cy.testJsontext("propertyname", "ସ୍ନାତକ କଲେଜ");
 
     cy.wait(5000);

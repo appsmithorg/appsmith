@@ -6,6 +6,7 @@ describe("Dynamic Height Width validation with limits", function() {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");
+    cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
     cy.wait(3000); //for dsl to settle
     //cy.checkMinDefaultValue(commonlocators.minHeight,"4")
@@ -14,7 +15,7 @@ describe("Dynamic Height Width validation with limits", function() {
     cy.get("[data-cy='t--auto-height-overlay-handles-min']").trigger(
       "mouseover",
     );
-    cy.contains("Min-Height: 4 rows");
+    cy.contains("Min-Height: 10 rows");
     cy.get("[data-cy='t--auto-height-overlay-handles-min']").should(
       "be.visible",
     );
@@ -29,7 +30,7 @@ describe("Dynamic Height Width validation with limits", function() {
     cy.get("[data-cy='t--auto-height-overlay-handles-max']").trigger(
       "mouseover",
     );
-    cy.contains("Max-Height: 40 rows");
+    cy.contains("Max-Height: 12 rows");
     //cy.checkMaxDefaultValue(commonlocators.maxHeight,"40")
     //cy.testJsontext(commonlocators.maxHeight, "60");
     cy.get("[data-cy='t--auto-height-overlay-handles-max']").should(

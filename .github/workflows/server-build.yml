@@ -43,12 +43,12 @@ jobs:
 
     steps:
       # The checkout steps MUST happen first because the default directory is set according to the code base.
-      # Github Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # GitHub Action expects all future commands to be executed in the code directory. Hence, we need to check out
       # the code before doing anything else.
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Check out merged commit from PR and base branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         if: inputs.pr != 0
         with:
           fetch-depth: 0
@@ -56,7 +56,7 @@ jobs:
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Check out the head commit of the branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         if: inputs.pr == 0
         with:
           fetch-depth: 0
@@ -69,7 +69,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -80,21 +80,22 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      # Incase of prior failure run the job
+      # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       # Setup Java
       - name: Set up JDK 1.11
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -117,8 +118,8 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       # Build and test the code
       - name: Build and test
@@ -140,7 +141,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/server/dist/
@@ -148,9 +149,10 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build
           path: app/server/dist/
 
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

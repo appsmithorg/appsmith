@@ -16,7 +16,8 @@ import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Stylesheet } from "entities/AppTheming";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultOptionValueValidation(
@@ -382,6 +383,16 @@ class MultiSelectWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -442,6 +453,24 @@ class MultiSelectWidget extends BaseWidget<
             helpText: "Triggers an action when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the dropdown opens",
+            propertyName: "onDropdownOpen",
+            label: "onDropdownOpen",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the dropdown closes",
+            propertyName: "onDropdownClose",
+            label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -574,6 +603,14 @@ class MultiSelectWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getDerivedPropertiesMap() {
     return {
       value: `{{this.selectedOptionValues}}`,
@@ -661,9 +698,12 @@ class MultiSelectWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
+        onDropdownClose={this.onDropdownClose}
+        onDropdownOpen={this.onDropdownOpen}
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
@@ -691,6 +731,9 @@ class MultiSelectWidget extends BaseWidget<
 
   // { label , value } is needed in the widget
   mergeLabelAndValue = (): LabelInValueType[] => {
+    if (!this.props.selectedOptionLabels || !this.props.selectedOptionValues) {
+      return [];
+    }
     const labels = [...this.props.selectedOptionLabels];
     const values = [...this.props.selectedOptionValues];
     return values.map((value, index) => ({
@@ -708,6 +751,30 @@ class MultiSelectWidget extends BaseWidget<
         dynamicString: this.props.onFilterUpdate,
         event: {
           type: EventType.ON_FILTER_UPDATE,
+        },
+      });
+    }
+  };
+
+  onDropdownOpen = () => {
+    if (this.props.onDropdownOpen) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownOpen",
+        dynamicString: this.props.onDropdownOpen,
+        event: {
+          type: EventType.ON_DROPDOWN_OPEN,
+        },
+      });
+    }
+  };
+
+  onDropdownClose = () => {
+    if (this.props.onDropdownClose) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownClose",
+        dynamicString: this.props.onDropdownClose,
+        event: {
+          type: EventType.ON_DROPDOWN_CLOSE,
         },
       });
     }
@@ -733,13 +800,15 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
+  onDropdownOpen?: string;
+  onDropdownClose?: string;
   defaultOptionValue: string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
   selectedOptions: LabelInValueType[];
   filterText: string;
-  selectedOptionValues: string[];
-  selectedOptionLabels: string[];
+  selectedOptionValues?: string[];
+  selectedOptionLabels?: string[];
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   allowSelectAll?: boolean;

@@ -28,7 +28,10 @@ import {
   EditorSize,
   HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
+import {
+  bindingMarker,
+  entityMarker,
+} from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
@@ -37,7 +40,6 @@ import { Text, FontWeight, TextType } from "design-system";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 import { AuthType } from "entities/Datasource/RestAPIForm";
-import { setDatsourceEditorMode } from "actions/datasourceActions";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
@@ -66,7 +68,6 @@ type ReduxStateProps = {
 
 type ReduxDispatchProps = {
   updateDatasource: (datasource: Datasource | EmbeddedRestDatasource) => void;
-  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
 };
 
 type Props = EditorProps &
@@ -458,7 +459,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       theme: this.props.theme,
       tabBehaviour: TabBehaviour.INPUT,
       size: EditorSize.COMPACT,
-      marking: [bindingMarker, this.handleDatasourceHighlight()],
+      marking: [bindingMarker, this.handleDatasourceHighlight(), entityMarker],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
       fill: true,
@@ -555,8 +556,6 @@ const mapDispatchToProps = (
 ): ReduxDispatchProps => ({
   updateDatasource: (datasource) =>
     dispatch(change(ownProps.formName, "datasource", datasource)),
-  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
-    dispatch(setDatsourceEditorMode({ id, viewMode })),
 });
 
 const EmbeddedDatasourcePathConnectedComponent = connect(

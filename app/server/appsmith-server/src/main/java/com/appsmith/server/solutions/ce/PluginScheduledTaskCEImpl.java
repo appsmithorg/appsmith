@@ -99,7 +99,7 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
     private Mono<Map<PluginIdentifier, Plugin>> getRemotePlugins() {
 
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        if (StringUtils.isEmpty(baseUrl)) {
+        if (!StringUtils.hasLength(baseUrl)) {
             return Mono.empty();
         }
 
@@ -109,8 +109,7 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                                 baseUrl + "/api/v1/plugins?instanceId=" + instanceId
                                         + "&lastUpdatedAt=" + lastUpdatedAt)
                         .get()
-                        .exchange()
-                        .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {
+                        .exchangeToMono(clientResponse -> clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {
                         }))
                         .map(ResponseDTO::getData)
                         .map(plugins -> {

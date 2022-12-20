@@ -10,9 +10,12 @@ import {
   addPropertyConfigIds,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
+  generatePropertyPaneSearchConfig,
+  addSearchConfigToPanelConfig,
   PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -52,7 +55,13 @@ class WidgetFactory {
     WidgetType,
     readonly PropertyPaneConfig[]
   > = new Map();
+  // used to store the properties that appear in the search results
+  static propertyPaneSearchConfigsMap: Map<
+    WidgetType,
+    readonly PropertyPaneConfig[]
+  > = new Map();
   static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
+  static stylesheetConfigMap: Map<WidgetType, Stylesheet> = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -75,6 +84,7 @@ class WidgetFactory {
     propertyPaneStyleConfig?: PropertyPaneConfig[],
     features?: WidgetFeatures,
     loadingProperties?: Array<RegExp>,
+    stylesheetConfig?: Stylesheet,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -87,6 +97,8 @@ class WidgetFactory {
       this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
       loadingProperties &&
         this.loadingProperties.set(widgetType, loadingProperties);
+      stylesheetConfig &&
+        this.stylesheetConfigMap.set(widgetType, stylesheetConfig);
 
       if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
@@ -113,14 +125,19 @@ class WidgetFactory {
           propertyPaneContentConfig,
           features,
           PropertyPaneConfigTypes.CONTENT,
+          widgetType,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
           enhancedPropertyPaneConfig,
         );
 
-        const finalPropertyPaneConfig = addPropertyConfigIds(
+        const propertyPaneConfigWithIds = addPropertyConfigIds(
           serializablePropertyPaneConfig,
+        );
+
+        const finalPropertyPaneConfig = addSearchConfigToPanelConfig(
+          propertyPaneConfigWithIds,
         );
 
         this.propertyPaneContentConfigsMap.set(
@@ -140,8 +157,12 @@ class WidgetFactory {
           enhancedPropertyPaneConfig,
         );
 
-        const finalPropertyPaneConfig = addPropertyConfigIds(
+        const propertyPaneConfigWithIds = addPropertyConfigIds(
           serializablePropertyPaneConfig,
+        );
+
+        const finalPropertyPaneConfig = addSearchConfigToPanelConfig(
+          propertyPaneConfigWithIds,
         );
 
         this.propertyPaneStyleConfigsMap.set(
@@ -149,6 +170,14 @@ class WidgetFactory {
           Object.freeze(finalPropertyPaneConfig),
         );
       }
+
+      this.propertyPaneSearchConfigsMap.set(
+        widgetType,
+        generatePropertyPaneSearchConfig(
+          WidgetFactory.getWidgetPropertyPaneContentConfig(widgetType),
+          WidgetFactory.getWidgetPropertyPaneStyleConfig(widgetType),
+        ),
+      );
     }
   }
 
@@ -269,6 +298,16 @@ class WidgetFactory {
     return map;
   }
 
+  static getWidgetPropertyPaneSearchConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneSearchConfigsMap.get(type);
+    if (!map) {
+      return [];
+    }
+    return map;
+  }
+
   static getWidgetTypeConfigMap(): WidgetTypeConfigMap {
     const typeConfigMap: WidgetTypeConfigMap = {};
     WidgetFactory.getWidgetTypes().forEach((type) => {
@@ -283,6 +322,15 @@ class WidgetFactory {
 
   static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {
     return this.loadingProperties.get(type);
+  }
+
+  static getWidgetStylesheetConfigMap(widgetType: WidgetType) {
+    const map = this.stylesheetConfigMap.get(widgetType);
+    if (!map) {
+      log.error("Widget stylesheet properties not defined: ", widgetType);
+      return undefined;
+    }
+    return map;
   }
 }
 

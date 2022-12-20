@@ -47,11 +47,16 @@ export type PageURLParams = {
   customSlug?: string;
 };
 
-const fetchQueryParamsToPersist = () => {
+const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
   const existingParams = getQueryParamsObject() || {};
   // not persisting the entire query currently, since that's the current behavior
   const { branch, embed } = existingParams;
-  let params = { branch, embed } as any;
+  let params;
+  if (persistExistingParams) {
+    params = { ...existingParams };
+  } else {
+    params = { branch, embed } as any;
+  }
   // test param to make sure a query param is present in the URL during dev and tests
   if ((window as any).Cypress) {
     params = { a: "b", ...params };
@@ -159,6 +164,29 @@ export class URLBuilder {
     return basePath;
   }
 
+  getCustomSlugPathPreview(pageId: string, customSlug: string) {
+    const urlPattern =
+      baseURLRegistry[URL_TYPE.CUSTOM_SLUG][APP_MODE.PUBLISHED];
+    return generatePath(urlPattern, {
+      pageId,
+      customSlug: `${customSlug}-`,
+    }).toLowerCase();
+  }
+
+  getPagePathPreview(pageId: string, pageName: string) {
+    const { applicationVersion } = this.appParams;
+
+    const urlType = this.getURLType(applicationVersion);
+
+    const urlPattern = baseURLRegistry[urlType][APP_MODE.PUBLISHED];
+
+    const formattedParams = this.getFormattedParams(pageId);
+
+    formattedParams.pageSlug = `${pageName}-`;
+
+    return generatePath(urlPattern, formattedParams).toLowerCase();
+  }
+
   /**
    * @throws {URIError}
    * @param builderParams
@@ -166,7 +194,13 @@ export class URLBuilder {
    * @returns URL string
    */
   build(builderParams: URLBuilderParams, mode: APP_MODE = APP_MODE.EDIT) {
-    const { hash = "", params = {}, suffix, pageId } = builderParams;
+    const {
+      hash = "",
+      params = {},
+      persistExistingParams = false,
+      suffix,
+      pageId,
+    } = builderParams;
 
     if (!pageId) {
       throw new URIError(
@@ -176,7 +210,9 @@ export class URLBuilder {
 
     const basePath = this.generateBasePath(pageId, mode);
 
-    const queryParamsToPersist = fetchQueryParamsToPersist();
+    const queryParamsToPersist = fetchQueryParamsToPersist(
+      persistExistingParams,
+    );
 
     const modifiedQueryParams = { ...queryParamsToPersist, ...params };
 

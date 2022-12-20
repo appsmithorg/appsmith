@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -11,8 +12,11 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
+import com.google.gson.Gson;
 import com.segment.analytics.Analytics;
+import com.segment.analytics.Log;
 import com.segment.analytics.messages.IdentifyMessage;
+import com.segment.analytics.messages.Message;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -22,10 +26,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.segment.analytics.internal.AnalyticsClient.getGsonInstance;
 
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
@@ -129,12 +136,6 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
         Map<String, Object> analyticsProperties = properties == null ? new HashMap<>() : new HashMap<>(properties);
 
-        // To debug the issue with userId empty error from segment
-        // TODO remove the code block once the issue is fixed
-        if (StringUtils.isEmpty(userId)) {
-            log.error(" UserId is null or empty. event Name is {}, analyticProperties is {}, hashUserId is {}", String.valueOf(userId), event, convertWithStream(properties), hashUserId);
-        }
-
         // Hash usernames at all places for self-hosted instance
         if (userId != null
                 && hashUserId
@@ -197,10 +198,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         return userMono
                 .map(user -> {
 
-                    // In case the user is anonymous, don't raise an event, unless it's a signup, logout or page view event.
+                    // In case the user is anonymous, don't raise an event, unless it's a signup, logout, page view or action execution event.
                     boolean isEventUserSignUpOrLogout = object instanceof User && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.LOGOUT);
                     boolean isEventPageView = object instanceof NewPage && event == AnalyticsEvents.VIEW;
-                    boolean isAvoidLoggingEvent = user.isAnonymous() && !(isEventUserSignUpOrLogout || isEventPageView);
+                    boolean isEventActionExecution = object instanceof NewAction && event == AnalyticsEvents.EXECUTE_ACTION;
+                    boolean isAvoidLoggingEvent = user.isAnonymous() && !(isEventUserSignUpOrLogout || isEventPageView || isEventActionExecution);
                     if (isAvoidLoggingEvent) {
                         return object;
                     }
@@ -223,7 +225,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     /**
      * Generates event name tag to analytic events
-     * @param event AnalyticsEvents
+     *
+     * @param event  AnalyticsEvents
      * @param object Analytic event resource object
      * @return String
      */

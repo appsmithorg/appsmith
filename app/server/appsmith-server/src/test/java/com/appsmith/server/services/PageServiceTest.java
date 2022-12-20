@@ -138,7 +138,7 @@ public class PageServiceTest {
             Workspace toCreate = new Workspace();
             toCreate.setName("PageServiceTest");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
     }
@@ -564,7 +564,7 @@ public class PageServiceTest {
 
         final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
 
-        layoutActionService.createSingleAction(action).block();
+        layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         // Save actionCollection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
@@ -716,14 +716,18 @@ public class PageServiceTest {
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         action.setDatasource(datasource);
-        action.setExecuteOnLoad(true);
 
         assert page != null;
         Layout layout = page.getLayouts().get(0);
-        JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
+        JSONObject dsl = new JSONObject(Map.of("text", "{{ PageAction.data }}"));
+        dsl.put("widgetId", "firstWidget");
         dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.add(new JSONObject(Map.of("key", "text")));
+        dsl.put("dynamicBindingPathList", temp);
 
         JSONObject dsl2 = new JSONObject();
+        dsl2.put("widgetId", "Table1");
         dsl2.put("widgetName", "Table1");
         dsl2.put("type", "TABLE_WIDGET");
         Map<String, Object> primaryColumns = new HashMap<>();
@@ -733,7 +737,7 @@ public class PageServiceTest {
         dsl2.put("primaryColumns", primaryColumns);
         final ArrayList<Object> objects = new ArrayList<>();
         JSONArray temp2 = new JSONArray();
-        temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+        temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
         dsl2.put("dynamicBindingPathList", temp2);
         objects.add(dsl2);
         dsl.put("children", objects);
@@ -743,9 +747,9 @@ public class PageServiceTest {
 
         action.setPageId(page.getId());
 
-        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
+        layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        layoutActionService.createSingleAction(action).block();
+        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
 
         // Save actionCollection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
@@ -764,7 +768,6 @@ public class PageServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
 
         layoutCollectionService.createCollection(actionCollectionDTO).block();
-
 
         final Mono<NewPage> pageMono = applicationPageService.clonePageByDefaultPageIdAndBranch(page.getId(), branchName)
                 .flatMap(pageDTO -> newPageService.findByBranchNameAndDefaultPageId(branchName, pageDTO.getId(), MANAGE_PAGES))
@@ -863,8 +866,7 @@ public class PageServiceTest {
                     assertThat(actionWithoutCollection.getUnpublishedAction().getDefaultResources().getPageId()).isEqualTo(clonedPage.getDefaultResources().getPageId());
 
                     // Confirm that executeOnLoad is cloned as well.
-                    // TODO: Fix failing test.
-                    //assertThat(actions.get(0).getUnpublishedAction().getExecuteOnLoad()).isTrue();
+                    assertThat(actions.stream().filter(clonedAction -> "PageAction".equals(clonedAction.getUnpublishedAction().getName())).findFirst().get().getUnpublishedAction().getExecuteOnLoad()).isTrue();
 
                     // Check if collections got copied too
                     List<ActionCollection> collections = tuple.getT3();

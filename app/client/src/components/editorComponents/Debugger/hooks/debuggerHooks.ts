@@ -9,17 +9,17 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
-import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
+import { onApiEditor, onCanvas, onQueryEditor } from "../helpers";
 import { getLastSelectedWidget } from "selectors/ui";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
-  isWidget,
   isAction,
   isJSAction,
+  isWidget,
 } from "workers/Evaluation/evaluationUtils";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { jsCollectionIdURL } from "RouteBuilder";
 import store from "store";
 import { PluginType } from "entities/Action";
@@ -139,7 +139,12 @@ export const useEntityLink = () => {
       const entity = dataTree[name];
       if (!pageId) return;
       if (isWidget(entity)) {
-        navigateToWidget(entity.widgetId, entity.type, pageId || "");
+        navigateToWidget(
+          entity.widgetId,
+          entity.type,
+          pageId || "",
+          NavigationMethod.Debugger,
+        );
       } else if (isAction(entity)) {
         const actionConfig = getActionConfig(entity.pluginType);
         let plugin;

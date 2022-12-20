@@ -15,6 +15,7 @@ describe("Fork a template to the current app", () => {
   });
 
   it("1. Fork a template to the current app", () => {
+    cy.wait(5000);
     cy.get(template.startFromTemplateCard).click();
     cy.wait("@fetchTemplate").should(
       "have.nested.property",
