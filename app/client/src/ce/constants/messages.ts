@@ -50,11 +50,9 @@ export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password between 6 and 42 characters`;
+  `Please provide a password between 6 and 256 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
-export const LOGIN_PAGE_SUBTITLE = () => `Use your workspace email`;
-export const LOGIN_PAGE_TITLE = () => `Sign in to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
 export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
@@ -65,7 +63,9 @@ export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
   `Reset Password`;
-export const NEW_TO_APPSMITH = () => `New to Appsmith?`;
+export const NEW_TO_APPSMITH = () => `Don't have an account?`;
+export const LOGIN_PAGE_TITLE = () => `Sign in`;
+export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
@@ -142,7 +142,7 @@ export const INVITE_USERS_ROLE_SELECT_LABEL = () => `Role`;
 export const INVITE_USERS_EMAIL_LIST_LABEL = () => `User emails`;
 export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_MESSAGE = () => `Invite users`;
-export const INVITE_USERS_PLACEHOLDER = () => `Enter email address`;
+export const INVITE_USERS_PLACEHOLDER = () => `Enter email address(es)`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () =>
   `The users have been invited successfully`;
@@ -337,7 +337,22 @@ export const WIDGET_BIND_HELP = () =>
 
 export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
+// error pages
+export const PAGE_NOT_FOUND_TITLE = () => "404";
 export const PAGE_NOT_FOUND = () => "Page not found";
+export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
+export const PAGE_SERVER_UNAVAILABLE_TITLE = () =>
+  "Appsmith server is unavailable";
+export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
+  "Please try again later";
+export const PAGE_SERVER_TIMEOUT_ERROR_CODE = () => "504";
+export const PAGE_SERVER_TIMEOUT_TITLE = () =>
+  "Appsmith server is taking too long to respond";
+export const PAGE_SERVER_TIMEOUT_DESCRIPTION = () =>
+  `Please retry after some time`;
+export const PAGE_CLIENT_ERROR_TITLE = () => "Whoops something went wrong!";
+export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
+  "This is embarrassing, please contact Appsmith support for help";
 
 // comments
 export const POST = () => "Post";
@@ -1047,7 +1062,7 @@ export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
 export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Enterprise Plan`;
+  `The ${featureName} feature is exclusive to workspaces on the Business Plan`;
 // Audit logs Upgrade page end
 // Audit logs end
 
@@ -1094,6 +1109,8 @@ export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No Properties found based on your search";
+export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
+  "Search for controls, labels etc";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1123,6 +1140,8 @@ export const APP_THEME_BETA_CARD_CONTENT = () =>
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
+export const UPGRADE_TO_EE_FEATURE = (feature: string) =>
+  `Hello, I would like to upgrade and start using the ${feature} feature.`;
 export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
 export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
@@ -1130,6 +1149,40 @@ export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
 export const DANGER_ZONE = () => "Danger Zone";
 export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
+
+// Branding
+export const ADMIN_BRANDING_SETTINGS_TITLE = () =>
+  "Custom branding for your workspaces";
+export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
+  "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business plan.";
+export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
+  `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
+export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
+  `Uploaded file must be less than 2MB`;
+export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
+  `Logo should  be atleast 256px in height`;
+export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
+  `Uploaded file must be in .SVG .PNG, and .JPG formats`;
+export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
+  `.SVG, .PNG, or .JPG only • Max 2MB`;
+export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
+  `Uploaded file must have a max size of 32X32 pixels`;
+export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
+  `Uploaded file must be less than 2MB`;
+export const ADMIN_BRANDING_FAVICON_FORMAT_ERROR = () =>
+  `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
+export const ADMIN_BRANDING_FAVICON_REQUIREMENT = () =>
+  `.ICO, .PNG, or .JPG only • Max 32X32`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY = () =>
+  `Used on buttons, links, and other interactive elements.`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_BACKGROUND = () =>
+  `Used as background color for the auth pages`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_HOVER = () =>
+  `Used as hover color for the button.`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_FONT = () =>
+  `Used as text color for the buttons.`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED = () =>
+  `Used as background color for disabled buttons.`;
 
 // Guided tour
 // -- STEPS ---
@@ -1338,12 +1391,14 @@ export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
   "your app URL to new readable format to change this";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP = () =>
-  "Hide or show the appsmith navbar containing the app name and page switcher";
+  "Show or hide the page in the appsmith navbar in view mode";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE = () => "Set as home page";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
   "This is the current home page, you can change this by setting another page as the home page";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
+export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
+  `${name} is already being used.`;
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

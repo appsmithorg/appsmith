@@ -70,3 +70,22 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com,moolya.com
+
+    - uid: CUSTOM_JS_LIBRARY
+      enable: true
+      description: Ability to use custom JS libraries
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com,moolya.com
+
+    # Put EE flags below this line, to avoid conflicts.
+    - uid: RBAC
+      enable: true
+      description: Enable access control settings
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com

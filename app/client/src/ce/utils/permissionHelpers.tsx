@@ -16,6 +16,7 @@ export enum PERMISSION_TYPE {
   MAKE_PUBLIC_APPLICATION = "makePublic:applications",
   MAKE_PUBLIC_WORKSPACE_APPLICATIONS = "makePublic:workspaceApplications",
   PUBLISH_APPLICATION = "publish:workspaceApplications",
+  CREATE_APPLICATION = "create:applications",
   /* Datasource permissions */
   CREATE_DATASOURCES = "create:datasources",
   EXECUTE_DATASOURCES = "execute:datasources",
@@ -55,6 +56,20 @@ export const isPermitted = (
   }
   return permissions.includes(type);
 };
+
+export const hasDeleteApplicationPermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_APPLICATION);
+};
+
+export const hasCreateNewAppPermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.CREATE_APPLICATION);
+};
+
+export const hasDeleteWorkspacePermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_WORKSPACE);
+};
+
+export const hasCreateWorkspacePermission = (_permissions?: string[]) => true;
 
 export const hasCreateDatasourcePermission = (_permissions?: string[]) => true;
 

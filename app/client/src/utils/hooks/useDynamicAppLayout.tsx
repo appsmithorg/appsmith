@@ -188,6 +188,7 @@ export const useDynamicAppLayout = () => {
     explorerWidth,
     propertyPaneWidth,
     isExplorerPinned,
+    propertyPaneWidth,
     isAppSettingsPaneOpen,
   ]);
 

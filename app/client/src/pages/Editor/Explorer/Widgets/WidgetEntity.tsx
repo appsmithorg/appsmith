@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, memo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
@@ -15,6 +15,7 @@ import { builderURL } from "RouteBuilder";
 import { useLocation } from "react-router";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
+import { NavigationMethod } from "utils/history";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -25,7 +26,6 @@ const useWidget = (
   widgetType: WidgetType,
   pageId: string,
   widgetsInStep: string[],
-  parentModalId?: string,
 ) => {
   const selectedWidgets = useSelector(getSelectedWidgets);
   const lastSelectedWidget = useSelector(getLastSelectedWidget);
@@ -42,8 +42,8 @@ const useWidget = (
         widgetId,
         widgetType,
         pageId,
+        NavigationMethod.EntityExplorer,
         isWidgetSelected,
-        parentModalId,
         isMultiSelect,
         isShiftSelect,
         widgetsInStep,
@@ -54,7 +54,6 @@ const useWidget = (
       widgetType,
       pageId,
       isWidgetSelected,
-      parentModalId,
       widgetsInStep,
       navigateToWidget,
     ],
@@ -88,7 +87,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const icon = <WidgetIcon type={props.widgetType} />;
   const location = useLocation();
 
-  const shouldExpand = widgetsToExpand.includes(props.widgetId);
+  const forceExpand = widgetsToExpand.includes(props.widgetId);
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -104,7 +103,6 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     props.widgetType,
     props.pageId,
     props.widgetsInStep,
-    props.parentModalId,
   );
 
   const { parentModalId, widgetId, widgetType } = props;
@@ -157,10 +155,10 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       className="widget"
       contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
+      forceExpand={forceExpand}
       highlight={lastSelectedWidget === props.widgetId}
       icon={icon}
       isDefaultExpanded={
-        shouldExpand ||
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }

@@ -142,7 +142,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
           <div className="">
             <div className="flex items-center space-x-3">
               <Button
-                category={Category.tertiary}
+                category={Category.secondary}
                 onClick={onClose}
                 size={Size.medium}
                 text="Cancel"

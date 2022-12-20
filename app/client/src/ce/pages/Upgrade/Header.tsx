@@ -17,7 +17,7 @@ export const HeaderContainer = styled.div`
 
   & .header-subHeadings-container {
     margin: 8px auto;
-    max-width: 640px;
+    max-width: 720px;
     & .header-subHeading-container {
       & .cs-text {
         font-size: 16px;

@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -197,10 +198,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         return userMono
                 .map(user -> {
 
-                    // In case the user is anonymous, don't raise an event, unless it's a signup, logout or page view event.
+                    // In case the user is anonymous, don't raise an event, unless it's a signup, logout, page view or action execution event.
                     boolean isEventUserSignUpOrLogout = object instanceof User && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.LOGOUT);
                     boolean isEventPageView = object instanceof NewPage && event == AnalyticsEvents.VIEW;
-                    boolean isAvoidLoggingEvent = user.isAnonymous() && !(isEventUserSignUpOrLogout || isEventPageView);
+                    boolean isEventActionExecution = object instanceof NewAction && event == AnalyticsEvents.EXECUTE_ACTION;
+                    boolean isAvoidLoggingEvent = user.isAnonymous() && !(isEventUserSignUpOrLogout || isEventPageView || isEventActionExecution);
                     if (isAvoidLoggingEvent) {
                         return object;
                     }
@@ -223,7 +225,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     /**
      * Generates event name tag to analytic events
-     * @param event AnalyticsEvents
+     *
+     * @param event  AnalyticsEvents
      * @param object Analytic event resource object
      * @return String
      */

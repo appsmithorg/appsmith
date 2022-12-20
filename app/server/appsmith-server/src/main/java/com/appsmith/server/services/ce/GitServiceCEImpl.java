@@ -939,7 +939,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     String pushResult = tuple.getT1();
                     Application application = tuple.getT2();
-                    if (pushResult.contains("REJECTED")) {
+                    if (pushResult.contains("REJECTED_NONFASTFORWARD")) {
 
                         return addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_PUSH.getEventName(),
@@ -947,8 +947,17 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 AppsmithError.GIT_UPSTREAM_CHANGES.getErrorType(),
                                 AppsmithError.GIT_UPSTREAM_CHANGES.getMessage(),
                                 application.getGitApplicationMetadata().getIsRepoPrivate()
-                        )
-                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
+                        ).flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
+                    } else if (pushResult.contains("REJECTED_OTHERREASON") || pushResult.contains("pre-receive hook declined")) {
+                        // Mostly happens when the remote branch is protected or any specific rules in place on the branch
+                        // Since the users will be in a bad state where the changes are committed locally but they are not able to
+                        // push them changes or revert the changes either.
+                        // TODO Support protected branch flow within Appsmith
+                        Path path = Paths.get(application.getWorkspaceId(), application.getGitApplicationMetadata().getDefaultApplicationId(), application.getGitApplicationMetadata().getRepoName());
+                        return gitExecutor.resetHard(path, application.getGitApplicationMetadata().getBranchName())
+                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push",
+                                        "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch "
+                                                + application.getGitApplicationMetadata().getBranchName())));
                     }
                     return Mono.just(pushResult).zipWith(Mono.just(tuple.getT2()));
                 })

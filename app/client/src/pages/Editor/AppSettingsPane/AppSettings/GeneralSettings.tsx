@@ -4,8 +4,7 @@ import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
-  GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import classNames from "classnames";
 import {
   AppIconName,
@@ -24,9 +23,7 @@ import {
 } from "selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { checkRegex } from "utils/validation/CheckRegex";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
-import { appNameRegex } from "../Utils";
 
 const IconSelectorWrapper = styled.div`
   position: relative;
@@ -60,8 +57,8 @@ function GeneralSettings() {
   );
 
   useEffect(() => {
-    setApplicationName(application?.name);
-  }, [application?.name]);
+    !isSavingAppName && setApplicationName(application?.name);
+  }, [application, application?.name, isSavingAppName]);
 
   const updateAppSettings = useCallback(
     debounce((icon?: AppIconName) => {
@@ -106,13 +103,20 @@ function GeneralSettings() {
           }}
           placeholder="App name"
           type="input"
-          validator={checkRegex(
-            appNameRegex,
-            GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR(),
-            true,
-            setIsAppNameValid,
-            GENERAL_SETTINGS_NAME_EMPTY_MESSAGE(),
-          )}
+          validator={(value: string) => {
+            let result: { isValid: boolean; message?: string } = {
+              isValid: true,
+            };
+            if (!value || value.trim().length === 0) {
+              setIsAppNameValid(false);
+              result = {
+                isValid: false,
+                message: GENERAL_SETTINGS_NAME_EMPTY_MESSAGE(),
+              };
+            }
+            setIsAppNameValid(result.isValid);
+            return result;
+          }}
           value={applicationName}
         />
       </div>

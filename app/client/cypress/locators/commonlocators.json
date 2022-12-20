@@ -99,6 +99,8 @@
   "chooseAction": ".single-select",
   "chooseMsgType": ".t--open-dropdown-Select-type",
   "onPause": ".t--property-control-onpause .t--open-dropdown-Select-Action",
+  "chooseWidget": ".t--open-dropdown-Select-Widget",
+  "onClick": ".t--property-control-onclick .t--open-dropdown-Select-Action",
   "changeZoomlevel": ".t--property-control-maxzoomlevel .bp3-popover-target",
   "selectedZoomlevel": ".t--property-control-maxzoomlevel .bp3-popover-target ",
   "imgWidget": "div[data-testid='styledImage']",

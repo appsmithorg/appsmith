@@ -320,7 +320,7 @@ describe("Git sync apps", function() {
       .click({ force: true });
     ee.ActionContextMenuByEntityName("JSObject1", "Move to page", "Child_Page");
     cy.wait(2000);
-    cy.get(explorer.addWidget).click();
+    cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
@@ -458,6 +458,7 @@ describe("Git sync apps", function() {
     cy.get(`.t--entity-item:contains(Child_Page Copy)`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
+    cy.wait(2000);
     cy.selectAction("Hide");
 
     cy.get(`.t--entity-item:contains(Child_Page)`)
