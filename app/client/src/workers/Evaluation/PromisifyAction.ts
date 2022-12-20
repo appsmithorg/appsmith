@@ -20,10 +20,7 @@ import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "workers/Evaluation/evaluation.worker";
 import { ActionTriggerFunctionNames } from "entities/DataTree/actionTriggers";
-import {
-  AsyncFunctionCalledInSyncFieldError,
-  getAsyncFunctionCalledInSyncFieldError,
-} from "./evaluationUtils";
+import { AsyncFunctionCalledInSyncFieldError } from "./evaluationUtils";
 
 export const promisifyAction = (
   workerRequestId: string,
