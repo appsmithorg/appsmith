@@ -37,11 +37,13 @@ type EditableTextProps = {
   maxLines?: number;
   minLines?: number;
   customErrorTooltip?: string;
+  useFullWidth?: boolean;
 };
 
 const EditableTextWrapper = styled.div<{
   isEditing: boolean;
   minimal: boolean;
+  useFullWidth: boolean;
 }>`
   && {
     display: flex;
@@ -72,8 +74,8 @@ const EditableTextWrapper = styled.div<{
     }
   }
 
-  ${({ isEditing }) =>
-    isEditing &&
+  ${({ useFullWidth }) =>
+    useFullWidth &&
     `
     > div {
     width: 100%;
@@ -134,6 +136,7 @@ export function EditableText(props: EditableTextProps) {
     placeholder,
     underline,
     updating,
+    useFullWidth,
     valueTransform,
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
@@ -218,6 +221,7 @@ export function EditableText(props: EditableTextProps) {
       onDoubleClick={
         editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
       }
+      useFullWidth={useFullWidth && isEditing ? true : false}
     >
       <ErrorTooltip
         customClass={errorTooltipClass}
