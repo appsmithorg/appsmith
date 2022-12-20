@@ -27,7 +27,7 @@ import {
 } from "@appsmith/constants/messages";
 import {
   getAclIsLoading,
-  getAclIsSaving,
+  getAclIsEditing,
   getGroups,
   getSelectedGroup,
 } from "@appsmith/selectors/aclSelectors";
@@ -53,7 +53,7 @@ export function GroupListing() {
   const userGroups = useSelector(getGroups);
   const selectedGroup = useSelector(getSelectedGroup);
   const isLoading = useSelector(getAclIsLoading);
-  const isSaving = useSelector(getAclIsSaving);
+  const isEditing = useSelector(getAclIsEditing);
 
   const [data, setData] = useState<GroupProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -197,9 +197,9 @@ export function GroupListing() {
     <AclWrapper data-testid="t--group-listing-wrapper">
       {selectedUserGroupId && selectedUserGroup ? (
         <GroupAddEdit
+          isEditing={isEditing}
           isLoading={isLoading}
           isNew={isNewGroup}
-          isSaving={isSaving}
           onDelete={onDeleteHandler}
           selected={selectedUserGroup}
         />

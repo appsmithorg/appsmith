@@ -8,6 +8,8 @@ export type RoleProps = BaseAclProps & {
   description?: string;
   tabs?: any;
   userPermissions?: string[];
+  isSaving: boolean;
+  isEditing?: boolean;
 };
 
 export type RoleEditProps = {
@@ -37,8 +39,9 @@ export type RoleTreeProps = {
   noData?: boolean;
   updateTabCount?: (val: number) => void;
   currentTabName: string;
-  roleId: string;
-  userPermissions: string[];
+  selected: RoleProps;
+  showSaveModal: boolean;
+  setShowSaveModal: (val: boolean) => void;
 };
 
 export type ActiveAllGroupsProps = {
@@ -70,7 +73,7 @@ export type GroupEditProps = {
   selected: GroupProps;
   onDelete: any;
   isLoading: boolean;
-  isSaving: boolean;
+  isEditing: boolean;
   isNew: boolean;
 };
 
@@ -130,7 +133,7 @@ export type UserEditProps = {
   onDelete: (id: string) => void;
   searchPlaceholder: string;
   isLoading: boolean;
-  isSaving: boolean;
+  isEditing: boolean;
 };
 
 export type UpdateRoleData = {

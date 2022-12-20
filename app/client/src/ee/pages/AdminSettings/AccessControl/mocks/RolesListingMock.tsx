@@ -12,6 +12,8 @@ export const rolesTableData: RoleProps[] = [
       "read:permissionGroups",
       "unassign:permissionGroups",
     ],
+    isSaving: false,
+    isEditing: false,
   },
   {
     id: "2",
@@ -24,6 +26,8 @@ export const rolesTableData: RoleProps[] = [
       "read:permissionGroups",
       "unassign:permissionGroups",
     ],
+    isSaving: false,
+    isEditing: false,
   },
   {
     id: "3",
@@ -35,6 +39,8 @@ export const rolesTableData: RoleProps[] = [
       "read:permissionGroups",
       "unassign:permissionGroups",
     ],
+    isSaving: false,
+    isEditing: false,
   },
   {
     id: "4",
@@ -47,6 +53,8 @@ export const rolesTableData: RoleProps[] = [
       "read:permissionGroups",
       "unassign:permissionGroups",
     ],
+    isSaving: false,
+    isEditing: false,
   },
   {
     id: "5",
@@ -59,11 +67,15 @@ export const rolesTableData: RoleProps[] = [
       "read:permissionGroups",
       "unassign:permissionGroups",
     ],
+    isSaving: false,
+    isEditing: false,
   },
   {
     id: "6",
     name: "App Viewer",
     autoCreated: true,
     userPermissions: [],
+    isSaving: false,
+    isEditing: false,
   },
 ];

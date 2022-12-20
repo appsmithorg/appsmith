@@ -12,6 +12,7 @@ import {
 export const initialState: AclReduxState = {
   isLoading: false,
   isSaving: false,
+  isEditing: false,
   users: [],
   groups: [],
   roles: [],
@@ -28,6 +29,7 @@ export const initialState: AclReduxState = {
 export interface AclReduxState {
   isLoading: boolean;
   isSaving: boolean;
+  isEditing: boolean;
   users: UserProps[];
   groups: GroupProps[];
   roles: RoleProps[];
@@ -45,9 +47,9 @@ export const handlers = {
   ...userReducers,
   ...groupsReducers,
   ...rolesReducers,
-  [ReduxActionTypes.ACL_IS_SAVING]: (state: any, action: any) => ({
+  [ReduxActionTypes.ACL_IS_EDITING]: (state: any, action: any) => ({
     ...state,
-    isSaving: action.payload.isSaving,
+    isEditing: action.payload,
   }),
 };
 

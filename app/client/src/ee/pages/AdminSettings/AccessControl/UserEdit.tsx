@@ -133,7 +133,7 @@ export function UserEdit(props: UserEditProps) {
     [],
   );
   const dispatch = useDispatch();
-  const { isLoading, isSaving, searchPlaceholder, selectedUser } = props;
+  const { isEditing, isLoading, searchPlaceholder, selectedUser } = props;
 
   useEffect(() => {
     if (searchValue) {
@@ -157,10 +157,8 @@ export function UserEdit(props: UserEditProps) {
       removedActivePermissionGroups.length > 0 ||
       addedAllPermGroups.length > 0;
     dispatch({
-      type: ReduxActionTypes.ACL_IS_SAVING,
-      payload: {
-        isSaving: saving,
-      },
+      type: ReduxActionTypes.ACL_IS_EDITING,
+      payload: saving,
     });
   }, [
     removedActiveUserGroups,
@@ -484,14 +482,17 @@ export function UserEdit(props: UserEditProps) {
           )}
         </Container>
       </Header>
-      <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
+      <TabsWrapper
+        data-testid="t--user-edit-tabs-wrapper"
+        isEditing={isEditing}
+      >
         <TabComponent
           onSelect={setSelectedTabIndex}
           selectedIndex={selectedTabIndex}
           tabs={tabs}
         />
       </TabsWrapper>
-      {isSaving && (
+      {isEditing && (
         <SaveButtonBar onClear={onClearChanges} onSave={onSaveChanges} />
       )}
     </div>

@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { MenuItemProps, TabComponent, TabProp } from "design-system";
+import { MenuItemProps } from "design-system";
 import { useHistory, useParams } from "react-router";
 import { PageHeader } from "./PageHeader";
-import { TabsWrapper } from "./components";
 import { debounce } from "lodash";
-import RolesTree from "./RolesTree";
 import {
   createMessage,
   ACL_DELETE,
@@ -13,8 +11,6 @@ import {
   ACL_EDIT_DESC,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
-import { LoaderContainer } from "pages/Settings/components";
-import { Spinner } from "@blueprintjs/core";
 import { RoleEditProps } from "./types";
 import { updateRoleName } from "@appsmith/actions/aclActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,42 +20,10 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-
-export function EachTab(
-  key: string,
-  searchValue: string,
-  tabs: any,
-  roleId: string,
-  userPermissions: string[],
-) {
-  const [tabCount, setTabCount] = useState<number>(0);
-
-  useEffect(() => {
-    if (!searchValue) {
-      setTabCount(0);
-    }
-  }, [searchValue]);
-
-  return {
-    key,
-    title: key,
-    count: tabCount,
-    panelComponent: (
-      <RolesTree
-        currentTabName={key}
-        roleId={roleId}
-        searchValue={searchValue}
-        tabData={tabs}
-        updateTabCount={(n) => setTabCount(n)}
-        userPermissions={userPermissions}
-      />
-    ),
-  };
-}
+import RoleTabs from "./RolesTree";
 
 export function RoleAddEdit(props: RoleEditProps) {
-  const { isLoading, isNew = false, selected } = props;
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const { isNew = false, selected } = props;
   const [searchValue, setSearchValue] = useState("");
   const history = useHistory();
   const dispatch = useDispatch();
@@ -145,23 +109,7 @@ export function RoleAddEdit(props: RoleEditProps) {
     },
   ].filter(Boolean);
 
-  const tabs: TabProp[] = selected?.tabs
-    ? Object.entries(selected?.tabs).map(([key, value]) =>
-        EachTab(
-          key,
-          searchValue,
-          value,
-          selected.id,
-          selected.userPermissions ?? [],
-        ),
-      )
-    : [];
-
-  return isLoading ? (
-    <LoaderContainer>
-      <Spinner />
-    </LoaderContainer>
-  ) : (
+  return (
     <div
       className="scrollable-wrapper role-edit-wrapper"
       data-testid="t--role-edit-wrapper"
@@ -179,15 +127,7 @@ export function RoleAddEdit(props: RoleEditProps) {
         searchValue={searchValue}
         title={selected.name || ""}
       />
-      {tabs.length > 0 && (
-        <TabsWrapper>
-          <TabComponent
-            onSelect={setSelectedTabIndex}
-            selectedIndex={selectedTabIndex}
-            tabs={tabs}
-          />
-        </TabsWrapper>
-      )}
+      <RoleTabs searchValue={searchValue} selected={selected} />
     </div>
   );
 }

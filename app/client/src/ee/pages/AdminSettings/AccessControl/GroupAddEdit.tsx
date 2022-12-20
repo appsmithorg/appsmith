@@ -133,7 +133,7 @@ const NoUsersText = styled.div`
 `;
 
 export function GroupAddEdit(props: GroupEditProps) {
-  const { isLoading, isNew = false, isSaving, selected } = props;
+  const { isEditing, isLoading, isNew = false, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -177,10 +177,8 @@ export function GroupAddEdit(props: GroupEditProps) {
   useEffect(() => {
     const saving = removedActiveGroups.length > 0 || addedAllGroups.length > 0;
     dispatch({
-      type: ReduxActionTypes.ACL_IS_SAVING,
-      payload: {
-        isSaving: saving,
-      },
+      type: ReduxActionTypes.ACL_IS_EDITING,
+      payload: saving,
     });
   }, [removedActiveGroups, addedAllGroups]);
 
@@ -473,14 +471,17 @@ export function GroupAddEdit(props: GroupEditProps) {
         searchValue={searchValue}
         title={selected?.name || ""}
       />
-      <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
+      <TabsWrapper
+        data-testid="t--user-edit-tabs-wrapper"
+        isEditing={isEditing}
+      >
         <TabComponent
           onSelect={setSelectedTabIndex}
           selectedIndex={selectedTabIndex}
           tabs={tabs}
         />
       </TabsWrapper>
-      {isSaving && (
+      {isEditing && (
         <SaveButtonBar onClear={onClearChanges} onSave={onSaveChanges} />
       )}
       <FormDialogComponent

@@ -175,7 +175,11 @@ describe("<RoleAddEdit />", () => {
     const td = rows[1].getElementsByTagName("td");
     const inputs = rows[1].getElementsByTagName("input");
     const tabData: any = Object.values(response1.tabs)[0];
-    const data = makeData([tabData.data] || []);
+    const data = makeData({
+      data: [tabData?.data] || [],
+      hoverMap: tabData.hoverMap,
+      permissions: tabData.permissions,
+    });
     const noCheckboxCount = data[0].permissions.filter((p: BaseAclProps) => p);
     expect(inputs.length).toEqual(
       data[0].permissions.length - noCheckboxCount.length,

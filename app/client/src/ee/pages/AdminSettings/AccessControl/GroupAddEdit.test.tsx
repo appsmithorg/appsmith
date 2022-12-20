@@ -31,7 +31,7 @@ const props: GroupEditProps = {
   selected: userGroupTableData[0],
   onDelete: jest.fn(),
   isLoading: false,
-  isSaving: false,
+  isEditing: false,
   isNew: false,
 };
 
@@ -78,7 +78,7 @@ describe("<GroupAddEdit />", () => {
       selected: selectedGroup,
       onDelete: jest.fn(),
       isLoading: false,
-      isSaving: false,
+      isEditing: false,
       isNew: false,
     };
     render(<GroupAddEdit {...props} />);
@@ -121,7 +121,7 @@ describe("<GroupAddEdit />", () => {
       selected: selectedGroup,
       onDelete: jest.fn(),
       isLoading: false,
-      isSaving: false,
+      isEditing: false,
       isNew: false,
     };
     render(<GroupAddEdit {...props} />);
