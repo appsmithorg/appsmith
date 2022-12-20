@@ -44,7 +44,6 @@ export const StyledHeader = styled.div`
 
 export const CategoryList = styled.ul`
   margin: 0;
-  padding: 0 0 0 16px;
   list-style-type: none;
 `;
 
