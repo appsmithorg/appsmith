@@ -150,7 +150,7 @@ function Actions(props: ActionsPropsType) {
         >
           <SearchComponent
             onSearch={props.searchTableData}
-            placeholder="Search..."
+            placeholder={"Enter your keyword"}
             value={props.searchKey}
           />
         </SearchComponentWrapper>

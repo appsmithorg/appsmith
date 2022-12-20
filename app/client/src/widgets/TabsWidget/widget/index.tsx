@@ -106,6 +106,23 @@ class TabsWidget extends BaseWidget<
                     },
                   ],
                 },
+                {
+                  sectionName: "Translation",
+                  children: [
+                    {
+                      propertyName: "translationJp",
+                      controlType: "INPUT_TEXT",
+                      defaultValue: "",
+                      label: "Translation JP",
+                      placeholderText: "Enter translation for JP",
+                      helpText:
+                        "Controls content follows current language system",
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                  ],
+                },
               ],
             },
           },
@@ -317,6 +334,7 @@ class TabsWidget extends BaseWidget<
       width:
         (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
+    console.log("tabsComponentProps", tabsComponentProps);
     return (
       <TabsComponent
         {...tabsComponentProps}

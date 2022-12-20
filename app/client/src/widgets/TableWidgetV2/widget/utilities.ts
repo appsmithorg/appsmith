@@ -205,6 +205,7 @@ export function getDefaultColumnProperties(
       : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
           id,
         )}"]))}}`,
+    translationJp: "",
     validation: {},
   };
 

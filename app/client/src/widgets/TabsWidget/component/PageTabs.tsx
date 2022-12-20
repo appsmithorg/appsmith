@@ -8,6 +8,8 @@ import { useSelector } from "react-redux";
 
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
+import { getLang } from "selectors/appViewSelectors";
+import { translate } from "utils/translate";
 
 const PageTab = styled.div`
   display: flex;
@@ -153,6 +155,7 @@ type Props = {
     label: string;
     widgetId: string;
     isVisible?: boolean;
+    translationJp: string;
   }>;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
@@ -166,6 +169,7 @@ type Props = {
 export function PageTabs(props: Props) {
   const { tabChange, tabs } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
+  const lang = useSelector(getLang);
 
   return (
     <div
@@ -191,7 +195,7 @@ export function PageTabs(props: Props) {
             <PageTabName
               backgroundColor={props.backgroundColor}
               id={tab.id}
-              name={tab.label}
+              name={translate(lang, tab.label, tab.translationJp)}
               primaryColor={
                 props.accentColor ||
                 get(selectedTheme, "properties.colors.primaryColor", "inherit")

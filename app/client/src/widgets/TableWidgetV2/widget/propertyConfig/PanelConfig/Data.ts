@@ -166,6 +166,16 @@ export default {
       isTriggerProperty: false,
     },
     {
+      helpText: "Controls header content follows current language system",
+      propertyName: "translationJp",
+      label: "Translation JP header",
+      controlType: "INPUT_TEXT",
+      placeholderText: "Enter translation for JP",
+      dependencies: ["primaryColumns", "columnOrder"],
+      isBindProperty: true,
+      isTriggerProperty: false,
+    },
+    {
       propertyName: "inputFormat",
       label: "Original Date Format",
       helpText: "Date format of incoming data to the column",

@@ -252,6 +252,7 @@ export interface ColumnBaseProperties {
   enableSort?: boolean;
   isDerived: boolean;
   computedValue: string;
+  translationJp: string;
   isCellVisible?: boolean;
   isAscOrder?: boolean;
   alias: string;

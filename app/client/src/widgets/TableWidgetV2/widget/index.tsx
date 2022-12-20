@@ -92,6 +92,10 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import store from "store";
 import { getAppStoreName } from "constants/AppConstants";
 import { DEFAULT_ROWS_PER_PAGE } from "./derived";
+import { connect } from "react-redux";
+import { AppState } from "@appsmith/reducers";
+import { LanguageEnums } from "entities/App";
+import { translate } from "utils/translate";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -105,8 +109,13 @@ const defaultFilter = [
   },
 ];
 
-class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
+interface TableProps extends TableWidgetProps {
+  lang: LanguageEnums;
+}
+
+class TableWidgetV2 extends BaseWidget<TableProps, WidgetState> {
   inlineEditTimer: number | null = null;
+  static defaultProps: Partial<TableProps> | undefined;
 
   static getPropertyPaneContentConfig() {
     return contentConfig;
@@ -223,7 +232,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         const isHidden = !column.isVisible;
         const columnData = {
           id: column.id,
-          Header: column.label,
+          Header: translate(
+            this.props.lang,
+            column.label,
+            column.translationJp,
+          ),
           alias: column.alias,
           accessor: (row: any) => row[column.alias],
           width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
@@ -2159,4 +2172,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 }
 
-export default TableWidgetV2;
+TableWidgetV2.defaultProps = {
+  ...BaseWidget.defaultProps,
+  lang: LanguageEnums.EN,
+};
+
+const mapStateToProps = (state: AppState) => {
+  return {
+    lang: state.ui.appView.lang,
+  };
+};
+
+export default connect(mapStateToProps, null)(TableWidgetV2);
