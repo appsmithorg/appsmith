@@ -51,7 +51,7 @@ interface MinMaxHeightProps {
 interface AutoHeightOverlayContainerProps
   extends MinMaxHeightProps,
     WidgetProps {
-  batchUpdate: (height: number) => void;
+  batchUpdate: (options: { minHeight?: number; maxHeight?: number }) => void;
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
   style?: CSSProperties;
@@ -63,6 +63,7 @@ interface AutoHeightOverlayProps extends AutoHeightOverlayContainerProps {
 
 const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
   ({
+    batchUpdate,
     isHidden,
     maxDynamicHeight,
     minDynamicHeight,
@@ -235,20 +236,20 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     function onMaxStop() {
       setIsMaxDotDragging(false);
 
-      // if dragging the max also changed the min
-      // change it only if there is a one row
-      // difference
-      if (
-        mindY !== 0 &&
-        maxY + maxdY - (minY + mindY) === GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-      ) {
-        updateMinHeight(minY + mindY);
+      // if there are changes to both
+      // use batch
+      if (mindY !== 0 && maxdY !== 0) {
+        batchUpdate({
+          maxHeight: maxY + maxdY,
+          minHeight: minY + mindY,
+        });
         setMindY(0);
-      }
-
-      if (maxdY !== 0) {
-        updateMaxHeight(maxY + maxdY);
         setMaxdY(0);
+      } else {
+        if (maxdY !== 0) {
+          updateMaxHeight(maxY + maxdY);
+          setMaxdY(0);
+        }
       }
 
       onAnyDotStop();
@@ -299,20 +300,20 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     function onMinStop() {
       setIsMinDotDragging(false);
 
-      if (mindY !== 0) {
-        updateMinHeight(minY + mindY);
+      // if there are changes to both
+      // use batch
+      if (mindY !== 0 && maxdY !== 0) {
+        batchUpdate({
+          maxHeight: maxY + maxdY,
+          minHeight: minY + mindY,
+        });
         setMindY(0);
-      }
-
-      // if dragging the min also changed the max
-      // change it only if there is a one row
-      // difference
-      if (
-        maxdY !== 0 &&
-        maxY + maxdY - (minY + mindY) === GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-      ) {
-        updateMaxHeight(maxY + maxdY);
         setMaxdY(0);
+      } else {
+        if (mindY !== 0) {
+          updateMinHeight(minY + mindY);
+          setMindY(0);
+        }
       }
 
       onAnyDotStop();
@@ -383,14 +384,14 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
         style={style ?? styles}
       >
         <AutoHeightLimitOverlayDisplay
-          data-cy="t--auto-height-overlay-min"
-          height={finalMinY}
-          isActive={isMinDotDragging || isMinDotActive}
-        />
-        <AutoHeightLimitOverlayDisplay
-          data-cy="t--auto-height-overlay-max"
-          height={finalMaxY}
-          isActive={isMaxDotDragging || isMaxDotActive}
+          data-cy="t--auto-height-overlay"
+          height={isMaxDotDragging || isMaxDotActive ? finalMaxY : finalMinY}
+          isActive={
+            isMaxDotDragging ||
+            isMaxDotActive ||
+            isMinDotDragging ||
+            isMinDotActive
+          }
         />
         <AutoHeightLimitHandleGroup
           isMaxDotActive={isMaxDotDragging || isMaxDotActive}
