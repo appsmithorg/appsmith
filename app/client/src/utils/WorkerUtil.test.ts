@@ -56,8 +56,9 @@ class MockWorkerClass implements WorkerClass {
     this.messages.push(message);
     const counter = setTimeout(() => {
       const response = {
-        requestId: message.requestId,
-        responseData: message.requestData,
+        messageId: message.messageId,
+        messageType: "RESPONSE",
+        body: { data: message.body.data },
       };
       this.sendEvent({ data: response });
       this.responses.delete(counter);
@@ -217,66 +218,5 @@ describe("GracefulWorkerService", () => {
     // wait for shutdown
     await shutdown.toPromise();
     expect(await task.toPromise()).not.toEqual(message);
-  });
-
-  test("duplex request starter", async () => {
-    const MockWorker = new MockWorkerClass();
-    const w = new GracefulWorkerService(MockWorker);
-    await runSaga({}, w.start);
-    // Need this to work with eslint
-    if (MockWorker.instance === undefined) {
-      expect(MockWorker.instance).toBeDefined();
-      return;
-    }
-    const requestData = { message: "Hello" };
-    const method = "duplex_test";
-    MockWorker.instance.postMessage = jest.fn();
-    const duplexRequest = await runSaga(
-      {},
-      w.duplexRequest,
-      method,
-      requestData,
-    );
-    const handlers = await duplexRequest.toPromise();
-    expect(handlers).toHaveProperty("isFinishedChannel");
-    expect(MockWorker.instance.postMessage).toBeCalledWith({
-      method,
-      requestData,
-      requestId: expect.stringContaining(method),
-    });
-  });
-
-  test("duplex response channel handler", async () => {
-    const MockWorker = new MockWorkerClass();
-    const w = new GracefulWorkerService(MockWorker);
-    await runSaga({}, w.start);
-
-    // Need this to work with eslint
-    if (MockWorker.instance === undefined) {
-      expect(MockWorker.instance).toBeDefined();
-      return;
-    }
-    const mainThreadResponseChannel = channel();
-    const workerRequestId = "testID";
-    runSaga(
-      {},
-      // @ts-expect-error: type mismatch
-      w.duplexResponseHandler,
-      mainThreadResponseChannel,
-    );
-    MockWorker.instance.postMessage = jest.fn();
-
-    let randomRequestCount = Math.floor(Math.random() * 10);
-
-    for (randomRequestCount; randomRequestCount > 0; randomRequestCount--) {
-      mainThreadResponseChannel.put({
-        test: randomRequestCount,
-        requestId: workerRequestId,
-      });
-      expect(MockWorker.instance.postMessage).toBeCalledWith({
-        test: randomRequestCount,
-        requestId: workerRequestId,
-      });
-    }
   });
 });

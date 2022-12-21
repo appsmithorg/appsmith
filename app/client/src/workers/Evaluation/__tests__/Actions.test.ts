@@ -2,6 +2,7 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import { createGlobalData } from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
+import { MessageType } from "utils/MessageUtil";
 jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
@@ -37,6 +38,12 @@ describe("Add functions", () => {
     context: {
       requestId: "EVAL_TRIGGER",
     },
+  });
+
+  const messageCreator = (type: string, body: unknown) => ({
+    messageId: expect.stringContaining(type),
+    messageType: MessageType.REQUEST,
+    body,
   });
 
   beforeEach(() => {
@@ -119,43 +126,39 @@ describe("Add functions", () => {
     expect(
       dataTreeWithFunctions.action1.run(null, null, actionParams),
     ).resolves.toBe({ a: "b" });
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "RUN_PLUGIN_ACTION",
-          payload: {
-            actionId: "123",
-            params: { param1: "value1" },
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("RUN_PLUGIN_ACTION", {
+        data: {
+          trigger: {
+            type: "RUN_PLUGIN_ACTION",
+            payload: {
+              actionId: "123",
+              params: { param1: "value1" },
+            },
           },
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
 
     // Old syntax works with undefined values is treated as new syntax
     expect(
       dataTreeWithFunctions.action1.run(undefined, undefined, actionParams),
     ).resolves.toBe({ a: "b" });
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "RUN_PLUGIN_ACTION",
-          payload: {
-            actionId: "123",
-            params: { param1: "value1" },
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("RUN_PLUGIN_ACTION", {
+        data: {
+          trigger: {
+            type: "RUN_PLUGIN_ACTION",
+            payload: {
+              actionId: "123",
+              params: { param1: "value1" },
+            },
           },
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
 
     // new syntax works
     expect(
@@ -164,60 +167,55 @@ describe("Add functions", () => {
         .then(onSuccess)
         .catch(onError),
     ).resolves.toBe({ a: "b" });
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "RUN_PLUGIN_ACTION",
-          payload: {
-            actionId: "123",
-            params: { param1: "value1" },
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("RUN_PLUGIN_ACTION", {
+        data: {
+          trigger: {
+            type: "RUN_PLUGIN_ACTION",
+            payload: {
+              actionId: "123",
+              params: { param1: "value1" },
+            },
           },
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
     // New syntax without params
     expect(dataTreeWithFunctions.action1.run()).resolves.toBe({ a: "b" });
 
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "RUN_PLUGIN_ACTION",
-          payload: {
-            actionId: "123",
-            params: {},
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("RUN_PLUGIN_ACTION", {
+        data: {
+          trigger: {
+            type: "RUN_PLUGIN_ACTION",
+            payload: {
+              actionId: "123",
+              params: {},
+            },
           },
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("action.clear works", () => {
     expect(dataTreeWithFunctions.action1.clear()).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "CLEAR_PLUGIN_ACTION",
-          payload: {
-            actionId: "123",
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("CLEAR_PLUGIN_ACTION", {
+        data: {
+          trigger: {
+            type: "CLEAR_PLUGIN_ACTION",
+            payload: {
+              actionId: "123",
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("navigateTo works", () => {
@@ -228,87 +226,82 @@ describe("Add functions", () => {
     expect(
       dataTreeWithFunctions.navigateTo(pageNameOrUrl, params, target),
     ).resolves.toBe({});
-
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "NAVIGATE_TO",
-          payload: {
-            pageNameOrUrl,
-            params,
-            target,
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("NAVIGATE_TO", {
+        data: {
+          trigger: {
+            type: "NAVIGATE_TO",
+            payload: {
+              pageNameOrUrl,
+              params,
+              target,
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("showAlert works", () => {
     const message = "Alert message";
     const style = "info";
     expect(dataTreeWithFunctions.showAlert(message, style)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "SHOW_ALERT",
-          payload: {
-            message,
-            style,
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("SHOW_ALERT", {
+        data: {
+          trigger: {
+            type: "SHOW_ALERT",
+            payload: {
+              message,
+              style,
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("showModal works", () => {
     const modalName = "Modal 1";
 
     expect(dataTreeWithFunctions.showModal(modalName)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "SHOW_MODAL_BY_NAME",
-          payload: {
-            modalName,
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("SHOW_MODAL_BY_NAME", {
+        data: {
+          trigger: {
+            type: "SHOW_MODAL_BY_NAME",
+            payload: {
+              modalName,
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("closeModal works", () => {
     const modalName = "Modal 1";
     expect(dataTreeWithFunctions.closeModal(modalName)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "CLOSE_MODAL",
-          payload: {
-            modalName,
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("CLOSE_MODAL", {
+        data: {
+          trigger: {
+            type: "CLOSE_MODAL",
+            payload: {
+              modalName,
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("storeValue works", () => {
@@ -323,62 +316,58 @@ describe("Add functions", () => {
     expect(dataTreeWithFunctions.storeValue(key, value, persist)).resolves.toBe(
       {},
     );
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "STORE_VALUE",
-          payload: {
-            key,
-            value,
-            persist,
-            uniqueActionRequestId,
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("STORE_VALUE", {
+        data: {
+          trigger: {
+            type: "STORE_VALUE",
+            payload: {
+              key,
+              value,
+              persist,
+              uniqueActionRequestId,
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("removeValue works", () => {
     const key = "some";
-
     expect(dataTreeWithFunctions.removeValue(key)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "REMOVE_VALUE",
-          payload: {
-            key,
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("REMOVE_VALUE", {
+        data: {
+          trigger: {
+            type: "REMOVE_VALUE",
+            payload: {
+              key,
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("clearStore works", () => {
     expect(dataTreeWithFunctions.clearStore()).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "CLEAR_STORE",
-          payload: null,
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("CLEAR_STORE", {
+        data: {
+          trigger: {
+            type: "CLEAR_STORE",
+            payload: null,
+          },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("download works", () => {
@@ -387,44 +376,42 @@ describe("Add functions", () => {
     const type = "text";
 
     expect(dataTreeWithFunctions.download(data, name, type)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "DOWNLOAD",
-          payload: {
-            data,
-            name,
-            type,
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("DOWNLOAD", {
+        data: {
+          trigger: {
+            type: "DOWNLOAD",
+            payload: {
+              data,
+              name,
+              type,
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("copyToClipboard works", () => {
     const data = "file";
     expect(dataTreeWithFunctions.copyToClipboard(data)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "COPY_TO_CLIPBOARD",
-          payload: {
-            data,
-            options: { debug: undefined, format: undefined },
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("COPY_TO_CLIPBOARD", {
+        data: {
+          trigger: {
+            type: "COPY_TO_CLIPBOARD",
+            payload: {
+              data,
+              options: { debug: undefined, format: undefined },
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("resetWidget works", () => {
@@ -434,22 +421,21 @@ describe("Add functions", () => {
     expect(
       dataTreeWithFunctions.resetWidget(widgetName, resetChildren),
     ).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith({
-      type: "PROCESS_TRIGGER",
-      requestId: "EVAL_TRIGGER",
-      promisified: true,
-      responseData: {
-        errors: [],
-        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
-        trigger: {
-          type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
-          payload: {
-            widgetName,
-            resetChildren,
+    expect(workerEventMock).lastCalledWith(
+      messageCreator("RESET_WIDGET_META_RECURSIVE_BY_NAME", {
+        data: {
+          trigger: {
+            type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
+            payload: {
+              widgetName,
+              resetChildren,
+            },
           },
+          eventType: undefined,
         },
-      },
-    });
+        method: "PROCESS_TRIGGER",
+      }),
+    );
   });
 
   it("setInterval works", () => {

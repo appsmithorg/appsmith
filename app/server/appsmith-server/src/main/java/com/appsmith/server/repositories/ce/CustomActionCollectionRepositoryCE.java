@@ -8,10 +8,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<ActionCollection> {
 
     Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
+
+    Flux<ActionCollection> findByApplicationId(String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
 
     Flux<ActionCollection> findByApplicationIdAndViewMode(String applicationId, boolean viewMode, AclPermission aclPermission);
 

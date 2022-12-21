@@ -831,9 +831,31 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return
      */
     @Override
-    public Mono<PageDTO> deleteUnpublishedPage(String id) {
+    public Mono<PageDTO> deleteWithoutPermissionUnpublishedPage(String id) {
+        return deleteUnpublishedPageEx(id, Optional.empty());
+    }
 
-        return newPageService.findById(id, pagePermission.getDeletePermission())
+    @Override
+    public Mono<PageDTO> deleteUnpublishedPage(String id) {
+        return deleteUnpublishedPageEx(id, Optional.of(pagePermission.getDeletePermission()));
+    }
+
+
+    /**
+     * This function archives the unpublished page. This also archives the unpublished action. The reason that the
+     * entire action is not deleted at this point is to handle the following edge case :
+     * An application is published with 1 page and 1 action.
+     * Post publish, create a new page and move the action from the existing page to the new page. Now delete this newly
+     * created page.
+     * In this scenario, if we were to delete all actions associated with the page, we would end up deleting an action
+     * which is currently in published state and is being used.
+     *
+     * @param id The pageId which needs to be archived.
+     * @return
+     */
+    private Mono<PageDTO> deleteUnpublishedPageEx(String id, Optional<AclPermission> permission) {
+
+        return newPageService.findById(id, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
