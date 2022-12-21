@@ -364,6 +364,9 @@ abstract class BaseWidget<
   }
 
   addAutoHeightOverlay(content: ReactNode, style?: CSSProperties) {
+    // required when the limits have to be updated
+    // simultaneosuly when they move together
+    // to maintain the undo/redo stack
     const onBatchUpdate = ({
       maxHeight,
       minHeight,
