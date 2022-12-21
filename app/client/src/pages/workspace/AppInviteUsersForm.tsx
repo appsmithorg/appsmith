@@ -18,7 +18,6 @@ import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import useWorkspace from "utils/hooks/useWorkspace";
-import copy from "copy-to-clipboard";
 import TooltipWrapper from "pages/Applications/EmbedSnippet/TooltipWrapper";
 import {
   createMessage,
@@ -48,13 +47,6 @@ function AppInviteUsersForm(props: any) {
     isFetchingApplication,
   } = props;
   const [isCopied, setIsCopied] = useState(false);
-  const copyToClipboard = () => {
-    copy(appViewEndPoint);
-    setIsCopied(true);
-    setTimeout(() => {
-      setIsCopied(false);
-    }, 3000);
-  };
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const currentWorkspace = useWorkspace(currentWorkspaceId);
   const userWorkspacePermissions = currentWorkspace.userPermissions ?? [];
@@ -67,6 +59,13 @@ function AppInviteUsersForm(props: any) {
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(appViewEndPoint);
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 3000);
+  };
 
   const appViewEndPoint = React.useMemo(() => {
     const url = viewerURL({
@@ -90,7 +89,11 @@ function AppInviteUsersForm(props: any) {
         />
       )}
       <BottomContainer className="flex space-between mt-6 pt-5">
-        <div className="flex gap-1.5 cursor-pointer" onClick={copyToClipboard}>
+        <div
+          className="flex gap-1.5 cursor-pointer"
+          data-cy={"copy-application-url"}
+          onClick={copyToClipboard}
+        >
           <Icon
             fillColor={Colors.GRAY_700}
             name="links-line"
@@ -127,7 +130,7 @@ function AppInviteUsersForm(props: any) {
                 size={IconSize.XL}
               />
             </TooltipComponent>
-            <ShareToggle className="ml-4">
+            <ShareToggle className="ml-4 t--share-public-toggle">
               {currentApplicationDetails && (
                 <Toggle
                   disabled={isChangingViewAccess || isFetchingApplication}

@@ -90,7 +90,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       // .should("have.length", Cypress.env("Edition") === 0 ? 2 : 3)
       .should("have.length", 2)
       .and("contain.text", `App Viewer`, `Developer`);
-    cy.get(HomePage.closeBtn).click();
+    cy.get(HomePage.editModeInviteModalCloseBtn).click();
     homePage.LogOutviaAPI();
   });
 

@@ -28,8 +28,13 @@ describe("Embed settings options", function() {
     ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
     deployMode.DeployApp();
     cy.get("[data-cy='viewmode-share']").click();
-    cy.get(".t--deployed-url input")
-      .invoke("attr", "value")
+    cy.get("[data-cy='copy-application-url']")
+      .last()
+      .click();
+    agHelper.GiveChromeCopyPermission();
+    cy.window()
+      .its("navigator.clipboard")
+      .invoke("readText")
       .as("embeddedAppUrl");
     cy.enablePublicAccess();
     cy.get(".t--back-to-home").click();
@@ -41,8 +46,12 @@ describe("Embed settings options", function() {
     // cy.testJsontext("url", this.embeddedAppUrl);
     deployMode.DeployApp();
     cy.get("[data-cy='viewmode-share']").click();
-    cy.get(".t--deployed-url input")
-      .invoke("attr", "value")
+    cy.get("[data-cy='copy-application-url']")
+      .last()
+      .click();
+    cy.window()
+      .its("navigator.clipboard")
+      .invoke("readText")
       .as("deployUrl");
     cy.enablePublicAccess();
     cy.wait(6000);
