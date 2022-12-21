@@ -30,6 +30,10 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
         
+      - name: Check previous run result
+        id: check_run_result
+        run: echo {{ $steps.run_result.outputs.run_result }}
+        
       - name: check status of previous run
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: echo "hello World"
