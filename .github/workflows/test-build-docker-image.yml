@@ -929,7 +929,7 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: echo "failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec_fat and add a dummy file
       # This will ensure upload and download steps are successful
@@ -1360,7 +1360,7 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: echo "failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec and add a dummy file
       # This will ensure upload and download steps are successful
