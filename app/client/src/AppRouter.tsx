@@ -95,6 +95,7 @@ function AppRouter(props: {
   return (
     <Router history={history}>
       <Suspense fallback={loadingIndicator}>
+        <RouteChangeListener />
         {props.safeCrash && props.safeCrashCode ? (
           <>
             <ErrorPageHeader />
@@ -102,7 +103,6 @@ function AppRouter(props: {
           </>
         ) : (
           <>
-            <RouteChangeListener />
             <AppHeader />
             <Switch>
               <SentryRoute component={LandingScreen} exact path={BASE_URL} />
