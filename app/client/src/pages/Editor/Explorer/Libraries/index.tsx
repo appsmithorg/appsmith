@@ -187,9 +187,13 @@ const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
 
   const url = lib.url as string;
 
-  const uninstallLibrary = useCallback(() => {
-    dispatch(uninstallLibraryInit(lib));
-  }, [lib]);
+  const uninstallLibrary = useCallback(
+    (e) => {
+      e.stopPropagation();
+      dispatch(uninstallLibraryInit(lib));
+    },
+    [lib],
+  );
 
   if (installationStatus[url] === InstallState.Queued)
     return (
@@ -215,7 +219,13 @@ const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
 };
 
 function LibraryEntity({ lib }: { lib: TJSLibrary }) {
-  const openDocs = (url?: string) => () => url && window.open(url, "_blank");
+  const openDocs = useCallback(
+    (url?: string) => (e: React.MouseEvent) => {
+      e?.stopPropagation();
+      url && window.open(url, "_blank");
+    },
+    [],
+  );
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(propertyRef);
 
@@ -231,12 +241,14 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
   const docsURL = docsURLMap[lib.url || ""] || lib.docsURL;
   return (
     <Library className={`t--installed-library-${lib.name}`}>
-      <div className="flex flex-row items-center h-full">
+      <div
+        className="flex flex-row items-center h-full"
+        onClick={() => open(!isOpen)}
+      >
         <Icon
           className={isOpen ? "open-collapse" : ""}
           fillColor={Colors.GREY_7}
           name="right-arrow-2"
-          onClick={() => open(!isOpen)}
           size={IconSize.XXXL}
         />
         <div className="flex items-center flex-start flex-1 overflow-hidden">
