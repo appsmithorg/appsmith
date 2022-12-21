@@ -29,9 +29,13 @@ jobs:
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
+        
+      - name: check status of previous run
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: echo "hello World"
  
        # Set status = success
-      - run: echo "test" > ~/run_result
+      - run: echo "failedtest" > ~/run_result
  
       - name: Store the previous run result
         uses: martijnhols/actions-cache/save@v3
