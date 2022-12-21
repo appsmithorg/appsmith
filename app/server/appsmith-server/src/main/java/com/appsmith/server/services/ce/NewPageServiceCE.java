@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
@@ -18,11 +19,15 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> findById(String pageId, AclPermission aclPermission);
 
+    Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission);
+
     Mono<PageDTO> findPageById(String pageId, AclPermission aclPermission, Boolean view);
 
     Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view);
 
     Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission);
+
+    Flux<NewPage> findNewPagesByApplicationId(String applicationId, Optional<AclPermission> permission);
 
     Mono<PageDTO> saveUnpublishedPage(PageDTO page);
 
@@ -65,6 +70,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> archiveById(String id);
 
+    Mono<NewPage> archiveWithoutPermissionById(String id);
+
     Flux<NewPage> saveAll(List<NewPage> pages);
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
@@ -76,6 +83,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
     Mono<String> findRootApplicationIdFromNewPage(String branchName, String defaultPageId);
 
     Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
+
+    Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
     Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
 }

@@ -1,6 +1,6 @@
 import { createEvaluationContext } from "./evaluate";
-import { dataTreeEvaluator } from "./evaluation.worker";
 import { ActionCalledInSyncFieldError } from "./evaluationUtils";
+import { dataTreeEvaluator } from "./handlers/evalTree";
 
 export const _internalSetTimeout = self.setTimeout;
 export const _internalClearTimeout = self.clearTimeout;

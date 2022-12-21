@@ -1,8 +1,7 @@
 import { PluginType } from "entities/Action";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { createEvaluationContext } from "./evaluate";
-import "./TimeoutOverride";
-import overrideTimeout from "./TimeoutOverride";
+import { createEvaluationContext } from "../evaluate";
+import overrideTimeout from "../TimeoutOverride";
 
 describe("Expects appsmith setTimeout to pass the following criteria", () => {
   overrideTimeout();

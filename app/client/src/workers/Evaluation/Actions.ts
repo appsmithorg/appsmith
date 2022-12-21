@@ -324,7 +324,6 @@ export const addDataTreeToContext = (args: {
     dataTree,
     EVAL_CONTEXT,
     eventType,
-    requestId = "",
     skipEntityFunctions = false,
   } = args;
   const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
@@ -348,7 +347,6 @@ export const addDataTreeToContext = (args: {
         pusher.bind(
           {
             TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-            REQUEST_ID: requestId,
             EVENT_TYPE: eventType,
           },
           func,
@@ -367,7 +365,6 @@ export const addDataTreeToContext = (args: {
     EVAL_CONTEXT[name] = pusher.bind(
       {
         TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-        REQUEST_ID: requestId,
         EVENT_TYPE: eventType,
       },
       fn,
@@ -392,7 +389,6 @@ export const addDataTreeToContext = (args: {
 export const pusher = function(
   this: {
     TRIGGER_COLLECTOR: ActionDescription[];
-    REQUEST_ID: string;
     EVENT_TYPE?: EventType;
   },
   action: ActionDispatcherWithExecutionType,
@@ -413,7 +409,7 @@ export const pusher = function(
   if (executionType && executionType === ExecutionType.TRIGGER) {
     this.TRIGGER_COLLECTOR.push(actionPayload);
   } else {
-    return promisifyAction(this.REQUEST_ID, actionPayload, this.EVENT_TYPE);
+    return promisifyAction(actionPayload, this.EVENT_TYPE);
   }
 };
 

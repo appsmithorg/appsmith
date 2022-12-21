@@ -1,5 +1,4 @@
 import evaluate, {
-  setupEvaluationEnvironment,
   evaluateAsync,
   isFunctionAsync,
 } from "workers/Evaluation/evaluate";
@@ -9,6 +8,7 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
+import setupEvalEnv from "../handlers/setupEvalEnv";
 
 describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
@@ -40,7 +40,7 @@ describe("evaluateSync", () => {
     Input1: widget,
   };
   beforeAll(() => {
-    setupEvaluationEnvironment();
+    setupEvalEnv();
   });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
@@ -192,45 +192,32 @@ describe("evaluateAsync", () => {
   it("runs and completes", async () => {
     const js = "(() => new Promise((resolve) => { resolve(123) }))()";
     self.postMessage = jest.fn();
-    await evaluateAsync(js, {}, "TEST_REQUEST", {});
-    expect(self.postMessage).toBeCalledWith({
-      requestId: "TEST_REQUEST",
-      promisified: true,
-      responseData: {
-        finished: true,
-        result: { errors: [], logs: [], result: 123, triggers: [] },
-      },
-      type: "PROCESS_TRIGGER",
+    const response = await evaluateAsync(js, {}, {}, {});
+    expect(response).toStrictEqual({
+      errors: [],
+      logs: [],
+      result: 123,
+      triggers: [],
     });
   });
   it("runs and returns errors", async () => {
     jest.restoreAllMocks();
     const js = "(() => new Promise((resolve) => { randomKeyword }))()";
     self.postMessage = jest.fn();
-    await evaluateAsync(js, {}, "TEST_REQUEST_1", {});
-    expect(self.postMessage).toBeCalledWith({
-      requestId: "TEST_REQUEST_1",
-      promisified: true,
-      responseData: {
-        finished: true,
-        result: {
-          errors: [
-            {
-              errorMessage: expect.stringContaining(
-                "randomKeyword is not defined",
-              ),
-              errorType: "PARSE",
-              originalBinding: expect.stringContaining("Promise"),
-              raw: expect.stringContaining("Promise"),
-              severity: "error",
-            },
-          ],
-          triggers: [],
-          result: undefined,
-          logs: [],
+    const result = await evaluateAsync(js, {}, {}, {});
+    expect(result).toStrictEqual({
+      errors: [
+        {
+          errorMessage: expect.stringContaining("randomKeyword is not defined"),
+          errorType: "PARSE",
+          originalBinding: expect.stringContaining("Promise"),
+          raw: expect.stringContaining("Promise"),
+          severity: "error",
         },
-      },
-      type: "PROCESS_TRIGGER",
+      ],
+      triggers: [],
+      result: undefined,
+      logs: [],
     });
   });
 });
