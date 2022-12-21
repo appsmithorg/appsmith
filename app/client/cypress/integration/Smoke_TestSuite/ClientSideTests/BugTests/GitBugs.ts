@@ -16,7 +16,7 @@ describe("Git Bugs", function() {
     _.agHelper.ValidateNetworkStatus("@postExecute");
   });
 
-  it.only("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function() {
+  it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function() {
     _.gitSync.CreateNConnectToGit();
     _.gitSync.CreateGitBranch();
     _.dataSources.NavigateToDSCreateNew();
