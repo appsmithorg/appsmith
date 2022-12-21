@@ -13,7 +13,7 @@ import { JSUpdate } from "utils/JSPaneUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { WorkerRequest } from "workers/common/types";
-import { DataTreeDiff } from "./evaluationUtils";
+import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export type EvalWorkerRequest = WorkerRequest<any, EVAL_WORKER_ACTIONS>;
 export type EvalWorkerResponse = EvalTreeResponseData | boolean | unknown;

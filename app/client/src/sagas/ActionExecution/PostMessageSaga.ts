@@ -4,7 +4,7 @@ import {
   logActionExecutionError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
-import { TriggerMeta } from "./ActionExecutionSagas";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { isEmpty } from "lodash";
 
 export function* postMessageSaga(

@@ -57,7 +57,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
 import { DependencyMap } from "utils/DynamicBindingUtils";
-import { TriggerMeta } from "./ActionExecution/ActionExecutionSagas";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import {
   getEntityNameAndPropertyPath,
   isAction,
