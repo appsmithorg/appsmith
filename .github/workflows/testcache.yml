@@ -24,8 +24,7 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+
             
       - name: Get the previous run result
         id: run_result
