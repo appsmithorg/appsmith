@@ -9,50 +9,28 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.PaginationType;
 import com.external.constants.ErrorMessages;
 import com.external.plugins.GoogleSheetsPlugin;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-public class RowsBulkAppendMethodTest {
-    final ObjectMapper objectMapper = new ObjectMapper();
+public class RowsAppendMethodTest {
 
     GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor = new GoogleSheetsPlugin.GoogleSheetsPluginExecutor();
 
-    /**
-     * To Test if it passes the empty Mono criteria,
-     * else it should fail
-     */
     @Test
-    public void testBulkAppendHandleEmptyMonoExecutePrerequisites() {
-        String[] testDataArray = {"[]", ""};
-
-        for(int i=0; i<testDataArray.length; i++) {
-            RowsBulkAppendMethod bulkAppend = new RowsBulkAppendMethod(objectMapper);
-            Mono<Object> monoTest = bulkAppend.executePrerequisites(getMethodConfigObject(testDataArray[i]), getOAuthObject());
-
-            StepVerifier.create(monoTest)
-                    .expectComplete()
-                    .verify();
-        }
-    }
-
-    @Test
-    public void testRowBulkAppendMethodWithEmptyBody() {
+    public void testRowAppendMethodWithEmptyBody() {
 
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setAuthentication(getOAuthObject());
 
         Map<String,Object> formData = new HashMap<>();
-        formData.put("command", Collections.singletonMap("data","INSERT_MANY"));
+        formData.put("command", Collections.singletonMap("data","INSERT_ONE"));
         formData.put("entityType", Collections.singletonMap("data","ROWS"));
         formData.put("tableHeaderIndex", Collections.singletonMap("data","1"));
         formData.put("projection", Collections.singletonMap("data",Collections.emptyList()));
@@ -74,8 +52,6 @@ public class RowsBulkAppendMethodTest {
 
         String[] testDataArray = {null,"","{}"};
 
-        String[] expectedErrorMessageArray = {ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE,ErrorMessages.REQUEST_BODY_NOT_ARRAY,ErrorMessages.REQUEST_BODY_NOT_ARRAY};
-
         for(int i=0; i<testDataArray.length; i++) {
 
             formData.put("rowObjects",new HashMap<>(Collections.singletonMap("data",testDataArray[i])));
@@ -86,11 +62,11 @@ public class RowsBulkAppendMethodTest {
 
             String actualMessage = appsmithPluginException.getMessage();
 
-            assertEquals(actualMessage,expectedErrorMessageArray[i]);
+            assertEquals(actualMessage,ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
         }
     }
 
-   /**
+    /**
      * Simulated oAuth2 object, just to bypass few case.
      * @return
      */
@@ -102,18 +78,5 @@ public class RowsBulkAppendMethodTest {
         oAuth2.setScopeString("https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly");
         oAuth2.setScope(Set.of("https://www.googleapis.com/auth/spreadsheets.readonly","https://www.googleapis.com/auth/drive.readonly"));
         return oAuth2;
-    }
-
-    /**
-     * Simulated MethodConfig object with testable data.
-     * @param rowObject
-     * @return
-     */
-    private  MethodConfig getMethodConfigObject(String rowObject) {
-        MethodConfig methodConfig = new MethodConfig(Map.of());
-
-        methodConfig.setRowObjects(rowObject);
-
-        return methodConfig;
     }
 }
