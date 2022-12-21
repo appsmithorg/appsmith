@@ -134,8 +134,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isAddRowInProgress: false,
       newRowContent: undefined,
       newRow: undefined,
-      leftOrder: undefined,
-      rightOrder: undefined,
     };
   }
 
