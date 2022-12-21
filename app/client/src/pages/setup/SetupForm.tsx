@@ -1,19 +1,20 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
+import DataCollectionForm from "./DataCollectionForm";
 import DetailsForm from "./DetailsForm";
 import NewsletterForm from "./NewsletterForm";
 import AppsmithLogo from "assets/images/appsmith_logo.png";
 import {
-  WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
+  WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_FORM_EMAIL_FIELD_NAME,
   WELCOME_FORM_NAME,
   WELCOME_FORM_NAME_FIELD_NAME,
   WELCOME_FORM_PASSWORD_FIELD_NAME,
   WELCOME_FORM_ROLE_FIELD_NAME,
   WELCOME_FORM_ROLE_NAME_FIELD_NAME,
-  WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
+  WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
 } from "@appsmith/constants/forms";
 import {
   FormErrors,
@@ -25,6 +26,7 @@ import {
 import { isEmail, isStrongPassword } from "utils/formhelpers";
 import { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
+import { useState } from "react";
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -207,6 +209,7 @@ function SetupForm(props: SetupFormProps) {
             <DetailsForm {...props} onNext={onNext} />
           </SetupStep>
           <SetupStep active={!showDetailsForm}>
+            <DataCollectionForm />
             <NewsletterForm />
           </SetupStep>
         </form>
