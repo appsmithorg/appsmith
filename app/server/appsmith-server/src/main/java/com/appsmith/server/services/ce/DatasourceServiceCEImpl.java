@@ -490,7 +490,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""));
         DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
         if (dsConfig != null && dsConfig.getAuthentication() != null && dsConfig.getAuthentication() instanceof OAuth2) {
-            analyticsProperties.put("oauthStatus", dsConfig.getAuthentication().getAuthenticationStatus());
+            analyticsProperties.put("oAuthStatus", dsConfig.getAuthentication().getAuthenticationStatus());
         }
         return analyticsProperties;
     }

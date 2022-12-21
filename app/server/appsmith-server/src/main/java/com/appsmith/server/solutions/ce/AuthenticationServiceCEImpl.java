@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.SSLHelper;
@@ -9,7 +10,6 @@ import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
@@ -377,15 +377,12 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     error -> new AppsmithException(
                                             AppsmithError.AUTHENTICATION_FAILURE,
                                             "Unable to connect to Appsmith authentication server."
-                                    ))
-                            .onErrorMap(AppsmithException.class, error -> {
-                                datasourceMono.flatMap(datasource -> {
-                                        datasource.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
-                                        return datasourceService.update(datasource.getId(), datasource);
-                                });
-                                return error;
-                            });
-                });
+                                    ));
+                })
+                .onErrorResume(AppsmithException.class, error -> datasourceMono.flatMap(datasource -> {
+                    datasource.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
+                    return datasourceService.update(datasource.getId(), datasource).then(Mono.error(error));
+                }));
     }
 
     public Mono<Datasource> getAccessTokenFromCloud(String datasourceId, String appsmithToken) {
@@ -449,13 +446,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 AppsmithError.AUTHENTICATION_FAILURE,
                                 "Unable to connect to Appsmith authentication server."
                         ))
-                .onErrorMap(AppsmithException.class, error -> {
-                    datasourceMono.flatMap(datasource -> {
-                        datasource.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
-                        return datasourceService.update(datasource.getId(), datasource);
-                    });
-                    return error;
-                });
+                .onErrorResume(BaseException.class, error -> datasourceMono.flatMap(datasource -> {
+                    datasource.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
+                    return datasourceService.update(datasourceId, datasource).then(Mono.error(error));
+                }));
     }
 
     public Mono<Datasource> refreshAuthentication(Datasource datasource) {
