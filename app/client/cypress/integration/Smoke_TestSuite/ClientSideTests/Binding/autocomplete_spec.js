@@ -34,11 +34,7 @@ describe("Dynamic input autocomplete", () => {
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
           .should("have.text", "Button1.text");
-        /*  
-        cy.testJsontext("label", "{{garbage", {
-          parseSpecialCharSequences: true,
-        });
-        */
+
         cy.testJsontext("label", "", {
           parseSpecialCharSequences: true,
         });
