@@ -338,6 +338,20 @@ export const toggleSaveActionFromPopupFlag = (isDSSavedFromPopup: boolean) => {
   };
 };
 
+export const setDefaultKeyValPairFlag = (defaultKeyValArrayConfig: string) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET,
+    payload: defaultKeyValArrayConfig,
+  };
+};
+
+export const resetDefaultKeyValPairFlag = () => {
+  return {
+    type: ReduxActionTypes.RESET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET,
+    payload: [],
+  };
+};
+
 export default {
   fetchDatasources,
   initDatasourcePane,

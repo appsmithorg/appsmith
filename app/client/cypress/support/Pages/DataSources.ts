@@ -1,4 +1,5 @@
 import datasourceFormData from "../../fixtures/datasources.json";
+import datasourceEditor from "../../locators/DatasourcesEditor.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 const DataSourceKVP = {
@@ -113,6 +114,9 @@ export class DataSources {
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
+  _editDatasourceFromActiveTab = (dsName: string) =>
+    ".t--datasource-name:contains('" + dsName + "')";
+  private _inputControl = ".t--form-control-INPUT_TEXT input";
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
 
@@ -778,5 +782,38 @@ export class DataSources {
         false,
         0,
       );
+  }
+
+  public FillAuthenticatedAPIForm() {
+    const URL = datasourceFormData["authenticatedApiUrl"];
+    cy.get(datasourceEditor.url).type(URL);
+  }
+
+  public AddOAuth2AuthorizationCodeDetails(
+    accessTokenUrl: string,
+    clientId: string,
+    clientSecret: string,
+    authURL: string,
+  ) {
+    this.agHelper.GetNClick(datasourceEditor.authType);
+    this.agHelper.GetNClick(datasourceEditor.OAuth2);
+    this.agHelper.GetNClick(datasourceEditor.grantType);
+    this.agHelper.GetNClick(datasourceEditor.authorizationCode);
+    cy.get(datasourceEditor.accessTokenUrl).type(accessTokenUrl);
+    cy.get(datasourceEditor.clienID).type(clientId);
+    cy.get(datasourceEditor.clientSecret).type(clientSecret);
+    cy.get(datasourceEditor.authorizationURL).type(authURL);
+  }
+
+  public EditDSFromActiveTab(dsName: string) {
+    this.agHelper.GetNClick(this._editDatasourceFromActiveTab(dsName));
+  }
+
+  public FillMongoDatasourceFormWithURI(uri: string) {
+    cy.xpath(this._dropdownTitle("Use Mongo Connection String URI")).click(); //to expand the dropdown
+    cy.xpath(this._visibleTextSpan("Yes"))
+      .last()
+      .click({ force: true }); //to select the new value
+    cy.get(this._inputControl).type(uri);
   }
 }
