@@ -7,6 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { UserListing } from "./UserListing";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
+import { ListingType } from "./types";
 import { MenuItemProps } from "design-system";
 
 let container: any = null;
@@ -18,6 +19,7 @@ const props = {
   listMenuItems: [],
   keyAccessor: "",
   isLoading: false,
+  listingType: ListingType.USERS,
 };
 
 const userListingProps = {
@@ -41,6 +43,7 @@ const userListingProps = {
   ],
   keyAccessor: "id",
   isLoading: false,
+  listingType: ListingType.USERS,
 };
 
 function renderComponent() {

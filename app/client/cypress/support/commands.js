@@ -189,7 +189,9 @@ Cypress.Commands.add("DeleteApp", (appName) => {
     200,
   );
   cy.get('button span[icon="chevron-down"]').should("be.visible");
-  cy.get(homePage.searchInput).type(appName, { force: true });
+  cy.get(homePage.searchInput)
+    .clear()
+    .type(appName, { force: true });
   cy.get(homePage.applicationCard).trigger("mouseover");
   cy.get(homePage.appMoreIcon)
     .should("have.length", 1)
@@ -1908,6 +1910,22 @@ Cypress.Commands.add(
     });
   },
 );
+Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
+  cy.wait(1000); //waiting for window to load
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
+  cy.visit("/user/login");
+  cy.get(loginPage.username).should("be.visible");
+  cy.get(loginPage.username).type(uname);
+  cy.get(loginPage.password).type(pword, { log: false });
+  cy.get(loginPage.submitBtn).click();
+  cy.wait("@getMe");
+  cy.wait(3000);
+  initLocalstorage();
+});
 
 Cypress.Commands.add("CreatePage", () => {
   cy.get(pages.AddPage)

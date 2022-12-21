@@ -1,4 +1,4 @@
-export * from "ce/pages/AdminSettings/config/authentication/index";
+export * from "ce/pages/AdminSettings/config/authentication";
 import {
   config as CE_config,
   FormAuthCallout,

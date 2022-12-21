@@ -1,7 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Column, useTable, useExpanded } from "react-table";
-import { Checkbox, Icon, IconSize, Spinner } from "design-system";
+import {
+  Checkbox,
+  Icon,
+  IconSize,
+  Spinner,
+  TabComponent,
+  TabProp,
+} from "design-system";
 import { HighlightText } from "design-system";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
@@ -9,12 +16,24 @@ import {
   ApiMethodIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { RoleTreeProps } from "./types";
-import { EmptyDataState, EmptySearchResult, SaveButtonBar } from "./components";
+import { RoleProps, RoleTreeProps } from "./types";
+import {
+  EmptyDataState,
+  EmptySearchResult,
+  SaveButtonBar,
+  TabsWrapper,
+} from "./components";
 import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import { getIconLocations } from "@appsmith/selectors/aclSelectors";
+import {
+  getAclIsEditing,
+  getIconLocations,
+} from "@appsmith/selectors/aclSelectors";
 import { updateRoleById } from "@appsmith/actions/aclActions";
+import { isPermitted } from "@appsmith/utils/permissionHelpers";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import SaveOrDiscardRoleModal from "./SaveOrDiscardRoleModal";
 
 let dataToBeSent: any[] = [];
 
@@ -186,12 +205,12 @@ const CentralizedWrapper = styled.div`
   height: 250px;
 `;
 
-const TableWrapper = styled.div<{ isSaving?: boolean }>`
+const TableWrapper = styled.div<{ isEditing?: boolean }>`
   overflow-y: scroll;
-  ${({ isSaving }) =>
-    isSaving
-      ? `height: calc(100% - 84px); margin-bottom: 16px;`
-      : `height: 100%;`}
+  ${({ isEditing }) =>
+    isEditing
+      ? `height: calc(100% - 84px - 24px); margin-bottom: 16px;`
+      : `height: calc(100% - 24px)`}
 `;
 
 const IconTypes: any = {
@@ -227,7 +246,12 @@ function Table({
   loaderComponent?: JSX.Element;
   noDataComponent?: JSX.Element;
   searchValue?: string;
-  updateMyData?: (value: any, cellId: string, rowId: any) => void;
+  updateMyData?: (
+    value: any,
+    cellId: string,
+    rowId: any,
+    hoverMap: any,
+  ) => void;
   updateTabCount?: (val: number) => void;
 }) {
   const {
@@ -294,7 +318,8 @@ function Table({
               </CentralizedWrapper>
             </td>
           </tr>
-        ) : rows.length > 0 ? (
+        ) : rows.length > 0 &&
+          (!searchValue || (searchValue && filteredData.length > 0)) ? (
           rows.map((row) => {
             prepareRow(row);
             return (
@@ -333,7 +358,17 @@ function Table({
   );
 }
 
-export const makeData = (data: any, isMultiple = false) => {
+export const makeData = ({
+  data,
+  hoverMap,
+  isMultiple = false,
+  permissions,
+}: {
+  data: any[];
+  hoverMap: any;
+  permissions: string[];
+  isMultiple?: boolean;
+}) => {
   const computedData = data.map((dt: any) => {
     return dt?.entities?.map((d: any) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -345,13 +380,27 @@ export const makeData = (data: any, isMultiple = false) => {
           ? {
               id: "Header",
             }
-          : { permissions: enabled }),
+          : {
+              permissions: enabled,
+              hoverMap: enabled.map((a: any, i: number) =>
+                getEntireHoverMap(hoverMap, `${d.id}_${permissions[i]}`),
+              ),
+            }),
         ...(d.children
           ? {
               subRows:
                 Array.isArray(children) && children.length > 1
-                  ? makeData(children, true)
-                  : makeData(children),
+                  ? makeData({
+                      data: children,
+                      hoverMap,
+                      permissions,
+                      isMultiple: true,
+                    })
+                  : makeData({
+                      data: children,
+                      hoverMap,
+                      permissions,
+                    }),
             }
           : {}),
       };
@@ -372,7 +421,11 @@ export function getSearchData(data: any, searchValue: string) {
   });
 }
 
-export function getEntireMap(hoverMap: any, key: string, includeSelf = true) {
+export function getEntireHoverMap(
+  hoverMap: any,
+  key: string,
+  includeSelf = true,
+) {
   const currentKeyMap = hoverMap?.[key] || [];
   let finalMap: any[] = includeSelf
     ? [
@@ -385,9 +438,25 @@ export function getEntireMap(hoverMap: any, key: string, includeSelf = true) {
   for (const map of currentKeyMap) {
     finalMap = _.unionWith(
       finalMap,
-      getEntireMap(hoverMap, `${map?.id}_${map?.p}`),
+      getEntireHoverMap(hoverMap, `${map?.id}_${map?.p}`),
       _.isEqual,
     );
+  }
+  return finalMap;
+}
+
+export function getEntireDisableMap(map: any, rowId: string, column: string) {
+  const currentKeyMap: any = Object.fromEntries(
+    Object.entries(map).filter(([key]) => key.includes(rowId)),
+  );
+  const key = `${rowId}_${column}`;
+  const finalMap: any[] = [];
+  for (const entry in currentKeyMap) {
+    for (const trav of currentKeyMap[entry]) {
+      if (`${trav.id}_${trav.p}` === key) {
+        finalMap.push(entry);
+      }
+    }
   }
   return finalMap;
 }
@@ -508,7 +577,8 @@ export function updateData(
   newValue: any,
   cellId: string,
   rowId: string,
-  tabData: any,
+  hoverMap: any,
+  permissions: any,
 ) {
   const updatedData = [...oldData];
   const currentCellId = cellId.split("_");
@@ -520,11 +590,10 @@ export function updateData(
 
   if (rowDataToUpdate) {
     if (currentCellId[0] === rowDataToUpdate.id) {
-      const { hoverMap, permissions } = tabData;
       updatedData[parseInt(rowIdArray[0])] = updateCheckbox(
         rowDataToUpdate,
         newValue,
-        getEntireMap(hoverMap, cellId),
+        hoverMap,
         permissions,
       );
     } else if (updatedData[parseInt(rowIdArray[0])]?.subRows) {
@@ -536,7 +605,8 @@ export function updateData(
           newValue,
           cellId,
           subRowId,
-          tabData,
+          hoverMap,
+          permissions,
         ),
       };
     }
@@ -549,14 +619,25 @@ export const getIcon = (iconLocations: any[], pluginId: string) => {
   return <img alt={icon.name} src={icon.iconLocation} />;
 };
 
-export default function RolesTree(props: RoleTreeProps) {
-  const { roleId, searchValue = "", tabData } = props;
+export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
+  const {
+    dataFromProps,
+    searchValue = "",
+    setShowSaveModal,
+    showSaveModal,
+    tabData,
+  } = props;
+  const { id: roleId, isSaving, userPermissions } = props.selected;
   const [filteredData, setFilteredData] = useState([]);
-  const dataFromProps = makeData([tabData?.data]) || [];
   const [data, setData] = useState(dataFromProps);
-  const [isSaving, setIsSaving] = useState(false);
   const iconLocations = useSelector(getIconLocations);
+  const isEditing = useSelector(getAclIsEditing);
   const dispatch = useDispatch();
+
+  const canEditRole = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
+  );
 
   useEffect(() => {
     dataToBeSent = [];
@@ -578,7 +659,10 @@ export default function RolesTree(props: RoleTreeProps) {
 
   useEffect(() => {
     if (JSON.stringify(data) === JSON.stringify(dataFromProps)) {
-      setIsSaving(false);
+      dispatch({
+        type: ReduxActionTypes.ACL_IS_EDITING,
+        payload: false,
+      });
     }
   }, [data]);
 
@@ -642,9 +726,27 @@ export default function RolesTree(props: RoleTreeProps) {
         const [isChecked, setIsChecked] = React.useState(
           value === 1 ? true : false,
         );
+        const disableMap = useMemo(
+          () =>
+            isChecked && canEditRole && tabData.disableHelperMap
+              ? getEntireDisableMap(
+                  tabData.disableHelperMap,
+                  rowData.id,
+                  column,
+                )
+              : [],
+          [isChecked],
+        );
+        const [isDisabled, setIsDisabled] = useState(false);
+
+        useEffect(() => {
+          if (disableMap.length > 0 && !isDisabled) {
+            setIsDisabled(getDisabledState());
+          }
+        }, [disableMap, isChecked]);
 
         const removeHoverClass = (id: string, rIndex: number) => {
-          const values = getEntireMap(tabData.hoverMap, id);
+          const values = rowData.hoverMap[i];
           for (const val of values) {
             const allEl = document.querySelectorAll(
               `[data-cellId="${val.id}_${val.p}"]`,
@@ -659,25 +761,40 @@ export default function RolesTree(props: RoleTreeProps) {
           }
         };
 
-        const addHoverClass = (id: string, rIndex: number) => {
-          const values = getEntireMap(tabData.hoverMap, id);
-          for (const val of values) {
-            const allEl = document.querySelectorAll(
-              `[data-cellId="${val.id}_${val.p}"]`,
-            );
-            const el =
-              allEl.length > 1
-                ? allEl[rIndex]
-                : allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
-                ? allEl[0]
-                : null;
-            el?.classList.add("hover-state");
-          }
-        };
+        const addHoverClass = useCallback(
+          (id: string, rIndex: number) => {
+            const values = rowData.hoverMap[i];
+            for (const val of values) {
+              const allEl = document.querySelectorAll(
+                `[data-cellId="${val.id}_${val.p}"]`,
+              );
+              const el =
+                allEl.length > 1
+                  ? allEl[rIndex]
+                  : allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
+                  ? allEl[0]
+                  : null;
+              el?.classList.add("hover-state");
+            }
+          },
+          [tabData.hoverMap],
+        );
 
         const onChangeHandler = (e: any, cellId: string) => {
           setIsChecked(e);
-          updateMyData(e, cellId, rowId);
+          updateMyData(e, cellId, rowId, rowData.hoverMap[i]);
+        };
+
+        const getDisabledState = () => {
+          let isDisabled = false;
+          for (const i of disableMap) {
+            const el = document.querySelector(`[data-cellId="${i}"]`);
+            const input = el?.getElementsByTagName("input")[0];
+            if (input?.checked) {
+              isDisabled = true;
+            }
+          }
+          return isDisabled;
         };
 
         return rowData.permissions && rowData.permissions[i] !== -1 ? (
@@ -700,6 +817,8 @@ export default function RolesTree(props: RoleTreeProps) {
           >
             <Checkbox
               className="design-system-checkbox"
+              disabled={!canEditRole || isDisabled}
+              /* indeterminate={row.permissions[i] === 3 ? true : false} */
               isDefaultChecked={isChecked}
               onCheckChange={(value: boolean) =>
                 onChangeHandler(value, `${rowData.id}_${column}`)
@@ -721,14 +840,22 @@ export default function RolesTree(props: RoleTreeProps) {
 
   const onSaveChanges = () => {
     dispatch(updateRoleById(props.currentTabName, dataToBeSent, roleId));
-    setIsSaving(false);
     dataToBeSent = [];
+    if (showSaveModal) {
+      setShowSaveModal(false);
+    }
   };
 
   const onClearChanges = () => {
-    setIsSaving(false);
+    dispatch({
+      type: ReduxActionTypes.IS_SAVING_ROLE,
+      payload: false,
+    });
     setData(dataFromProps);
     dataToBeSent = [];
+    if (showSaveModal) {
+      setShowSaveModal(false);
+    }
   };
 
   /* We need to keep the table from resetting the pageIndex when we
@@ -737,16 +864,38 @@ export default function RolesTree(props: RoleTreeProps) {
      When our cell renderer calls updateMyData, we'll use
      the rowIndex, columnId and new value to update the
      original data */
-  const updateMyData = (newValue: any, cellId: string, rowId: any) => {
-    setIsSaving(true);
+  const updateMyData = (
+    newValue: any,
+    cellId: string,
+    rowId: any,
+    hoverMap: any,
+  ) => {
+    dispatch({
+      type: ReduxActionTypes.ACL_IS_EDITING,
+      payload: true,
+    });
     setData((old: any[]) => {
-      return updateData(old, newValue, cellId, rowId, tabData);
+      return updateData(
+        old,
+        newValue,
+        cellId,
+        rowId,
+        hoverMap,
+        tabData.permissions,
+      );
     });
   };
 
-  return (
+  const onCloseModal = () => {
+    if (showSaveModal) {
+      setShowSaveModal(false);
+      setData(data);
+    }
+  };
+
+  return data.length > 0 ? (
     <>
-      <TableWrapper isSaving={isSaving}>
+      <TableWrapper isEditing={isEditing}>
         <Table
           columns={columns}
           data={data}
@@ -756,9 +905,112 @@ export default function RolesTree(props: RoleTreeProps) {
           updateTabCount={props.updateTabCount}
         />
       </TableWrapper>
-      {isSaving && (
-        <SaveButtonBar onClear={onClearChanges} onSave={onSaveChanges} />
+      {isEditing && (
+        <SaveButtonBar
+          isLoading={isSaving}
+          onClear={onClearChanges}
+          onSave={onSaveChanges}
+        />
+      )}
+      {showSaveModal && (
+        <SaveOrDiscardRoleModal
+          disabledButtons={!canEditRole}
+          isOpen={showSaveModal}
+          onClose={onCloseModal}
+          onDiscard={onClearChanges}
+          onSave={onSaveChanges}
+        />
       )}
     </>
+  ) : (
+    <CentralizedWrapper>
+      <Spinner size={IconSize.XXL} />
+    </CentralizedWrapper>
   );
+}
+
+export function EachTab(
+  key: string,
+  searchValue: string,
+  tabs: any,
+  selected: RoleProps,
+  showSaveModal: boolean,
+  setShowSaveModal: (val: boolean) => void,
+) {
+  const [tabCount, setTabCount] = useState<number>(0);
+  const dataFromProps = useMemo(() => {
+    return (
+      makeData({
+        data: [tabs?.data],
+        hoverMap: tabs.hoverMap,
+        permissions: tabs.permissions,
+      }) || []
+    );
+  }, [tabs]);
+
+  useEffect(() => {
+    if (!searchValue) {
+      setTabCount(0);
+    }
+  }, [searchValue]);
+
+  return {
+    key,
+    title: key,
+    count: tabCount,
+    panelComponent: (
+      <RolesTree
+        currentTabName={key}
+        dataFromProps={dataFromProps}
+        searchValue={searchValue}
+        selected={selected}
+        setShowSaveModal={setShowSaveModal}
+        showSaveModal={showSaveModal}
+        tabData={tabs}
+        updateTabCount={(n) => setTabCount(n)}
+      />
+    ),
+  };
+}
+
+export default function RoleTabs(props: {
+  selected: RoleProps;
+  searchValue: string;
+}) {
+  const { searchValue, selected } = props;
+  const isEditing = useSelector(getAclIsEditing);
+  const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+
+  const tabs: TabProp[] = selected?.tabs
+    ? Object.entries(selected?.tabs).map(([key, value]) =>
+        EachTab(
+          key,
+          searchValue,
+          value,
+          selected,
+          showSaveModal,
+          setShowSaveModal,
+        ),
+      )
+    : [];
+
+  const onTabChange = (index: number) => {
+    if (isEditing && selectedTabIndex !== index) {
+      setShowSaveModal(true);
+      setSelectedTabIndex(selectedTabIndex);
+    } else {
+      setSelectedTabIndex(index);
+    }
+  };
+
+  return tabs.length > 0 ? (
+    <TabsWrapper>
+      <TabComponent
+        onSelect={onTabChange}
+        selectedIndex={selectedTabIndex}
+        tabs={tabs}
+      />
+    </TabsWrapper>
+  ) : null;
 }

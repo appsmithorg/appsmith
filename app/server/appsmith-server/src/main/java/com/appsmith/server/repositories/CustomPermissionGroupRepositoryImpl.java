@@ -15,7 +15,6 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.server.constants.Constraint.NO_RECORD_LIMIT;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
@@ -65,6 +64,32 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     }
 
     @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission permission) {
+        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).in(userIds);
+        return queryAll(
+                List.of(criteria),
+                null,
+                permission,
+                null,
+                NO_RECORD_LIMIT);
+    }
+
+    @Override
+    public Mono<Long> countAllReadablePermissionGroups() {
+        return count(List.of(), AclPermission.READ_PERMISSION_GROUPS);
+    }
+
+    public Flux<PermissionGroup> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
+        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.id)).in(ids);
+        return queryAll(
+                List.of(criteria),
+                includeFields,
+                null,
+                null,
+                NO_RECORD_LIMIT
+        );
+    }
+
     public Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user) {
         return super.getAllPermissionGroupsForUser(user);
     }

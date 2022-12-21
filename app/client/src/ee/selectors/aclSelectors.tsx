@@ -11,5 +11,21 @@ export const getRolesForInvite = (state: AppState) =>
   state.acl.inviteOptions.roles;
 export const getGroupsForInvite = (state: AppState) =>
   state.acl.inviteOptions.groups;
-export const getAclIsSaving = (state: AppState) => state.acl.isSaving;
+export const getAclIsEditing = (state: AppState) => state.acl.isEditing;
 export const getIconLocations = (state: AppState) => state.acl.iconLocations;
+
+/* for permissions - move these to their respective selectors file later */
+export const getGroupPermissions = (state: AppState) => {
+  const group = getSelectedGroup(state);
+  return group?.userPermissions || [];
+};
+
+export const getRolePermissions = (state: AppState) => {
+  const role = getSelectedRole(state);
+  return role?.userPermissions || [];
+};
+
+export const getUserPermissions = (state: AppState) => {
+  const user = getSelectedUser(state);
+  return user?.userPermissions || [];
+};

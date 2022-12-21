@@ -5376,6 +5376,7 @@ export const response2: RoleTableResponse[] = [
 export const response1: RoleProps = {
   id: "1",
   name: "HR_Appsmith",
+  isSaving: false,
   tabs: {
     "Application Resources": {
       permissions: [

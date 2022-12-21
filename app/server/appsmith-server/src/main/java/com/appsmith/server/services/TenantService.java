@@ -9,4 +9,6 @@ public interface TenantService extends TenantServiceCE {
     Mono<Tenant> findById(String id, AclPermission aclPermission);
     Mono<Tenant> save(Tenant tenant);
     Mono<Tenant> getDefaultTenant();
+
+    Mono<Tenant> getDefaultTenant(AclPermission aclPermission);
 }

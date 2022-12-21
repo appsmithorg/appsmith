@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -36,6 +35,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
+import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GROUP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -102,6 +102,10 @@ public class UserAndAccessManagementServiceTest {
                             .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
                     assertThat(adminRole).isTrue();
 
+                    boolean defaultUserRole = apiUserDto.getRoles().stream()
+                            .anyMatch(role -> DEFAULT_USER_PERMISSION_GROUP.equals(role.getName()));
+                    assertThat(defaultUserRole).isTrue();
+
                     // Also assert that anonymous user is not returned inside the list of users
                     Optional<UserForManagementDTO> anonymousUserOptional = users.stream().filter(user -> user.getUsername().equals(ANONYMOUS_USER)).findFirst();
                     assertThat(anonymousUserOptional.isPresent()).isFalse();
@@ -142,6 +146,10 @@ public class UserAndAccessManagementServiceTest {
                             .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
                     assertThat(adminRole).isTrue();
 
+                    boolean defaultUserRole = user.getRoles().stream()
+                            .anyMatch(role -> DEFAULT_USER_PERMISSION_GROUP.equals(role.getName()));
+                    assertThat(defaultUserRole).isTrue();
+
                     // Assert that name is also returned.
                     assertThat(user.getName()).isEqualTo("api_user");
 
@@ -173,10 +181,10 @@ public class UserAndAccessManagementServiceTest {
 
         User createdUser = userService.create(newUser).block();
 
-        Set<Policy> userPolicies = createdUser.getPolicies();
-        Policy policy = userPolicies.stream().findFirst().get();
-        String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
-        PermissionGroup existingPermissionGroup = permissionGroupService.findById(permissionGroupId).block();
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("deleteUserTest_valid permission group");
+        permissionGroup.setAssignedToUserIds(Set.of(createdUser.getId()));
+        PermissionGroup existingPermissionGroup = permissionGroupService.create(permissionGroup).block();
 
         UserGroup ug = new UserGroup();
         ug.setName("deleteUserTest_valid User Group");
@@ -190,10 +198,10 @@ public class UserAndAccessManagementServiceTest {
 
         StepVerifier.create(Mono.zip(existingPermissionGroupPostDeleteMono, existingGroupAfterDeleteMono))
                 .assertNext(tuple -> {
-                    PermissionGroup permissionGroup = tuple.getT1();
+                    PermissionGroup pgPostDelete = tuple.getT1();
                     UserGroup userGroup = tuple.getT2();
 
-                    assertThat(permissionGroup.getAssignedToUserIds()).doesNotContain(createdUser.getId());
+                    assertThat(pgPostDelete.getAssignedToUserIds()).doesNotContain(createdUser.getId());
                     assertThat(userGroup.getUsers()).doesNotContain(createdUserGroup.getId());
                 })
                 .verifyComplete();

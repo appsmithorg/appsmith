@@ -35,7 +35,13 @@ import {
   getRoles,
   getSelectedRole,
 } from "@appsmith/selectors/aclSelectors";
-import { RoleProps } from "./types";
+import { ListingType, RoleProps } from "./types";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const CellContainer = styled.div`
   display: flex;
@@ -58,6 +64,13 @@ export function RolesListing() {
   const [isNewRole, setIsNewRole] = useState(false);
 
   const selectedRoleId = params?.selected;
+
+  const tenantPermissions = useSelector(getTenantPermissions);
+
+  const canCreateRole = isPermitted(
+    tenantPermissions,
+    PERMISSION_TYPE.CREATE_PERMISSIONGROUPS,
+  );
 
   useEffect(() => {
     if (searchValue) {
@@ -147,9 +160,13 @@ export function RolesListing() {
   ];
 
   const onAddButtonClick = () => {
+    const newRoleName = getNextEntityName(
+      "Untitled Role ",
+      roles.map((el: any) => el.name),
+    );
     dispatch(
       createRole({
-        name: "Untitled Role",
+        name: newRoleName,
       }),
     );
     setIsNewRole(true);
@@ -191,6 +208,7 @@ export function RolesListing() {
         <>
           <PageHeader
             buttonText={createMessage(ADD_ROLE)}
+            disableButton={!canCreateRole}
             onButtonClick={onAddButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
@@ -210,6 +228,7 @@ export function RolesListing() {
             isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}
+            listingType={ListingType.ROLES}
           />
         </>
       )}

@@ -8,6 +8,11 @@ import org.springframework.stereotype.Component;
 public class DatasourcePermissionImpl extends DatasourcePermissionCEImpl implements DatasourcePermission {
 
     @Override
+    public AclPermission getActionCreatePermission() {
+        return AclPermission.CREATE_DATASOURCE_ACTIONS;
+    }
+
+    @Override
     public AclPermission getDeletePermission() {
         return AclPermission.DELETE_DATASOURCES;
     }

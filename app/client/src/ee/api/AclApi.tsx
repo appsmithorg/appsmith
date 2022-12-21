@@ -30,6 +30,7 @@ export type RoleResponsePayload = BaseAclProps & {
   }[];
   tenantId: string;
   userPermissions: string[];
+  isSaving: boolean;
 };
 
 export type RoleResponse = ApiResponse<RoleResponsePayload>;

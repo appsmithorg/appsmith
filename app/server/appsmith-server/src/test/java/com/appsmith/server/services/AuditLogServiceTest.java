@@ -138,6 +138,7 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CL
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SSO_SAML_ENABLED;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;

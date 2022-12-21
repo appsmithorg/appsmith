@@ -207,7 +207,7 @@ public class PermissionGroupServiceTest {
         StepVerifier.create(listMono)
                 .assertNext(list -> {
                     // 3 default roles per user (user@test, api_user created in setup) + 1 super admin role
-                    assertThat(list.size()).isEqualTo(7);
+                    assertThat(list.size()).isEqualTo(8);
 
                     // Assert that instance admin roles are returned
                     Optional<PermissionGroupInfoDTO> pgiDTO = list.stream()
@@ -754,7 +754,54 @@ public class PermissionGroupServiceTest {
         StepVerifier.create(updatedPermissionGroupInfoDTOMono)
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("update permission group")))
+                                throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("update role")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testFindAllByAssignedToUsers_noUserManagementPermission() {
+        User user = new User();
+        user.setEmail("testFindAllByAssignedToUsers_noUserManagementPermission@appsmith.com");
+        user.setPassword("password");
+        User createdUser = userService.create(user).block();
+
+        List<PermissionGroup> permissionGroupList = permissionGroupService
+                .findAllByAssignedToUsersIn(Set.of(createdUser.getId())).collectList().block();
+
+        List<PermissionGroup> allPermissionGroupList =
+                permissionGroupRepository.findAllByAssignedToUserIdsIn(Set.of(createdUser.getId()))
+                        .collectList().block();
+
+        boolean userMgmtRoleNotPresent = permissionGroupList.stream()
+                .anyMatch(permissionGroup -> permissionGroup.getName().startsWith(createdUser.getEmail()));
+
+        boolean userMgmtRolePresent = allPermissionGroupList.stream()
+                .anyMatch(permissionGroup -> permissionGroup.getName().startsWith(createdUser.getEmail()));
+
+        assertThat(userMgmtRoleNotPresent).isFalse();
+        assertThat(userMgmtRolePresent).isTrue();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateDefaultUserPermissionGroupAsSuperAdmin_shouldFail() {
+
+        PermissionGroup defaultUserRoleMono = userUtils.getDefaultUserPermissionGroup().block();
+
+        String updatedName = "mock-permission-group-name-2";
+        String updatedDescription = "mock-permission-group-description-2";
+        PermissionGroup permissionGroupUpdate = new PermissionGroup();
+        permissionGroupUpdate.setName(updatedName);
+        permissionGroupUpdate.setDescription(updatedDescription);
+
+        Mono<PermissionGroupInfoDTO> permissionGroupInfoDTOMono = permissionGroupService
+                .updatePermissionGroup(defaultUserRoleMono.getId(), permissionGroupUpdate);
+
+        StepVerifier.create(permissionGroupInfoDTOMono)
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithException &&
+                                throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("update role")))
                 .verify();
     }
 

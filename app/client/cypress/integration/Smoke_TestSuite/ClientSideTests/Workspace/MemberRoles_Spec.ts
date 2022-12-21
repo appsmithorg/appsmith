@@ -48,7 +48,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
-      // .should("have.length", Cypress.env("Edition") === 1 ? 1 : 2)
       .should("have.length", 1)
       .and("contain.text", `App Viewer`);
     cy.get(HomePage.closeBtn).click();
@@ -87,7 +86,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
-      // .should("have.length", Cypress.env("Edition") === 0 ? 2 : 3)
       .should("have.length", 2)
       .and("contain.text", `App Viewer`, `Developer`);
     cy.get(HomePage.closeBtn).click();
@@ -132,7 +130,6 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
-      // .should("have.length", Cypress.env("Edition") === 0 ? 3 : 4)
       .should("have.length", 3)
       .should("contain.text", `App Viewer`, `Developer`);
     cy.get(".t--dropdown-option").should("contain.text", `Administrator`);

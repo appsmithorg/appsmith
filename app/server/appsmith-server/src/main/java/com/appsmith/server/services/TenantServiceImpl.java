@@ -16,11 +16,11 @@ import javax.validation.Validator;
 
 @Service
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
-    public TenantServiceImpl(Scheduler scheduler, 
-                             Validator validator, 
-                             MongoConverter mongoConverter, 
-                             ReactiveMongoTemplate reactiveMongoTemplate, 
-                             TenantRepository repository, 
+    public TenantServiceImpl(Scheduler scheduler,
+                             Validator validator,
+                             MongoConverter mongoConverter,
+                             ReactiveMongoTemplate reactiveMongoTemplate,
+                             TenantRepository repository,
                              AnalyticsService analyticsService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
@@ -43,6 +43,11 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         return repository.findBySlug(FieldName.DEFAULT)
                 .flatMap(tenant -> repository.setUserPermissionsInObject(tenant)
                         .switchIfEmpty(Mono.just(tenant)));
+    }
+
+    @Override
+    public Mono<Tenant> getDefaultTenant(AclPermission aclPermission) {
+        return repository.findBySlug(FieldName.DEFAULT, aclPermission);
     }
 
     @Override

@@ -25,6 +25,7 @@ import {
   ACL_DELETED_SUCCESS,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
+import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 
 export function* fetchAclUsersSaga() {
   try {
@@ -744,7 +745,7 @@ export function* fetchIconLocationsSagas() {
 
 export function* InitAclSaga(action: ReduxAction<User>) {
   const user = action.payload;
-  if (user.isSuperUser) {
+  if (showAdminSettings(user)) {
     yield all([
       takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
       takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),

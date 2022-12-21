@@ -39,10 +39,13 @@ export const BOTTOM_BAR_CLEAR_BTN = () => `Clear`;
 export const ACL_INVITE_MODAL_TITLE = () => `Add Users`;
 export const ACL_INVITE_MODAL_MESSAGE = () =>
   `Add email id(s) and select group(s)`;
-/*export const INVITE_USERS_MESSAGE = () => `Invite users or groups`;
-export const INVITE_USERS_PLACEHOLDER = () => `Enter email address or group`;
+export const INVITE_USERS_MESSAGE = () => `Invite users or groups`;
+export const INVITE_USERS_PLACEHOLDER = () =>
+  `Enter email address(es) or group(s)`;
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
-  `Invalid Email address(es) or user group(s) found`;*/
+  `Invalid email address(es) or group(s) found`;
+export const MEMBERS_TAB_TITLE = (length: number) =>
+  `Users / User Groups (${length})`;
 
 // Audit logs begin
 export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";

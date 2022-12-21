@@ -17,9 +17,16 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
 
     Flux<PermissionGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields);
 
+    Flux<PermissionGroup> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
+
     Flux<PermissionGroup> findAllById(Set<String> ids, AclPermission permission);
 
     Flux<PermissionGroup> findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(String userGroupId, String workspaceId, AclPermission permission);
 
+    Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission aclPermission);
+
+    Mono<Long> countAllReadablePermissionGroups();
+
     Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user);
+
 }

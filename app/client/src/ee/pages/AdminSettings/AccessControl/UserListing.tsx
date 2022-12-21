@@ -37,13 +37,14 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAclIsLoading,
-  getAclIsSaving,
+  getAclIsEditing,
   getAllAclUsers,
   getGroupsForInvite,
   getRolesForInvite,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
-import { BaseAclProps, UserProps } from "./types";
+import { BaseAclProps, ListingType, UserProps } from "./types";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -106,7 +107,7 @@ export function UserListing() {
   const aclUsers = useSelector(getAllAclUsers);
   const selectedUser = useSelector(getSelectedUser);
   const isLoading = useSelector(getAclIsLoading);
-  const isSaving = useSelector(getAclIsSaving);
+  const isEditing = useSelector(getAclIsEditing);
   const inviteViaRoles = useSelector(getRolesForInvite);
   const inviteViaGroups = useSelector(getGroupsForInvite);
 
@@ -115,6 +116,10 @@ export function UserListing() {
   const [showModal, setShowModal] = useState(false);
 
   const selectedUserId = params?.selected;
+
+  const user = useSelector(getCurrentUser);
+
+  const canInviteUser = user?.isSuperUser;
 
   useEffect(() => {
     if (searchValue) {
@@ -168,7 +173,7 @@ export function UserListing() {
 
   const columns = [
     {
-      Header: `User (${data.length})`,
+      Header: `Users (${data.length})`,
       accessor: "username",
       Cell: function UserCell(cellProps: any) {
         return (
@@ -428,8 +433,8 @@ export function UserListing() {
       {selectedUserId && selectedUser ? (
         <UserEdit
           data-testid="acl-user-edit"
+          isEditing={isEditing}
           isLoading={isLoading}
-          isSaving={isSaving}
           onDelete={onDeleteHandler}
           searchPlaceholder="Search"
           selectedUser={selectedUser}
@@ -439,6 +444,7 @@ export function UserListing() {
           <PageHeader
             buttonText="Add Users"
             data-testid="acl-user-listing-pageheader"
+            disableButton={!canInviteUser}
             onButtonClick={onButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
@@ -459,6 +465,7 @@ export function UserListing() {
             isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}
+            listingType={ListingType.USERS}
           />
           <FormDialogComponent
             Form={WorkspaceInviteUsersForm}

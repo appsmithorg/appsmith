@@ -111,7 +111,7 @@ describe("<ActiveAllGroupsList />", () => {
       onDelete: jest.fn(),
       onBack: jest.fn(),
       isLoading: false,
-      isSaving: false,
+      isEditing: false,
       isNew: false,
     };
     const { getAllByTestId, getByText } = render(

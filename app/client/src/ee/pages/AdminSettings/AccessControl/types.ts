@@ -8,6 +8,8 @@ export type RoleProps = BaseAclProps & {
   description?: string;
   tabs?: any;
   userPermissions?: string[];
+  isSaving: boolean;
+  isEditing?: boolean;
 };
 
 export type RoleEditProps = {
@@ -37,7 +39,9 @@ export type RoleTreeProps = {
   noData?: boolean;
   updateTabCount?: (val: number) => void;
   currentTabName: string;
-  roleId: string;
+  selected: RoleProps;
+  showSaveModal: boolean;
+  setShowSaveModal: (val: boolean) => void;
 };
 
 export type ActiveAllGroupsProps = {
@@ -69,7 +73,7 @@ export type GroupEditProps = {
   selected: GroupProps;
   onDelete: any;
   isLoading: boolean;
-  isSaving: boolean;
+  isEditing: boolean;
   isNew: boolean;
 };
 
@@ -85,6 +89,7 @@ export type ListingProps = {
   keyAccessor: string;
   isLoading: boolean;
   emptyState?: JSX.Element;
+  listingType: string;
 };
 
 export type PageHeaderProps = {
@@ -100,6 +105,7 @@ export type PageHeaderProps = {
   isEditingDesc?: boolean;
   onEditDesc?: (desc: string) => void;
   searchValue: string;
+  disableButton?: boolean;
   description?: string;
 };
 
@@ -127,7 +133,7 @@ export type UserEditProps = {
   onDelete: (id: string) => void;
   searchPlaceholder: string;
   isLoading: boolean;
-  isSaving: boolean;
+  isEditing: boolean;
 };
 
 export type UpdateRoleData = {
@@ -136,3 +142,9 @@ export type UpdateRoleData = {
   name: string;
   permissions: number[];
 };
+
+export enum ListingType {
+  ROLES = "permissionGroups",
+  GROUPS = "userGroups",
+  USERS = "users",
+}

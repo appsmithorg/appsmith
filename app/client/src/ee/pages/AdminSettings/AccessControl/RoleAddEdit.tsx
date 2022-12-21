@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { MenuItemProps, TabComponent, TabProp } from "design-system";
+import { MenuItemProps } from "design-system";
 import { useHistory, useParams } from "react-router";
 import { PageHeader } from "./PageHeader";
-import { TabsWrapper } from "./components";
 import { debounce } from "lodash";
-import RolesTree from "./RolesTree";
 import {
   createMessage,
   ACL_DELETE,
@@ -13,50 +11,37 @@ import {
   ACL_EDIT_DESC,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
-import { LoaderContainer } from "pages/Settings/components";
-import { Spinner } from "@blueprintjs/core";
 import { RoleEditProps } from "./types";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { useDispatch } from "react-redux";
 import { updateRoleName } from "@appsmith/actions/aclActions";
-
-export function EachTab(
-  key: string,
-  searchValue: string,
-  value: any,
-  roleId: string,
-) {
-  const [tabCount, setTabCount] = useState<number>(0);
-
-  useEffect(() => {
-    if (!searchValue) {
-      setTabCount(0);
-    }
-  }, [searchValue]);
-
-  return {
-    key,
-    title: key,
-    count: tabCount,
-    panelComponent: (
-      <RolesTree
-        currentTabName={key}
-        roleId={roleId}
-        searchValue={searchValue}
-        tabData={value}
-        updateTabCount={(n) => setTabCount(n)}
-      />
-    ),
-  };
-}
+import { useDispatch, useSelector } from "react-redux";
+import { getRolePermissions } from "@appsmith/selectors/aclSelectors";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
+import RoleTabs from "./RolesTree";
 
 export function RoleAddEdit(props: RoleEditProps) {
-  const { isLoading, isNew = false, selected } = props;
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const { isNew = false, selected } = props;
   const [searchValue, setSearchValue] = useState("");
   const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams() as any;
+
+  const userPermissions = useSelector(getRolePermissions);
+
+  const canManageRole = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
+  );
+
+  const canDeleteRole = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.DELETE_PERMISSIONGROUPS,
+  );
+
+  const isNotDefaultUserRole = selected.name !== "Default Role For All Users";
 
   useEffect(() => {
     dispatch({
@@ -101,38 +86,30 @@ export function RoleAddEdit(props: RoleEditProps) {
   };
 
   const menuItems: MenuItemProps[] = [
-    {
-      className: "rename-menu-item",
-      icon: "edit-underline",
-      text: createMessage(ACL_RENAME),
-      label: "rename",
-    },
-    {
-      className: "rename-desc-menu-item",
-      icon: "edit-underline",
-      text: createMessage(ACL_EDIT_DESC),
-      label: "rename-desc",
-    },
-    {
+    canManageRole &&
+      isNotDefaultUserRole && {
+        className: "rename-menu-item",
+        icon: "edit-underline",
+        text: createMessage(ACL_RENAME),
+        label: "rename",
+      },
+    canManageRole &&
+      isNotDefaultUserRole && {
+        className: "rename-desc-menu-item",
+        icon: "edit-underline",
+        text: createMessage(ACL_EDIT_DESC),
+        label: "rename-desc",
+      },
+    canDeleteRole && {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHandler(),
       text: createMessage(ACL_DELETE),
       label: "delete",
     },
-  ];
+  ].filter(Boolean);
 
-  const tabs: TabProp[] = selected?.tabs
-    ? Object.entries(selected?.tabs).map(([key, value]) =>
-        EachTab(key, searchValue, value, selected.id),
-      )
-    : [];
-
-  return isLoading ? (
-    <LoaderContainer>
-      <Spinner />
-    </LoaderContainer>
-  ) : (
+  return (
     <div
       className="scrollable-wrapper role-edit-wrapper"
       data-testid="t--role-edit-wrapper"
@@ -141,7 +118,7 @@ export function RoleAddEdit(props: RoleEditProps) {
       <PageHeader
         description={selected.description}
         isEditingTitle={isNew}
-        isHeaderEditable
+        isHeaderEditable={canManageRole && isNotDefaultUserRole}
         onEditDesc={onEditDesc}
         onEditTitle={onEditTitle}
         onSearch={onSearch}
@@ -150,15 +127,7 @@ export function RoleAddEdit(props: RoleEditProps) {
         searchValue={searchValue}
         title={selected.name || ""}
       />
-      {tabs.length > 0 && (
-        <TabsWrapper>
-          <TabComponent
-            onSelect={setSelectedTabIndex}
-            selectedIndex={selectedTabIndex}
-            tabs={tabs}
-          />
-        </TabsWrapper>
-      )}
+      <RoleTabs searchValue={searchValue} selected={selected} />
     </div>
   );
 }

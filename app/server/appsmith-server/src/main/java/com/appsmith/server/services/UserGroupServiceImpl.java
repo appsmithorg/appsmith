@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
-import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
@@ -102,7 +102,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     @Override
     public Mono<UserGroupDTO> createGroup(UserGroup userGroup) {
         Mono<Boolean> isCreateAllowedMono = sessionUserService.getCurrentUser()
-                .flatMap(user -> tenantService.findById(user.getTenantId(), CREATE_PERMISSION_GROUPS))
+                .flatMap(user -> tenantService.findById(user.getTenantId(), CREATE_USER_GROUPS))
                 .map(tenant -> TRUE)
                 .switchIfEmpty(Mono.just(FALSE));
 
