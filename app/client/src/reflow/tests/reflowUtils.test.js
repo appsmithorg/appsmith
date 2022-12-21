@@ -26,6 +26,11 @@ import {
   initializeMovementLimitMap,
   checkProcessNodeForTree,
   getRelativeCollidingValue,
+  getContainerExitEdge,
+  getCollisionDirectionOfDropTarget,
+  modifyResizePosition,
+  willItCauseUndroppableState,
+  verifyMovementLimits,
 } from "../reflowUtils";
 import { HORIZONTAL_RESIZE_LIMIT, VERTICAL_RESIZE_LIMIT } from "../reflowTypes";
 
@@ -2007,5 +2012,372 @@ describe("Test reflow util methods", () => {
         ),
       ).toBe(gridProps.maxGridColumns - depth * HORIZONTAL_RESIZE_LIMIT);
     });
+  });
+
+  describe("while testing getContainerExitEdge, it should return edge direction that is closest to mouse", () => {
+    const exitContainer = {
+      id: "exit",
+      left: 20,
+      right: 60,
+      top: 20,
+      bottom: 70,
+    };
+    it("should return RIGHT if closer to right container edge", () => {
+      const mousePointer = {
+        left: 62,
+        top: 40,
+      };
+      expect(getContainerExitEdge(exitContainer, mousePointer)).toEqual(
+        ReflowDirection.RIGHT,
+      );
+    });
+
+    it("should return LEFT if closer to right container edge", () => {
+      const mousePointer = {
+        left: 19,
+        top: 40,
+      };
+      expect(getContainerExitEdge(exitContainer, mousePointer)).toEqual(
+        ReflowDirection.LEFT,
+      );
+    });
+
+    it("should return TOP if closer to top container edge", () => {
+      const mousePointer = {
+        left: 40,
+        top: 19,
+      };
+      expect(getContainerExitEdge(exitContainer, mousePointer)).toEqual(
+        ReflowDirection.TOP,
+      );
+    });
+
+    it("should return BOTTOM if closer to bottom container edge", () => {
+      const mousePointer = {
+        left: 40,
+        top: 72,
+      };
+      expect(getContainerExitEdge(exitContainer, mousePointer)).toEqual(
+        ReflowDirection.BOTTOM,
+      );
+    });
+  });
+
+  describe("test getCollisionDirectionOfDropTarget method", () => {
+    const containerSpace = {
+      id: "container",
+      left: 20,
+      right: 60,
+      top: 20,
+      bottom: 70,
+    };
+
+    it("should return current direction if it is possible push direction", () => {
+      const mousePosition = {
+        left: 63,
+        top: 75,
+      };
+      expect(
+        getCollisionDirectionOfDropTarget(
+          containerSpace,
+          ReflowDirection.LEFT,
+          mousePosition,
+        ),
+      ).toBe(ReflowDirection.LEFT);
+
+      expect(
+        getCollisionDirectionOfDropTarget(
+          containerSpace,
+          ReflowDirection.TOP,
+          mousePosition,
+        ),
+      ).toBe(ReflowDirection.TOP);
+    });
+
+    it("should return push direction if mouse is only on one edge even if direction sent is not the same", () => {
+      let mousePosition = {
+        left: 40,
+        top: 14,
+      };
+      expect(
+        getCollisionDirectionOfDropTarget(
+          containerSpace,
+          ReflowDirection.UNSET,
+          mousePosition,
+        ),
+      ).toBe(ReflowDirection.BOTTOM);
+
+      mousePosition = {
+        left: 67,
+        top: 40,
+      };
+      expect(
+        getCollisionDirectionOfDropTarget(
+          containerSpace,
+          ReflowDirection.UNSET,
+          mousePosition,
+        ),
+      ).toBe(ReflowDirection.LEFT);
+    });
+
+    it("should return push direction which is farthest from edge, if it has 2 possible directions and the direction sent is not one of them", () => {
+      let mousePosition = {
+        left: 18,
+        top: 14,
+      };
+      expect(
+        getCollisionDirectionOfDropTarget(
+          containerSpace,
+          ReflowDirection.UNSET,
+          mousePosition,
+        ),
+      ).toBe(ReflowDirection.BOTTOM);
+    });
+  });
+
+  describe("test modifyResizePosition method", () => {
+    const containerSpace = {
+      id: "container",
+      left: 20,
+      right: 60,
+      top: 20,
+      bottom: 70,
+    };
+    it("should return resized position based on direction of collision with Container's left side", () => {
+      const spacePosition = {
+        id: "id",
+        left: 10,
+        right: 30,
+        top: 15,
+        bottom: 40,
+      };
+      const resizedPosition = {
+        id: "id",
+        left: 10,
+        right: 20,
+        top: 15,
+        bottom: 40,
+      };
+
+      expect(
+        modifyResizePosition(
+          spacePosition,
+          containerSpace,
+          ReflowDirection.RIGHT,
+        ),
+      ).toEqual(resizedPosition);
+    });
+
+    it("should return resized position based on direction of collision with Container's right side", () => {
+      const spacePosition = {
+        id: "id",
+        left: 50,
+        right: 90,
+        top: 15,
+        bottom: 40,
+      };
+      const resizedPosition = {
+        id: "id",
+        left: 60,
+        right: 90,
+        top: 15,
+        bottom: 40,
+      };
+
+      expect(
+        modifyResizePosition(
+          spacePosition,
+          containerSpace,
+          ReflowDirection.LEFT,
+        ),
+      ).toEqual(resizedPosition);
+    });
+
+    it("should return resized position based on direction of collision with Container's top side", () => {
+      const spacePosition = {
+        id: "id",
+        left: 15,
+        right: 40,
+        top: 5,
+        bottom: 40,
+      };
+      const resizedPosition = {
+        id: "id",
+        left: 15,
+        right: 40,
+        top: 5,
+        bottom: 20,
+      };
+
+      expect(
+        modifyResizePosition(
+          spacePosition,
+          containerSpace,
+          ReflowDirection.BOTTOM,
+        ),
+      ).toEqual(resizedPosition);
+    });
+
+    it("should return resized position based on direction of collision with Container's bottom side", () => {
+      const spacePosition = {
+        id: "id",
+        left: 15,
+        right: 40,
+        top: 60,
+        bottom: 95,
+      };
+      const resizedPosition = {
+        id: "id",
+        left: 15,
+        right: 40,
+        top: 70,
+        bottom: 95,
+      };
+
+      expect(
+        modifyResizePosition(
+          spacePosition,
+          containerSpace,
+          ReflowDirection.TOP,
+        ),
+      ).toEqual(resizedPosition);
+    });
+
+    it("should return resized position based on direction of collision but with min heights and widths", () => {
+      let spacePosition = {
+        id: "id",
+        left: 19,
+        right: 40,
+        top: 19,
+        bottom: 95,
+      };
+      let resizedPosition = {
+        id: "id",
+        left: 19,
+        right: 40,
+        top: 19,
+        bottom: 19 + VERTICAL_RESIZE_LIMIT,
+      };
+
+      expect(
+        modifyResizePosition(
+          spacePosition,
+          containerSpace,
+          ReflowDirection.BOTTOM,
+        ),
+      ).toEqual(resizedPosition);
+
+      resizedPosition = {
+        id: "id",
+        left: 19,
+        right: 19 + HORIZONTAL_RESIZE_LIMIT,
+        top: 19,
+        bottom: 95,
+      };
+
+      expect(
+        modifyResizePosition(
+          spacePosition,
+          containerSpace,
+          ReflowDirection.RIGHT,
+        ),
+      ).toEqual(resizedPosition);
+
+      spacePosition.fixedHeight = 95 - 19;
+      expect(
+        modifyResizePosition(
+          spacePosition,
+          containerSpace,
+          ReflowDirection.BOTTOM,
+        ),
+      ).toEqual(spacePosition);
+    });
+  });
+
+  it("should test willItCauseUndroppableState method, it should return true if any value is false", () => {
+    const movementLimitMap = {
+      "1": {
+        canVerticalMove: true,
+        canHorizontalMove: true,
+      },
+      "2": {
+        canVerticalMove: true,
+        canHorizontalMove: true,
+      },
+    };
+
+    expect(willItCauseUndroppableState(movementLimitMap)).toEqual(false);
+
+    movementLimitMap["3"] = {
+      canVerticalMove: true,
+      canHorizontalMove: false,
+    };
+    expect(willItCauseUndroppableState(movementLimitMap)).toEqual(true);
+  });
+
+  it("verifyMovementLimits should check if space is colliding with any container and return movementLimits based on that", () => {
+    const movementLimits = {
+      "1": {
+        canVerticalMove: true,
+        canHorizontalMove: true,
+      },
+      "2": {
+        canVerticalMove: true,
+        canHorizontalMove: true,
+      },
+      "3": {
+        canVerticalMove: false,
+        canHorizontalMove: true,
+      },
+    };
+
+    const occupiedSpacesMap = {
+      "4": {
+        left: 50,
+        right: 70,
+        top: 60,
+        bottom: 90,
+        isDropTarget: true,
+      },
+    };
+    const spacePositionMap = {
+      "1": {
+        left: 10,
+        right: 40,
+        top: 20,
+        bottom: 50,
+      },
+      "2": {
+        left: 20,
+        right: 65,
+        top: 20,
+        bottom: 50,
+      },
+      "3": {
+        left: 90,
+        right: 110,
+        top: 20,
+        bottom: 50,
+      },
+    };
+
+    const verifiedMovementLimits = {
+      "1": {
+        canVerticalMove: true,
+        canHorizontalMove: true,
+      },
+      "2": {
+        canVerticalMove: true,
+        canHorizontalMove: true,
+      },
+      "3": {
+        canVerticalMove: false,
+        canHorizontalMove: true,
+      },
+    };
+
+    expect(
+      verifyMovementLimits(movementLimits, spacePositionMap, occupiedSpacesMap),
+    ).toEqual(verifiedMovementLimits);
   });
 });

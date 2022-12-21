@@ -8,7 +8,7 @@ import { AppState } from "@appsmith/reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import {
   getDropZoneOffsets,
@@ -28,7 +28,7 @@ import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import { XYCord } from "./useCanvasDragging";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -44,6 +44,7 @@ export type WidgetDraggingBlock = {
   widgetId: string;
   isNotColliding: boolean;
   detachFromLayout?: boolean;
+  fixedHeight?: number;
 };
 
 export const useBlocksToBeDraggedOnCanvas = ({
@@ -96,7 +97,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const selectedWidgets = useSelector(getSelectedWidgets);
   const occupiedSpaces = useSelector(getOccupiedSpacesWhileMoving, equal) || {};
   const isNewWidget = !!newWidget && !dragParent;
-  const childrenOccupiedSpaces: OccupiedSpace[] =
+  const childrenOccupiedSpaces: WidgetSpace[] =
     (dragParent && occupiedSpaces[dragParent]) || [];
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
@@ -105,6 +106,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
 
   const allWidgets = useSelector(getWidgets);
 
+  // modify the positions to have grab position on the right side for new widgets
   if (isNewWidget) {
     defaultHandlePositions.left =
       newWidget.columns * snapColumnSpace - defaultHandlePositions.left;
@@ -163,6 +165,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
             widgetId: newWidget.widgetId,
             detachFromLayout: newWidget.detachFromLayout,
             isNotColliding: true,
+            fixedHeight: newWidget.isDynamicHeight
+              ? newWidget.rows * snapRowSpace
+              : undefined,
           },
         ],
         draggingSpaces: [
@@ -190,6 +195,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           rowHeight: each.bottom - each.top,
           widgetId: each.id,
           isNotColliding: true,
+          fixedHeight: each.fixedHeight,
         })),
       };
     }

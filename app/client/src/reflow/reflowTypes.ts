@@ -42,6 +42,7 @@ export type CollisionAccessors = {
   parallelMax: SpaceAttributes;
   parallelMin: SpaceAttributes;
   mathComparator: MathComparators;
+  oppositeMathComparator: MathComparators;
   directionIndicator: 1 | -1;
   isHorizontal: boolean;
   plane: "vertical" | "horizontal";
@@ -156,6 +157,7 @@ export type PrevReflowState = {
 
 export type BlockSpace = OccupiedSpace & {
   isDropTarget?: boolean;
+  fixedHeight?: number;
 };
 
 export type SpaceMap = { [id: string]: BlockSpace };

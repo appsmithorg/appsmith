@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getContainerWidgetSpacesSelectorWhileMoving } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import {
+  BlockSpace,
   CollidingSpace,
   CollidingSpaceMap,
   GridProps,
@@ -20,6 +21,7 @@ import {
   getBottomMostRow,
   getLimitedMovementMap,
   getSpacesMapFromArray,
+  willItCauseUndroppableState,
 } from "reflow/reflowUtils";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
@@ -41,7 +43,7 @@ export type WidgetCollisionMap = {
 
 export interface ReflowInterface {
   (
-    newPositions: OccupiedSpace[],
+    newPositions: BlockSpace[],
     direction: ReflowDirection,
     stopMoveAfterLimit?: boolean,
     shouldSkipContainerReflow?: boolean,
@@ -81,15 +83,21 @@ export const useReflow = (
   );
   const widgetSpaces: WidgetSpace[] = useSelector(reflowSpacesSelector) || [];
 
+  // Store previous values of reflow results
   const prevPositions = useRef<OccupiedSpace[] | undefined>(OGPositions);
   const prevCollidingSpaces = useRef<WidgetCollidingSpaceMap>();
   const prevMovementMap = useRef<ReflowedSpaceMap>({});
   const prevSecondOrderCollisionMap = useRef<SecondOrderCollisionMap>({});
 
+  // Indicates if the Containers should be reflowed
   const shouldReflowDropTargets = useRef<boolean>(false);
+  // ref of timeout method
   const timeOutFunction = useRef<any>();
-
+  // store exit container and mouse position at exit, so that it can be used during timeout
   const exitContainer = useRef<string | undefined>(undefined);
+  const mousePointerAtContainerExit = useRef<OccupiedSpace | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     //only have it run when the user has completely stopped dragging and stopped Reflowing
@@ -105,6 +113,7 @@ export const useReflow = (
     if (!isDraggingCanvas) {
       clearTimeout(timeOutFunction.current);
       exitContainer.current = undefined;
+      mousePointerAtContainerExit.current = undefined;
     }
   }, [isReflowingGlobal, isDraggingCanvas]);
 
@@ -112,7 +121,7 @@ export const useReflow = (
   const shouldResize = true;
   return {
     reflowSpaces: (
-      newPositions: OccupiedSpace[],
+      newPositions: BlockSpace[],
       direction: ReflowDirection,
       stopMoveAfterLimit = false,
       shouldSkipContainerReflow = false,
@@ -124,13 +133,15 @@ export const useReflow = (
         spacePositionMap: SpaceMap | undefined;
       }) => void,
     ) => {
+      clearTimeout(timeOutFunction.current);
+
       const prevReflowState: PrevReflowState = {
         prevSpacesMap: getSpacesMapFromArray(prevPositions.current),
         prevCollidingSpaceMap: prevCollidingSpaces.current as CollidingSpaceMap,
         prevMovementMap: prevMovementMap.current,
         prevSecondOrderCollisionMap: prevSecondOrderCollisionMap.current,
       };
-      clearTimeout(timeOutFunction.current);
+
       const {
         collidingSpaceMap,
         movementLimitMap,
@@ -156,8 +167,11 @@ export const useReflow = (
       prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
       prevSecondOrderCollisionMap.current = secondOrderCollisionMap || {};
 
-      if (!shouldReflowDropTargets.current && !exitContainer.current)
+      //store exit container and mouse pointer if we are not reflowing drop targets and it doesn't already have a value
+      if (!shouldReflowDropTargets.current && !exitContainer.current) {
         exitContainer.current = immediateExitContainer;
+        mousePointerAtContainerExit.current = mousePosition;
+      }
 
       let correctedMovementMap = movementMap || {};
 
@@ -174,11 +188,16 @@ export const useReflow = (
         ...Object.values(collidingSpaceMap?.horizontal || []),
         ...Object.values(collidingSpaceMap?.vertical || []),
       ] as WidgetCollidingSpace[];
+
+      // Logic for container jump
       if (shouldSkipContainerReflow) {
         if (shouldRegisterContainerTimeout) {
+          // register a timeout method to trigger reflow if widget is not moved and is colliding with Droptargets
           timeOutFunction.current = setTimeout(() => {
+            //call reflow again
             const {
               collidingSpaceMap,
+              movementLimitMap,
               movementMap,
               secondOrderCollisionMap,
             } = reflow(
@@ -191,15 +210,22 @@ export const useReflow = (
               shouldResize,
               prevReflowState,
               exitContainer.current,
-              mousePosition,
+              mousePointerAtContainerExit.current || mousePosition,
               true,
               true,
             );
             exitContainer.current = undefined;
+            mousePointerAtContainerExit.current = undefined;
+
+            //if the result causes an undroppable state return
+            if (willItCauseUndroppableState(movementLimitMap)) return;
+
+            // trigger reflow action with result of reflow algorithm
             if (!isEmpty(movementMap)) {
               shouldReflowDropTargets.current = true;
               isReflowing.current = true;
               dispatch(reflowMoveAction(movementMap || {}));
+              //trigger callback if reflow action is called
               reflowAfterTimeoutCallback &&
                 reflowAfterTimeoutCallback({
                   movementMap: prevMovementMap.current,
@@ -223,9 +249,12 @@ export const useReflow = (
           )
         ) {
           shouldReflowDropTargets.current = false;
+          mousePointerAtContainerExit.current = undefined;
+          exitContainer.current = undefined;
         }
       }
 
+      //Trigger reflow action
       if (!isEmpty(correctedMovementMap)) {
         isReflowing.current = true;
         if (forceDirection) dispatch(reflowMoveAction(correctedMovementMap));
@@ -237,6 +266,7 @@ export const useReflow = (
         shouldReflowDropTargets.current = false;
       }
 
+      //calculate bottom row
       const bottomMostRow = getBottomRowAfterReflow(
         movementMap,
         getBottomMostRow(newPositions),
@@ -251,9 +281,12 @@ export const useReflow = (
         spacePositionMap,
       };
     },
+    //reset Reflow parameters when this is called, usually while resetting dragging canvas
     resetReflow: () => {
       clearTimeout(timeOutFunction.current);
       shouldReflowDropTargets.current = false;
+      mousePointerAtContainerExit.current = undefined;
+      exitContainer.current = undefined;
     },
   };
 };

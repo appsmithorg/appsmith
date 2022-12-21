@@ -1,6 +1,7 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { getMovementMap } from "./reflowHelpers";
 import {
+  BlockSpace,
   CollidingSpaceMap,
   CollisionMap,
   GridProps,
@@ -31,6 +32,7 @@ import {
   getCalculatedDirection,
   getOrientationAccessor,
   initializeMovementLimitMap,
+  verifyMovementLimits,
 } from "./reflowUtils";
 
 /**
@@ -46,12 +48,15 @@ import {
  * @param shouldResize boolean to indicate if colliding spaces should resize
  * @param prevReflowState this contains a map of reference to the key values of previous reflow method call to back trace widget movements
  * @param exitContainerId sting, Id of recent exit container
+ * @param mousePosition mouse Position on canvas grid
+ * @param shouldReflowDropTarget boolean which indicates if we should reflow drop targets
+ * @param onTimeout indicates if the reflow is called on timeout
  * @returns movement information of the dragging/resizing space and other colliding spaces
  */
 export function reflow(
-  newSpacePositions: OccupiedSpace[],
+  newSpacePositions: BlockSpace[],
   OGSpacePositions: OccupiedSpace[],
-  occupiedSpaces: OccupiedSpace[],
+  occupiedSpaces: BlockSpace[],
   direction: ReflowDirection,
   gridProps: GridProps,
   forceDirection = false,
@@ -73,7 +78,7 @@ export function reflow(
   );
 
   //initializing variables
-  const movementLimitMap: MovementLimitMap = initializeMovementLimitMap(
+  let movementLimitMap: MovementLimitMap = initializeMovementLimitMap(
     newSpacePositions,
   );
   const globalCollidingSpaces: CollidingSpaceMap = {
@@ -157,7 +162,6 @@ export function reflow(
     shouldRegisterContainerTimeout: secondaryShouldRegisterContainerTimeout,
   } = getOrientationalMovementInfo(
     primarySpacePositionMap,
-
     occupiedSpacesMap,
     currentDirection,
     !isHorizontal,
@@ -181,6 +185,15 @@ export function reflow(
       secondaryCollidingSpaces,
     );
     getShouldReflow(movementLimitMap, secondaryMovementVariablesMap, delta);
+  }
+
+  // If we are not reflowing drop targets, verify the limits of dragging widget
+  if (!shouldReflowDropTarget && newSpacePositions.length === 1) {
+    movementLimitMap = verifyMovementLimits(
+      movementLimitMap,
+      secondarySpacePositionMap,
+      occupiedSpacesMap,
+    );
   }
 
   if (!primaryIsColliding && !secondaryIsColliding) {
@@ -219,6 +232,9 @@ export function reflow(
  * @param shouldResize boolean to indicate if colliding spaces should resize
  * @param forceDirection boolean to force the direction on certain scenarios
  * @param exitContainerId string, Id of recent exit container
+ * @param shouldReflowDropTarget boolean which indicates if we should reflow drop targets
+ * @param onTimeout indicates if the reflow is called on timeout
+ * @param mousePosition mouse Position on canvas grid
  * @param maxSpaceAttributes object containing accessors for maximum and minimum dimensions in a particular direction
  * @param prevReflowState this contains a map of reference to the key values of previous reflow method call to back trace widget movements
  * @param primaryMovementMap movement map/information from previous run of the algorithm
@@ -306,11 +322,16 @@ function getOrientationalMovementInfo(
   if (!collidingSpaces.length)
     return { currSpacePositionMap, shouldRegisterContainerTimeout };
 
-  if (!primaryMovementMap && shouldReflowDropTarget) {
+  if (
+    !primaryMovementMap &&
+    shouldReflowDropTarget &&
+    Object.keys(currSpacePositionMap).length === 1
+  ) {
     changeExitContainerDirection(
       collidingSpaceMap,
       exitContainerId,
       mousePosition,
+      currSpacePositionMap,
     );
   }
 

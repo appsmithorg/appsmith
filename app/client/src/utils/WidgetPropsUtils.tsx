@@ -19,9 +19,9 @@ import { transformDSL } from "./DSLMigrations";
 import { WidgetType } from "./WidgetFactory";
 import { DSLWidget } from "widgets/constants";
 import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { GridProps } from "reflow/reflowTypes";
+import { BlockSpace, GridProps } from "reflow/reflowTypes";
 import { areIntersecting, Rect } from "./boxHelpers";
 
 export type WidgetOperationParams = {
@@ -54,7 +54,7 @@ export function getDraggingSpacesFromBlocks(
   draggingBlocks: WidgetDraggingBlock[],
   snapColumnSpace: number,
   snapRowSpace: number,
-): OccupiedSpace[] {
+): BlockSpace[] {
   const draggingSpaces = [];
   for (const draggingBlock of draggingBlocks) {
     //gets top and left position of the block
@@ -76,6 +76,10 @@ export function getDraggingSpacesFromBlocks(
       right: leftColumn + draggingBlock.width / snapColumnSpace,
       bottom: topRow + draggingBlock.height / snapRowSpace,
       id: draggingBlock.widgetId,
+      fixedHeight:
+        draggingBlock.fixedHeight !== undefined
+          ? draggingBlock.rowHeight
+          : undefined,
     });
   }
   return draggingSpaces;
@@ -100,11 +104,11 @@ export const getMousePositionsOnCanvas = (
   e: MouseEvent,
   gridProps: GridProps,
 ) => {
-  const mouseTop = Math.round(
+  const mouseTop = Math.floor(
     (e.offsetY - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
       gridProps.parentRowSpace,
   );
-  const mouseLeft = Math.round(
+  const mouseLeft = Math.floor(
     (e.offsetX - CONTAINER_GRID_PADDING - WIDGET_PADDING) /
       gridProps.parentColumnSpace,
   );
@@ -289,6 +293,15 @@ export const getSnapColumns = (): number => {
   return GridDefaults.DEFAULT_GRID_COLUMNS;
 };
 
+/**
+ * Modify the dragging Blocks to resize based on canvas edges
+ * @param draggingBlock
+ * @param snapColumnSpace
+ * @param snapRowSpace
+ * @param parentBottomRow
+ * @param canExtend
+ * @returns
+ */
 export const modifyBlockDimension = (
   draggingBlock: WidgetDraggingBlock,
   snapColumnSpace: number,
@@ -296,7 +309,17 @@ export const modifyBlockDimension = (
   parentBottomRow: number,
   canExtend: boolean,
 ) => {
-  const { columnWidth, height, left, rowHeight, top, width } = draggingBlock;
+  const {
+    columnWidth,
+    fixedHeight,
+    height,
+    left,
+    rowHeight,
+    top,
+    width,
+  } = draggingBlock;
+
+  //get left and top of widget on canvas grid
   const [leftColumn, topRow] = getDropZoneOffsets(
     snapColumnSpace,
     snapRowSpace,
@@ -309,10 +332,12 @@ export const modifyBlockDimension = (
       y: 0,
     },
   );
+
   let leftOffset = 0,
     rightOffset = 0,
     topOffset = 0,
     bottomOffset = 0;
+
   if (leftColumn < 0) {
     leftOffset = leftColumn + columnWidth > 4 ? leftColumn : 4 - columnWidth;
   } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
@@ -323,11 +348,15 @@ export const modifyBlockDimension = (
         : GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - 4;
   }
 
-  if (topRow < 0) {
+  if (topRow < 0 && fixedHeight === undefined) {
     topOffset = topRow + rowHeight > 4 ? topRow : 4 - rowHeight;
   }
 
-  if (topRow + rowHeight > parentBottomRow && !canExtend) {
+  if (
+    topRow + rowHeight > parentBottomRow &&
+    !canExtend &&
+    fixedHeight === undefined
+  ) {
     bottomOffset = parentBottomRow - topRow - rowHeight;
     bottomOffset =
       rowHeight + bottomOffset >= 4
