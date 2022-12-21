@@ -1,6 +1,6 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { uniqueId, get, isFunction, isObject } from "lodash";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
 import { Def } from "tern";
 import {
