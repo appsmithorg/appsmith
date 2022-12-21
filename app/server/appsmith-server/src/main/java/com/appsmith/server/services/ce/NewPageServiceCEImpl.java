@@ -42,6 +42,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -122,6 +123,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<PageDTO> findPageById(String pageId, AclPermission aclPermission, Boolean view) {
         return this.findById(pageId, aclPermission)
                 .flatMap(page -> getPageByViewMode(page, view));
+    }
+
+    @Override
+    public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
+        return repository.findById(pageId, aclPermission);
     }
 
     @Override
@@ -447,6 +453,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    public Flux<NewPage> findNewPagesByApplicationId(String applicationId, Optional<AclPermission> permission) {
+        return repository.findByApplicationId(applicationId, permission);
+    }
+
+    @Override
     public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
         return findNewPagesByApplicationId(applicationId, permission)
                 .flatMap(repository::archive)
@@ -509,8 +520,17 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    public Mono<NewPage> archiveWithoutPermissionById(String id) {
+        return archiveByIdEx(id, Optional.empty());
+    }
+
+    @Override
     public Mono<NewPage> archiveById(String id) {
-        Mono<NewPage> pageMono = this.findById(id, pagePermission.getDeletePermission())
+        return archiveByIdEx(id, Optional.of(pagePermission.getDeletePermission()));
+    }
+
+    public Mono<NewPage> archiveByIdEx(String id, Optional<AclPermission> permission) {
+        Mono<NewPage> pageMono = this.findById(id, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .cache();
 
@@ -590,6 +610,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
+    }
+
+    @Override
+    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
         return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
     }
 

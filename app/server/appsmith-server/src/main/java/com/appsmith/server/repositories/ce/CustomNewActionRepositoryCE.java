@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewAction> {
@@ -17,6 +18,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
 
     Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
+
+    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission);
 
     Flux<NewAction> findByPageId(String pageId);
 
@@ -37,6 +40,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             Set<String> names, String pageId, AclPermission permission);
 
     Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
+
+    Flux<NewAction> findByApplicationId(String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
 
     Flux<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
 
