@@ -32,7 +32,7 @@ jobs:
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
-          echo "run_result_env=$run_result_env" >> $GITHUB_OUTPUT
+          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
         
       - name: Check previous run result
         env:
