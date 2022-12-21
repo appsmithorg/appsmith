@@ -115,13 +115,13 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${invalidURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.disabled");
-
-    cy.get(gitSyncLocators.gitRepoInput).type(
-      `{selectAll}git@github.com:${owner}/${repoName}.git`,
-    );
-    cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO()).should(
-      "not.exist",
-    );
+    cy.get("@remoteUrl").then((remoteUrl) => {
+      _.agHelper.TypeText(_.gitSync._gitRepoInput, remoteUrl);
+      _.agHelper.AssertContains(
+        Cypress.env("MESSAGES").PASTE_SSH_URL_INFO(),
+        "not.exist",
+      );
+    });
     cy.get(gitSyncLocators.connectSubmitBtn).should("not.be.disabled");
   });
 
@@ -211,11 +211,9 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.connectSubmitBtn).scrollIntoView();
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.visible");
 
-    cy.get(gitSyncLocators.gitRepoInput)
-      .scrollIntoView()
-      .type(`{selectAll}git@github.com:${owner}-test/${repoName}.git`, {
-        force: true,
-      });
+    cy.get("@remoteUrl").then((remoteUrl) => {
+      _.agHelper.TypeText(_.gitSync._gitRepoInput, remoteUrl);
+    });
     cy.get(gitSyncLocators.connectSubmitBtn)
       .scrollIntoView()
       .click();
@@ -226,11 +224,9 @@ describe("Git sync modal: connect tab", function() {
       // todo check for error msg based on the context
     });
 
-    cy.get(gitSyncLocators.gitRepoInput)
-      .scrollIntoView()
-      .type(`{selectAll}git@github.com:${owner}/${repoName}.git`, {
-        force: true,
-      });
+    cy.get("@remoteUrl").then((remoteUrl) => {
+      _.agHelper.TypeText(_.gitSync._gitRepoInput, remoteUrl);
+    });
 
     cy.request({
       method: "POST",
