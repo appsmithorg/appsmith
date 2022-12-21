@@ -346,14 +346,6 @@ describe("DataTreeEvaluator", () => {
     {},
   );
   const unEvalTree: UnEvalTree = {
-    appsmith: {
-      mode: "EDIT",
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
-      store: {},
-      theme: {},
-    },
     Text1: generateDataTreeWidget(
       {
         ...BASE_WIDGET,
