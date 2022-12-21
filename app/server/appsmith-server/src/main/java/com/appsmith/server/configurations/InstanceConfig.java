@@ -90,7 +90,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         switch (currentInstanceSchemaVersion) {
             // Example, we expect that in v1.8.14, all instances will have been migrated to instanceSchemaVer 2
             case 1:
-                versions.add("v1.8.14");
+                versions.add("v1.9");
             default:
         }
 
