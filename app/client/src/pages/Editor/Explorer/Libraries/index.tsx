@@ -228,7 +228,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
   }, [lib.accessor]);
 
   const [isOpen, open] = React.useState(false);
-  const docsURL = lib.docsURL || docsURLMap[lib.url || ""];
+  const docsURL = docsURLMap[lib.url || ""] || lib.docsURL;
   return (
     <Library className={`t--installed-library-${lib.name}`}>
       <div className="flex flex-row items-center h-full">
