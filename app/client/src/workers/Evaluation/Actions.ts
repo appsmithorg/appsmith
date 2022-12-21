@@ -11,7 +11,7 @@ import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
-  AsyncFunctionCalledInSyncFieldError,
+  ActionCalledInSyncFieldError,
   isAction,
   isAppsmithEntity,
   isTrueObject,
@@ -402,7 +402,7 @@ export const pusher = function(
   if (!self.ALLOW_ASYNC) {
     self.IS_ASYNC = true;
     const actionName = ActionTriggerFunctionNames[actionDescription.type];
-    throw new AsyncFunctionCalledInSyncFieldError(actionName);
+    throw new ActionCalledInSyncFieldError(actionName);
   }
   const { executionType, payload, type } = actionDescription;
   const actionPayload = {

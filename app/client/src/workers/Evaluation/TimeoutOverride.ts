@@ -1,6 +1,6 @@
 import { createEvaluationContext } from "./evaluate";
 import { dataTreeEvaluator } from "./evaluation.worker";
-import { AsyncFunctionCalledInSyncFieldError } from "./evaluationUtils";
+import { ActionCalledInSyncFieldError } from "./evaluationUtils";
 
 export const _internalSetTimeout = self.setTimeout;
 export const _internalClearTimeout = self.clearTimeout;
@@ -12,7 +12,7 @@ export default function overrideTimeout() {
     value: function(cb: (...args: any) => any, delay: number, ...args: any) {
       if (!self.ALLOW_ASYNC) {
         self.IS_ASYNC = true;
-        throw new AsyncFunctionCalledInSyncFieldError("setTimeout");
+        throw new ActionCalledInSyncFieldError("setTimeout");
       }
       const globalData = createEvaluationContext({
         dataTree: dataTreeEvaluator?.evalTree || {},
@@ -36,7 +36,7 @@ export default function overrideTimeout() {
     value: function(timerId: number) {
       if (!self.ALLOW_ASYNC) {
         self.IS_ASYNC = true;
-        throw new AsyncFunctionCalledInSyncFieldError("clearTimeout");
+        throw new ActionCalledInSyncFieldError("clearTimeout");
       }
       return _internalClearTimeout(timerId);
     },

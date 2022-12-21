@@ -818,7 +818,7 @@ export class FoundPromiseInSyncEvalError extends Error {
   }
 }
 
-export class AsyncFunctionCalledInSyncFieldError extends Error {
+export class ActionCalledInSyncFieldError extends Error {
   constructor(actionName: string) {
     super(actionName);
 
