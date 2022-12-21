@@ -4,6 +4,7 @@ import { WorkerRequest } from "workers/common/types";
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
+  UPDATE_LINT_GLOBALS = "UPDATE_LINT_GLOBALS",
 }
 
 export interface LintTreeResponse {
