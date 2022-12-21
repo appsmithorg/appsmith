@@ -59,23 +59,33 @@ export type LevelData = {
   [level: string]: {
     currentIndex: number;
     currentItem: string;
-    currentRowCache: MetaWidgetRowCache;
+    currentRowCache: LevelDataRowCache;
     autocomplete: Record<string, unknown>;
   };
 };
 
 export type MetaWidgetCacheProps = {
   entityDefinition: Record<string, string> | string;
-  rowIndex: number;
   metaWidgetId: string;
   metaWidgetName: string;
-  viewIndex: number;
+  originalMetaWidgetId: string;
+  originalMetaWidgetName: string;
+  prevRowIndex?: number;
+  rowIndex: number;
   templateWidgetId: string;
   templateWidgetName: string;
   type: string;
+  viewIndex: number;
 };
 
+type LevelDataMetaWidgetCacheProps = Omit<
+  MetaWidgetCacheProps,
+  "originalMetaWidgetId" | "originalMetaWidgetName"
+>;
+
 export type MetaWidgetRowCache = Record<string, MetaWidgetCacheProps>;
+
+type LevelDataRowCache = Record<string, LevelDataMetaWidgetCacheProps>;
 
 export type MetaWidgetCache = {
   [key: string]: MetaWidgetRowCache | undefined;
@@ -716,9 +726,9 @@ class ListWidget extends BaseWidget<
     updates: BatchPropertyUpdatePayload,
     shouldReplay: boolean,
   ) => {
-    const {
-      templateWidgetId,
-    } = this.metaWidgetGenerator.getCacheByMetaWidgetId(metaWidgetId);
+    const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
+      metaWidgetId,
+    );
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.batchUpdateWidgetProperty?.(widgetId, updates, shouldReplay);
@@ -729,9 +739,9 @@ class ListWidget extends BaseWidget<
     metaWidgetId: string,
     payload: any,
   ) => {
-    const {
-      templateWidgetId,
-    } = this.metaWidgetGenerator.getCacheByMetaWidgetId(metaWidgetId);
+    const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
+      metaWidgetId,
+    );
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.updateWidget?.(operation, widgetId, payload);
@@ -742,9 +752,9 @@ class ListWidget extends BaseWidget<
     propertyName: string,
     propertyValue: any,
   ) => {
-    const {
-      templateWidgetId,
-    } = this.metaWidgetGenerator.getCacheByMetaWidgetId(metaWidgetId);
+    const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
+      metaWidgetId,
+    );
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.updateWidgetProperty?.(widgetId, propertyName, propertyValue);
@@ -754,9 +764,9 @@ class ListWidget extends BaseWidget<
     metaWidgetId: string,
     propertyPaths: string[],
   ) => {
-    const {
-      templateWidgetId,
-    } = this.metaWidgetGenerator.getCacheByMetaWidgetId(metaWidgetId);
+    const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
+      metaWidgetId,
+    );
     const widgetId = templateWidgetId || metaWidgetId;
 
     this.context?.deleteWidgetProperty?.(widgetId, propertyPaths);

@@ -54,7 +54,7 @@ export type GeneratorOptions = {
   widgetName: string;
 };
 
-type ConstructorProps = {
+export type ConstructorProps = {
   getWidgetCache: () => MetaWidgetCache | undefined;
   infiniteScroll: boolean;
   isListCloned: boolean;
@@ -114,9 +114,10 @@ type AddDynamicPathsPropertiesOptions = {
 };
 
 enum MODIFICATION_TYPE {
-  UPDATE_CONTAINER = "UPDATE_CONTAINER",
-  REGENERATE_META_WIDGETS = "REGENERATE_META_WIDGETS",
   LEVEL_DATA_UPDATED = "LEVEL_DATA_UPDATED",
+  PAGE_NO_UPDATED = "PAGE_NO_UPDATED",
+  REGENERATE_META_WIDGETS = "REGENERATE_META_WIDGETS",
+  UPDATE_CONTAINER = "UPDATE_CONTAINER",
 }
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
@@ -162,7 +163,7 @@ class MetaWidgetGenerator {
   private isListCloned: ConstructorProps["isListCloned"];
   private level: ConstructorProps["level"];
   private levelData: GeneratorOptions["levelData"];
-  private metaIdToCacheMap: Record<string, string>;
+  private metaIdToTemplateIdMap: Record<string, string>;
   private modificationsQueue: Queue<MODIFICATION_TYPE>;
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
   private pageNo?: number;
@@ -178,6 +179,7 @@ class MetaWidgetGenerator {
   private serverSidePagination: GeneratorOptions["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
   private templateBottomRow: GeneratorOptions["templateBottomRow"];
+  private templateWidgetCandidates: Set<string>;
   private templateWidgetStatus: TemplateWidgetStatus;
   private virtualizer?: VirtualizerInstance;
   private widgetName: GeneratorOptions["widgetName"];
@@ -198,7 +200,7 @@ class MetaWidgetGenerator {
     this.isListCloned = props.isListCloned;
     this.level = props.level;
     this.levelData = undefined;
-    this.metaIdToCacheMap = {};
+    this.metaIdToTemplateIdMap = {};
     this.onVirtualListScroll = props.onVirtualListScroll;
     this.pageNo = 1;
     this.pageSize = 0;
@@ -212,6 +214,7 @@ class MetaWidgetGenerator {
     this.scrollElement = null;
     this.setWidgetCache = props.setWidgetCache;
     this.templateBottomRow = DEFAULT_TEMPLATE_BOTTOM_ROW;
+    this.templateWidgetCandidates = new Set();
     this.templateWidgetStatus = {
       added: new Set(),
       updated: new Set(),
@@ -293,6 +296,7 @@ class MetaWidgetGenerator {
     ) {
       // Reset
       this.currViewMetaWidgetIds = [];
+      this.templateWidgetCandidates = new Set();
 
       this.generateWidgetCacheForContainerParent(containerParentWidget);
       this.updateTemplateWidgetStatus();
@@ -430,7 +434,8 @@ class MetaWidgetGenerator {
       };
     }
 
-    const { metaWidgetId, metaWidgetName } = metaCacheProps || {};
+    const { metaWidgetId, metaWidgetName, originalMetaWidgetId } =
+      metaCacheProps || {};
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
     const viewIndex = this.getViewIndex(rowIndex);
 
@@ -474,6 +479,7 @@ class MetaWidgetGenerator {
     metaWidget.children = children;
     metaWidget.parentId = parentId;
     metaWidget.referencedWidgetId = templateWidgetId;
+    metaWidget.generatedWidgetId = originalMetaWidgetId;
 
     return {
       childMetaWidgets,
@@ -538,24 +544,25 @@ class MetaWidgetGenerator {
       if (templateWidgetId === this.containerParentId) return;
 
       const currentCache = rowCache[templateWidgetId] || {};
-      const metaWidgetId = isClonedRow
-        ? currentCache.metaWidgetId || this.generateMetaWidgetId()
-        : templateWidgetId;
-
-      const metaWidgetName = isClonedRow
-        ? `${this.widgetName}_${templateWidgetName}_${metaWidgetId}`
-        : templateWidgetName;
-
+      const metaWidgetId =
+        currentCache.metaWidgetId || this.generateMetaWidgetId();
+      const metaWidgetName = `${this.widgetName}_${templateWidgetName}_${metaWidgetId}`;
       const entityDefinition =
         currentCache.entityDefinition ||
         this.getPropertiesOfWidget(metaWidgetName, type);
 
-      this.currViewMetaWidgetIds.push(metaWidgetId);
+      if (!isClonedRow) {
+        this.templateWidgetCandidates.add(metaWidgetId);
+        this.currViewMetaWidgetIds.push(templateWidgetId);
+      } else {
+        this.currViewMetaWidgetIds.push(metaWidgetId);
+      }
 
-      this.metaIdToCacheMap[metaWidgetId] = `${key}.${templateWidgetId}`;
+      this.metaIdToTemplateIdMap[metaWidgetId] = templateWidgetId;
 
       updatedRowCache[templateWidgetId] = {
         entityDefinition,
+        prevRowIndex: currentCache.rowIndex,
         rowIndex,
         metaWidgetId,
         metaWidgetName,
@@ -563,6 +570,8 @@ class MetaWidgetGenerator {
         templateWidgetId,
         templateWidgetName,
         type,
+        originalMetaWidgetId: metaWidgetId,
+        originalMetaWidgetName: metaWidgetName,
       };
     });
 
@@ -602,6 +611,8 @@ class MetaWidgetGenerator {
         entityDefinition: {},
         templateWidgetId: containerParentId,
         templateWidgetName: containerParentName,
+        originalMetaWidgetId: metaWidgetId,
+        originalMetaWidgetName: metaWidgetName,
       };
 
       this.setRowCache(ROOT_ROW_KEY, {
@@ -650,13 +661,31 @@ class MetaWidgetGenerator {
     const currentRowCache = this.getRowCacheGroupByTemplateWidgetName(key);
     const metaContainers = this.getMetaContainers();
     const metaContainerName = metaContainers.names[0];
+    const blacklistedCacheKeys = [
+      "originalMetaWidgetId",
+      "originalMetaWidgetName",
+      "prevRowIndex",
+    ];
+    const rowCache = Object.entries(currentRowCache).reduce(
+      (newRowCache, entry) => {
+        const [metaWidgetName, cache] = entry;
+
+        newRowCache[metaWidgetName] = omit(
+          cache,
+          blacklistedCacheKeys,
+        ) as MetaWidgetCacheProps;
+
+        return newRowCache;
+      },
+      {} as Record<string, MetaWidgetCacheProps | undefined>,
+    );
 
     metaWidget.levelData = {
       ...this.levelData,
       [`level_${this.level}`]: {
         currentIndex,
         currentItem,
-        currentRowCache,
+        currentRowCache: rowCache,
         autocomplete: {
           currentItem: data?.[0],
           // Uses any one of the row's container present on the List widget to
@@ -947,6 +976,10 @@ class MetaWidgetGenerator {
     if (this.levelData !== nextOptions.levelData) {
       this.modificationsQueue.add(MODIFICATION_TYPE.LEVEL_DATA_UPDATED);
     }
+
+    if (this.pageNo !== nextOptions.pageNo) {
+      this.modificationsQueue.add(MODIFICATION_TYPE.PAGE_NO_UPDATED);
+    }
   };
 
   private flushModificationQueue = () => {
@@ -970,9 +1003,11 @@ class MetaWidgetGenerator {
   };
 
   private isClonedRow = (rowIndex: number) => {
+    const viewIndex = this.getViewIndex(rowIndex);
+
     return (
       this.renderMode === RenderModes.PAGE ||
-      (this.renderMode === RenderModes.CANVAS && rowIndex !== 0) ||
+      (this.renderMode === RenderModes.CANVAS && viewIndex !== 0) ||
       this.isListCloned
     );
   };
@@ -991,14 +1026,14 @@ class MetaWidgetGenerator {
     templateWidgetId: string,
     key: string,
   ) => {
-    const { metaWidgetId, type } =
+    const { metaWidgetId, prevRowIndex, rowIndex, type } =
       this.getRowTemplateCache(key, templateWidgetId) || {};
     const { added, removed, unchanged } = this.templateWidgetStatus;
     const templateWidgetsAddedOrRemoved = added.size > 0 || removed.size > 0;
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
     const isMetaWidgetPresentInCurrentView =
       metaWidgetId && this.prevViewMetaWidgetIds.includes(metaWidgetId);
-    const isTemplateWidgetChanged = !unchanged.has(templateWidgetId);
+    const hasTemplateWidgetChanged = !unchanged.has(templateWidgetId);
     const containerUpdateRequired = this.modificationsQueue.has(
       MODIFICATION_TYPE.UPDATE_CONTAINER,
     );
@@ -1007,6 +1042,10 @@ class MetaWidgetGenerator {
     );
     const shouldMainContainerUpdate =
       templateWidgetsAddedOrRemoved || containerUpdateRequired;
+    const pageNoUpdated = this.modificationsQueue.has(
+      MODIFICATION_TYPE.PAGE_NO_UPDATED,
+    );
+    const isClonedRow = this.isClonedRow(rowIndex || 0);
 
     /**
      * true only when
@@ -1020,14 +1059,19 @@ class MetaWidgetGenerator {
      * is true (levelData should be updated in this case).
      * or
      * if nested primary widget type (list widget) and levelData updated.
+     * or
+     * the position of the item shuffled
+     * or
+     * template row and pageNo updated (induces currentIndex change)
      */
-
     return (
       (isMainContainerWidget && shouldMainContainerUpdate) ||
       !isMetaWidgetPresentInCurrentView ||
-      isTemplateWidgetChanged ||
+      hasTemplateWidgetChanged ||
       (type === this.primaryWidgetType && templateWidgetsAddedOrRemoved) ||
-      (type === this.primaryWidgetType && levelDataUpdated)
+      (type === this.primaryWidgetType && levelDataUpdated) ||
+      rowIndex !== prevRowIndex ||
+      (!isClonedRow && pageNoUpdated)
     );
   };
 
@@ -1111,7 +1155,23 @@ class MetaWidgetGenerator {
   };
 
   private getRowTemplateCache = (key: string, templateWidgetId: string) => {
-    return this.getRowCache(key)?.[templateWidgetId];
+    const templateCache = this.getRowCache(key)?.[templateWidgetId];
+
+    if (
+      templateCache &&
+      this.renderMode === RenderModes.CANVAS &&
+      this.templateWidgetCandidates.has(templateCache.metaWidgetId)
+    ) {
+      const { templateWidgetId, templateWidgetName, type } = templateCache;
+      return {
+        ...templateCache,
+        metaWidgetId: templateWidgetId,
+        metaWidgetName: templateWidgetName,
+        entityDefinition: this.getPropertiesOfWidget(templateWidgetName, type),
+      };
+    }
+
+    return templateCache;
   };
 
   private getRowCache = (key: string) => {
@@ -1132,44 +1192,50 @@ class MetaWidgetGenerator {
 
   private getReferencesEntityDefMap = (value: string, key: string) => {
     const metaWidgetsMap = this.getRowCacheGroupByTemplateWidgetName(key);
-
-    // All the template widget names
-    const templateWidgetNames = Object.keys(metaWidgetsMap);
     const dependantBinding: Record<string, string> = {};
 
-    /**
-     * Loop through all the template widget names and check if the
-     * property have uses any of the template widgets name
-     * Eg -
-     *  property value -> "{{currentView.Input1.value}}"
-     *  templateWidgetNames -> ["Text1", "Input1", "Image1"]
-     *  dependantTemplateWidgets -> ["Input1"]
-     */
-    templateWidgetNames.filter((templateWidgetName) => {
-      if (value.includes(templateWidgetName)) {
-        const dependantMetaWidget = metaWidgetsMap[templateWidgetName];
+    if (metaWidgetsMap) {
+      // All the template widget names
+      const templateWidgetNames = Object.keys(metaWidgetsMap);
 
-        // "Input1: { value: List1_Input1_1.value, text: List1_Input1_1.text }"
-        dependantBinding[templateWidgetName] = `
-          ${templateWidgetName}: {${dependantMetaWidget.entityDefinition}}
-        `;
-      }
-    });
+      /**
+       * Loop through all the template widget names and check if the
+       * property have uses any of the template widgets name
+       * Eg -
+       *  property value -> "{{currentView.Input1.value}}"
+       *  templateWidgetNames -> ["Text1", "Input1", "Image1"]
+       *  dependantTemplateWidgets -> ["Input1"]
+       */
+      templateWidgetNames.filter((templateWidgetName) => {
+        if (value.includes(templateWidgetName)) {
+          const dependantMetaWidget = metaWidgetsMap[templateWidgetName];
 
+          // "Input1: { value: List1_Input1_1.value, text: List1_Input1_1.text }"
+          dependantBinding[templateWidgetName] = `
+            ${templateWidgetName}: {${dependantMetaWidget?.entityDefinition ||
+            ""}}
+          `;
+        }
+      });
+    }
     return dependantBinding;
   };
 
   private getRowCacheGroupByTemplateWidgetName = (key: string) => {
-    // Get all meta widgets for a key
-    const metaWidgetsRowCache = this.getRowCache(key) || {};
-    // For all the meta widgets, create a map between the template widget name and
+    // For all the template widgets, create a map between the template widget name and
     // the meta widget cache data
 
-    return Object.values(metaWidgetsRowCache).reduce((acc, currMetaWidget) => {
-      acc[currMetaWidget.templateWidgetName] = currMetaWidget;
+    return Object.values(this.currTemplateWidgets || {}).reduce(
+      (acc, templateWidget) => {
+        acc[templateWidget.widgetName] = this.getRowTemplateCache(
+          key,
+          templateWidget.widgetId,
+        );
 
-      return acc;
-    }, {} as Record<string, MetaWidgetCacheProps>);
+        return acc;
+      },
+      {} as Record<string, MetaWidgetCacheProps | undefined>,
+    );
   };
 
   getMetaContainers = () => {
@@ -1217,20 +1283,19 @@ class MetaWidgetGenerator {
     return hash(dataToHash, { algorithm: "md5" });
   };
 
-  getCacheByMetaWidgetId = (metaWidgetId: string) => {
-    const path = this.metaIdToCacheMap[metaWidgetId];
-
-    return get(this.getCache(), path, {}) as MetaWidgetCacheProps;
+  getTemplateWidgetIdByMetaWidgetId = (metaWidgetId: string) => {
+    return this.metaIdToTemplateIdMap[metaWidgetId];
   };
 
   private getCurrentRowMetaWidgets = (key: string) => {
     const templateWidgetIds = Object.keys(this.currTemplateWidgets || {});
-    const metaWidgetsCache = this.getRowCache(key);
 
     const metaWidgets: MetaWidgetCacheProps[] = [];
     templateWidgetIds.forEach((templateWidgetId) => {
-      if (metaWidgetsCache?.[templateWidgetId]) {
-        metaWidgets.push(metaWidgetsCache?.[templateWidgetId]);
+      const rowTemplateCache = this.getRowTemplateCache(key, templateWidgetId);
+
+      if (rowTemplateCache) {
+        metaWidgets.push(rowTemplateCache);
       }
     });
 
