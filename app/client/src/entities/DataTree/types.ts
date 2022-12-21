@@ -66,7 +66,6 @@ export interface MetaArgs {
   arguments: Variable[];
   isAsync: boolean;
   confirmBeforeExecute: boolean;
-  body: string;
 }
 
 export interface JSActionEntityConfig {
