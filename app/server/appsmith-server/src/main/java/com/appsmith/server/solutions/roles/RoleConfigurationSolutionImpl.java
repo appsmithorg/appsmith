@@ -157,6 +157,9 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         ConcurrentHashMap<String, List<AclPermission>> entityPermissionsAddedMap = new ConcurrentHashMap<>();
         ConcurrentHashMap<String, List<AclPermission>> entityPermissionsRemovedMap = new ConcurrentHashMap<>();
         ConcurrentHashMap<String, Class> entityClassMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<AclPermission>> sideEffectsPermissionsAddedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<AclPermission>> sideEffectsPermissionsRemovedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Class> sideEffectsClassMap = new ConcurrentHashMap<>();
 
         Mono<Map<Class, Set<String>>> preComputeMono = Flux.fromIterable(entitiesChanged)
                 .map(entity -> {
@@ -238,8 +241,9 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     }
 
                     // Compute the side effects for this entity and add to the list.
-                    computeSideEffectOfPermissionChange(sideEffects, tab, aClass, id, permissions, permissionGroupId,
-                            applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect, added, removed);
+                    computeSideEffectOfPermissionChange(sideEffects, tab, aClass, id, permissions,
+                            applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect, added, removed,
+                            sideEffectsPermissionsAddedMap, sideEffectsPermissionsRemovedMap, sideEffectsClassMap);
 
 
                     // Add the entity to the map of entities to be updated
@@ -272,6 +276,19 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                         }))
                 .cache();
 
+        Mono<Long> computeSideEffects = Flux.fromIterable(sideEffects)
+                .flatMap(value -> value)
+                .collectList()
+                .flatMapMany(sum -> {
+                    List<Mono<Long>> dbOpList = new ArrayList<>();
+                    sideEffectsClassMap.forEach((key, value) -> {
+                        dbOpList.add(genericDatabaseOperation.updatePolicies(key, permissionGroupId,
+                                sideEffectsPermissionsAddedMap.getOrDefault(key, List.of()),
+                                sideEffectsPermissionsRemovedMap.getOrDefault(key, List.of()), value));
+                    });
+                    return Flux.fromIterable(dbOpList);
+                }).flatMap(obj -> obj).reduce(0L, Long::sum);
+
 
         Flux<Mono<Boolean>> postAllUpdatesEffectsFlux = Flux.defer(() -> {
             if (!CollectionUtils.isEmpty(applicationsRevokedInApplicationResourcesTab)) {
@@ -290,8 +307,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
 
         return permissionGroupMono
                 .thenMany(updateEntityPoliciesFlux)
-                .thenMany(Flux.fromIterable(sideEffects))
-                .flatMap(obj -> obj)
+                .then(computeSideEffects)
                 // Post all the entity updates and side effects, now do a cleanup for affected entities at the end
                 .thenMany(postAllUpdatesEffectsFlux)
                 .flatMap(obj -> obj)
@@ -310,13 +326,17 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                 });
     }
 
-    private Mono<Long> addReadPermissionToWorkspaceGivenApplication(String applicationId, String permissionGroupId) {
+    private Mono<Long> addReadPermissionToWorkspaceGivenApplication(String applicationId,
+                                                                    ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                                    ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
         return applicationRepository.findById(applicationId)
-                .flatMap(application -> {
+                .map(application -> {
                     String workspaceId = application.getWorkspaceId();
                     // If the workspace should be given READ permission, then we need to add the READ permission
-                    return genericDatabaseOperation.updatePolicies(workspaceId, permissionGroupId, List.of(READ_WORKSPACES), List.of(), Workspace.class);
+                    sideEffectsClassMap.put(workspaceId, Workspace.class);
+                    sideEffectsAddedMap.merge(workspaceId, List.of(READ_WORKSPACES), ListUtils::union);
+                    return 1L;
                 });
     }
 
@@ -330,60 +350,75 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                                      Class<?> aClazz,
                                                      String id,
                                                      List<Integer> permissions,
-                                                     String permissionGroupId,
                                                      List<String> applicationsRevokedInApplicationResourcesTab,
                                                      Set<String> workspaceReadGivenAsSideEffect,
                                                      List<AclPermission> added,
-                                                     List<AclPermission> removed) {
+                                                     List<AclPermission> removed,
+                                                     ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                     ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                     ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
         if (tab == RoleTab.APPLICATION_RESOURCES && Application.class.equals(aClazz)) {
 
             // If the tab is application resources, and the entity is an application, then we need to
             // update the READ_WORKSPACE permission for the workspace to ensure that if atleast view access is given
             // on an application, the said application loads up on the homepage.
-            sideEffectOnReadWorkspaceGivenApplicationUpdate(sideEffects, id, permissions, permissionGroupId,
-                    applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect);
+            sideEffectOnReadWorkspaceGivenApplicationUpdate(sideEffects, id, permissions,
+                    applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect,
+                    sideEffectsAddedMap, sideEffectsClassMap);
 
             // If the application is given permissions, we should give custom theme same permissions
-            sideEffectOnCustomThemeGivenApplicationUpdate(sideEffects, id, permissionGroupId, added, removed);
+            sideEffectOnCustomThemeGivenApplicationUpdate(sideEffects, id, added, removed, sideEffectsAddedMap,
+                    sideEffectsRemovedMap, sideEffectsClassMap);
 
         } else if (tab == RoleTab.APPLICATION_RESOURCES && NewPage.class.equals(aClazz)) {
 
             // If the tab is application resources, and the entity is a page, then we need to give actions and action
             // collections execute permission if view is given on the page.
-            sideEffectOnActionsGivenPageUpdate(sideEffects, id, permissionGroupId, added, removed);
+            sideEffectOnActionsGivenPageUpdate(sideEffects, id, added, removed, sideEffectsAddedMap,
+                    sideEffectsRemovedMap, sideEffectsClassMap);
 
         } else if (tab == RoleTab.GROUPS_ROLES && PermissionGroup.class.equals(aClazz)) {
 
-            sideEffectOnAssociateRoleGivenPermissionGroupUpdate(sideEffects, id, permissionGroupId, added, removed);
+            sideEffectOnAssociateRoleGivenPermissionGroupUpdate(id, added, removed, sideEffectsAddedMap,
+                    sideEffectsRemovedMap, sideEffectsClassMap);
         } else if (tab == RoleTab.APPLICATION_RESOURCES && ActionCollection.class.equals(aClazz)) {
 
             // If the tab is application resources, and the entity is an Action Collection, then we need  to give all
             // associated actions the same permission as the entity.
-            sideEffectOnActionsGivenActionCollectionUpdate(sideEffects, id, permissionGroupId, added, removed);
+            sideEffectOnActionsGivenActionCollectionUpdate(sideEffects, id, added, removed, sideEffectsAddedMap,
+                    sideEffectsRemovedMap, sideEffectsClassMap);
         }
     }
 
     private void sideEffectOnActionsGivenActionCollectionUpdate(List<Mono<Long>> sideEffects,
                                                                 String actionCollectionId,
-                                                                String permissionGroupId,
                                                                 List<AclPermission> added,
-                                                                List<AclPermission> removed) {
+                                                                List<AclPermission> removed,
+                                                                ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                                ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                                ConcurrentHashMap<String, Class> sideEffectsClassMap) {
         List<String> includedFields = List.of(fieldName(QNewAction.newAction.id));
         Flux<String> actionFlux = newActionRepository
                 .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionId), includedFields)
                 .map(NewAction::getId);
 
-        Mono<Long> actionsUpdated = actionFlux.flatMap(actionId -> genericDatabaseOperation.updatePolicies(actionId, permissionGroupId, added, removed, NewAction.class))
-                .reduce(0L, Long::sum);
+        Mono<Long> actionsUpdated = actionFlux.map(actionId -> {
+            sideEffectsClassMap.put(actionId, NewAction.class);
+            sideEffectsAddedMap.merge(actionId, added, ListUtils::union);
+            sideEffectsRemovedMap.merge(actionId, removed, ListUtils::union);
+            return 1L;
+        }).reduce(0L, Long::sum);
         sideEffects.add(actionsUpdated);
     }
 
     private void sideEffectOnActionsGivenPageUpdate(List<Mono<Long>> sideEffects,
                                                     String pageId,
-                                                    String permissionGroupId,
                                                     List<AclPermission> added,
-                                                    List<AclPermission> removed) {
+                                                    List<AclPermission> removed,
+                                                    ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                    ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                    ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
         Mono<Long> actionsUpdated = Mono.just(0L);
         Mono<Long> actionCollectionsUpdated = Mono.just(0L);
@@ -393,18 +428,34 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
 
         if (added.contains(READ_PAGES)) {
             actionsUpdated = actionFlux
-                    .flatMap(actionId -> genericDatabaseOperation.updatePolicies(actionId, permissionGroupId, List.of(EXECUTE_ACTIONS), List.of(), NewAction.class))
+                    .map(actionId -> {
+                        sideEffectsClassMap.put(actionId, NewAction.class);
+                        sideEffectsAddedMap.merge(actionId, List.of(EXECUTE_ACTIONS), ListUtils::union);
+                        return 1L;
+                    })
                     .reduce(0L, Long::sum);
             actionCollectionsUpdated = actionCollectionFlux
-                    .flatMap(actionCollectionId -> genericDatabaseOperation.updatePolicies(actionCollectionId, permissionGroupId, List.of(EXECUTE_ACTIONS), List.of(), ActionCollection.class))
+                    .map(actionCollectionId -> {
+                        sideEffectsClassMap.put(actionCollectionId, ActionCollection.class);
+                        sideEffectsAddedMap.merge(actionCollectionId, List.of(EXECUTE_ACTIONS), ListUtils::union);
+                        return 1L;
+                    })
                     .reduce(0L, Long::sum);
 
         } else if (removed.contains(READ_PAGES)) {
             actionsUpdated = actionFlux
-                    .flatMap(actionId -> genericDatabaseOperation.updatePolicies(actionId, permissionGroupId, List.of(), List.of(EXECUTE_ACTIONS), NewAction.class))
+                    .map(actionId -> {
+                        sideEffectsClassMap.put(actionId, NewAction.class);
+                        sideEffectsRemovedMap.merge(actionId, List.of(EXECUTE_ACTIONS), ListUtils::union);
+                        return 1L;
+                    })
                     .reduce(0L, Long::sum);
             actionCollectionsUpdated = actionCollectionFlux
-                    .flatMap(actionCollectionId -> genericDatabaseOperation.updatePolicies(actionCollectionId, permissionGroupId, List.of(), List.of(EXECUTE_ACTIONS), ActionCollection.class))
+                    .map(actionCollectionId -> {
+                        sideEffectsClassMap.put(actionCollectionId, ActionCollection.class);
+                        sideEffectsRemovedMap.merge(actionCollectionId, List.of(EXECUTE_ACTIONS), ListUtils::union);
+                        return 1L;
+                    })
                     .reduce(0L, Long::sum);
         }
 
@@ -415,24 +466,29 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
 
     }
 
-    private void sideEffectOnAssociateRoleGivenPermissionGroupUpdate(List<Mono<Long>> sideEffects,
-                                                                     String id,
-                                                                     String permissionGroupId,
+    private void sideEffectOnAssociateRoleGivenPermissionGroupUpdate(String id,
                                                                      List<AclPermission> added,
-                                                                     List<AclPermission> removed) {
+                                                                     List<AclPermission> removed,
+                                                                     ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                                     ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                                     ConcurrentHashMap<String, Class> sideEffectsClassMap) {
         // If assign permission is given/taken away, we must replicate the same for unassign permission as well
         if (added.contains(ASSIGN_PERMISSION_GROUPS)) {
-            sideEffects.add(genericDatabaseOperation.updatePolicies(id, permissionGroupId, List.of(UNASSIGN_PERMISSION_GROUPS), List.of(), PermissionGroup.class));
+            sideEffectsClassMap.put(id, PermissionGroup.class);
+            sideEffectsAddedMap.merge(id, List.of(UNASSIGN_PERMISSION_GROUPS), ListUtils::union);
         } else if (removed.contains(ASSIGN_PERMISSION_GROUPS)) {
-            sideEffects.add(genericDatabaseOperation.updatePolicies(id, permissionGroupId, List.of(), List.of(UNASSIGN_PERMISSION_GROUPS), PermissionGroup.class));
+            sideEffectsClassMap.put(id, PermissionGroup.class);
+            sideEffectsRemovedMap.merge(id, List.of(UNASSIGN_PERMISSION_GROUPS), ListUtils::union);
         }
     }
 
     private void sideEffectOnCustomThemeGivenApplicationUpdate(List<Mono<Long>> sideEffects,
                                                                String applicationId,
-                                                               String permissionGroupId,
                                                                List<AclPermission> added,
-                                                               List<AclPermission> removed) {
+                                                               List<AclPermission> removed,
+                                                               ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                               ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                               ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
         Mono<Long> themeUpdateSideEffectMono = applicationRepository.findById(applicationId)
                 .flatMap(application -> {
@@ -473,12 +529,16 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                 }
 
                                 if (!editModeTheme.isSystemTheme()) {
-                                    editModeThemeUpdateMono = genericDatabaseOperation.updatePolicies(editModeThemeId,
-                                            permissionGroupId, themeAdded, themeRemoved, Theme.class);
+                                    sideEffectsClassMap.put(editModeThemeId, Theme.class);
+                                    sideEffectsAddedMap.merge(editModeThemeId, themeAdded, ListUtils::union);
+                                    sideEffectsRemovedMap.merge(editModeThemeId, themeRemoved, ListUtils::union);
+                                    editModeThemeUpdateMono = Mono.just(1L);
                                 }
                                 if (!publishedModeTheme.isSystemTheme()) {
-                                    publishedModeThemeUpdateMono = genericDatabaseOperation.updatePolicies(publishedModeThemeId,
-                                            permissionGroupId, themeAdded, themeRemoved, Theme.class);
+                                    sideEffectsClassMap.put(publishedModeThemeId, Theme.class);
+                                    sideEffectsAddedMap.merge(publishedModeThemeId, themeAdded, ListUtils::union);
+                                    sideEffectsRemovedMap.merge(publishedModeThemeId, themeRemoved, ListUtils::union);
+                                    publishedModeThemeUpdateMono = Mono.just(1L);
                                 }
 
                                 return Mono.when(editModeThemeUpdateMono, publishedModeThemeUpdateMono)
@@ -504,16 +564,17 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private void sideEffectOnReadWorkspaceGivenApplicationUpdate(List<Mono<Long>> sideEffects,
                                                                  String id,
                                                                  List<Integer> permissions,
-                                                                 String permissionGroupId,
                                                                  List<String> applicationsRevokedInApplicationResourcesTab,
-                                                                 Set<String> workspaceReadGivenAsSideEffect) {
+                                                                 Set<String> workspaceReadGivenAsSideEffect,
+                                                                 ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                                 ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
         // If any of the permissions are true in this tab for application, give workspace read so that
         // the application is visible on the home page.
         boolean anyPermissionTrue = permissions.stream().anyMatch(permission -> permission == 1);
 
         if (anyPermissionTrue && !workspaceReadGivenAsSideEffect.contains(id)) {
-            sideEffects.add(addReadPermissionToWorkspaceGivenApplication(id, permissionGroupId));
+            sideEffects.add(addReadPermissionToWorkspaceGivenApplication(id, sideEffectsAddedMap, sideEffectsClassMap));
             // Don't give the same workspace read permission again if done already.
             workspaceReadGivenAsSideEffect.add(id);
         }
