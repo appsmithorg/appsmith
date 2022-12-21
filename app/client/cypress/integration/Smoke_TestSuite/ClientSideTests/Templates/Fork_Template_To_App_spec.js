@@ -26,7 +26,14 @@ describe("Fork a template to the current app", () => {
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
       "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
-      ).click();
+    )
+      .scrollIntoView()
+      .click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(template.templateViewForkButton).length) {
+        cy.get(template.templateViewForkButton).click();
+      }
+    });
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
