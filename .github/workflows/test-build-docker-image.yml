@@ -23,7 +23,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-4-cores
     defaults:
       run:
         working-directory: app/client
@@ -404,7 +404,7 @@ jobs:
 
     # Only run if the build step is successful
     if: success()
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-4-cores
 
     defaults:
       run:
@@ -641,7 +641,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-4-cores
     defaults:
       run:
         shell: bash
@@ -682,6 +682,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
+        id: cache-appsmith
         uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
@@ -690,10 +691,17 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
-      # Fetch prior run result
       - name: Get the previous run result
+        if: steps.cache-appsmith.outputs.cache-hit == 'true'
         id: run_result
-        run: cat ~/run_result 2>/dev/null || echo 'default'
+        run: |
+          run_result_env=$(cat ~/run_result)
+          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
+          
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"    
 
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
@@ -943,7 +951,7 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: echo "failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec_fat and add a dummy file
       # This will ensure upload and download steps are successful
@@ -1104,6 +1112,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
+        id: cache-appsmith
         uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
@@ -1114,8 +1123,16 @@ jobs:
 
       # Fetch prior run result
       - name: Get the previous run result
+        if: steps.cache-appsmith.outputs.cache-hit == 'true'
         id: run_result
-        run: cat ~/run_result 2>/dev/null || echo 'default'
+        run: |
+          run_result_env=$(cat ~/run_result)
+          echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
+
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"    
 
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
@@ -1391,7 +1408,7 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: echo "failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec and add a dummy file
       # This will ensure upload and download steps are successful
@@ -1568,7 +1585,7 @@ jobs:
 
   package:
     needs: ui-test
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: ubuntu-latest
     # Set permissions since we're using OIDC token authentication between Depot and GitHub
     permissions:
       contents: read

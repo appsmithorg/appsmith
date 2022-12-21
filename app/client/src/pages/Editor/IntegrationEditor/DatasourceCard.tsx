@@ -38,7 +38,10 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
   CONFIRM_CONTEXT_DELETING,
+  GENERATE_NEW_PAGE_BUTTON_TEXT,
+  RECONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
+import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 import {
   getCurrentPageId,
   getPagePermissions,
@@ -319,26 +322,34 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            {(!datasource.isConfigured || supportTemplateGeneration) && (
-              <GenerateTemplateOrReconnect
-                category={Category.secondary}
-                className={
-                  datasource.isConfigured
-                    ? "t--generate-template"
-                    : "t--reconnect-btn"
-                }
-                onClick={
-                  datasource.isConfigured ? routeToGeneratePage : editDatasource
-                }
-                text={
-                  datasource.isConfigured ? "GENERATE NEW PAGE" : "RECONNECT"
-                }
-              />
-            )}
+            {(!datasource.isConfigured || supportTemplateGeneration) &&
+              isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
+                <GenerateTemplateOrReconnect
+                  category={Category.secondary}
+                  className={
+                    datasource.isConfigured
+                      ? "t--generate-template"
+                      : "t--reconnect-btn"
+                  }
+                  onClick={
+                    datasource.isConfigured
+                      ? routeToGeneratePage
+                      : editDatasource
+                  }
+                  text={
+                    datasource.isConfigured
+                      ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
+                      : createMessage(RECONNECT_BUTTON_TEXT)
+                  }
+                />
+              )}
             {datasource.isConfigured && (
               <NewActionButton
                 datasource={datasource}
-                disabled={!canCreateDatasourceActions}
+                disabled={
+                  !canCreateDatasourceActions ||
+                  !isDatasourceAuthorizedForQueryCreation(datasource, plugin)
+                }
                 eventFrom="active-datasources"
                 plugin={plugin}
               />
