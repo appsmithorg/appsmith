@@ -40,7 +40,7 @@ import {
   trimDependantChangePaths,
   overrideWidgetProperties,
   isValidEntity,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
   flatten,

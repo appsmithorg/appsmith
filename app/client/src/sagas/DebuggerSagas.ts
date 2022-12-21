@@ -62,7 +62,7 @@ import {
   getEntityNameAndPropertyPath,
   isAction,
   isWidget,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(

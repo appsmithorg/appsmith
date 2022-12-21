@@ -49,7 +49,7 @@ import {
   isATriggerPath,
   isJSAction,
   isWidget,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 

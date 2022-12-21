@@ -8,7 +8,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
-import { enhanceDataTreeWithFunctions } from "./Actions";
+import { enhanceDataTreeWithFunctions } from "@appsmith/workers/Evaluation/Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/Evaluation/PromisifyAction";
 import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";

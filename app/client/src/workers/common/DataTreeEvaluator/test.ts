@@ -9,7 +9,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";

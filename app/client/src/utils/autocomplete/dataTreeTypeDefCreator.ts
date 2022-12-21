@@ -9,7 +9,7 @@ import {
   isJSAction,
   isTrueObject,
   isWidget,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
 
 export type ExtraDef = Record<string, Def | string>;

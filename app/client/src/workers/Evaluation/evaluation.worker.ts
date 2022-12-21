@@ -12,7 +12,7 @@ import {
   DataTreeDiff,
   getSafeToRenderDataTree,
   removeFunctions,
-} from "./evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";

@@ -15,7 +15,7 @@ import {
   isAction,
   isJSAction,
   isWidget,
-} from "../../Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTreeAction,
   DataTreeJSAction,

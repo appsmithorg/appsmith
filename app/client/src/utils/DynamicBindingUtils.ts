@@ -10,7 +10,7 @@ import {
   getEntityNameAndPropertyPath,
   isJSAction,
   isTrueObject,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
