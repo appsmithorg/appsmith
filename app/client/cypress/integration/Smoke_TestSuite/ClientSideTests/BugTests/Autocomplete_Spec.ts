@@ -4,6 +4,7 @@ const {
   AggregateHelper: agHelper,
   CommonLocators: locator,
   EntityExplorer: ee,
+  LibraryInstaller: installer,
   PropertyPane: propPane,
 } = ObjectsRegistry;
 
@@ -66,9 +67,26 @@ describe("Autocomplete bug fixes", function() {
   it("4. feat #16426 Autocomplete for fast-xml-parser", function() {
     ee.SelectEntityByName("Text1");
     propPane.TypeTextIntoField("Text", "{{xmlParser.j");
-    agHelper.GetNAssertElementText(locator._hints, "j2xParser()");
+    agHelper.GetNAssertElementText(locator._hints, "j2xParser");
 
     propPane.TypeTextIntoField("Text", "{{new xmlParser.j2xParser().p");
-    agHelper.GetNAssertElementText(locator._hints, "parse()");
+    agHelper.GetNAssertElementText(locator._hints, "parse");
+  });
+
+  it("5. Installed library should show up in autocomplete", function() {
+    ee.ExpandCollapseEntity("Libraries");
+    installer.openInstaller();
+    installer.installLibrary("uuidjs", "UUID");
+    installer.closeInstaller();
+    ee.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{UUI");
+    agHelper.GetNAssertElementText(locator._hints, "UUID");
+  });
+
+  it("6. No autocomplete for Removed libraries", function() {
+    ee.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
+    installer.uninstallLibrary("uuidjs");
+    propPane.TypeTextIntoField("Text", "{{UUID.");
+    agHelper.AssertElementAbsence(locator._hints);
   });
 });
