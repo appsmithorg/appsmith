@@ -70,6 +70,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> archiveById(String id);
 
+    Mono<NewPage> archiveWithoutPermissionById(String id);
+
     Flux<NewPage> saveAll(List<NewPage> pages);
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);

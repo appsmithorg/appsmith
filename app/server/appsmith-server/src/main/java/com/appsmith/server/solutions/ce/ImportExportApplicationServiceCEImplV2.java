@@ -1008,8 +1008,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                 // Delete the pages which were removed during git merge operation
                                                 // This does not apply to the traditional import via file approach
                                                 return Flux.fromIterable(invalidPageIds)
-                                                        .flatMap(applicationPageService::deleteUnpublishedPage)
-                                                        .flatMap(page -> newPageService.archiveById(page.getId())
+                                                        .flatMap(applicationPageService::deleteWithoutPermissionUnpublishedPage)
+                                                        .flatMap(page -> newPageService.archiveWithoutPermissionById(page.getId())
                                                                 .onErrorResume(e -> {
                                                                     log.debug("Unable to archive page {} with error {}", page.getId(), e.getMessage());
                                                                     return Mono.empty();
@@ -1122,7 +1122,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                         }
                                     }
                                     return Flux.fromIterable(invalidCollectionIds)
-                                            .flatMap(collectionId -> actionCollectionService.deleteUnpublishedActionCollection(collectionId)
+                                            .flatMap(collectionId -> actionCollectionService.deleteWithoutPermissionUnpublishedActionCollection(collectionId)
                                                     // return an empty collection so that the filter can remove it from the list
                                                     .onErrorResume(throwable -> {
                                                         log.debug("Failed to delete collection with id {} during import", collectionId);
@@ -1919,7 +1919,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                 datasource.setName(datasource.getName() + suffix);
                                 return datasource;
                             })
-                            .then(datasourceService.create(datasource));
+                            .then(datasourceService.createWithoutPermissions(datasource));
                 }));
     }
 

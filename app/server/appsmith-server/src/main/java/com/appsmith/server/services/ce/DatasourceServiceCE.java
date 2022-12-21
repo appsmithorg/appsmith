@@ -43,4 +43,6 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
 
     Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission);
 
+    Mono<Datasource> createWithoutPermissions(Datasource datasource);
+
 }
