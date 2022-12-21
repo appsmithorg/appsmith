@@ -5,7 +5,6 @@ import {
   EvalError,
   DependencyMap,
   getDynamicBindings,
-  extraLibrariesNames,
   getEntityDynamicBindingPathList,
 } from "utils/DynamicBindingUtils";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
@@ -26,6 +25,7 @@ import {
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
+import { libraryReservedIdentifiers } from "workers/common/JSLibrary";
 
 /** This function extracts validReferences and invalidReferences from a binding {{}}
  * @param script
@@ -45,7 +45,7 @@ export const extractInfoFromBinding = (
   const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
-    invalidEntityIdentifiers,
+    { ...invalidEntityIdentifiers, ...libraryReservedIdentifiers },
   );
   return extractInfoFromReferences(references, allPaths);
 };
@@ -207,7 +207,6 @@ const invalidEntityIdentifiers: Record<string, unknown> = {
   ...JAVASCRIPT_KEYWORDS,
   ...APPSMITH_GLOBAL_FUNCTIONS,
   ...DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
-  ...extraLibrariesNames,
 };
 
 export function listEntityDependencies(
