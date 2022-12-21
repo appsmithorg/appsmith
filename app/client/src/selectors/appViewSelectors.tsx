@@ -37,3 +37,9 @@ export const getCurrentDSLPageId = createSelector(
 export const getAppViewHeaderHeight = (state: AppState) => {
   return state.ui.appView.headerHeight;
 };
+
+// return current language
+export const getLang = createSelector(
+  getAppViewState,
+  (view: AppViewReduxState) => view.lang,
+);

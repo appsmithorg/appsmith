@@ -75,6 +75,7 @@ export const CONFIG = {
         isDerived: false,
         label: "step",
         computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["step"]))}}`,
+        translationJp: "",
         validation: {},
       },
       task: {
@@ -95,6 +96,7 @@ export const CONFIG = {
         isDerived: false,
         label: "task",
         computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["task"]))}}`,
+        translationJp: "",
         validation: {},
       },
       status: {
@@ -115,6 +117,7 @@ export const CONFIG = {
         isDerived: false,
         label: "status",
         computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["status"]))}}`,
+        translationJp: "",
         validation: {},
       },
       action: {
@@ -138,6 +141,7 @@ export const CONFIG = {
         onClick:
           "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
         computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["action"]))}}`,
+        translationJp: "",
         validation: {},
       },
     },

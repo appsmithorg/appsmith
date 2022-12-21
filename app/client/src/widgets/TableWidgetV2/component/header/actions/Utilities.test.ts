@@ -25,6 +25,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
         width: 60,
         isDerived: false,
         computedValue: "",
+        translationJp: "",
         isCellEditable: false,
         isEditable: false,
         allowCellWrapping: false,
