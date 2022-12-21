@@ -33,7 +33,7 @@ jobs:
       - name: Check previous run result
         env:
           STEPS_CONTEXT: ${{ steps.run_result.outputs.run_result }}
-          run: echo "$STEPS_CONTEXT"
+        run: echo "$STEPS_CONTEXT"
         
       - name: check status of previous run
         if: steps.run_result.outputs.run_result == 'failedtest'
