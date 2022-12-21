@@ -938,7 +938,7 @@ jobs:
         if: needs.ui-test.result != 'success'
         uses: peter-evans/create-or-update-comment@v1
         with:
-          issue-number: ${{ github.event.issue.number }}
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
             The following are new failures, please fix them before merging the PR ${{ env.new_failed_spec_env }}
         
@@ -957,7 +957,7 @@ jobs:
         if: needs.fat-container-test.result != 'success'
         uses: peter-evans/create-or-update-comment@v1
         with:
-          issue-number: ${{ github.event.issue.number }}
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
             The following are new failures, please fix them before merging the PR ${{ env.new_failed_spec_env }}
 
