@@ -105,8 +105,9 @@ export class GitSync {
       "git@example.com:user/repository.git",
     );
     this.agHelper.TypeText(this._gitRepoInput, remoteUrl);
-
+    this.agHelper.AssertContains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO(), "not.exist")
     this.agHelper.ClickButton("Generate key");
+
     cy.wait(`@generateKey`).then((result: any) => {
       generatedKey = result.response.body.data.publicKey;
       generatedKey = generatedKey.slice(0, generatedKey.length - 1);

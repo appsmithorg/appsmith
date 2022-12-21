@@ -172,6 +172,7 @@ export class AggregateHelper {
     cy.xpath(this.locator._spanButton(btnVisibleText))
       .eq(index)
       .scrollIntoView()
+      .should("not.be.disabled")
       .click({ force: true });
     shouldSleep && this.Sleep();
   }

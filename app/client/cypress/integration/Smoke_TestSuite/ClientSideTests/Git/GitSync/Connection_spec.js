@@ -1,5 +1,6 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const httpsRepoURL = "https://github.com/test/test.git";
 const invalidURL = "test";
@@ -24,11 +25,12 @@ describe("Git sync modal: connect tab", function() {
     });
     cy.generateUUID().then((uid) => {
       repoName = uid;
-      cy.createTestGithubRepo(repoName);
+      _.gitSync.CreateLocalGithubRepo(repoName);
+      //cy.createTestGithubRepo(repoName);
     });
   });
 
-  it("validates repo URL", function() {
+  it("1. Validates repo URL", function() {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click({ force: true });
     cy.get(homePage.connectToGitBtn).click({ force: true });
@@ -45,18 +47,24 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${""}`);
     cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.exist");
 
-    cy.get(gitSyncLocators.gitRepoInput).type(
-      `{selectAll}git@github.com:${owner}/${repoName}.git`,
-    );
-    cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO()).should(
-      "not.exist",
-    );
+    cy.get("@remoteUrl").then((remoteUrl) => {
+      _.agHelper.TypeText(_.gitSync._gitRepoInput, remoteUrl);
+      _.agHelper.AssertContains(
+        Cypress.env("MESSAGES").PASTE_SSH_URL_INFO(),
+        "not.exist",
+      );
+    });
+    // cy.get(gitSyncLocators.gitRepoInput).type(
+    //   `{selectAll}git@github.com:${owner}/${repoName}.git`,
+    // );
+    // cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO()).should(
+    //   "not.exist",
+    // );
+    // cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.be.disabled");
 
-    cy.get(gitSyncLocators.generateDeployKeyBtn).should("not.be.disabled");
-
-    cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-      "generateKey",
-    );
+    // cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+    //   "generateKey",
+    // );
 
     // Stubbing window.open
     cy.window().then((window) => {
@@ -66,9 +74,7 @@ describe("Git sync modal: connect tab", function() {
       });
     });
     cy.get(gitSyncLocators.learnMoreSshUrl).click();
-
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
-
     cy.wait("@generateKey").then((result) => {
       generatedKey = result.response.body.data.publicKey;
     });
@@ -87,13 +93,12 @@ describe("Git sync modal: connect tab", function() {
     cy.xpath(gitSyncLocators.learnMoreDeployKey).click({ force: true });
   });
 
-  it("validates copy key", function() {
+  it("2. Validates copy key", function() {
     cy.window().then((win) => {
       cy.stub(win, "prompt")
         .returns(win.prompt)
         .as("copyToClipboardPrompt");
     });
-
     cy.get(gitSyncLocators.copySshKey).click();
     cy.get("@copyToClipboardPrompt").should("be.called");
     cy.get("@copyToClipboardPrompt").should((prompt) => {
@@ -102,7 +107,7 @@ describe("Git sync modal: connect tab", function() {
     });
   });
 
-  it("validates repo url input after key generation", function() {
+  it("3. Validates repo url input after key generation", function() {
     cy.get(gitSyncLocators.gitRepoInput).type(`{selectAll}${httpsRepoURL}`);
     cy.contains(Cypress.env("MESSAGES").PASTE_SSH_URL_INFO());
     cy.get(gitSyncLocators.connectSubmitBtn).should("be.disabled");
@@ -120,7 +125,7 @@ describe("Git sync modal: connect tab", function() {
     cy.get(gitSyncLocators.connectSubmitBtn).should("not.be.disabled");
   });
 
-  it("validates git user config", function() {
+  it("4. Validates git user config", function() {
     cy.get(gitSyncLocators.useGlobalGitConfig).click();
 
     // name empty invalid
@@ -188,7 +193,7 @@ describe("Git sync modal: connect tab", function() {
       });
   });
 
-  it("validates submit errors", function() {
+  it("5. Validates submit errors", function() {
     cy.get(gitSyncLocators.useGlobalGitConfig).click();
     cy.get(gitSyncLocators.gitConfigNameInput)
       .scrollIntoView()
