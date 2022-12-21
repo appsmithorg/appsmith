@@ -3,13 +3,19 @@ import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import _, { set } from "lodash";
 import {
   ActionDescription,
+  ActionTriggerFunctionNames,
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
+import {
+  AsyncFunctionCalledInSyncFieldError,
+  isAction,
+  isAppsmithEntity,
+  isTrueObject,
+} from "./evaluationUtils";
 import { EvalContext } from "./evaluate";
 
 declare global {
@@ -136,7 +142,7 @@ export const PLATFORM_FUNCTIONS: Record<
     return {
       type: ActionTriggerType.SET_INTERVAL,
       payload: {
-        callback: callback.toString(),
+        callback: callback?.toString(),
         interval,
         id,
       },
@@ -393,6 +399,11 @@ export const pusher = function(
   ...args: any[]
 ) {
   const actionDescription = action(...args);
+  if (!self.ALLOW_ASYNC) {
+    self.IS_ASYNC = true;
+    const actionName = ActionTriggerFunctionNames[actionDescription.type];
+    throw new AsyncFunctionCalledInSyncFieldError(actionName);
+  }
   const { executionType, payload, type } = actionDescription;
   const actionPayload = {
     type,

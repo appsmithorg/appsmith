@@ -19,26 +19,12 @@ import {
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "workers/Evaluation/evaluation.worker";
-import { ActionTriggerFunctionNames } from "entities/DataTree/actionTriggers";
-import { AsyncFunctionCalledInSyncFieldError } from "./evaluationUtils";
 
 export const promisifyAction = (
   workerRequestId: string,
   actionDescription: ActionDescription,
   eventType?: EventType,
 ) => {
-  if (!self.ALLOW_ASYNC) {
-    /**
-     * To figure out if any function (JS action) is async, we do a dry run so that we can know if the function
-     * is using an async action. We set an IS_ASYNC flag to later indicate that a promise was called.
-     * @link isFunctionAsync
-     * */
-    self.IS_ASYNC = true;
-
-    const actionName = ActionTriggerFunctionNames[actionDescription.type];
-
-    throw new AsyncFunctionCalledInSyncFieldError(actionName);
-  }
   const workerRequestIdCopy = workerRequestId.concat("");
   return new Promise((resolve, reject) => {
     // We create a new sub request id for each request going on so that we can resolve the correct one later on
