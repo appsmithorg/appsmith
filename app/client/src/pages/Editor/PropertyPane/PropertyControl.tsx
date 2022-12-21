@@ -29,8 +29,6 @@ import {
   DynamicPath,
   getEvalValuePath,
   isDynamicValue,
-  isPathADynamicProperty,
-  isPathADynamicTrigger,
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
@@ -516,7 +514,7 @@ const PropertyControl = memo((props: Props) => {
       label,
     };
     config.expected = getExpectedValue(props.validation);
-    if (isPathADynamicTrigger(widgetProperties, propertyName)) {
+    if (widgetProperties.isPropertyDynamicTrigger) {
       config.validationMessage = "";
       config.expected = {
         example: 'showAlert("There was an error!", "error")',
@@ -526,10 +524,7 @@ const PropertyControl = memo((props: Props) => {
       delete config.evaluatedValue;
     }
 
-    const isDynamic: boolean = isPathADynamicProperty(
-      widgetProperties,
-      propertyName,
-    );
+    const isDynamic: boolean = widgetProperties.isPropertyDynamicPath;
     const isConvertible = !!props.isJSConvertible;
     const className = label
       .split(" ")
