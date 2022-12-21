@@ -182,7 +182,7 @@ describe("<Settings />", () => {
     renderComponent();
     const title = screen.getAllByTestId("t--page-title");
     expect(title).toHaveLength(1);
-    expect(title[0].textContent).toBe(`Members in ${mockWorkspaceData.name}`);
+    expect(title[0].textContent).toBe(`${mockWorkspaceData.name}`);
   });
   it("displays tabs", () => {
     renderComponent();

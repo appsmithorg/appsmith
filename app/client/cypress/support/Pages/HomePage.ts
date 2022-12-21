@@ -152,6 +152,26 @@ export class HomePage {
     cy.contains(successMessage);
   }
 
+  public InviteUserToWorkspaceErrorMessage(
+    workspaceName: string,
+    text: string,
+  ) {
+    const errorMessage =
+      Cypress.env("Edition") === 0
+        ? "Invalid email address(es) found"
+        : "Invalid email address(es) or group(s) found";
+    this.StubPostHeaderReq();
+    this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
+    this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
+    cy.xpath(this._email)
+      .click({ force: true })
+      .type(text);
+    this.agHelper.ClickButton("Invite");
+    cy.contains(text, { matchCase: false });
+    cy.contains(errorMessage);
+    cy.get(".bp3-dialog-close-button").click({ force: true });
+  }
+
   public StubPostHeaderReq() {
     cy.intercept("POST", "/api/v1/users/invite", (req) => {
       req.headers["origin"] = "Cypress";

@@ -487,7 +487,7 @@ function WorkspaceInviteUsersForm(props: any) {
               intent="success"
               label="Emails"
               name="users"
-              placeholder={placeholder || "Enter email address"}
+              placeholder={placeholder || "Enter email address(es)"}
               type="text"
             />
             <SelectField
