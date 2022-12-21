@@ -28,7 +28,9 @@ jobs:
             
       - name: Get the previous run result
         id: run_result
-        run: echo "KEY=VALUE" >>$GITHUB_OUTPUT
+        run: |
+          run_result_env=$(cat ~/run_result)
+          echo "run_result_env=$run_result_env" >> $GITHUB_OUTPUT
         
       - name: Check previous run result
         env:
