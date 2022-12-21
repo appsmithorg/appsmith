@@ -19,13 +19,13 @@ jobs:
 
       # Checkout the code
       - name: Restore the previous run result
-        uses: martijnhols/actions-cache@v3.0.2
+        uses: martijnhols/actions-cache@v3
         with:
           path: |
             ~/run_result
-          key: testrunresult
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
-            testrunresult
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
             
       - name: Get the previous run result
         id: run_result
@@ -39,6 +39,6 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: testrunresult
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
-            testrunresult  
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}  
