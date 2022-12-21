@@ -334,7 +334,6 @@ class TabsWidget extends BaseWidget<
       width:
         (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
-    console.log("tabsComponentProps", tabsComponentProps);
     return (
       <TabsComponent
         {...tabsComponentProps}
