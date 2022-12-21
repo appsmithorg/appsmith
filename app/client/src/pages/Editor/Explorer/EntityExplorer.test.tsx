@@ -32,6 +32,11 @@ jest.mock("@appsmith/utils/permissionHelpers", () => {
   };
 });
 
+jest.mock("@appsmith/pages/Editor/Explorer/helpers", () => ({
+  __esModule: true,
+  ...jest.requireActual("@appsmith/pages/Editor/Explorer/helpers"),
+}));
+
 describe("Entity Explorer tests", () => {
   beforeAll(() => {
     runSagaMiddleware();

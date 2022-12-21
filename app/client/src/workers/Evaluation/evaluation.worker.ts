@@ -38,7 +38,7 @@ import { initiateLinting } from "workers/Linting/utils";
 import {
   createUnEvalTreeForEval,
   makeEntityConfigsAsObjProperties,
-} from "./dataTreeUtils";
+} from "@appsmith/workers/Evaluation/dataTreeUtils";
 
 const CANVAS = "canvas";
 
