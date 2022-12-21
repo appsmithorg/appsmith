@@ -1,11 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import {
-  getFormInitialValues,
-  getFormValues,
-  initialize,
-  isDirty,
-} from "redux-form";
+import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
 import { AppState } from "@appsmith/reducers";
 import _ from "lodash";
 import {
