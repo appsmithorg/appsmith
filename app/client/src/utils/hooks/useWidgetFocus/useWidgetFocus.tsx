@@ -1,6 +1,6 @@
-import { MouseEvent, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
-import { scopeTab } from "./scopeTab";
+import { handleTab } from "./handleTab";
 import { CANVAS_WIDGET } from "./tabbable";
 
 function useWidgetFocus(): (instance: HTMLElement | null) => void {
@@ -12,18 +12,14 @@ function useWidgetFocus(): (instance: HTMLElement | null) => void {
 
     if (ref.current === node) return;
 
-    if (node) {
-      ref.current = node;
-    } else {
-      ref.current = null;
-    }
+    ref.current = node;
   }, []);
 
   useEffect(() => {
     if (!ref.current) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Tab") scopeTab(event);
+      if (event.key === "Tab") handleTab(event);
     };
 
     ref.current.addEventListener("keydown", handleKeyDown);

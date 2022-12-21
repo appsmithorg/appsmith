@@ -1,4 +1,6 @@
 export const CANVAS_WIDGET = '[type="CANVAS_WIDGET"]';
+// NOTE: This is a hack to exclude the current canvas from the query selector
+// because when we use.closest, it returns the current element too
 export const CANVAS_WIDGET_EXCLUDING_SCOPE =
   '[type="CANVAS_WIDGET"]:not(:scope)';
 export const CONTAINER_SELECTOR =
@@ -25,13 +27,10 @@ export function getTabbableDescendants(
 ): HTMLElement[] {
   const activeWidget = currentNode.closest(WIDGET_SELECTOR) as HTMLElement;
 
-  console.log({ activeWidget });
-
-  // if the current node is not a widget, check if it is a modal
-  // if it is a modal, we have to trap the focus within the modal
   if (!activeWidget) {
     const modal = currentNode.closest(MODAL_WIDGET) as HTMLElement;
 
+    // if we are in modal, we have to trap the focus within the modal
     if (modal) {
       const tabbableDescendants = Array.from(
         modal.querySelectorAll(WIDGET_SELECTOR),
@@ -51,6 +50,7 @@ export function getTabbableDescendants(
       return sortedTabbableDescendants;
     }
 
+    // this case means the focus on the main container canvas
     if (currentNode.matches(CANVAS_WIDGET)) {
       const tabbableDescendants = Array.from(
         currentNode.querySelectorAll(WIDGET_SELECTOR),
@@ -83,19 +83,10 @@ export function getTabbableDescendants(
     shiftKey,
   );
 
-  console.log({
-    currentNode,
-    activeElement: document.activeElement,
-    siblings,
-    match: document.activeElement?.matches(CANVAS_WIDGET),
-    sortedSiblings,
-    domRect,
-    activeWidget,
-  });
-
   if (sortedSiblings.length) return sortedSiblings;
 
   // there are no siblings, which means we are at the end of the tabbable list
+  // we have to go to next sibling widget of current canvas
   const currentCanvas = currentNode.closest(
     CANVAS_WIDGET_EXCLUDING_SCOPE,
   ) as HTMLElement;
@@ -148,7 +139,10 @@ export function getNextTabbableDescendant(
   }
 
   // if nextTabbableDescendant is a jsonform widget
-  if (nextTabbableDescendant.matches(JSONFORM_WIDGET)) {
+  if (
+    nextTabbableDescendant.matches(JSONFORM_WIDGET) ||
+    nextTabbableDescendant.matches(CHECKBOXGROUP_WIDGET)
+  ) {
     const tabbable = Array.from(
       nextTabbableDescendant.querySelectorAll<HTMLElement>(FOCUS_SELECTOR),
     );
@@ -248,8 +242,6 @@ export function sortWidgetsByPosition(
     },
   );
 
-  console.log({ tabbableElementsByPosition, top, left });
-
   tabbableElementsByPosition = tabbableElementsByPosition.filter((element) => {
     // if tabbing forward, only consider elements below and to the right
     if (isTabbingForward) {
@@ -290,8 +282,6 @@ export function sortWidgetsByPosition(
     return 0;
   });
 
-  console.log({ tabbableElementsByPosition });
-
   return tabbableElementsByPosition.map((element) => element.element);
 }
 
@@ -326,8 +316,6 @@ export function getNextTabbableDescendantForJSONForm(
     const descendents = getTabbableDescendants(currentWidget, shiftKey);
     nextTabbableDescendant = getNextTabbableDescendant(descendents, shiftKey);
   }
-
-  console.log({ nextTabbableDescendant });
 
   return nextTabbableDescendant;
 }
