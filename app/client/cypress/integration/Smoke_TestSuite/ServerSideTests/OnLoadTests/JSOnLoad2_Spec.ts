@@ -40,7 +40,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       AssertJSOnPageLoad(
         "runWorldCountries",
         false,
-        "getWorldCountries is not defined",
+        "UncaughtPromiseRejection: getWorldCountries is not defined",
       );
     });
   });
