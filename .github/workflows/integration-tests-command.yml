@@ -115,6 +115,11 @@ jobs:
           run_result_env=$(cat ~/run_result)
           echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
 
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"    
+
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
         if: steps.run_result.outputs.run_result == 'failedtest'
@@ -514,6 +519,11 @@ jobs:
         run: |
           run_result_env=$(cat ~/run_result)
           echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
+
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"    
 
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
