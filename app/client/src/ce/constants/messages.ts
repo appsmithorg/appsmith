@@ -318,6 +318,9 @@ export const OAUTH_AUTHORIZATION_FAILED =
 export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
 export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
+export const GSHEET_AUTHORIZATION_ERROR =
+  "Data source is not authorized, please authorize to continue.";
+
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
@@ -1425,6 +1428,11 @@ export const IN_APP_EMBED_SETTING = {
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
 };
+
+export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
+export const NEW_API_BUTTON_TEXT = () => "New API";
+export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
+export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
