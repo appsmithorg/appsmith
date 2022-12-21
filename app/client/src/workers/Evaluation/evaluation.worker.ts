@@ -26,7 +26,7 @@ import {
   EvalWorkerRequest,
   EvalWorkerResponse,
 } from "./types";
-import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { setFormEvaluationSaga } from "workers/Evaluation/formEval";
 import evaluate, {
   evaluateAsync,

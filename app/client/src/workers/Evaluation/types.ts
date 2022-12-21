@@ -11,7 +11,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { WorkerRequest } from "workers/common/types";
 import { DataTreeDiff } from "./evaluationUtils";
 
