@@ -851,7 +851,7 @@ describe("#getStartIndex", () => {
 
     const result2 = generator.withOptions(options).getStartIndex();
 
-    expect(result2).toEqual(0);
+    expect(result2).toEqual(4);
   });
 });
 
