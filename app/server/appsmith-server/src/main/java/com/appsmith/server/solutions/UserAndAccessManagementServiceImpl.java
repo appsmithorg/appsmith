@@ -166,21 +166,23 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                             .collect(Collectors.toSet());
 
                     Mono<Boolean> unassignedFromRolesMono = permissionGroupIdsMono
-                            .flatMap(permissionGroupIds -> permissionGroupService.bulkUnassignUserFromPermissionGroupsWithoutPermission(userId, permissionGroupIds));
+                            .flatMap(permissionGroupIds -> permissionGroupService.bulkUnassignUserFromPermissionGroupsWithoutPermission(user, permissionGroupIds));
 
                     Mono<Boolean> removedFromGroupsMono = groupIdsMono
-                            .flatMap(groupIds -> userGroupService.bulkRemoveUserFromGroupsWithoutPermission(userId, groupIds));
+                            .flatMap(groupIds -> userGroupService.bulkRemoveUserFromGroupsWithoutPermission(user, groupIds));
 
                     Mono<Void> cleanPermissionGroupCacheMono = permissionGroupService.cleanPermissionGroupCacheForUsers(List.of(user.getId()));
 
                     Mono<Void> deleteUserMono = userRepository.deleteById(userId);
                     Mono<Void> deleteUserDataMono = userDataRepository.findByUserId(userId)
                             .flatMap(userData -> userDataRepository.deleteById(userData.getId()));
+                    Mono<User> userDeletedEvent = analyticsService.sendDeleteEvent(user);
 
                     Mono<Tuple2<Void, Void>> deleteUserAndDataMono = Mono.zip(deleteUserMono, deleteUserDataMono);
 
                     return Mono.zip(unassignedFromRolesMono, removedFromGroupsMono)
                             .then(deleteUserAndDataMono)
+                            .then(userDeletedEvent)
                             .then(cleanPermissionGroupCacheMono)
                             .thenReturn(TRUE);
                 });

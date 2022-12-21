@@ -40,7 +40,7 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup);
 
-    Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(String userId, Set<String> permissionGroupIds);
+    Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(User user, Set<String> permissionGroupIds);
 
     Mono<PermissionGroup> unassignFromUserGroup(PermissionGroup permissionGroup, UserGroup userGroup);
 

@@ -41,6 +41,7 @@ export default {
       "user.invited",
       "user.logged_in",
       "user.logged_out",
+      "user.deleted",
       "user.signed_up",
       "user.invited_users",
       "user.remove_users",

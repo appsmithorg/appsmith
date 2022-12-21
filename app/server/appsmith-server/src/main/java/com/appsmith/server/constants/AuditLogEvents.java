@@ -51,6 +51,7 @@ public class AuditLogEvents {
         USER_LOGGED_OUT,
         USER_SIGNED_UP,
         USER_INVITED,
+        USER_DELETED,
         INSTANCE_SETTING_UPDATED,
         GROUP_CREATED,
         GROUP_UPDATED,

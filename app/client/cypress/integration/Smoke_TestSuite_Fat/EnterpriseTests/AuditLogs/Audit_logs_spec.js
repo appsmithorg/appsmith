@@ -120,7 +120,7 @@ describe("Audit logs", () => {
             cy.wrap(optionsContainer)
               .children(/* All "user" related options */)
               .should("have.length", userEvents.length)
-              .eq(4)
+              .eq(5)
               .should("have.text", userEvents[0].label)
               .next()
               .should("have.text", userEvents[1].label)

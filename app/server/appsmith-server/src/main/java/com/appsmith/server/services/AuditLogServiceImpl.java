@@ -14,6 +14,8 @@ import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AuditLogApplicationMetadata;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.AuditLogGacEntityMetadata;
+import com.appsmith.server.domains.AuditLogGacMetadata;
 import com.appsmith.server.domains.AuditLogGitMetadata;
 import com.appsmith.server.domains.AuditLogPageMetadata;
 import com.appsmith.server.domains.AuditLogPermissionGroupMetadata;
@@ -24,6 +26,7 @@ import com.appsmith.server.domains.AuditLogWorkpsaceMetadata;
 import com.appsmith.server.domains.AuditLogDestinationWorkspaceMetadata;
 import com.appsmith.server.domains.AuditLogAuthenticationMetadata;
 import com.appsmith.server.domains.AuditLogMetadata;
+import com.appsmith.server.domains.GacEntityMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
@@ -410,6 +413,8 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
         else if (resource instanceof PermissionGroup) {
             auditLogMono = setResourceProperties((PermissionGroup) resource, auditLog, auditLogResource, properties);
+        } else if (resource instanceof User && event.equals(AnalyticsEvents.DELETE)) {
+            auditLogMono = setResourceProperties((User) resource, auditLog, auditLogResource);
         }
 
         // Instance setting events
@@ -429,6 +434,21 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
 
         return auditLogMono;
+    }
+
+    /**
+     * To set resourceProperties for the resource User
+     * @param user User
+     * @param auditLog AuditLog
+     * @param auditLogResource AuditLogResource
+     * @return Mono of AuditLog
+     */
+    private Mono<AuditLog> setResourceProperties(User user, AuditLog auditLog, AuditLogResource auditLogResource) {
+        auditLogResource.setId(user.getId());
+        auditLogResource.setName(user.getUsername());
+        auditLog.setResource(auditLogResource);
+
+        return Mono.just(auditLog);
     }
 
     /**
@@ -608,6 +628,23 @@ public class AuditLogServiceImpl implements AuditLogService {
             if (properties.containsKey(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS))
                 permissionGroupMetadata.setUnassignedGroups((List) properties.get(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS));
             auditLog.setPermissionGroup(permissionGroupMetadata);
+
+            if (properties.containsKey(FieldName.GAC_TAB) && properties.containsKey(FieldName.ENTITY_UPDATED_PERMISSIONS)) {
+                AuditLogGacMetadata auditLogGacMetadata = new AuditLogGacMetadata();
+                auditLogGacMetadata.setTabUpdated((String) properties.get(FieldName.GAC_TAB));
+                List<GacEntityMetadata> entityMetadataList = (List<GacEntityMetadata>) properties.get(FieldName.ENTITY_UPDATED_PERMISSIONS);
+                List<AuditLogGacEntityMetadata> auditLogGacEntityMetadataList = new ArrayList<>();
+                entityMetadataList.forEach(entityMetadata -> {
+                    AuditLogGacEntityMetadata auditLogGacEntityMetadata = new AuditLogGacEntityMetadata();
+                    auditLogGacEntityMetadata.setId(entityMetadata.getId());
+                    auditLogGacEntityMetadata.setName(entityMetadata.getName());
+                    auditLogGacEntityMetadata.setType(entityMetadata.getType());
+                    auditLogGacEntityMetadata.setPermissions(entityMetadata.getPermissions());
+                    auditLogGacEntityMetadataList.add(auditLogGacEntityMetadata);
+                });
+                auditLogGacMetadata.setEntityMetadata(auditLogGacEntityMetadataList);
+                auditLog.setGacMetadata(auditLogGacMetadata);
+            }
         }
 
         return Mono.just(auditLog);

@@ -38,6 +38,7 @@ public class AuditLog extends BaseDomain {
     AuditLogAuthenticationMetadata authentication;
     AuditLogUserGroupMetadata userGroup;
     AuditLogPermissionGroupMetadata permissionGroup;
+    AuditLogGacMetadata gacMetadata;
 
     // Invited users list for user.invited event
     ArrayList<String> invitedUsers;

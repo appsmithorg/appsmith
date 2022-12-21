@@ -3,6 +3,7 @@ package com.appsmith.server.solutions.roles;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GacEntityMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
@@ -20,6 +21,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
@@ -36,6 +38,7 @@ import reactor.util.function.Tuple3;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,6 +61,8 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.constants.FieldName.ENTITY_UPDATED_PERMISSIONS;
+import static com.appsmith.server.constants.FieldName.GAC_TAB;
 import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORIZED;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
@@ -76,6 +81,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final ThemeRepository themeRepository;
     private final NewActionRepository newActionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
+    private final AnalyticsService analyticsService;
 
     public RoleConfigurationSolutionImpl(WorkspaceResources workspaceResources,
                                          TenantResources tenantResources,
@@ -86,7 +92,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                          PermissionGroupUtils permissionGroupUtils,
                                          ThemeRepository themeRepository,
                                          NewActionRepository newActionRepository,
-                                         ActionCollectionRepository actionCollectionRepository) {
+                                         ActionCollectionRepository actionCollectionRepository,
+                                         AnalyticsService analyticsService) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -98,6 +105,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.themeRepository = themeRepository;
         this.newActionRepository = newActionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
+        this.analyticsService = analyticsService;
     }
 
     @Override
@@ -305,6 +313,10 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             return Flux.fromIterable(postAllUpdatesSideEffects);
         });
 
+        Map<String, Object> roleUpdateProperties = getRoleUpdateMetadata(updateRoleConfigDTO);
+        Mono<PermissionGroup> sendPermissionGroupUpdatedEventMono = permissionGroupMono
+                .flatMap(permissionGroup -> analyticsService.sendUpdateEvent(permissionGroup, roleUpdateProperties));
+
         return permissionGroupMono
                 .thenMany(updateEntityPoliciesFlux)
                 .then(computeSideEffects)
@@ -312,7 +324,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                 .thenMany(postAllUpdatesEffectsFlux)
                 .flatMap(obj -> obj)
                 .then(getAllTabViews(permissionGroupId))
-                .zipWith(permissionGroupMono)
+                .zipWith(sendPermissionGroupUpdatedEventMono)
                 // Add the user permissions and other transient fields to the response before returning
                 .map(tuple -> {
                     RoleViewDTO roleViewDTO = tuple.getT1();
@@ -658,6 +670,47 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                 .then(Mono.just(Boolean.TRUE));
     }
 
+    private Map<String, Object> getRoleUpdateMetadata(UpdateRoleConfigDTO updateRoleConfigDTO) {
+        Map<String, Object> roleUpdateMetadata = new HashMap<>();
+        RoleTab tab = RoleTab.getTabByValue(updateRoleConfigDTO.getTabName());
+        roleUpdateMetadata.put(GAC_TAB, updateRoleConfigDTO.getTabName());
+        List<GacEntityMetadata> entityMetadataList = new ArrayList<>();
+        updateRoleConfigDTO.getEntitiesChanged().forEach(entityChanged -> {
+            GacEntityMetadata entityMetadata = new GacEntityMetadata();
+            entityMetadata.setId(entityChanged.getId());
+            entityMetadata.setName(entityChanged.getName());
+            entityMetadata.setType(getGacEntityName(entityChanged.getType()));
+            List<PermissionViewableName> newPermissions = new ArrayList<>();
+            ListIterator<Integer> permissionsIterator = entityChanged.getPermissions().listIterator();
+            while (permissionsIterator.hasNext()) {
+                int index = permissionsIterator.nextIndex();
+                Integer permission = permissionsIterator.next();
+                if (permission == 1) {
+                    newPermissions.add(tab.getViewablePermissions().get(index));
+                }
+            }
+            entityMetadata.setPermissions(newPermissions);
+            entityMetadataList.add(entityMetadata);
+        });
+        if (!entityMetadataList.isEmpty()) {
+            roleUpdateMetadata.put(ENTITY_UPDATED_PERMISSIONS, entityMetadataList);
+        }
+        return roleUpdateMetadata;
+    }
+
+    private String getGacEntityName(String entityName) {
+        String gacEntityName = "";
+        if (entityName.equals(ActionCollection.class.getSimpleName())) {
+            gacEntityName = "JS Object";
+        } else if (entityName.equals(NewAction.class.getSimpleName())) {
+            gacEntityName = "Action";
+        } else if (entityName.equals(NewPage.class.getSimpleName())) {
+            gacEntityName = "Page";
+        } else {
+            gacEntityName = entityName;
+        }
+        return gacEntityName;
+    }
     private Flux<Boolean> validatePermissionsChanged(Class entityClass,
                                                      Set<String> objectIds,
                                                      Map<String, List<AclPermission>> addedPermissions,

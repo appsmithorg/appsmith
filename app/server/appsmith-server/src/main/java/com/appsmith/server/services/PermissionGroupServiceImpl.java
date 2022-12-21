@@ -41,6 +41,7 @@ import javax.validation.Validator;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -324,17 +325,21 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     }
 
     @Override
-    public Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(String userId, Set<String> permissionGroupIds) {
+    public Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(User user, Set<String> permissionGroupIds) {
         return repository.findAllById(permissionGroupIds)
                 .flatMap(pg -> {
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
-                    assignedToUserIds.remove(userId);
+                    assignedToUserIds.remove(user.getId());
 
                     Update updateObj = new Update();
                     String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
                     updateObj.set(path, assignedToUserIds);
-                    return repository.updateById(pg.getId(), updateObj);
+                    return repository.updateById(pg.getId(), updateObj).then(Mono.defer(() -> {
+                        Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, List.of(user.getUsername()));
+                        AnalyticsEvents unassignedEvent = AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP;
+                        return analyticsService.sendObjectEvent(unassignedEvent, pg, eventData);
+                    }));
                 })
                 .then(Mono.just(TRUE));
     }
