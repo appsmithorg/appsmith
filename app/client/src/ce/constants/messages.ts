@@ -142,7 +142,7 @@ export const INVITE_USERS_ROLE_SELECT_LABEL = () => `Role`;
 export const INVITE_USERS_EMAIL_LIST_LABEL = () => `User emails`;
 export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_MESSAGE = () => `Invite users`;
-export const INVITE_USERS_PLACEHOLDER = () => `Enter email address`;
+export const INVITE_USERS_PLACEHOLDER = () => `Enter email address(es)`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () =>
   `The users have been invited successfully`;
@@ -314,6 +314,9 @@ export const OAUTH_AUTHORIZATION_FAILED =
 // Todo: improve this for appsmith_error error message
 export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
 export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
+
+export const GSHEET_AUTHORIZATION_ERROR =
+  "Data source is not authorized, please authorize to continue.";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -1162,7 +1165,7 @@ export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
 export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
   `Logo should  be atleast 256px in height`;
 export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
-  `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
+  `Uploaded file must be in .SVG .PNG, and .JPG formats`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
   `.SVG, .PNG, or .JPG only • Max 2MB`;
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
@@ -1399,6 +1402,11 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
+
+export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
+export const NEW_API_BUTTON_TEXT = () => "New API";
+export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
+export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

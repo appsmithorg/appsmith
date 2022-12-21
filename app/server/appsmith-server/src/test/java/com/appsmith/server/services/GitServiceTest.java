@@ -179,7 +179,7 @@ public class GitServiceTest {
             toCreate.setName("Git Service Test");
 
             if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
-                Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+                Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
                 workspaceId = workspace.getId();
             }
         }
@@ -1036,7 +1036,7 @@ public class GitServiceTest {
                     actionCollectionDTO.setDefaultToBranchedActionIdsMap(Map.of("branchedId", "collectionId"));
 
                     return Mono.zip(
-                                    layoutActionService.createSingleAction(action)
+                                    layoutActionService.createSingleAction(action, Boolean.FALSE)
                                             .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
                                     layoutCollectionService.createCollection(actionCollectionDTO)
                             )
@@ -1835,6 +1835,37 @@ public class GitServiceTest {
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void commitApplication_protectedBranch_pushFails() throws GitAPIException, IOException {
+        // Create and fetch the application state before adding new page
+        Application testApplication = createApplicationConnectedToGit("commitApplication_protectedBranch_pushFails", DEFAULT_BRANCH);
+        Application preCommitApplication = applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(testApplication.getId()).block();
+
+        // Creating a new page to commit to git
+        PageDTO testPage = new PageDTO();
+        testPage.setName("GitServiceTestPageGitPushFail");
+        testPage.setApplicationId(preCommitApplication.getId());
+        PageDTO createdPage = applicationPageService.createPage(testPage).block();
+
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setDoPush(true);
+        commitDTO.setCommitMessage("New page added");
+        Mono<String> commitMono = gitService.commitApplication(commitDTO, preCommitApplication.getId(), DEFAULT_BRANCH);
+
+        // Mocking a git push failure
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just("REJECTED_OTHERREASON, pre-receive hook declined"));
+        Mockito.when(gitExecutor.resetHard(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        StepVerifier
+                .create(commitMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().contains((new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch ")).getMessage()))
+                .verify();
     }
 
     @Test

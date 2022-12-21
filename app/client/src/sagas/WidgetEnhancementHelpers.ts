@@ -32,13 +32,14 @@ export enum WidgetEnhancementType {
   AUTOCOMPLETE = "child.autocomplete",
   HIDE_EVALUATED_VALUE = "child.hideEvaluatedValue",
   UPDATE_DATA_TREE_PATH = "child.updateDataTreePath",
+  SHOULD_HIDE_PROPERTY = "child.shouldHideProperty",
 }
 
 export function getParentWithEnhancementFn(
-  widgetId: string,
+  widgetId: string | undefined,
   widgets: CanvasWidgetsReduxState,
 ) {
-  let widget = get(widgets, widgetId, undefined);
+  let widget = get(widgets, widgetId || "", undefined);
 
   // While this widget has a parent
   while (widget?.parentId) {

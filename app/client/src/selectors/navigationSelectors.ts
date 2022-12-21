@@ -12,7 +12,7 @@ import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 
 export type EntityNavigationData = Record<
   string,
-  { name: string; id: string; type: ENTITY_TYPE; url: string | undefined }
+  { name: string; id: string; type: ENTITY_TYPE; url: string }
 >;
 
 export const getEntitiesForNavigation = createSelector(
@@ -29,11 +29,12 @@ export const getEntitiesForNavigation = createSelector(
         (plugin) => plugin.id === action.config.pluginId,
       );
       const config = getActionConfig(action.config.pluginType);
+      if (!config) return;
       navigationData[action.config.name] = {
         name: action.config.name,
         id: action.config.id,
         type: ENTITY_TYPE.ACTION,
-        url: config?.getURL(
+        url: config.getURL(
           pageId,
           action.config.id,
           action.config.pluginType,
