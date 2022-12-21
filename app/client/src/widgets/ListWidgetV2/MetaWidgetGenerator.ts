@@ -60,10 +60,10 @@ type ConstructorProps = {
   isListCloned: boolean;
   level: number;
   onVirtualListScroll: () => void;
+  prefixMetaWidgetId: string;
   primaryWidgetType: string;
   renderMode: string;
   setWidgetCache: (data: MetaWidgetCache) => void;
-  widgetId: string;
 };
 
 type TemplateWidgetStatus = {
@@ -167,6 +167,7 @@ class MetaWidgetGenerator {
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
   private pageNo?: number;
   private pageSize?: number;
+  private prefixMetaWidgetId: string;
   private prevOptions?: GeneratorOptions;
   private prevTemplateWidgets: TemplateWidgets;
   private prevViewMetaWidgetIds: string[];
@@ -201,6 +202,7 @@ class MetaWidgetGenerator {
     this.onVirtualListScroll = props.onVirtualListScroll;
     this.pageNo = 1;
     this.pageSize = 0;
+    this.prefixMetaWidgetId = props.prefixMetaWidgetId;
     this.prevTemplateWidgets = {};
     this.prevViewMetaWidgetIds = [];
     this.primaryWidgetType = props.primaryWidgetType;
@@ -340,6 +342,9 @@ class MetaWidgetGenerator {
     };
   };
 
+  private generateMetaWidgetId = () =>
+    `${this.prefixMetaWidgetId}_${generateReactKey()}`;
+
   private getMetaWidgetIdsInCachedRows = () => {
     const cachedMetaWidgetIds: string[] = [];
     const removedCachedMetaWidgetIds: string[] = [];
@@ -454,6 +459,7 @@ class MetaWidgetGenerator {
 
     if (templateWidget.type === this.primaryWidgetType) {
       this.addLevelData(metaWidget, rowIndex);
+      metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
     }
 
     if (this.isRowNonConfigurable(metaCacheProps)) {
@@ -533,7 +539,7 @@ class MetaWidgetGenerator {
 
       const currentCache = rowCache[templateWidgetId] || {};
       const metaWidgetId = isClonedRow
-        ? currentCache.metaWidgetId || generateReactKey()
+        ? currentCache.metaWidgetId || this.generateMetaWidgetId()
         : templateWidgetId;
 
       const metaWidgetName = isClonedRow
@@ -580,7 +586,7 @@ class MetaWidgetGenerator {
       } = templateWidget;
 
       const metaWidgetId = this.isListCloned
-        ? currentCache.metaWidgetId || generateReactKey()
+        ? currentCache.metaWidgetId || this.generateMetaWidgetId()
         : containerParentId;
 
       const metaWidgetName = this.isListCloned

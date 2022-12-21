@@ -144,15 +144,15 @@ class ListWidget extends BaseWidget<
       Boolean(referencedWidgetId) && referencedWidgetId !== widgetId;
 
     this.metaWidgetGenerator = new MetaWidgetGenerator({
-      renderMode: props.renderMode,
       getWidgetCache: this.getWidgetCache,
-      setWidgetCache: this.setWidgetCache,
       infiniteScroll: props.infiniteScroll ?? false,
       isListCloned,
       level: props.level || 1,
       onVirtualListScroll: this.generateMetaWidgets,
-      widgetId: props.widgetId,
+      prefixMetaWidgetId: props.prefixMetaWidgetId || props.widgetId,
       primaryWidgetType: ListWidget.getWidgetType(),
+      renderMode: props.renderMode,
+      setWidgetCache: this.setWidgetCache,
     });
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
@@ -870,6 +870,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   onPageSizeChange?: string;
   pageNo: number;
   pageSize: number;
+  prefixMetaWidgetId?: string;
   currentItemsView: string;
   selectedItemIndex?: number;
   selectedItemView: Record<string, unknown>;
