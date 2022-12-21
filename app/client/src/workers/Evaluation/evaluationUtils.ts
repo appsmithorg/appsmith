@@ -812,6 +812,7 @@ const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
 export class FoundPromiseInSyncEvalError extends Error {
   constructor() {
     super();
+    this.name = "";
     this.message =
       "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
   }
