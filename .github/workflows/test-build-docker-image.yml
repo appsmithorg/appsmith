@@ -1107,6 +1107,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
+        id: cache-appsmith
         uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
