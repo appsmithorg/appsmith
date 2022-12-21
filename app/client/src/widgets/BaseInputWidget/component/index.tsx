@@ -20,8 +20,11 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { InputTypes, MultiLineHeightTypes } from "../constants";
-
+import {
+  InputTypes,
+  MultiLineHeightTypes,
+  NumberInputStepButtonPosition,
+} from "../constants";
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { Icon } from "design-system";
@@ -405,6 +408,9 @@ export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
 };
 
+const StyledTextarea = styled(TextArea)`
+  min-height: 100%;
+`;
 class BaseInputComponent extends React.Component<
   BaseInputComponentProps,
   InputComponentState
@@ -531,6 +537,7 @@ class BaseInputComponent extends React.Component<
       <StyledNumericInput
         allowNumericCharactersOnly
         autoFocus={this.props.autoFocus}
+        buttonPosition={this.props.buttonPosition}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         inputRef={(el) => {
@@ -560,7 +567,7 @@ class BaseInputComponent extends React.Component<
     isResizeAllowed: boolean,
     multilineInputHeight?: MultiLineHeightTypes,
   ) => (
-    <TextArea
+    <StyledTextarea
       autoFocus={this.props.autoFocus}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
@@ -675,8 +682,6 @@ class BaseInputComponent extends React.Component<
       tooltip,
     } = this.props;
     const showLabelHeader = label || tooltip;
-
-    console.log(this.props.isResizeAllowed, "isResizeAllowed");
 
     return (
       <InputComponentWrapper
@@ -807,6 +812,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   shouldUseLocale?: boolean;
   multilineInputHeight?: MultiLineHeightTypes;
   isResizeAllowed?: boolean;
+  buttonPosition?: NumberInputStepButtonPosition;
 }
 
 export default BaseInputComponent;

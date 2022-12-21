@@ -124,7 +124,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
                   svg {
                     path {
-                      fill: ${Colors.BLACK};
+                      fill: currentColor;
                     }
                   }
                 }
@@ -137,7 +137,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                       width: 16px;
                       height: 16px;
                       path {
-                        fill: ${Colors.WHITE};
+                        fill: currentColor;
                       }
                     }
                   }

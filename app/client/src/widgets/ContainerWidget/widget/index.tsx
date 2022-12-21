@@ -186,14 +186,14 @@ class ContainerWidget extends BaseWidget<
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     childWidget.rightColumn = componentWidth;
-    childWidget.bottomRow = this.props.shouldScrollContents
-      ? childWidget.bottomRow
-      : componentHeight;
+    childWidget.bottomRow = componentHeight;
     childWidget.minHeight = componentHeight;
     childWidget.shouldScrollContents = false;
     childWidget.canExtend = this.props.shouldScrollContents;
 
     childWidget.parentId = this.props.widgetId;
+
+    console.log("getPageView", childWidget.bottomRow, childWidget.type);
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, memo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
@@ -15,6 +15,7 @@ import { builderURL } from "RouteBuilder";
 import { useLocation } from "react-router";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
+import { NavigationMethod } from "utils/history";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -41,6 +42,7 @@ const useWidget = (
         widgetId,
         widgetType,
         pageId,
+        NavigationMethod.EntityExplorer,
         isWidgetSelected,
         isMultiSelect,
         isShiftSelect,
@@ -85,7 +87,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const icon = <WidgetIcon type={props.widgetType} />;
   const location = useLocation();
 
-  const shouldExpand = widgetsToExpand.includes(props.widgetId);
+  const forceExpand = widgetsToExpand.includes(props.widgetId);
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -153,10 +155,10 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       className="widget"
       contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
+      forceExpand={forceExpand}
       highlight={lastSelectedWidget === props.widgetId}
       icon={icon}
       isDefaultExpanded={
-        shouldExpand ||
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }

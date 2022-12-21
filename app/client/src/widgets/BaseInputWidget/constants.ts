@@ -15,3 +15,9 @@ export enum MultiLineHeightTypes {
   MEDIUM = 8,
   LONG = 16,
 }
+
+export enum NumberInputStepButtonPosition {
+  LEFT = "left",
+  RIGHT = "right",
+  NONE = "none",
+}

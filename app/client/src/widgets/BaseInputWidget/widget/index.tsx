@@ -177,6 +177,28 @@ class BaseInputWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            helpText: "Show arrows to increase or decrease values",
+            propertyName: "showStepArrows",
+            label: "Show Step Arrows",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                default: false,
+              },
+            },
+            hidden: (props: BaseInputWidgetProps) => {
+              return (
+                props.type !== "CURRENCY_INPUT_WIDGET" &&
+                props.inputType !== InputTypes.NUMBER
+              );
+            },
+            dependencies: ["inputType"],
+          },
+          {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             label: "Visible",
@@ -239,6 +261,24 @@ class BaseInputWidget<
             helpText: "Triggers an action when the text is changed",
             propertyName: "onTextChanged",
             label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the input field receives focus",
+            propertyName: "onFocus",
+            label: "onFocus",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the input field loses focus",
+            propertyName: "onBlur",
+            label: "onBlur",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -427,7 +467,6 @@ class BaseInputWidget<
      * 2. Dragging across the text (for text selection) in input won't cause the widget to drag.
      */
     this.props.updateWidgetMetaProperty("dragDisabled", focusState);
-    this.props.updateWidgetMetaProperty("isFocused", focusState);
   }
 
   resetWidgetText() {
@@ -447,6 +486,28 @@ class BaseInputWidget<
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) {
+    if (this.props.inputType === InputTypes.MULTI_LINE_TEXT) {
+      const { onSubmit } = this.props;
+      const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+
+      if (
+        isEnterKey &&
+        !e.shiftKey &&
+        typeof onSubmit === "string" &&
+        onSubmit
+      ) {
+        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
+          event: {
+            type: EventType.ON_SUBMIT,
+            callback: this.onSubmitSuccess,
+          },
+        });
+      }
+      return;
+    }
+
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
 

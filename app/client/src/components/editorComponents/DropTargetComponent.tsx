@@ -279,6 +279,13 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     !isPreviewMode;
 
   const dropTargetRef = useRef<HTMLDivElement>(null);
+  console.log(
+    "DropTargetContext",
+    props,
+    props.bottomRow,
+    props.widgetName,
+    props.dropDisabled,
+  );
 
   return (
     <DropTargetContext.Provider value={contextValue}>

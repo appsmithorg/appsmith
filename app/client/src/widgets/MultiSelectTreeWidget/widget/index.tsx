@@ -238,6 +238,16 @@ class MultiSelectTreeWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Mode to Display options",
             propertyName: "mode",
             label: "Mode",
@@ -258,16 +268,6 @@ class MultiSelectTreeWidget extends BaseWidget<
             ],
             isBindProperty: false,
             isTriggerProperty: false,
-          },
-          {
-            helpText: "Show help text or details about current input",
-            propertyName: "labelTooltip",
-            label: "Tooltip",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Value must be atleast 6 chars",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Sets a Placeholder Text",
@@ -339,6 +339,24 @@ class MultiSelectTreeWidget extends BaseWidget<
             helpText: "Triggers an action when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the dropdown opens",
+            propertyName: "onDropdownOpen",
+            label: "onDropdownOpen",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the dropdown closes",
+            propertyName: "onDropdownClose",
+            label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -552,6 +570,8 @@ class MultiSelectTreeWidget extends BaseWidget<
         loading={this.props.isLoading}
         mode={this.props.mode}
         onChange={this.onOptionChange}
+        onDropdownClose={this.onDropdownClose}
+        onDropdownOpen={this.onDropdownOpen}
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
@@ -579,6 +599,30 @@ class MultiSelectTreeWidget extends BaseWidget<
     }
   };
 
+  onDropdownOpen = () => {
+    if (this.props.onDropdownOpen) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownOpen",
+        dynamicString: this.props.onDropdownOpen,
+        event: {
+          type: EventType.ON_DROPDOWN_OPEN,
+        },
+      });
+    }
+  };
+
+  onDropdownClose = () => {
+    if (this.props.onDropdownClose) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownClose",
+        dynamicString: this.props.onDropdownClose,
+        event: {
+          type: EventType.ON_DROPDOWN_CLOSE,
+        },
+      });
+    }
+  };
+
   static getWidgetType(): WidgetType {
     return "MULTI_SELECT_TREE_WIDGET";
   }
@@ -596,6 +640,8 @@ export interface MultiSelectTreeWidgetProps extends WidgetProps {
   selectedIndexArr?: number[];
   options?: DropdownOption[];
   onOptionChange: string;
+  onDropdownOpen?: string;
+  onDropdownClose?: string;
   defaultOptionValue: string[];
   isRequired: boolean;
   isLoading: boolean;
