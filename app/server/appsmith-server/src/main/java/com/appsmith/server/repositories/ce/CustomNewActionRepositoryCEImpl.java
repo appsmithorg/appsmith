@@ -69,8 +69,21 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission) {
+        String unpublishedPage = fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId);
+        String publishedPage = fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId);
+
+        Criteria pageCriteria = new Criteria().orOperator(
+                where(unpublishedPage).is(pageId),
+                where(publishedPage).is(pageId)
+        );
+
+        return queryAll(List.of(pageCriteria), aclPermission);
+    }
+
+    @Override
     public Flux<NewAction> findByPageId(String pageId) {
-        return this.findByPageId(pageId, null);
+        return this.findByPageId(pageId, Optional.empty());
     }
 
     @Override

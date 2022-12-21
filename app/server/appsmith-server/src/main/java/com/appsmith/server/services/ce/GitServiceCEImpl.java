@@ -1044,14 +1044,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                         // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
                         // will be deleted
                         Flux.fromIterable(application.getPages())
-                                .flatMap(page -> newPageService.findById(page.getId(), pagePermission.getEditPermission()))
+                                .flatMap(page -> newPageService.findById(page.getId(), Optional.empty()))
                                 .map(newPage -> {
                                     newPage.setDefaultResources(null);
                                     return createDefaultIdsOrUpdateWithGivenResourceIds(newPage, null);
                                 })
                                 .collectList()
                                 .flatMapMany(newPageService::saveAll)
-                                .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), actionPermission.getEditPermission())
+                                .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), Optional.empty())
                                         .map(newAction -> {
                                             newAction.setDefaultResources(null);
                                             if (newAction.getUnpublishedAction() != null) {

@@ -126,6 +126,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
+        return repository.findById(pageId, aclPermission);
+    }
+
+    @Override
     public Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, permission)
                 .flatMap(page -> getPageByViewMode(page, view));

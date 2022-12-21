@@ -1463,6 +1463,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return repository.findByPageId(pageId, permission)
                 .flatMap(this::sanitizeAction);
     }
+    
+    @Override
+    public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission) {
+        return repository.findByPageId(pageId, permission)
+                .flatMap(this::sanitizeAction);
+    }
 
     @Override
     public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission) {

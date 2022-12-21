@@ -19,6 +19,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
+    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission);
+
     Flux<NewAction> findByPageId(String pageId);
 
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
