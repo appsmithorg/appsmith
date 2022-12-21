@@ -6197,10 +6197,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.37-alpha.8":
-  version "1.0.37-alpha.8"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.37-alpha.8.tgz#cd4c2b3992f1e200f9efb1b0affe899b5b0c28a6"
-  integrity sha512-CBveaRcG/cCt694Yj+IIk7rS3E7ykNgJ8zCaVjo/fbg6LZFe/a7Et1x3rW6986wSBUYGf4qq0Au8qByDk7vS7w==
+"design-system@npm:@appsmithorg/design-system@1.0.37-alpha.9":
+  version "1.0.37-alpha.9"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.37-alpha.9.tgz#5a72fb71b099e06ef8f89e934e2e97ca8065567e"
+  integrity sha512-/QpYSo+h6ROFk0D1Osh7unvaL1i7/ECTWsiEMyBTRHH/FG+/nUJSIdEIwnE1xypCmY0P4wO9xdk8evtoylPjfw==
   dependencies:
     emoji-mart "3.0.1"
 
