@@ -21,7 +21,7 @@ import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer"
 import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
-import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
+import { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
 import {

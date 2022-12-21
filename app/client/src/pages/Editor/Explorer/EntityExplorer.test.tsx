@@ -14,7 +14,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import * as helpers from "./helpers";
+import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
 import * as permissionUtils from "@appsmith/utils/permissionHelpers";
 import userEvent from "@testing-library/user-event";
 
