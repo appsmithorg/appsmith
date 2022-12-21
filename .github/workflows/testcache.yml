@@ -43,9 +43,9 @@ jobs:
         env:
           STEPS_CONTEXT: ${{ toJson(steps) }}
         run: echo "$STEPS_CONTEXT"
-        
+               
       - name: check status of previous run
-        if: steps.run_result.outputs.run_result == 'failedtest'
+        if: steps.run_result.outputs.run_result_env == 'failedtest'
         run: echo "hello World"
  
        # Set status = success
