@@ -324,7 +324,8 @@ export function* evaluateAndExecuteDynamicTrigger(
         result.errors.length
       ) {
         if (
-          result.errors[0].errorMessage !== "User cancelled action execution"
+          result.errors[0].errorMessage !==
+          "UncaughtPromiseRejection: User cancelled action execution"
         ) {
           throw new UncaughtPromiseError(result.errors[0].errorMessage);
         }
