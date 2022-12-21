@@ -1,5 +1,6 @@
 import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
 let branchName;
@@ -8,11 +9,14 @@ describe("Delete branch flow", () => {
     // create git repo and connect app to git
     cy.generateUUID().then((uid) => {
       repoName = uid;
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName);
+      // cy.createTestGithubRepo(repoName);
+      // cy.connectToGitRepo(repoName);
+      _.gitSync.CreateNConnectToGit();
+
       cy.generateUUID().then((uid) => {
         branchName = uid;
-        cy.createGitBranch(branchName);
+        _.gitSync.CreateGitBranch(branchName);
+        //cy.createGitBranch(branchName);
         cy.wait(1000);
         // verify can not delete the checked out branch
         cy.get(gitSyncLocators.branchButton).click();
@@ -52,11 +56,12 @@ describe("Delete branch flow", () => {
       });
     });
   });
+
   it("2. Create child branch, merge data from child branch, delete child branch verify the data should reflect in master ", () => {
     cy.switchGitBranch("master");
     cy.generateUUID().then((uid) => {
       branchName = uid;
-      cy.createGitBranch(branchName);
+      _.gitSync.CreateGitBranch(branchName);
       cy.wait(1000);
       cy.get("#switcher--widgets").click();
       cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
@@ -84,10 +89,11 @@ describe("Delete branch flow", () => {
       cy.get(".t--draggable-checkboxwidget").should("be.visible");
     });
   });
+
   it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
     cy.generateUUID().then((uid) => {
       branchName = uid;
-      cy.createGitBranch(branchName);
+      _.gitSync.CreateGitBranch(branchName);
       cy.wait(1000);
       cy.get("#switcher--widgets").click();
       cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
