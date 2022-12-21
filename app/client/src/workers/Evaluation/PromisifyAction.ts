@@ -12,7 +12,7 @@ import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import {
   ActionDescription,
   ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "workers/Evaluation/evaluation.worker";

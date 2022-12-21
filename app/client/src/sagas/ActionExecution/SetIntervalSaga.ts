@@ -1,7 +1,7 @@
 import {
   ClearIntervalDescription,
   SetIntervalDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import {
   executeAppAction,
   TriggerMeta,

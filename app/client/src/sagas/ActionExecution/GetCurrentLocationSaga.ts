@@ -1,7 +1,7 @@
 import {
   GetCurrentLocationDescription,
   WatchCurrentLocationDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   executeAppAction,

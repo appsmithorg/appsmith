@@ -28,7 +28,7 @@ import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSa
 import {
   ActionDescription,
   ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { clearActionResponse } from "actions/pluginActionActions";
 import {
   closeModalSaga,

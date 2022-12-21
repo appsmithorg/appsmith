@@ -11,7 +11,7 @@ import { LogObject, Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/Evaluation/PromisifyAction";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
