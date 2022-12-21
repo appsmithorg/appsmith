@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 const GITHUB_API_BASE = "https://api.github.com";
+import datasourceFormData from "../../fixtures/datasources.json";
 
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -16,7 +17,6 @@ export class GitSync {
   _branchButton = "[data-testid=t--branch-button-container]";
   private _branchSearchInput = ".t--branch-search-input";
 
-
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
     this.agHelper.AssertElementVisible(this._gitSyncModal);
@@ -31,8 +31,12 @@ export class GitSync {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       repoName += uid;
-      this.CreateTestGithubRepo(repoName);
-      this.ConnectToGitRepo(repoName);
+      //this.CreateTestGithubRepo(repoName);
+      this.CreateLocalGithubRepo(repoName);
+      //this.ConnectToGitRepo(repoName);
+      cy.get("@remoteUrl").then((remoteUrl: any) => {
+        this.AuthorizeLocalGitSSH(remoteUrl);
+      });
       cy.wrap(repoName).as("gitRepoName");
     });
   }
@@ -43,14 +47,6 @@ export class GitSync {
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
     let generatedKey;
     this.OpenGitSyncModal();
-
-    cy.intercept(
-      { url: "api/v1/git/connect/app/*", hostname: window.location.host },
-      (req) => {
-        req.headers["origin"] = "Cypress";
-      },
-    );
-
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       `generateKey-${repo}`,
     );
@@ -94,7 +90,50 @@ export class GitSync {
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
-        this.agHelper.ValidateNetworkStatus("@connectGitRepo");
+        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
+      }
+      this.CloseGitSyncModal();
+    });
+  }
+
+  private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {
+    let generatedKey;
+    this.OpenGitSyncModal();
+    this.agHelper.AssertAttribute(
+      this._gitRepoInput,
+      "placeholder",
+      "git@example.com:user/repository.git",
+    );
+    this.agHelper.TypeText(this._gitRepoInput, remoteUrl);
+
+    this.agHelper.ClickButton("Generate key");
+    cy.wait(`@generateKey`).then((result: any) => {
+      generatedKey = result.response.body.data.publicKey;
+      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+      var formdata = new FormData();
+      cy.log("generatedKey is " + generatedKey);
+      formdata.set("sshkey", generatedKey);
+      // fetch the generated key and post to the github repo
+      cy.request({
+        method: "POST",
+        url: `http://${datasourceFormData["GITHUB_API_BASE_TED"]}:${datasourceFormData["GITHUB_API_PORT_TED"]}/v1/gitserver/addgitssh`,
+        body: formdata,
+        headers: {
+          //"Content-Type": "multipart/form-data"
+        },
+      }).then((response) => {
+        expect(response.status).to.equal(200);
+      });
+      this.agHelper.GetNClick(this._useDefaultConfig); //Uncheck the Use default configuration
+      this.agHelper.TypeText(
+        this._gitConfigNameInput,
+        "testusername",
+        //`{selectall}${testUsername}`,
+      );
+      this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
+      this.agHelper.ClickButton("CONNECT");
+      if (assertConnect) {
+        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
       }
       this.CloseGitSyncModal();
     });
@@ -111,6 +150,21 @@ export class GitSync {
         name: repo,
         private: privateFlag,
       },
+    });
+  }
+
+  private CreateLocalGithubRepo(repo: string) {
+    let remoteUrl: string = "";
+    cy.request({
+      method: "GET",
+      url:
+        `http://${datasourceFormData["GITHUB_API_BASE_TED"]}:${datasourceFormData["GITHUB_API_PORT_TED"]}/v1/gitserver/addrepo?reponame=` +
+        repo,
+    }).then((response) => {
+      remoteUrl = JSON.stringify(response.body).replace(/['"]+/g, "");
+      expect(response.status).to.equal(200);
+      //cy.log("remoteUrl is"+ remoteUrl);
+      cy.wrap(remoteUrl).as("remoteUrl");
     });
   }
 

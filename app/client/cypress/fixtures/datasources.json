@@ -51,5 +51,7 @@
   "mockDatabasePassword": "LimitedAccess123#",
   "readonly":"readonly",
   "authenticatedApiUrl": "https://fakeapi.com",
-  "graphqlApiUrl": "https://api.spacex.land/graphql"
+  "graphqlApiUrl": "https://api.spacex.land/graphql",
+  "GITHUB_API_BASE_TED" : "localhost",
+  "GITHUB_API_PORT_TED": "5001"
 }

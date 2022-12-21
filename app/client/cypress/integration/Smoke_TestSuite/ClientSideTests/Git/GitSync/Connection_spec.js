@@ -28,18 +28,6 @@ describe("Git sync modal: connect tab", function() {
     });
   });
 
-  beforeEach(() => {
-    cy.intercept(
-      {
-        url: "api/v1/git/connect/app/*",
-        hostname: window.location.host,
-      },
-      (req) => {
-        req.headers["origin"] = "Cypress";
-      },
-    );
-  });
-
   it("validates repo URL", function() {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click({ force: true });
@@ -227,7 +215,7 @@ describe("Git sync modal: connect tab", function() {
       .scrollIntoView()
       .click();
     cy.get(gitSyncLocators.connetStatusbar).should("exist");
-    cy.wait("@connectGitRepo").then((interception) => {
+    cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
       // todo check for error msg based on the context
@@ -258,7 +246,7 @@ describe("Git sync modal: connect tab", function() {
       .scrollIntoView()
       .click();
     cy.get(gitSyncLocators.connetStatusbar).should("exist");
-    cy.wait("@connectGitRepo").then((interception) => {
+    cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
       // todo check for error msg based on the context
