@@ -19,19 +19,16 @@ jobs:
 
       # Checkout the code
       - name: Restore the previous run result
+        id: cache-appsmith
         uses: martijnhols/actions-cache@v3
         with:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           
-      - name: Dump steps context2
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"
-
             
       - name: Get the previous run result
+        if: steps.cache-appsmith.outputs.cache-hit == 'true'
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
