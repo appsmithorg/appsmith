@@ -2659,7 +2659,7 @@ public class ApplicationServiceTest {
 
         // Trigger the clone of application now.
         applicationPageService.cloneApplication(originalApplication.getId(), null)
-                .timeout(Duration.ofMillis(10))
+                .timeout(Duration.ofMillis(50))
                 .subscribe();
 
         // Wait for cloning to complete
