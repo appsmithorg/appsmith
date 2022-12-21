@@ -20,7 +20,7 @@ import recentEntitiesSagas from "../src/sagas/RecentEntitiesSagas";
 import websocketSagas from "../src/sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "../src/sagas/DebuggerSagas";
 import { watchActionSagas } from "sagas/ActionSagas";
-import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
+import { watchActionExecutionSagas } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
 import applicationSagas from "../src/sagas/ApplicationSagas";
 import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";

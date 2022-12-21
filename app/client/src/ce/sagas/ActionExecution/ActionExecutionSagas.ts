@@ -52,7 +52,7 @@ import {
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { postMessageSaga } from "./PostMessageSaga";
+import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;

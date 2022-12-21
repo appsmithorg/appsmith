@@ -64,7 +64,7 @@ import {
 import {
   executeActionTriggers,
   TriggerMeta,
-} from "./ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Toaster, Variant } from "design-system";
 import {

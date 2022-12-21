@@ -99,7 +99,7 @@ import { JSCollection } from "entities/JSCollection";
 import {
   executeAppAction,
   TriggerMeta,
-} from "sagas/ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
