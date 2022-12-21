@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -11,7 +12,6 @@ import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.configurations.typeadapters.InstantTypeAdapter;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -2186,7 +2186,7 @@ public class DatabaseChangelog2 {
                 Charset.defaultCharset()
         );
 
-        Theme[] themes = new GsonBuilder().registerTypeAdapter(Instant.class, new InstantTypeAdapter()).create().fromJson(themesJson, Theme[].class);
+        Theme[] themes = new GsonBuilder().registerTypeAdapter(Instant.class, new ISOStringToInstantConverter()).create().fromJson(themesJson, Theme[].class);
 
         Theme legacyTheme = null;
         boolean themeExists = false;
