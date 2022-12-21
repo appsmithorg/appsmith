@@ -140,12 +140,12 @@ const init = (optionsOverride?: Partial<GeneratorOptions>) => {
     getWidgetCache: cache.getWidgetCache,
     setWidgetCache: cache.setWidgetCache,
     infiniteScroll: false,
-    widgetId: "test",
     isListCloned: false,
     level: 1,
     onVirtualListScroll: jest.fn,
     primaryWidgetType: "LIST_WIDGET_V2",
     renderMode: RenderModes.CANVAS,
+    prefixMetaWidgetId: "test",
   });
 
   const initialResult = generator.withOptions(options).generate();
@@ -203,12 +203,12 @@ describe("#generate", () => {
       getWidgetCache: cache.getWidgetCache,
       setWidgetCache: cache.setWidgetCache,
       infiniteScroll: false,
-      widgetId: "test",
       isListCloned: false,
       level: 1,
       onVirtualListScroll: jest.fn,
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
+      prefixMetaWidgetId: "test",
     });
 
     const expectedGeneratedCount = 12;
@@ -721,7 +721,7 @@ describe("#generate", () => {
       getWidgetCache: cache.getWidgetCache,
       setWidgetCache: cache.setWidgetCache,
       infiniteScroll: false,
-      widgetId: "test",
+      prefixMetaWidgetId: "test",
       isListCloned: false,
       level: 2,
       onVirtualListScroll: jest.fn,
@@ -757,7 +757,7 @@ describe("#generate", () => {
       getWidgetCache: cache.getWidgetCache,
       setWidgetCache: cache.setWidgetCache,
       infiniteScroll: false,
-      widgetId: "fs2d2lqjgd",
+      prefixMetaWidgetId: "fs2d2lqjgd",
       isListCloned: false,
       level: 2,
       onVirtualListScroll: jest.fn,
