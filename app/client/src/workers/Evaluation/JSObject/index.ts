@@ -98,7 +98,6 @@ export function saveResolvedFunctionsAndJSUpdates(
                 parsedElement.value,
                 unEvalDataTree,
                 {},
-                false,
                 undefined,
                 undefined,
                 true,
