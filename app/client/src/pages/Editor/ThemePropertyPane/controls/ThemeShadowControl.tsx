@@ -50,7 +50,7 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
         openOnTargetFocus={false}
       >
         <div
-          className="flex items-center justify-center w-5 h-5 bg-white"
+          className="flex items-center justify-center w-5 h-5 bg-white  t--theme-appBoxShadow"
           style={{ boxShadow: options[optionKey] }}
         >
           {options[optionKey] === "none" && (

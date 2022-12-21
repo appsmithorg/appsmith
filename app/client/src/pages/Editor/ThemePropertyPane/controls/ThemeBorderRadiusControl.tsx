@@ -47,7 +47,7 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
         openOnTargetFocus={false}
       >
         <div
-          className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
+          className="w-5 h-5 border-t-2 border-l-2 border-gray-500 t--theme-appBorderRadius"
           style={{ borderTopLeftRadius: options[optionKey] }}
         />
       </TooltipComponent>
