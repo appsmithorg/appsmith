@@ -163,6 +163,7 @@ export const contentConfig = [
           "schema",
           "fieldLimitExceeded",
           "childStylesheet",
+          "dynamicPropertyPathList",
         ],
         evaluatedDependencies: ["sourceData"],
       },

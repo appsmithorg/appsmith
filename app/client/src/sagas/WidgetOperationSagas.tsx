@@ -54,7 +54,7 @@ import {
   isChildPropertyPath,
   isDynamicValue,
   isPathADynamicBinding,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
@@ -345,12 +345,12 @@ function getDynamicTriggerPathListUpdate(
   propertyPath: string,
   propertyValue: string,
 ): DynamicPathUpdate {
-  if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+  if (propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.ADD,
     };
-  } else if (!propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+  } else if (!propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.REMOVE,

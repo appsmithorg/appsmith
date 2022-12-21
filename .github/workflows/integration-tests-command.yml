@@ -11,7 +11,7 @@ jobs:
     steps:
       # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to workflow run
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
@@ -89,13 +89,13 @@ jobs:
 
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -124,7 +124,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       # failed_spec_env will contain list of all failed specs
-      # We are using evnironment variable instead of regular to support multiline
+      # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
@@ -145,29 +145,30 @@ jobs:
       # Setup Java
       - name: Set up JDK 1.11
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       - name: Download the client build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build
           path: app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build
           path: app/server/dist/
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: rts-dist
           path: app/rts/dist
 
-      - name: Untar the rts folder
+      - name: Un-tar the rts folder
         run: |
           tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
           echo "Cleaning up the tar files"
@@ -221,7 +222,7 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -313,7 +314,7 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      # Incase of second attemtp only run failed specs
+      # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v2
@@ -356,7 +357,7 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
     
-      - name: Collect fat conatianer logs
+      - name: Collect fat container logs
         if: always()
         working-directory: "."
         run: |
@@ -364,7 +365,7 @@ jobs:
       # Upload docker logs
       - name: Upload failed test list artifact
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dockerlogs
           path: ~/dockerlogs.txt
@@ -372,18 +373,18 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec_fat and add a dummy file
-      # This will ensure upload and download steps are successfull
-      - name: Create direcotrs for failed tests
+      # This will ensure upload and download steps are successful
+      - name: Create directory for failed tests
         if: always()
         run: |
           mkdir -p  ~/failed_spec_fat
           echo  "empty" >> ~/failed_spec_fat/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
-      - name: Incase of test failures copy them to a file
+      - name: In case of test failures copy them to a file
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
@@ -392,7 +393,7 @@ jobs:
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: failed-spec-fat
           path: ~/failed_spec_fat
@@ -420,14 +421,14 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
 
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/cypress/snapshots/
@@ -436,21 +437,22 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: cypress-snapshots-visualRegression
           path: app/client/cypress/snapshots/
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test:
     needs: [client-build, server-build, rts-build]
@@ -483,13 +485,13 @@ jobs:
     steps:
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -518,7 +520,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       # failed_spec_env will contain list of all failed specs
-      # We are using evnironment variable instead of regular to support multiline
+      # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
@@ -538,20 +540,20 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -568,14 +570,14 @@ jobs:
 
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build
           path: app/client/build
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build
           path: app/server/dist
@@ -706,7 +708,7 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      # Incase of second attemtp only run failed specs
+      # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v2
@@ -751,18 +753,18 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec and add a dummy file
-      # This will ensure upload and download steps are successfull
-      - name: Create direcotrs for failed tests
+      # This will ensure upload and download steps are successful
+      - name: Create directory for failed tests
         if: always()
         run: |
           mkdir -p  ~/failed_spec
           echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
-      - name: Incase of test failures copy them to a file
+      - name: In case of test failures copy them to a file
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
@@ -771,7 +773,7 @@ jobs:
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: failed-spec
           path: ~/failed_spec
@@ -799,7 +801,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/cypress/snapshots/
@@ -808,7 +810,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
@@ -816,14 +818,15 @@ jobs:
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   perf-test:
     needs: [client-build, server-build, rts-build]
@@ -850,7 +853,7 @@ jobs:
         run: echo "$PAYLOAD_CONTEXT"
 
       # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         if: needs.ui-test.result
         id: download
         with:
@@ -858,19 +861,19 @@ jobs:
           path: ~/failed_spec
 
       # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         if: needs.ui-test.result
         id: download_fat
         with:
           name: failed-spec-fat
           path: ~/failed_spec_fat
 
-      # Incase for any uti-test job failure, create combined failed spec
+      # In case for any uti-test job failure, create combined failed spec
       - name: "combine all specs"
         if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
 
-      # Incase for any fat-container job failure, create combined failed spec
+      # In case for any fat-container job failure, create combined failed spec
       - name: "combine all specs for fat"
         if: needs.fat-container-test.result != 'success'
         run: cat ~/failed_spec_fat/failed_spec_fat* >> ~/combined_failed_spec_fat
@@ -901,7 +904,7 @@ jobs:
       # This is done for debugging.
       - name: upload combined failed spec
         if: needs.ui-test.result != 'success'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: combined_failed_spec
           path: ~/combined_failed_spec
@@ -910,14 +913,57 @@ jobs:
       # This is done for debugging.
       - name: upload combined failed spec
         if: needs.fat-container-test.result != 'success'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: combined_failed_spec_fat
           path: ~/combined_failed_spec_fat
+      
+      - name: Get Latest flaky Tests
+        shell: bash
+        run: |
+          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+         
+      # Verify non-fat test failures against known failures
+      - name: Verify non-fat test failures against known failures
+        if: needs.ui-test.result != 'success'
+        shell: bash
+        run: |
+          new_failed_spec_env=$(comm -1 -3 <(sort  ~/knownfailures) <(sort ~/combined_failed_spec) | sed 's/|cypress|cypress/\n/g')
+          echo $new_failed_spec_env
+          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+      - name: Add a comment on the PR with new non fat failures
+        if: needs.ui-test.result != 'success'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            The following are new failures, please fix them before merging the PR ${{ env.new_failed_spec_env }}
+        
+        # Verify fat test failures against known failures
+      - name: Verify fat test failures against known failures
+        if: needs.fat-container-test.result != 'success'
+        shell: bash
+        run: |
+          new_failed_spec_env=$(comm -1 -3 <(sort ./release/app/client/cypress/knownfailures) <(sort ~/combined_failed_spec_fat) | sed 's/|cypress|cypress/\n/g')
+          echo $new_failed_spec_env
+          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+      - name: Add a comment on the PR with new fat failures
+        if: needs.fat-container-test.result != 'success'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            The following are new failures, please fix them before merging the PR ${{ env.new_failed_spec_env }}
 
       # Update check run called "ui-test-result"
       - name: Mark ui-test-result job as complete
-        uses: actions/github-script@v1
+        uses: actions/github-script@v6
         id: update-check-run
         if: ${{ always() }}
         env:
@@ -931,13 +977,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: pull } = await github.pulls.get({
+            const { data: pull } = await github.rest.pulls.get({
               ...context.repo,
               pull_number: process.env.number
             });
             const ref = pull.head.sha;
 
-            const { data: checks } = await github.checks.listForRef({
+            const { data: checks } = await github.rest.checks.listForRef({
               ...context.repo,
               ref
             });
@@ -946,7 +992,7 @@ jobs:
 
             if(check.length == 0) {
               const head_sha = pull.head.sha;
-              const { data: completed_at } = await github.checks.create({
+              const { data: completed_at } = await github.rest.checks.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
@@ -962,7 +1008,7 @@ jobs:
               return completed_at;
             } else {
               try {
-                const { data: result } = await github.checks.update({
+                const { data: result } = await github.rest.checks.update({
                   ...context.repo,
                   check_run_id: check[0].id,
                   status: 'completed',
@@ -1000,7 +1046,7 @@ jobs:
     steps:
       # Update check run called "package"
       - name: Mark package job as complete
-        uses: actions/github-script@v1
+        uses: actions/github-script@v6
         id: update-check-run
         if: ${{ always() }}
         env:
@@ -1013,13 +1059,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: pull } = await github.pulls.get({
+            const { data: pull } = await github.rest.pulls.get({
               ...context.repo,
               pull_number: process.env.number
             });
             const ref = pull.head.sha;
 
-            const { data: checks } = await github.checks.listForRef({
+            const { data: checks } = await github.rest.checks.listForRef({
               ...context.repo,
               ref
             });
@@ -1028,7 +1074,7 @@ jobs:
 
             if(check.length == 0) {
               const head_sha = pull.head.sha;
-              const { data: completed_at } = await github.checks.create({
+              const { data: completed_at } = await github.rest.checks.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
@@ -1043,7 +1089,7 @@ jobs:
 
               return completed_at;
             } else {
-              const { data: result } = await github.checks.update({
+              const { data: result } = await github.rest.checks.update({
               ...context.repo,
               check_run_id: check[0].id,
               status: 'completed',
