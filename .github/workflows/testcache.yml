@@ -28,7 +28,7 @@ jobs:
             
       - name: Get the previous run result
         id: run_result
-        run: cat ~/run_result 2>/dev/null || echo 'default'
+        run: echo "KEY=VALUE" >>$GITHUB_OUTPUT
         
       - name: Check previous run result
         env:
