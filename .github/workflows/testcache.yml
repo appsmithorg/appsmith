@@ -24,6 +24,11 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          
+      - name: Dump steps context2
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
 
             
       - name: Get the previous run result
