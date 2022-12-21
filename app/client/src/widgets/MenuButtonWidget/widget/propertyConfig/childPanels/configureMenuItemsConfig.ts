@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ICON_NAMES } from "../../../constants";
+import { ICON_NAMES, MenuButtonWidgetProps } from "../../../constants";
 import { getKeysFromSourceDataForEventAutocomplete } from "../../helper";
 
 export default {
@@ -85,7 +85,11 @@ export default {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: true,
-          additionalAutoComplete: getKeysFromSourceDataForEventAutocomplete,
+          additionalAutoComplete: (props: MenuButtonWidgetProps) => {
+            return getKeysFromSourceDataForEventAutocomplete(
+              props?.__evaluation__?.evaluatedValues?.sourceData,
+            );
+          },
           evaluatedDependencies: ["sourceData"],
         },
       ],

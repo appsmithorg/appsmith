@@ -43,3 +43,55 @@ export function sourceDataArrayValidation(
     return invalidResponse;
   }
 }
+
+export function labelForEachRowValidation(
+  value: unknown,
+  props: MenuButtonWidgetProps,
+  _: any,
+): ValidationResponse {
+  const generateResponseAndReturn = (isValid = false, message = "") => {
+    return {
+      isValid,
+      parsed: isValid ? value : [],
+      messages: [message],
+    };
+  };
+
+  const DEFAULT_MESSAGE =
+    "The evaluated value should either be a string, an array, or a nested array (of values, of objects, or of arrays).";
+
+  if (!value) {
+    return generateResponseAndReturn(
+      false,
+      `A value is required. ${DEFAULT_MESSAGE}`,
+    );
+  }
+
+  if (value === null) {
+    return generateResponseAndReturn(
+      false,
+      `The value is cannot be null. ${DEFAULT_MESSAGE}`,
+    );
+  }
+
+  if (value === undefined) {
+    return generateResponseAndReturn(
+      false,
+      `The value is cannot be undefined. ${DEFAULT_MESSAGE}`,
+    );
+  }
+
+  if (_.isBoolean(value)) {
+    return generateResponseAndReturn(
+      false,
+      `The value is cannot be a boolean. ${DEFAULT_MESSAGE}`,
+    );
+  }
+
+  if (_.isString(value) || _.isNumber(value) || Array.isArray(value)) {
+    return generateResponseAndReturn(true);
+  }
+
+  // Return a message if the value is none of the above
+  return generateResponseAndReturn(false, DEFAULT_MESSAGE);
+}

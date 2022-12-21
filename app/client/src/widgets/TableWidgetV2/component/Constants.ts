@@ -11,6 +11,7 @@ import { DropdownOption } from "widgets/SelectWidget/constants";
 import {
   ConfigureMenuItems,
   MenuItem,
+  MenuItems,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
 import { ColumnTypes } from "../constants";
@@ -152,8 +153,6 @@ export interface ButtonCellProperties {
   iconName?: IconName;
   iconAlign?: Alignment;
 }
-
-export type MenuItems = Record<string, MenuItem>;
 
 export interface MenuButtonCellProperties {
   menuButtonLabel?: string;

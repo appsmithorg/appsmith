@@ -1,18 +1,10 @@
 import { isArray } from "lodash";
-import { MenuButtonWidgetProps } from "../constants";
 
 export const getKeysFromSourceDataForEventAutocomplete = (
-  props: MenuButtonWidgetProps,
+  sourceData?: Array<Record<string, unknown>> | unknown,
 ) => {
-  const { __evaluation__: evaluation } = props;
-
-  if (
-    isArray(evaluation?.evaluatedValues?.sourceData) &&
-    evaluation?.evaluatedValues?.sourceData?.length
-  ) {
-    const keys = getUniqueKeysFromSourceData(
-      evaluation.evaluatedValues.sourceData,
-    );
+  if (isArray(sourceData) && sourceData?.length) {
+    const keys = getUniqueKeysFromSourceData(sourceData);
 
     return {
       currentItem: keys.reduce((prev, cur) => ({ ...prev, [cur]: "" }), {}),
@@ -37,5 +29,5 @@ export const getUniqueKeysFromSourceData = (
   // return unique keys
   const uniqueKeys = [...new Set(allKeys)];
 
-  return uniqueKeys.length ? uniqueKeys : [];
+  return uniqueKeys;
 };

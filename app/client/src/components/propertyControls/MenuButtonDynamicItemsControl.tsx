@@ -19,7 +19,7 @@ import {
 } from "components/editorComponents/ActionCreator/utils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
-import { isArray } from "lodash";
+import { getUniqueKeysFromSourceData } from "widgets/MenuButtonWidget/widget/helper";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -87,24 +87,6 @@ function InputText(props: InputTextProp) {
 class MenuButtonDynamicItemsControl extends BaseControl<
   MenuButtonDynamicItemsControlProps
 > {
-  getUniqueKeysFromSourceData = (
-    sourceData: Array<Record<string, unknown>>,
-  ) => {
-    if (!isArray(sourceData) || !sourceData?.length) {
-      return [];
-    }
-
-    const allKeys: string[] = [];
-
-    // get all keys
-    sourceData?.forEach((item) => allKeys.push(...Object.keys(item)));
-
-    // return unique keys
-    const uniqueKeys = [...new Set(allKeys)];
-
-    return uniqueKeys.length ? uniqueKeys : [];
-  };
-
   render() {
     const {
       dataTreePath,
@@ -140,7 +122,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<
         widgetProperties?.__evaluation__?.evaluatedValues?.sourceData;
     }
 
-    const keys = this.getUniqueKeysFromSourceData(sourceData);
+    const keys = getUniqueKeysFromSourceData(sourceData);
     const currentItem: { [key: string]: any } = {};
 
     Object.values(keys).forEach((key) => {
@@ -176,13 +158,23 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     if (widgetType === "TABLE_WIDGET_V2" && primaryColumns) {
       const columnName = Object.keys(primaryColumns)?.[0];
 
-      return `{{${widgetName}.primaryColumns.${columnName}.sourceData.map((currentItem, currentIndex) => ( `;
-    }
+      return `{{${widgetName}.processedTableData.map((currentRow, currentRowIndex) => {
+        let primaryColumnData = [];
 
-    return `{{${widgetName}.sourceData.map((currentItem, currentIndex) => ( `;
+        if (${widgetName}.primaryColumns.${columnName}.sourceData[currentRowIndex].length) {
+          primaryColumnData = ${widgetName}.primaryColumns.${columnName}.sourceData[currentRowIndex];
+        } else if (${widgetName}.primaryColumns.${columnName}.sourceData.length) {
+          primaryColumnData = ${widgetName}.primaryColumns.${columnName}.sourceData;
+        }
+        
+        return primaryColumnData.map((currentItem, currentIndex) => `;
+    } else {
+      return `{{${widgetName}.sourceData.map((currentItem, currentIndex) => ( `;
+    }
   };
 
-  static bindingSuffix = `))}}`;
+  static getBindingSuffix = (widgetType?: string) =>
+    widgetType === "TABLE_WIDGET_V2" ? `);});}}` : `))}}`;
 
   static getInputComputedValue = (
     propertyValue: string,
@@ -200,7 +192,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<
 
     const value = `${propertyValue.substring(
       this.getBindingPrefix(widgetName, widgetType, primaryColumns).length,
-      propertyValue.length - this.bindingSuffix.length,
+      propertyValue.length - this.getBindingSuffix(widgetType).length,
     )}`;
     const stringValue = JSToString(value);
 
@@ -227,7 +219,9 @@ class MenuButtonDynamicItemsControl extends BaseControl<
       widgetName,
       widgetType,
       primaryColumns,
-    )}${stringToEvaluate}${MenuButtonDynamicItemsControl.bindingSuffix}`;
+    )}${stringToEvaluate}${MenuButtonDynamicItemsControl.getBindingSuffix(
+      widgetType,
+    )}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {

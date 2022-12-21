@@ -122,9 +122,8 @@ export default {
       helpText: "Takes in an array of items to display the menu items.",
       propertyName: "sourceData",
       label: "Source Data",
-      controlType: "INPUT_TEXT",
+      controlType: "TABLE_COMPUTE_VALUE",
       placeholderText: "{{Query1.data}}",
-      inputType: "ARRAY",
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {

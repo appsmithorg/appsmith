@@ -1597,11 +1597,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           } = cellProperties;
 
           if (menuItemsSource === MenuItemsSource.STATIC) {
-            const visibleItems = Object.keys(menuItems)
-              .map((itemKey) => menuItems[itemKey])
-              .filter((item) =>
-                getBooleanPropertyValue(item.isVisible, rowIndex),
-              );
+            const visibleItems = Object.values(menuItems).filter((item) =>
+              getBooleanPropertyValue(item.isVisible, rowIndex),
+            );
 
             return orderBy(visibleItems, ["index"], ["asc"]);
           } else if (
@@ -1611,10 +1609,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             configureMenuItems?.config
           ) {
             const { config } = configureMenuItems;
-            const getValue = (propertyName: keyof MenuItem, index: number) => {
+
+            const getValue = (
+              propertyName: keyof MenuItem,
+              index: number,
+              rowIndex: number,
+            ) => {
               const value = config[propertyName];
 
-              if (isArray(value)) {
+              if (isArray(value) && isArray(value[rowIndex])) {
+                return value[rowIndex][index];
+              } else if (isArray(value)) {
                 return value[index];
               }
 
@@ -1625,17 +1630,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               .map((item, index) => ({
                 ...item,
                 id: index.toString(),
-                isVisible: getValue("isVisible", index),
-                isDisabled: getValue("isDisabled", index),
+                isVisible: getValue("isVisible", index, rowIndex),
+                isDisabled: getValue("isDisabled", index, rowIndex),
                 index: index,
                 widgetId: "",
-                label: getValue("label", index),
+                label: getValue("label", index, rowIndex),
                 onClick: config?.onClick,
-                textColor: getValue("textColor", index),
-                backgroundColor: getValue("backgroundColor", index),
-                iconAlign: getValue("iconAlign", index),
-                iconColor: getValue("iconColor", index),
-                iconName: getValue("iconName", index),
+                textColor: getValue("textColor", index, rowIndex),
+                backgroundColor: getValue("backgroundColor", index, rowIndex),
+                iconAlign: getValue("iconAlign", index, rowIndex),
+                iconColor: getValue("iconColor", index, rowIndex),
+                iconName: getValue("iconName", index, rowIndex),
               }))
               .filter((item) => item.isVisible === true);
 

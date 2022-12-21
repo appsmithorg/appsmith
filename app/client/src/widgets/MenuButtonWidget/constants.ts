@@ -34,12 +34,14 @@ export interface ConfigureMenuItems {
   config: MenuItem;
 }
 
+export type MenuItems = Record<string, MenuItem>;
+
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
-  menuItems: Record<string, MenuItem>;
+  menuItems: MenuItems;
   getVisibleItems: () => Array<MenuItem>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
@@ -58,7 +60,7 @@ export interface MenuButtonComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
-  menuItems: Record<string, MenuItem>;
+  menuItems: MenuItems;
   getVisibleItems: () => Array<MenuItem>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
@@ -79,7 +81,7 @@ export interface MenuButtonComponentProps {
 }
 
 export interface PopoverContentProps {
-  menuItems: Record<string, MenuItem>;
+  menuItems: MenuItems;
   getVisibleItems: () => Array<MenuItem>;
   onItemClicked: (onClick: string | undefined, index: number) => void;
   isCompact?: boolean;

@@ -133,11 +133,20 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     );
   }
 
+  static getBindingPrefix = (tableId: string) => {
+    return `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( `;
+  };
+
+  static bindingSuffix = `))}}`;
+
   static getInputComputedValue = (propertyValue: string, tableId: string) => {
+    if (!propertyValue.includes(this.getBindingPrefix(tableId))) {
+      return propertyValue;
+    }
+
     const value = `${propertyValue.substring(
-      `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( `
-        .length,
-      propertyValue.length - 4,
+      this.getBindingPrefix(tableId).length,
+      propertyValue.length - this.bindingSuffix.length,
     )}`;
     const stringValue = JSToString(value);
 
@@ -145,20 +154,30 @@ class ComputeTablePropertyControlV2 extends BaseControl<
   };
 
   getComputedValue = (value: string, tableId: string) => {
+    if (!isDynamicValue(value)) {
+      return value;
+    }
+
     const stringToEvaluate = stringToJS(value);
+
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( ${stringToEvaluate}))}}`;
+
+    return `${ComputeTablePropertyControlV2.getBindingPrefix(
+      tableId,
+    )}${stringToEvaluate}${ComputeTablePropertyControlV2.bindingSuffix}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
+
     if (typeof event !== "string") {
       value = event.target?.value;
     } else {
       value = event;
     }
+
     if (isString(value)) {
       const output = this.getComputedValue(
         value,

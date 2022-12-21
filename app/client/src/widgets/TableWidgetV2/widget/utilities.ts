@@ -234,12 +234,19 @@ export const getPropertyValue = (
   value: any,
   index: number,
   preserveCase = false,
+  isSourceData = false,
 ) => {
   if (value && isObject(value) && !Array.isArray(value)) {
     return value;
   }
   if (value && Array.isArray(value) && value[index]) {
-    return preserveCase
+    const getValueForSourceData = (value: any, index: number) => {
+      return Array.isArray(value[index]) ? value[index] : value;
+    };
+
+    return isSourceData
+      ? getValueForSourceData(value, index)
+      : preserveCase
       ? value[index].toString()
       : value[index].toString().toUpperCase();
   } else if (value) {
@@ -298,12 +305,13 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      sourceData: columnProperties.sourceData,
-      configureMenuItems: getPropertyValue(
-        columnProperties.configureMenuItems,
+      sourceData: getPropertyValue(
+        columnProperties.sourceData,
         rowIndex,
+        false,
         true,
       ),
+      configureMenuItems: columnProperties.configureMenuItems,
       buttonVariant: getPropertyValue(
         columnProperties.buttonVariant,
         rowIndex,
@@ -695,44 +703,26 @@ export const getKeysFromSourceDataForEventAutocomplete = (
   props: TableWidgetProps,
 ) => {
   const keysForAutocomplete = { currentItem: {} };
-  const { __evaluation__: evaluation, primaryColumns } = props;
-  const primaryColumnKeys = primaryColumns ? Object.keys(primaryColumns) : [];
-  const columnName = primaryColumnKeys?.length ? primaryColumnKeys[0] : "";
-  const evaluatedColumns = evaluation?.evaluatedValues?.primaryColumns;
+  // const { __evaluation__: evaluation, primaryColumns } = props;
+  // const primaryColumnKeys = primaryColumns ? Object.keys(primaryColumns) : [];
+  // const columnName = primaryColumnKeys?.length ? primaryColumnKeys[0] : "";
+  // const evaluatedColumns = evaluation?.evaluatedValues?.primaryColumns;
 
-  if (evaluation?.evaluatedValues?.primaryColumns && evaluatedColumns) {
-    const sourceData: Record<string, unknown>[] =
-      evaluatedColumns[
-        columnName as keyof typeof evaluation.evaluatedValues.primaryColumns
-      ]?.["sourceData"];
+  // if (evaluation?.evaluatedValues?.primaryColumns && evaluatedColumns) {
+  //   const sourceData: Record<string, unknown>[] =
+  //     evaluatedColumns[
+  //       columnName as keyof typeof evaluation.evaluatedValues.primaryColumns
+  //     ]?.["sourceData"];
 
-    if (isArray(sourceData) && sourceData?.length) {
-      const keys = getUniqueKeysFromSourceData(sourceData);
+  //   if (isArray(sourceData) && sourceData?.length) {
+  //     const keys = getUniqueKeysFromSourceData(sourceData);
 
-      keysForAutocomplete.currentItem = keys.reduce(
-        (prev, cur) => ({ ...prev, [cur]: "" }),
-        {},
-      );
-    }
-  }
+  //     keysForAutocomplete.currentItem = keys.reduce(
+  //       (prev, cur) => ({ ...prev, [cur]: "" }),
+  //       {},
+  //     );
+  //   }
+  // }
 
   return keysForAutocomplete;
-};
-
-export const getUniqueKeysFromSourceData = (
-  sourceData?: Array<Record<string, unknown>>,
-) => {
-  if (!isArray(sourceData) || !sourceData?.length) {
-    return [];
-  }
-
-  const allKeys: string[] = [];
-
-  // get all keys
-  sourceData?.forEach((item) => allKeys.push(...Object.keys(item)));
-
-  // return unique keys
-  const uniqueKeys = [...new Set(allKeys)];
-
-  return uniqueKeys.length ? uniqueKeys : [];
 };

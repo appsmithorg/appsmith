@@ -1,4 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { labelForEachRowValidation } from "widgets/MenuButtonWidget/validations";
 import { ICON_NAMES } from "widgets/TableWidgetV2/constants";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/TableWidgetV2/widget/utilities";
 
@@ -28,9 +30,14 @@ export default {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+            type: ValidationTypes.FUNCTION,
             params: {
-              type: ValidationTypes.TEXT,
+              expected: {
+                type: "Array of values",
+                example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
+                autocompleteDataType: AutocompleteDataType.ARRAY,
+              },
+              fnString: labelForEachRowValidation.toString(),
             },
           },
           evaluatedDependencies: ["primaryColumns"],
