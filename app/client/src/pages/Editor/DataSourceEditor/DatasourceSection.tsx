@@ -21,11 +21,13 @@ const Value = styled.div`
 
 const ValueWrapper = styled.div`
   display: inline-block;
-  margin-left: 10px;
+  &:not(:first-child) {
+    margin-left: 10px;
+  }
 `;
 
 const FieldWrapper = styled.div`
-  &:not(first-child) {
+  &:not(:first-child) {
     margin-top: 9px;
   }
 `;

@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.data.domain.Sort;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,6 +17,8 @@ public interface AppsmithRepository<T> {
     Mono<T> findById(String id, AclPermission permission);
 
     Mono<T> findById(String id, Optional<AclPermission> permission);
+
+    Mono<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
 
     Mono<T> updateById(String id, T resource, AclPermission permission);
 

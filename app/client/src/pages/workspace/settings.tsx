@@ -26,6 +26,10 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import {
+  createMessage,
+  INVITE_USERS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -211,6 +215,7 @@ export default function Settings() {
         canOutsideClickClose
         isOpen={showModal}
         onClose={() => setShowModal(false)}
+        placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
         title={`Invite Users to ${currentWorkspace?.name}`}
         trigger
         workspaceId={workspaceId}
