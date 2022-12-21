@@ -156,7 +156,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     EVAL_CONTEXT,
     dataTree,
     skipEntityFunctions: !!skipEntityFunctions,
-    requestId: context?.requestId,
     eventType: context?.eventType,
   });
 
@@ -327,7 +326,7 @@ export async function evaluateAsync(
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
-      context: { ...context, requestId },
+      context,
       evalArguments,
     });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);

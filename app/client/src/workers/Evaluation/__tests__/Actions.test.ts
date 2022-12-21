@@ -38,9 +38,7 @@ describe("Add functions", () => {
   const evalContext = createEvaluationContext({
     dataTree,
     resolvedFunctions: {},
-    context: {
-      requestId: "EVAL_TRIGGER",
-    },
+    context: {},
   });
 
   const messageCreator = (type: string, body: unknown) => ({

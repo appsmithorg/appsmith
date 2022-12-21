@@ -16,7 +16,7 @@ describe("promise execution", () => {
   const evalContext = createEvaluationContext({
     dataTree: {},
     resolvedFunctions: {},
-    context: { requestId },
+    context: {},
   });
 
   const requestMessageCreator = (type: string, body: unknown) => ({

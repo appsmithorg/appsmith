@@ -316,7 +316,6 @@ const ENTITY_FUNCTIONS: Record<
 export const addDataTreeToContext = (args: {
   EVAL_CONTEXT: EvalContext;
   dataTree: Readonly<DataTree>;
-  requestId?: string;
   skipEntityFunctions?: boolean;
   eventType?: EventType;
 }) => {
