@@ -60,15 +60,13 @@ export function getlintErrorsFromTree(
   unEvalTree: DataTree,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
-  const GLOBAL_DATA_WITH_FUNCTIONS = createEvaluationContext({
+  const evalContext = createEvaluationContext({
     dataTree: unEvalTree,
     resolvedFunctions: {},
     skipEntityFunctions: true,
   });
 
-  const GLOBAL_DATA_WITHOUT_FUNCTIONS = removePlatformFunctions(
-    GLOBAL_DATA_WITH_FUNCTIONS,
-  );
+  const evalContextWithOutFunctions = removePlatformFunctions(evalContext);
   // trigger paths
   const triggerPaths = new Set<string>();
   // Certain paths, like JS Object's body are binding paths where appsmith functions are needed in the global data
@@ -96,7 +94,7 @@ export function getlintErrorsFromTree(
       unEvalPropertyValue,
       entity,
       fullPropertyPath,
-      GLOBAL_DATA_WITHOUT_FUNCTIONS,
+      evalContextWithOutFunctions,
     );
     set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
   });
@@ -120,7 +118,7 @@ export function getlintErrorsFromTree(
           unEvalPropertyValue,
           entity,
           fullPropertyPath,
-          GLOBAL_DATA_WITH_FUNCTIONS,
+          evalContextWithOutFunctions,
         );
         set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
       });
@@ -140,7 +138,7 @@ export function getlintErrorsFromTree(
         const lintErrors = lintTriggerPath(
           unEvalPropertyValue,
           entity,
-          GLOBAL_DATA_WITH_FUNCTIONS,
+          evalContextWithOutFunctions,
         );
         set(lintTreeErrors, `["${triggerPath}"]`, lintErrors);
       });
