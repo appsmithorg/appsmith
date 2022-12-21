@@ -352,11 +352,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     @Deprecated
     protected Query createQueryWithPermission(List<Criteria> criterias, Set<String> permissionGroups, AclPermission aclPermission) {
-        return createQueryWithPermission(criterias, permissionGroups, Optional.ofNullable(aclPermission));
+        return createQueryWithPermission(criterias, null, permissionGroups, aclPermission);
     }
 
     protected Query createQueryWithPermission(List<Criteria> criterias, Set<String> permissionGroups, Optional<AclPermission> permission) {
-        return createQueryWithPermission(criterias, permissionGroups, permission);
+        return createQueryWithPermission(criterias, null, permissionGroups, permission.orElse(null));
     }
 
     protected Query createQueryWithPermission(List<Criteria> criterias, List<String> projectionFieldNames,
