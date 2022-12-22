@@ -3,6 +3,7 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
@@ -20,6 +21,7 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
@@ -27,9 +29,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
@@ -98,15 +98,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
-import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -488,7 +484,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .then(currentUserMono)
-                .map(user -> {
+                .flatMap(user -> {
                     stopwatch.stopTimer();
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID, applicationId,
@@ -498,8 +494,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             FieldName.FLOW_NAME, stopwatch.getFlow(),
                             "executionTime", stopwatch.getExecutionTime()
                     );
-                    analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
-                    return applicationJson;
+                    return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
+                            .thenReturn(applicationJson);
                 })
                 .then(allCustomJSLibListMono)
                 .map(allCustomLibList -> {
@@ -1201,7 +1197,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
                             .then(sendImportExportApplicationAnalyticsEvent(importedApplication.getId(), AnalyticsEvents.IMPORT))
                             .zipWith(currUserMono)
-                            .map(tuple -> {
+                            .flatMap(tuple -> {
                                 Application application = tuple.getT1();
                                 stopwatch.stopTimer();
                                 stopwatch.stopAndLogTimeInMillis();
@@ -1214,8 +1210,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         FieldName.FLOW_NAME, stopwatch.getFlow(),
                                         "executionTime", stopwatch.getExecutionTime()
                                 );
-                                analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
-                                return application;
+                                return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data)
+                                        .thenReturn(application);
                             });
                 })
                 .onErrorResume(throwable -> {
