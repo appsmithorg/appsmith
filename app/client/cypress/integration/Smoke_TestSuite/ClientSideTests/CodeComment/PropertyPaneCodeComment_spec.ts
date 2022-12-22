@@ -19,7 +19,6 @@ describe("Property Pane Code Commenting", () => {
 
   it("2. Should uncomment code in Property Pane", () => {
     EntityExplorer.SelectEntityByName("Button1", "Widgets");
-    PropertyPane.TypeTextIntoField("Label", "{{appsmith}}");
     PropertyPane.TypeTextIntoField("Label", "{{// appsmith}}");
     PropertyPane.ToggleCommentInTextField("Label");
 

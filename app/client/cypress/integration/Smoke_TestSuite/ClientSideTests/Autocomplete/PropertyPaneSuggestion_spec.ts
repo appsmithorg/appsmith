@@ -1,6 +1,11 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const { AggregateHelper, EntityExplorer, PropertyPane } = ObjectsRegistry;
+const {
+  AggregateHelper,
+  CommonLocators,
+  EntityExplorer,
+  PropertyPane,
+} = ObjectsRegistry;
 
 describe("Property Pane Suggestions", () => {
   before(() => {
@@ -11,24 +16,24 @@ describe("Property Pane Suggestions", () => {
 
   it("1. Should show Property Pane Suggestions on / command", () => {
     EntityExplorer.SelectEntityByName("Button1", "Widgets");
-    PropertyPane.TypeTextIntoField("Label", "{{appsmith}}");
     PropertyPane.TypeTextIntoField("Label", "/");
-    cy.get("ul.CodeMirror-hints")
-      .contains("New Binding")
-      .should("exist")
-      .click();
+    AggregateHelper.GetNAssertElementText(CommonLocators._hints, "Bind Data");
+    AggregateHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "New Binding",
+      "have.text",
+      1,
+    );
+    AggregateHelper.GetNClickByContains(CommonLocators._hints, "New Binding");
 
     PropertyPane.ValidatePropertyFieldValue("Label", "{{}}");
   });
 
   it("2. Should show Property Pane Suggestions on typing {{}}", () => {
     EntityExplorer.SelectEntityByName("Button1", "Widgets");
-    PropertyPane.TypeTextIntoField("Label", "{{appsmith}}");
     PropertyPane.TypeTextIntoField("Label", "{{");
-    cy.get("ul.CodeMirror-hints")
-      .contains("appsmith")
-      .should("exist")
-      .click();
+    AggregateHelper.GetNAssertElementText(CommonLocators._hints, "appsmith");
+    AggregateHelper.GetNClickByContains(CommonLocators._hints, "appsmith");
 
     PropertyPane.ValidatePropertyFieldValue("Label", "{{appsmith}}");
   });
