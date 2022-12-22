@@ -342,7 +342,7 @@ function DatasourceAuth({
           onClick={handleOauthDatasourceSave}
           size="medium"
           tag="button"
-          text={isAuthorized ? "Save and Re-authorize" : "Save and Authorize"}
+          text="Save and Authorize"
           variant={Variant.success}
         />
       ),
