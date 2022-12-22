@@ -113,6 +113,8 @@ export class DataSources {
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
+  _entityCollapseButton = ".t--entity-collapse-toggle"
+  
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
 
@@ -778,5 +780,9 @@ export class DataSources {
         false,
         0,
       );
+  }
+
+  public getDSEntity(dSName: string){
+    return `[data-guided-tour-id="explorer-entity-${dSName}"]`;
   }
 }

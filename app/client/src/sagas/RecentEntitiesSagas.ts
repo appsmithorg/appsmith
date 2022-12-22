@@ -1,5 +1,5 @@
 import { matchPath } from "react-router";
-import { matchBasePath } from "pages/Editor/Explorer/helpers";
+import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   API_EDITOR_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
