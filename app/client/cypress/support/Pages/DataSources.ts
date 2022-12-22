@@ -24,7 +24,8 @@ export class DataSources {
     "input[name='datasourceConfiguration.authentication.databaseName']";
   private _username =
     "input[name='datasourceConfiguration.authentication.username']";
-  private _sectionAuthentication = "[data-cy=section-Authentication]";
+  private _sectionAuthentication =
+    "[data-cy=section-Authentication] .t--collapse-section-container";
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
@@ -112,6 +113,8 @@ export class DataSources {
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
+  public _datasourceModalSave = ".t--datasource-modal-save";
+  public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
 
   public AssertViewMode() {
     this.agHelper.AssertElementExist(this._editButton);
@@ -740,7 +743,11 @@ export class DataSources {
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(dataSourceName : string, schema: string, isUpdate = false) {
+  public verifySchema(
+    dataSourceName: string,
+    schema: string,
+    isUpdate = false,
+  ) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.updateDatasource();

@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-
 @Slf4j
 public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlImporterServiceCE {
 
@@ -114,7 +112,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     action1.setPageId(newPage.getId());
                     return Mono.just(action1);
                 })
-                .flatMap(layoutActionService::createSingleAction)
+                .flatMap(action2 -> layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
