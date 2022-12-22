@@ -10,13 +10,9 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ActionCalledInSyncFieldError,
-  isAction,
-  isAppsmithEntity,
-  isTrueObject,
-} from "./evaluationUtils";
+import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
+import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 
 declare global {
   /** All identifiers added to the worker global scope should also
@@ -347,7 +343,6 @@ export const addDataTreeToContext = (args: {
         fullPath,
         pusher.bind(
           {
-            TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
             EVENT_TYPE: eventType,
           },
           func,
@@ -364,14 +359,12 @@ export const addDataTreeToContext = (args: {
   )) {
     EVAL_CONTEXT[entityName] = Object.assign({}, dataTree[entityName], funcObj);
   }
-  for (const [name, fn] of platformFunctionEntries) {
-    EVAL_CONTEXT[name] = pusher.bind(
-      {
-        TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-        EVENT_TYPE: eventType,
-      },
-      fn,
-    );
+};
+
+export const addPlatformFunctionsToEvalContext = () => {
+  for (const [funcName, fn] of platformFunctionEntries) {
+    // @ts-expect-error: type missing
+    self[funcName] = pusher.bind({}, fn);
   }
 };
 
@@ -410,7 +403,6 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
  * **/
 export const pusher = function(
   this: {
-    TRIGGER_COLLECTOR: ActionDescription[];
     EVENT_TYPE?: EventType;
   },
   action: ActionDispatcherWithExecutionType,
@@ -429,7 +421,7 @@ export const pusher = function(
   } as ActionDescription;
 
   if (executionType && executionType === ExecutionType.TRIGGER) {
-    this.TRIGGER_COLLECTOR.push(actionPayload);
+    self.TRIGGER_COLLECTOR.push(actionPayload);
   } else {
     return promisifyAction(actionPayload, this.EVENT_TYPE);
   }

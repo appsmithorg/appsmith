@@ -55,6 +55,7 @@ export const promisifyAction = (
           const evalContext = createEvaluationContext({
             dataTree: dataTreeEvaluator.evalTree,
             resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
+            isTriggerBased: true,
             context: {
               eventType,
             },

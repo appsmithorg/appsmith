@@ -1,5 +1,5 @@
+import { ActionCalledInSyncFieldError } from "./errorModifier";
 import { createEvaluationContext } from "./evaluate";
-import { ActionCalledInSyncFieldError } from "./evaluationUtils";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 
 export const _internalSetTimeout = self.setTimeout;
@@ -17,6 +17,7 @@ export default function overrideTimeout() {
       const globalData = createEvaluationContext({
         dataTree: dataTreeEvaluator?.evalTree || {},
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
+        isTriggerBased: true,
       });
       return _internalSetTimeout(
         function(...args: any) {

@@ -1,5 +1,5 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getAllAsyncFunctions } from "./Actions";
+import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
 import { get } from "lodash";
 
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =

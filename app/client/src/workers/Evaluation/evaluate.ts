@@ -14,10 +14,10 @@ import indirectEval from "./indirectEval";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import {
+  errorModifier,
   FoundPromiseInSyncEvalError,
   getErrorMessage,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import { errorModifier } from "./errorModifier";
+} from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 
 export type EvalResult = {

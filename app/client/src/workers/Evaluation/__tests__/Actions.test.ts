@@ -5,8 +5,9 @@ import {
   EvalContext,
 } from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
-import { addDataTreeToContext } from "../Actions";
 import { MessageType } from "utils/MessageUtil";
+import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+
 jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
@@ -850,6 +851,7 @@ describe("Test addDataTreeToContext method", () => {
     addDataTreeToContext({
       EVAL_CONTEXT: evalContext,
       dataTree: (dataTree as unknown) as DataTree,
+      isTriggerBased: true,
     });
   });
 
