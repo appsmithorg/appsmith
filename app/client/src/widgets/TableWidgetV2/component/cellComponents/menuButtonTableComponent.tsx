@@ -20,7 +20,6 @@ import {
 } from "widgets/WidgetUtils";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
-import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
 import {
@@ -31,6 +30,7 @@ import { ThemeProp } from "widgets/constants";
 import {
   ConfigureMenuItems,
   MenuItem,
+  MenuItems,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
 

@@ -1,7 +1,13 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { labelForEachRowValidation } from "widgets/MenuButtonWidget/validations";
-import { ICON_NAMES } from "widgets/TableWidgetV2/constants";
+import { ICON_NAMES } from "widgets/MenuButtonWidget/constants";
+import {
+  booleanForEachRowValidation,
+  colorForEachRowValidation,
+  iconNamesForEachRowValidation,
+  iconPositionForEachRowValidation,
+  textForEachRowValidation,
+} from "widgets/MenuButtonWidget/validations";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/TableWidgetV2/widget/utilities";
 
 export default {
@@ -37,7 +43,7 @@ export default {
                 example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
                 autocompleteDataType: AutocompleteDataType.ARRAY,
               },
-              fnString: labelForEachRowValidation.toString(),
+              fnString: textForEachRowValidation.toString(),
             },
           },
           evaluatedDependencies: ["primaryColumns"],
@@ -52,9 +58,9 @@ export default {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+            type: ValidationTypes.FUNCTION,
             params: {
-              type: ValidationTypes.BOOLEAN,
+              fnString: booleanForEachRowValidation.toString(),
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
@@ -70,9 +76,9 @@ export default {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+            type: ValidationTypes.FUNCTION,
             params: {
-              type: ValidationTypes.BOOLEAN,
+              fnString: booleanForEachRowValidation.toString(),
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
@@ -112,12 +118,10 @@ export default {
           isTriggerProperty: false,
           isJSConvertible: true,
           validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+            type: ValidationTypes.FUNCTION,
             params: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ICON_NAMES,
-              },
+              allowedValues: ICON_NAMES,
+              fnString: iconNamesForEachRowValidation.toString(),
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
@@ -143,12 +147,10 @@ export default {
           isTriggerProperty: false,
           isJSConvertible: true,
           validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+            type: ValidationTypes.FUNCTION,
             params: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["center", "left", "right"],
-              },
+              allowedValues: ["center", "left", "right"],
+              fnString: iconPositionForEachRowValidation.toString(),
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
@@ -171,10 +173,10 @@ export default {
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
           evaluatedDependencies: ["primaryColumns"],
           validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+            type: ValidationTypes.FUNCTION,
             params: {
-              type: ValidationTypes.TEXT,
               regex: /^(?![<|{{]).+/,
+              fnString: colorForEachRowValidation.toString(),
             },
           },
         },
@@ -190,10 +192,10 @@ export default {
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
           evaluatedDependencies: ["primaryColumns"],
           validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+            type: ValidationTypes.FUNCTION,
             params: {
-              type: ValidationTypes.TEXT,
               regex: /^(?![<|{{]).+/,
+              fnString: colorForEachRowValidation.toString(),
             },
           },
         },
@@ -209,10 +211,10 @@ export default {
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
           evaluatedDependencies: ["primaryColumns"],
           validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+            type: ValidationTypes.FUNCTION,
             params: {
-              type: ValidationTypes.TEXT,
               regex: /^(?![<|{{]).+/,
+              fnString: colorForEachRowValidation.toString(),
             },
           },
         },

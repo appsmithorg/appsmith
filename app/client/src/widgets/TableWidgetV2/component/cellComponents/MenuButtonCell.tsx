@@ -2,7 +2,7 @@ import React from "react";
 import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 
-import { BaseCellComponentProps, MenuItems } from "../Constants";
+import { BaseCellComponentProps } from "../Constants";
 import { ButtonVariant } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
@@ -10,6 +10,7 @@ import MenuButtonTableComponent from "./menuButtonTableComponent";
 import {
   ConfigureMenuItems,
   MenuItem,
+  MenuItems,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
 
