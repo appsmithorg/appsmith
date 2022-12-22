@@ -1687,7 +1687,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 [key: string]: string | number | Record<string, unknown>;
               } = {};
 
-              if (cellProperties?.sourceData && index) {
+              if (cellProperties?.sourceData && _.isNumber(index)) {
                 additionalData.currentItem = cellProperties.sourceData[index];
                 additionalData.currentIndex = index;
               }
