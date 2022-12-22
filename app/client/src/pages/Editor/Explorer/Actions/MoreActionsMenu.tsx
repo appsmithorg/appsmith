@@ -9,7 +9,7 @@ import {
   deleteAction,
 } from "actions/pluginActionActions";
 
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { noop } from "lodash";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { useNewActionName } from "./helpers";
