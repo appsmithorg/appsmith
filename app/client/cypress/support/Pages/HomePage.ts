@@ -25,7 +25,9 @@ export class HomePage {
     workspaceName +
     ") button:contains('Share')";
   private _email =
-    "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
+    Cypress.env("Edition") === 0
+      ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
+      : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   private _userRole = (role: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
