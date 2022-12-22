@@ -47,7 +47,15 @@ public class GenericDatabaseOperation {
     public Mono<Long> inheritPoliciesForBranchedOnlyActionCollectionsFromPage(NewPage page) {
         // Get set of actions from the page
         Mono<List<String>> actionCollectionIdsMono = mongoOperations.query(ActionCollection.class)
-            .matching(Criteria.where("unpublishedCollection.pageId").is(page.getId()))
+            .matching(
+                new Criteria().andOperator(
+                    Criteria.where("unpublishedCollection.pageId").is(page.getId()),
+                    new Criteria().norOperator(
+                        Criteria.where("deleted").is(true),
+                        Criteria.where("deletedAt").ne(null)
+                    )
+                )
+            )
             .all()
             .map(BaseDomain::getId)
             .collectList();
@@ -89,7 +97,15 @@ public class GenericDatabaseOperation {
     public Mono<Long> inheritPoliciesForBranchedOnlyActionsFromPage(NewPage page) {
         // Get set of actions from the page
         Mono<List<String>> actionIdsMono = mongoOperations.query(NewAction.class)
-            .matching(Criteria.where("unpublishedAction.pageId").is(page.getId()))
+            .matching(
+                new Criteria().andOperator(
+                    Criteria.where("unpublishedAction.pageId").is(page.getId()),
+                    new Criteria().norOperator(
+                        Criteria.where("deleted").is(true),
+                        Criteria.where("deletedAt").ne(null)
+                    )
+                )
+            )
             .all()
             .map(BaseDomain::getId)
             .collectList();
@@ -220,7 +236,7 @@ public class GenericDatabaseOperation {
      */
     private boolean isConnectedToGit(BaseDomain domain) {
         if(domain instanceof Application) {
-            return ((Application) domain).getGitApplicationMetadata() != null;
+            return ((Application) domain).getGitApplicationMetadata() != null && StringUtils.isNotEmpty(((Application) domain).getGitApplicationMetadata().getDefaultApplicationId());
         } else {
             return domain.getDefaultResources() != null && StringUtils.isNotEmpty(domain.getDefaultResources().getBranchName());
         }

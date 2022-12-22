@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.EnvironmentVariable;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
@@ -65,7 +66,7 @@ public class EnvironmentServiceTest {
                 .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
                 .block();
 
-        Mockito.when(workspaceService.findById(Mockito.any(), Mockito.any()))
+        Mockito.when(workspaceService.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(workspace));
 
         Mockito.when(featureFlagService.check(Mockito.any()))
