@@ -74,7 +74,6 @@ public class CommonConfig {
     @Value("${APPSMITH_OAUTH2_OIDC_AUDIENCE:}")
     private String oidcAudience;
 
-
     @Bean
     public Scheduler scheduler() {
         return Schedulers.newElastic(ELASTIC_THREAD_POOL_NAME);
