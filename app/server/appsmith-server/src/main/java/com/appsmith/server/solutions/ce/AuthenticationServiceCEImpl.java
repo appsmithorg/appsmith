@@ -379,7 +379,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                             "Unable to connect to Appsmith authentication server."
                                     ));
                 })
-                .onErrorResume(AppsmithException.class, error -> datasourceMono.flatMap(datasource -> {
+                .onErrorResume(BaseException.class, error -> datasourceMono.flatMap(datasource -> {
                     datasource.getDatasourceConfiguration().getAuthentication().setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.FAILURE);
                     return datasourceService.update(datasource.getId(), datasource).then(Mono.error(error));
                 }));
