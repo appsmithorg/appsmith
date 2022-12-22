@@ -40,7 +40,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       AssertJSOnPageLoad(
         "runWorldCountries",
         false,
-        "UncaughtPromiseRejection: getWorldCountries is not defined",
+        "ReferenceError: getWorldCountries is not defined",
       );
     });
   });
@@ -51,7 +51,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
-      "UncaughtPromiseRejection: getWorldCountries is not defined",
+      "ReferenceError: getWorldCountries is not defined",
     );
 
     homePage.NavigateToHome();
@@ -59,7 +59,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
-      "UncaughtPromiseRejection: getWorldCountries is not defined",
+      "ReferenceError: getWorldCountries is not defined",
     );
   });
 
