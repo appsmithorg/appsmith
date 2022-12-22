@@ -14,6 +14,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
       //localStorage.setItem("WorkspaceName", workspaceId);
       homePage.CreateNewWorkspace(workspaceId);
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
+      homePage.InviteUserToWorkspaceErrorMessage(workspaceId, "abcdef");
+      cy.visit("/applications");
       homePage.InviteUserToWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME1"),

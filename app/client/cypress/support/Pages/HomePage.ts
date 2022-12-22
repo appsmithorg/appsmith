@@ -25,7 +25,9 @@ export class HomePage {
     workspaceName +
     ") button:contains('Share')";
   private _email =
-    "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
+    Cypress.env("Edition") === 0
+      ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
+      : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   private _userRole = (role: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
@@ -150,6 +152,26 @@ export class HomePage {
       .should("have.property", "origin", "Cypress");
     cy.contains(email, { matchCase: false });
     cy.contains(successMessage);
+  }
+
+  public InviteUserToWorkspaceErrorMessage(
+    workspaceName: string,
+    text: string,
+  ) {
+    const errorMessage =
+      Cypress.env("Edition") === 0
+        ? "Invalid email address(es) found"
+        : "Invalid email address(es) or group(s) found";
+    this.StubPostHeaderReq();
+    this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
+    this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
+    cy.xpath(this._email)
+      .click({ force: true })
+      .type(text);
+    this.agHelper.ClickButton("Invite");
+    cy.contains(text, { matchCase: false });
+    cy.contains(errorMessage, { matchCase: false });
+    cy.get(".bp3-dialog-close-button").click({ force: true });
   }
 
   public StubPostHeaderReq() {

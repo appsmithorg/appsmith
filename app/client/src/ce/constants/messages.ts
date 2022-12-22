@@ -132,7 +132,7 @@ export const PAGE_NOT_FOUND_ERROR = () =>
 export const INVALID_URL_ERROR = () => `Invalid URL`;
 
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
-  `Invalid Email address(es) found`;
+  `Invalid email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
 
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
