@@ -15,7 +15,7 @@ import { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "../../../Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
@@ -158,7 +158,7 @@ function GeneratePageSubmitBtn({
 }) {
   return showSubmitButton ? (
     <FormSubmitButton
-      category={Category.tertiary}
+      category={Category.secondary}
       data-cy="t--generate-page-form-submit"
       disabled={disabled}
       isLoading={isLoading}
@@ -672,7 +672,7 @@ function GeneratePageForm() {
         ) : null}
         {showEditDatasourceBtn && (
           <EditDatasourceButton
-            category={Category.tertiary}
+            category={Category.secondary}
             onClick={goToEditDatasource}
             size={Size.medium}
             text="Edit Datasource"

@@ -70,7 +70,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 69;
+export const LATEST_PAGE_VERSION = 74;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -97,6 +97,7 @@ export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
+export const MODAL_PORTAL_OVERLAY_CLASSNAME = "bp3-overlay-zindex";
 export const CANVAS_SELECTOR = "canvas";
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
@@ -166,4 +167,18 @@ export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,
   MIN_HEIGHT_IN_ROWS: 4,
   MIN_CANVAS_HEIGHT_IN_ROWS: 10,
+};
+
+export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
+  children: true,
+  parentId: true,
+  renderMode: true,
+  detachFromLayout: true,
+  noContainerOffset: false,
+  hideCard: true,
+  isDeprecated: true,
+  searchTags: true,
+  iconSVG: true,
+  version: true,
+  displayName: true,
 };

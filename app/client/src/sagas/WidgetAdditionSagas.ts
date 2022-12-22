@@ -133,10 +133,19 @@ function* getChildWidgetProps(
   );
 
   widget.widgetId = newWidgetId;
+  /**
+   * un-evaluated childStylesheet used by widgets; so they are to be excluded
+   * from the dynamicBindingPathList and they are not included as a part of
+   * the props send to getPropertiesToUpdate.
+   */
+  const themeConfigWithoutChildStylesheet = omit(
+    themeDefaultConfig,
+    "childStylesheet",
+  );
   const { dynamicBindingPathList } = yield call(
     getPropertiesToUpdate,
     widget,
-    themeDefaultConfig,
+    themeConfigWithoutChildStylesheet,
   );
   widget.dynamicBindingPathList = clone(dynamicBindingPathList);
   return widget;
@@ -290,7 +299,7 @@ export function* getUpdateDslAfterCreatingChild(
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     traverseTreeAndExecuteBlueprintChildOperations,
     parent,
-    addChildPayload.newWidgetId,
+    [addChildPayload.newWidgetId],
     widgets,
   );
 

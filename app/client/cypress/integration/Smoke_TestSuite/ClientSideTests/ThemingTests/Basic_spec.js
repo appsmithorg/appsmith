@@ -5,7 +5,8 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/replay.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let ee = ObjectsRegistry.EntityExplorer;
+const ee = ObjectsRegistry.EntityExplorer,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("App Theming funtionality", function() {
   before(() => {
@@ -25,6 +26,8 @@ describe("App Theming funtionality", function() {
     themesSection(sectionName, themeName) + "/following-sibling::button";
 
   it("1. Checks if theme can be changed to one of the existing themes", function() {
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     // select a theme
@@ -57,6 +60,8 @@ describe("App Theming funtionality", function() {
 
   it("2. Checks if theme can be edited", function() {
     cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
+    appSettings.ClosePane();
+
     // drop a button widget and click on body
     cy.get(explorer.widgetSwitchId).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 }); //iconbuttonwidget
@@ -64,6 +69,9 @@ describe("App Theming funtionality", function() {
     cy.get("canvas")
       .first(0)
       .trigger("click", { force: true });
+
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
 
     //Click the back button //Commenting below since expanded by default
     //cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
@@ -200,6 +208,7 @@ describe("App Theming funtionality", function() {
 
     cy.wait(200);
     cy.get(commonlocators.toastMsg).contains("Theme testtheme Saved");
+    appSettings.ClosePane();
   });
 
   it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
@@ -210,6 +219,8 @@ describe("App Theming funtionality", function() {
       .first(0)
       .trigger("click", { force: true });
 
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //#region Change Font & verify widgets:
     // cy.contains("Font")
     //   .click({ force: true })
@@ -275,7 +286,7 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
       .eq(23)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
@@ -444,7 +455,7 @@ describe("App Theming funtionality", function() {
     //   cy.wait(200);
 
     cy.xpath(themesDeletebtn("Your Themes", "testtheme"))
-      .click()
+      .click({ force: true })
       .wait(200);
     cy.contains(
       "Do you really want to delete this theme? This process cannot be undone.",
@@ -456,14 +467,14 @@ describe("App Theming funtionality", function() {
 
     //Click on Delete theme trash icon & cancel it
     cy.xpath(themesDeletebtn("Your Themes", "testtheme"))
-      .click()
+      .click({ force: true })
       .wait(200);
     cy.xpath("//span[text()='Cancel']/parent::a").click();
     cy.get(commonlocators.toastMsg).should("not.exist");
 
     //Click on Delete theme trash icon & delete it
     cy.xpath(themesDeletebtn("Your Themes", "testtheme"))
-      .click()
+      .click({ force: true })
       .wait(200);
     cy.contains("Delete").click({ force: true });
 
@@ -786,8 +797,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(35)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(33)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(widgetsPage.widgetBtn)
@@ -998,6 +1009,9 @@ describe("App Theming funtionality", function() {
       .first(0)
       .trigger("click", { force: true });
 
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
+
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     //Changing to one of featured themes & then changing individual widget properties
@@ -1015,8 +1029,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(17)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(13)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(widgetsPage.widgetBtn)

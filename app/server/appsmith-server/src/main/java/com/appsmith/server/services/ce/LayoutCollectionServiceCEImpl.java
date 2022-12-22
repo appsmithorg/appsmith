@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -9,7 +10,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
@@ -38,15 +38,13 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Objects;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
@@ -129,7 +127,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         action.setDefaultResources(collection.getDefaultResources());
                         // Action doesn't exist. Create now.
                         return layoutActionService
-                                .createSingleAction(action)
+                                .createSingleAction(action, Boolean.TRUE)
                                 // return an empty action so that this action is disregarded from the list
                                 .onErrorResume(throwable -> {
                                     log.debug("Failed to create action with name {} for collection: {}", action.getName(), collection.getName());
@@ -319,9 +317,14 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     return actionUpdatesFlux
                             .then(actionCollectionService.update(branchedActionCollection.getId(), branchedActionCollection))
                             .then(branchedPageIdMono)
-                            .flatMap(branchedPageId -> refactoringSolution.refactorName(branchedPageId, layoutId, oldName, newName));
+                            .flatMap(branchedPageId -> refactoringSolution.refactorActionCollectionName(
+                                    branchedActionCollection.getApplicationId(),
+                                    branchedPageId,
+                                    layoutId,
+                                    oldName,
+                                    newName));
                 })
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
+                .map(layoutDTO -> responseUtils.updateLayoutDTOWithDefaultResources(layoutDTO));
     }
 
     @Override
@@ -489,7 +492,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 final String defaultPageId = branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId();
                                 actionDTO.getDefaultResources().setPageId(defaultPageId);
                                 // actionCollectionService is a new action, we need to create one
-                                return layoutActionService.createSingleAction(actionDTO);
+                                return layoutActionService.createSingleAction(actionDTO, Boolean.TRUE);
                             } else {
                                 actionDTO.setCollectionId(null);
                                 // Client only knows about the default action ID, fetch branched action id to update the action
@@ -522,7 +525,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 final String defaultPageId = branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId();
                                 actionDTO.getDefaultResources().setPageId(defaultPageId);
                                 // actionCollectionService is a new action, we need to create one
-                                return layoutActionService.createSingleAction(actionDTO)
+                                return layoutActionService.createSingleAction(actionDTO, Boolean.TRUE)
                                         // return an empty action so that the filter can remove it from the list
                                         .onErrorResume(throwable -> {
                                             log.debug("Failed to create action with name {} for collection: {}", actionDTO.getName(), actionCollectionDTO.getName());

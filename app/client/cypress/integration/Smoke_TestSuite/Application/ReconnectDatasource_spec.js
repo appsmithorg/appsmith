@@ -1,5 +1,6 @@
 const homePage = require("../../../locators/HomePage");
 const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
+const datasource = require("../../../locators/DatasourcesEditor.json");
 
 describe("Reconnect Datasource Modal validation while importing application", function() {
   let workspaceId;
@@ -39,12 +40,14 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             cy.get(".t--ds-list").contains("PostgreSQL");
             // check the postgres form config with default value
             cy.get("[data-cy='section-Connection']").should("be.visible");
-            cy.get("[data-cy='section-Authentication']").should("be.visible");
-            cy.get("[data-cy='section-SSL (optional)']").should("be.visible");
+            cy.get(datasource.authenticationSettingsSection).should(
+              "be.visible",
+            );
+            cy.get(datasource.sslSettingsSection).should("be.visible");
             cy.get(
               "[data-cy='datasourceConfiguration.connection.mode']",
             ).should("contain", "Read / Write");
-            cy.get("[data-cy='section-SSL (optional)']").click({ force: true });
+            cy.get(datasource.sslSettingsSection).click({ force: true });
             // should expand ssl pan
             cy.get(
               "[data-cy='datasourceConfiguration.connection.ssl.authType']",
@@ -53,7 +56,8 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             cy.ReconnectDatasource("Untitled Datasource");
             cy.wait(1000);
             cy.fillPostgresDatasourceForm();
-            cy.testSaveDatasource();
+            cy.testDatasource(true);
+            cy.get(".t--save-datasource").click({ force: true });
             cy.wait(2000);
 
             // cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
@@ -79,7 +83,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           const name = uuid();
           appName = `app${name}`;
           cy.get(homePage.applicationName).click({ force: true });
-          cy.get(`${homePage.applicationEditMenu} li:first-child a`).click({
+          cy.get(`${homePage.applicationEditMenu} li:nth-child(3) a`).click({
             force: true,
           });
           cy.wait(2000);

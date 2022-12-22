@@ -10,7 +10,7 @@ import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
@@ -98,7 +98,7 @@ export function saveResolvedFunctionsAndJSUpdates(
                 parsedElement.value,
                 unEvalDataTree,
                 {},
-                true,
+                false,
                 undefined,
                 undefined,
                 true,

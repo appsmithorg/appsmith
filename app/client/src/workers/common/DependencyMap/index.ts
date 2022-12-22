@@ -9,7 +9,7 @@ import {
   isDynamicLeaf,
   isValidEntity,
   getEntityNameAndPropertyPath,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTree,
   DataTreeAction,
@@ -22,7 +22,7 @@ import {
   getPropertyPath,
   isPathADynamicBinding,
   getDynamicBindings,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import {
   extractInfoFromBindings,
@@ -320,7 +320,7 @@ export const updateDependencyMap = ({
                   // For other paths, update the dependency map
                   if (
                     isWidget(entity) &&
-                    isPathADynamicTrigger(entity, propertyPath)
+                    isPathDynamicTrigger(entity, propertyPath)
                   ) {
                     dataTreeEvalRef.triggerFieldDependencyMap[
                       path
@@ -660,7 +660,7 @@ export const updateDependencyMap = ({
           }
           if (
             isWidget(entity) &&
-            isPathADynamicTrigger(
+            isPathDynamicTrigger(
               entity,
               getPropertyPath(dataTreeDiff.payload.propertyPath),
             )

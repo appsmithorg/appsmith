@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { AppState } from "ce/reducers";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { AppState } from "@appsmith/reducers";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -20,3 +20,6 @@ export const useAutoHeightUIState = () => {
     ),
   };
 };
+
+export const getIsAutoHeightWithLimitsChanging = (state: AppState) =>
+  state.ui.autoHeightUI.isAutoHeightWithLimitsChanging;

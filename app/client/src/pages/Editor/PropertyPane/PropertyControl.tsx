@@ -29,8 +29,6 @@ import {
   DynamicPath,
   getEvalValuePath,
   isDynamicValue,
-  isPathADynamicProperty,
-  isPathADynamicTrigger,
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
@@ -38,7 +36,7 @@ import {
   getWidgetPropsForPropertyName,
   WidgetProperties,
 } from "selectors/propertyPaneSelectors";
-import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
+import { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -55,12 +53,14 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
-import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
+  isSearchResult: boolean;
+  enhancements: EnhancementFns | undefined;
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
@@ -100,19 +100,13 @@ const PropertyControl = memo((props: Props) => {
     },
   );
 
-  const enhancementSelector = getWidgetEnhancementSelector(
-    widgetProperties.widgetId,
-  );
-
-  const { enhancementFns, parentIdWithEnhancementFn } = useSelector(
-    enhancementSelector,
-    equal,
-  );
+  const { enhancementFns, parentIdWithEnhancementFn } =
+    props.enhancements || {};
 
   useEffect(() => {
+    // This is required because layered panels like Column Panel have Animation of 300ms
+    const focusTimeout = props.isPanelProperty ? 300 : 0;
     if (shouldFocusPropertyPath) {
-      // We can get a code editor element as well, which will take time to load
-      // for that we setTimeout to 200 ms
       setTimeout(() => {
         if (shouldFocusOnPropertyControl(controlRef.current)) {
           const focusableElement = getPropertyControlFocusElement(
@@ -124,7 +118,7 @@ const PropertyControl = memo((props: Props) => {
           });
           focusableElement?.focus();
         }
-      }, 0);
+      }, focusTimeout);
     }
   }, [shouldFocusPropertyPath]);
   /**
@@ -176,8 +170,9 @@ const PropertyControl = memo((props: Props) => {
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
     propertyPaneEnhancementFn: childWidgetPropertyUpdateEnhancementFn,
+    shouldHidePropertyFn: childWidgetShouldHidePropertyFn,
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
-  } = enhancementFns;
+  } = enhancementFns || {};
 
   const toggleDynamicProperty = useCallback(
     (propertyName: string, isDynamic: boolean) => {
@@ -293,6 +288,9 @@ const PropertyControl = memo((props: Props) => {
           id: widgetProperties.widgetId,
           // TODO: Check whether these properties have
           // dependent properties
+          // We should send the path that the user sends
+          // instead of sending the path that was updated
+          // as a side effect
           propertyPath: propertiesToUpdate[0].propertyPath,
         },
         state: allUpdates,
@@ -412,6 +410,7 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
         isUpdatedViaKeyboard,
+        isUpdatedFromSearchResult: props.isSearchResult,
       });
 
       const selfUpdates:
@@ -470,7 +469,9 @@ const PropertyControl = memo((props: Props) => {
     // Do not render the control if it needs to be hidden
     if (
       (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
-      props.invisible
+      props.invisible ||
+      (childWidgetShouldHidePropertyFn &&
+        childWidgetShouldHidePropertyFn(props.propertyName))
     ) {
       return null;
     }
@@ -513,7 +514,7 @@ const PropertyControl = memo((props: Props) => {
       label,
     };
     config.expected = getExpectedValue(props.validation);
-    if (isPathADynamicTrigger(widgetProperties, propertyName)) {
+    if (widgetProperties.isPropertyDynamicTrigger) {
       config.validationMessage = "";
       config.expected = {
         example: 'showAlert("There was an error!", "error")',
@@ -523,10 +524,7 @@ const PropertyControl = memo((props: Props) => {
       delete config.evaluatedValue;
     }
 
-    const isDynamic: boolean = isPathADynamicProperty(
-      widgetProperties,
-      propertyName,
-    );
+    const isDynamic: boolean = widgetProperties.isPropertyDynamicPath;
     const isConvertible = !!props.isJSConvertible;
     const className = label
       .split(" ")
@@ -571,7 +569,7 @@ const PropertyControl = memo((props: Props) => {
       if (!shouldFocusPropertyPath) {
         hasDispatchedPropertyFocus.current = true;
         setTimeout(() => {
-          dispatch(generateKeyAndSetFocusablePropertyPaneField(dataTreePath));
+          dispatch(setFocusablePropertyPaneField(dataTreePath));
         }, 0);
       }
     };

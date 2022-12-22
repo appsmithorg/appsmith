@@ -23,6 +23,7 @@ import {
   migrateTableWidgetIconButtonVariant,
   migrateTableWidgetV2Validation,
   migrateTableWidgetV2ValidationBinding,
+  migrateTableWidgetV2SelectOption,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -37,7 +38,10 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 // import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
+import {
+  migrateMenuButtonDynamicItems,
+  migrateMenuButtonWidgetButtonProperties,
+} from "./migrations/MenuButtonWidget";
 import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import {
@@ -48,14 +52,20 @@ import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxG
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-import { migrateStylingPropertiesForTheming } from "./migrations/ThemingMigrations";
+import { PrivateWidgets } from "entities/DataTree/types";
+import {
+  migrateChildStylesheetFromDynamicBindingPathList,
+  migrateStylingPropertiesForTheming,
+} from "./migrations/ThemingMigrations";
 
 import {
   migratePhoneInputWidgetAllowFormatting,
   migratePhoneInputWidgetDefaultDialCode,
 } from "./migrations/PhoneInputWidgetMigrations";
-import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
+import {
+  migrateCurrencyInputWidgetDefaultCurrencyCode,
+  migrateInputWidgetShowStepArrows,
+} from "./migrations/CurrencyInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
@@ -65,7 +75,10 @@ import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskin
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
-import { migratePropertiesForDynamicHeight } from "./migrations/autoHeightMigrations";
+import {
+  migrateListWidgetChildrenForAutoHeight,
+  migratePropertiesForDynamicHeight,
+} from "./migrations/autoHeightMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1117,6 +1130,31 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 68) {
     currentDSL = migratePropertiesForDynamicHeight(currentDSL);
+    currentDSL.version = 69;
+  }
+
+  if (currentDSL.version === 69) {
+    currentDSL = migrateMenuButtonDynamicItems(currentDSL);
+    currentDSL.version = 70;
+  }
+
+  if (currentDSL.version === 70) {
+    currentDSL = migrateChildStylesheetFromDynamicBindingPathList(currentDSL);
+    currentDSL.version = 71;
+  }
+
+  if (currentDSL.version === 71) {
+    currentDSL = migrateTableWidgetV2SelectOption(currentDSL);
+    currentDSL.version = 72;
+  }
+
+  if (currentDSL.version === 72) {
+    currentDSL = migrateListWidgetChildrenForAutoHeight(currentDSL);
+    currentDSL.version = 73;
+  }
+
+  if (currentDSL.version === 73) {
+    currentDSL = migrateInputWidgetShowStepArrows(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
