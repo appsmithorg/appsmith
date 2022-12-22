@@ -66,6 +66,8 @@ import { useHistory } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 
+const { cloudHosting, mailEnabled } = getAppsmithConfigs();
+
 export const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
   font-weight: normal;
@@ -262,7 +264,10 @@ const validateFormValues = (values: {
     _users.forEach((user) => {
       if (!isEmail(user)) {
         throw new SubmissionError({
-          _error: createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST),
+          _error: createMessage(
+            INVITE_USERS_VALIDATION_EMAIL_LIST,
+            cloudHosting,
+          ),
         });
       }
     });
@@ -294,14 +299,15 @@ const validate = (values: any) => {
 
     _users.forEach((user: string) => {
       if (!isEmail(user)) {
-        errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
+        errors["users"] = createMessage(
+          INVITE_USERS_VALIDATION_EMAIL_LIST,
+          cloudHosting,
+        );
       }
     });
   }
   return errors;
 };
-
-export const { mailEnabled } = getAppsmithConfigs();
 
 export const InviteButtonWidth = "88px";
 
