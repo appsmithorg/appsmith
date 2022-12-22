@@ -116,7 +116,7 @@ export const DEFAULT_COLUMN_WIDTH = 150;
 
 export const COLUMN_MIN_WIDTH = 60;
 
-export const TABLE_COLUMN_ORDER = "tableWidgetColumnOrder";
+export const LOCAL_TABLE_COLUMN_ORDER = "tableWidgetColumnOrder";
 
 export enum ColumnTypes {
   TEXT = "text",

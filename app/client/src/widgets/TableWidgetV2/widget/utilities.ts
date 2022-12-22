@@ -689,35 +689,20 @@ export const generateNewColumnOrderFromStickyValue = (
   columnOrder: string[],
   columnName: string,
   sticky?: string,
-  leftOrder?: string[],
-  rightOrder?: string[],
 ) => {
   let newColumnOrder = [...columnOrder];
   newColumnOrder = without(newColumnOrder, columnName);
 
+  let columnIndex;
   if (sticky === "left") {
-    let newLeftIndex = 0;
-
-    for (let i = 0; i < columnOrder.length; i++) {
-      const leftCol = columnOrder[i];
-      if (primaryColumns[leftCol].sticky === "left") {
-        newLeftIndex = i + 1;
-      }
-    }
-
-    newColumnOrder.splice(newLeftIndex, 0, columnName);
+    columnIndex = columnOrder
+      .map((column) => primaryColumns[column])
+      .filter((column) => column.sticky === "left").length;
   } else if (sticky === "right") {
-    let newRightIndex = columnOrder.length - 1;
-
-    for (let j = 0; j < columnOrder.length; j++) {
-      const rightCol = columnOrder[j];
-      if (primaryColumns[rightCol].sticky === "right") {
-        newRightIndex = j - 1;
-        break;
-      }
-    }
-
-    newColumnOrder.splice(newRightIndex, 0, columnName);
+    columnIndex =
+      columnOrder
+        .map((column) => primaryColumns[column])
+        .filter((column) => column.sticky !== "right").length - 1;
   } else {
     /**
      * This block will manage the column order when column is unfrozen.
@@ -726,29 +711,19 @@ export const generateNewColumnOrderFromStickyValue = (
      * --> If the column is unfrozen when its on the left, then it should be unfrozen after the last left frozen column.
      * --> If the column is unfrozen when its on the right, then it should be unfrozen before the first right frozen column.
      */
-    let frozenColumnLastIdx = -1;
-
-    const currentPropertyValue = get(primaryColumns, `${columnName}`);
+    columnIndex = -1;
 
     for (let k = 0; k < columnOrder.length; k++) {
       const colName = columnOrder[k];
-      if (primaryColumns[colName].sticky === currentPropertyValue.sticky) {
-        if (
-          primaryColumns[colName].sticky === "right" ||
-          rightOrder?.includes(colName)
-        ) {
-          frozenColumnLastIdx = k;
-          break;
-        }
-        if (
-          primaryColumns[colName].sticky === "left" ||
-          leftOrder?.includes(colName)
-        ) {
-          frozenColumnLastIdx = k;
-        }
+      if (primaryColumns[colName].sticky === "right") {
+        columnIndex = k;
+        break;
+      }
+      if (primaryColumns[colName].sticky === "left") {
+        columnIndex = k;
       }
     }
-    newColumnOrder.splice(frozenColumnLastIdx, 0, columnName);
   }
+  newColumnOrder.splice(columnIndex, 0, columnName);
   return newColumnOrder;
 };

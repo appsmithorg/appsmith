@@ -336,8 +336,6 @@ export const updateColumnOrderWhenFrozen = (
         propertyValue: newColumnOrder,
       },
     ];
-  } else {
-    return;
   }
 };
 /*

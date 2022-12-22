@@ -119,7 +119,7 @@ export function HeaderCell(props: {
   isSortable?: boolean;
   width?: number;
 }) {
-  const { column, isSortable } = props;
+  const { column, editMode, isSortable } = props;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleSortColumn = (sortOrder: boolean) => {
@@ -127,6 +127,8 @@ export function HeaderCell(props: {
     const columnIndex = props.columnIndex;
     props.sortTableColumn(columnIndex, sortOrder);
   };
+
+  const disableSort = editMode === false && isSortable === false;
 
   const isColumnEditable =
     column.columnProperties.isCellEditable &&
@@ -161,7 +163,7 @@ export function HeaderCell(props: {
           content={
             <Menu>
               <MenuItem
-                disabled={!isSortable}
+                disabled={disableSort}
                 labelElement={props.isAscOrder === true ? <Check /> : undefined}
                 onClick={() => {
                   handleSortColumn(true);
@@ -169,7 +171,7 @@ export function HeaderCell(props: {
                 text="Sort column ascending"
               />
               <MenuItem
-                disabled={!isSortable}
+                disabled={disableSort}
                 labelElement={
                   props.isAscOrder === false ? <Check /> : undefined
                 }

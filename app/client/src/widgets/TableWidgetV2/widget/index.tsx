@@ -47,7 +47,7 @@ import {
   OnColumnEventArgs,
   ORIGINAL_INDEX_KEY,
   TableWidgetProps,
-  TABLE_COLUMN_ORDER,
+  LOCAL_TABLE_COLUMN_ORDER,
   TransientDataPayload,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
@@ -580,40 +580,39 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  hydrateStickyColumns = () => {
+    const localTableColumnOrder = this.getColumnOrderByWidgetIdFromLS(
+      this.props.widgetId,
+    );
+    if (localTableColumnOrder) {
+      const { columnOrder, leftOrder, rightOrder } = localTableColumnOrder;
+      const stickyLeftColumnPaths: Record<string, string> = {};
+      const stickyRightColumnPaths: Record<string, string> = {};
+
+      leftOrder &&
+        leftOrder.forEach((colName: string) => {
+          stickyLeftColumnPaths[`primaryColumns.${colName}.sticky`] = "left";
+        });
+
+      rightOrder &&
+        rightOrder.forEach((colName: string) => {
+          stickyRightColumnPaths[`primaryColumns.${colName}.sticky`] = "right";
+        });
+      const propertiesToUpdate: BatchPropertyUpdatePayload = {
+        modify: {
+          ...stickyLeftColumnPaths,
+          ...stickyRightColumnPaths,
+          columnOrder,
+        },
+      };
+      super.batchUpdateWidgetProperty(propertiesToUpdate, false);
+    }
+  };
   componentDidMount() {
     const { canFreezeColumn, renderMode, tableData } = this.props;
 
     if (canFreezeColumn && renderMode === RenderModes.PAGE) {
-      const localTableColumnOrder = this.getColumnOrderByWidgetIdFromLS(
-        this.props.widgetId,
-      );
-      if (localTableColumnOrder) {
-        const { columnOrder, leftOrder, rightOrder } = localTableColumnOrder;
-        const stickyLeftColumnPaths: Record<string, string> = {};
-
-        leftOrder &&
-          leftOrder.forEach((colName: string) => {
-            stickyLeftColumnPaths[`primaryColumns.${colName}.sticky`] = "left";
-          });
-        const stickyLeftPropertiesToUpdate: BatchPropertyUpdatePayload = {
-          modify: stickyLeftColumnPaths,
-        };
-        super.batchUpdateWidgetProperty(stickyLeftPropertiesToUpdate, false);
-
-        const stickyRightColumnPaths: Record<string, string> = {};
-
-        rightOrder &&
-          rightOrder.forEach((colName: string) => {
-            stickyRightColumnPaths[`primaryColumns.${colName}.sticky`] =
-              "right";
-          });
-        const stickyRightPropertiesToUpdate: BatchPropertyUpdatePayload = {
-          modify: stickyRightColumnPaths,
-        };
-        super.batchUpdateWidgetProperty(stickyRightPropertiesToUpdate, false);
-
-        super.updateWidgetProperty("columnOrder", columnOrder);
-      }
+      this.hydrateStickyColumns();
     }
 
     if (_.isArray(tableData) && !!tableData.length) {
@@ -656,7 +655,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
       this.persistColumnOrder(this.props.columnOrder, leftOrder, rightOrder);
     }
-
     // Check if tableData is modifed
     const isTableDataModified = !equal(
       this.props.tableData,
@@ -999,24 +997,28 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
     const localTableWidgetColumnOrder = localStorage.getItem(
-      TABLE_COLUMN_ORDER,
+      LOCAL_TABLE_COLUMN_ORDER,
     );
     if (localTableWidgetColumnOrder) {
-      const parsedTableWidgetColumnOrder = JSON.parse(
-        localTableWidgetColumnOrder,
-      );
+      try {
+        const parsedTableWidgetColumnOrder = JSON.parse(
+          localTableWidgetColumnOrder,
+        );
 
-      if (parsedTableWidgetColumnOrder[widgetId]) {
-        const {
-          columnOrder,
-          leftOrder,
-          rightOrder,
-        } = parsedTableWidgetColumnOrder[widgetId];
-        return {
-          columnOrder,
-          leftOrder,
-          rightOrder,
-        };
+        if (parsedTableWidgetColumnOrder[widgetId]) {
+          const {
+            columnOrder,
+            leftOrder,
+            rightOrder,
+          } = parsedTableWidgetColumnOrder[widgetId];
+          return {
+            columnOrder,
+            leftOrder,
+            rightOrder,
+          };
+        }
+      } catch (e) {
+        log.debug("Unable to parse local column order:", { e });
       }
     }
   };
@@ -1038,35 +1040,39 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   ) => {
     const widgetId = this.props.widgetId;
     const localTableWidgetColumnOrder = localStorage.getItem(
-      TABLE_COLUMN_ORDER,
+      LOCAL_TABLE_COLUMN_ORDER,
     );
     let newTableColumnOrder;
 
     if (localTableWidgetColumnOrder) {
-      let parsedTableWidgetColumnOrder = JSON.parse(
-        localTableWidgetColumnOrder,
-      );
+      try {
+        let parsedTableWidgetColumnOrder = JSON.parse(
+          localTableWidgetColumnOrder,
+        );
 
-      let columnOrder;
+        let columnOrder;
 
-      if (newColumnOrder) {
-        columnOrder = newColumnOrder;
-      } else if (parsedTableWidgetColumnOrder[widgetId]) {
-        columnOrder = parsedTableWidgetColumnOrder[widgetId];
-      } else {
-        columnOrder = this.props.columnOrder;
+        if (newColumnOrder) {
+          columnOrder = newColumnOrder;
+        } else if (parsedTableWidgetColumnOrder[widgetId]) {
+          columnOrder = parsedTableWidgetColumnOrder[widgetId];
+        } else {
+          columnOrder = this.props.columnOrder;
+        }
+
+        parsedTableWidgetColumnOrder = {
+          ...parsedTableWidgetColumnOrder,
+          [widgetId]: {
+            columnOrder,
+            leftOrder,
+            rightOrder,
+          },
+        };
+
+        newTableColumnOrder = parsedTableWidgetColumnOrder;
+      } catch (e) {
+        log.debug("Unable to parse local column order:", { e });
       }
-
-      parsedTableWidgetColumnOrder = {
-        ...parsedTableWidgetColumnOrder,
-        [widgetId]: {
-          columnOrder,
-          leftOrder,
-          rightOrder,
-        },
-      };
-
-      newTableColumnOrder = parsedTableWidgetColumnOrder;
     } else {
       const tableWidgetColumnOrder = {
         [widgetId]: {
@@ -1078,7 +1084,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       newTableColumnOrder = tableWidgetColumnOrder;
     }
     localStorage.setItem(
-      TABLE_COLUMN_ORDER,
+      LOCAL_TABLE_COLUMN_ORDER,
       JSON.stringify(newTableColumnOrder),
     );
   };
