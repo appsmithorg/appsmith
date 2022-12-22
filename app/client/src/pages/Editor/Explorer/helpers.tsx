@@ -79,7 +79,7 @@ export const getActionIdFromURL = () => {
 };
 
 export const isEditorPath = (path: string) => {
-  return !!matchBuilderPath(path);
+  return !!matchBuilderPath(path, { end: false });
 };
 
 export const getJSCollectionIdFromURL = () => {
