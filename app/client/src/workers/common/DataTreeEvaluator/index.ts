@@ -39,6 +39,7 @@ import {
   trimDependantChangePaths,
   overrideWidgetProperties,
   getAllPaths,
+  errorTransformer,
   isValidEntity,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
@@ -52,7 +53,6 @@ import {
   union,
   unset,
 } from "lodash";
-
 import { applyChange, Diff, diff } from "deep-diff";
 import toposort from "toposort";
 import {
@@ -194,6 +194,7 @@ export default class DataTreeEvaluator {
     const firstCloneEndTime = performance.now();
 
     let jsUpdates: Record<string, JSUpdate> = {};
+
     //parse js collection to get functions
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
@@ -661,6 +662,9 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const tree = klona(oldUnevalTree);
+
+    errorTransformer.updateAsyncFunctions(tree);
+
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
@@ -919,7 +923,6 @@ export default class DataTreeEvaluator {
             toBeSentForEval,
             data,
             resolvedFunctions,
-            !!entity && isJSAction(entity),
             contextData,
             callBackData,
             fullPropertyPath?.includes("body") ||
@@ -1033,7 +1036,7 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
-    createGlobalData: boolean,
+    isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
     skipUserLogsOperations = false,
@@ -1043,7 +1046,7 @@ export default class DataTreeEvaluator {
         js,
         data,
         resolvedFunctions,
-        createGlobalData,
+        isJSObject,
         contextData,
         callbackData,
         skipUserLogsOperations,

@@ -11,11 +11,5 @@ export default function(request: EvalWorkerSyncRequest) {
   }
   const evalTree = dataTreeEvaluator.evalTree;
   const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-  return evaluateSync(
-    functionCall,
-    evalTree,
-    resolvedFunctions,
-    false,
-    undefined,
-  );
+  return evaluateSync(functionCall, evalTree, resolvedFunctions, undefined);
 }
