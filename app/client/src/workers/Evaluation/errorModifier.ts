@@ -16,11 +16,6 @@ class TransformError {
     ErrorNameType.TypeError,
   ];
   // Note all regex below groups the async function name
-  private errorMessageRegexList = [
-    /ReferenceError: Can't find variable: ([\w_]+)/, // ReferenceError message for safari
-    /ReferenceError: ([\w_]+) is not defined/, // ReferenceError message for other browser
-    /TypeError: ([\w_]+\.[\w_]+) is not a function/,
-  ];
 
   private asyncFunctionsNameMap: Record<string, true> = {};
 
@@ -28,21 +23,19 @@ class TransformError {
     this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree);
   }
 
-  syncField(error: Error) {
+  run(error: Error) {
     const errorMessage = getErrorMessage(error);
     if (!this.errorNamesToScan.includes(error.name)) return errorMessage;
 
-    for (let index = 0; index < this.errorMessageRegexList.length; index++) {
-      const errorMessageRegex = this.errorMessageRegexList[index];
-      const matchResult = errorMessage.match(errorMessageRegex);
-      if (matchResult) {
-        const referencedIdentifier = matchResult[1];
-        if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
-          return UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
-            "{{actionName}}",
-            referencedIdentifier + "()",
-          );
-        }
+    for (const asyncFunctionFullPath of Object.keys(
+      this.asyncFunctionsNameMap,
+    )) {
+      const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
+      if (errorMessage.match(functionNameWithWhiteSpace)) {
+        return UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+          "{{actionName}}",
+          asyncFunctionFullPath + "()",
+        );
       }
     }
 
