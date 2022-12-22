@@ -26,6 +26,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import omit from "lodash/omit";
 import { getQueryParams } from "utils/URLUtils";
+import { debounce } from "lodash";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -85,10 +86,15 @@ const ExplorerDatasourceEntity = React.memo(
       return state.ui.datasourcePane.expandDatasourceId;
     });
 
+    //Debounce fetchDatasourceStructure request.
+    const debounceFetchDatasourceRequest = debounce(async () => {
+      dispatch(fetchDatasourceStructure(props.datasource.id, true));
+    }, 300);
+
     const getDatasourceStructure = useCallback(
       (isOpen: boolean) => {
         if (!datasourceStructure && isOpen) {
-          dispatch(fetchDatasourceStructure(props.datasource.id, true));
+          debounceFetchDatasourceRequest();
         }
 
         dispatch(expandDatasourceEntity(isOpen ? props.datasource.id : ""));
