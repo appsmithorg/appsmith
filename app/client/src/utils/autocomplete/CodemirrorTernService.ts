@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
-import tern, { Server, Def } from "tern";
+import { Server, Def } from "tern";
 import ecma from "constants/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
@@ -147,13 +147,10 @@ class CodeMirrorTernService {
     this.server = new TernWorkerServer(this);
   }
 
-  resetServer() {
-    this.server = new tern.Server({
-      async: true,
-      defs: DEFS,
-    });
+  resetServer = () => {
+    this.server = new TernWorkerServer(this);
     this.docs = Object.create(null);
-  }
+  };
 
   complete(cm: CodeMirror.Editor) {
     cm.showHint({
@@ -247,7 +244,7 @@ class CodeMirrorTernService {
       const dataType = getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
       let completionText = completion.name + after;
-      if (dataType === "FUNCTION") {
+      if (dataType === "FUNCTION" && !completion.origin?.startsWith("LIB/")) {
         completionText = completionText + "()";
       }
       const codeMirrorCompletion: Completion = {

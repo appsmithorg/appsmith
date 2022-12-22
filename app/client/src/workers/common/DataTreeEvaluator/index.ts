@@ -1013,7 +1013,6 @@ export default class DataTreeEvaluator {
   async evaluateTriggers(
     userScript: string,
     dataTree: DataTree,
-    requestId: string,
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
@@ -1022,7 +1021,6 @@ export default class DataTreeEvaluator {
     return evaluateAsync(
       jsSnippets[0] || userScript,
       dataTree,
-      requestId,
       resolvedFunctions,
       context,
       callbackData,
