@@ -3,7 +3,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
 import { klona } from "klona/lite";
 import moment from "moment";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { sendMessage, MessageType } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "./evalWorkerActions";
 import { _internalClearTimeout, _internalSetTimeout } from "./TimeoutOverride";

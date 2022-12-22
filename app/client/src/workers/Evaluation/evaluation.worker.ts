@@ -1,6 +1,6 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
-import { WorkerErrorTypes } from "workers/common/types";
+import { WorkerErrorTypes } from "@appsmith/workers/common/types";
 import { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 import { syncHandlerMap, asyncHandlerMap } from "./handlers";
 import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";

@@ -28,7 +28,7 @@ import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSa
 import {
   ActionDescription,
   ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { clearActionResponse } from "actions/pluginActionActions";
 import {
   closeModalSaga,
@@ -52,7 +52,7 @@ import {
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { postMessageSaga } from "./PostMessageSaga";
+import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;

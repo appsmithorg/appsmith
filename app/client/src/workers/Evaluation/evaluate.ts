@@ -6,12 +6,12 @@ import {
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
-import { enhanceDataTreeWithFunctions } from "./Actions";
+import { enhanceDataTreeWithFunctions } from "@appsmith/workers/Evaluation/Actions";
 import { isEmpty } from "lodash";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
