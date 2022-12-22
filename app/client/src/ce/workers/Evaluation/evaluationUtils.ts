@@ -23,7 +23,7 @@ import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
-import { EvalMetaUpdates } from "../common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "./Actions";
@@ -819,7 +819,7 @@ class TransformError {
     /TypeError: ([\w_]+\.[\w_]+) is not a function/,
   ];
 
-  private asyncFunctionsNameMap: Record<string, string> = {};
+  private asyncFunctionsNameMap: Record<string, true> = {};
 
   updateAsyncFunctions(dataTree: DataTree) {
     this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree);

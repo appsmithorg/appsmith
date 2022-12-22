@@ -1,5 +1,5 @@
 import { createEvaluationContext } from "./evaluate";
-import { ActionCalledInSyncFieldError } from "./evaluationUtils";
+import { ActionCalledInSyncFieldError } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 
 export const _internalSetTimeout = self.setTimeout;

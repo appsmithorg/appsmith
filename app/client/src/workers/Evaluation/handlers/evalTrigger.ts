@@ -1,6 +1,6 @@
 import { dataTreeEvaluator } from "./evalTree";
 import { EvalWorkerASyncRequest } from "../types";
-import { createUnEvalTreeForEval } from "../dataTreeUtils";
+import { createUnEvalTreeForEval } from "@appsmith/workers/Evaluation/dataTreeUtils";
 
 export default async function(request: EvalWorkerASyncRequest) {
   const { data } = request;

@@ -1,5 +1,5 @@
 import { isEqual } from "lodash";
-import { WorkerErrorTypes } from "workers/common/types";
+import { WorkerErrorTypes } from "@appsmith/workers/common/types";
 import { JSLibraries, resetJSLibraries } from "workers/common/JSLibrary";
 import {
   LintWorkerRequest,

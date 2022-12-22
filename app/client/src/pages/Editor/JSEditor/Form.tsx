@@ -25,7 +25,7 @@ import {
 } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
-import { ExplorerURLParams } from "../Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";

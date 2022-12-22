@@ -5,7 +5,7 @@ import {
   ActionDescription,
   ActionTriggerFunctionNames,
   ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import uniqueId from "lodash/uniqueId";
@@ -16,7 +16,7 @@ import {
   isAppsmithEntity,
   isTrueObject,
 } from "./evaluationUtils";
-import { EvalContext } from "./evaluate";
+import { EvalContext } from "workers/Evaluation/evaluate";
 
 declare global {
   /** All identifiers added to the worker global scope should also

@@ -6,17 +6,19 @@ import {
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
-import { addDataTreeToContext } from "./Actions";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import { errorTransformer } from "./evaluationUtils";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { FoundPromiseInSyncEvalError } from "./evaluationUtils";
-import { getErrorMessage } from "./evaluationUtils";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
+import {
+  FoundPromiseInSyncEvalError,
+  errorTransformer,
+  getErrorMessage,
+} from "ce/workers/Evaluation/evaluationUtils";
 
 export type EvalResult = {
   result: any;
@@ -391,6 +393,7 @@ export function isFunctionAsync(
     addDataTreeToContext({
       dataTree,
       EVAL_CONTEXT: GLOBAL_DATA,
+      isTriggerBased: true,
     });
 
     assignJSFunctionsToContext(GLOBAL_DATA, resolvedFunctions);
