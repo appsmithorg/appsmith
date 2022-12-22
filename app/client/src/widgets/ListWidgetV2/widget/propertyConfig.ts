@@ -242,7 +242,7 @@ export const PropertyPaneStyleConfig = [
     sectionName: "General",
     children: [
       {
-        propertyName: "gridGap",
+        propertyName: "itemGap",
         helpText: "Spacing between items in Pixels",
         placeholderText: "0",
         label: "Item Spacing (px)",
@@ -250,7 +250,10 @@ export const PropertyPaneStyleConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         inputType: "INTEGER",
-        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: { min: -8 },
+        },
       },
     ],
   },

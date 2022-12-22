@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
 describe("List widget v2 Copy and Paste", () => {
-  it("#15988", () => {
+  it("1. Validate Copy paste action", () => {
     cy.dragAndDropToCanvas("listwidgetv2", {
       x: 300,
       y: 300,
@@ -30,6 +30,19 @@ describe("List widget v2 Copy and Paste", () => {
     cy.get(".t--widget-textwidget span:contains('Blue')").should(
       "have.length",
       2,
+    );
+  });
+
+  it("2. Validate Delete action", () => {
+    cy.openPropertyPane("listwidgetv2");
+    cy.get(".t--delete-widget").click({ force: true });
+    cy.get(".t--toast-action span")
+      .eq(0)
+      .contains("List1 is removed");
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
     );
   });
 });

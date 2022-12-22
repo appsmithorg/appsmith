@@ -776,7 +776,7 @@ class ListWidget extends BaseWidget<
     if (this.props.isLoading) {
       return (
         <Loader
-          gridGap={this.props.gridGap}
+          gridGap={this.props.itemGap}
           pageSize={this.pageSize}
           templateHeight={templateHeight}
         />
