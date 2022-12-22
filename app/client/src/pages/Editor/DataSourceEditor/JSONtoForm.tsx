@@ -21,6 +21,8 @@ export const PluginImageWrapper = styled.div`
   justify-content: center;
   background: ${Colors.GREY_200};
   border-radius: 100%;
+  margin-right: 8px;
+  flex-shrink: 0;
   img {
     height: 100%;
     width: auto;
