@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
@@ -9,7 +10,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -764,7 +764,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "http://httpbin.org");
         assertPath(action, "/get");
-        assertHeaders(action,new Property("Accept", "application/json"));
+        assertHeaders(action, new Property("Accept", "application/json"));
         assertEmptyBody(action);
     }
 
@@ -822,18 +822,14 @@ public class CurlImporterServiceTest {
 
     @Test
     public void importInvalidMethod() {
-        assertThatThrownBy(() -> {
-            curlImporterService.curlToAction("curl -X invalid-method http://httpbin.org/get");
-        })
+        assertThatThrownBy(() -> curlImporterService.curlToAction("curl -X incorrect-charactèrs http://httpbin.org/get"))
                 .isInstanceOf(AppsmithException.class)
                 .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_METHOD);
     }
 
     @Test
     public void importInvalidHeader() {
-        assertThatThrownBy(() -> {
-            curlImporterService.curlToAction("curl -H x-custom http://httpbin.org/headers");
-        })
+        assertThatThrownBy(() -> curlImporterService.curlToAction("curl -H x-custom http://httpbin.org/headers"))
                 .isInstanceOf(AppsmithException.class)
                 .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_HEADER);
     }
@@ -859,14 +855,15 @@ public class CurlImporterServiceTest {
         ActionDTO actionDTO = curlImporterService.curlToAction(cURLCommand, name);
         assertThat(actionDTO).isNotNull();
         assertThat(actionDTO.getActionConfiguration()).isNotNull();
-        Map<String, Object> map =  actionDTO.getActionConfiguration().getFormData();
+        Map<String, Object> map = actionDTO.getActionConfiguration().getFormData();
 
-        assert(map != null);
-        assert(!map.isEmpty());
-        assert(map.containsKey(API_CONTENT_TYPE));
-        assert(map.get(API_CONTENT_TYPE).equals(contentType));
+        assert (map != null);
+        assert (!map.isEmpty());
+        assert (map.containsKey(API_CONTENT_TYPE));
+        assert (map.get(API_CONTENT_TYPE).equals(contentType));
 
     }
+
     // Assertion utilities for working with Action assertions.
     private static void assertMethod(ActionDTO action, HttpMethod method) {
         assertThat(action.getActionConfiguration().getHttpMethod()).isEqualByComparingTo(method);
@@ -896,7 +893,7 @@ public class CurlImporterServiceTest {
         // this implementation only works if Property has a subclass of object which works implements equal function.
         // let's compare sizes of both first
         if (action.getActionConfiguration().getHeaders().size() != headers.length) {
-            assert(false);
+            assert (false);
         }
         HashMap<String, List<Object>> headerStore = new HashMap<>();
 
@@ -915,11 +912,11 @@ public class CurlImporterServiceTest {
         List<Object> headerStorePropertyList;
 
         // compare the hashMap headerStore with the varargs header
-        for ( int i = 0; i < headers.length; i++) {
+        for (int i = 0; i < headers.length; i++) {
             String key = headers[i].getKey().toLowerCase();
 
             if (!headerStore.containsKey(key)) {
-                assert(false);
+                assert (false);
             }
 
             boolean matchFound = false;
@@ -942,12 +939,12 @@ public class CurlImporterServiceTest {
                 continue;
             }
 
-            assert(false);
+            assert (false);
         }
 
         // if headerStore has keys then it would mean that there are more headers than expected;
         if (headerStore.size() != 0) {
-            assert(false);
+            assert (false);
         }
         // if all header matches then only it will reach here.
     }
@@ -955,6 +952,7 @@ public class CurlImporterServiceTest {
     private static void assertEmptyBody(ActionDTO action) {
         assertThat(action.getActionConfiguration().getBody()).isNullOrEmpty();
     }
+
     private static void assertEmptyBodyFormData(ActionDTO action) {
         assertThat(action.getActionConfiguration().getBodyFormData()).isNullOrEmpty();
     }

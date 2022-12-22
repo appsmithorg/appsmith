@@ -16,10 +16,6 @@
     <name>saasPlugin</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>saas-plugin</plugin.id>
         <plugin.class>com.external.plugins.SaasPlugin</plugin.class>
         <plugin.version>1.0-SNAPSHOT</plugin.version>
@@ -32,14 +28,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.3.20</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>5.3.20</version>
             <scope>provided</scope>
         </dependency>
 

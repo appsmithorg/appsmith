@@ -1,5 +1,8 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.converters.HttpMethodConverter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,9 +40,9 @@ public class ActionConfiguration implements AppsmithDomain {
      * action execution.
      */
 
-    @Range(min=MIN_TIMEOUT_VALUE,
-           max=MAX_TIMEOUT_VALUE,
-           message=TIMEOUT_OUT_OF_RANGE_MESSAGE)
+    @Range(min = MIN_TIMEOUT_VALUE,
+            max = MAX_TIMEOUT_VALUE,
+            message = TIMEOUT_OUT_OF_RANGE_MESSAGE)
     Integer timeoutInMillisecond;
     PaginationType paginationType = PaginationType.NONE;
 
@@ -53,6 +56,8 @@ public class ActionConfiguration implements AppsmithDomain {
     List<Property> bodyFormData;
     // For route parameters extracted from rapid-api
     List<Property> routeParameters;
+    @JsonSerialize(using = HttpMethodConverter.HttpMethodSerializer.class)
+    @JsonDeserialize(using = HttpMethodConverter.HttpMethodDeserializer.class)
     HttpMethod httpMethod;
     // Paginated API fields
     String next;

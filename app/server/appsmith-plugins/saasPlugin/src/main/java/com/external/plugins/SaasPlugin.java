@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
@@ -124,7 +124,7 @@ public class SaasPlugin extends BasePlugin {
             // Triggering the actual REST API call
             return httpCall(client, HttpMethod.POST, uri, requestBodyObj, 0, APPLICATION_JSON_VALUE)
                     .map(stringResponseEntity -> {
-                        final HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                        final HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
                         byte[] body = stringResponseEntity.getBody();
                         if (statusCode.is2xxSuccessful()) {
                             try {

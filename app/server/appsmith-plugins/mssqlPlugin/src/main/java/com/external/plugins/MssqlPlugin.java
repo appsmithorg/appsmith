@@ -371,12 +371,12 @@ public class MssqlPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private  Set<String> populateHintMessages(List<String> columnNames) {
+        private Set<String> populateHintMessages(List<String> columnNames) {
 
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
-            if(!CollectionUtils.isEmpty(identicalColumns)) {
+            if (!CollectionUtils.isEmpty(identicalColumns)) {
                 messages.add("Your MsSQL query result may not have all the columns because duplicate column names " +
                         "were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use the " +
                         "SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
@@ -568,26 +568,28 @@ public class MssqlPlugin extends BasePlugin {
                     .append(";");
         }
 
-        if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+        if (StringUtils.hasLength(authentication.getDatabaseName())) {
             urlBuilder
                     .append("database=")
                     .append(authentication.getDatabaseName())
                     .append(";");
         }
 
-        if (!StringUtils.isEmpty(authentication.getUsername())) {
+        if (StringUtils.hasLength(authentication.getUsername())) {
             urlBuilder
                     .append("user=")
                     .append(authentication.getUsername())
                     .append(";");
         }
 
-        if (!StringUtils.isEmpty(authentication.getPassword())) {
+        if (StringUtils.hasLength(authentication.getPassword())) {
             urlBuilder
                     .append("password=")
                     .append(authentication.getPassword())
                     .append(";");
         }
+
+        urlBuilder.append("encrypt=false");
 
         hikariConfig.setJdbcUrl(urlBuilder.toString());
 

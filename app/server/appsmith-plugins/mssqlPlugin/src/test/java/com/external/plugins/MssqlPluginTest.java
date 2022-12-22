@@ -78,7 +78,7 @@ public class MssqlPluginTest {
         password = container.getPassword();
 
         try (Connection connection = DriverManager.getConnection(
-                "jdbc:sqlserver://" + address + ":" + port + ";user=" + username + ";password=" + password
+                "jdbc:sqlserver://" + address + ":" + port + ";user=" + username + ";password=" + password + ";trustServerCertificate=true"
         )) {
 
             try (Statement statement = connection.createStatement()) {
@@ -157,7 +157,7 @@ public class MssqlPluginTest {
 
         long defaultPort = MssqlPlugin.getPort(endpoint);
 
-        assertEquals(1433L,defaultPort);
+        assertEquals(1433L, defaultPort);
     }
 
     @Test
@@ -681,7 +681,7 @@ public class MssqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
-                            new String[] {
+                            new String[]{
                                     "numeric_string"
                             },
                             new ObjectMapper()

@@ -16,10 +16,6 @@
     <name>mysqlPlugin</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>mysql-plugin</plugin.id>
         <plugin.class>com.external.plugins.MySqlPlugin</plugin.class>
         <plugin.version>1.0-SNAPSHOT</plugin.version>

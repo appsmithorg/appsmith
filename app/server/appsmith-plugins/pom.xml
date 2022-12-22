@@ -13,6 +13,10 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <jjwt.version>0.11.5</jjwt.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.pf4j</groupId>
@@ -69,7 +73,7 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
-            <version>3.3.5.RELEASE</version>
+            <version>3.4.24</version>
             <scope>test</scope>
         </dependency>
         <dependency>

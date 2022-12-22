@@ -7,10 +7,11 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.appsmith.server.converters.StringToInstantConverter;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver;
-import com.github.cloudyrock.spring.v5.MongockSpring5;
 import com.mongodb.ReadConcern;
 import com.mongodb.WriteConcern;
+import io.mongock.driver.mongodb.springdata.v4.SpringDataMongoV4Driver;
+import io.mongock.runner.springboot.MongockSpringboot;
+import io.mongock.runner.springboot.base.MongockInitializingBeanRunner;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
 import org.springframework.context.ApplicationContext;
@@ -59,14 +60,15 @@ public class MongoConfig {
         Link to documentation: https://docs.mongock.io/v5/runner/springboot/index.html
     */
     @Bean
-    public MongockSpring5.MongockInitializingBeanRunner  mongockInitializingBeanRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
-        SpringDataMongoV3Driver springDataMongoV3Driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate);
-        springDataMongoV3Driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
-        springDataMongoV3Driver.setReadConcern(ReadConcern.LOCAL);
+    public MongockInitializingBeanRunner mongockInitializingBeanRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
+        SpringDataMongoV4Driver mongoDriver = SpringDataMongoV4Driver.withDefaultLock(mongoTemplate);
+        mongoDriver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
+        mongoDriver.setReadConcern(ReadConcern.LOCAL);
 
-        return MongockSpring5.builder()
-                .setDriver(springDataMongoV3Driver)
+        return MongockSpringboot.builder()
+                .setDriver(mongoDriver)
                 .addChangeLogsScanPackages(List.of("com.appsmith.server.migrations"))
+                .addMigrationScanPackage("com.appsmith.server.migrations.db")
                 .setSpringContext(springContext)
                 // any extra configuration you need
                 .buildInitializingBeanRunner();

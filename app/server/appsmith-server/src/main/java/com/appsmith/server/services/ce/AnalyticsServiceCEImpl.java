@@ -15,7 +15,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
-import com.segment.analytics.messages.Message;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,14 +158,17 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         }
 
         final String finalUserId = userId;
-        configService.getInstanceId().map(instanceId -> {
-            TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(finalUserId);
-            analyticsProperties.put("originService", "appsmith-server");
-            analyticsProperties.put("instanceId", instanceId);
-            messageBuilder = messageBuilder.properties(analyticsProperties);
-            analytics.enqueue(messageBuilder);
-            return instanceId;
-        }).subscribeOn(Schedulers.boundedElastic()).subscribe();
+        configService.getInstanceId()
+                .map(instanceId -> {
+                    TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(finalUserId);
+                    analyticsProperties.put("originService", "appsmith-server");
+                    analyticsProperties.put("instanceId", instanceId);
+                    messageBuilder = messageBuilder.properties(analyticsProperties);
+                    analytics.enqueue(messageBuilder);
+                    return instanceId;
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
     }
 
     @Override

@@ -17,11 +17,6 @@
     <name>appsmith-git</name>
     <description>This is the git server to handle all the git operations</description>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-    </properties>
-
     <repositories>
         <repository>
             <id>jgit-repository</id>

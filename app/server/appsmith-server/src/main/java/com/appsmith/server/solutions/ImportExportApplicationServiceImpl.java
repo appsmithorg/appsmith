@@ -19,6 +19,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ce.ImportExportApplicationServiceCEImpl;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -51,12 +52,13 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               WorkspacePermission workspacePermission,
                                               ApplicationPermission applicationPermission,
                                               PagePermission pagePermission,
-                                              ActionPermission actionPermission) {
+                                              ActionPermission actionPermission,
+                                              Gson gson) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
-                actionCollectionService, themeService, policyUtils, analyticsService, customJSLibService,
-                datasourcePermission, workspacePermission, applicationPermission, pagePermission, actionPermission);
+                actionCollectionService, themeService, policyUtils, analyticsService, datasourcePermission,
+                workspacePermission, applicationPermission, pagePermission, actionPermission, gson);
     }
 }

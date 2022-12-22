@@ -1,6 +1,8 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.server.configurations.typeadapters.InstantTypeAdapter;
+import com.appsmith.external.converters.HttpMethodConverter;
+import com.appsmith.external.converters.ISOStringToInstantConverter;
+import com.appsmith.external.models.DatasourceStructure;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.gson.GsonBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -80,7 +84,9 @@ public class CommonConfig {
 
     @Bean
     public Validator validator() {
-        return Validation.buildDefaultValidatorFactory().getValidator();
+        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            return validatorFactory.getValidator();
+        }
     }
 
     @Bean
@@ -96,7 +102,9 @@ public class CommonConfig {
     @Bean
     public GsonBuilderCustomizer typeAdapterRegistration() {
         return builder -> {
-            builder.registerTypeAdapter(Instant.class, new InstantTypeAdapter());
+            builder.registerTypeAdapter(Instant.class, new ISOStringToInstantConverter());
+            builder.registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator());
+            builder.registerTypeAdapter(HttpMethod.class, new HttpMethodConverter());
         };
     }
 
