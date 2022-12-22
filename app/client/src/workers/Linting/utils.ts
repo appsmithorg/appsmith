@@ -59,6 +59,7 @@ export function getlintErrorsFromTree(
   unEvalTree: DataTree,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
+
   const evalContext = createEvaluationContext({
     dataTree: unEvalTree,
     resolvedFunctions: {},
@@ -100,7 +101,7 @@ export function getlintErrorsFromTree(
       unEvalPropertyValue,
       entity,
       fullPropertyPath,
-      evalContext,
+      evalContextWithOutFunctions,
     );
     set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
   });
@@ -124,7 +125,7 @@ export function getlintErrorsFromTree(
           unEvalPropertyValue,
           entity,
           fullPropertyPath,
-          evalContextWithOutFunctions,
+          evalContext,
         );
         set(lintTreeErrors, `["${fullPropertyPath}"]`, lintErrors);
       });
