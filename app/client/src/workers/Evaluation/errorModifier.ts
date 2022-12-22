@@ -9,7 +9,7 @@ const ErrorNameType = {
   TypeError: "TypeError",
 };
 
-class TransformError {
+class ErrorModifier {
   private errorNamesToScan = [
     ErrorNameType.ReferenceError,
     ErrorNameType.TypeError,
@@ -43,7 +43,7 @@ class TransformError {
   }
 }
 
-export const errorModifier = new TransformError();
+export const errorModifier = new ErrorModifier();
 
 export class FoundPromiseInSyncEvalError extends Error {
   constructor() {
