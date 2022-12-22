@@ -22,13 +22,16 @@ import {
   isPrivateEntityPath,
   makeParentsDependOnChildren,
   translateDiffEventToDataTreeDiffEvent,
-} from "../evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
 import _, { flatten } from "lodash";
-import { overrideWidgetProperties, findDatatype } from "../evaluationUtils";
+import {
+  overrideWidgetProperties,
+  findDatatype,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalMetaUpdates } from "../../common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
 import InputWidget, {
@@ -36,7 +39,7 @@ import InputWidget, {
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
 import { WidgetConfiguration } from "widgets/constants";
-import { createNewEntity } from "../dataTreeUtils";
+import { createNewEntity } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
 

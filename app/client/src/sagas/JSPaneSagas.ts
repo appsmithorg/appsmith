@@ -33,7 +33,7 @@ import {
 } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeFunction } from "./EvaluationsSaga";
-import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
   JSUpdate,

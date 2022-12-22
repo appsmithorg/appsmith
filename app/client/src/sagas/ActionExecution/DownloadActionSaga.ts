@@ -5,7 +5,7 @@ import Axios from "axios";
 import {
   ActionTriggerType,
   DownloadActionDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { isBase64String, isUrlString } from "./downloadActionUtils";
 import { isBlobUrl } from "utils/AppsmithUtils";
