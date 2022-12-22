@@ -3,7 +3,7 @@ import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import {
   entityDefinitions,
   getPropsForJSActionEntity,
-} from "utils/autocomplete/EntityDefinitions";
+} from "@appsmith/utils/autocomplete/EntityDefinitions";
 
 describe("EntityDefinitions", () => {
   it("it tests list widget selectRow", () => {

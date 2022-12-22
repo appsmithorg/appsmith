@@ -14,7 +14,7 @@ import {
   getEntityNameAndPropertyPath,
   isWidget,
   resetValidationErrorsForEntityProperty,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { validate } from "workers/Evaluation/validations";
 import { EvalProps } from ".";
 
