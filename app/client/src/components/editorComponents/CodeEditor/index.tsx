@@ -79,7 +79,7 @@ import {
   removeNewLineChars,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";

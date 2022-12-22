@@ -4,7 +4,7 @@ import _ from "lodash";
 import {
   ActionDescription,
   ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import { klona } from "klona/full";

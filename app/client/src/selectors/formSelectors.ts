@@ -12,7 +12,7 @@ import { getDataTree } from "./dataTreeSelectors";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Action } from "entities/Action";
 import { EvaluationError } from "utils/DynamicBindingUtils";
-import { getActionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { getActionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import { extractConditionalOutput } from "components/formControls/utils";
 
 export type GetFormData = {
