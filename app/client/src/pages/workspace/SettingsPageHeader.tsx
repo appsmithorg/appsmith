@@ -80,7 +80,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
     pageMenuItems,
     searchPlaceholder,
     showMoreOptions,
-    showSearchNButton = false,
+    showSearchNButton = true,
     title,
   } = props;
 
