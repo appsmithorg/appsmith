@@ -23,7 +23,7 @@ export function cssDimensionValidator(value: string) {
   let isValid = false;
   const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
   if (value) {
-    isValid = regex.test(value + "");
+    isValid = regex.test(value);
   }
   return {
     isValid: isValid,

@@ -154,7 +154,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
         <TabWrapper hasMessage={!!props.message}>
           {!props.message && (
             <TabCloseBtnContainer
-              className="t--close-invite-modal"
+              className="t--close-form-dialog"
               onClick={onCloseHandler}
             >
               <Icon

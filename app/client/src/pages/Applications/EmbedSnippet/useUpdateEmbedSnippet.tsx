@@ -4,7 +4,10 @@ import { getDefaultPageId } from "sagas/selectors";
 import { getSettings } from "selectors/settingsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 
-import { APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING } from "@appsmith/pages/AdminSettings/config/general";
+import {
+  AppsmithFrameAncestorsSetting,
+  APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
+} from "@appsmith/pages/AdminSettings/config/general";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import debounce from "lodash/debounce";
@@ -17,17 +20,17 @@ import {
 } from "@appsmith/constants/messages";
 
 const embedSettingContentConfig = {
-  ALLOW_EMBEDDING_EVERYWHERE: {
+  [AppsmithFrameAncestorsSetting.ALLOW_EMBEDDING_EVERYWHERE]: {
     icon: "global-line",
     label: createMessage(IN_APP_EMBED_SETTING.allowEmbeddingLabel),
     tooltip: createMessage(IN_APP_EMBED_SETTING.allowEmbeddingTooltip),
   },
-  LIMIT_EMBEDDING: {
+  [AppsmithFrameAncestorsSetting.LIMIT_EMBEDDING]: {
     icon: "lock-2-line",
     label: createMessage(IN_APP_EMBED_SETTING.limitEmbeddingLabel),
     tooltip: createMessage(IN_APP_EMBED_SETTING.limitEmbeddingTooltip),
   },
-  DISABLE_EMBEDDING_EVERYWHERE: {
+  [AppsmithFrameAncestorsSetting.DISABLE_EMBEDDING_EVERYWHERE]: {
     icon: "forbid-line",
     label: createMessage(IN_APP_EMBED_SETTING.disableEmbeddingLabel),
     tooltip: createMessage(IN_APP_EMBED_SETTING.disableEmbeddingTooltip),
