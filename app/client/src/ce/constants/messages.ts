@@ -1121,7 +1121,7 @@ export const API_PANE_NO_BODY = () => "This request does not have a body";
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
 export const CREATE_DATASOURCE_TOOLTIP = () => "Add a new datasource";
-export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
+export const ADD_QUERY_JS_TOOLTIP = () => "Add a new query / JS Object";
 
 // Add datasource
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
@@ -1419,6 +1419,39 @@ export const ALERT_STYLE_OPTIONS = [
   { label: "Error", value: "'error'", id: "error" },
   { label: "Warning", value: "'warning'", id: "warning" },
 ];
+
+export const customJSLibraryMessages = {
+  ADD_JS_LIBRARY: () => "Add JS Libraries",
+  REC_LIBRARY: () => "Recommended Libraries",
+  INSTALLATION_SUCCESSFUL: (accessor: string) =>
+    `Installation Successful. You can access the library via ${accessor}`,
+  INSTALLATION_FAILED: () => "Installation failed",
+  INSTALLED_ALREADY: (accessor: string) =>
+    `This library is installed already. You could access it via ${accessor}.`,
+  UNINSTALL_FAILED: (name: string) =>
+    `Couldn't uninstall ${name}. Please try again after sometime.`,
+  UNINSTALL_SUCCESS: (accessor: string) =>
+    `${accessor} is uninstalled successfully.`,
+  LEARN_MORE_DESC: () => "Learn more about Custom JS Libraries",
+  UNSUPPORTED_LIB: () => `Library is unsupported`,
+  UNSUPPORTED_LIB_DESC: () =>
+    `Unfortunately, this library cannot be supported due to platform limitations. Please try installing a different library.`,
+  LEARN_MORE: () => `Learn more`,
+  REPORT_ISSUE: () => `Report issue`,
+  AUTOCOMPLETE_FAILED: (name: string) =>
+    `Code completion for ${name} will not work.`,
+  CLIENT_LOAD_FAILED: (url: string) => `Failed to load the script at ${url}.`,
+  LIB_OVERRIDE_ERROR: (
+    name: string,
+  ) => `The library ${name} is already installed. 
+  If you are trying to install a different version, uninstall the library first.`,
+  DEFS_FAILED_ERROR: (name: string) =>
+    `Failed to generate autocomplete definitions for ${name}.`,
+  IMPORT_URL_ERROR: (url: string) =>
+    `The script at ${url} cannot be installed.`,
+  NAME_COLLISION_ERROR: (accessors: string) =>
+    `Name collision detected: ${accessors}`,
+};
 
 export const USAGE_AND_BILLING = {
   usage: () => "Usage",

@@ -27,6 +27,7 @@ export const CONFIG = {
     allowCurrencyChange: false,
     defaultCurrencyCode: getDefaultCurrency().currency,
     decimals: 0,
+    showStepArrows: false,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
