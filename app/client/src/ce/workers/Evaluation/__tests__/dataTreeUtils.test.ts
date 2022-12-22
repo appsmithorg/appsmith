@@ -6,7 +6,7 @@ import {
   createNewEntity,
   createUnEvalTreeForEval,
   makeEntityConfigsAsObjProperties,
-} from "../dataTreeUtils";
+} from "@appsmith/workers/Evaluation/dataTreeUtils";
 
 const unevalTreeFromMainThread = {
   Api2: {
