@@ -309,6 +309,8 @@ class AnalyticsUtil {
   static cachedUserId: string;
   static user?: User = undefined;
   static anonymousId?: string;
+
+  static tempUserId?: string;
   static isAnonymousUser = false;
 
   static initializeSmartLook(id: string) {
@@ -486,6 +488,7 @@ class AnalyticsUtil {
             user.anonymousId(user.anonymousId());
             user.id(user.id());
 
+            AnalyticsUtil.tempUserId = user.id();
             AnalyticsUtil.anonymousId = user.anonymousId();
 
             console.log(
@@ -502,7 +505,11 @@ class AnalyticsUtil {
   }
 
   static getAnonymousUserId() {
-    console.log("mix - get anonymousId", AnalyticsUtil.anonymousId);
+    console.log(
+      "mix - get anonymousId",
+      AnalyticsUtil.tempUserId,
+      AnalyticsUtil.anonymousId,
+    );
     return AnalyticsUtil.anonymousId;
   }
 
