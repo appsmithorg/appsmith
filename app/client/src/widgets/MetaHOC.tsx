@@ -153,9 +153,9 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
        * but a different internal id as over page changes the first row widgets should reflect distinct
        * values entered in that particular page.
        *
-       * Note: generatedWidgetId would be undefined for almost all the widgets.
+       * Note: metaWidgetId would be undefined for almost all the widgets.
        */
-      const widgetId = this.props.generatedWidgetId || this.props.widgetId;
+      const widgetId = this.props.metaWidgetId || this.props.widgetId;
 
       if (syncUpdateWidgetMetaProperty) {
         syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue);
@@ -201,7 +201,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
   const mapStateToProps = (state: AppState, ownProps: WidgetProps) => {
     return {
-      metaState: getWidgetMetaProps(state, ownProps.widgetId),
+      metaState: getWidgetMetaProps(state, ownProps),
     };
   };
   return connect(mapStateToProps)(MetaHOC);

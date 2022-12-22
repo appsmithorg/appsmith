@@ -101,7 +101,7 @@ function* getDroppingCanvasOfWidget(widgetLastSelected: FlattenedWidgetProps) {
     if (widgetLastSelected.type === WidgetTypes.TABS_WIDGET) {
       const tabMetaProps: Record<string, unknown> = yield select(
         getWidgetMetaProps,
-        widgetLastSelected.widgetId,
+        widgetLastSelected,
       );
       return tabMetaProps.selectedTabWidgetId;
     }

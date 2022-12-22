@@ -1098,20 +1098,20 @@ describe("#generate", () => {
     expect(nonTemplateWidgetsCount).toEqual(6);
   });
 
-  it("should add generatedWidgetId to all the meta widgets", () => {
+  it("should add metaWidgetId to all the meta widgets", () => {
     const { initialResult } = init();
 
     Object.values(initialResult.metaWidgets).forEach((metaWidget) => {
-      expect(metaWidget.generatedWidgetId).toBeDefined();
+      expect(metaWidget.metaWidgetId).toBeDefined();
     });
   });
 
-  it("should match the generatedWidgetId and meta widget's widgetId for row > 0", () => {
+  it("should match the metaWidgetId and meta widget's widgetId for row > 0", () => {
     const { initialResult } = init();
 
     Object.values(initialResult.metaWidgets).forEach((metaWidget) => {
       if (metaWidget.currentIndex > 0) {
-        expect(metaWidget.generatedWidgetId).toEqual(metaWidget.widgetId);
+        expect(metaWidget.metaWidgetId).toEqual(metaWidget.widgetId);
       }
     });
   });
@@ -1123,9 +1123,9 @@ describe("#generate", () => {
 
     Object.values(initialResult.metaWidgets).forEach((metaWidget) => {
       if (metaWidget.currentIndex === startIndex) {
-        expect(metaWidget.generatedWidgetId).not.toEqual(metaWidget.widgetId);
+        expect(metaWidget.metaWidgetId).not.toEqual(metaWidget.widgetId);
       } else {
-        expect(metaWidget.generatedWidgetId).toEqual(metaWidget.widgetId);
+        expect(metaWidget.metaWidgetId).toEqual(metaWidget.widgetId);
       }
     });
 
@@ -1136,9 +1136,9 @@ describe("#generate", () => {
 
     Object.values(result1.metaWidgets).forEach((metaWidget) => {
       if (metaWidget.currentIndex === updatedStartIndex) {
-        expect(metaWidget.generatedWidgetId).not.toEqual(metaWidget.widgetId);
+        expect(metaWidget.metaWidgetId).not.toEqual(metaWidget.widgetId);
       } else {
-        expect(metaWidget.generatedWidgetId).toEqual(metaWidget.widgetId);
+        expect(metaWidget.metaWidgetId).toEqual(metaWidget.widgetId);
       }
     });
   });

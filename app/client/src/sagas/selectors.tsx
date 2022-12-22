@@ -40,8 +40,9 @@ export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
 export const getWidgetMetaProps = createSelector(
-  [getWidgetsMeta, (_state: AppState, widgetId: string) => widgetId],
-  (metaState, widgetId: string) => metaState[widgetId],
+  [getWidgetsMeta, (_state: AppState, widget: WidgetProps) => widget],
+  (metaState, widget: WidgetProps) =>
+    metaState[widget.metaWidgetId || widget.widgetId],
 );
 
 export const getWidgetByID = (widgetId: string) => {

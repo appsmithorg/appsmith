@@ -479,7 +479,7 @@ class MetaWidgetGenerator {
     metaWidget.children = children;
     metaWidget.parentId = parentId;
     metaWidget.referencedWidgetId = templateWidgetId;
-    metaWidget.generatedWidgetId = originalMetaWidgetId;
+    metaWidget.metaWidgetId = originalMetaWidgetId;
 
     return {
       childMetaWidgets,

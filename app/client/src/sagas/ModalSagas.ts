@@ -50,6 +50,7 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+import { WidgetProps } from "widgets/BaseWidget";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -142,9 +143,12 @@ export function* showModalSaga(
 
   yield put(focusWidget(action.payload.modalId));
 
+  const modalWidget = {
+    widgetId: action.payload.modalId,
+  } as WidgetProps;
   const metaProps: Record<string, unknown> = yield select(
     getWidgetMetaProps,
-    action.payload.modalId,
+    modalWidget,
   );
   if (!metaProps || !metaProps.isVisible) {
     // Then show the modal we would like to show.

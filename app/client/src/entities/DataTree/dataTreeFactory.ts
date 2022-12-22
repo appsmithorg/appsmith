@@ -167,7 +167,7 @@ export class DataTreeFactory {
     Object.values(metaWidgets).forEach((widget) => {
       dataTree[widget.widgetName] = generateDataTreeWidget(
         widget,
-        widgetsMeta[widget.generatedWidgetId || widget.widgetId],
+        widgetsMeta[widget.metaWidgetId || widget.widgetId],
       );
     });
     const endMetaWidgets = performance.now();
