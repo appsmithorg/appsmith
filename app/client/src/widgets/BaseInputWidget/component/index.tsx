@@ -8,7 +8,6 @@ import {
   InputGroup,
   Classes,
   ControlGroup,
-  TextArea,
   Tag,
   IRef,
 } from "@blueprintjs/core";
@@ -34,6 +33,7 @@ import LabelWithTooltip, {
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
 import { getLocale } from "utils/helpers";
+import AutoResizeTextArea from "components/editorComponents/AutoResizeTextArea";
 
 /**
  * All design system component specific logic goes here.
@@ -557,13 +557,10 @@ class BaseInputComponent extends React.Component<
   };
 
   private textAreaInputComponent = () => (
-    <TextArea
+    <AutoResizeTextArea
       autoFocus={this.props.autoFocus}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
-      growVertically={false}
-      inputRef={this.props.inputRef as IRef<HTMLTextAreaElement>}
-      intent={this.props.intent}
       maxLength={this.props.maxChars}
       onBlur={() => this.setFocusState(false)}
       onChange={this.onTextChange}
@@ -571,6 +568,7 @@ class BaseInputComponent extends React.Component<
       onKeyDown={this.onKeyDownTextArea}
       onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
+      ref={this.props.inputRef as IRef<HTMLTextAreaElement>}
       style={{ resize: "none" }}
       value={this.props.value}
     />
