@@ -220,7 +220,7 @@ jobs:
       # Setup Java
       - name: Set up JDK 17
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -488,7 +488,7 @@ jobs:
       # Setup Java
       - name: Set up JDK 17
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'

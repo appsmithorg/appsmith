@@ -11,6 +11,8 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.FeatureFlagService;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -18,8 +20,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -35,6 +35,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     ApplicationService applicationService;
 
     FeatureFlagService featureFlagService;
+
     public CustomJSLibServiceCEImpl(Scheduler scheduler,
                                     Validator validator,
                                     MongoConverter mongoConverter,
@@ -99,7 +100,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     return Mono.just(getDTOFromCustomJSLib(foundJSLib));
                 })
                 //Read more why Mono.defer is used here. https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
-                .switchIfEmpty( Mono.defer(() -> repository.save(jsLib).map(savedJsLib -> getDTOFromCustomJSLib(savedJsLib))));
+                .switchIfEmpty(Mono.defer(() -> repository.save(jsLib).map(savedJsLib -> getDTOFromCustomJSLib(savedJsLib))));
     }
 
     @Override
