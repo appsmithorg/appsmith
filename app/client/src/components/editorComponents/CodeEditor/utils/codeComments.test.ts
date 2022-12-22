@@ -84,7 +84,9 @@ describe("handleCodeComment", () => {
   });
 
   it("should not code comment for JS fields with plain text only", () => {
-    const editor = CodeMirror(document.body, { mode: EditorModes.TEXT });
+    const editor = CodeMirror(document.body, {
+      mode: EditorModes.TEXT_WITH_BINDING,
+    });
 
     const code = `hello world`;
     editor.setValue(code);
@@ -101,7 +103,9 @@ describe("handleCodeComment", () => {
   });
 
   it("should handle code uncomment for JS fields with plain text", () => {
-    const editor = CodeMirror(document.body, { mode: EditorModes.TEXT });
+    const editor = CodeMirror(document.body, {
+      mode: EditorModes.TEXT_WITH_BINDING,
+    });
 
     const code = `// hello world`;
     editor.setValue(code);
@@ -173,6 +177,26 @@ describe("handleCodeComment", () => {
     handleCodeComment(JS_LINE_COMMENT)(editor);
 
     expect(editor.getValue()).toEqual(`Hello {{ appsmith.store.id }}`);
+  });
+
+  it("should handle code comment in TEXT_WITH_BINDING fields with text", () => {
+    const editor = CodeMirror(document.body, {
+      mode: EditorModes.TEXT_WITH_BINDING,
+    });
+
+    const code = `"label": {{ appsmith.store.id }}`;
+
+    editor.setValue(code);
+
+    // Select the code before commenting
+    editor.setSelection(
+      { line: 0, ch: 0 },
+      { line: editor.lastLine() + 1, ch: 0 },
+    );
+
+    handleCodeComment(JS_LINE_COMMENT)(editor);
+
+    expect(editor.getValue()).toEqual(`"label": {{//  appsmith.store.id }}`);
   });
 
   it("should handle code comment in JS fields with multiple lines", () => {

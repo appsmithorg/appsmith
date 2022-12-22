@@ -55,7 +55,8 @@ const noOptions: CodeMirror.CommentOptions = {};
  **/
 function firstNonWhitespace(str: string, mode: EditorModes) {
   const found = str.search(
-    mode === EditorModes.JAVASCRIPT && str.includes(JS_FIELD_BEGIN)
+    [EditorModes.JAVASCRIPT, EditorModes.TEXT_WITH_BINDING].includes(mode) &&
+      str.includes(JS_FIELD_BEGIN)
       ? JS_FIELD_BEGIN
       : nonWhitespace,
   );
@@ -74,13 +75,6 @@ function probablyInsideString(
   );
 }
 
-function getMode(cm: CodeMirror.Editor, pos: CodeMirror.Position) {
-  const mode = cm.getMode();
-  return mode.useInnerComments === false || !mode.innerMode
-    ? mode
-    : cm.getModeAt(pos);
-}
-
 function performLineCommenting(
   // this is a fake parameter to specify type for this
   // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-0.html#specifying-the-type-of-this-for-functions
@@ -91,13 +85,14 @@ function performLineCommenting(
 ) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const self: CodeMirror.Editor = this as any;
-  const mode = getMode(self, from);
+  const mode = self.getMode();
   const firstLine = self.getLine(from.line);
   if (firstLine === null || probablyInsideString(self, from, firstLine)) return;
 
   // When mode is TEXT, the name is null string, we skip commenting
   const commentString =
-    mode.name === "null" && !firstLine.includes(JS_FIELD_BEGIN)
+    mode.name === EditorModes.TEXT_WITH_BINDING &&
+    !firstLine.includes(JS_FIELD_BEGIN)
       ? ""
       : options.lineComment || mode.lineComment;
 
@@ -183,7 +178,7 @@ function performLineUncommenting(
 ) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias
   const self = this;
-  const mode = getMode(self, from);
+  const mode = self.getMode();
   const end = getEndLineForLineUncomment(from, to, self);
   const start = Math.min(from.line, end);
 
