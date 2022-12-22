@@ -155,7 +155,7 @@ Cypress.Commands.add("enablePublicAccess", (editMode = false) => {
     : homePage.closeBtn;
   cy.get(closeButtonLocator)
     .first()
-    .trigger("click");
+    .click({ force: true });
 });
 
 Cypress.Commands.add("deleteUserFromWorkspace", (workspaceName) => {

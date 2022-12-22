@@ -153,12 +153,14 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
       {updatedTabs && updatedTabs.length > 0 ? (
         <TabWrapper hasMessage={!!props.message}>
           {!props.message && (
-            <TabCloseBtnContainer className="t--close-invite-modal">
+            <TabCloseBtnContainer
+              className="t--close-invite-modal"
+              onClick={onCloseHandler}
+            >
               <Icon
                 fillColor={Colors.SCORPION}
                 hoverFillColor={Colors.GREY_900}
                 name="close-modal"
-                onClick={onCloseHandler}
                 size={IconSize.XXXXL}
               />
             </TabCloseBtnContainer>
