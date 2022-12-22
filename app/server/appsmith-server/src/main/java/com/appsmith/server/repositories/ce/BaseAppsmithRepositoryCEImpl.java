@@ -39,7 +39,27 @@ import java.util.Set;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
+/**
+ * In case you are wondering why we have two different repository implementation classes i.e.
+ * BaseRepositoryImpl.java and BaseAppsmithRepositoryCEImpl.java, Arpit's comments on this might be helpful:
+ * ```
+ * BaseRepository is required for running any JPA queries. This doesn’t invoke any ACL permissions. This is used when
+ * we wish to fetch data from the DB without ACL. For eg, Fetching a user by username during login
+ * Usage example:
+ * ActionCollectionRepositoryCE extends BaseRepository to power JPA queries using the ReactiveMongoRepository.
+ * AppsmithRepository is the one that we should use by default (unless the use case demands that we don’t need ACL).
+ * It is implemented by BaseAppsmithRepositoryCEImpl and BaseAppsmithRepositoryImpl. This interface allows us to
+ * define custom Mongo queries by including the delete functionality & ACL permissions.
+ * Usage example:
+ * CustomActionCollectionRepositoryCE extends AppsmithRepository and then implements the functions defined there.
+ * I agree that the naming is a little confusing. Open to hearing better naming suggestions so that we can improve
+ * the understanding of these interfaces.
+ * ```
+ * Ref: https://theappsmith.slack.com/archives/CPQNLFHTN/p1669100205502599?thread_ts=1668753437.497369&cid=CPQNLFHTN
+ */
 @Slf4j
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
@@ -134,6 +154,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<T> findById(String id, AclPermission permission) {
+        return findById(id, null, permission);
+    }
+
+    public Mono<T> findById(String id, List<String> projectionFieldNames, AclPermission permission) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -144,6 +168,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .flatMap(permissionGroups -> {
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+
+                    if(!isEmpty(projectionFieldNames)) {
+                        projectionFieldNames.stream()
+                                .forEach(projectionFieldName -> {
+                                    query.fields().include(projectionFieldName);
+                                });
+                    }
 
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
@@ -187,6 +218,30 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 });
     }
 
+    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, Map<String, Object> fieldNameValueMap, String branchName,
+                                                                  String branchNamePath, AclPermission permission) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
+                .flatMap(permissionGroups -> {
+                    Query query = new Query(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups,
+                            permission)));
+                    query.addCriteria(Criteria.where(defaultIdPath).is(defaultId));
+
+                    if (!isBlank(branchName)) {
+                        query.addCriteria(Criteria.where(branchNamePath).is(branchName));
+                    }
+
+                    Update update = new Update();
+                    fieldNameValueMap.forEach((fieldName, fieldValue) -> {
+                        update.set(fieldName, fieldValue);
+                    });
+
+                    return mongoOperations.updateFirst(query, update, this.genericDomain);
+                });
+    }
+
     public Mono<UpdateResult> updateById(String id, Update updateObj, AclPermission permission) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -213,13 +268,17 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     protected Mono<T> queryOne(List<Criteria> criterias, AclPermission aclPermission) {
+        return queryOne(criterias, null, aclPermission);
+    }
+
+    protected Mono<T> queryOne(List<Criteria> criterias, List<String> projectionFieldNames, AclPermission aclPermission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(permissionGroups -> {
                     return mongoOperations.query(this.genericDomain)
-                            .matching(createQueryWithPermission(criterias, permissionGroups, aclPermission))
+                            .matching(createQueryWithPermission(criterias, projectionFieldNames, permissionGroups, aclPermission))
                             .one()
                             .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
                 });
@@ -238,7 +297,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 });
     }
 
-    protected Query createQueryWithPermission(List<Criteria> criterias, Set<String> permissionGroups, AclPermission aclPermission) {
+    protected Query createQueryWithPermission(List<Criteria> criterias, Set<String> permissionGroups,
+                                              AclPermission aclPermission) {
+        return createQueryWithPermission(criterias, null, permissionGroups, aclPermission);
+    }
+
+    protected Query createQueryWithPermission(List<Criteria> criterias, List<String> projectionFieldNames,
+                                              Set<String> permissionGroups,
+                                              AclPermission aclPermission) {
         Query query = new Query();
         criterias.stream()
                 .forEach(criteria -> query.addCriteria(criteria));
@@ -247,6 +313,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         } else {
             query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, aclPermission)));
         }
+
+        if(!isEmpty(projectionFieldNames)) {
+            projectionFieldNames.stream()
+                    .forEach(fieldName -> query.fields().include(fieldName));
+        }
+
         return query;
     }
 
@@ -408,4 +480,24 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
+    public Mono<T> queryOne(List<Criteria> criterias, List<String> projectionFieldNames) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> {
+                    criterias.add(notDeleted());
+                    Query query = new Query(new Criteria().andOperator(criterias));
+
+                    if(!isEmpty(projectionFieldNames)) {
+                        projectionFieldNames.stream()
+                                .forEach(projectionFieldName -> {
+                                    query.fields().include(projectionFieldName);
+                                });
+                    }
+
+                    return mongoOperations.query(this.genericDomain)
+                            .matching(query)
+                            .one();
+                });
+    }
 }

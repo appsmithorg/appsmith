@@ -203,7 +203,7 @@ public class ApplicationForkingServiceTests {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        layoutActionService.createSingleAction(action).block();
+        layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
 
         // Save actionCollection

@@ -13,11 +13,12 @@ import {
 import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { compact, xor } from "lodash";
-import React from "react";
+import { default as React } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 
@@ -25,7 +26,6 @@ import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,

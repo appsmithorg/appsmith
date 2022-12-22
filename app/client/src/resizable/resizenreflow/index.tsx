@@ -346,7 +346,6 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.left,
-      affectsWidth: true,
       handleDirection: ReflowDirection.LEFT,
     });
   }
@@ -364,7 +363,6 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.top,
-      affectsWidth: false,
       handleDirection: ReflowDirection.TOP,
     });
   }
@@ -382,7 +380,6 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.right,
-      affectsWidth: true,
       handleDirection: ReflowDirection.RIGHT,
     });
   }
@@ -400,7 +397,6 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.bottom,
-      affectsWidth: false,
       handleDirection: ReflowDirection.BOTTOM,
     });
   }
@@ -513,7 +509,7 @@ export function ReflowResizable(props: ResizableProps) {
         key={index}
         onStart={() => {
           togglePointerEvents(false);
-          props.onStart(handle?.affectsWidth);
+          props.onStart();
           setResizing(true);
         }}
         onStop={onResizeStop}

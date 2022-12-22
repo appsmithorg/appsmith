@@ -441,7 +441,6 @@ abstract class BaseWidget<
       </FlexComponent>
     );
   }
-
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 

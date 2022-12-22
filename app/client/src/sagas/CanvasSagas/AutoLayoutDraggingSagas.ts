@@ -1,4 +1,3 @@
-import { isArray } from "lodash";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import {
   ReduxAction,
@@ -9,20 +8,22 @@ import {
   LayoutDirection,
   ResponsiveBehavior,
 } from "components/constants";
-import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import log from "loglevel";
-import { getWidgets } from "sagas/selectors";
 import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { GridDefaults } from "constants/WidgetConstants";
+import { isArray } from "lodash";
+import log from "loglevel";
+import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import {
   updateFlexChildColumns,
   updateSizeOfAllChildren,
 } from "sagas/AutoLayoutUtils";
+import { getWidgets } from "sagas/selectors";
+import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -214,6 +215,16 @@ function* reorderAutolayoutChildren(params: {
       ...newItems.slice(pos),
     ],
   };
+  const parentWidget = allWidgets[allWidgets[parentId].parentId || "0"];
+  const isAutoLayoutContainerCanvas = parentWidget.type === "CONTAINER_WIDGET";
+  if (isAutoLayoutContainerCanvas) {
+    const height =
+      allWidgets[parentId].bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    updatedWidgets[parentWidget.widgetId] = {
+      ...updatedWidgets[parentWidget.widgetId],
+      bottomRow: parentWidget.topRow + height,
+    };
+  }
 
   return updatedWidgets;
 }

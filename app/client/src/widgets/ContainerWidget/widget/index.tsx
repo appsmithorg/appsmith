@@ -157,15 +157,16 @@ export class ContainerWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }
+
+  componentDidMount(): void {
+    super.componentDidMount();
+  }
+
   static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
-  }
-
-  componentDidMount(): void {
-    super.componentDidMount();
   }
 
   getSnapSpaces = () => {

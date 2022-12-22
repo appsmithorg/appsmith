@@ -199,7 +199,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     if (dropTargetRef.current) {
       const height = getDropTargetHeight(
         canDropTargetExtend,
-        isMobile,
+        isMobile && props.widgetId !== MAIN_CONTAINER_WIDGET_ID,
         isPreviewMode,
         rowRef.current,
         props.snapRowSpace,
@@ -208,6 +208,19 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
       dropTargetRef.current.style.height = height;
     }
+  };
+
+  const handleFocus = (e: any) => {
+    // Making sure that we don't deselect the widget
+    // after we are done dragging the limits in auto height with limits
+    if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
+      if (!props.parentId) {
+        deselectAll();
+        focusWidget && focusWidget(props.widgetId);
+        showPropertyPane && showPropertyPane();
+      }
+    }
+    e.preventDefault();
   };
 
   /** PREPARE CONTEXT */
@@ -235,20 +248,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }
     return false;
   };
-
-  const handleFocus = (e: any) => {
-    if (!isResizing && !isDragging) {
-      if (!props.parentId) {
-        deselectAll();
-        focusWidget && focusWidget(props.widgetId);
-        showPropertyPane && showPropertyPane();
-      }
-    }
-    // commenting this out to allow propagation of click events
-    // e.stopPropagation();
-    e.preventDefault();
-  };
-
   // memoizing context values
   const contextValue = useMemo(() => {
     return {
@@ -263,7 +262,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const height = getDropTargetHeight(
     canDropTargetExtend,
-    isMobile,
+    isMobile && props.widgetId !== MAIN_CONTAINER_WIDGET_ID,
     isPreviewMode,
     rowRef.current,
     props.snapRowSpace,
@@ -290,7 +289,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     ((isDragging && draggedOn === props.widgetId) ||
       isResizing ||
       isAutoHeightWithLimitsChanging) &&
-    !isPreviewMode;
+    !isPreviewMode &&
+    !props.useAutoLayout;
 
   const dropTargetRef = useRef<HTMLDivElement>(null);
 
