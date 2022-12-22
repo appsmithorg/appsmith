@@ -1,7 +1,4 @@
-import evaluate, {
-  evaluateAsync,
-  isFunctionAsync,
-} from "workers/Evaluation/evaluate";
+import evaluate, { evaluateAsync } from "workers/Evaluation/evaluate";
 import {
   DataTree,
   DataTreeWidget,
@@ -10,6 +7,7 @@ import {
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
+import { functionDeterminer } from "../functionDeterminer";
 
 describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
@@ -253,9 +251,10 @@ describe("isFunctionAsync", () => {
         testFunc = eval(testFunc);
       }
 
+      functionDeterminer.setupEval({}, {});
       addPlatformFunctionsToEvalContext(self);
 
-      const actual = isFunctionAsync(testFunc, {}, {});
+      const actual = functionDeterminer.isFunctionAsync(testFunc);
       expect(actual).toBe(testCase.expected);
     }
   });
