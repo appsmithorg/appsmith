@@ -1,7 +1,7 @@
 import pageSagas from "sagas/PageSagas";
 import { watchActionSagas } from "sagas/ActionSagas";
 import { watchJSActionSagas } from "sagas/JSActionSagas";
-import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
+import { watchActionExecutionSagas } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import templateSagas from "sagas/TemplatesSagas";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
@@ -28,7 +28,6 @@ import utilSagas from "sagas/UtilSagas";
 import saaSPaneSagas from "sagas/SaaSPaneSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import globalSearchSagas from "sagas/GlobalSearchSagas";
-import recentEntitiesSagas from "sagas/RecentEntitiesSagas";
 import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "sagas/DebuggerSagas";
 import replaySaga from "sagas/ReplaySaga";
@@ -41,8 +40,10 @@ import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import NavigationSagas from "sagas/NavigationSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
+import JSLibrarySaga from "sagas/JSLibrarySaga";
 import AutoHeightSagas from "sagas/autoHeightSagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
+import LintingSaga from "sagas/LintingSagas";
 
 export const sagas = [
   initSagas,
@@ -75,7 +76,6 @@ export const sagas = [
   formEvaluationChangeListener,
   utilSagas,
   globalSearchSagas,
-  recentEntitiesSagas,
   websocketSagas,
   debuggerSagas,
   saaSPaneSagas,
@@ -90,4 +90,6 @@ export const sagas = [
   PageVisibilitySaga,
   AutoHeightSagas,
   tenantSagas,
+  JSLibrarySaga,
+  LintingSaga,
 ];

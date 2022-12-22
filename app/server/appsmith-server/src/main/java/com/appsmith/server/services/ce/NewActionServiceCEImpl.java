@@ -682,7 +682,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param actionDTOMono
      * @return datasourceMono
      */
-    protected Mono<Datasource> getCachedDatasourceForActionExecution(Mono<ActionDTO> actionDTOMono) {
+    protected Mono<Datasource> getCachedDatasourceForActionExecution(Mono<ActionDTO> actionDTOMono, String environmentName) {
 
         return actionDTOMono
                 .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO,
@@ -976,7 +976,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<ActionDTO> actionDTOMono = getCachedActionDTOForActionExecution(actionMono, executeActionDTO, actionId);
 
         // 3. Instantiate the implementation class based on the query type
-        Mono<Datasource> datasourceMono = getCachedDatasourceForActionExecution(actionDTOMono);
+        Mono<Datasource> datasourceMono = getCachedDatasourceForActionExecution(actionDTOMono, environmentName);
         Mono<Plugin> pluginMono = getCachedPluginForActionExecution(datasourceMono, actionId);
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
@@ -1463,6 +1463,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return repository.findByPageId(pageId, permission)
                 .flatMap(this::sanitizeAction);
     }
+    
+    @Override
+    public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission) {
+        return repository.findByPageId(pageId, permission)
+                .flatMap(this::sanitizeAction);
+    }
 
     @Override
     public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission) {
@@ -1472,6 +1478,25 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
+        return repository.findByApplicationId(applicationId, permission, sort)
+                // In case of view mode being true, filter out all the actions which haven't been published
+                .flatMap(action -> {
+                    if (Boolean.TRUE.equals(viewMode)) {
+                        // In case we are trying to fetch published actions but this action has not been published, do not return
+                        if (action.getPublishedAction() == null) {
+                            return Mono.empty();
+                        }
+                    }
+                    // No need to handle the edge case of unpublished action not being present. This is not possible because
+                    // every created action starts from an unpublishedAction state.
+
+                    return Mono.just(action);
+                })
+                .flatMap(this::sanitizeAction);
+    }
+
+    @Override
+    public Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort) {
         return repository.findByApplicationId(applicationId, permission, sort)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(action -> {

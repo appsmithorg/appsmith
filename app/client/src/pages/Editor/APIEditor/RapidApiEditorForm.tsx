@@ -256,6 +256,7 @@ function RapidApiEditorForm(props: Props) {
                 title: "Pagination",
                 panelComponent: (
                   <Pagination
+                    actionName={props.apiName}
                     onTestClick={props.onRunClick}
                     paginationType={props.paginationType}
                   />

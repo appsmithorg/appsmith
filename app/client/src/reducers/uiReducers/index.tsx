@@ -42,6 +42,7 @@ import mainCanvasReducer from "./mainCanvasReducer";
 import focusHistoryReducer from "./focusHistoryReducer";
 import { editorContextReducer } from "./editorContextReducer";
 import guidedTourReducer from "./guidedTourReducer";
+import libraryReducer from "./libraryReducer";
 import appSettingsPaneReducer from "./appSettingsPaneReducer";
 import autoHeightUIReducer from "./autoHeightReducer";
 
@@ -90,6 +91,7 @@ const uiReducer = combineReducers({
   appSettingsPane: appSettingsPaneReducer,
   focusHistory: focusHistoryReducer,
   editorContext: editorContextReducer,
+  libraries: libraryReducer,
   autoHeightUI: autoHeightUIReducer,
 });
 

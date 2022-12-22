@@ -13,7 +13,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
-import { createUnEvalTreeForEval } from "../dataTreeUtils";
+import { createUnEvalTreeForEval } from "@appsmith/workers/Evaluation/dataTreeUtils";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -346,14 +346,6 @@ describe("DataTreeEvaluator", () => {
     {},
   );
   const unEvalTree: UnEvalTree = {
-    appsmith: {
-      mode: "EDIT",
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
-      store: {},
-      theme: {},
-    },
     Text1: generateDataTreeWidget(
       {
         ...BASE_WIDGET,
