@@ -31,7 +31,6 @@ export function AppPage(props: AppPageProps) {
       appName: props.appName,
       mode: "VIEW",
     });
-    AnalyticsUtil.logMixPanelIds();
   }, [props.pageId, props.pageName]);
 
   return (

@@ -50,8 +50,10 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
 
-  if (config.headers)
-    config.headers["X-User-Id"] = AnalyticsUtil.getMixPanelId() ?? "";
+  if (config.headers) {
+    console.log("------ mix - api", config.url);
+    config.headers["X-User-Id"] = AnalyticsUtil.getAnonymousUserId() ?? "";
+  }
 
   return { ...config, timer: performance.now() };
 };

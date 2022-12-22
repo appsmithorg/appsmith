@@ -49,6 +49,7 @@ import {
   checkContainersForAutoHeightAction,
   updateWidgetAutoHeightAction,
 } from "actions/autoHeightActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;

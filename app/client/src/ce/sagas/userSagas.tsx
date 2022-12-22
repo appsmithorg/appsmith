@@ -120,6 +120,8 @@ export function* getCurrentUserSaga() {
       ) {
         //@ts-expect-error: response is of type unknown
         enableTelemetry && AnalyticsUtil.identifyUser(response.data);
+      } else {
+        enableTelemetry && AnalyticsUtil.initAnonymousUser();
       }
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

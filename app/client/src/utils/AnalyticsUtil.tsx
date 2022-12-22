@@ -308,6 +308,8 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
+  static anonymousId?: string;
+  static isAnonymousUser = false;
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -469,44 +471,39 @@ class AnalyticsUtil {
     }
   }
 
-  static logMixPanelIds() {
+  static initAnonymousUser() {
+    AnalyticsUtil.isAnonymousUser = true;
     const windowDoc: any = window;
-    const mixpanelIds = {
-      distinct_id: windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id(),
-      id: windowDoc.mixpanel && windowDoc.mixpanel.get_property("id"),
+    windowDoc.analytics &&
+      windowDoc.analytics.ready(() => {
+        windowDoc.analytics.register({
+          name: "Cookie Compatibility",
+          version: "0.1.0",
+          type: "utility",
+          load: (_ctx: any, ajs: any) => {
+            const user = ajs.user();
 
-      user_id: windowDoc.mixpanel && windowDoc.mixpanel.get_property("user_id"),
-      userId: windowDoc.mixpanel && windowDoc.mixpanel.get_property("userId"),
+            user.anonymousId(user.anonymousId());
+            user.id(user.id());
 
-      insert_id:
-        windowDoc.mixpanel && windowDoc.mixpanel.get_property("insert_id"),
-      insertId:
-        windowDoc.mixpanel && windowDoc.mixpanel.get_property("insertId"),
+            AnalyticsUtil.anonymousId = user.anonymousId();
 
-      identified_id:
-        windowDoc.mixpanel && windowDoc.mixpanel.get_property("identified_id"),
-      identifiedId:
-        windowDoc.mixpanel && windowDoc.mixpanel.get_property("identifiedId"),
-
-      anonymous_id:
-        windowDoc.mixpanel && windowDoc.mixpanel.get_property("anonymous_id"),
-      anonymousId:
-        windowDoc.mixpanel && windowDoc.mixpanel.get_property("anonymousId"),
-    };
-
-    const { segment } = getAppsmithConfigs();
-    console.log("------------------mix------------------");
-    console.log("mix - segment keys", segment);
-    console.log("mix - window.analytics", windowDoc.analytics);
-    console.log("window.mixpanel", windowDoc.mixpanel);
-    console.log("mixpanel id's", mixpanelIds);
-    this.logEvent("MIXPANEL_IDS", mixpanelIds);
+            console.log(
+              "------------------ mix anonymous user init ------------------",
+            );
+            console.log("mix - user INIT", user.id(), user.anonymousId());
+            console.log(
+              "------------------ mix anonymous user init ------------------",
+            );
+          },
+          isLoaded: () => true,
+        });
+      });
   }
 
-  static getMixPanelId() {
-    const windowDoc: any = window;
-    this.logMixPanelIds();
-    return windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id();
+  static getAnonymousUserId() {
+    console.log("mix - get anonymousId", AnalyticsUtil.anonymousId);
+    return AnalyticsUtil.anonymousId;
   }
 
   static reset() {
