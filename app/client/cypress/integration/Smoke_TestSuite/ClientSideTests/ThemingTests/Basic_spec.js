@@ -8,6 +8,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const ee = ObjectsRegistry.EntityExplorer,
   appSettings = ObjectsRegistry.AppSettings;
 
+const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
+
 describe("App Theming funtionality", function() {
   before(() => {
     cy.addDsl(dsl);
@@ -62,9 +64,10 @@ describe("App Theming funtionality", function() {
     cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
     appSettings.ClosePane();
 
-    // drop a button widget and click on body
+    // drop a button & container widget and click on body
     cy.get(explorer.widgetSwitchId).click();
-    cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 }); //iconbuttonwidget
+    cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
+    cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();
     cy.get("canvas")
       .first(0)
@@ -143,35 +146,20 @@ describe("App Theming funtionality", function() {
         );
       });
 
-    // TODO: The following tests are not working properly. Need to check
-    //Change the shadow //Commenting below since expanded by default
-    //cy.contains("Shadow").click({ force: true });
-    // cy.get(commonlocators.themeAppBoxShadowBtn)
-    //   .eq(3)
-    //   .click({ force: true });
-    // cy.get(commonlocators.themeAppBoxShadowBtn)
-    //   .eq(3)
-    //   .invoke("css", "box-shadow")
-    //   .then((boxShadow) => {
-    //     cy.get(widgetsPage.widgetBtn).should(
-    //       "have.css",
-    //       "box-shadow",
-    //       boxShadow,
-    //     );
-    //   });
-
-    // cy.contains("App Box Shadow")
-    //   .siblings("div")
-    //   .children("span")
-    //   .last()
-    //   .then(($elem) => {
-    //     cy.get($elem).click({ force: true });
-    //     cy.get(widgetsPage.widgetBtn).should(
-    //       "have.css",
-    //       "box-shadow",
-    //       $elem.css("box-shadow"),
-    //     );
-    //   });
+    // Change the shadow
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .click({ force: true });
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .invoke("css", "box-shadow")
+      .then((boxShadow) => {
+        cy.get(containerShadowElement).should(
+          "have.css",
+          "box-shadow",
+          boxShadow,
+        );
+      });
 
     //Change the font //Commenting below since expanded by default
     //cy.contains("Font").click({ force: true });
@@ -339,26 +327,20 @@ describe("App Theming funtionality", function() {
 
     //#endregion
 
-    // TODO: Another failed test that need investigation
     //#region Change the shadow & verify widgets
-    //cy.contains("Shadow").click({ force: true });
-    // cy.contains("App Box Shadow")
-    //   .siblings("div")
-    //   .children("span")
-    //   .first()
-    //   .then(($elem) => {
-    //     cy.get($elem).click({ force: true });
-    //     cy.get(widgetsPage.iconWidgetBtn).should(
-    //       "have.css",
-    //       "box-shadow",
-    //       $elem.css("box-shadow"),
-    //     );
-    //     cy.get(widgetsPage.widgetBtn).should(
-    //       "have.css",
-    //       "box-shadow",
-    //       $elem.css("box-shadow"),
-    //     );
-    //   });
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .click({ force: true });
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .invoke("css", "box-shadow")
+      .then((boxShadow) => {
+        cy.get(containerShadowElement).should(
+          "have.css",
+          "box-shadow",
+          boxShadow,
+        );
+      });
 
     //#endregion
 
