@@ -270,7 +270,6 @@ export type EventName =
   | "AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE"
   | "ENTITY_EXPLORER_ADD_PAGE_CLICK"
   | "CANVAS_BLANK_PAGE_CTA_CLICK"
-  | "MIXPANEL_IDS"
   | AUDIT_LOGS_EVENT_NAMES
   | "BRANDING_UPGRADE_CLICK"
   | "BRANDING_PROPERTY_UPDATE"
@@ -506,8 +505,10 @@ class AnalyticsUtil {
   static getAnonymousUserId() {
     console.log(
       "mix - get anonymousId",
+      AnalyticsUtil.isAnonymousUser,
       AnalyticsUtil.tempUserId,
       AnalyticsUtil.anonymousId,
+      (window as any).analytics,
     );
     return AnalyticsUtil.anonymousId;
   }
