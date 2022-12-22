@@ -103,44 +103,6 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         return new AppsmithException(AppsmithError.SCHEMA_MISMATCH_ERROR, versions);
     }
 
-    private Mono<Void> checkInstanceSchemaVersion() {
-        return configService.getByName(Appsmith.INSTANCE_SCHEMA_VERSION)
-                .onErrorMap(AppsmithException.class, e -> new AppsmithException(AppsmithError.SCHEMA_VERSION_NOT_FOUND_ERROR))
-                .flatMap(config -> {
-                    if (CommonConfig.LATEST_INSTANCE_SCHEMA_VERSION == config.getConfig().get("value")) {
-                        return Mono.just(config);
-                    }
-                    return Mono.error(populateSchemaMismatchError((Integer) config.getConfig().get("value")));
-                })
-                .doOnError(errorSignal -> {
-                    log.error("\n" +
-                                    "################################################\n" +
-                                    "Error while trying to start up Appsmith instance: \n" +
-                                    "{}\n" +
-                                    "################################################\n",
-                            errorSignal.getMessage());
-
-                    SpringApplication.exit(applicationContext, () -> 1);
-                    System.exit(1);
-                })
-                .then();
-    }
-
-    private AppsmithException populateSchemaMismatchError(Integer currentInstanceSchemaVersion) {
-
-        List<String> versions = new LinkedList<>();
-
-        // Keep adding version numbers that brought in breaking instance schema migrations here
-        switch (currentInstanceSchemaVersion) {
-            // Example, we expect that in v1.8.14, all instances will have been migrated to instanceSchemaVer 2
-            case 1:
-                versions.add("v1.9");
-            default:
-        }
-
-        return new AppsmithException(AppsmithError.SCHEMA_MISMATCH_ERROR, versions);
-    }
-
     private Mono<? extends Config> registerInstance() {
 
         log.debug("Triggering registration of this instance...");

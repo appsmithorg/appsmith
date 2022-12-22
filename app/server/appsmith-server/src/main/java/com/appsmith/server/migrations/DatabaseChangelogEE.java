@@ -43,8 +43,8 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBER
 import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
-import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
-import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
+import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
+import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
