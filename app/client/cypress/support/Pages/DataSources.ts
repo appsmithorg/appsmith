@@ -1,5 +1,4 @@
 import datasourceFormData from "../../fixtures/datasources.json";
-import datasourceEditor from "../../locators/DatasourcesEditor.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 
 const DataSourceKVP = {
@@ -116,7 +115,20 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
-  private _inputControl = ".t--form-control-INPUT_TEXT input";
+  private _urlInputControl = "input[name='url']";
+
+  // Authenticated API locators
+  private _authType = "[data-cy=authType]";
+  private _oauth2 = ".t--dropdown-option:contains('OAuth 2.0')";
+  private _accessTokenUrl = "[data-cy='authentication.accessTokenUrl'] input";
+  private _clientID = "[data-cy='authentication.clientId'] input";
+  private _clientSecret = "[data-cy='authentication.clientSecret'] input";
+  private _authorizationCode =
+    ".t--dropdown-option:contains('Authorization Code')";
+  private _grantType = "[data-cy='authentication.grantType']";
+  private _authorizationURL =
+    "[data-cy='authentication.authorizationUrl'] input";
+
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
 
@@ -393,7 +405,7 @@ export class DataSources {
     this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
   }
 
-  public updateDatasource() {
+  public UpdateDatasource() {
     this.agHelper.GetNClick(this._saveDs);
     // this.agHelper.ValidateNetworkStatus("@updateDatasource", 200);
     this.agHelper.AssertContains("datasource updated");
@@ -754,7 +766,7 @@ export class DataSources {
   ) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
-      this.updateDatasource();
+      this.UpdateDatasource();
     } else {
       this.SaveDatasource();
     }
@@ -766,6 +778,8 @@ export class DataSources {
 
   public SaveDSFromDialog(save = true) {
     this.agHelper.GoBack();
+    this.agHelper.AssertElementVisible(this._datasourceModalDoNotSave);
+    this.agHelper.AssertElementVisible(this._datasourceModalSave);
     if (save) {
       this.agHelper.GetNClick(
         this.locator._visibleTextSpan("SAVE"),
@@ -784,9 +798,9 @@ export class DataSources {
       );
   }
 
-  public FillAuthenticatedAPIForm() {
+  public FillAuthAPIUrl() {
     const URL = datasourceFormData["authenticatedApiUrl"];
-    cy.get(datasourceEditor.url).type(URL);
+    this.agHelper.TypeText(this._urlInputControl, URL);
   }
 
   public AddOAuth2AuthorizationCodeDetails(
@@ -795,14 +809,14 @@ export class DataSources {
     clientSecret: string,
     authURL: string,
   ) {
-    this.agHelper.GetNClick(datasourceEditor.authType);
-    this.agHelper.GetNClick(datasourceEditor.OAuth2);
-    this.agHelper.GetNClick(datasourceEditor.grantType);
-    this.agHelper.GetNClick(datasourceEditor.authorizationCode);
-    cy.get(datasourceEditor.accessTokenUrl).type(accessTokenUrl);
-    cy.get(datasourceEditor.clienID).type(clientId);
-    cy.get(datasourceEditor.clientSecret).type(clientSecret);
-    cy.get(datasourceEditor.authorizationURL).type(authURL);
+    this.agHelper.GetNClick(this._authType);
+    this.agHelper.GetNClick(this._oauth2);
+    this.agHelper.GetNClick(this._grantType);
+    this.agHelper.GetNClick(this._authorizationCode);
+    this.agHelper.TypeText(this._accessTokenUrl, accessTokenUrl);
+    this.agHelper.TypeText(this._clientID, clientId);
+    this.agHelper.TypeText(this._clientSecret, clientSecret);
+    this.agHelper.TypeText(this._authorizationURL, authURL);
   }
 
   public EditDSFromActiveTab(dsName: string) {
@@ -810,10 +824,10 @@ export class DataSources {
   }
 
   public FillMongoDatasourceFormWithURI(uri: string) {
-    cy.xpath(this._dropdownTitle("Use Mongo Connection String URI")).click(); //to expand the dropdown
-    cy.xpath(this._visibleTextSpan("Yes"))
-      .last()
-      .click({ force: true }); //to select the new value
-    cy.get(this._inputControl).type(uri);
+    this.ValidateNSelectDropdown("Use Mongo Connection String URI", "", "Yes");
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Connection String URI") + "//input",
+      uri,
+    );
   }
 }
