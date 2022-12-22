@@ -1,6 +1,5 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
-import { get } from "lodash";
 
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
@@ -25,6 +24,7 @@ class TransformError {
 
   run(error: Error) {
     const errorMessage = getErrorMessage(error);
+
     if (!this.errorNamesToScan.includes(error.name)) return errorMessage;
 
     for (const asyncFunctionFullPath of Object.keys(

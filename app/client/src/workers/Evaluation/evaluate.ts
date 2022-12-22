@@ -13,11 +13,7 @@ import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSaga
 import indirectEval from "./indirectEval";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
-import {
-  errorModifier,
-  FoundPromiseInSyncEvalError,
-  getErrorMessage,
-} from "./errorModifier";
+import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 
 export type EvalResult = {
