@@ -39,7 +39,10 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         configService.getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(registerInstance())
-                .doOnError(errorSignal -> log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage()))
+                .onErrorResume(errorSignal -> {
+                    log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
+                    return Mono.empty();
+                })
                 .then(performRtsHealthCheck())
                 .doFinally(ignored -> this.printReady())
                 .subscribe(null, e -> {
