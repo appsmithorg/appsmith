@@ -7,18 +7,48 @@ import { ControlProps } from "components/formControls/BaseControl";
 import { Datasource } from "entities/Datasource";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { getType, Types } from "utils/TypeHelpers";
+import { Colors } from "constants/Colors";
 import { Button } from "design-system";
 
-export const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
+export const PluginImageWrapper = styled.div`
+  height: 34px;
+  width: 34px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${Colors.GREY_200};
+  border-radius: 100%;
+  img {
+    height: 100%;
+    width: auto;
+  }
 `;
 
-export const PluginImage = styled.img`
-  height: 40px;
-  width: auto;
+export const PluginImage = (props: any) => {
+  return (
+    <PluginImageWrapper>
+      <img {...props} />
+    </PluginImageWrapper>
+  );
+};
+
+export const FormContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+`;
+
+export const FormContainerBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
 `;
 
 export const FormTitleContainer = styled.div`
@@ -32,13 +62,13 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid ${Colors.ALTO};
+  padding-bottom: 24px;
   //margin-top: 16px;
 `;
 
-export const SaveButtonContainer = styled.div`
-  margin-top: 24px;
+export const ActionWrapper = styled.div`
   display: flex;
-  justify-content: flex-end;
 `;
 
 export const ActionButton = styled(Button)`
@@ -54,19 +84,13 @@ export const ActionButton = styled(Button)`
   }
 `;
 
-const DBForm = styled.div`
-  flex: 1;
-  padding: 20px;
-  margin-right: 0px;
-  overflow: auto;
-  .backBtn {
-    padding-bottom: 1px;
-    cursor: pointer;
-  }
-  .backBtnText {
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
+export const EditDatasourceButton = styled(Button)`
+  padding: 10px 20px;
+  &&&& {
+    height: 36px;
+    max-width: 160px;
+    border: 1px solid ${Colors.HIT_GRAY};
+    width: auto;
   }
 `;
 
@@ -196,15 +220,14 @@ export class JSONtoForm<
     return formData;
   };
 
-  renderForm = (content: any) => {
+  renderForm = (formContent: any) => {
     return (
-      <div
-        className="t--json-to-form-wrapper"
-        style={{ height: "100%", display: "flex", flexDirection: "column" }}
-      >
+      <FormContainer className="t--json-to-form-wrapper">
         <CloseEditor />
-        <DBForm>{content}</DBForm>
-      </div>
+        <FormContainerBody className="t--json-to-form-body">
+          {formContent}
+        </FormContainerBody>
+      </FormContainer>
     );
   };
 
@@ -214,6 +237,8 @@ export class JSONtoForm<
       <Collapsible
         defaultIsOpen={index === 0}
         key={section.sectionName}
+        showSection={index !== 0}
+        showTopBorder={index !== 0}
         title={section.sectionName}
       >
         {this.renderEachConfig(section)}
