@@ -170,7 +170,7 @@ export class HomePage {
       .type(text);
     this.agHelper.ClickButton("Invite");
     cy.contains(text, { matchCase: false });
-    cy.contains(errorMessage);
+    cy.contains(errorMessage, { matchCase: false });
     cy.get(".bp3-dialog-close-button").click({ force: true });
   }
 
