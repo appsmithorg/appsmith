@@ -5,10 +5,10 @@ import {
   getAllTableColumnKeys,
   getColumnType,
   getDerivedColumns,
-  getKeysFromSourceDataForEventAutocomplete,
   getOriginalRowIndex,
   getSelectRowIndex,
   getSelectRowIndices,
+  getSourceDataAndCaluclateKeysForEventAutoComplete,
   getTableStyles,
   reorderColumns,
 } from "./utilities";
@@ -1992,7 +1992,7 @@ describe("getColumnType", () => {
   });
 });
 
-describe("getKeysFromSourceDataForEventAutocomplete", () => {
+describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
   it("Should test with valid values", () => {
     const mockProps = {
       type: "TABLE_WIDGET_V2",
@@ -2087,7 +2087,9 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
       },
     };
 
-    const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
     const expected = {
       currentItem: {
         name: "",
@@ -2166,7 +2168,9 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
       },
     };
 
-    const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
     const expected = { currentItem: {} };
     expect(result).toStrictEqual(expected);
   });
@@ -2238,7 +2242,9 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
       },
     };
 
-    const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
     const expected = { currentItem: {} };
     expect(result).toStrictEqual(expected);
   });

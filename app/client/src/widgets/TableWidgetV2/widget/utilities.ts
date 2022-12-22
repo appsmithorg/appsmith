@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import _, { isArray, isBoolean, isObject, uniq, without } from "lodash";
+import _, { isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import {
   CellAlignmentTypes,
@@ -27,6 +27,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
 import { Stylesheet } from "entities/AppTheming";
+import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -699,30 +700,21 @@ export const getColumnType = (
   }
 };
 
-export const getKeysFromSourceDataForEventAutocomplete = (
+export const getSourceDataAndCaluclateKeysForEventAutoComplete = (
   props: TableWidgetProps,
-) => {
-  const keysForAutocomplete = { currentItem: {} };
-  // const { __evaluation__: evaluation, primaryColumns } = props;
-  // const primaryColumnKeys = primaryColumns ? Object.keys(primaryColumns) : [];
-  // const columnName = primaryColumnKeys?.length ? primaryColumnKeys[0] : "";
-  // const evaluatedColumns = evaluation?.evaluatedValues?.primaryColumns;
+): unknown => {
+  const { __evaluation__, primaryColumns } = props;
+  const primaryColumnKeys = primaryColumns ? Object.keys(primaryColumns) : [];
+  const columnName = primaryColumnKeys?.length ? primaryColumnKeys[0] : "";
+  const evaluatedColumns: any = __evaluation__?.evaluatedValues?.primaryColumns;
 
-  // if (evaluation?.evaluatedValues?.primaryColumns && evaluatedColumns) {
-  //   const sourceData: Record<string, unknown>[] =
-  //     evaluatedColumns[
-  //       columnName as keyof typeof evaluation.evaluatedValues.primaryColumns
-  //     ]?.["sourceData"];
+  if (evaluatedColumns) {
+    const result = getKeysFromSourceDataForEventAutocomplete(
+      evaluatedColumns[columnName]?.sourceData || [],
+    );
 
-  //   if (isArray(sourceData) && sourceData?.length) {
-  //     const keys = getUniqueKeysFromSourceData(sourceData);
-
-  //     keysForAutocomplete.currentItem = keys.reduce(
-  //       (prev, cur) => ({ ...prev, [cur]: "" }),
-  //       {},
-  //     );
-  //   }
-  // }
-
-  return keysForAutocomplete;
+    return result;
+  } else {
+    return {};
+  }
 };

@@ -24,7 +24,15 @@ export const getUniqueKeysFromSourceData = (
   const allKeys: string[] = [];
 
   // get all keys
-  sourceData?.forEach((item) => allKeys.push(...Object.keys(item)));
+  sourceData?.forEach((item) => {
+    if (isArray(item) && item?.length) {
+      item.forEach((subItem) => {
+        allKeys.push(...Object.keys(subItem));
+      });
+    } else {
+      allKeys.push(...Object.keys(item));
+    }
+  });
 
   // return unique keys
   const uniqueKeys = [...new Set(allKeys)];

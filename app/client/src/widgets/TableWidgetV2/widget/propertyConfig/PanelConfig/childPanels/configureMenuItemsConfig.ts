@@ -8,7 +8,7 @@ import {
   iconPositionForEachRowValidation,
   textForEachRowValidation,
 } from "widgets/MenuButtonWidget/validations";
-import { getKeysFromSourceDataForEventAutocomplete } from "widgets/TableWidgetV2/widget/utilities";
+import { getSourceDataAndCaluclateKeysForEventAutoComplete } from "widgets/TableWidgetV2/widget/utilities";
 
 export default {
   editableTitle: false,
@@ -98,7 +98,7 @@ export default {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: true,
-          additionalAutoComplete: getKeysFromSourceDataForEventAutocomplete,
+          additionalAutoComplete: getSourceDataAndCaluclateKeysForEventAutoComplete,
           evaluatedDependencies: ["primaryColumns"],
         },
       ],
