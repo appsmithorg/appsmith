@@ -110,8 +110,6 @@ export function* getCurrentUserSaga() {
       if (enableTelemetry) {
         initializeAnalyticsAndTrackers();
       }
-      yield put(initAppLevelSocketConnection());
-      yield put(initPageLevelSocketConnection());
       if (
         //@ts-expect-error: response is of type unknown
         !response.data.isAnonymous &&
@@ -123,6 +121,8 @@ export function* getCurrentUserSaga() {
       } else {
         enableTelemetry && AnalyticsUtil.initAnonymousUser();
       }
+      yield put(initAppLevelSocketConnection());
+      yield put(initPageLevelSocketConnection());
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,

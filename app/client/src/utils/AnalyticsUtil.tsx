@@ -484,7 +484,6 @@ class AnalyticsUtil {
           type: "utility",
           load: (_ctx: any, ajs: any) => {
             const user = ajs.user();
-
             user.anonymousId(user.anonymousId());
             user.id(user.id());
 
