@@ -28,7 +28,7 @@ import {
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
-import { isEditorPath } from "pages/Editor/Explorer/helpers";
+import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 
 let previousPath: string;
 let previousHash: string | undefined;
