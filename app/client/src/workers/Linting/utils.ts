@@ -53,6 +53,7 @@ import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
 import { MessageType, sendMessage } from "utils/MessageUtil";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -66,6 +67,8 @@ export function getlintErrorsFromTree(
     isTriggerBased: false,
     skipEntityFunctions: true,
   });
+
+  addPlatformFunctionsToEvalContext(evalContext);
 
   const evalContextWithOutFunctions = createEvaluationContext({
     dataTree: unEvalTree,
