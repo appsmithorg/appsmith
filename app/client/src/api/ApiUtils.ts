@@ -52,7 +52,8 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
 
   if (config.headers) {
     console.log("------ mix - api", config.url);
-    config.headers["X-User-Id"] = AnalyticsUtil.getAnonymousUserId() ?? "";
+    AnalyticsUtil.isAnonymousUser &&
+      (config.headers["X-User-Id"] = AnalyticsUtil.getAnonymousUserId() ?? "");
   }
 
   return { ...config, timer: performance.now() };
