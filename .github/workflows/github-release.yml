@@ -33,18 +33,18 @@ jobs:
         id: get_version
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          echo "::set-output name=tag::$tag"
+          echo "tag=$tag" >> $GITHUB_OUTPUT
           if [[ $tag == *"beta"* ]]; then
-            echo "::set-output name=is_beta::true"
+            echo "is_beta=true" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=is_beta::false"
+            echo "is_beta=false" >> $GITHUB_OUTPUT
           fi
 
   buildClient:
     needs:
       - prelude
 
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-4-cores
 
     defaults:
       run:
@@ -53,18 +53,18 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Use Node.js 16.14.0
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -93,7 +93,7 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: client-build
           path: app/client/build/
@@ -110,18 +110,19 @@ jobs:
 
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Set up JDK 1.11
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -141,7 +142,7 @@ jobs:
           ls -l dist
 
       - name: Upload server build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: server-build
           path: app/server/dist/
@@ -158,12 +159,12 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Use Node.js 16.14.0
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -180,7 +181,7 @@ jobs:
 
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
       - name: Upload rts build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rts-dist
           path: app/rts/rts-dist.tar
@@ -195,25 +196,25 @@ jobs:
 
     steps:
       - name: Checkout the merged commit from PR and base branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
       - name: Download the client build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: rts-dist
           path: app/rts/dist

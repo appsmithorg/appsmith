@@ -1929,3 +1929,20 @@ Cypress.Commands.add("AddPageFromTemplate", () => {
     .click({ force: true });
   cy.get("[data-cy='add-page-from-template']").click();
 });
+
+Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
+  cy.wait(1000); //waiting for window to load
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
+  cy.visit("/user/login");
+  cy.get(loginPage.username).should("be.visible");
+  cy.get(loginPage.username).type(uname);
+  cy.get(loginPage.password).type(pword, { log: false });
+  cy.get(loginPage.submitBtn).click();
+  cy.wait("@getMe");
+  cy.wait(3000);
+  initLocalstorage();
+});
