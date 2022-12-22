@@ -1,7 +1,7 @@
 import {
   getActionIdFromURL,
   getJSCollectionIdFromURL,
-} from "pages/Editor/Explorer/helpers";
+} from "@appsmith/pages/Editor/Explorer/helpers";
 
 describe("getActionIdFromUrl", () => {
   it("getsApiId", () => {

@@ -67,7 +67,7 @@ import {
 import {
   executeActionTriggers,
   TriggerMeta,
-} from "./ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Toaster, Variant } from "design-system";
 import {
@@ -91,7 +91,7 @@ import {
   UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
