@@ -157,7 +157,7 @@ function EmbedSnippetTab() {
             <ExternaLink />
           </IconWrapper>
           <Text color={Colors.GRAY_700} type={TextType.P4}>
-            PREVIEW EMBEDDED APP
+            {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
           </Text>
         </StyledPreviewLink>
       </div>

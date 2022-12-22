@@ -1423,6 +1423,7 @@ export const IN_APP_EMBED_SETTING = {
   change: () => "Change",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
+  previewEmbeddedApp: () => "PREVIEW EMBEDDED APP",
   sectionHeader: () => "Share & Embed",
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",

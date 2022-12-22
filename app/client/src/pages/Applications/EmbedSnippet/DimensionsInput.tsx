@@ -3,6 +3,10 @@ import React from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
+  .prefix {
+    top: 0.4px;
+    position: relative;
+  }
   input {
     text-align: right;
     padding-left: 2px;

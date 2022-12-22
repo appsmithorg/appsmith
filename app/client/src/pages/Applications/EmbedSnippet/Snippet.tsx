@@ -17,12 +17,7 @@ const StyledText = styled(Text)`
   }
   /* Track */
   ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: #bec4c4;
+    background: ${Colors.GRAY_100};
   }
 `;
 
