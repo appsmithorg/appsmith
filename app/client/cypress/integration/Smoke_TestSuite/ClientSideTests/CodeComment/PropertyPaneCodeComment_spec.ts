@@ -1,15 +1,16 @@
-import dsl from "../../../../fixtures/buttondsl.json";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const { PropertyPane } = ObjectsRegistry;
+const { AggregateHelper, EntityExplorer, PropertyPane } = ObjectsRegistry;
 
 describe("Property Pane Code Commenting", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("buttondsl").then((val: any) => {
+      AggregateHelper.AddDsl(val);
+    });
   });
 
   it("1. Should comment code in Property Pane", () => {
-    cy.openPropertyPane("buttonwidget");
+    EntityExplorer.SelectEntityByName("Button1", "Widgets");
     PropertyPane.TypeTextIntoField("Label", "{{appsmith}}");
     PropertyPane.ToggleCommentInTextField("Label");
 
@@ -17,7 +18,8 @@ describe("Property Pane Code Commenting", () => {
   });
 
   it("2. Should uncomment code in Property Pane", () => {
-    cy.openPropertyPane("buttonwidget");
+    EntityExplorer.SelectEntityByName("Button1", "Widgets");
+    PropertyPane.TypeTextIntoField("Label", "{{appsmith}}");
     PropertyPane.TypeTextIntoField("Label", "{{// appsmith}}");
     PropertyPane.ToggleCommentInTextField("Label");
 

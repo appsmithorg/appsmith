@@ -1,15 +1,17 @@
-import dsl from "../../../../fixtures/buttondsl.json";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const { PropertyPane } = ObjectsRegistry;
+const { AggregateHelper, EntityExplorer, PropertyPane } = ObjectsRegistry;
 
 describe("Property Pane Suggestions", () => {
   before(() => {
-    cy.addDsl(dsl);
+    cy.fixture("buttondsl").then((val: any) => {
+      AggregateHelper.AddDsl(val);
+    });
   });
 
   it("1. Should show Property Pane Suggestions on / command", () => {
-    cy.openPropertyPane("buttonwidget");
+    EntityExplorer.SelectEntityByName("Button1", "Widgets");
+    PropertyPane.TypeTextIntoField("Label", "{{appsmith}}");
     PropertyPane.TypeTextIntoField("Label", "/");
     cy.get("ul.CodeMirror-hints")
       .contains("New Binding")
@@ -20,7 +22,8 @@ describe("Property Pane Suggestions", () => {
   });
 
   it("2. Should show Property Pane Suggestions on typing {{}}", () => {
-    cy.openPropertyPane("buttonwidget");
+    EntityExplorer.SelectEntityByName("Button1", "Widgets");
+    PropertyPane.TypeTextIntoField("Label", "{{appsmith}}");
     PropertyPane.TypeTextIntoField("Label", "{{");
     cy.get("ul.CodeMirror-hints")
       .contains("appsmith")
