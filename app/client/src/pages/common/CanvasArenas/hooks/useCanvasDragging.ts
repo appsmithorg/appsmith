@@ -15,13 +15,13 @@ import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
 import {
   getDraggingSpacesFromBlocks,
   getMousePositionsOnCanvas,
-  modifyBlockDimension,
   noCollision,
 } from "utils/WidgetPropsUtils";
 import {
   getEdgeDirection,
   getMoveDirection,
   getReflowedSpaces,
+  modifyBlockDimension,
   modifyDrawingRectangles,
 } from "./canvasDraggingUtils";
 import {
@@ -409,8 +409,6 @@ export const useCanvasDragging = (
               );
               return {
                 ...block,
-                left: block.left,
-                top: block.top,
                 isNotColliding:
                   !dropDisabled &&
                   noCollision(

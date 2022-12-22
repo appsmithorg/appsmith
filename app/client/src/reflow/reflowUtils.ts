@@ -311,6 +311,8 @@ export function getCollidingSpaceMap(
 
   let shouldRegisterContainerTimeout = false;
 
+  //if droptargets are not to be reflowed, resize space positions
+  // and omit drop targets from the spaces
   if (!shouldReflowDropTarget) {
     ({
       currSpacePositions,
@@ -2115,6 +2117,7 @@ export function resizeOnContainerCollision(
 
   //boolean to indicate if this run should be registered for timeout
   let shouldRegisterContainerTimeout = false;
+  // resize space positions only is single space is being dragged
   if (newSpacePositions.length > 1) {
     return {
       reflowableOccSpaces: occupiedSpaces.filter(
@@ -2135,6 +2138,7 @@ export function resizeOnContainerCollision(
         continue;
       }
 
+      //get calculated direction
       let movementDirection = getCorrectedDirection(
         occupiedSpace,
         prevSpacesMap && prevSpacesMap[currSpacePosition.id]
@@ -2146,12 +2150,14 @@ export function resizeOnContainerCollision(
         isHorizontalMove,
       );
 
+      //check if direction could be changed because of mouse Position
       movementDirection = getCollisionDirectionOfDropTarget(
         occupiedSpace,
         movementDirection,
         mousePosition,
       );
 
+      //modify/resize dragging position if required
       currSpacePosition = modifyResizePosition(
         currSpacePosition,
         occupiedSpace,
@@ -2194,6 +2200,7 @@ export function modifyResizePosition(
     oppositeDirection,
     oppositeMathComparator,
   } = getAccessor(direction);
+
   spacePosition[directionAccessor] = Math[mathComparator](
     spacePosition[directionAccessor],
     collidingContainer[oppositeDirection],

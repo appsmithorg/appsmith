@@ -1,8 +1,14 @@
-import { ReflowDirection } from "reflow/reflowTypes";
+import { GridDefaults } from "constants/WidgetConstants";
+import {
+  HORIZONTAL_RESIZE_LIMIT,
+  ReflowDirection,
+  VERTICAL_RESIZE_LIMIT,
+} from "reflow/reflowTypes";
 import {
   getEdgeDirection,
   getMoveDirection,
   getReflowedSpaces,
+  modifyBlockDimension,
   modifyDrawingRectangles,
 } from "./canvasDraggingUtils";
 
@@ -153,6 +159,114 @@ describe("test canvasDraggingUtils Methods", () => {
       expect(
         getMoveDirection(prevPosition, currentPosition, ReflowDirection.UNSET),
       ).toEqual(ReflowDirection.TOP);
+    });
+  });
+
+  describe("test modifyBlockDimension method", () => {
+    it("should return resized dragging blocks while colliding with canvas edges, for top Left", () => {
+      const draggingBlock = {
+        left: -300,
+        top: -700,
+        width: 600,
+        height: 900,
+        columnWidth: 60,
+        rowHeight: 90,
+        widgetId: "id",
+        isNotColliding: true,
+      };
+      const modifiedBlock = {
+        left: 0,
+        top: 0,
+        width: 300,
+        height: 200,
+        columnWidth: 30,
+        rowHeight: 20,
+        widgetId: "id",
+        isNotColliding: true,
+      };
+      expect(modifyBlockDimension(draggingBlock, 10, 10, 100, true)).toEqual(
+        modifiedBlock,
+      );
+    });
+
+    it("should return resized dragging blocks while colliding with canvas edges to it's limits, for top Left", () => {
+      const draggingBlock = {
+        left: -300,
+        top: -700,
+        width: 310,
+        height: 720,
+        columnWidth: 31,
+        rowHeight: 72,
+        widgetId: "id",
+        isNotColliding: true,
+      };
+      const modifiedBlock = {
+        left: -10,
+        top: -20,
+        width: HORIZONTAL_RESIZE_LIMIT * 10,
+        height: VERTICAL_RESIZE_LIMIT * 10,
+        columnWidth: HORIZONTAL_RESIZE_LIMIT,
+        rowHeight: VERTICAL_RESIZE_LIMIT,
+        widgetId: "id",
+        isNotColliding: true,
+      };
+      expect(modifyBlockDimension(draggingBlock, 10, 10, 100, true)).toEqual(
+        modifiedBlock,
+      );
+    });
+
+    it("should return resized dragging blocks while colliding with canvas edges, for bottom right", () => {
+      const draggingBlock = {
+        left: 400,
+        top: 600,
+        width: 600,
+        height: 900,
+        columnWidth: 60,
+        rowHeight: 90,
+        widgetId: "id",
+        isNotColliding: true,
+      };
+      const modifiedBlock = {
+        left: 400,
+        top: 600,
+        width: GridDefaults.DEFAULT_GRID_COLUMNS * 10 - 400,
+        height: 400,
+        columnWidth: GridDefaults.DEFAULT_GRID_COLUMNS - 40,
+        rowHeight: 40,
+        widgetId: "id",
+        isNotColliding: true,
+      };
+      expect(modifyBlockDimension(draggingBlock, 10, 10, 100, false)).toEqual(
+        modifiedBlock,
+      );
+    });
+
+    it("should return resized dragging blocks while colliding with canvas edges to it's limits, for bottom right", () => {
+      const draggingBlock = {
+        left: 630,
+        top: 600,
+        width: 600,
+        height: 900,
+        columnWidth: 60,
+        rowHeight: 90,
+        widgetId: "id",
+        isNotColliding: true,
+        fixedHeight: 90,
+      };
+      const modifiedBlock = {
+        left: 630,
+        top: 600,
+        width: HORIZONTAL_RESIZE_LIMIT * 10,
+        height: 900,
+        columnWidth: HORIZONTAL_RESIZE_LIMIT,
+        rowHeight: 90,
+        widgetId: "id",
+        isNotColliding: true,
+        fixedHeight: 90,
+      };
+      expect(modifyBlockDimension(draggingBlock, 10, 10, 100, false)).toEqual(
+        modifiedBlock,
+      );
     });
   });
 });

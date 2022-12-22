@@ -1,10 +1,16 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import {
+  HORIZONTAL_RESIZE_LIMIT,
   ReflowDirection,
   ReflowedSpaceMap,
   SpaceMap,
+  VERTICAL_RESIZE_LIMIT,
 } from "reflow/reflowTypes";
-import { getDraggingSpacesFromBlocks } from "utils/WidgetPropsUtils";
+import {
+  getDraggingSpacesFromBlocks,
+  getDropZoneOffsets,
+} from "utils/WidgetPropsUtils";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 /**
@@ -167,3 +173,92 @@ export function getMoveDirection(
 
   return currentDirection;
 }
+
+/**
+ * Modify the dragging Blocks to resize against canvas edges
+ * @param draggingBlock
+ * @param snapColumnSpace
+ * @param snapRowSpace
+ * @param parentBottomRow
+ * @param canExtend
+ * @returns
+ */
+export const modifyBlockDimension = (
+  draggingBlock: WidgetDraggingBlock,
+  snapColumnSpace: number,
+  snapRowSpace: number,
+  parentBottomRow: number,
+  canExtend: boolean,
+) => {
+  const {
+    columnWidth,
+    fixedHeight,
+    height,
+    left,
+    rowHeight,
+    top,
+    width,
+  } = draggingBlock;
+
+  //get left and top of widget on canvas grid
+  const [leftColumn, topRow] = getDropZoneOffsets(
+    snapColumnSpace,
+    snapRowSpace,
+    {
+      x: left,
+      y: top,
+    },
+    {
+      x: 0,
+      y: 0,
+    },
+  );
+
+  let leftOffset = 0,
+    rightOffset = 0,
+    topOffset = 0,
+    bottomOffset = 0;
+
+  // calculate offsets based on collisions and limits
+  if (leftColumn < 0) {
+    leftOffset =
+      leftColumn + columnWidth > HORIZONTAL_RESIZE_LIMIT
+        ? leftColumn
+        : HORIZONTAL_RESIZE_LIMIT - columnWidth;
+  } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
+    rightOffset = GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
+    rightOffset =
+      columnWidth + rightOffset >= HORIZONTAL_RESIZE_LIMIT
+        ? rightOffset
+        : HORIZONTAL_RESIZE_LIMIT - columnWidth;
+  }
+
+  if (topRow < 0 && fixedHeight === undefined) {
+    topOffset =
+      topRow + rowHeight > VERTICAL_RESIZE_LIMIT
+        ? topRow
+        : VERTICAL_RESIZE_LIMIT - rowHeight;
+  }
+
+  if (
+    topRow + rowHeight > parentBottomRow &&
+    !canExtend &&
+    fixedHeight === undefined
+  ) {
+    bottomOffset = parentBottomRow - topRow - rowHeight;
+    bottomOffset =
+      rowHeight + bottomOffset >= VERTICAL_RESIZE_LIMIT
+        ? bottomOffset
+        : VERTICAL_RESIZE_LIMIT - rowHeight;
+  }
+
+  return {
+    ...draggingBlock,
+    left: left - leftOffset * snapColumnSpace,
+    top: top - topOffset * snapRowSpace,
+    width: width + (leftOffset + rightOffset) * snapColumnSpace,
+    height: height + (topOffset + bottomOffset) * snapRowSpace,
+    columnWidth: columnWidth + leftOffset + rightOffset,
+    rowHeight: rowHeight + topOffset + bottomOffset,
+  };
+};
