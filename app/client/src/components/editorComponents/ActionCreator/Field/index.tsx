@@ -97,8 +97,14 @@ export function Field(props: FieldProps) {
     case FieldType.RESET_CHILDREN_FIELD:
     case FieldType.WIDGET_NAME_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-        options: (options as TreeDropdownOption[]).sort((a, b) =>
-          a.label.localeCompare(b.label),
+        options: (options as TreeDropdownOption[]).sort(
+          (a: TreeDropdownOption, b: TreeDropdownOption) => {
+            if (a.label === "New Modal" || b.label === "New Modal") {
+              return 1;
+            } else {
+              return a.label.localeCompare(b.label);
+            }
+          },
         ),
         label: label,
         get: getterFunction,
