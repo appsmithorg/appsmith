@@ -217,7 +217,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     plugin?.type === "API" ? DATASOURCE_REST_API_FORM : DATASOURCE_DB_FORM;
   const isFormDirty =
     datasourceId === TEMP_DATASOURCE_ID ? true : isDirty(formName)(state);
-  const initialValue = getFormInitialValues(formName)(state);
+  const initialValue = getFormInitialValues(formName)(state) as Datasource;
 
   return {
     datasourceId,
