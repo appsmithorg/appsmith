@@ -19,7 +19,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { AppState } from "@appsmith/reducers";
 import {
   AuthType,

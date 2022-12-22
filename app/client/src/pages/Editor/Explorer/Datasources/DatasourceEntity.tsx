@@ -3,7 +3,7 @@ import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import DataSourceContextMenu from "./DataSourceContextMenu";
 import { getPluginIcon } from "../ExplorerIcons";
-import { getQueryIdFromURL } from "../helpers";
+import { getQueryIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import Entity, { EntityClassNames } from "../Entity";
 import history, { NavigationMethod } from "utils/history";
 import {

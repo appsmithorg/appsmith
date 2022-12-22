@@ -6,7 +6,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { set } from "lodash";
 import { EvalProps } from "workers/common/DataTreeEvaluator";
-import { removeFunctions } from "./evaluationUtils";
+import { removeFunctions } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 /**
  * This method accept an entity object as input and if it has __config__ property than it moves the __config__ to object's prototype
