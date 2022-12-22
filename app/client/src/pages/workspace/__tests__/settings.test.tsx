@@ -189,11 +189,4 @@ describe("<Settings />", () => {
     const tabList = screen.getAllByRole("tab");
     expect(tabList).toHaveLength(2);
   });
-  it("should search and filter users and usergroups", async () => {
-    renderComponent();
-    const searchInput = screen.getAllByTestId("t--search-input");
-    expect(searchInput).toHaveLength(1);
-    await userEvent.type(searchInput[0], "k");
-    expect(searchInput[0]).toHaveValue("k");
-  });
 });
