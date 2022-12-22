@@ -2,14 +2,13 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsName: any;
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
-  homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   deployMode = ObjectsRegistry.DeployMode,
   table = ObjectsRegistry.Table,
-  propPane = ObjectsRegistry.PropertyPane;
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Validate Mongo CRUD with JSON Form", () => {
   before(() => {
@@ -24,7 +23,8 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    propPane.ChangeTheme("Water Lily");
+    appSettings.OpenPaneAndChangeTheme("Water Lily");
+
     dataSources.CreateDataSource("Mongo");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -88,7 +88,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.AssertContains("Successfully generated a page");// Commenting this since FindQuery failure appears sometimes
+    agHelper.AssertContains("Successfully generated a page"); // Commenting this since FindQuery failure appears sometimes
     agHelper.ValidateNetworkStatus("@getActions", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);

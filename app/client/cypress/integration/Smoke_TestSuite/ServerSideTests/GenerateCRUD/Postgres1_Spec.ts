@@ -8,8 +8,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
@@ -77,7 +77,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    propPane.ChangeTheme("Sunrise");
+    appSettings.OpenPaneAndChangeTheme("Sunrise");
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function() {

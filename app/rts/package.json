@@ -11,19 +11,16 @@
     "npm": "^8.5.5"
   },
   "devDependencies": {
-    "@types/express": "^4.17.11",
-    "@types/jest": "^29.0.3",
+    "@types/express": "^4.17.14",
+    "@types/jest": "^29.2.3",
     "@types/mongodb": "^3.6.10",
-    "axios": "^0.21.2",
-    "express": "^4.17.1",
-    "jest": "^29.0.3",
-    "loglevel": "^1.7.1",
-    "mongodb": "^3.6.4",
-    "socket.io": "^4.5.1",
-    "socket.io-adapter": "^2.3.2",
+    "axios": "^1.2.0",
+    "jest": "^29.3.1",
     "source-map-support": "^0.5.19",
-    "ts-jest": "^29.0.2",
-    "typescript": "^4.2.3"
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.0.3",
+    "tsc-alias": "^1.8.2",
+    "typescript": "^4.5.5"
   },
   "scripts": {
     "test:unit": "export APPSMITH_API_BASE_URL=http APPSMITH_MONGODB_URI=mongodb && $(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='./' --coverageReporters='json-summary'",
@@ -34,10 +31,12 @@
     "start": "./start-server.sh"
   },
   "dependencies": {
+    "express": "^4.18.2",
     "express-validator": "^6.14.2",
     "http-status-codes": "^2.2.0",
-    "morgan": "^1.10.0",
-    "supertest": "^6.2.4",
-    "tsc-alias": "^1.7.0"
+    "loglevel": "^1.8.1",
+    "mongodb": "^3.6.4",
+    "socket.io": "^4.5.4",
+    "socket.io-adapter": "^2.4.0"
   }
 }

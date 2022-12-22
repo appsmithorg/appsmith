@@ -6,6 +6,7 @@ import {
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
 import {
+  getWidgetIdsByType,
   getWidgetImmediateChildren,
   getWidgetMetaProps,
   getWidgets,
@@ -32,12 +33,15 @@ import { getWidgetChildrenIds } from "./WidgetOperationUtils";
 import { AppState } from "@appsmith/reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
-import { showModal } from "actions/widgetActions";
+import { closeAllModals, showModal } from "actions/widgetActions";
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
-import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
+import {
+  getCanvasWidgetsWithParentId,
+  getParentModalId,
+} from "selectors/entitiesSelector";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -309,15 +313,9 @@ function* selectMultipleWidgetsSaga(
     });
     if (doesNotMatchParent) {
       return;
-    } else if (
-      widgetIds.length === 1 &&
-      allWidgets[widgetIds[0]]?.type === "MODAL_WIDGET"
-    ) {
-      yield put(showModal(widgetIds[0]));
+    } else if (widgetIds.length === 1) {
+      yield put(selectWidgetInitAction(widgetIds[0]));
     } else {
-      if (widgetIds.length > 0 && allWidgets[widgetIds[0]]?.parentModalId) {
-        yield put(showModal(allWidgets[widgetIds[0]]?.parentModalId, false));
-      }
       yield put(selectWidgetAction());
       yield put(selectMultipleWidgetsAction(widgetIds));
     }
@@ -349,15 +347,17 @@ function* appendSelectedWidgetToUrlSaga(
     canvasEditorURL = `${builderURL({
       pageId: currentPageId,
       hash: selectedWidgets[0],
+      persistExistingParams: true,
     })}`;
   } else {
     canvasEditorURL = `${builderURL({
       pageId: currentPageId,
+      persistExistingParams: true,
     })}`;
   }
 
   if (currentURL !== canvasEditorURL) {
-    history.push(canvasEditorURL);
+    history.replace(canvasEditorURL);
   }
 }
 
@@ -394,6 +394,39 @@ function* deselectModalWidgetSaga(
     isWidgetPartOfChildren(selectedWidgets[0], modalWidgetChildren)
   )
     yield put(selectMultipleWidgetsAction([]));
+}
+
+function* openOrCloseModalSaga(
+  action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
+) {
+  if (!action.payload.widgetId) return;
+  if (action.payload.isMultiSelect) return;
+
+  const modalWidgetIds: string[] = yield select(
+    getWidgetIdsByType,
+    "MODAL_WIDGET",
+  );
+
+  const widgetIsModal = modalWidgetIds.includes(action.payload.widgetId);
+
+  if (widgetIsModal) {
+    yield put(showModal(action.payload.widgetId));
+    return;
+  }
+
+  const widgetMap: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widget = widgetMap[action.payload.widgetId];
+
+  if (widget && widget.parentId) {
+    const parentModalId = getParentModalId(widget, widgetMap);
+    const widgetInModal = modalWidgetIds.includes(parentModalId);
+    if (widgetInModal) {
+      yield put(showModal(parentModalId));
+      return;
+    }
+  }
+
+  yield put(closeAllModals());
 }
 
 /**
@@ -441,6 +474,11 @@ export function* widgetSelectionSagas() {
       ReduxActionTypes.SELECT_WIDGET_INIT,
       canPerformSelectionSaga,
       deselectNonSiblingsOfWidgetSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SELECT_WIDGET_INIT,
+      canPerformSelectionSaga,
+      openOrCloseModalSaga,
     ),
     takeLatest(
       ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,

@@ -1,17 +1,12 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const dsl = require("../../../../fixtures/inputdsl.json");
-const buttonDsl = require("../../../../fixtures/buttondsl.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-import jsActions from "../../../../locators/jsActionLocators.json";
-import { Entity } from "draft-js";
 const jsEditor = ObjectsRegistry.JSEditor;
 const ee = ObjectsRegistry.EntityExplorer;
-const explorer = require("../../../../locators/explorerlocators.json");
 const agHelper = ObjectsRegistry.AggregateHelper;
-const pageid = "MyPage";
 let queryName;
 
 /*
@@ -160,9 +155,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
   // Case 6: When updating Datasource query
   it("7. Update Query and check for errors", () => {
-    cy.get(".t--entity-name")
-      .contains(queryName)
-      .click({ force: true });
+    ee.SelectEntityByName(queryName, "Queries/JS");
     // update query and check for cyclic depedency issue
     cy.get(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")

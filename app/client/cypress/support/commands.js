@@ -377,7 +377,7 @@ Cypress.Commands.add(
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
   },
 );
@@ -667,7 +667,7 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.wait("@createDatasource").should(
+  cy.wait("@saveDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     201,
@@ -890,8 +890,9 @@ Cypress.Commands.add("setTinyMceContent", (tinyMceId, content) => {
 
 Cypress.Commands.add("startRoutesForDatasource", () => {
   cy.server();
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("POST", "/api/v1/datasources").as("saveDatasource");
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+  cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
@@ -899,7 +900,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.server();
   cy.route("PUT", "/api/v1/themes/applications/*").as("updateTheme");
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("POST", "/api/v1/datasources").as("saveDatasource");
   cy.route("GET", "/api/v1/applications/new").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
@@ -918,9 +919,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "getTemplateCollections",
   );
   cy.route("PUT", "/api/v1/pages/*").as("updatePage");
+  cy.route("PUT", "api/v1/applications/*/page/*/makeDefault").as(
+    "makePageDefault",
+  );
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApp");
   cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
-  cy.route("POST", "/api/v1/datasources").as("createDatasource");
+  //cy.route("POST", "/api/v1/datasources").as("createDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
     "getDatasourceStructure",
@@ -1008,6 +1012,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/app-templates").as("fetchTemplate");
   cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
   cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
+  cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1923,4 +1928,21 @@ Cypress.Commands.add("AddPageFromTemplate", () => {
     .first()
     .click({ force: true });
   cy.get("[data-cy='add-page-from-template']").click();
+});
+
+Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
+  cy.wait(1000); //waiting for window to load
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
+  cy.visit("/user/login");
+  cy.get(loginPage.username).should("be.visible");
+  cy.get(loginPage.username).type(uname);
+  cy.get(loginPage.password).type(pword, { log: false });
+  cy.get(loginPage.submitBtn).click();
+  cy.wait("@getMe");
+  cy.wait(3000);
+  initLocalstorage();
 });

@@ -5,14 +5,14 @@
 $ cd app/client
 $ yarn install myLibrary
 ```
-2. In the file `app/client/src/utils/DynamicBindingUtils.ts` find the const `extraLibraries` and add details about your library in the codebase
+2. In the file `app/client/src/worker/common/JSLibrary/index.ts` find the const `defaultLibraries` and add details about your library in the codebase
 ```
 import myLibrary from "myLibrary";
 
 ...
 ...
 
-const extraLibraries = [
+const defaultLibraries = [
 	...
 	{  
 	 accessor: "myLibrary",// The namespace for access
@@ -23,7 +23,7 @@ const extraLibraries = [
 	},
 ]
 ```
-3. To make this show up in autocomplete of appsmith we will need to add this to the Tern server file `app/client/src/utils/autocomplete/TernServer.ts`
+3. To make this show up in autocomplete of appsmith we will need to add this to the Tern server file `app/client/src/utils/autocomplete/CodemirrorTernService.ts`
 	- Add a new def file for your library usages [ref](https://ternjs.net/doc/manual.html#typedef) under  `app/client/src/constants/defs/`
 	- Import that file in the Tern Server file and add the def in the `DEFS` array right at the top of file
 	```

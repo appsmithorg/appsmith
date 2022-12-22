@@ -11,12 +11,9 @@ import {
 } from "constants/WidgetValidation";
 import { get, set, isNil, has, uniq } from "lodash";
 import { Workspace } from "@appsmith/constants/workspaceConstants";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
-import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
+import { isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
@@ -228,7 +225,10 @@ export const quickScrollToWidget = (widgetId?: string) => {
     const canvas = document.getElementById("canvas-viewport");
 
     if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
-      el.scrollIntoView({ block: "center", behavior: "smooth" });
+      el.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
     }
   }, 200);
 };
@@ -242,10 +242,14 @@ function isElementVisibleInContainer(
   const elementRect = element.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
   return (
-    elementRect.top >= containerRect.top &&
-    elementRect.left >= containerRect.left &&
-    elementRect.bottom <= containerRect.bottom &&
-    elementRect.right <= containerRect.right
+    ((elementRect.top > containerRect.top &&
+      elementRect.top < containerRect.bottom) ||
+      (elementRect.bottom < containerRect.bottom &&
+        elementRect.bottom > containerRect.top)) &&
+    ((elementRect.left > containerRect.left &&
+      elementRect.left < containerRect.right) ||
+      (elementRect.right < containerRect.right &&
+        elementRect.right > containerRect.left))
   );
 }
 
@@ -408,7 +412,6 @@ export const isNameValid = (
     has(DATA_TREE_KEYWORDS, name) ||
     has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
     has(APPSMITH_GLOBAL_FUNCTIONS, name) ||
-    has(extraLibrariesNames, name) ||
     has(invalidNames, name)
   );
 };
@@ -575,10 +578,7 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
 // Can be used to check if the user has developer role access to workspace
 export const getCanCreateApplications = (currentWorkspace: Workspace) => {
   const userWorkspacePermissions = currentWorkspace.userPermissions || [];
-  const canManage = isPermitted(
-    userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_APPLICATION,
-  );
+  const canManage = hasCreateNewAppPermission(userWorkspacePermissions ?? []);
   return canManage;
 };
 
@@ -865,7 +865,7 @@ export const getUpdatedRoute = (
         `${customSlug}`,
         `${params.customSlug}-`,
       );
-    } else {
+    } else if (params.applicationSlug && params.pageSlug) {
       updatedPath = updatedPath.replace(
         `${customSlug}`,
         `${params.applicationSlug}/${params.pageSlug}-`,
@@ -873,6 +873,46 @@ export const getUpdatedRoute = (
     }
   }
   return updatedPath;
+};
+
+// to split relative url into array, so specific parts can be bolded on UI preview
+export const splitPathPreview = (
+  url: string,
+  customSlug?: string,
+): string | string[] => {
+  const slugMatch = matchPath<{ pageId: string; pageSlug: string }>(
+    url,
+    VIEWER_PATH,
+  );
+
+  const customSlugMatch = matchPath<{ pageId: string; customSlug: string }>(
+    url,
+    VIEWER_CUSTOM_PATH,
+  );
+
+  if (!customSlug && slugMatch?.isExact) {
+    const { pageSlug } = slugMatch.params;
+    const splitUrl = url.split(pageSlug);
+    splitUrl.splice(
+      1,
+      0,
+      pageSlug.slice(0, pageSlug.length - 1), // to split -
+      pageSlug.slice(pageSlug.length - 1),
+    );
+    return splitUrl;
+  } else if (customSlug && customSlugMatch?.isExact) {
+    const { customSlug } = customSlugMatch.params;
+    const splitUrl = url.split(customSlug);
+    splitUrl.splice(
+      1,
+      0,
+      customSlug.slice(0, customSlug.length - 1), // to split -
+      customSlug.slice(customSlug.length - 1),
+    );
+    return splitUrl;
+  }
+
+  return url;
 };
 
 export const updateSlugNamesInURL = (params: Record<string, string>) => {

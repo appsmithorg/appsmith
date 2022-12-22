@@ -9,6 +9,7 @@ import {
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { FocusEntity } from "navigation/FocusEntity";
 
 const recentEntitiesSelector = (state: AppState) =>
   state.ui.globalSearch.recentEntities || [];
@@ -24,10 +25,10 @@ const useResentEntities = () => {
 
   const pages = useSelector(getPageList) || [];
 
-  const populatedRecentEntities = (recentEntities || [])
+  return (recentEntities || [])
     .map((entity) => {
-      const { id, params, type } = entity;
-      if (type === "page") {
+      const { id, pageId, type } = entity;
+      if (type === FocusEntity.PAGE) {
         const result = pages.find((page) => page.pageId === id);
         if (result) {
           return {
@@ -38,7 +39,7 @@ const useResentEntities = () => {
         } else {
           return null;
         }
-      } else if (type === "datasource") {
+      } else if (type === FocusEntity.DATASOURCE) {
         const datasource = reducerDatasources.find(
           (reducerDatasource) => reducerDatasource.id === id,
         );
@@ -46,28 +47,26 @@ const useResentEntities = () => {
           datasource && {
             ...datasource,
             entityType: type,
-            pageId: params?.pageId,
+            pageId,
           }
         );
-      } else if (type === "action")
+      } else if (type === FocusEntity.API || type === FocusEntity.QUERY)
         return {
           ...actions.find((action) => action?.config?.id === id),
           entityType: type,
         };
-      else if (type === "jsAction")
+      else if (type === FocusEntity.JS_OBJECT)
         return {
           ...jsActions.find(
             (action: JSCollectionData) => action?.config?.id === id,
           ),
           entityType: type,
         };
-      else if (type === "widget") {
+      else if (type === FocusEntity.PROPERTY_PANE) {
         return { ...get(widgetsMap, id, null), entityType: type };
       }
     })
     .filter(Boolean);
-
-  return populatedRecentEntities;
 };
 
 export default useResentEntities;

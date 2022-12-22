@@ -8,7 +8,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -61,7 +60,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.assertj.core.api.AbstractBigDecimalAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -483,8 +481,8 @@ public class ImportExportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
-                            .then(layoutActionService.createSingleAction(action))
-                            .then(layoutActionService.createSingleAction(action2))
+                            .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
+                            .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -1473,7 +1471,7 @@ public class ImportExportApplicationServiceTests {
         // Now add a page and export the same import it to the app
         // Check if the policies and visibility flag are not reset
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, AclPermission.READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -2230,8 +2228,8 @@ public class ImportExportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
-                            .then(layoutActionService.createSingleAction(action))
-                            .then(layoutActionService.createSingleAction(action2))
+                            .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
+                            .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -3484,5 +3482,30 @@ public class ImportExportApplicationServiceTests {
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_invalidJson_createdAppIsDeleted() {
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
+
+        List<Application> applicationList = applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList().block();
+
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, INVALID_JSON_FILE)))
+                .verify();
+
+        // Verify that the app card is not created
+        StepVerifier
+                .create(applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList())
+                .assertNext(applications -> {
+                    assertThat(applicationList.size()).isEqualTo(applications.size());
+                })
+                .verifyComplete();
+
     }
 }

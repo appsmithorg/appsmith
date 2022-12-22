@@ -2,24 +2,23 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
-  extraLibraries,
   PropertyEvaluationErrorType,
-  unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
-import { completePromise } from "workers/Evaluation/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import {
   ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR,
   errorTransformer,
 } from "./evaluationUtils";
+import indirectEval from "./indirectEval";
+import { DOM_APIS } from "./SetupDOM";
+import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 
 export type EvalResult = {
   result: any;
@@ -77,11 +76,19 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 
 function resetWorkerGlobalScope() {
   for (const key of Object.keys(self)) {
-    if (topLevelWorkerAPIs[key]) continue;
-    if (key === "evaluationVersion") continue;
-    if (extraLibraries.find((lib) => lib.accessor === key)) continue;
-    // @ts-expect-error: Types are not available
-    delete self[key];
+    if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
+    //TODO: Remove this once we have a better way to handle this
+    if (["evaluationVersion", "window", "document", "location"].includes(key))
+      continue;
+    if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
+    if (libraryReservedIdentifiers[key]) continue;
+    try {
+      // @ts-expect-error: Types are not available
+      delete self[key];
+    } catch (e) {
+      // @ts-expect-error: Types are not available
+      self[key] = undefined;
+    }
   }
 }
 
@@ -100,6 +107,8 @@ export const getScriptType = (
   return scriptType;
 };
 
+export const additionalLibrariesNames: string[] = [];
+
 export const getScriptToEval = (
   userScript: string,
   type: EvaluationScriptType,
@@ -109,24 +118,7 @@ export const getScriptToEval = (
   return `${buffer[0]}${userScript}${buffer[1]}`;
 };
 
-export function setupEvaluationEnvironment() {
-  ///// Adding extra libraries separately
-  extraLibraries.forEach((library) => {
-    // @ts-expect-error: Types are not available
-    self[library.accessor] = library.lib;
-  });
-
-  ///// Remove all unsafe functions
-  unsafeFunctionForEval.forEach((func) => {
-    // @ts-expect-error: Types are not available
-    self[func] = undefined;
-  });
-  userLogs.overrideConsoleAPI();
-  overrideTimeout();
-}
-
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
-
 export interface createGlobalDataArgs {
   dataTree: DataTree;
   resolvedFunctions: Record<string, any>;
@@ -166,18 +158,14 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     //// Add internal functions to dataTree;
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
       dataTree,
-      context?.requestId,
       skipEntityFunctions,
       context?.eventType,
     );
     ///// Adding Data tree with functions
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
+    Object.assign(GLOBAL_DATA, dataTreeWithFunctions);
   } else {
-    Object.keys(dataTree).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTree[datum];
-    });
+    // Object.assign removes prototypes of the entity object making sure configs are not shown to user.
+    Object.assign(GLOBAL_DATA, dataTree);
   }
   if (!isEmpty(resolvedFunctions)) {
     Object.keys(resolvedFunctions).forEach((datum: any) => {
@@ -188,8 +176,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
           const data = dataTreeKey[key]?.data;
           //do not remove we will be investigating this
           //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
-          //const confirmBeforeExecute =
-          dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
+          //const confirmBeforeExecute = dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
           dataTreeKey[key] = resolvedObject[key];
           // if (isAsync && confirmBeforeExecute) {
           //   dataTreeKey[key] = confirmationPromise.bind(
@@ -260,9 +247,9 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
-    const __errors: EvaluationError[] = [];
-    let __logs: LogObject[] = [];
-    let __result;
+    const errors: EvaluationError[] = [];
+    let logs: LogObject[] = [];
+    let result;
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
     if (!skipLogsOperations) {
@@ -300,8 +287,8 @@ export default function evaluateSync(
     }
 
     try {
-      __result = eval(script);
-      if (__result instanceof Promise) {
+      result = indirectEval(script);
+      if (result instanceof Promise) {
         /**
          * If a promise is returned in sync field then show the error to help understand sync field doesn't await to resolve promise.
          * NOTE: Awaiting for promise will make sync field evaluation slower.
@@ -312,7 +299,7 @@ export default function evaluateSync(
       const errorMessage = `${(error as Error).name}: ${
         (error as Error).message
       }`;
-      __errors.push({
+      errors.push({
         errorMessage: errorTransformer.syncField(errorMessage),
         severity: Severity.ERROR,
         raw: script,
@@ -320,21 +307,20 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      if (!skipLogsOperations) __logs = userLogs.flushLogs();
+      if (!skipLogsOperations) logs = userLogs.flushLogs();
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
       }
     }
 
-    return { result: __result, errors: __errors, logs: __logs };
+    return { result, errors, logs };
   })();
 }
 
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
-  requestId: string,
   resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
@@ -347,7 +333,6 @@ export async function evaluateAsync(
     /**** Setting the eval context ****/
     userLogs.resetLogs();
     userLogs.setCurrentRequestInfo({
-      requestId,
       eventType: context?.eventType,
       triggerMeta: context?.triggerMeta,
     });
@@ -355,7 +340,7 @@ export async function evaluateAsync(
       dataTree,
       resolvedFunctions,
       isTriggerBased: true,
-      context: { ...context, requestId },
+      context,
       evalArguments,
     });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
@@ -369,7 +354,7 @@ export async function evaluateAsync(
     });
 
     try {
-      result = await eval(script);
+      result = await indirectEval(script);
       logs = userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
@@ -387,26 +372,12 @@ export async function evaluateAsync(
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.
-      try {
-        completePromise(requestId, {
-          result,
-          errors,
-          logs,
-          triggers: Array.from(self.TRIGGER_COLLECTOR),
-        });
-      } catch (error) {
-        completePromise(requestId, {
-          result,
-          errors,
-          logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
-          triggers: Array.from(self.TRIGGER_COLLECTOR),
-        });
-      } finally {
-        for (const entity in GLOBAL_DATA) {
-          // @ts-expect-error: Types are not available
-          delete self[entity];
-        }
-      }
+      return {
+        result,
+        errors,
+        logs,
+        triggers: Array.from(self.TRIGGER_COLLECTOR),
+      };
     }
   })();
 }
@@ -436,21 +407,7 @@ export function isFunctionAsync(
           const dataTreeKey = GLOBAL_DATA[datum];
           if (dataTreeKey) {
             const data = dataTreeKey[key]?.data;
-            //do not remove, we will be investigating this
-            // const isAsync = dataTreeKey.meta[key]?.isAsync || false;
-            // const confirmBeforeExecute =
-            //   dataTreeKey.meta[key]?.confirmBeforeExecute || false;
             dataTreeKey[key] = resolvedObject[key];
-            // if (isAsync && confirmBeforeExecute) {
-            //   dataTreeKey[key] = confirmationPromise.bind(
-            //     {},
-            //     "",
-            //     resolvedObject[key],
-            //     key,
-            //   );
-            // } else {
-            //   dataTreeKey[key] = resolvedObject[key];
-            // }
             if (!!data) {
               dataTreeKey[key].data = data;
             }

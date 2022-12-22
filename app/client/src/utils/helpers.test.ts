@@ -1,7 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "./autocomplete/TernServer";
+import { AutocompleteDataType } from "./autocomplete/CodemirrorTernService";
 import {
   flattenObject,
   getLocale,
@@ -575,12 +575,9 @@ describe("isNameValid()", () => {
   it("works properly", () => {
     const invalidEntityNames = [
       "console",
-      "moment",
       "Promise",
       "appsmith",
       "Math",
-      "_",
-      "forge",
       "yield",
       "Boolean",
       "ReferenceError",

@@ -2,13 +2,12 @@ import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 import { Position } from "codemirror";
 import {
-  EVAL_WORKER_ACTIONS,
-  extraLibraries,
   isDynamicValue,
   isPathADynamicBinding,
   LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { MAIN_THREAD_ACTION } from "workers/Evaluation/evalWorkerActions";
 import {
   JSHINT as jshint,
   LintError as JSHintError,
@@ -51,8 +50,9 @@ import {
   isWidget,
 } from "workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
-import { JSUpdate } from "utils/JSPaneUtils";
 import { Severity } from "entities/AppsmithConsole";
+import { JSLibraries } from "workers/common/JSLibrary";
+import { MessageType, sendMessage } from "utils/MessageUtil";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -303,7 +303,11 @@ export function getLintingErrors(
     globalData[dataKey] = true;
   }
   // Jshint shouldn't throw errors for additional libraries
-  extraLibraries.forEach((lib) => (globalData[lib.accessor] = true));
+  const libAccessors = ([] as string[]).concat(
+    ...JSLibraries.map((lib) => lib.accessor),
+  );
+  libAccessors.forEach((accessor) => (globalData[accessor] = true));
+
   // JSHint shouldn't throw errors for supported web apis
   Object.keys(SUPPORTED_WEB_APIS).forEach(
     (apiName) => (globalData[apiName] = true),
@@ -461,18 +465,19 @@ function getInvalidPropertyErrorsFromScript(
 
 export function initiateLinting(
   lintOrder: string[],
-  jsUpdates: Record<string, JSUpdate>,
   unevalTree: DataTree,
   requiresLinting: boolean,
 ) {
   if (!requiresLinting) return;
-  postMessage({
-    promisified: true,
-    responseData: {
-      lintOrder,
-      jsUpdates,
-      unevalTree,
-      type: EVAL_WORKER_ACTIONS.LINT_TREE,
+  sendMessage.call(self, {
+    messageId: "",
+    messageType: MessageType.REQUEST,
+    body: {
+      data: {
+        lintOrder,
+        unevalTree,
+      },
+      method: MAIN_THREAD_ACTION.LINT_TREE,
     },
   });
 }

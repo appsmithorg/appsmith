@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { connect, useSelector } from "react-redux";
 import styled from "styled-components";
-import { createDatasourceFromForm } from "actions/datasourceActions";
+import {
+  createDatasourceFromForm,
+  createTempDatasourceFromForm,
+} from "actions/datasourceActions";
 import { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
@@ -138,6 +141,7 @@ type ApiHomeScreenProps = {
   createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
+  createTempDatasourceFromForm: (data: any) => void;
 };
 
 type Props = ApiHomeScreenProps;
@@ -172,11 +176,11 @@ function NewApiScreen(props: Props) {
         pluginName: authApiPlugin.name,
         pluginPackageName: authApiPlugin.packageName,
       });
-      props.createDatasourceFromForm({
+      props.createTempDatasourceFromForm({
         pluginId: authApiPlugin.id,
       });
     }
-  }, [authApiPlugin, props.createDatasourceFromForm]);
+  }, [authApiPlugin, props.createTempDatasourceFromForm]);
 
   const handleCreateNew = (source: string) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
@@ -237,7 +241,10 @@ function NewApiScreen(props: Props) {
         break;
       }
       case API_ACTION.CREATE_DATASOURCE_FORM: {
-        props.createDatasourceFromForm({ pluginId: params.pluginId });
+        props.createTempDatasourceFromForm({
+          pluginId: params.pluginId,
+          type: params.type,
+        });
         break;
       }
       case API_ACTION.AUTH_API: {
@@ -274,7 +281,7 @@ function NewApiScreen(props: Props) {
                 src={PlusLogo}
               />
             </div>
-            <p className="textBtn">Create new API</p>
+            <p className="textBtn">REST API</p>
           </CardContentWrapper>
           {isCreating && <Spinner className="cta" size={25} />}
         </ApiCard>
@@ -322,7 +329,7 @@ function NewApiScreen(props: Props) {
                 src={PlusLogo}
               />
             </div>
-            <p className="textBtn">Create new GraphQL API</p>
+            <p className="textBtn">GraphQL API</p>
           </CardContentWrapper>
         </ApiCard>
         {API_PLUGINS.map((p) => (
@@ -365,6 +372,7 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = {
   createNewApiAction,
   createDatasourceFromForm,
+  createTempDatasourceFromForm,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewApiScreen);

@@ -12,7 +12,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
   findIndex,
   isArray,
@@ -21,8 +21,10 @@ import {
   isString,
   LoDashStatic,
 } from "lodash";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import equal from "fast-deep-equal/es6";
 import derivedProperties from "./parseDerivedProperties";
+import { Stylesheet } from "entities/AppTheming";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -213,6 +215,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               { label: "Top", value: LabelPosition.Top },
               { label: "Auto", value: LabelPosition.Auto },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -316,6 +319,16 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -365,6 +378,24 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             helpText: "Triggers an action when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the dropdown opens",
+            propertyName: "onDropdownOpen",
+            label: "onDropdownOpen",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the dropdown closes",
+            propertyName: "onDropdownClose",
+            label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -500,6 +531,14 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     ];
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       value: "defaultOptionValue",
@@ -571,6 +610,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         filterText={this.props.filterText}
         hasError={isInvalid}
         height={componentHeight}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         isValid={this.props.isValid}
@@ -581,7 +621,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
+        onDropdownClose={this.onDropdownClose}
+        onDropdownOpen={this.onDropdownOpen}
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
@@ -643,6 +686,30 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     }
   };
 
+  onDropdownOpen = () => {
+    if (this.props.onDropdownOpen) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownOpen",
+        dynamicString: this.props.onDropdownOpen,
+        event: {
+          type: EventType.ON_DROPDOWN_OPEN,
+        },
+      });
+    }
+  };
+
+  onDropdownClose = () => {
+    if (this.props.onDropdownClose) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownClose",
+        dynamicString: this.props.onDropdownClose,
+        event: {
+          type: EventType.ON_DROPDOWN_CLOSE,
+        },
+      });
+    }
+  };
+
   static getWidgetType(): WidgetType {
     return "SELECT_WIDGET";
   }
@@ -657,6 +724,8 @@ export interface SelectWidgetProps extends WidgetProps {
   selectedIndex?: number;
   options?: DropdownOption[];
   onOptionChange?: string;
+  onDropdownOpen?: string;
+  onDropdownClose?: string;
   defaultOptionValue?: any;
   value?: any;
   label?: any;

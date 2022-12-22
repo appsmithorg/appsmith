@@ -2,8 +2,7 @@ import React from "react";
 import { Icon } from "@blueprintjs/core";
 import { Button, Category, Text, TextType } from "design-system";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
-import { useSelector } from "store";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCanvasWidgets,
   getDatasources,

@@ -45,6 +45,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
+        buttonPosition={this.props.buttonPosition}
         compactMode={this.props.compactMode}
         defaultValue={this.props.defaultValue}
         disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
@@ -57,6 +58,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         inputRef={this.props.inputRef}
         inputType={this.props.inputType}
         intent={this.props.intent}
+        isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}

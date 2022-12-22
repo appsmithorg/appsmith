@@ -12,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.helpers.MustacheHelper.ACTION_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.WIDGET_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -51,6 +51,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
     private final NewActionService newActionService;
 
     private final AstService astService;
+    private final ActionPermission actionPermission;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -113,7 +114,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         Map<String, EntityDependencyNode> actionsFoundDuringWalk = new HashMap<>();
 
         Flux<ActionDTO> allActionsByPageIdFlux = newActionService
-                .findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
+                .findByPageIdAndViewMode(pageId, false, actionPermission.getEditPermission())
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .cache();
 
@@ -932,7 +933,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                         Set<String> mustacheKeysFromFields;
                         // Stricter extraction of dynamic bindings
                         if (isBindingPresentInString) {
-                            mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                            mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream().map(token -> token.getValue()).collect(Collectors.toSet());
                         } else {
                             // this must be a JS function. No need to extract mustache. The entire string is JS body
                             mustacheKeysFromFields = Set.of((String) parent);
