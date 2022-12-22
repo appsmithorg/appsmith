@@ -11,6 +11,7 @@ export const JSONFORM_WIDGET = ".t--widget-jsonformwidget";
 export const MODAL_WIDGET = ".t--modal-widget";
 export const CHECKBOXGROUP_WIDGET = ".t--widget-checkboxgroupwidget";
 export const SWITCHGROUP_WIDGET = ".t--widget-switchgroupwidget";
+export const BUTTONGROUP_WIDGET = ".t--widget-buttongroupwidget";
 export const FOCUS_SELECTOR =
   ":is(a, input, select, textarea, button, object, audio, video, [tabindex='-1']):not([data-tabbable='false'])";
 export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}))`;
@@ -143,7 +144,8 @@ export function getNextTabbableDescendant(
   if (
     nextTabbableDescendant.matches(JSONFORM_WIDGET) ||
     nextTabbableDescendant.matches(CHECKBOXGROUP_WIDGET) ||
-    nextTabbableDescendant.matches(SWITCHGROUP_WIDGET)
+    nextTabbableDescendant.matches(SWITCHGROUP_WIDGET) ||
+    nextTabbableDescendant.matches(BUTTONGROUP_WIDGET)
   ) {
     const tabbable = Array.from(
       nextTabbableDescendant.querySelectorAll<HTMLElement>(FOCUS_SELECTOR),

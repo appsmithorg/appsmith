@@ -7,6 +7,7 @@ import {
   getNextTabbableDescendantForJSONForm,
   CHECKBOXGROUP_WIDGET,
   SWITCHGROUP_WIDGET,
+  BUTTONGROUP_WIDGET,
 } from "./tabbable";
 
 export function handleTab(event: KeyboardEvent) {
@@ -21,6 +22,7 @@ export function handleTab(event: KeyboardEvent) {
     case currentWidget && currentWidget.matches(JSONFORM_WIDGET):
     case currentWidget && currentWidget.matches(CHECKBOXGROUP_WIDGET):
     case currentWidget && currentWidget.matches(SWITCHGROUP_WIDGET):
+    case currentWidget && currentWidget.matches(BUTTONGROUP_WIDGET):
       nextTabbableDescendant = getNextTabbableDescendantForJSONForm(
         currentWidget,
         shiftKey,
