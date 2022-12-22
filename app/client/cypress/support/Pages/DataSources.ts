@@ -113,6 +113,8 @@ export class DataSources {
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
+  _entityCollapseButton = ".t--entity-collapse-toggle";
+
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
   private _urlInputControl = "input[name='url']";
@@ -796,6 +798,10 @@ export class DataSources {
         false,
         0,
       );
+  }
+
+  public getDSEntity(dSName: string) {
+    return `[data-guided-tour-id="explorer-entity-${dSName}"]`;
   }
 
   public FillAuthAPIUrl() {
