@@ -151,12 +151,12 @@ jobs:
         run: echo ${{ steps.run_result.outputs.run_result }}
 
       # Setup Java
-      - name: Set up JDK 1.11
+      - name: Set up JDK 17
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-java@v3
         with:
-          java-version: "11.0.10"
-          distribution: adopt
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Download the client build artifact
         uses: actions/download-artifact@v3

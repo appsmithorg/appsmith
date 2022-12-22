@@ -218,11 +218,12 @@ jobs:
         run: echo "I'm alive!" && exit 0
 
       # Setup Java
-      - name: Set up JDK 1.11
+      - name: Set up JDK 17
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
-          java-version: "11.0.10"
+          distribution: 'temurin'
+          java-version: '17'
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
@@ -485,11 +486,12 @@ jobs:
         run: echo ${{ steps.run_result.outputs.run_result }}
 
       # Setup Java
-      - name: Set up JDK 1.11
+      - name: Set up JDK 17
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
-          java-version: "11.0.10"
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Download the react build artifact
         uses: actions/download-artifact@v2

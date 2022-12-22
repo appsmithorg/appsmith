@@ -24,7 +24,6 @@
         <project.version>1.0-SNAPSHOT</project.version>
         <!-- By default skip the dockerization step. Only activate if necessary -->
         <skipDockerBuild>true</skipDockerBuild>
-        <spring-security.version>5.8.0</spring-security.version>
         <log4j2.version>2.17.1</log4j2.version>
         <h2.version>2.1.210</h2.version>
         <testcontainers.version>1.17.3</testcontainers.version>
