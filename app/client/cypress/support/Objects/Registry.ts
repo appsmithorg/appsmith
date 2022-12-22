@@ -12,6 +12,7 @@ import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
 import { DebuggerHelper } from "../Pages/DebuggerHelper";
+import { LibraryInstaller } from "../Pages/LibraryInstaller";
 import { AppSettings } from "../Pages/AppSettings/AppSettings";
 import { GeneralSettings } from "../Pages/AppSettings/GeneralSettings";
 import { PageSettings } from "../Pages/AppSettings/PageSettings";
@@ -160,6 +161,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.themeSettings__ = new ThemeSettings();
     }
     return ObjectsRegistry.themeSettings__;
+  }
+
+  private static LibraryInstaller__: LibraryInstaller;
+  static get LibraryInstaller(): LibraryInstaller {
+    if (ObjectsRegistry.LibraryInstaller__ === undefined) {
+      ObjectsRegistry.LibraryInstaller__ = new LibraryInstaller();
+    }
+    return ObjectsRegistry.LibraryInstaller__;
   }
 }
 

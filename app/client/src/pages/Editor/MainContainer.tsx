@@ -17,6 +17,7 @@ import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { routeChanged } from "actions/focusHistoryActions";
+import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { getExplorerWidth } from "selectors/explorerSelector";
 import { AppsmithLocationState } from "utils/history";
 
@@ -96,6 +97,7 @@ function MainContainer() {
           "transition-all transform duration-400": true,
         })}
       />
+      <Installer left={sidebarWidth} />
     </>
   );
 }
