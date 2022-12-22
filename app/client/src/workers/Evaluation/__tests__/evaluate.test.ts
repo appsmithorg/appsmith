@@ -6,7 +6,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
-import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { functionDeterminer } from "../functionDeterminer";
 
 describe("evaluateSync", () => {

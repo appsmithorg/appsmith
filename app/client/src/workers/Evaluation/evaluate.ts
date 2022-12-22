@@ -296,7 +296,7 @@ export default function evaluateSync(
       }
     } catch (error) {
       errors.push({
-        errorMessage: errorModifier.syncField(getErrorMessage(error as Error)),
+        errorMessage: errorModifier.syncField(error as Error),
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,

@@ -5,7 +5,16 @@ import { get } from "lodash";
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
 
+const ErrorNameType = {
+  ReferenceError: "ReferenceError",
+  TypeError: "TypeError",
+};
+
 class TransformError {
+  private errorNamesToScan = [
+    ErrorNameType.ReferenceError,
+    ErrorNameType.TypeError,
+  ];
   // Note all regex below groups the async function name
   private errorMessageRegexList = [
     /ReferenceError: Can't find variable: ([\w_]+)/, // ReferenceError message for safari
@@ -19,10 +28,13 @@ class TransformError {
     this.asyncFunctionsNameMap = getAllAsyncFunctions(dataTree);
   }
 
-  syncField(message: string) {
+  syncField(error: Error) {
+    const errorMessage = getErrorMessage(error);
+    if (!this.errorNamesToScan.includes(error.name)) return errorMessage;
+
     for (let index = 0; index < this.errorMessageRegexList.length; index++) {
       const errorMessageRegex = this.errorMessageRegexList[index];
-      const matchResult = message.match(errorMessageRegex);
+      const matchResult = errorMessage.match(errorMessageRegex);
       if (matchResult) {
         const referencedIdentifier = matchResult[1];
         if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
@@ -34,7 +46,7 @@ class TransformError {
       }
     }
 
-    return message;
+    return errorMessage;
   }
 }
 

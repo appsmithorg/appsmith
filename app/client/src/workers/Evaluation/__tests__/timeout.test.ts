@@ -2,7 +2,7 @@ import { PluginType } from "entities/Action";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "../evaluate";
 import overrideTimeout from "../TimeoutOverride";
-import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 
 describe("Expects appsmith setTimeout to pass the following criteria", () => {
   overrideTimeout();
