@@ -845,3 +845,34 @@ class TransformError {
 }
 
 export const errorTransformer = new TransformError();
+"Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
+
+export class FoundPromiseInSyncEvalError extends Error {
+  constructor() {
+    super();
+    this.name = "";
+    this.message =
+      "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
+  }
+}
+
+export class ActionCalledInSyncFieldError extends Error {
+  constructor(actionName: string) {
+    super(actionName);
+
+    if (!actionName) {
+      this.message = "Async function called in a sync field";
+      return;
+    }
+
+    this.name = "";
+    this.message = UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+      "{{actionName}}",
+      actionName + "()",
+    );
+  }
+}
+
+export const getErrorMessage = (error: Error) => {
+  return error.name ? `${error.name}: ${error.message}` : error.message;
+};
