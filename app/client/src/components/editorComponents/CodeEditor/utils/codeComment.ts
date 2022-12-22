@@ -6,6 +6,16 @@ export const getCodeCommentKeyMap = () => {
   return isMacOrIOS() ? "Cmd-/" : "Ctrl-/";
 };
 
+export function getLineCommentString(mode: EditorModes) {
+  switch (mode) {
+    case EditorModes.SQL:
+    case EditorModes.SQL_WITH_BINDING:
+      return "--";
+    default:
+      return "//";
+  }
+}
+
 // Most of the code below is copied from https://github.com/codemirror/codemirror5/blob/master/addon/comment/comment.js
 // with minor modifications to support commenting in JS fields with {{ }} syntax
 // CodeMirror's APIs don't allow such things, so copied functions and overrode them
@@ -111,7 +121,17 @@ function performLineCommenting(
         const baseString =
           line.search(nonWhitespace) === -1
             ? line
-            : line.slice(0, firstNonWhitespace(line, mode.name as EditorModes));
+            : line.slice(
+                0,
+                firstNonWhitespace(
+                  line,
+                  // When there is JS bindings inside SQL, the mode is JAVASCRIPT instead of SQL
+                  // we need to explicitly check if the SQL comment string is passed, make the mode SQL
+                  commentString === getLineCommentString(EditorModes.SQL)
+                    ? EditorModes.SQL
+                    : (mode.name as EditorModes),
+                ),
+              );
 
         const offset = (baseString || "").length;
 

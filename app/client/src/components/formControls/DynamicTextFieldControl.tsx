@@ -15,6 +15,7 @@ import styled from "styled-components";
 import { getPluginResponseTypes } from "selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { getLineCommentString } from "components/editorComponents/CodeEditor/utils/codeComment";
 
 const Wrapper = styled.div`
   width: 872px;
@@ -30,16 +31,6 @@ const Wrapper = styled.div`
     }
   }
 `;
-
-function getLineCommentString(mode: EditorModes) {
-  switch (mode) {
-    case EditorModes.SQL:
-    case EditorModes.SQL_WITH_BINDING:
-      return "--";
-    default:
-      return "//";
-  }
-}
 
 interface DynamicTextControlState {
   showTemplateMenu: boolean;

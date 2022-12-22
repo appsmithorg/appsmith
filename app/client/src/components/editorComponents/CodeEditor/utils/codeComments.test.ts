@@ -243,7 +243,7 @@ describe("handleCodeComment", () => {
     expect(editor.getValue()).toEqual(`-- Select * from users;`);
   });
 
-  it("should handle code comment for SQL queries with JS bindings", () => {
+  it("should handle code comment for SQL queries with JS bindings when cursor is placed outside JS bindings", () => {
     const editor = CodeMirror(document.body, {
       mode: EditorModes.SQL,
     });
@@ -255,6 +255,28 @@ describe("handleCodeComment", () => {
     // Select the code before commenting
     editor.setSelection(
       { line: 0, ch: 0 },
+      { line: editor.lastLine() + 1, ch: 0 },
+    );
+
+    handleCodeComment(SQL_LINE_COMMENT)(editor);
+
+    expect(editor.getValue()).toEqual(
+      `-- Select * from users where name={{Select.selectedOptionValue}};`,
+    );
+  });
+
+  it("should handle code comment for SQL queries with JS bindings when cursor is placed inside JS bindings", () => {
+    const editor = CodeMirror(document.body, {
+      mode: EditorModes.SQL,
+    });
+
+    const code = `Select * from users where name={{Select.selectedOptionValue}};`;
+
+    editor.setValue(code);
+
+    // Select the code before commenting
+    editor.setSelection(
+      { line: 0, ch: 18 },
       { line: editor.lastLine() + 1, ch: 0 },
     );
 
