@@ -29,7 +29,7 @@ import {
   useDatasourceIdFromURL,
   getExplorerStatus,
   saveExplorerStatus,
-} from "./helpers";
+} from "@appsmith/pages/Editor/Explorer/helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";

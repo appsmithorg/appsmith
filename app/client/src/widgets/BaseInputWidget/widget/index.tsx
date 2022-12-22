@@ -177,6 +177,28 @@ class BaseInputWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            helpText: "Show arrows to increase or decrease values",
+            propertyName: "showStepArrows",
+            label: "Show Step Arrows",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                default: false,
+              },
+            },
+            hidden: (props: BaseInputWidgetProps) => {
+              return (
+                props.type !== "CURRENCY_INPUT_WIDGET" &&
+                props.inputType !== InputTypes.NUMBER
+              );
+            },
+            dependencies: ["inputType"],
+          },
+          {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             label: "Visible",

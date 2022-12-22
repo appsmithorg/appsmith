@@ -32,7 +32,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
-import { disableWidgetFeatures } from "utils/WidgetFeatures";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
@@ -247,11 +246,8 @@ function PropertyPaneView(
             <PropertyPaneSearchInput onTextChange={setSearchText} />
             {searchText.length > 0 ? (
               <PropertyControlsGenerator
-                config={disableWidgetFeatures(
-                  WidgetFactory.getWidgetPropertyPaneSearchConfig(
-                    widgetProperties.type,
-                  ),
-                  widgetProperties.disabledWidgetFeatures,
+                config={WidgetFactory.getWidgetPropertyPaneSearchConfig(
+                  widgetProperties.type,
                 )}
                 id={widgetProperties.widgetId}
                 panel={panel}
@@ -264,11 +260,8 @@ function PropertyPaneView(
                 contentComponent={
                   isContentConfigAvailable ? (
                     <PropertyControlsGenerator
-                      config={disableWidgetFeatures(
-                        WidgetFactory.getWidgetPropertyPaneContentConfig(
-                          widgetProperties.type,
-                        ),
-                        widgetProperties.disabledWidgetFeatures,
+                      config={WidgetFactory.getWidgetPropertyPaneContentConfig(
+                        widgetProperties.type,
                       )}
                       id={widgetProperties.widgetId}
                       panel={panel}
