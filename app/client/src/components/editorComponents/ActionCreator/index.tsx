@@ -259,7 +259,7 @@ function getFieldsForSelectedAction(
     isFunctionWithCallbackFields ||
     AppsmithFunctionsWithFields.filter((func) => value.includes(func))[0];
 
-  if (functionMatch.length > 0) {
+  if (functionMatch && functionMatch.length > 0) {
     for (const field of FIELD_GROUP_CONFIG[functionMatch].fields) {
       fields.push({
         field: field,

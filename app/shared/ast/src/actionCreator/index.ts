@@ -19,7 +19,7 @@ const NEXT_POSITION = 1;
 
 export const getTextArgumentAtPosition = (value: string, argNum: number, evaluationVersion: number): string => {
     let ast: Node = { end: 0, start: 0, type: "" };
-    let requiredArgument: string = "";
+    let requiredArgument: any = "";
     let commentArray: Array<Comment> = [];
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
@@ -43,7 +43,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
                         requiredArgument = "{{{}}}";
                         break;
                     case NodeTypes.Literal:
-                        requiredArgument = argument.value as string;
+                        requiredArgument = argument.value;
                 }
             }
         },
@@ -52,7 +52,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
     return requiredArgument;
 }
 
-export const setTextArgumentAtPosition = (currentValue: string, changeValue: string, argNum: number, evaluationVersion: number): string => {
+export const setTextArgumentAtPosition = (currentValue: string, changeValue: any, argNum: number, evaluationVersion: number): string => {
     let ast: Node = { end: 0, start: 0, type: "" };
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];
@@ -74,11 +74,12 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: str
             if (isCallExpressionNode(node)) {
                 // add 1 to get the starting position of the next
                 // node to ending position of previous
+                const rawValue = typeof changeValue === "string" ? String.raw`"${changeValue}"` : String.raw`${changeValue}`;
                 const startPosition = node.callee.end + NEXT_POSITION;
                 node.arguments[argNum] = {
                     type: NodeTypes.Literal,
-                    value: `${changeValue}`,
-                    raw: String.raw`'${changeValue}'`,
+                    value: changeValue,
+                    raw: rawValue,
                     start: startPosition,
                     // add 2 for quotes
                     end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),

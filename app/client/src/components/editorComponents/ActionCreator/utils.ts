@@ -75,7 +75,12 @@ export const textSetter = (
   argNum: number,
 ): string => {
   const requiredValue = stringToJS(currentValue);
-  const requiredChangeValue = stringToJS(changeValue);
+  let requiredChangeValue;
+  try {
+    requiredChangeValue = JSON.parse(stringToJS(changeValue));
+  } catch (e) {
+    requiredChangeValue = stringToJS(changeValue);
+  }
   return setTextArgumentAtPosition(
     requiredValue,
     requiredChangeValue,
