@@ -199,6 +199,28 @@ describe("handleCodeComment", () => {
     expect(editor.getValue()).toEqual(`"label": {{//  appsmith.store.id }}`);
   });
 
+  it("should handle code comment in TEXT_WITH_BINDING fields with text in multiple lines", () => {
+    const editor = CodeMirror(document.body, {
+      mode: EditorModes.TEXT_WITH_BINDING,
+    });
+
+    const code = `"label": {{ 2
+      + 2 }}`;
+
+    editor.setValue(code);
+
+    // Select the code before commenting
+    editor.setSelection(
+      { line: 1, ch: 0 },
+      { line: editor.lastLine() + 1, ch: 0 },
+    );
+
+    handleCodeComment(JS_LINE_COMMENT)(editor);
+
+    expect(editor.getValue()).toEqual(`"label": {{ 2
+      // + 2 }}`);
+  });
+
   it("should handle code comment in JS fields with multiple lines", () => {
     const editor = CodeMirror(document.body, { mode: EditorModes.JAVASCRIPT });
 

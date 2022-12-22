@@ -45,6 +45,7 @@ function getEndLineForLineUncomment(
 }
 
 const JS_FIELD_BEGIN = "{{";
+const JS_FIELD_END = "}}";
 
 const nonWhitespace = /[^\s\u00a0]/;
 
@@ -92,7 +93,7 @@ function performLineCommenting(
   // When mode is TEXT, the name is null string, we skip commenting
   const commentString =
     mode.name === EditorModes.TEXT_WITH_BINDING &&
-    !firstLine.includes(JS_FIELD_BEGIN)
+    !(firstLine.includes(JS_FIELD_BEGIN) || firstLine.includes(JS_FIELD_END))
       ? ""
       : options.lineComment || mode.lineComment;
 
