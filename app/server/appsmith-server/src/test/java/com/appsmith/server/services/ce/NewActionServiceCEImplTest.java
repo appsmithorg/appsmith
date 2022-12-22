@@ -30,6 +30,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -133,6 +135,8 @@ public class NewActionServiceCEImplTest {
     PagePermission pagePermission;
     @MockBean
     ActionPermission actionPermission;
+    @MockBean
+    ObservationRegistry observationRegistry;
 
     private BodyExtractor.Context context;
 
@@ -163,14 +167,15 @@ public class NewActionServiceCEImplTest {
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                observationRegistry);
     }
 
     @BeforeEach
     public void createContext() {
         final List<HttpMessageReader<?>> messageReaders = new ArrayList<>();
         messageReaders.add(new DecoderHttpMessageReader<>(new ByteBufferDecoder()));
-        messageReaders.add(new DecoderHttpMessageReader<>(StringDecoder.allMimeTypes(true)));
+        messageReaders.add(new DecoderHttpMessageReader<>(StringDecoder.allMimeTypes()));
         messageReaders.add(new DecoderHttpMessageReader<>(new Jaxb2XmlDecoder()));
         messageReaders.add(new DecoderHttpMessageReader<>(new Jackson2JsonDecoder()));
         messageReaders.add(new FormHttpMessageReader());

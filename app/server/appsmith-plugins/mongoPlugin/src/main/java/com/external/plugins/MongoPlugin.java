@@ -225,7 +225,7 @@ public class MongoPlugin extends BasePlugin {
     @Extension
     public static class MongoPluginExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity

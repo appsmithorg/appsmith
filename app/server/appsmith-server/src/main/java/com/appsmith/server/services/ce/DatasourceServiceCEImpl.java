@@ -46,8 +46,8 @@ import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;

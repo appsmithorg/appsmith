@@ -17,8 +17,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
-        <org.pf4j.version>3.4.1</org.pf4j.version>
+        <java.version>17</java.version>
+        <org.pf4j.version>3.8.0</org.pf4j.version>
         <org.projectlombok.version>1.18.22</org.projectlombok.version>
         <org.testcontainers.junit-jupiter.version>1.17.2</org.testcontainers.junit-jupiter.version>
         <uk.co.jemos.podam.podam.version>7.2.5.RELEASE</uk.co.jemos.podam.podam.version>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>2.7.0</version>
+            <version>3.0.0</version>
         </dependency>
 
         <dependency>

@@ -21,7 +21,6 @@ import lombok.NoArgsConstructor;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.web.reactive.function.BodyInserter;
@@ -78,7 +77,7 @@ public class RestAPIActivateUtils {
                         contentType = MediaType.TEXT_PLAIN;
                     }
                     byte[] body = stringResponseEntity.getBody();
-                    HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                    var statusCode = stringResponseEntity.getStatusCode();
 
                     ActionExecutionResult result = new ActionExecutionResult();
 

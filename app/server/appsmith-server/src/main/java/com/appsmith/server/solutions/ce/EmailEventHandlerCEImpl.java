@@ -116,7 +116,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                         event.getOriginHeader(),
                         event.getSubscribers(),
                         event.getPageName()
-                ).subscribeOn(Schedulers.elastic())
+                ).subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
 
@@ -131,7 +131,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                         event.getOriginHeader(),
                         event.getPageName()
                 )
-                .subscribeOn(Schedulers.elastic())
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
 

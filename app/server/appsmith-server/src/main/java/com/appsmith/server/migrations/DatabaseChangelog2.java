@@ -15,6 +15,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.EncryptionConfig;
 import com.appsmith.server.constants.Appsmith;
+import com.appsmith.server.configurations.typeadapters.InstantTypeAdapter;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -71,6 +72,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import com.google.gson.GsonBuilder;
 import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
@@ -2212,7 +2214,8 @@ public class DatabaseChangelog2 {
                 new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
                 Charset.defaultCharset()
         );
-        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme[] themes = new GsonBuilder().registerTypeAdapter(Instant.class, new InstantTypeAdapter()).create().fromJson(themesJson, Theme[].class);
 
         Theme legacyTheme = null;
         boolean themeExists = false;

@@ -120,7 +120,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
     @Extension
     public static class S3PluginExecutor implements PluginExecutor<AmazonS3>, SmartSubstitutionInterface {
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
         private final FilterDataService filterDataService;
         private static final AmazonS3ErrorUtils amazonS3ErrorUtils;
 

@@ -76,7 +76,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     /**
      * Creates a new instance
-     *  @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
+     *
+     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
      * @param commonConfig
      * @param redirectHelper
      */
@@ -89,7 +90,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     /**
      * Creates a new instance
-     *  @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
+     *
+     * @param clientRegistrationRepository the repository to resolve the {@link ClientRegistration}
      * @param authorizationRequestMatcher  the matcher that determines if the request is a match and extracts the
      *                                     {@link #DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME} from the path variables.
      * @param redirectHelper
@@ -135,7 +137,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
     }
 
     private Mono<OAuth2AuthorizationRequest> authorizationRequest(ServerWebExchange exchange,
-                                                            ClientRegistration clientRegistration) {
+                                                                  ClientRegistration clientRegistration) {
         String redirectUriStr = expandRedirectUri(exchange.getRequest(), clientRegistration);
 
         Map<String, Object> attributes = new HashMap<>();
@@ -167,8 +169,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
             }
 
             builder.additionalParameters(additionalParameters);
-        } else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
-            builder = OAuth2AuthorizationRequest.implicit();
+//        } else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
+//            builder = OAuth2AuthorizationRequest.implicit();
         } else {
             throw new IllegalArgumentException(
                     "Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
@@ -204,7 +206,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
     }
 
     /**
-     * Expands the {@link ClientRegistration#getRedirectUriTemplate()} with following provided variables:<br/>
+     * Expands the {@link ClientRegistration#getRedirectUri()} with following provided variables:<br/>
      * - baseUrl (e.g. https://localhost/app) <br/>
      * - baseScheme (e.g. https) <br/>
      * - baseHost (e.g. localhost) <br/>
@@ -237,7 +239,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
         uriVariables.put("basePort", port == -1 ? "" : ":" + port);
         String path = uriComponents.getPath();
         if (StringUtils.hasLength(path) && path.charAt(0) != PATH_DELIMITER) {
-                path = PATH_DELIMITER + path;
+            path = PATH_DELIMITER + path;
         }
         uriVariables.put("basePath", path == null ? "" : path);
         uriVariables.put("baseUrl", uriComponents.toUriString());
@@ -248,7 +250,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
         }
         uriVariables.put("action", action);
 
-        return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
+        return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
                 .buildAndExpand(uriVariables)
                 .toUriString();
     }

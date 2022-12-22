@@ -17,7 +17,7 @@
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
-            <version>0.7.0</version>
+            <version>0.8.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
