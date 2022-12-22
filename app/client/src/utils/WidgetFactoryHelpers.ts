@@ -19,6 +19,88 @@ export enum PropertyPaneConfigTypes {
   CONTENT = "CONTENT",
 }
 
+export function addSearchConfigToPanelConfig(
+  config: readonly PropertyPaneConfig[],
+) {
+  return config.map((configItem) => {
+    if ((configItem as PropertyPaneSectionConfig).sectionName) {
+      const sectionConfig = {
+        ...configItem,
+      };
+      if (configItem.children) {
+        sectionConfig.children = addSearchConfigToPanelConfig(
+          configItem.children,
+        );
+      }
+      return sectionConfig;
+    } else if ((configItem as PropertyPaneControlConfig).controlType) {
+      const controlConfig = configItem as PropertyPaneControlConfig;
+      if (controlConfig.panelConfig) {
+        return {
+          ...controlConfig,
+          panelConfig: {
+            ...controlConfig.panelConfig,
+            searchConfig: generatePropertyPaneSearchConfig(
+              controlConfig.panelConfig?.contentChildren ?? [],
+              controlConfig.panelConfig?.styleChildren ?? [],
+            ),
+          },
+        };
+      }
+      return controlConfig;
+    }
+    return configItem;
+  });
+}
+
+function addSearchSpecificPropertiesToConfig(
+  config: readonly PropertyPaneConfig[],
+  tag: string,
+): PropertyPaneConfig[] {
+  return config.map((configItem) => {
+    if ((configItem as PropertyPaneSectionConfig).sectionName) {
+      const sectionConfig = {
+        ...configItem,
+        collapsible: false,
+        tag,
+      };
+      if (configItem.children) {
+        sectionConfig.children = addSearchSpecificPropertiesToConfig(
+          configItem.children,
+          tag,
+        );
+      }
+      return sectionConfig;
+    } else if ((configItem as PropertyPaneControlConfig).controlType) {
+      const controlConfig = configItem as PropertyPaneControlConfig;
+      if (controlConfig.panelConfig) {
+        return {
+          ...controlConfig,
+          panelConfig: {
+            ...controlConfig.panelConfig,
+            searchConfig: generatePropertyPaneSearchConfig(
+              controlConfig.panelConfig?.contentChildren ?? [],
+              controlConfig.panelConfig?.styleChildren ?? [],
+            ),
+          },
+        };
+      }
+      return controlConfig;
+    }
+    return configItem;
+  });
+}
+
+export function generatePropertyPaneSearchConfig(
+  contentConfig: readonly PropertyPaneConfig[],
+  styleConfig: readonly PropertyPaneConfig[],
+) {
+  return [
+    ...addSearchSpecificPropertiesToConfig(contentConfig, "CONTENT"),
+    ...addSearchSpecificPropertiesToConfig(styleConfig, "STYLE"),
+  ];
+}
+
 /* This function recursively parses the property pane configuration and
    adds random hash values as `id`.
 
@@ -35,14 +117,15 @@ export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
       );
     }
     const config = sectionOrControlConfig as PropertyPaneControlConfig;
-    if (
-      config.panelConfig &&
-      config.panelConfig.children &&
-      Array.isArray(config.panelConfig.children)
-    ) {
-      config.panelConfig.children = addPropertyConfigIds(
-        config.panelConfig.children,
-      );
+    if (config.panelConfig) {
+      if (
+        config.panelConfig.children &&
+        Array.isArray(config.panelConfig.children)
+      ) {
+        config.panelConfig.children = addPropertyConfigIds(
+          config.panelConfig.children,
+        );
+      }
 
       if (
         config.panelConfig.contentChildren &&

@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -29,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.services.ce.UserServiceCEImpl.USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE;
+import static com.appsmith.server.services.ce.UserServiceCEImpl.INVITE_USER_EMAIL_TEMPLATE;
 
 @Slf4j
 public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementServiceCE {
@@ -130,12 +129,15 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                 // Email template parameters initialization below.
                                 Map<String, String> params = userService.getEmailParams(workspace, currentUser, originHeader, false);
 
-                                Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
-                                        "Appsmith: You have been added to a new workspace",
-                                        USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
-
                                 return userService.updateTenantLogoInParams(params)
-                                        .then(Mono.defer(() -> emailMono))
+                                        .flatMap(updatedParams ->
+                                                emailSender.sendMail(
+                                                        existingUser.getEmail(),
+                                                        "Appsmith: You have been added to a new workspace",
+                                                        INVITE_USER_EMAIL_TEMPLATE,
+                                                        updatedParams
+                                                )
+                                        )
                                         .thenReturn(existingUser);
                             })
                             .switchIfEmpty(userService.createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, permissionGroup.getName()));

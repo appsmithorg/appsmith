@@ -5,8 +5,7 @@ import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-import { Button, Callout, Category, Variant } from "design-system";
-import { Colors } from "constants/Colors";
+import { Callout, Category, Variant } from "design-system";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 import { Datasource } from "entities/Datasource";
@@ -18,6 +17,7 @@ import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
 import { AppState } from "@appsmith/reducers";
 import {
+  EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
@@ -64,16 +64,6 @@ const StyledOpenDocsIcon = styled(Icon)`
 
 const CollapsibleWrapper = styled.div`
   width: max-content;
-`;
-
-const EditDatasourceButton = styled(Button)`
-  padding: 10px 20px;
-  &&&& {
-    height: 32px;
-    max-width: 160px;
-    border: 1px solid ${Colors.HIT_GRAY};
-    width: auto;
-  }
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
@@ -123,6 +113,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       viewMode,
     } = this.props;
 
+    const createFlow = datasourceId === TEMP_DATASOURCE_ID;
+
     return (
       <form
         onSubmit={(e) => {
@@ -134,13 +126,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             <FormTitleContainer>
               <PluginImage alt="Datasource" src={this.props.pluginImage} />
               <FormTitle
-                disabled={!canManageDatasource}
+                disabled={!createFlow && !canManageDatasource}
                 focusOnMount={this.props.isNewDatasource}
               />
             </FormTitleContainer>
             {viewMode && (
               <EditDatasourceButton
-                category={Category.tertiary}
+                category={Category.secondary}
                 className="t--edit-datasource"
                 onClick={() => {
                   this.props.setDatasourceViewMode(false);

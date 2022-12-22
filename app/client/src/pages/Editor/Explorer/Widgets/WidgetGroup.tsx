@@ -16,7 +16,10 @@ import {
 } from "@appsmith/constants/messages";
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { getExplorerStatus, saveExplorerStatus } from "../helpers";
+import {
+  getExplorerStatus,
+  saveExplorerStatus,
+} from "@appsmith/pages/Editor/Explorer/helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
@@ -34,7 +37,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const guidedTour = useSelector(inGuidedTour);
   let isWidgetsOpen = getExplorerStatus(applicationId, "widgets");
-  if (isWidgetsOpen === null) {
+  if (isWidgetsOpen === null || isWidgetsOpen === undefined) {
     isWidgetsOpen = widgets?.children?.length === 0 || guidedTour;
     saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
   } else if (guidedTour) {

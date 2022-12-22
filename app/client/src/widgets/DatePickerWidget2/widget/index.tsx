@@ -231,6 +231,16 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -292,6 +302,24 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             label: "onDateSelected",
             helpText:
               "Triggers an action when a date is selected in the calendar",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            propertyName: "onFocus",
+            label: "onFocus",
+            helpText: "Triggers an action when the date picker receives focus",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            propertyName: "onBlur",
+            label: "onBlur",
+            helpText: "Triggers an action when the date picker loses focus",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -487,10 +515,13 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         labelText={this.props.label}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
+        onBlur={this.onBlur}
         onDateSelected={this.onDateSelected}
+        onFocus={this.onFocus}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
         timePrecision={this.props.timePrecision}
@@ -511,6 +542,28 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         type: EventType.ON_DATE_SELECTED,
       },
     });
+  };
+
+  onFocus = () => {
+    if (this.props.onFocus)
+      super.executeAction({
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+  };
+
+  onBlur = () => {
+    if (this.props.onBlur)
+      super.executeAction({
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
   };
 
   static getWidgetType(): WidgetType {
@@ -545,6 +598,8 @@ export interface DatePickerWidget2Props extends WidgetProps {
   accentColor: string;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  onFocus?: string;
+  onBlur?: string;
 }
 
 export default DatePickerWidget;

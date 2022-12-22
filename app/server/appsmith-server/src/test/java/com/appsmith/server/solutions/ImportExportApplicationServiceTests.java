@@ -481,8 +481,8 @@ public class ImportExportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
-                            .then(layoutActionService.createSingleAction(action))
-                            .then(layoutActionService.createSingleAction(action2))
+                            .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
+                            .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -2228,8 +2228,8 @@ public class ImportExportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
-                            .then(layoutActionService.createSingleAction(action))
-                            .then(layoutActionService.createSingleAction(action2))
+                            .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
+                            .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })

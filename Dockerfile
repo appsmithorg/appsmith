@@ -12,19 +12,18 @@ ENV LC_ALL C.UTF-8
 # Update APT packages - Base Layer
 RUN apt-get update \
   && apt-get upgrade --yes \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
+    supervisor curl cron certbot nginx gnupg netcat openssh-client \
     software-properties-common gettext openjdk-11-jdk \
     python3-pip python-setuptools git ca-certificates-java \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
-  && apt-get remove -y git python3-pip
+  && apt-get remove --yes git python3-pip
 
-# Install MongoDB v4.4, Redis, NodeJS - Service Layer
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
-RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-  && apt-get remove wget -y
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-  && apt-get install --no-install-recommends -y mongodb-org=4.4.6 nodejs redis build-essential \
+# Install MongoDB v5.0.14, Redis, NodeJS - Service Layer
+RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
+  && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
+  && curl --silent --show-error --location https://deb.nodesource.com/setup_14.x | bash - \
+  && apt-get install --no-install-recommends --yes mongodb-org=5.0.14 nodejs redis build-essential \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 

@@ -78,7 +78,7 @@ import {
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import { AppState } from "@appsmith/reducers";
-import { ExplorerURLParams } from "../Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
@@ -1119,7 +1119,7 @@ export function EditorJSONtoForm(props: Props) {
                         {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
                       </Text>
                       <CancelRequestButton
-                        category={Category.tertiary}
+                        category={Category.secondary}
                         className={`t--cancel-action-button`}
                         onClick={() => {
                           handleCancelActionExecution();

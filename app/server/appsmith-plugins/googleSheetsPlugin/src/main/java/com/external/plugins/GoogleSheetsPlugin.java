@@ -8,6 +8,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
@@ -106,7 +107,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         if (property != null) {
 
                             // First extract all the bindings in order
-                            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(property);
+                            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(property);
                             // Replace all the bindings with a placeholder
                             String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(property, mustacheKeysInOrder);
 
