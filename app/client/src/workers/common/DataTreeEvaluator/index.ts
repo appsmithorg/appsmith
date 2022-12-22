@@ -40,7 +40,7 @@ import {
   overrideWidgetProperties,
   getAllPaths,
   isValidEntity,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
   flatten,
@@ -81,7 +81,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
-import { EvalMetaUpdates } from "./types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
   updateDependencyMap,
   createDependencyMap,
