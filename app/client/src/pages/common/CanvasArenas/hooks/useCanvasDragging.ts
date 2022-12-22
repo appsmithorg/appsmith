@@ -231,7 +231,10 @@ export const useCanvasDragging = (
         const triggerReflow = (e: any, firstMove: boolean) => {
           const canReflow =
             !currentRectanglesToDraw[0].detachFromLayout && !dropDisabled;
-
+          const isReflowing =
+            !isEmpty(currentReflowParams.movementMap) ||
+            (!isEmpty(currentReflowParams.movementLimitMap) &&
+              currentRectanglesToDraw.length === 1);
           //The position array of dragging Widgets.
           const resizedPositions = getDraggingSpacesFromBlocks(
             currentRectanglesToDraw,
@@ -278,11 +281,6 @@ export const useCanvasDragging = (
                 reflowAfterTimeoutCallback,
               );
             }
-
-            const isReflowing =
-              !isEmpty(currentReflowParams.movementMap) ||
-              (!isEmpty(currentReflowParams.movementLimitMap) &&
-                currentRectanglesToDraw.length === 1);
 
             if (isReflowing) {
               const { movementLimitMap } = currentReflowParams;
