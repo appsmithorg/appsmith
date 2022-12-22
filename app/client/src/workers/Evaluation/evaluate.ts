@@ -386,26 +386,24 @@ export function isFunctionAsync(
 ) {
   return (function() {
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: EvalContext = {
+    const evalContext: EvalContext = {
       ALLOW_ASYNC: false,
       IS_ASYNC: false,
     };
 
     addDataTreeToContext({
       dataTree,
-      EVAL_CONTEXT: GLOBAL_DATA,
+      EVAL_CONTEXT: evalContext,
       isTriggerBased: true,
     });
 
-    assignJSFunctionsToContext(GLOBAL_DATA, resolvedFunctions);
+    assignJSFunctionsToContext(evalContext, resolvedFunctions);
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    for (const entity in GLOBAL_DATA) {
-      // @ts-expect-error: Types are not available
-      self[entity] = GLOBAL_DATA[entity];
-    }
+    Object.assign(self, evalContext);
+
     try {
       if (typeof userFunction === "function") {
         if (userFunction.constructor.name === "AsyncFunction") {
@@ -427,9 +425,11 @@ export function isFunctionAsync(
       logs.push({ error: "Error when determining async function" + e });
     }
     const isAsync = !!self.IS_ASYNC;
-    for (const entity in GLOBAL_DATA) {
-      // @ts-expect-error: Types are not available
-      delete self[entity];
+    for (const entityName in evalContext) {
+      if (evalContext.hasOwnProperty(entityName)) {
+        // @ts-expect-error: Types are not available
+        delete self[entityName];
+      }
     }
     return isAsync;
   })();

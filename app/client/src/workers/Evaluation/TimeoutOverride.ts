@@ -14,7 +14,7 @@ export default function overrideTimeout() {
         self.IS_ASYNC = true;
         throw new ActionCalledInSyncFieldError("setTimeout");
       }
-      const globalData = createEvaluationContext({
+      const evalContext = createEvaluationContext({
         dataTree: dataTreeEvaluator?.evalTree || {},
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,
@@ -22,7 +22,7 @@ export default function overrideTimeout() {
       return _internalSetTimeout(
         function(...args: any) {
           self.ALLOW_ASYNC = true;
-          Object.assign(self, globalData);
+          Object.assign(self, evalContext);
           cb(...args);
         },
         delay,

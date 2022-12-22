@@ -14,6 +14,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "./evalWorkerActions";
+import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
 
 export const promisifyAction = (
   actionDescription: ActionDescription,
@@ -60,6 +61,7 @@ export const promisifyAction = (
               eventType,
             },
           });
+          addPlatformFunctionsToEvalContext(evalContext);
 
           Object.assign(self, evalContext);
 

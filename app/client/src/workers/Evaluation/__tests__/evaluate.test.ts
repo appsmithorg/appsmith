@@ -9,6 +9,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
+import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
 
 describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
@@ -251,6 +252,9 @@ describe("isFunctionAsync", () => {
       if (typeof testFunc === "string") {
         testFunc = eval(testFunc);
       }
+
+      addPlatformFunctionsToEvalContext(self);
+
       const actual = isFunctionAsync(testFunc, {}, {});
       expect(actual).toBe(testCase.expected);
     }

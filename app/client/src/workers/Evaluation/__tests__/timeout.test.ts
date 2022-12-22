@@ -2,6 +2,7 @@ import { PluginType } from "entities/Action";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "../evaluate";
 import overrideTimeout from "../TimeoutOverride";
+import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
 
 describe("Expects appsmith setTimeout to pass the following criteria", () => {
   overrideTimeout();
@@ -112,6 +113,9 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
       isTriggerBased: true,
       context: {},
     });
+
+    addPlatformFunctionsToEvalContext(evalContext);
+
     setTimeout(() => evalContext.action1.run(), 1000);
     jest.runAllTimers();
     expect(self.postMessage).toBeCalled();

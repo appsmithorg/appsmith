@@ -25,7 +25,7 @@ export default function() {
   overrideTimeout();
   interceptAndOverrideHttpRequest();
   setupDOM();
-  addPlatformFunctionsToEvalContext();
+  addPlatformFunctionsToEvalContext(self);
   return true;
 }
 

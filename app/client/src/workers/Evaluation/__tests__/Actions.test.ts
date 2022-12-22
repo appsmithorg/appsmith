@@ -6,7 +6,10 @@ import {
 } from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
 import { MessageType } from "utils/MessageUtil";
-import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import {
+  addDataTreeToContext,
+  addPlatformFunctionsToEvalContext,
+} from "@appsmith/workers/Evaluation/Actions";
 
 jest.mock("lodash/uniqueId");
 
@@ -42,6 +45,8 @@ describe("Add functions", () => {
     isTriggerBased: true,
     context: {},
   });
+
+  addPlatformFunctionsToEvalContext(evalContext);
 
   const messageCreator = (type: string, body: unknown) => ({
     messageId: expect.stringContaining(type),
@@ -853,6 +858,7 @@ describe("Test addDataTreeToContext method", () => {
       dataTree: (dataTree as unknown) as DataTree,
       isTriggerBased: true,
     });
+    addPlatformFunctionsToEvalContext(evalContext);
   });
 
   it("1. Assert platform actions are added", () => {

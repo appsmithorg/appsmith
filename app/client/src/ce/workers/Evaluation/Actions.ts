@@ -361,10 +361,9 @@ export const addDataTreeToContext = (args: {
   }
 };
 
-export const addPlatformFunctionsToEvalContext = () => {
+export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    // @ts-expect-error: type missing
-    self[funcName] = pusher.bind({}, fn);
+    context[funcName] = pusher.bind({}, fn);
   }
 };
 

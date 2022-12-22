@@ -1,6 +1,7 @@
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import _ from "lodash";
 import { MessageType } from "utils/MessageUtil";
+import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
 jest.mock("../handlers/evalTree", () => {
   return {
     dataTreeEvaluator: {
@@ -19,6 +20,8 @@ describe("promise execution", () => {
     isTriggerBased: true,
     context: {},
   });
+
+  addPlatformFunctionsToEvalContext(evalContext);
 
   const requestMessageCreator = (type: string, body: unknown) => ({
     messageId: expect.stringContaining(`${type}_`),
