@@ -38,6 +38,7 @@ describe("Add functions", () => {
   const evalContext = createEvaluationContext({
     dataTree,
     resolvedFunctions: {},
+    isTriggerBased: true,
     context: {},
   });
 

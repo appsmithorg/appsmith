@@ -16,6 +16,7 @@ describe("promise execution", () => {
   const evalContext = createEvaluationContext({
     dataTree: {},
     resolvedFunctions: {},
+    isTriggerBased: true,
     context: {},
   });
 

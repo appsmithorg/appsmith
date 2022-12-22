@@ -16,7 +16,7 @@ import {
   isAppsmithEntity,
   isTrueObject,
 } from "./evaluationUtils";
-import { EvalContext } from "./evaluate";
+import { EvalContext } from "workers/Evaluation/evaluate";
 
 declare global {
   /** All identifiers added to the worker global scope should also
@@ -310,6 +310,8 @@ const ENTITY_FUNCTIONS: Record<
   },
 };
 
+const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
+const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
 /**
  * This method returns new dataTree with entity function and platform function
  */
@@ -318,15 +320,15 @@ export const addDataTreeToContext = (args: {
   dataTree: Readonly<DataTree>;
   skipEntityFunctions?: boolean;
   eventType?: EventType;
+  isTriggerBased: boolean;
 }) => {
   const {
     dataTree,
     EVAL_CONTEXT,
     eventType,
+    isTriggerBased,
     skipEntityFunctions = false,
   } = args;
-  const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
-  const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
   const dataTreeEntries = Object.entries(dataTree);
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
@@ -334,8 +336,8 @@ export const addDataTreeToContext = (args: {
 
   for (const [entityName, entity] of dataTreeEntries) {
     EVAL_CONTEXT[entityName] = entity;
+    if (skipEntityFunctions || !isTriggerBased) continue;
 
-    if (skipEntityFunctions) continue;
     for (const [functionName, funcCreator] of entityFunctionEntries) {
       if (!funcCreator.qualifier(entity)) continue;
       const func = funcCreator.func(entity);
@@ -354,12 +356,14 @@ export const addDataTreeToContext = (args: {
     }
   }
 
+  // if eval is not trigger based i.e., sync eval then we skip adding entity and platform function to evalContext
+  if (!isTriggerBased) return;
+
   for (const [entityName, funcObj] of Object.entries(
     entityFunctionCollection,
   )) {
     EVAL_CONTEXT[entityName] = Object.assign({}, dataTree[entityName], funcObj);
   }
-
   for (const [name, fn] of platformFunctionEntries) {
     EVAL_CONTEXT[name] = pusher.bind(
       {
@@ -369,6 +373,25 @@ export const addDataTreeToContext = (args: {
       fn,
     );
   }
+};
+
+export const getAllAsyncFunctions = (dataTree: DataTree) => {
+  const asyncFunctionNameMap: Record<string, true> = {};
+  const dataTreeEntries = Object.entries(dataTree);
+
+  for (const [entityName, entity] of dataTreeEntries) {
+    for (const [functionName, funcCreator] of entityFunctionEntries) {
+      if (!funcCreator.qualifier(entity)) continue;
+      const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
+      asyncFunctionNameMap[fullPath] = true;
+    }
+  }
+
+  for (const [name] of platformFunctionEntries) {
+    asyncFunctionNameMap[name] = true;
+  }
+
+  return asyncFunctionNameMap;
 };
 
 /**
@@ -410,13 +433,4 @@ export const pusher = function(
   } else {
     return promisifyAction(actionPayload, this.EVENT_TYPE);
   }
-};
-
-export const removePlatformFunctions = (dataTree: DataTree) => {
-  const newDataTree = { ...dataTree };
-  const platformFunctionEntries = Object.keys(PLATFORM_FUNCTIONS);
-  for (const name of platformFunctionEntries) {
-    delete newDataTree[name];
-  }
-  return newDataTree;
 };

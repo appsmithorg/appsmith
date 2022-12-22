@@ -6,16 +6,19 @@ import {
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
-import { addDataTreeToContext } from "./Actions";
+import { addDataTreeToContext } from "workers/Evaluation/Actions";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { FoundPromiseInSyncEvalError } from "./evaluationUtils";
-import { getErrorMessage } from "./evaluationUtils";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
+import {
+  FoundPromiseInSyncEvalError,
+  getErrorMessage,
+} from "workers/Evaluation/evaluationUtils";
+import { errorModifier } from "./errorModifier";
 
 export type EvalResult = {
   result: any;
@@ -123,6 +126,7 @@ export interface createEvaluationContextArgs {
   dataTree: DataTree;
   resolvedFunctions: ResolvedFunctions;
   context?: EvaluateContext;
+  isTriggerBased: boolean;
   evalArguments?: Array<unknown>;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
@@ -138,6 +142,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     context,
     dataTree,
     evalArguments,
+    isTriggerBased,
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
@@ -157,6 +162,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     skipEntityFunctions: !!skipEntityFunctions,
     eventType: context?.eventType,
+    isTriggerBased,
   });
 
   assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions);
@@ -233,6 +239,7 @@ export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
+  isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
   skipLogsOperations = false,
@@ -253,13 +260,17 @@ export default function evaluateSync(
       resolvedFunctions,
       context,
       evalArguments,
+      isTriggerBased: isJSCollection,
     });
+
     evalContext.ALLOW_ASYNC = false;
+
     const { script } = getUserScriptToEvaluate(
       userScript,
       false,
       evalArguments,
     );
+
     // If nothing is present to evaluate, return instead of evaluating
     if (!script.length) {
       return {
@@ -285,7 +296,7 @@ export default function evaluateSync(
       }
     } catch (error) {
       errors.push({
-        errorMessage: getErrorMessage(error as Error),
+        errorMessage: errorModifier.syncField(getErrorMessage(error as Error)),
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
@@ -328,6 +339,7 @@ export async function evaluateAsync(
       resolvedFunctions,
       context,
       evalArguments,
+      isTriggerBased: true,
     });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     evalContext.ALLOW_ASYNC = true;
@@ -382,6 +394,7 @@ export function isFunctionAsync(
     addDataTreeToContext({
       dataTree,
       EVAL_CONTEXT: GLOBAL_DATA,
+      isTriggerBased: true,
     });
 
     assignJSFunctionsToContext(GLOBAL_DATA, resolvedFunctions);

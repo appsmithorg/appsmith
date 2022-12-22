@@ -109,6 +109,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
     const evalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions: {},
+      isTriggerBased: true,
       context: {},
     });
     setTimeout(() => evalContext.action1.run(), 1000);
