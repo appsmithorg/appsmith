@@ -74,12 +74,12 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   },
   [AppsmithFunction.storeValue]: {
     label: createMessage(STORE_VALUE),
-    fields: [FieldType.KEY_TEXT_FIELD, FieldType.VALUE_TEXT_FIELD],
+    fields: [FieldType.KEY_TEXT_FIELD_STORE_VALUE, FieldType.VALUE_TEXT_FIELD],
     defaultParams: `'', ''`,
   },
   [AppsmithFunction.removeValue]: {
     label: createMessage(REMOVE_VALUE),
-    fields: [FieldType.KEY_TEXT_FIELD],
+    fields: [FieldType.KEY_TEXT_FIELD_REMOVE_VALUE],
     defaultParams: `''`,
   },
   [AppsmithFunction.clearStore]: {
@@ -109,7 +109,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.setInterval]: {
     label: createMessage(SET_INTERVAL),
     fields: [
-      FieldType.CALLBACK_FUNCTION_FIELD,
+      FieldType.CALLBACK_FUNCTION_FIELD_SET_INTERVAL,
       FieldType.DELAY_FIELD,
       FieldType.ID_FIELD,
     ],
@@ -124,7 +124,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   },
   [AppsmithFunction.getGeolocation]: {
     label: createMessage(GET_GEO_LOCATION),
-    fields: [FieldType.CALLBACK_FUNCTION_FIELD],
+    fields: [FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION],
     defaultParams: `(location) => {
       // add code here
     }`,

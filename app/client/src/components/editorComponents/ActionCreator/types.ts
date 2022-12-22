@@ -36,6 +36,7 @@ export type SelectorViewProps = ViewProps & {
 export type KeyValueViewProps = ViewProps;
 
 export type TextViewProps = ViewProps & {
+  exampleText: string;
   index?: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
   toolTip?: string;
@@ -98,6 +99,7 @@ export type AppsmithFunctionConfigValues = {
     arg3?: number,
   ) => string;
   view: ViewType;
+  exampleText: string;
   toolTip?: string;
 };
 

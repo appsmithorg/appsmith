@@ -57,7 +57,10 @@ describe("Test Field Group Config", () => {
       index: 7,
       input: AppsmithFunction.storeValue,
       expectedLabel: "Store value",
-      expectedFields: [FieldType.KEY_TEXT_FIELD, FieldType.VALUE_TEXT_FIELD],
+      expectedFields: [
+        FieldType.KEY_TEXT_FIELD_STORE_VALUE,
+        FieldType.VALUE_TEXT_FIELD,
+      ],
     },
     {
       index: 8,
@@ -89,7 +92,7 @@ describe("Test Field Group Config", () => {
       input: AppsmithFunction.setInterval,
       expectedLabel: "Set interval",
       expectedFields: [
-        FieldType.CALLBACK_FUNCTION_FIELD,
+        FieldType.CALLBACK_FUNCTION_FIELD_SET_INTERVAL,
         FieldType.DELAY_FIELD,
         FieldType.ID_FIELD,
       ],
@@ -104,7 +107,7 @@ describe("Test Field Group Config", () => {
       index: 13,
       input: AppsmithFunction.getGeolocation,
       expectedLabel: "Get Geolocation",
-      expectedFields: [FieldType.CALLBACK_FUNCTION_FIELD],
+      expectedFields: [FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION],
     },
     {
       index: 14,

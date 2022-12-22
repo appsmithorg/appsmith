@@ -44,6 +44,7 @@ export function Field(props: FieldProps) {
   const defaultText = FIELD_CONFIG[fieldType].defaultText;
   const options = FIELD_CONFIG[fieldType].options(props);
   const toolTip = FIELD_CONFIG[fieldType].toolTip;
+  const exampleText = FIELD_CONFIG[fieldType].exampleText;
 
   switch (fieldType) {
     case FieldType.ACTION_SELECTOR_FIELD:
@@ -128,6 +129,7 @@ export function Field(props: FieldProps) {
     case FieldType.ARGUMENT_KEY_VALUE_FIELD:
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: label,
+        exampleText: exampleText,
         get: getterFunction,
         set: (value: string) => {
           const finalValueToSet = fieldConfig.setter(
@@ -156,13 +158,15 @@ export function Field(props: FieldProps) {
       break;
     case FieldType.ALERT_TEXT_FIELD:
     case FieldType.URL_FIELD:
-    case FieldType.KEY_TEXT_FIELD:
+    case FieldType.KEY_TEXT_FIELD_STORE_VALUE:
+    case FieldType.KEY_TEXT_FIELD_REMOVE_VALUE:
     case FieldType.VALUE_TEXT_FIELD:
     case FieldType.QUERY_PARAMS_FIELD:
     case FieldType.DOWNLOAD_DATA_FIELD:
     case FieldType.DOWNLOAD_FILE_NAME_FIELD:
     case FieldType.COPY_TEXT_FIELD:
-    case FieldType.CALLBACK_FUNCTION_FIELD:
+    case FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION:
+    case FieldType.CALLBACK_FUNCTION_FIELD_SET_INTERVAL:
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
@@ -172,6 +176,7 @@ export function Field(props: FieldProps) {
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: label,
         toolTip: toolTip,
+        exampleText: exampleText,
         get: getterFunction,
         set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);

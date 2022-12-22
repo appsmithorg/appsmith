@@ -61,7 +61,7 @@ describe("Field component", () => {
       testId: "selector-view-label",
     },
     {
-      field: FieldType.KEY_TEXT_FIELD,
+      field: FieldType.KEY_TEXT_FIELD_STORE_VALUE,
       value: "{{storeValue()}}",
       testId: "text-view-label",
     },
@@ -106,7 +106,7 @@ describe("Field component", () => {
       testId: "selector-view-label",
     },
     {
-      field: FieldType.CALLBACK_FUNCTION_FIELD,
+      field: FieldType.CALLBACK_FUNCTION_FIELD_SET_INTERVAL,
       value: "{{setInterval()}}",
       testId: "text-view-label",
     },

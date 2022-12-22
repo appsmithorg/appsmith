@@ -19,7 +19,7 @@ export function TextView(props: TextViewProps) {
           evaluatedValue={props.get(props.value, false) as string}
           expected={{
             type: "string",
-            example: "showAlert('Hello World!', 'info')",
+            example: props.exampleText,
             autocompleteDataType: AutocompleteDataType.STRING,
           }}
           label={props.label}

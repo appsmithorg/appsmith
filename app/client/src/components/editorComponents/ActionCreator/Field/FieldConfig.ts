@@ -29,6 +29,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: (props: FieldProps) => props.label || "",
     options: (props: FieldProps) => props.integrationOptions,
     defaultText: "Select Action",
+    exampleText: "",
     getter: (storedValue: string) => {
       let matches: any[] = [];
       if (storedValue) {
@@ -77,6 +78,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ALERT_TEXT_FIELD]: {
     label: () => "Message",
     defaultText: "",
+    exampleText: "showAlert('Hello world!', 'info')",
     options: () => null,
     getter: (value: string) => {
       return textGetter(value, 0);
@@ -89,6 +91,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.URL_FIELD]: {
     label: () => "Enter URL",
     defaultText: "",
+    exampleText: "navigateTo('google.com', { a: 1 }, 'SAME_WINDOW')",
     options: () => null,
     getter: (value: string) => {
       const appState = store.getState();
@@ -104,6 +107,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.QUERY_PARAMS_FIELD]: {
     label: () => "Query Params",
     defaultText: "",
+    exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: () => null,
     getter: (value: any) => {
       return textGetter(value, 1);
@@ -116,9 +120,23 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
-  [FieldType.KEY_TEXT_FIELD]: {
+  [FieldType.KEY_TEXT_FIELD_REMOVE_VALUE]: {
     label: () => "Key",
     defaultText: "",
+    exampleText: "removeValue('a')",
+    options: () => null,
+    getter: (value: any) => {
+      return textGetter(value, 0);
+    },
+    setter: (option: any, currentValue: string) => {
+      return textSetter(option, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.KEY_TEXT_FIELD_STORE_VALUE]: {
+    label: () => "Key",
+    defaultText: "",
+    exampleText: "storeValue('a', 'b')",
     options: () => null,
     getter: (value: any) => {
       return textGetter(value, 0);
@@ -131,6 +149,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.VALUE_TEXT_FIELD]: {
     label: () => "Value",
     defaultText: "",
+    exampleText: "storeValue('a', 'b')",
     options: () => null,
     getter: (value: any) => {
       return textGetter(value, 1);
@@ -143,6 +162,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.DOWNLOAD_DATA_FIELD]: {
     label: () => "Data to download",
     defaultText: "",
+    exampleText: "download('Image', 'img.png;, 'image/png')",
     options: () => null,
     getter: (value: any) => {
       return textGetter(value, 0);
@@ -155,6 +175,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.DOWNLOAD_FILE_NAME_FIELD]: {
     label: () => "File name with extension",
     defaultText: "",
+    exampleText: "download('Image', 'img.png;, 'image/png')",
     options: () => null,
     getter: (value: any) => {
       return textGetter(value, 1);
@@ -167,6 +188,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.COPY_TEXT_FIELD]: {
     label: () => "Text to be copied to clipboard",
     defaultText: "",
+    exampleText: "copyToClipboard('example')",
     options: () => null,
     getter: (value: any) => {
       return textGetter(value, 0);
@@ -176,9 +198,25 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
-  [FieldType.CALLBACK_FUNCTION_FIELD]: {
+  [FieldType.CALLBACK_FUNCTION_FIELD_SET_INTERVAL]: {
     label: () => "Callback function",
     defaultText: "",
+    exampleText: `setInterval(() => {
+      const a = 0;
+     }, 5000, '1')`,
+    options: () => null,
+    getter: (value: string) => {
+      return callBackFieldGetter(value);
+    },
+    setter: (value, currentValue) => {
+      return callBackFieldSetter(value, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION]: {
+    label: () => "Callback function",
+    defaultText: "",
+    exampleText: `appsmith.geolocation.getCurrentPosition((location) => { console.log(location) })`,
     options: () => null,
     getter: (value: string) => {
       return callBackFieldGetter(value);
@@ -191,6 +229,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.DELAY_FIELD]: {
     label: () => "Delay (ms)",
     defaultText: "",
+    exampleText: `setInterval(() => {
+      const a = 0;
+     }, 5000, '1')`,
     options: () => null,
     getter: (value: string) => {
       return textGetter(value, 1);
@@ -203,6 +244,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ID_FIELD]: {
     label: () => "Id",
     defaultText: "",
+    exampleText: `setInterval(() => {
+      const a = 0;
+     }, 5000, '1')`,
     options: () => null,
     getter: (value: string) => {
       return textGetter(value, 2);
@@ -215,6 +259,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.CLEAR_INTERVAL_ID_FIELD]: {
     label: () => "Id",
     defaultText: "",
+    exampleText: "clearInterval('1')",
     options: () => null,
     getter: (value: string) => {
       return textGetter(value, 0);
@@ -228,6 +273,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Modal Name",
     options: (props: FieldProps) => props.modalDropdownList,
     defaultText: "Select Modal",
+    exampleText: "showModal('Modal1')",
     getter: (value: any) => {
       return modalGetter(value);
     },
@@ -240,6 +286,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Modal Name",
     options: (props: FieldProps) => props.modalDropdownList,
     defaultText: "Select Modal",
+    exampleText: "closeModal('Modal1')",
     getter: (value: any) => {
       return modalGetter(value);
     },
@@ -252,6 +299,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Reset Children",
     options: () => RESET_CHILDREN_OPTIONS,
     defaultText: "true",
+    exampleText: "resetWidget('Modal1', true)",
     getter: (value: any) => {
       return enumTypeGetter(value, 1);
     },
@@ -262,6 +310,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.WIDGET_NAME_FIELD]: {
     label: () => "Widget",
+    exampleText: "resetWidget('Modal1', true)",
     options: (props: FieldProps) => props.widgetOptionTree,
     defaultText: "Select Widget",
     getter: (value: any) => {
@@ -274,6 +323,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.PAGE_SELECTOR_FIELD]: {
     label: () => "Choose Page",
+    exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: (props: FieldProps) => props.pageDropdownOptions,
     defaultText: "Select Page",
     getter: (value: any) => {
@@ -286,6 +336,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.ALERT_TYPE_SELECTOR_FIELD]: {
     label: () => "Type",
+    exampleText: "showAlert('Hello world!', 'info')",
     options: () => ALERT_STYLE_OPTIONS,
     defaultText: "Select type",
     getter: (value: any) => {
@@ -298,6 +349,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.DOWNLOAD_FILE_TYPE_FIELD]: {
     label: () => "Type",
+    exampleText: "download('Image', 'img.png;, 'image/png')",
     options: () => FILE_TYPE_OPTIONS,
     defaultText: "Select file type (optional)",
     getter: (value: any) => {
@@ -310,6 +362,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.NAVIGATION_TARGET_FIELD]: {
     label: () => "Target",
+    exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: () => NAVIGATION_TARGET_FIELD_OPTIONS,
     defaultText: NAVIGATION_TARGET_FIELD_OPTIONS[0].label,
     getter: (value: any) => {
@@ -322,6 +375,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.ON_SUCCESS_FIELD]: {
     label: () => "",
+    exampleText: "",
     options: (props: FieldProps) => props.integrationOptions,
     defaultText: "Select Action",
     view: ViewTypes.NO_VIEW,
@@ -330,6 +384,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.ON_ERROR_FIELD]: {
     label: () => "",
+    exampleText: "",
     options: (props: FieldProps) => props.integrationOptions,
     defaultText: "Select Action",
     view: ViewTypes.NO_VIEW,
@@ -339,6 +394,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD]: {
     label: () => "Type",
     defaultText: "",
+    exampleText: "navigateTo('Page1', { a: 1 }, 'SAME_WINDOW')",
     options: () => null,
     getter: (value: any) => {
       return enumTypeGetter(value, 0);
@@ -351,6 +407,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.KEY_VALUE_FIELD]: {
     label: () => "",
     defaultText: "Select Action",
+    exampleText: "",
     options: (props: FieldProps) => props.integrationOptions,
     getter: (value: any) => {
       return value;
@@ -363,6 +420,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ARGUMENT_KEY_VALUE_FIELD]: {
     label: (props: FieldProps) => props.field.label || "",
     defaultText: "",
+    exampleText: "",
     options: () => null,
     getter: (value: any, index: number) => {
       return textGetter(value, index);
@@ -379,6 +437,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Message",
     defaultText: "",
     options: () => null,
+    exampleText: "postWindowMessage('hi', 'window', '*')",
     toolTip: "Data to be sent to the target iframe",
     getter: (value: string) => {
       return textGetter(value, 0);
@@ -392,6 +451,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Allowed origins",
     defaultText: "",
     options: () => null,
+    exampleText: "postWindowMessage('hi', 'window', '*')",
     toolTip: "Restricts domains to which the message can be sent",
     getter: (value: string) => {
       return textGetter(value, 2);
@@ -405,6 +465,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Target iframe",
     defaultText: "",
     options: () => null,
+    exampleText: "postWindowMessage('hi', 'window', '*')",
     toolTip: "Specifies the target iframe widget name or parent window",
     getter: (value: string) => {
       return textGetter(value, 1);
