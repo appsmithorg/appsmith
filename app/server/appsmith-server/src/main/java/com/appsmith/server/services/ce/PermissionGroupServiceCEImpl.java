@@ -1,8 +1,10 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
@@ -177,7 +179,11 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                         permissionGroupUpdateMono,
                         cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
                 )
-                .map(tuple -> tuple.getT1());
+                .map(tuple -> tuple.getT1()).flatMap(pg1 -> {
+                    List<String> usernames = users.stream().map(User::getUsername).collect(Collectors.toList());
+                    Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames);
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP, pg1, eventData);
+                });
     }
 
     @Override
@@ -206,7 +212,11 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                         repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission()),
                         cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
                 )
-                .map(tuple -> tuple.getT1());
+                .map(tuple -> tuple.getT1()).flatMap(pg1 -> {
+                    List<String> usernames = users.stream().map(User::getUsername).collect(Collectors.toList());
+                    Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames);
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP, pg1, eventData);
+                });
     }
 
     @Override

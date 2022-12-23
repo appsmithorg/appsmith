@@ -153,21 +153,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                     return permissionGroupService.bulkAssignToUsers(permissionGroup, users);
                 }).cache();
 
-        // Send analytics event
-        Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
-                .flatMap(tuple -> {
-                    User currentUser = tuple.getT1();
-                    List<User> users = tuple.getT2();
-                    Map<String, Object> analyticsProperties = new HashMap<>();
-                    long numberOfUsers = users.size();
-                    List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
-                    analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
-                    analyticsProperties.put("userEmails", invitedUsers);
-                    analyticsProperties.put(FieldName.EVENT_DATA, eventData);
-                    return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
-                });
-
-        return bulkAddUserResultMono.then(sendAnalyticsEventMono).then(inviteUsersMono);
+        return bulkAddUserResultMono.then(inviteUsersMono);
     }
 
 }
