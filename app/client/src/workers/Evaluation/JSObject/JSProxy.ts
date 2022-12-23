@@ -1,4 +1,4 @@
-import { set, uniqueId } from "lodash";
+import { set } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
 import { isPromise } from "./utils";
