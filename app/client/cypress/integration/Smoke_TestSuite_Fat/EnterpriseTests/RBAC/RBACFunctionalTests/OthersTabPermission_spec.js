@@ -156,7 +156,7 @@ describe("Others tab permission Tests", function() {
     cy.wait(2000);
     cy.get(homePage.workspaceHeaderName).should(
       "have.text",
-      `Members in ${workspaceName} edited`,
+      `${workspaceName} edited`,
     );
     cy.get(RBAC.generalTab).click();
     cy.wait("@updateWorkspace").should(
@@ -175,7 +175,7 @@ describe("Others tab permission Tests", function() {
     );
     cy.get(homePage.workspaceHeaderName).should(
       "have.text",
-      `Members in ${workspaceName}`,
+      `${workspaceName}`,
     );
   });
 

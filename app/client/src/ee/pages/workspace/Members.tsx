@@ -45,7 +45,6 @@ import {
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
-import { MEMBERS_TAB_TITLE as CE_MEMBERS_TAB_TITLE } from "ce/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -163,9 +162,7 @@ export default function MemberSettings(props: PageProps) {
   const columns = [
     {
       Header: createMessage(() =>
-        cloudHosting
-          ? CE_MEMBERS_TAB_TITLE(filteredData?.length)
-          : MEMBERS_TAB_TITLE(filteredData?.length),
+        MEMBERS_TAB_TITLE(filteredData?.length, cloudHosting),
       ),
       accessor: "users",
       Cell: function UserCell(props: any) {

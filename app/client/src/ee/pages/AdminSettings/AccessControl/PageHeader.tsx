@@ -31,13 +31,17 @@ import {
 } from "@appsmith/constants/messages";
 import { PageHeaderProps } from "./types";
 
-const Container = styled.div<{ alignItems?: string }>`
+const Container = styled.div<{
+  isHeaderEditable?: boolean;
+  alignItems?: string;
+}>`
   display: flex;
   justify-content: space-between;
   align-items: ${({ alignItems }) => alignItems || `baseline`};
 
   > div:first-child {
-    flex: 1 0 50%;
+    flex: ${({ isHeaderEditable }) =>
+      isHeaderEditable ? `1 0 50%` : `1 1 50%`};
   }
 
   h2 {
@@ -180,7 +184,7 @@ export function PageHeader(props: PageHeaderProps) {
   };
 
   return (
-    <Container>
+    <Container isHeaderEditable={isHeaderEditable}>
       <HeaderWrapper margin={`0px`}>
         {isHeaderEditable && onEditTitle ? (
           <StyledSettingsHeader

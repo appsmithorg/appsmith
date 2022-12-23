@@ -1,5 +1,4 @@
 export * from "ce/pages/workspace/WorkspaceInviteUsersForm";
-import { default as CE_WorkspaceInviteUsersForm } from "ce/pages/workspace/WorkspaceInviteUsersForm";
 import {
   ErrorBox,
   InviteButtonWidth,
@@ -7,7 +6,6 @@ import {
   LabelText,
   Loading,
   MailConfigContainer,
-  mailEnabled,
   RoleDivider,
   StyledForm,
   StyledInviteFieldGroup,
@@ -84,7 +82,7 @@ import TagListField from "../../utils/TagInput";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 
-const { cloudHosting } = getAppsmithConfigs();
+const { cloudHosting, mailEnabled } = getAppsmithConfigs();
 
 const validateFormValues = (
   values: {
@@ -100,9 +98,10 @@ const validateFormValues = (
       if (!isEmail(user) && !isUserGroup(user)) {
         throw new SubmissionError({
           _error: createMessage(
-            isAclFlow || cloudHosting
+            isAclFlow
               ? CE_INVITE_USERS_VALIDATION_EMAIL_LIST
               : INVITE_USERS_VALIDATION_EMAIL_LIST,
+            cloudHosting,
           ),
         });
       }
@@ -136,9 +135,8 @@ const validate = (values: any) => {
     _users.forEach((user: string) => {
       if (!isEmail(user) && !isUserGroup(user)) {
         errors["users"] = createMessage(
-          cloudHosting
-            ? CE_INVITE_USERS_VALIDATION_EMAIL_LIST
-            : INVITE_USERS_VALIDATION_EMAIL_LIST,
+          INVITE_USERS_VALIDATION_EMAIL_LIST,
+          cloudHosting,
         );
       }
     });
@@ -223,7 +221,7 @@ function WorkspaceInviteUsersForm(props: any) {
     userWorkspacePermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
-  const isEEFeature = !isAclFlow || false;
+  const isEEFeature = (!isAclFlow && !cloudHosting) || false;
 
   useEffect(() => {
     if (!isAclFlow) {
@@ -325,10 +323,9 @@ function WorkspaceInviteUsersForm(props: any) {
       );
       let error = "";
       if (hasInvalidUser) {
-        error =
-          isAclFlow || cloudHosting
-            ? createMessage(CE_INVITE_USERS_VALIDATION_EMAIL_LIST)
-            : createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
+        error = isAclFlow
+          ? createMessage(CE_INVITE_USERS_VALIDATION_EMAIL_LIST, cloudHosting)
+          : createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST, cloudHosting);
       }
       setEmailError(error);
     } else {
@@ -404,7 +401,7 @@ function WorkspaceInviteUsersForm(props: any) {
               intent="success"
               label="Emails"
               name="users"
-              placeholder={placeholder || "Enter email address"}
+              placeholder={placeholder || "Enter email address(es)"}
               suggestionLeftIcon={
                 <Icon
                   className="user-icons"
@@ -554,52 +551,48 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 }
 
-const InviteUsersForm = cloudHosting
-  ? CE_WorkspaceInviteUsersForm
-  : connect(
-      (state: AppState, { formName }: { formName?: string }) => {
-        return {
-          roles: getRolesForField(state),
-          allUsers: getAllUsers(state),
-          isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
-          form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
-        };
-      },
-      (dispatch: any) => ({
-        fetchAllRoles: (workspaceId: string) =>
-          dispatch({
-            type: ReduxActionTypes.FETCH_ALL_ROLES_INIT,
-            payload: {
-              workspaceId,
-            },
-          }),
-        fetchCurrentWorkspace: (workspaceId: string) =>
-          dispatch(fetchWorkspace(workspaceId)),
-        fetchUser: (workspaceId: string) =>
-          dispatch({
-            type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
-            payload: {
-              workspaceId,
-            },
-          }),
-        fetchGroupSuggestions: () =>
-          dispatch({
-            type: ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
-          }),
+export default connect(
+  (state: AppState, { formName }: { formName?: string }) => {
+    return {
+      roles: getRolesForField(state),
+      allUsers: getAllUsers(state),
+      isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
+      form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
+    };
+  },
+  (dispatch: any) => ({
+    fetchAllRoles: (workspaceId: string) =>
+      dispatch({
+        type: ReduxActionTypes.FETCH_ALL_ROLES_INIT,
+        payload: {
+          workspaceId,
+        },
       }),
-    )(
-      reduxForm<
-        InviteUsersToWorkspaceFormValues,
-        {
-          fetchAllRoles: (workspaceId: string) => void;
-          roles?: any;
-          applicationId?: string;
-          workspaceId?: string;
-          isApplicationInvite?: boolean;
-        }
-      >({
-        validate,
-      })(WorkspaceInviteUsersForm),
-    );
-
-export default InviteUsersForm;
+    fetchCurrentWorkspace: (workspaceId: string) =>
+      dispatch(fetchWorkspace(workspaceId)),
+    fetchUser: (workspaceId: string) =>
+      dispatch({
+        type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
+        payload: {
+          workspaceId,
+        },
+      }),
+    fetchGroupSuggestions: () =>
+      dispatch({
+        type: ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
+      }),
+  }),
+)(
+  reduxForm<
+    InviteUsersToWorkspaceFormValues,
+    {
+      fetchAllRoles: (workspaceId: string) => void;
+      roles?: any;
+      applicationId?: string;
+      workspaceId?: string;
+      isApplicationInvite?: boolean;
+    }
+  >({
+    validate,
+  })(WorkspaceInviteUsersForm),
+);

@@ -36,7 +36,7 @@
     "inviteModal":"[data-testid='t--dialog-component']",
     "rolesTabInviteModal":"[data-cy='t--tab-via-roles']",
     "groupsTabInviteModal":"[data-cy='t--tab-via-groups']",
-    "EmailInputInviteModal":"//input[@placeholder='Enter email address']",
+    "EmailInputInviteModal":"//input[@placeholder='Enter email address(es)']",
     "inviteButton" : ".t--invite-user-btn",
     "selectFromDropdownInviteModal" :"//span[@name='expand-more']",
     "roleRow":"[data-testid='t--roles-cell']",

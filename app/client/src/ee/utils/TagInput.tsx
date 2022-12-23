@@ -5,7 +5,7 @@ import _ from "lodash";
 import {
   createMessage,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
-} from "design-system/build/constants/messages";
+} from "@appsmith/constants/messages";
 import { HighlightText } from "design-system";
 import {
   Field,
@@ -13,6 +13,9 @@ import {
   WrappedFieldMetaProps,
 } from "redux-form";
 import { Colors } from "constants/Colors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 export const isEmail = (value: string) => {
   const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -170,7 +173,10 @@ function TagInputComponent(props: TagInputProps) {
       let error = "";
       newValues.forEach((user: any) => {
         if (!isEmail(user)) {
-          error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
+          error = createMessage(
+            INVITE_USERS_VALIDATION_EMAIL_LIST,
+            cloudHosting,
+          );
         }
       });
       props.customError?.(error, newValues);
@@ -267,7 +273,9 @@ function TagInputComponent(props: TagInputProps) {
 
   const handleInputBlur = (e: any) => {
     if (
-      (e?.target?.value?.trim() && !showSuggestions && !suggestions.length) ||
+      (e?.target?.value?.trim() &&
+        ((showSuggestions && suggestions.length === 0) ||
+          (!showSuggestions && suggestions.length > 0))) ||
       isEmail(e.target.value)
     ) {
       const _values = (values as string[]).map((val) => {
