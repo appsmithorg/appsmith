@@ -1,7 +1,7 @@
 import React, {
   MutableRefObject,
   TextareaHTMLAttributes,
-  useEffect,
+  useLayoutEffect,
   useRef,
 } from "react";
 import styled from "styled-components";
@@ -16,26 +16,12 @@ const StyledTextArea = styled.textarea`
   width: 100%;
 `;
 
-const TextAreaContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
-`;
-
-const TextAreaMask = styled.div`
+const ProxyTextArea = styled(StyledTextArea)`
   position: absolute;
-  top: 0;
-  left: 0;
-  background: black;
-  width: 100%;
   height: auto;
-  pointer-events: none;
-  color: white;
-  padding: 10px;
-  word-break: break-all;
-  white-space: break-spaces;
-  visibility: hidden;
   opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
 `;
 
 const AutoResizeTextArea: React.ForwardRefRenderFunction<
@@ -43,44 +29,40 @@ const AutoResizeTextArea: React.ForwardRefRenderFunction<
   AutoResizeTextAreaProps
 > = (props, ref) => {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  const maskRef = useRef<HTMLDivElement | null>(null);
+  const proxyTextAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    props.onChange && props.onChange(e);
-  };
+  useLayoutEffect(() => {
+    const height = proxyTextAreaRef.current?.scrollHeight;
+    if (height) {
+      if (textAreaRef.current !== null) {
+        textAreaRef.current.style.height = `${height}px`;
+      }
+    }
+  }, [props.value]);
 
   function assignRef(element: HTMLTextAreaElement) {
-    if (ref) {
-      (ref as MutableRefObject<HTMLTextAreaElement>).current = element;
+    try {
+      const mutableForwardRef = ref as MutableRefObject<HTMLTextAreaElement>;
+      if (mutableForwardRef) {
+        mutableForwardRef.current = element;
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
     }
     textAreaRef.current = element;
   }
 
-  const observerRef = useRef(
-    new ResizeObserver((entries) => {
-      const height = Math.max(50, entries[0].contentRect.height);
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      textAreaRef.current!.style.height = `${height + 2 * PADDING}px`;
-    }),
-  );
-
-  useEffect(() => {
-    if (maskRef.current !== null) {
-      observerRef.current.observe(maskRef.current);
-    }
-
-    return () => {
-      if (maskRef.current !== null) {
-        observerRef.current.unobserve(maskRef.current);
-      }
-    };
-  }, []);
-
   return (
-    <TextAreaContainer>
-      <StyledTextArea {...props} onChange={handleChange} ref={assignRef} />
-      <TextAreaMask ref={maskRef}>{props.value}</TextAreaMask>
-    </TextAreaContainer>
+    <>
+      <StyledTextArea {...props} ref={assignRef} />
+      {
+        // This is added to get the correct scroll height of a similar
+        // textarea which is not displayed on the screen whose height
+        // is always auto.
+      }
+      <ProxyTextArea readOnly ref={proxyTextAreaRef} value={props.value} />
+    </>
   );
 };
 
