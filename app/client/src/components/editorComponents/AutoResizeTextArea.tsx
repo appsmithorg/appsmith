@@ -1,5 +1,4 @@
 import React, {
-  HTMLAttributes,
   MutableRefObject,
   TextareaHTMLAttributes,
   useEffect,
@@ -34,6 +33,7 @@ const TextAreaMask = styled.div`
   color: white;
   padding: 10px;
   word-break: break-all;
+  white-space: break-spaces;
   visibility: hidden;
   opacity: 0;
 `;
@@ -59,6 +59,7 @@ const AutoResizeTextArea: React.ForwardRefRenderFunction<
   const observerRef = useRef(
     new ResizeObserver((entries) => {
       const height = Math.max(50, entries[0].contentRect.height);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       textAreaRef.current!.style.height = `${height + 2 * PADDING}px`;
     }),
   );

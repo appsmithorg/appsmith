@@ -86,6 +86,7 @@ export function defaultValueValidation(
         messages,
       };
     case "TEXT":
+    case "MULTI_LINE_TEXT":
     case "PASSWORD":
     case "EMAIL":
       parsed = value;
@@ -569,12 +570,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     } else {
       conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
-    const minInputSingleLineHeight =
-      this.props.label || this.props.tooltip
-        ? // adjust height for label | tooltip extra div
-          GRID_DENSITY_MIGRATION_V1 + 4
-        : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
-          GRID_DENSITY_MIGRATION_V1;
 
     return (
       <InputComponent

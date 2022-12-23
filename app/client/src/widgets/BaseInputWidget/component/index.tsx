@@ -489,8 +489,7 @@ class BaseInputComponent extends React.Component<
 
   onKeyDownTextArea = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    const { disableNewLineOnPressEnterKey } = this.props;
-    if (isEnterKey && disableNewLineOnPressEnterKey && !e.shiftKey) {
+    if (isEnterKey && e.metaKey) {
       e.preventDefault();
     }
     if (typeof this.props.onKeyDown === "function") {
