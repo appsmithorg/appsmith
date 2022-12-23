@@ -446,9 +446,11 @@ export function getEntireHoverMap(
 }
 
 export function getEntireDisableMap(map: any, rowId: string, column: string) {
-  const currentKeyMap: any = Object.fromEntries(
-    Object.entries(map).filter(([key]) => key.includes(rowId)),
-  );
+  const currentKeyMap: any = map
+    ? Object.fromEntries(
+        Object.entries(map).filter(([key]) => key.includes(rowId)),
+      )
+    : [];
   const key = `${rowId}_${column}`;
   const finalMap: any[] = [];
   for (const entry in currentKeyMap) {
@@ -503,6 +505,7 @@ export function updateSubRows(
   rows: any[],
   mapPIndex: number,
   value: any,
+  dependencies: number,
 ): any {
   const returnData = rows.map((subRow: any) => {
     if (map.id === subRow.id) {
@@ -512,7 +515,13 @@ export function updateSubRows(
       return {
         ...subRow,
         permissions: subRow?.permissions?.map((r: number, rI: number) => {
-          return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+          return rI === mapPIndex &&
+            r !== -1 &&
+            ((!value && dependencies < 1) || value)
+            ? value
+              ? 1
+              : 0
+            : r;
         }),
       };
     } else {
@@ -527,7 +536,13 @@ export function updateSubRows(
         ? {
             ...subRow,
             subRows: traverseSubRows(subRow.subRows, map)
-              ? updateSubRows(map, subRow.subRows, mapPIndex, value)
+              ? updateSubRows(
+                  map,
+                  subRow.subRows,
+                  mapPIndex,
+                  value,
+                  dependencies,
+                )
               : subRow.subRows,
           }
         : subRow;
@@ -541,18 +556,37 @@ export function updateCheckbox(
   value: any,
   hoverMap: any[],
   permissions: any,
+  disableHelperMap: any,
 ) {
   let updatedRow: any = rowData;
 
   for (const map of hoverMap) {
     const mapPIndex = permissions.indexOf(map.p);
+
+    let dependencies = 0;
+    const disableMapForCheckbox =
+      getEntireDisableMap(disableHelperMap, updatedRow.id, map.p) || [];
+    for (const i of disableMapForCheckbox) {
+      const el = document.querySelector(`[data-cellId="${i}"]`);
+      const input = el?.getElementsByTagName("input")[0];
+      if (input && input.checked && !input.disabled) {
+        dependencies += 1;
+      }
+    }
+
     updatedRow = {
       ...updatedRow,
       ...(map.id === updatedRow.id && updatedRow.permissions
         ? {
             permissions: updatedRow?.permissions?.map(
               (r: number, rI: number) => {
-                return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+                return rI === mapPIndex &&
+                  r !== -1 &&
+                  ((!value && dependencies < 1) || value)
+                  ? value
+                    ? 1
+                    : 0
+                  : r;
               },
             ),
           }
@@ -560,7 +594,13 @@ export function updateCheckbox(
       ...(updatedRow.subRows
         ? {
             subRows: traverseSubRows(updatedRow.subRows, map)
-              ? updateSubRows(map, updatedRow.subRows, mapPIndex, value)
+              ? updateSubRows(
+                  map,
+                  updatedRow.subRows,
+                  mapPIndex,
+                  value,
+                  dependencies,
+                )
               : updatedRow.subRows,
           }
         : {}),
@@ -579,6 +619,7 @@ export function updateData(
   rowId: string,
   hoverMap: any,
   permissions: any,
+  disableHelperMap: any,
 ) {
   const updatedData = [...oldData];
   const currentCellId = cellId.split("_");
@@ -595,6 +636,7 @@ export function updateData(
         newValue,
         hoverMap,
         permissions,
+        disableHelperMap,
       );
     } else if (updatedData[parseInt(rowIdArray[0])]?.subRows) {
       const subRowId = rowIdArray.slice(1).join(".");
@@ -607,6 +649,7 @@ export function updateData(
           subRowId,
           hoverMap,
           permissions,
+          disableHelperMap,
         ),
       };
     }
@@ -882,6 +925,7 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
         rowId,
         hoverMap,
         tabData.permissions,
+        tabData.disableHelperMap,
       );
     });
   };
