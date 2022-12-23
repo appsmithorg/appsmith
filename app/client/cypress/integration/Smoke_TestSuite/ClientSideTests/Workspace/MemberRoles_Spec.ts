@@ -31,7 +31,23 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.LogOutviaAPI();
   });
 
-  it("2. Login as Invited user and validate Viewer role", function() {
+  it("2. Login as Administrator and search for users using search bar", () => {
+    homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    homePage.FilterApplication(appid, workspaceId);
+    cy.xpath("//span[text()='Share']/parent::button").click();
+    cy.xpath(homePage._visibleTextSpan("MANAGE USERS")).click({
+      force: true,
+    });
+    cy.get(".search-highlight").should("not.exist");
+    cy.get("[data-testid=t--search-input").type(Cypress.env("TESTUSERNAME1"), {
+      delay: 300,
+    });
+    cy.get(".search-highlight").should("exist");
+    cy.get(".search-highlight").contains(Cypress.env("TESTUSERNAME1"));
+    homePage.LogOutviaAPI();
+  });
+
+  it("3. Login as Invited user and validate Viewer role", function() {
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
@@ -57,7 +73,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.LogOutviaAPI();
   });
 
-  it("3. Login as Workspace owner and Update the Invited user role to Developer", function() {
+  it("4. Login as Workspace owner and Update the Invited user role to Developer", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
     homePage.UpdateUserRoleInWorkspace(
@@ -69,7 +85,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.LogOutviaAPI();
   });
 
-  it("4. Login as Invited user and validate Developer role", function() {
+  it("5. Login as Invited user and validate Developer role", function() {
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
@@ -94,7 +110,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.LogOutviaAPI();
   });
 
-  it("5. Login as Workspace owner and Update the Invited user role to Administrator", function() {
+  it("6. Login as Workspace owner and Update the Invited user role to Administrator", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
     homePage.UpdateUserRoleInWorkspace(
@@ -106,7 +122,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.LogOutviaAPI();
   });
 
-  it("6. Login as Invited user and validate Administrator role", function() {
+  it("7. Login as Invited user and validate Administrator role", function() {
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
@@ -139,7 +155,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.LogOutviaAPI();
   });
 
-  it("7. Login as Workspace owner and verify all 3 users are present", function() {
+  it("8. Login as Workspace owner and verify all 3 users are present", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
     homePage.UpdateUserRoleInWorkspace(
@@ -159,7 +175,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.NavigateToHome();
   });
 
-  it("8. Login as Developer, Verify leave workspace flow", () => {
+  it("9. Login as Developer, Verify leave workspace flow", () => {
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
@@ -168,7 +184,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.leaveWorkspace(workspaceId);
     homePage.LogOutviaAPI();
   });
-  it("9. Login as App Viewer, Verify leave workspace flow", () => {
+
+  it("10. Login as App Viewer, Verify leave workspace flow", () => {
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
