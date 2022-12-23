@@ -11,3 +11,6 @@ export const generalSettings = ObjectsRegistry.GeneralSettings;
 export const pageSettings = ObjectsRegistry.PageSettings;
 export const homePage = ObjectsRegistry.HomePage;
 export const theme = ObjectsRegistry.ThemeSettings;
+export const dataSources = ObjectsRegistry.DataSources;
+export const apiPage = ObjectsRegistry.ApiPage;
+

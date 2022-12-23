@@ -132,7 +132,7 @@ export const PAGE_NOT_FOUND_ERROR = () =>
 export const INVALID_URL_ERROR = () => `Invalid URL`;
 
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
-  `Invalid Email address(es) found`;
+  `Invalid email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
 
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
@@ -1077,7 +1077,7 @@ export const ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING = () =>
 export const SECURITY_APPS_LEAST_PRIVILEGE = () =>
   "Secure apps by the least privilege needed";
 export const SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1 = () =>
-  "Create roles by the least privilege needed as defaults, e.g.: View only, assign them to users in groups, e.g.: Marketing, and modify for special access, e.g.: Content creators_Execute queries";
+  `Create roles by the least privilege needed as defaults, <span>e.g.: View only</span>, assign them to users in groups, <span>e.g.: Marketing</span>, and modify for special access, <span>e.g.: Content creators_Execute queries</span>`;
 export const PREVENT_ACCIDENTAL_DAMAGE = () =>
   "Prevent accidental damage to data";
 export const PREVENT_ACCIDENTAL_DAMAGE_DETAIL1 = () =>
@@ -1348,7 +1348,11 @@ export const CLEAN_URL_UPDATE = {
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
 
-export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+export const MEMBERS_TAB_TITLE = (
+  length: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `Users (${length})`;
 
 export const CREATE_PAGE = () => "New Blank Page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
