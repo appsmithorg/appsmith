@@ -46,6 +46,7 @@ export type PositionedContainerProps = {
   leftColumn: number;
   parentColumnSpace: number;
   disabled?: boolean;
+  visible?: boolean;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -167,6 +168,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
   return (
     <PositionedWidget
       className={containerClassName}
+      data-hidden={props.visible === false || undefined}
       data-testid="test-widget"
       disabled={props.disabled}
       id={props.widgetId}

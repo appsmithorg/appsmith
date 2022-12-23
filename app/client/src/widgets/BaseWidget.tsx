@@ -352,6 +352,9 @@ abstract class BaseWidget<
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
         topRow={this.props.topRow}
+        visible={
+          this.props.isVisible === undefined ? true : this.props.isVisible
+        }
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
       >
