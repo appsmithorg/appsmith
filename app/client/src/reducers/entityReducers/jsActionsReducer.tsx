@@ -32,7 +32,7 @@ interface JSExecutionData {
   actionId: string;
 }
 
-// Object of collectionIds to JSExecutionData
+// Object of collectionIds to JSExecutionData[]
 export type BatchedJSExecutionData = Record<string, JSExecutionData[]>;
 
 const jsActionsReducer = createReducer(initialState, {

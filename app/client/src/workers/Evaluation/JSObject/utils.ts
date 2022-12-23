@@ -8,7 +8,6 @@ import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
 import { isJSAction } from "workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "../../../entities/App";
-import { JSExecutionData } from "./JSProxy";
 import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
 import { AppState } from "ce/reducers";
@@ -257,24 +256,26 @@ export function isPromise(value: any): value is Promise<unknown> {
   return Boolean(value && typeof value.then === "function");
 }
 
-export function* sortJSExecutionDataByCollectionId(data: JSExecutionData[]) {
+export function* sortJSExecutionDataByCollectionId(
+  data: Record<string, unknown>,
+) {
   // Sorted data by collectionId
   const sortedData: BatchedJSExecutionData = {};
-  for (const key of data) {
+  for (const jsfuncFullName of Object.keys(data)) {
     const jsAction: JSAction | undefined = yield select((state: AppState) =>
-      getJSFunctionFromName(state, key.funcName),
+      getJSFunctionFromName(state, jsfuncFullName),
     );
     if (jsAction && jsAction.collectionId) {
       if (sortedData[jsAction.collectionId]) {
         sortedData[jsAction.collectionId].push({
-          data: key.data,
+          data: get(data, jsfuncFullName),
           collectionId: jsAction.collectionId,
           actionId: jsAction.id,
         });
       } else {
         sortedData[jsAction.collectionId] = [
           {
-            data: key.data,
+            data: get(data, jsfuncFullName),
             collectionId: jsAction.collectionId,
             actionId: jsAction.id,
           },

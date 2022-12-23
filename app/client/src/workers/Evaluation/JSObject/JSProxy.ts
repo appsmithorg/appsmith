@@ -1,13 +1,8 @@
-import { uniqueId } from "lodash";
+import { set, uniqueId } from "lodash";
 import { isPromise } from "./utils";
 
-// TO DO => Handle duplicate calls
-
-// How each js function execution data is represented
 export interface JSExecutionData {
-  // Result from executing function
   data: unknown;
-  // Name of function
   funcName: string;
 }
 
@@ -18,66 +13,59 @@ export type JSFunctionProxy = (
 
 export const JSFunctionProxyHandler = (
   fullName: string,
-  // function used to update list of js execution data
-  updateJSData: (data: JSExecutionData) => void,
-  // function used to update list of js execution calls
-  updateJSExecution: (funcName: string) => void,
+  funcExecutionStart: () => void,
+  funcExecutionEnd: (data: JSExecutionData) => void,
 ) => ({
   apply: function(target: any, thisArg: unknown, argumentsList: any) {
-    // As soon as a function call is made, update the list of js execution calls
-    updateJSExecution(fullName);
+    funcExecutionStart();
     let returnValue;
     try {
       returnValue = Reflect.apply(target, thisArg, argumentsList);
     } catch (e) {
-      updateJSData({
+      funcExecutionEnd({
         data: undefined,
         funcName: fullName,
       });
       throw e;
     }
 
-    // If the returnValue is a Promise, we update the data list with its "resolve" value,
-    // and return a Promise that resolves this value
     if (isPromise(returnValue)) {
       returnValue
         .then((result) => {
-          updateJSData({
+          funcExecutionEnd({
             data: result,
             funcName: fullName,
           });
         })
         .catch(() => {
-          updateJSData({
+          funcExecutionEnd({
             data: undefined,
             funcName: fullName,
           });
         });
       return returnValue;
     }
-    updateJSData({
+    funcExecutionEnd({
       data: returnValue,
       funcName: fullName,
     });
-
     return returnValue;
   },
 });
 
 export class JSProxy {
   // Holds list of all js execution data during an eval cycle
-  private dataList: JSExecutionData[] = [];
-  // Holds list of all js execution calls during an eval cycle
-  private functionExecutionList: string[] = [];
+  private dataStore: Record<string, unknown> = {};
+  // The number of functions called, which have not completed.
+  private pendingExecutionCount = 0;
+  // Has eval completed?
   private evaluationEnded = false;
 
   constructor() {
     this.JSFunctionProxy = this.JSFunctionProxy.bind(this);
     this.postData = this.postData.bind(this);
-    this.addFunctionToExecutionList = this.addFunctionToExecutionList.bind(
-      this,
-    );
-    this.addExecutionDataToList = this.addExecutionDataToList.bind(this);
+    this.functionExecutionStart = this.functionExecutionStart.bind(this);
+    this.functionExecutionEnd = this.functionExecutionEnd.bind(this);
     this.setEvaluationEnd = this.setEvaluationEnd.bind(this);
   }
 
@@ -86,29 +74,28 @@ export class JSProxy {
     this.postData();
   }
 
-  private addFunctionToExecutionList(func: string) {
-    this.functionExecutionList.push(func);
+  // When a function is called, increase number of pending functions;
+  private functionExecutionStart() {
+    this.pendingExecutionCount += 1;
     this.postData();
   }
 
-  private addExecutionDataToList(data: JSExecutionData) {
-    this.dataList.push(data);
+  // When a function has completed, decrease number of pending functions;
+  private functionExecutionEnd({ data, funcName }: JSExecutionData) {
+    set(this.dataStore, [funcName], data);
+    this.pendingExecutionCount -= 1;
     this.postData();
   }
 
   private postData() {
     // This method determines the right time to post message to the main thread
-    // We ensure that all function executions have returned with data before send data to the main thread
-    const { dataList, evaluationEnded, functionExecutionList } = this;
-    if (
-      evaluationEnded &&
-      dataList.length &&
-      dataList.length === functionExecutionList.length
-    ) {
+    // We ensure that all function executions have completed.
+    const { dataStore, evaluationEnded, pendingExecutionCount } = this;
+    if (evaluationEnded && pendingExecutionCount === 0) {
       self.postMessage({
         promisified: true,
         responseData: {
-          JSData: dataList,
+          JSData: dataStore,
         },
         requestId: uniqueId(),
       });
@@ -124,8 +111,8 @@ export class JSProxy {
       JSFunction,
       JSFunctionProxyHandler(
         jsFunctionFullName,
-        this.addExecutionDataToList,
-        this.addFunctionToExecutionList,
+        this.functionExecutionStart,
+        this.functionExecutionEnd,
       ),
     );
   }

@@ -108,7 +108,6 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { JSExecutionData } from "workers/Evaluation/JSObject/JSProxy";
 import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 
@@ -365,7 +364,7 @@ export function* executeDynamicTriggerRequest(
     log.debug({ requestData });
 
     if (requestData.JSData) {
-      const data = requestData.JSData as JSExecutionData[];
+      const data = requestData.JSData as Record<string, unknown>;
       const sortedData: BatchedJSExecutionData = yield sortJSExecutionDataByCollectionId(
         data,
       );

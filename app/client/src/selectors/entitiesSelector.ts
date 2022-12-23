@@ -29,6 +29,7 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -413,8 +414,10 @@ export const getJSCollection = (
 };
 
 export const getJSFunctionFromName = (state: AppState, name: string) => {
-  const collectionName = name.split(".")[0];
-  const functionName = name.split(".")[1];
+  const {
+    entityName: collectionName,
+    propertyPath: functionName,
+  } = getEntityNameAndPropertyPath(name);
   const jsCollection = find(
     state.entities.jsActions,
     (a) => a.config.name === collectionName,
