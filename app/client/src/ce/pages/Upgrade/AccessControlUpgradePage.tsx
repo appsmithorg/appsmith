@@ -1,9 +1,9 @@
 import React from "react";
 import { Carousel, Header } from "./types";
 import UpgradePage from "./UpgradePage";
-import SecureAppsLeastPrivilegeImage from "assets/svg/upgrade/access-control/secure-apps-least-privilege.svg";
-import RestrictPublicExposureImage from "assets/svg/upgrade/access-control/restrict-public-exposure.svg";
-import PreventAccidentalDamageImage from "assets/svg/upgrade/access-control/prevent-accidental-damage.svg";
+import SecureAppsLeastPrivilegeImage from "assets/images/upgrade/access-control/secure-apps-least-privilege.png";
+import RestrictPublicExposureImage from "assets/images/upgrade/access-control/restrict-public-exposure.png";
+import PreventAccidentalDamageImage from "assets/images/upgrade/access-control/prevent-accidental-damage.png";
 import { createMessage } from "design-system/build/constants/messages";
 import {
   ACCESS_CONTROL_UPGRADE_PAGE_FOOTER,
