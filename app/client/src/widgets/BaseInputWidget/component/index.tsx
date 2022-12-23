@@ -20,7 +20,7 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { InputTypes } from "../constants";
+import { InputTypes, NumberInputStepButtonPosition } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -530,6 +530,7 @@ class BaseInputComponent extends React.Component<
       <StyledNumericInput
         allowNumericCharactersOnly
         autoFocus={this.props.autoFocus}
+        buttonPosition={this.props.buttonPosition}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         inputRef={(el) => {
@@ -783,6 +784,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   accentColor?: string;
   errorTooltipBoundary?: string;
   shouldUseLocale?: boolean;
+  buttonPosition?: NumberInputStepButtonPosition;
 }
 
 export default BaseInputComponent;

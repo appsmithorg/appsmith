@@ -1,4 +1,6 @@
 import { set, uniqueId } from "lodash";
+import { MessageType, sendMessage } from "utils/MessageUtil";
+import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
 import { isPromise } from "./utils";
 
 export interface JSExecutionData {
@@ -92,12 +94,14 @@ export class JSProxy {
     // We ensure that all function executions have completed.
     const { dataStore, evaluationEnded, pendingExecutionCount } = this;
     if (evaluationEnded && pendingExecutionCount === 0) {
-      self.postMessage({
-        promisified: true,
-        responseData: {
-          JSData: dataStore,
+      sendMessage.call(self, {
+        messageType: MessageType.DEFAULT,
+        body: {
+          data: {
+            JSData: dataStore,
+          },
+          method: MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION,
         },
-        requestId: uniqueId(),
       });
     }
   }

@@ -21,6 +21,7 @@ import { DSLWidget } from "widgets/constants";
 import { getSubstringBetweenTwoWords } from "utils/helpers";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { stringToJS } from "components/editorComponents/ActionCreator/utils";
 
 export const isSortableMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -641,6 +642,31 @@ export const migrateTableWidgetV2ValidationBinding = (
             newBindingSuffix(widget.widgetName, column);
         }
       }
+    }
+  });
+};
+
+export const migrateTableWidgetV2SelectOption = (currentDSL: DSLWidget) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "TABLE_WIDGET_V2") {
+      Object.values(
+        widget.primaryColumns as Record<
+          string,
+          { columnType: string; selectOptions: string }
+        >,
+      )
+        .filter((column) => column.columnType === "select")
+        .forEach((column) => {
+          const selectOptions = column.selectOptions;
+
+          if (selectOptions && isDynamicValue(selectOptions)) {
+            column.selectOptions = `{{${
+              widget.widgetName
+            }.processedTableData.map((currentRow, currentIndex) => ( ${stringToJS(
+              selectOptions,
+            )}))}}`;
+          }
+        });
     }
   });
 };

@@ -2,23 +2,20 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
-  extraLibraries,
   PropertyEvaluationErrorType,
-  unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
-import { enhanceDataTreeWithFunctions } from "./Actions";
+import { enhanceDataTreeWithFunctions } from "@appsmith/workers/Evaluation/Actions";
 import { isEmpty } from "lodash";
-import { completePromise } from "workers/Evaluation/PromisifyAction";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import overrideTimeout from "./TimeoutOverride";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
 import { JSFunctionProxy, JSProxy } from "./JSObject/JSProxy";
+import { DOM_APIS } from "./SetupDOM";
+import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 
 export type EvalResult = {
   result: any;
@@ -76,11 +73,19 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 
 function resetWorkerGlobalScope() {
   for (const key of Object.keys(self)) {
-    if (topLevelWorkerAPIs[key]) continue;
-    if (key === "evaluationVersion") continue;
-    if (extraLibraries.find((lib) => lib.accessor === key)) continue;
-    // @ts-expect-error: Types are not available
-    delete self[key];
+    if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
+    //TODO: Remove this once we have a better way to handle this
+    if (["evaluationVersion", "window", "document", "location"].includes(key))
+      continue;
+    if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
+    if (libraryReservedIdentifiers[key]) continue;
+    try {
+      // @ts-expect-error: Types are not available
+      delete self[key];
+    } catch (e) {
+      // @ts-expect-error: Types are not available
+      self[key] = undefined;
+    }
   }
 }
 
@@ -99,6 +104,8 @@ export const getScriptType = (
   return scriptType;
 };
 
+export const additionalLibrariesNames: string[] = [];
+
 export const getScriptToEval = (
   userScript: string,
   type: EvaluationScriptType,
@@ -108,25 +115,7 @@ export const getScriptToEval = (
   return `${buffer[0]}${userScript}${buffer[1]}`;
 };
 
-export function setupEvaluationEnvironment() {
-  ///// Adding extra libraries separately
-  extraLibraries.forEach((library) => {
-    // @ts-expect-error: Types are not available
-    self[library.accessor] = library.lib;
-  });
-
-  ///// Remove all unsafe functions
-  unsafeFunctionForEval.forEach((func) => {
-    // @ts-expect-error: Types are not available
-    self[func] = undefined;
-  });
-  userLogs.overrideConsoleAPI();
-  overrideTimeout();
-  interceptAndOverrideHttpRequest();
-}
-
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
-
 export interface createGlobalDataArgs {
   dataTree: DataTree;
   resolvedFunctions: Record<string, any>;
@@ -168,7 +157,6 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     //// Add internal functions to dataTree;
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
       dataTree,
-      context?.requestId,
       skipEntityFunctions,
       context?.eventType,
     );
@@ -329,7 +317,6 @@ export default function evaluateSync(
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
-  requestId: string,
   resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
@@ -343,7 +330,6 @@ export async function evaluateAsync(
     /**** Setting the eval context ****/
     userLogs.resetLogs();
     userLogs.setCurrentRequestInfo({
-      requestId,
       eventType: context?.eventType,
       triggerMeta: context?.triggerMeta,
     });
@@ -351,7 +337,7 @@ export async function evaluateAsync(
       dataTree,
       resolvedFunctions,
       isTriggerBased: true,
-      context: { ...context, requestId },
+      context,
       evalArguments,
       JSFunctionProxy,
     });
@@ -385,21 +371,12 @@ export async function evaluateAsync(
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.
-      try {
-        completePromise(requestId, {
-          result,
-          errors,
-          logs,
-          triggers: Array.from(self.TRIGGER_COLLECTOR),
-        });
-      } catch (error) {
-        completePromise(requestId, {
-          result,
-          errors,
-          logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
-          triggers: Array.from(self.TRIGGER_COLLECTOR),
-        });
-      }
+      return {
+        result,
+        errors,
+        logs,
+        triggers: Array.from(self.TRIGGER_COLLECTOR),
+      };
     }
   })();
 }
@@ -429,21 +406,7 @@ export function isFunctionAsync(
           const dataTreeKey = GLOBAL_DATA[datum];
           if (dataTreeKey) {
             const data = dataTreeKey[key]?.data;
-            //do not remove, we will be investigating this
-            // const isAsync = dataTreeKey.meta[key]?.isAsync || false;
-            // const confirmBeforeExecute =
-            //   dataTreeKey.meta[key]?.confirmBeforeExecute || false;
             dataTreeKey[key] = resolvedObject[key];
-            // if (isAsync && confirmBeforeExecute) {
-            //   dataTreeKey[key] = confirmationPromise.bind(
-            //     {},
-            //     "",
-            //     resolvedObject[key],
-            //     key,
-            //   );
-            // } else {
-            //   dataTreeKey[key] = resolvedObject[key];
-            // }
             if (!!data) {
               dataTreeKey[key].data = data;
             }
