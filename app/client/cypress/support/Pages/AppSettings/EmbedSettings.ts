@@ -7,12 +7,12 @@ export class EmbedSettings {
     _snippet: "[data-cy='t--embed-snippet']",
   };
 
-  public updateDimension(dimension: "H" | "W", value: string) {
+  public UpdateDimension(dimension: "H" | "W", value: string) {
     const input = this.locators._getDimensionInput(dimension);
     this.agHelper.RemoveCharsNType(input, -1, value);
   }
 
-  public validateSnippet(width: string, height: string) {
+  public ValidateSnippet(width: string, height: string) {
     this.agHelper.GetNAssertElementText(
       this.locators._snippet,
       `width="${width}"`,
