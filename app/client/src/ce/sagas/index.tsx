@@ -1,7 +1,7 @@
 import pageSagas from "sagas/PageSagas";
 import { watchActionSagas } from "sagas/ActionSagas";
 import { watchJSActionSagas } from "sagas/JSActionSagas";
-import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
+import { watchActionExecutionSagas } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import templateSagas from "sagas/TemplatesSagas";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";

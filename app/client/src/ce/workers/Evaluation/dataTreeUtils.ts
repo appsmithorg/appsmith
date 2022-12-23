@@ -6,7 +6,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { set } from "lodash";
 import { EvalProps } from "workers/common/DataTreeEvaluator";
-import { removeFunctions } from "./evaluationUtils";
+import { removeFunctions } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 /**
  * This method accept an entity object as input and if it has __config__ property than it moves the __config__ to object's prototype
@@ -52,7 +52,7 @@ export function makeEntityConfigsAsObjProperties(
   for (const entityName of Object.keys(dataTree)) {
     const entityConfig = Object.getPrototypeOf(dataTree[entityName]) || {};
     const entity = dataTree[entityName];
-    newDataTree[entityName] = { ...entityConfig, ...entity };
+    newDataTree[entityName] = Object.assign({}, entityConfig, entity);
   }
   const dataTreeToReturn = sanitizeDataTree
     ? JSON.parse(JSON.stringify(newDataTree))
