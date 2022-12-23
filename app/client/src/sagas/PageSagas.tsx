@@ -950,7 +950,7 @@ export function* setDataUrl() {
   yield put(setUrlData(urlData));
 }
 
-function* fetchPageDSLSaga(pageId: string) {
+export function* fetchPageDSLSaga(pageId: string) {
   try {
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id: pageId,
