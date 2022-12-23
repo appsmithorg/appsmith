@@ -41,6 +41,7 @@ import {
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
+  SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system";
 import { isDatasourceInViewMode } from "selectors/ui";
@@ -440,6 +441,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         onClose={this.closeDialog}
         onDiscard={this.onDiscard}
         onSave={this.onSave}
+        saveButtonText={createMessage(SAVE_BUTTON_TEXT)}
       />
     );
   }
