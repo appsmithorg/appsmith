@@ -1,4 +1,4 @@
-import { set } from "lodash";
+import { isEmpty, set } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
 import { isPromise } from "./utils";
@@ -93,7 +93,7 @@ export class JSProxy {
     // This method determines the right time to post message to the main thread
     // We ensure that all function executions have completed.
     const { dataStore, evaluationEnded, pendingExecutionCount } = this;
-    if (evaluationEnded && pendingExecutionCount === 0) {
+    if (evaluationEnded && pendingExecutionCount === 0 && !isEmpty(dataStore)) {
       sendMessage.call(self, {
         messageType: MessageType.DEFAULT,
         body: {
