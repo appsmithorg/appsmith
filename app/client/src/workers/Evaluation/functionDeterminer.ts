@@ -6,6 +6,7 @@ class FunctionDeterminer {
   private evalContext: EvalContext = {};
 
   setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
+    /**** Setting the eval context ****/
     const evalContext: EvalContext = {
       ALLOW_ASYNC: false,
       IS_ASYNC: false,
@@ -37,9 +38,10 @@ class FunctionDeterminer {
   }
 
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {
-    return (function() {
-      /**** Setting the eval context ****/
+    self.TRIGGER_COLLECTOR = [];
+    self.IS_ASYNC = false;
 
+    return (function() {
       try {
         if (typeof userFunction === "function") {
           if (userFunction.constructor.name === "AsyncFunction") {
