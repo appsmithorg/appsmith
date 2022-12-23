@@ -1,10 +1,9 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
+import com.appsmith.external.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.external.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.NewPageService;
@@ -17,9 +16,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
 @Slf4j
 public class LayoutServiceCEImpl implements LayoutServiceCE {

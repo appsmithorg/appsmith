@@ -4,15 +4,15 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.FieldName;
+import com.appsmith.external.constants.FieldName;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.external.models.ActionCollection;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
-import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.external.models.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.external.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -50,9 +50,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j

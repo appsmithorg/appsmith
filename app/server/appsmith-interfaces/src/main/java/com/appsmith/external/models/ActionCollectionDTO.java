@@ -1,12 +1,7 @@
-package com.appsmith.server.dtos;
+package com.appsmith.external.models;
 
-import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.models.JSValue;
-import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.external.models.PluginType;
-import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.external.constants.FieldName;
+import com.appsmith.external.exceptions.AppsmithError;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;

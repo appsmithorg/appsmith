@@ -1,7 +1,5 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.dtos.ActionCollectionDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
