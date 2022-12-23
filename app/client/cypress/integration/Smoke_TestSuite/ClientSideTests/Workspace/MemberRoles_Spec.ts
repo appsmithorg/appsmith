@@ -171,6 +171,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.leaveWorkspace(workspaceId);
     homePage.LogOutviaAPI();
   });
+
   it("9. Login as App Viewer, Verify leave workspace flow", () => {
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME2"),
@@ -179,5 +180,20 @@ describe("Create new workspace and invite user & validate all roles", () => {
     homePage.FilterApplication(appid, workspaceId);
     homePage.leaveWorkspace(workspaceId);
     homePage.LogOutviaAPI();
+  });
+
+  it("10. Login as Administrator and search for users using search bar", () => {
+    homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    homePage.FilterApplication(appid, workspaceId);
+    cy.xpath("//span[text()='Share']/parent::button").click();
+    cy.xpath(homePage._visibleTextSpan("MANAGE USERS")).click({
+      force: true,
+    });
+    cy.get(".search-highlight").should("not.exist");
+    cy.get("[data-testid=t--search-input").type(Cypress.env("TESTUSERNAME1"), {
+      delay: 300,
+    });
+    cy.get(".search-highlight").should("exist");
+    cy.get(".search-highlight").contains(Cypress.env("TESTUSERNAME1"));
   });
 });
