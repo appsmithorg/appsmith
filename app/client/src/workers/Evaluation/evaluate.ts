@@ -192,7 +192,7 @@ export const assignJSFunctionsToContext = (
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
       const data = jsObject[fnName]?.data;
       jsObjectFunction[fnName] = JSFunctionProxy
-        ? JSFunctionProxy(fn, fnName)
+        ? JSFunctionProxy(fn, jsObjectName + "." + fnName)
         : fn;
       if (!!data) {
         jsObjectFunction[fnName]["data"] = data;
