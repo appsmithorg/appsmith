@@ -26,7 +26,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { EntityClassNames } from "../Entity";
 import { TooltipComponent } from "design-system";
 import {
-  ADD_QUERY_JS_BUTTON,
+  ADD_QUERY_JS_TOOLTIP,
   createMessage,
 } from "@appsmith/constants/messages";
 import { useCloseMenuOnScroll } from "../hooks";
@@ -223,7 +223,7 @@ export default function ExplorerSubMenu({
           className={EntityClassNames.TOOLTIP}
           content={
             <>
-              {createMessage(ADD_QUERY_JS_BUTTON)} (
+              {createMessage(ADD_QUERY_JS_TOOLTIP)} (
               {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
             </>
           }
