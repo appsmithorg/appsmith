@@ -12,5 +12,5 @@ export default function RouteChangeListener() {
     dispatch(routeChanged(location));
   }, [location.pathname, location.hash]);
   // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <></>;
+  return null;
 }
