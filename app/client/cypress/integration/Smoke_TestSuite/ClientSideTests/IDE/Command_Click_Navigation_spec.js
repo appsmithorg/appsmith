@@ -177,7 +177,7 @@ describe("1. CommandClickNavigation", function() {
     });
   });
 
-  it("Will work with string arguments in framework functions", () => {
+  it.skip("Will work with string arguments in framework functions", () => {
     cy.get(PROPERTY_SELECTOR.onClick)
       .find(".t--js-toggle")
       .click();
