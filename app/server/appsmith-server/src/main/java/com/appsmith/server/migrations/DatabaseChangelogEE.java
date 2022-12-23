@@ -1,6 +1,8 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
@@ -33,10 +35,13 @@ import org.springframework.data.mongodb.core.query.Update;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
@@ -297,6 +302,32 @@ public class DatabaseChangelogEE {
 
         // evict the cache entry for all the impacted users
         evictPermissionCacheForUsers(userIds, mongockTemplate, cacheableRepositoryHelper);
+    }
+
+    @ChangeSet(order = "011", id = "set-create-datasource-action-permission", author = "")
+    public void setCreateDatasourceActionPermissions(MongockTemplate mongockTemplate) {
+        Query datasourceQuery = new Query();
+        Criteria manageDatasourcePermissionCriteria = Criteria.where("policies.permission").is(MANAGE_DATASOURCES.getValue());
+        Criteria notCreateDatasourceActionsPermissionCriteria = Criteria.where("policies.permission").ne(CREATE_DATASOURCE_ACTIONS.getValue());
+        datasourceQuery.fields().include(fieldName(QDatasource.datasource.id), fieldName(QDatasource.datasource.policies));
+        datasourceQuery.addCriteria(manageDatasourcePermissionCriteria.andOperator(notCreateDatasourceActionsPermissionCriteria));
+        List<Datasource> datasourceList = mongockTemplate.find(datasourceQuery, Datasource.class);
+
+        datasourceList.forEach(datasource -> {
+            Set<Policy> currentPolicies = datasource.getPolicies();
+            Optional<Policy> manageDatasourcePolicy = currentPolicies.stream()
+                    .filter(policy -> policy.getPermission().equals(MANAGE_DATASOURCES.getValue()))
+                    .findFirst();
+            if (manageDatasourcePolicy.isPresent()) {
+                currentPolicies.add(Policy.builder()
+                        .permission(CREATE_DATASOURCE_ACTIONS.getValue())
+                        .permissionGroups(manageDatasourcePolicy.get().getPermissionGroups())
+                        .build());
+                Query datasourceUpdatePolicyQuery = new Query().addCriteria(Criteria.where("id").is(datasource.getId()));
+                Update updatePolicy = new Update().set("policies", currentPolicies);
+                mongockTemplate.updateFirst(datasourceUpdatePolicyQuery, updatePolicy, Datasource.class);
+            }
+        });
     }
 
 }
