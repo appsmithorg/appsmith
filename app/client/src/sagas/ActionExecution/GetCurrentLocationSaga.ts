@@ -1,12 +1,12 @@
 import {
   GetCurrentLocationDescription,
   WatchCurrentLocationDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   executeAppAction,
   TriggerMeta,
-} from "sagas/ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { call, put, spawn, take } from "redux-saga/effects";
 import {
   logActionExecutionError,

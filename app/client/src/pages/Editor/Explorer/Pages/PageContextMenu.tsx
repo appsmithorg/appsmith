@@ -6,7 +6,7 @@ import TreeDropdown, {
 import { noop } from "lodash";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   clonePageInit,
