@@ -85,11 +85,11 @@ export const groupsReducers = {
   }),
   [ReduxActionTypes.UPDATE_ACL_GROUP_ROLES_SUCCESS]: (state: any) => ({
     ...state,
-    isLoading: true,
+    isLoading: false,
   }),
   [ReduxActionErrorTypes.UPDATE_ACL_GROUP_ROLES_ERROR]: (state: any) => ({
     ...state,
-    isLoading: true,
+    isLoading: false,
   }),
   [ReduxActionTypes.DELETE_ACL_GROUP]: (state: any) => ({
     ...state,
