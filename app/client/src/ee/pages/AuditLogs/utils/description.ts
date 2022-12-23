@@ -96,7 +96,10 @@ function createResourceDescription(
       break;
     case "user":
       description.mainDescription.resourceType =
-        data.userName || data.userEmail;
+        data.action ===
+        "deleted" /* When user is deleted, we should show the deleted user and not the user who deleted it */
+          ? data.resource
+          : data.userName || data.userEmail;
       description.subDescription = "";
       break;
   }
@@ -156,6 +159,7 @@ export function generateDescription(log: AuditLogType): MultilineDescription {
     description.subDescription = "to " + ellipsis(data.workspace, 65);
     return description;
   }
+
   if (resourceType === "group" && !crudActions.includes(action)) {
     // Special case: group invited users has "x user(s) invited/removed" structure
     const { userGroup = {} } = log;
