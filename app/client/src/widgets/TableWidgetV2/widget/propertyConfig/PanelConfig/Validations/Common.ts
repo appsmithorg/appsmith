@@ -1,4 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { TableWidgetProps, ColumnTypes } from "widgets/TableWidgetV2/constants";
+import {
+  hideByColumnType,
+  showByColumnType,
+} from "widgets/TableWidgetV2/widget/propertyUtils";
 
 export default [
   {
@@ -11,6 +16,13 @@ export default [
     isBindProperty: true,
     isTriggerProperty: false,
     validation: { type: ValidationTypes.REGEX },
+    hidden: (props: TableWidgetProps, propertyPath: string) => {
+      const path = propertyPath
+        .split(".")
+        .slice(0, 2)
+        .join(".");
+      return showByColumnType(props, path, [ColumnTypes.DATE], true);
+    },
   },
   {
     propertyName: "validation.isColumnEditableCellValid",
@@ -27,6 +39,13 @@ export default [
         default: true,
       },
     },
+    hidden: (props: TableWidgetProps, propertyPath: string) => {
+      const path = propertyPath
+        .split(".")
+        .slice(0, 2)
+        .join(".");
+      return showByColumnType(props, path, [ColumnTypes.DATE], true);
+    },
   },
   {
     propertyName: "validation.errorMessage",
@@ -38,6 +57,13 @@ export default [
     isBindProperty: true,
     isTriggerProperty: false,
     validation: { type: ValidationTypes.TEXT },
+    hidden: (props: TableWidgetProps, propertyPath: string) => {
+      const path = propertyPath
+        .split(".")
+        .slice(0, 2)
+        .join(".");
+      return showByColumnType(props, path, [ColumnTypes.DATE], true);
+    },
   },
   {
     propertyName: "validation.isColumnEditableCellRequired",

@@ -3,6 +3,7 @@ import { get } from "lodash";
 import { hideByColumnType } from "../../propertyUtils";
 import commonValidations from "./Validations/Common";
 import numberTypeValidations from "./Validations/Number";
+import dateTypeValidations from "./Validations/Date";
 
 export default {
   sectionName: "Validation",
@@ -14,10 +15,14 @@ export default {
       hideByColumnType(
         props,
         propertyPath,
-        [ColumnTypes.TEXT, ColumnTypes.NUMBER],
+        [ColumnTypes.TEXT, ColumnTypes.NUMBER, ColumnTypes.DATE],
         true,
       )
     );
   },
-  children: [...numberTypeValidations, ...commonValidations],
+  children: [
+    ...numberTypeValidations,
+    ...dateTypeValidations,
+    ...commonValidations,
+  ],
 };

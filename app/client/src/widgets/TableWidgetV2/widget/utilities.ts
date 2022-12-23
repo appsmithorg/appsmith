@@ -434,10 +434,23 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      resetFilterTextOnClose: getBooleanPropertyValue(
+      resetFilterTextOnClose: getPropertyValue(
         columnProperties.resetFilterTextOnClose,
         rowIndex,
       ),
+      inputFormat: getPropertyValue(
+        columnProperties.inputFormat,
+        rowIndex,
+        true,
+      ),
+      outputFormat: getPropertyValue(
+        columnProperties.outputFormat,
+        rowIndex,
+        true,
+      ),
+      maxDate: getPropertyValue(columnProperties.maxDate, rowIndex, true),
+      minDate: getPropertyValue(columnProperties.minDate, rowIndex, true),
+      shortcuts: getBooleanPropertyValue(columnProperties.shortcuts, rowIndex),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
@@ -449,6 +462,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.SELECT,
   ColumnTypes.CHECKBOX,
   ColumnTypes.SWITCH,
+  ColumnTypes.DATE,
 ];
 
 export function isColumnTypeEditable(columnType: string) {

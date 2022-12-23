@@ -85,6 +85,8 @@ import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import { Stylesheet } from "entities/AppTheming";
+import { DateCell } from "../component/cellComponents/DateCell";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1754,6 +1756,67 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           />
         );
 
+      case ColumnTypes.DATE:
+        let validationErrorMessageD;
+
+        if (isCellEditMode) {
+          validationErrorMessageD =
+            column.validation.isColumnEditableCellRequired &&
+            (isNil(props.cell.value) || props.cell.value === "")
+              ? "This field is required"
+              : column.validation?.errorMessage;
+        }
+        return (
+          <DateCell
+            accentColor={this.props.accentColor}
+            alias={props.cell.column.columnProperties.alias}
+            // allowCellWrapping={cellProperties.allowCellWrapping}
+            cellBackground={cellProperties.cellBackground}
+            closeOnSelection
+            columnType={column.columnType}
+            compactMode={compactMode}
+            convertToISO={false}
+            // dateFormat={cellProperties.dateFormat}
+            disabledEditIcon={
+              shouldDisableEdit || this.props.isAddRowInProgress
+            }
+            disabledEditIconMessage={disabledEditMessage}
+            displayText={cellProperties.displayText}
+            fontStyle={cellProperties.fontStyle}
+            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            inputFormat={cellProperties.inputFormat}
+            isCellDisabled={cellProperties.isCellDisabled}
+            isCellEditMode={isCellEditMode}
+            isCellEditable={isCellEditable}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isEditableCellValid={this.isColumnCellValid(alias)}
+            isHidden={isHidden}
+            isNewRow={isNewRow}
+            maxDate={props.cell.column.columnProperties.validation.maxDate}
+            minDate={props.cell.column.columnProperties.validation.minDate}
+            onCellTextChange={this.onCellTextChange}
+            onDateSave={this.onDateSave}
+            onDateSelectedString={
+              props.cell.column.columnProperties.onDateSelected
+            }
+            onDateSelection={this.onDateSelection}
+            onSubmitString={props.cell.column.columnProperties.onSubmit}
+            outputFormat={cellProperties.outputFormat}
+            rowIndex={rowIndex}
+            shortcuts
+            tableWidth={this.getComponentDimensions().componentWidth}
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
+            timePrecision={TimePrecision.MINUTE}
+            toggleCellEditMode={this.toggleCellEditMode}
+            validationErrorMessage={validationErrorMessageD}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+            widgetId={this.props.widgetId}
+          />
+        );
+
       default:
         let validationErrorMessage;
 
@@ -1900,6 +1963,48 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       ) {
         this.clearEditableCell();
       }
+    }
+  };
+
+  onDateSave = (
+    rowIndex: number,
+    alias: string,
+    value: string | number,
+    onSubmit?: string,
+  ) => {
+    if (this.isColumnCellValid(alias)) {
+      this.updateTransientTableData({
+        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
+        [alias]: value,
+      });
+
+      if (onSubmit && this.props.editableCell?.column) {
+        this.onColumnEvent({
+          rowIndex: rowIndex,
+          action: onSubmit,
+          triggerPropertyName: "onSubmit",
+          eventType: EventType.ON_SUBMIT,
+          row: {
+            ...this.props.filteredTableData[rowIndex],
+            [this.props.editableCell.column]: value,
+          },
+        });
+      }
+      // if (this.props.onDateSelected) {
+      //   this.props?.onDateSelected(value);
+      // }
+      this.clearEditableCell();
+    }
+  };
+
+  onDateSelection = (rowIndex: number, onDateSelected: string) => {
+    if (onDateSelected) {
+      this.onColumnEvent({
+        rowIndex: rowIndex,
+        action: onDateSelected,
+        triggerPropertyName: "onDateSelected",
+        eventType: EventType.ON_DATE_SELECTED,
+      });
     }
   };
 

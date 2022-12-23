@@ -16,6 +16,16 @@ import {
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
+function allowedRange(value: any) {
+  const allowedValues = [0, 1, 2, 3, 4, 5, 6];
+  const isValid = allowedValues.includes(Number(value));
+  return {
+    isValid: isValid,
+    parsed: isValid ? Number(value) : 0,
+    messages: isValid ? [] : ["Number should be between 0-6."],
+  };
+}
+
 export default {
   sectionName: "Data",
   children: [
@@ -169,7 +179,7 @@ export default {
     },
     {
       propertyName: "inputFormat",
-      label: "Original Date Format",
+      label: "Date Format",
       helpText: "Date format of incoming data to the column",
       controlType: "DROP_DOWN",
       options: [
@@ -298,7 +308,7 @@ export default {
     },
     {
       propertyName: "outputFormat",
-      label: "Display Date Format",
+      label: "Display Format",
       helpText: "Date format to be shown to users",
       controlType: "DROP_DOWN",
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -425,5 +435,33 @@ export default {
       },
       isTriggerProperty: false,
     },
+    // {
+    //   propertyName: "firstDayOfWeek",
+    //   label: "First Day Of Week",
+    //   helpText: "Defines the first day of the week for calendar",
+    //   controlType: "INPUT_TEXT",
+    //   defaultValue: "0",
+    //   inputType: "INTEGER",
+    //   isBindProperty: true,
+    //   isTriggerProperty: false,
+    //   dependencies: ["primaryColumns", "columnType"],
+    //   validation: {
+    //     type: ValidationTypes.FUNCTION,
+    //     params: {
+    //       fn: allowedRange,
+    //       expected: {
+    //         type:
+    //           "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
+    //         example: "0",
+    //         autocompleteDataType: AutocompleteDataType.STRING,
+    //       },
+    //     },
+    //   },
+    //   hidden: (props: TableWidgetProps, propertyPath: string) => {
+    //     const baseProperty = getBasePropertyPath(propertyPath);
+    //     const columnType = get(props, `${baseProperty}.columnType`, "");
+    //     return columnType !== "date";
+    //   },
+    // },
   ],
 };

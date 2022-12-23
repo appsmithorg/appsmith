@@ -20,7 +20,8 @@ export default {
           columnType === ColumnTypes.NUMBER ||
           columnType === ColumnTypes.CHECKBOX ||
           columnType === ColumnTypes.SWITCH ||
-          columnType === ColumnTypes.SELECT
+          columnType === ColumnTypes.SELECT ||
+          columnType === ColumnTypes.DATE
         ) || !isEditable
       );
     }
@@ -54,7 +55,9 @@ export default {
         const isEditable = get(props, `${baseProperty}.isEditable`, "");
         return (
           !(
-            columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
+            columnType === ColumnTypes.TEXT ||
+            columnType === ColumnTypes.NUMBER ||
+            columnType === ColumnTypes.DATE
           ) || !isEditable
         );
       },
@@ -132,6 +135,23 @@ export default {
       additionalAutoComplete: () => ({
         filterText: "",
       }),
+    },
+    {
+      propertyName: "onDateSelected",
+      label: "onDateSelected",
+      helpText: "Triggers an action when a date is selected in the calendar",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+      dependencies: ["primaryColumns"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const path = propertyPath
+          .split(".")
+          .slice(0, 2)
+          .join(".");
+        return hideByColumnType(props, path, [ColumnTypes.DATE], true);
+      },
     },
   ],
 };

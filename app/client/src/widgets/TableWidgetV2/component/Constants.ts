@@ -9,6 +9,7 @@ import {
 } from "components/constants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
 import { ColumnTypes } from "../constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -172,6 +173,15 @@ export interface ImageCellProperties {
   imageSize?: ImageSize;
 }
 
+export interface DateCellProperties {
+  inputFormat: string;
+  outputFormat: string;
+  maxDate: string;
+  minDate: string;
+  shortcuts: boolean;
+  timePrecision?: TimePrecision;
+}
+
 export interface BaseCellProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
@@ -196,6 +206,7 @@ export interface CellLayoutProperties
     MenuButtonCellProperties,
     SelectCellProperties,
     ImageCellProperties,
+    DateCellProperties,
     BaseCellProperties {}
 
 export type MenuItems = Record<
@@ -284,6 +295,8 @@ export interface ColumnEditabilityProperties {
     isEditableCellRequired?: boolean;
     min?: number;
     max?: number;
+    minDate?: string;
+    maxDate?: string;
   };
 }
 
@@ -338,6 +351,11 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
+  inputFormat?: string;
+  outputFormat?: string;
+  maxDate?: string;
+  minDate?: string;
+  shortcuts?: boolean;
 }
 
 export const ConditionFunctions: {
