@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -198,7 +199,7 @@ public class NewActionServiceCEImplTest {
 
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
-        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(Flux.empty(), null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(Flux.empty(), null, null);
 
         StepVerifier
                 .create(actionExecutionResultMono)
@@ -219,7 +220,7 @@ public class NewActionServiceCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null, null);
 
         StepVerifier
                 .create(actionExecutionResultMono)
@@ -240,7 +241,7 @@ public class NewActionServiceCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null, null);
 
         StepVerifier
                 .create(actionExecutionResultMono)
@@ -330,7 +331,7 @@ public class NewActionServiceCEImplTest {
 
         NewActionServiceCE newActionServiceSpy = spy(newActionService);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -339,7 +340,7 @@ public class NewActionServiceCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
-        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
 
 
@@ -380,7 +381,7 @@ public class NewActionServiceCEImplTest {
 
         NewActionServiceCE newActionServiceSpy = spy(newActionService);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -389,7 +390,7 @@ public class NewActionServiceCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
-        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
 
 

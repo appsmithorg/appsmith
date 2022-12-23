@@ -41,6 +41,7 @@ import {
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
+  SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system";
 import { isDatasourceInViewMode } from "selectors/ui";
@@ -208,8 +209,20 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { applicationSlug, pageSlug } = selectURLSlugs(state);
   const formName =
     plugin?.type === "API" ? DATASOURCE_REST_API_FORM : DATASOURCE_DB_FORM;
+  // for plugins, where 1 default endpoint is initialized,
+  // added this check so that form isnt considered dirty with default endpoint
+  const defaultEndpoints: Array<{
+    host: string;
+    port: string;
+  }> = (formData?.datasourceConfiguration as any)?.endpoints || [];
+  const isDefaultEndpoint =
+    defaultEndpoints.length === 1 &&
+    defaultEndpoints[0].host === "" &&
+    defaultEndpoints[0].port === "";
   const isFormDirty =
-    datasourceId === TEMP_DATASOURCE_ID ? true : isDirty(formName)(state);
+    datasourceId === TEMP_DATASOURCE_ID
+      ? true
+      : isDirty(formName)(state) && !isDefaultEndpoint;
 
   return {
     datasourceId,
@@ -428,6 +441,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         onClose={this.closeDialog}
         onDiscard={this.onDiscard}
         onSave={this.onSave}
+        saveButtonText={createMessage(SAVE_BUTTON_TEXT)}
       />
     );
   }

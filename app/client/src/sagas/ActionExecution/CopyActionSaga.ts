@@ -3,7 +3,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import {
   ActionTriggerType,
   CopyToClipboardDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
 

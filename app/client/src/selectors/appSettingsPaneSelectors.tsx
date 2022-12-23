@@ -1,4 +1,4 @@
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 import { createSelector } from "reselect";
 

@@ -66,6 +66,8 @@ import { useHistory } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 
+const { cloudHosting, mailEnabled } = getAppsmithConfigs();
+
 export const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
   font-weight: normal;
@@ -262,7 +264,10 @@ const validateFormValues = (values: {
     _users.forEach((user) => {
       if (!isEmail(user)) {
         throw new SubmissionError({
-          _error: createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST),
+          _error: createMessage(
+            INVITE_USERS_VALIDATION_EMAIL_LIST,
+            cloudHosting,
+          ),
         });
       }
     });
@@ -294,14 +299,15 @@ const validate = (values: any) => {
 
     _users.forEach((user: string) => {
       if (!isEmail(user)) {
-        errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
+        errors["users"] = createMessage(
+          INVITE_USERS_VALIDATION_EMAIL_LIST,
+          cloudHosting,
+        );
       }
     });
   }
   return errors;
 };
-
-export const { mailEnabled } = getAppsmithConfigs();
 
 export const InviteButtonWidth = "88px";
 
@@ -376,7 +382,7 @@ function WorkspaceInviteUsersForm(props: any) {
       : props.roles.map((role: any) => {
           return {
             id: role.id,
-            value: role.name,
+            value: role.name?.split(" - ")[0],
             label: role.description,
           };
         });
@@ -429,18 +435,8 @@ function WorkspaceInviteUsersForm(props: any) {
     );
   };
 
-  const errorHandler = (error: string, values: string[]) => {
-    if (values && values.length > 0) {
-      let error = "";
-      values.forEach((user: any) => {
-        if (!isEmail(user)) {
-          error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
-        }
-      });
-      setEmailError(error);
-    } else {
-      props.customError?.("");
-    }
+  const errorHandler = (error: string) => {
+    setEmailError(error);
   };
 
   return (
@@ -480,15 +476,13 @@ function WorkspaceInviteUsersForm(props: any) {
           <div className="wrapper">
             <TagListField
               autofocus
-              customError={(err: string, values?: string[]) =>
-                errorHandler(err, values || [])
-              }
+              customError={(err: string) => errorHandler(err)}
               data-cy="t--invite-email-input"
               intent="success"
               label="Emails"
               name="users"
-              placeholder={placeholder || "Enter email address"}
-              type="text"
+              placeholder={placeholder || "Enter email address(es)"}
+              type="email"
             />
             <SelectField
               allowDeselection={isMultiSelectDropdown}
@@ -565,7 +559,7 @@ function WorkspaceInviteUsersForm(props: any) {
                           </UserInfo>
                           <UserRole>
                             <Text type={TextType.P1}>
-                              {user.permissionGroupName}
+                              {user.permissionGroupName?.split(" - ")[0]}
                             </Text>
                           </UserRole>
                         </User>

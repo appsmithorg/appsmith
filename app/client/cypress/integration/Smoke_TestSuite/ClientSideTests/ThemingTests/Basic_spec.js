@@ -8,6 +8,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const ee = ObjectsRegistry.EntityExplorer,
   appSettings = ObjectsRegistry.AppSettings;
 
+const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
+
 describe("App Theming funtionality", function() {
   before(() => {
     cy.addDsl(dsl);
@@ -26,8 +28,8 @@ describe("App Theming funtionality", function() {
     themesSection(sectionName, themeName) + "/following-sibling::button";
 
   it("1. Checks if theme can be changed to one of the existing themes", function() {
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     // select a theme
@@ -60,18 +62,19 @@ describe("App Theming funtionality", function() {
 
   it("2. Checks if theme can be edited", function() {
     cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
-    appSettings.closePane();
+    appSettings.ClosePane();
 
-    // drop a button widget and click on body
+    // drop a button & container widget and click on body
     cy.get(explorer.widgetSwitchId).click();
-    cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 }); //iconbuttonwidget
+    cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
+    cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();
     cy.get("canvas")
       .first(0)
       .trigger("click", { force: true });
 
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
 
     //Click the back button //Commenting below since expanded by default
     //cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
@@ -87,7 +90,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true });
 
     // check if border radius is changed on button
-    cy.get(`${commonlocators.themeAppBorderRadiusBtn} > div`)
+    cy.get(commonlocators.themeAppBorderRadiusBtn)
       .eq(1)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -143,18 +146,18 @@ describe("App Theming funtionality", function() {
         );
       });
 
-    //Change the shadow //Commenting below since expanded by default
-    //cy.contains("Shadow").click({ force: true });
-    cy.contains("App Box Shadow")
-      .siblings("div")
-      .children("span")
-      .last()
-      .then(($elem) => {
-        cy.get($elem).click({ force: true });
-        cy.get(widgetsPage.widgetBtn).should(
+    // Change the shadow
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .click({ force: true });
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .invoke("css", "box-shadow")
+      .then((boxShadow) => {
+        cy.get(containerShadowElement).should(
           "have.css",
           "box-shadow",
-          $elem.css("box-shadow"),
+          boxShadow,
         );
       });
 
@@ -208,7 +211,7 @@ describe("App Theming funtionality", function() {
 
     cy.wait(200);
     cy.get(commonlocators.toastMsg).contains("Theme testtheme Saved");
-    appSettings.closePane();
+    appSettings.ClosePane();
   });
 
   it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
@@ -219,8 +222,8 @@ describe("App Theming funtionality", function() {
       .first(0)
       .trigger("click", { force: true });
 
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //#region Change Font & verify widgets:
     // cy.contains("Font")
     //   .click({ force: true })
@@ -286,7 +289,7 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
       .eq(23)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
@@ -306,7 +309,7 @@ describe("App Theming funtionality", function() {
     cy.get(commonlocators.themeAppBorderRadiusBtn)
       .eq(2)
       .click({ force: true });
-    cy.get(`${commonlocators.themeAppBorderRadiusBtn} > div`)
+    cy.get(`${commonlocators.themeAppBorderRadiusBtn}`)
       .eq(2)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -325,22 +328,17 @@ describe("App Theming funtionality", function() {
     //#endregion
 
     //#region Change the shadow & verify widgets
-    //cy.contains("Shadow").click({ force: true });
-    cy.contains("App Box Shadow")
-      .siblings("div")
-      .children("span")
-      .first()
-      .then(($elem) => {
-        cy.get($elem).click({ force: true });
-        cy.get(widgetsPage.iconWidgetBtn).should(
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .click({ force: true });
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .invoke("css", "box-shadow")
+      .then((boxShadow) => {
+        cy.get(containerShadowElement).should(
           "have.css",
           "box-shadow",
-          $elem.css("box-shadow"),
-        );
-        cy.get(widgetsPage.widgetBtn).should(
-          "have.css",
-          "box-shadow",
-          $elem.css("box-shadow"),
+          boxShadow,
         );
       });
 
@@ -797,8 +795,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(35)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(33)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(widgetsPage.widgetBtn)
@@ -1009,8 +1007,8 @@ describe("App Theming funtionality", function() {
       .first(0)
       .trigger("click", { force: true });
 
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
 
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
@@ -1029,8 +1027,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(17)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(13)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(widgetsPage.widgetBtn)

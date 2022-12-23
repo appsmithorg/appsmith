@@ -107,11 +107,15 @@ import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErro
 import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
+  hasCreateWorkspacePermission,
   hasDeleteWorkspacePermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -408,10 +412,7 @@ function LeftPane() {
   }
 
   const tenantPermissions = useSelector(getTenantPermissions);
-  const canCreateWorkspace = isPermitted(
-    tenantPermissions,
-    PERMISSION_TYPE.CREATE_WORKSPACE,
-  );
+  const canCreateWorkspace = hasCreateWorkspacePermission(tenantPermissions);
 
   const location = useLocation();
   const urlHash = location.hash.slice(1);
@@ -706,8 +707,8 @@ function ApplicationsSection(props: any) {
         const showWorkspaceMenuOptions =
           canInviteToWorkspace ||
           hasManageWorkspacePermissions ||
-          hasCreateNewAppPermission ||
-          canDeleteWorkspace;
+          hasCreateNewApplicationPermission ||
+          (canDeleteWorkspace && applications.length === 0);
 
         return (
           <WorkspaceSection
@@ -737,8 +738,14 @@ function ApplicationsSection(props: any) {
                     <FormDialogComponent
                       Form={WorkspaceInviteUsersForm}
                       canOutsideClickClose
-                      message={createMessage(INVITE_USERS_MESSAGE)}
-                      placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
+                      message={createMessage(
+                        INVITE_USERS_MESSAGE,
+                        cloudHosting,
+                      )}
+                      placeholder={createMessage(
+                        INVITE_USERS_PLACEHOLDER,
+                        cloudHosting,
+                      )}
                       title={`Invite Users to ${workspace.name}`}
                       trigger={
                         <Button
@@ -850,6 +857,20 @@ function ApplicationsSection(props: any) {
                               text="Import"
                             />
                           )}
+                        {hasManageWorkspacePermissions && canInviteToWorkspace && (
+                          <MenuItem
+                            icon="member"
+                            onSelect={() =>
+                              getOnSelectAction(
+                                DropdownOnSelectActions.REDIRECT,
+                                {
+                                  path: `/workspace/${workspace.id}/settings/members`,
+                                },
+                              )
+                            }
+                            text="Members"
+                          />
+                        )}
                         {canInviteToWorkspace && (
                           <MenuItem
                             icon="logout"
@@ -865,20 +886,6 @@ function ApplicationsSection(props: any) {
                                 : "Are you sure?"
                             }
                             type={!warnLeavingWorkspace ? undefined : "warning"}
-                          />
-                        )}
-                        {hasManageWorkspacePermissions && canInviteToWorkspace && (
-                          <MenuItem
-                            icon="member"
-                            onSelect={() =>
-                              getOnSelectAction(
-                                DropdownOnSelectActions.REDIRECT,
-                                {
-                                  path: `/workspace/${workspace.id}/settings/members`,
-                                },
-                              )
-                            }
-                            text="Members"
                           />
                         )}
                         {applications.length === 0 && canDeleteWorkspace && (

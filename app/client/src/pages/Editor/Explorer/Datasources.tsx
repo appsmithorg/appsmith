@@ -29,7 +29,7 @@ import {
   useDatasourceIdFromURL,
   getExplorerStatus,
   saveExplorerStatus,
-} from "./helpers";
+} from "@appsmith/pages/Editor/Explorer/helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
@@ -128,7 +128,11 @@ const Datasources = React.memo(() => {
       className={"datasources"}
       entityId="datasources_section"
       icon={null}
-      isDefaultExpanded={isDatasourcesOpen === null ? true : isDatasourcesOpen}
+      isDefaultExpanded={
+        isDatasourcesOpen === null || isDatasourcesOpen === undefined
+          ? false
+          : isDatasourcesOpen
+      }
       isSticky
       name="Datasources"
       onCreate={addDatasource}

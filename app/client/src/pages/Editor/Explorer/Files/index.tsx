@@ -17,7 +17,10 @@ import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
 import { Colors } from "constants/Colors";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
-import { getExplorerStatus, saveExplorerStatus } from "../helpers";
+import {
+  getExplorerStatus,
+  saveExplorerStatus,
+} from "@appsmith/pages/Editor/Explorer/helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
@@ -65,7 +68,7 @@ function Files() {
           return (
             <div
               className={`text-sm text-[${Colors.CODE_GRAY}] pl-8 bg-trueGray-50 overflow-hidden overflow-ellipsis whitespace-nowrap`}
-              key={entity.name}
+              key={entity.name || "Queries"}
             >
               {entity.name}
             </div>
@@ -111,7 +114,9 @@ function Files() {
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
-      isDefaultExpanded={isFilesOpen ?? true}
+      isDefaultExpanded={
+        isFilesOpen === null || isFilesOpen === undefined ? false : isFilesOpen
+      }
       isSticky
       key={pageId + "_widgets"}
       name="Queries/JS"

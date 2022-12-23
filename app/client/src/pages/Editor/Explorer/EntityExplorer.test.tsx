@@ -14,6 +14,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
 import * as permissionUtils from "@appsmith/utils/permissionHelpers";
 import userEvent from "@testing-library/user-event";
 
@@ -30,6 +31,11 @@ jest.mock("@appsmith/utils/permissionHelpers", () => {
     ...jest.requireActual("@appsmith/utils/permissionHelpers"),
   };
 });
+
+jest.mock("@appsmith/pages/Editor/Explorer/helpers", () => ({
+  __esModule: true,
+  ...jest.requireActual("@appsmith/pages/Editor/Explorer/helpers"),
+}));
 
 describe("Entity Explorer tests", () => {
   beforeAll(() => {
@@ -53,6 +59,10 @@ describe("Entity Explorer tests", () => {
   });
 
   it("checks datasources section in explorer", () => {
+    const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
+    mockExplorerState.mockImplementationOnce(
+      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
+    );
     store.dispatch({
       type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       payload: mockDatasources,
@@ -74,6 +84,10 @@ describe("Entity Explorer tests", () => {
     jest
       .spyOn(permissionUtils, "hasCreateDatasourcePermission")
       .mockReturnValue(false);
+    const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
+    mockExplorerState.mockImplementationOnce(
+      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
+    );
     store.dispatch(updateCurrentPage("pageId"));
     const component = render(<Datasources />);
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
@@ -98,6 +112,10 @@ describe("Entity Explorer tests", () => {
     jest
       .spyOn(permissionUtils, "hasDeleteDatasourcePermission")
       .mockReturnValue(false);
+    const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
+    mockExplorerState.mockImplementationOnce(
+      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
+    );
     store.dispatch(updateCurrentPage("pageId"));
     const { container } = render(<Datasources />);
     const target = container.getElementsByClassName("t--context-menu");

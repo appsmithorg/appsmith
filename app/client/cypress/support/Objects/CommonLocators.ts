@@ -20,7 +20,7 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
-  _textWidget = ".t--draggable-textwidget span";
+  _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -72,6 +72,10 @@ export class CommonLocators {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//button[contains(@class, 't--open-dropdown-Select-Action')]";
+    _selectPropPageDropdown = (ddName: string) =>
+    "//div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//button[contains(@class, 't--open-dropdown-Select-Page')]";
   _dropDownValue = (dropdownOption: string) =>
     ".single-select:contains('" + dropdownOption + "')";
   _selectOptionValue = (dropdownOption: string) =>
@@ -162,4 +166,7 @@ export class CommonLocators {
   _omnibarDescription = "[data-cy='description']";
   _previewModeToggle = ".t--switch-preview-mode-toggle";
   _editModeToggle = ".t--switch-comment-mode-off";
+  _editorVariable = ".cm-variable";
+  _consoleString = ".cm-string";
+  _commentString = ".cm-comment";
 }

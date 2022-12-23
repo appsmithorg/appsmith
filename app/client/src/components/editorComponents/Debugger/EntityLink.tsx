@@ -16,7 +16,7 @@ import {
 } from "selectors/entitiesSelector";
 import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL, jsCollectionIdURL } from "RouteBuilder";
 
@@ -90,8 +90,8 @@ function WidgetLink(props: EntityLinkProps) {
       props.id,
       widget.type,
       widget.pageId,
+      NavigationMethod.EntityExplorer,
       props.id === selectedWidgetId,
-      widget.parentModalId,
     );
     AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
       entityType: "WIDGET",

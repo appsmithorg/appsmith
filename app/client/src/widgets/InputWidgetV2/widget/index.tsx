@@ -23,7 +23,10 @@ import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
+import {
+  InputTypes,
+  NumberInputStepButtonPosition,
+} from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -399,6 +402,24 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   handleFocusChange = (focusState: boolean) => {
+    if (focusState) {
+      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+    }
+    if (!focusState) {
+      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
+    }
     super.handleFocusChange(focusState);
   };
 
@@ -534,6 +555,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
         );
       }
+    }
+
+    if (
+      this.props.inputType === InputTypes.NUMBER &&
+      this.props.showStepArrows
+    ) {
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.RIGHT;
+    } else {
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip

@@ -6,7 +6,7 @@ import TreeDropdown, {
 import { noop } from "lodash";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   clonePageInit,
@@ -155,11 +155,6 @@ export function PageContextMenu(props: {
         </CustomLabel>
       ) as ReactNode) as string,
     },
-    {
-      value: "settings",
-      onSelect: openAppSettingsPane,
-      label: createMessage(CONTEXT_SETTINGS),
-    },
     !props.isDefaultPage &&
       canManagePages && {
         value: "setdefault",
@@ -173,6 +168,11 @@ export function PageContextMenu(props: {
         value: "setdefault",
         label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
       },
+    {
+      value: "settings",
+      onSelect: openAppSettingsPane,
+      label: createMessage(CONTEXT_SETTINGS),
+    },
     !props.isDefaultPage &&
       canDeletePages && {
         className: "t--apiFormDeleteBtn single-select",
