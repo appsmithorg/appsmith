@@ -2,11 +2,8 @@ import { getType, Types } from "utils/TypeHelpers";
 import downloadjs from "downloadjs";
 import AppsmithConsole from "utils/AppsmithConsole";
 import Axios from "axios";
-import {
-  ActionTriggerType,
-  DownloadActionDescription,
-} from "entities/DataTree/actionTriggers";
-import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
+import { DownloadActionDescription } from "entities/DataTree/actionTriggers";
+import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
 import { isBase64String, isUrlString } from "./downloadActionUtils";
 
 export default async function downloadSaga(
@@ -14,12 +11,7 @@ export default async function downloadSaga(
 ) {
   const { data, name, type } = action;
   if (!name) {
-    throw new ActionValidationError(
-      ActionTriggerType.DOWNLOAD,
-      "name",
-      Types.STRING,
-      getType(name),
-    );
+    throw new TriggerFailureError("Please enter a file name");
   }
   const dataType = getType(data);
   if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
