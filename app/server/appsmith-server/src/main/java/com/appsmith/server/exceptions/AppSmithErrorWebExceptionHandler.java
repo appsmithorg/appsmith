@@ -61,6 +61,9 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
                 .contentType(MediaType.APPLICATION_JSON);
 
         if (errorCode == 500 && String.valueOf(error.get("trace")).contains(DESERIALIZATION_ERROR_MESSAGE)) {
+            // If the error is regarding a deserialization error in the session data, then the user is essentially locked out.
+            // They have to use a different browser, or Incognito, or clear their cookies to get back in. So, we'll delete
+            // the SESSION cookie here, so that the user gets sent back to the Login page, and they can unblock themselves.
             responseBuilder = responseBuilder.cookie(
                     ResponseCookie.from("SESSION", "")
                             .httpOnly(true)
