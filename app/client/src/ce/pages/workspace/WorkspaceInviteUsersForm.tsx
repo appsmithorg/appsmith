@@ -429,18 +429,8 @@ function WorkspaceInviteUsersForm(props: any) {
     );
   };
 
-  const errorHandler = (error: string, values: string[]) => {
-    if (values && values.length > 0) {
-      let error = "";
-      values.forEach((user: any) => {
-        if (!isEmail(user)) {
-          error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
-        }
-      });
-      setEmailError(error);
-    } else {
-      props.customError?.("");
-    }
+  const errorHandler = (error: string) => {
+    setEmailError(error);
   };
 
   return (
@@ -480,15 +470,13 @@ function WorkspaceInviteUsersForm(props: any) {
           <div className="wrapper">
             <TagListField
               autofocus
-              customError={(err: string, values?: string[]) =>
-                errorHandler(err, values || [])
-              }
+              customError={(err: string) => errorHandler(err)}
               data-cy="t--invite-email-input"
               intent="success"
               label="Emails"
               name="users"
-              placeholder={placeholder || "Enter email address"}
-              type="text"
+              placeholder={placeholder || "Enter email address(es)"}
+              type="email"
             />
             <SelectField
               allowDeselection={isMultiSelectDropdown}

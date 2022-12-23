@@ -106,7 +106,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (currentWorkspace) {
-      setPageTitle(`Members in ${currentWorkspace?.name}`);
+      setPageTitle(`${currentWorkspace?.name}`);
     }
   }, [currentWorkspace]);
 
@@ -194,6 +194,7 @@ export default function Settings() {
             pageMenuItems={pageMenuItems}
             searchPlaceholder="Search"
             showMoreOptions={false}
+            showSearchNButton={isMembersPage}
             title={pageTitle}
           />
         </StyledStickyHeader>

@@ -139,7 +139,7 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 
 @Slf4j
 @ChangeLog(order = "001")
-public class DatabaseChangelog {
+public class DatabaseChangelog1 {
 
     public static ObjectMapper objectMapper = new ObjectMapper();
     private static final String AGGREGATE_LIMIT = "aggregate.limit";
@@ -2877,7 +2877,7 @@ public class DatabaseChangelog {
         }
     }
 
-    private Document getDocumentFromPath(Document document, String path) {
+    public static Document getDocumentFromPath(Document document, String path) {
         String[] pathKeys = path.split("\\.");
         Document documentPtr = document;
 
