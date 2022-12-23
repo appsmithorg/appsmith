@@ -1077,7 +1077,7 @@ export const ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING = () =>
 export const SECURITY_APPS_LEAST_PRIVILEGE = () =>
   "Secure apps by the least privilege needed";
 export const SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1 = () =>
-  "Create roles by the least privilege needed as defaults, e.g.: View only, assign them to users in groups, e.g.: Marketing, and modify for special access, e.g.: Content creators_Execute queries";
+  `Create roles by the least privilege needed as defaults, <span>e.g.: View only</span>, assign them to users in groups, <span>e.g.: Marketing</span>, and modify for special access, <span>e.g.: Content creators_Execute queries</span>`;
 export const PREVENT_ACCIDENTAL_DAMAGE = () =>
   "Prevent accidental damage to data";
 export const PREVENT_ACCIDENTAL_DAMAGE_DETAIL1 = () =>
