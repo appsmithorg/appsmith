@@ -1348,7 +1348,11 @@ export const CLEAN_URL_UPDATE = {
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
 
-export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+export const MEMBERS_TAB_TITLE = (
+  length: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `Users (${length})`;
 
 export const CREATE_PAGE = () => "New Blank Page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
