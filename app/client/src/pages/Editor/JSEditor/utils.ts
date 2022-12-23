@@ -105,6 +105,7 @@ export const getJSFunctionLineGutter = (
   runFuction: (jsAction: JSAction, from: EventLocation) => void,
   showGutters: boolean,
   onFocusAction: (jsAction: JSAction) => void,
+  isExecutePermitted: boolean,
 ): CodeEditorGutter => {
   const gutter: CodeEditorGutter = {
     getGutterConfig: null,
@@ -116,7 +117,7 @@ export const getJSFunctionLineGutter = (
     getGutterConfig: (code: string, lineNumber: number) => {
       const config = getJSFunctionStartLineFromCode(code, lineNumber);
       const action = find(jsActions, ["name", config?.actionName]);
-      return config && action
+      return config && action && isExecutePermitted
         ? {
             line: config.line,
             element: createGutterMarker(() =>
