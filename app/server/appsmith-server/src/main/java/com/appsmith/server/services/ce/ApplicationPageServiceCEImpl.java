@@ -1023,7 +1023,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 //In each page, copy each layout's dsl to publishedDsl field
                 .flatMap(applicationPage -> newPageService
                         .findById(applicationPage.getId(), pagePermission.getEditPermission())
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, applicationPage.getId())))
+                        // For a git connected app if the user does not have permission to edit few pages in master branch
+                        // They can edit those in feature branch. When they do operations like commit and push we publish the changes automatically
+                        // and this will fail due to permission issue. Hence removing the throwing error part and handling it gracefully
+                        // Only the pages which the user pocesses permission will be published
+                        //.switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, applicationPage.getId())))
                         .map(page -> {
                             page.setPublishedPage(page.getUnpublishedPage());
                             return page;
