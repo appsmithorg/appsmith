@@ -36,7 +36,7 @@ const TagInputWrapper = styled.div`
       border-radius: 0px;
     }
     .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-      border: 1px solid var(--appsmith-color-orange-500);
+      border: 1px solid var(--ads-color-brand);
       box-shadow: none;
     }
     .${Classes.INPUT_GHOST} {
@@ -48,15 +48,15 @@ const TagInputWrapper = styled.div`
     .${Classes.TAG} {
       padding: 3px 10px;
       color: var(--appsmith-color-black-0);
-      background-color: var(--appsmith-color-orange-500);
+      background-color: var(--ads-color-brand);
       border-radius: 0px;
       font-size: 11px;
       letter-spacing: 0.4px;
 
       &.suggestion_tag {
         background-color: var(--appsmith-color-black-0);
-        color: var(--appsmith-color-orange-500);
-        border: 1px solid var(--appsmith-color-orange-500);
+        color: var(--ads-color-brand);
+        border: 1px solid var(--ads-color-brand);
       }
 
       .${Classes.TAG_REMOVE} {

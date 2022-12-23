@@ -95,6 +95,20 @@ describe("<RoleAddEdit />", () => {
     titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
   });
+  it("should show input box on role description on clicking edit description menu item", async () => {
+    const { getAllByTestId } = renderComponent();
+    const moreMenu = getAllByTestId("t--page-header-actions");
+    await userEvent.click(moreMenu[0]);
+    let titleEl = document.getElementsByClassName("t--editable-description");
+    expect(titleEl).toHaveLength(0);
+    const renameOption = document.getElementsByClassName(
+      "rename-desc-menu-item",
+    );
+    await userEvent.click(renameOption[0]);
+    titleEl = document.getElementsByClassName("t--editable-description");
+    expect(titleEl).toHaveLength(1);
+    expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+  });
   it("should show tabs as per data recieved", () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
@@ -157,7 +171,9 @@ describe("<RoleAddEdit />", () => {
   it("should show hover state using hashtable", async () => {
     const { getAllByTestId, queryAllByTestId } = renderComponent();
     const elId = "633ae5bf174013666db972c2_Create";
-    const hoverCheckboxEl = getAllByTestId(elId);
+    const hoverCheckboxEl = getAllByTestId(elId)?.[0].getElementsByTagName(
+      "div",
+    );
     const rightArrows = document.getElementsByName("right-arrow-2");
     rightArrows[0].click();
     const hoverEls: HTMLElement[] = [];
@@ -165,8 +181,8 @@ describe("<RoleAddEdit />", () => {
     tabData.hoverMap[elId].forEach((item: { id: string; p: string }) => {
       hoverEls.push(...queryAllByTestId(`${item.id}_${item.p}`));
     });
-    userEvent.hover(hoverCheckboxEl[0]);
-    expect(hoverEls[0]).toHaveClass("hover-state");
+    userEvent.hover(hoverCheckboxEl?.[0]);
+    expect(hoverEls?.[0]).toHaveClass("hover-state");
     /* expect(hoverEls[0]).toHaveStyle("opacity: 0.4"); styled-components 5.2.1 should solve this */
   });
   it("should show correct checkbox state", async () => {

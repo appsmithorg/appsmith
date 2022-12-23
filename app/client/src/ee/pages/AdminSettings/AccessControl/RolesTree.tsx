@@ -845,29 +845,32 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
             data-cellid={`${rowData.id}_${column}`}
             data-rowid={parseInt(rowId.split(".")[0])}
             data-testid={`${rowData.id}_${column}`}
-            onMouseOut={() =>
-              removeHoverClass(
-                `${rowData.id}_${column}`,
-                parseInt(rowId.split(".")[0]),
-              )
-            }
-            onMouseOver={() =>
-              addHoverClass(
-                `${rowData.id}_${column}`,
-                parseInt(rowId.split(".")[0]),
-              )
-            }
           >
-            <Checkbox
-              className="design-system-checkbox"
-              disabled={!canEditRole || isDisabled}
-              /* indeterminate={row.permissions[i] === 3 ? true : false} */
-              isDefaultChecked={isChecked}
-              onCheckChange={(value: boolean) =>
-                onChangeHandler(value, `${rowData.id}_${column}`)
+            <div
+              onMouseOut={() =>
+                removeHoverClass(
+                  `${rowData.id}_${column}`,
+                  parseInt(rowId.split(".")[0]),
+                )
               }
-              value={`${rowData.id}_${column}`}
-            />
+              onMouseOver={() =>
+                addHoverClass(
+                  `${rowData.id}_${column}`,
+                  parseInt(rowId.split(".")[0]),
+                )
+              }
+            >
+              <Checkbox
+                className="design-system-checkbox"
+                disabled={!canEditRole || isDisabled}
+                /* indeterminate={row.permissions[i] === 3 ? true : false} */
+                isDefaultChecked={isChecked}
+                onCheckChange={(value: boolean) =>
+                  onChangeHandler(value, `${rowData.id}_${column}`)
+                }
+                value={`${rowData.id}_${column}`}
+              />
+            </div>
           </CheckboxWrapper>
         ) : (
           <CheckboxWrapper
