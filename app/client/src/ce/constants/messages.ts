@@ -135,7 +135,7 @@ export const MAKE_APPLICATION_PUBLIC_TOOLTIP = () =>
   "A public app is accessible to anyone who can access your instance of appsmith";
 export const INVITE_TAB = () => "Invite";
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
-  `Invalid Email address(es) found`;
+  `Invalid email address(es) found`;
 export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
 
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
@@ -1351,7 +1351,11 @@ export const CLEAN_URL_UPDATE = {
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
 
-export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+export const MEMBERS_TAB_TITLE = (
+  length: number,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  cloudHosting?: boolean,
+) => `Users (${length})`;
 
 export const CREATE_PAGE = () => "New Blank Page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";

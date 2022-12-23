@@ -12,3 +12,6 @@ export const pageSettings = ObjectsRegistry.PageSettings;
 export const embedSettings = ObjectsRegistry.EmbedSettings;
 export const homePage = ObjectsRegistry.HomePage;
 export const theme = ObjectsRegistry.ThemeSettings;
+export const dataSources = ObjectsRegistry.DataSources;
+export const apiPage = ObjectsRegistry.ApiPage;
+

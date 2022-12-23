@@ -428,7 +428,7 @@ export class DataSources {
       .scrollIntoView()
       .should("be.visible")
       .click();
-    this.agHelper.Sleep(2000); //for the Datasource page to open
+    this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));

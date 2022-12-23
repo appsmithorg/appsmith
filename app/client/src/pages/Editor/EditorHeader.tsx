@@ -98,6 +98,9 @@ import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
 import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -473,7 +476,10 @@ export function EditorHeader(props: EditorHeaderProps) {
               canOutsideClickClose
               isOpen={showAppInviteUsersDialog}
               noModalBodyMarginTop
-              placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
+              placeholder={createMessage(
+                INVITE_USERS_PLACEHOLDER,
+                cloudHosting,
+              )}
               tabs={tabs}
               trigger={
                 <TooltipComponent
