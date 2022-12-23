@@ -46,12 +46,14 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           DatasourcePermission datasourcePermission,
                           ApplicationPermission applicationPermission,
                           PagePermission pagePermission,
-                          ActionPermission actionPermission) {
+                          ActionPermission actionPermission,
+                          WorkspaceService workspaceService) {
 
         super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
                 datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
-                actionPermission);
+                actionPermission, workspaceService);
     }
+
 }

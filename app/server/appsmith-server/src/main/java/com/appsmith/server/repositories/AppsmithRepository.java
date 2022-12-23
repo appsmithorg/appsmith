@@ -9,11 +9,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface AppsmithRepository<T> {
 
     Mono<T> findById(String id, AclPermission permission);
+
+    Mono<T> findById(String id, Optional<AclPermission> permission);
 
     Mono<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
 
@@ -30,6 +33,8 @@ public interface AppsmithRepository<T> {
     Mono<T> setUserPermissionsInObject(T obj);
 
     Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
+
+    Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
     Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username);
 }
