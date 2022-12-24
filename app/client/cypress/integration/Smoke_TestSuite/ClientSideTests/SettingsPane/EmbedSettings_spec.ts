@@ -19,11 +19,22 @@ describe("In-app embed settings", () => {
   });
 
   it("3. Check embed preview show/hides navigation bar according to setting", () => {
-    _.inviteModal.ValidatePreviewEmbed(true);
-    _.inviteModal.ValidatePreviewEmbed(false);
+    _.inviteModal.ValidatePreviewEmbed("true");
+    _.inviteModal.ValidatePreviewEmbed("false");
   });
 
   it("4. Check Show/Hides Navigation bar syncs between AppSettings Pane Embed tab & Share modal", () => {
-    //test script to be added here
+    _.embedSettings.OpenEmbedSettings();
+    _.embedSettings.ToggleShowNavigationBar("true");
+
+    _.inviteModal.OpenShareModal();
+    _.inviteModal.SelectEmbedTab();
+
+    _.agHelper
+      .GetElement(_.embedSettings.locators._showNavigationBar)
+      .should("be.checked");
+
+    _.embedSettings.ToggleShowNavigationBar("false");
+    _.inviteModal.CloseModal();
   });
 });

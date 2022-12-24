@@ -87,14 +87,20 @@ function useUpdateEmbedSnippet() {
   }, []);
 
   const debouncedUpdate = useCallback(
-    debounce((applicationId, embedSetting) => {
-      dispatch(
-        updateApplication(applicationId, {
-          embedSetting,
-          currentApp: true,
-        }),
-      );
-    }, 1000),
+    debounce(
+      (applicationId, embedSetting) => {
+        dispatch(
+          updateApplication(applicationId, {
+            embedSetting,
+            currentApp: true,
+          }),
+        );
+      },
+      1000,
+      {
+        leading: true,
+      },
+    ),
     [],
   );
 

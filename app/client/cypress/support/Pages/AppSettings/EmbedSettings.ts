@@ -37,11 +37,16 @@ export class EmbedSettings {
     );
   }
 
-  public ToggleShowNavigationBar() {
-    this.agHelper.GetSiblingNClick(
-      this.locators._showNavigationBar,
-      this.locators._controlIndicator,
-    );
-    this.agHelper.ValidateNetworkStatus("@updateApplication");
+  public ToggleShowNavigationBar(check: "true" | "false" = "true") {
+    const input = this.agHelper.GetElement(this.locators._showNavigationBar);
+    input.invoke("attr", "checked").then((value) => {
+      if (value !== check) {
+        this.agHelper.GetSiblingNClick(
+          this.locators._showNavigationBar,
+          this.locators._controlIndicator,
+        );
+        this.agHelper.ValidateNetworkStatus("@updateApplication");
+      }
+    });
   }
 }

@@ -87,7 +87,6 @@ function EmbedSettings() {
                 <Switch
                   checked={application?.isPublic}
                   className="mb-0"
-                  data-cy="show-navigation-bar-toggle"
                   disabled={isFetchingApplication || isChangingViewAccess}
                   id="t--embed-settings-application-public"
                   large
@@ -157,6 +156,7 @@ function EmbedSettings() {
         <SwitchWrapper>
           <Switch
             className="mb-0"
+            data-cy="show-navigation-bar-toggle"
             defaultChecked={embedSnippet.currentEmbedSetting?.showNavigationBar}
             large
             onChange={() =>

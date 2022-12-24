@@ -31,14 +31,14 @@ export class InviteModal {
     this.agHelper.GetNClick(this.locators._closeButton);
   }
 
-  public ValidatePreviewEmbed(toShowNavBar: true | false = true) {
+  public ValidatePreviewEmbed(toShowNavBar: "true" | "false" = "true") {
     this.OpenShareModal();
     this.SelectEmbedTab();
-    this.embedSettings.ToggleShowNavigationBar();
+    this.embedSettings.ToggleShowNavigationBar(toShowNavBar);
     cy.get(this.locators._previewEmbed)
       .invoke("removeAttr", "target")
       .click();
-    if (toShowNavBar) {
+    if (toShowNavBar === "true") {
       this.agHelper.AssertElementExist(this.commonLocators._backToEditor);
       this.deployPage.NavigateBacktoEditor();
     } else {
