@@ -112,6 +112,16 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     ),
   );
 
+  const isChangePermitted = hasManageActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+  const isExecutePermitted = hasExecuteActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+
   // Triggered when there is a change in the code editor
   const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
     const value: string =
@@ -162,8 +172,9 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         executeJSAction,
         !parseErrors.length,
         handleActiveActionChange,
+        isExecutePermitted,
       ),
-    [jsActions, parseErrors, handleActiveActionChange],
+    [jsActions, parseErrors, handleActiveActionChange, isExecutePermitted],
   );
 
   const handleJSActionOptionSelection: DropdownOnSelect = (
@@ -219,16 +230,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     }
     return [];
   }, [selectedJSActionOption.label, currentJSCollection.name]);
-
-  const isChangePermitted = hasManageActionPermission(
-    currentJSCollection?.userPermissions || [],
-  );
-  const isExecutePermitted = hasExecuteActionPermission(
-    currentJSCollection?.userPermissions || [],
-  );
-  const isDeletePermitted = hasDeleteActionPermission(
-    currentJSCollection?.userPermissions || [],
-  );
 
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTabIndex);
 
