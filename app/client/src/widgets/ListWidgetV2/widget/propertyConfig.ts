@@ -8,6 +8,9 @@ import { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
+const MIN_ITEM_SPACING = 0;
+const MAX_ITEM_SPACING = 16;
+
 const isValidListData = (
   value: unknown,
 ): value is Exclude<ListWidgetProps["listData"], undefined> => {
@@ -242,7 +245,7 @@ export const PropertyPaneStyleConfig = [
     sectionName: "General",
     children: [
       {
-        propertyName: "gridGap",
+        propertyName: "itemSpacing",
         helpText: "Spacing between items in Pixels",
         placeholderText: "0",
         label: "Item Spacing (px)",
@@ -250,7 +253,10 @@ export const PropertyPaneStyleConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         inputType: "INTEGER",
-        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: { min: MIN_ITEM_SPACING, max: MAX_ITEM_SPACING },
+        },
       },
     ],
   },
