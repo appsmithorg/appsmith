@@ -1,7 +1,5 @@
 const dsl = require("../../../../fixtures/basicDsl.json");
 import homePage from "../../../../locators/HomePage";
-const commonlocators = require("../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 
 let duplicateApplicationDsl;
 let parentApplicationDsl;
@@ -15,7 +13,7 @@ describe("Duplicate application", function() {
     const appname = localStorage.getItem("AppName");
     cy.SearchEntityandOpen("Input1");
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
-    cy.testJsontext("defaulttext", "A");
+    cy.testJsontext("defaultvalue", "A");
     cy.wait("@inputUpdate").then((response) => {
       parentApplicationDsl = response.response.body.data.dsl;
     });

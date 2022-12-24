@@ -5,14 +5,14 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { Task } from "redux-saga";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
-import { areIntersecting } from "utils/WidgetPropsUtils";
+import { areIntersecting } from "utils/boxHelpers";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -98,7 +98,7 @@ function* selectAllWidgetsInAreaSaga(
       : widgetIdsToSelect;
     const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
 
-    if (!isEqual(filteredWidgetsToSelect, currentSelectedWidgets)) {
+    if (!equal(filteredWidgetsToSelect, currentSelectedWidgets)) {
       yield put(selectMultipleWidgetsAction(filteredWidgetsToSelect));
     }
   }

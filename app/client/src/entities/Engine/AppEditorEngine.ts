@@ -14,6 +14,7 @@ import {
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
 import { fetchJSCollections } from "actions/jsActionActions";
+import { loadGuidedTourInit } from "actions/onboardingActions";
 import {
   fetchAllPageEntityCompletion,
   fetchPage,
@@ -28,10 +29,10 @@ import {
   ApplicationPayload,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import { all, call, put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
@@ -171,10 +172,8 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    yield all([
-      call(this.loadPageThemesAndActions, toLoadPageId, applicationId),
-      call(this.loadPluginsAndDatasources),
-    ]);
+    yield call(this.loadPageThemesAndActions, toLoadPageId, applicationId);
+    yield call(this.loadPluginsAndDatasources);
   }
 
   public *completeChore() {
@@ -185,6 +184,7 @@ export default class AppEditorEngine extends AppEngine {
       appId: currentApplication.id,
       appName: currentApplication.name,
     });
+    yield put(loadGuidedTourInit());
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });

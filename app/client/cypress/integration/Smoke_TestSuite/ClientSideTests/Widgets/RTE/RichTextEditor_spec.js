@@ -41,7 +41,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.openPropertyPane("richtexteditorwidget");
   });
 
-  it("RichTextEditor-Edit Text area with HTML body functionality", function() {
+  it("1. RichTextEditor-Edit Text area with HTML body functionality", function() {
     //changing the Text Name
     cy.widgetText(
       this.data.RichTextEditorName,
@@ -50,7 +50,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
 
     //Edit the text area with Html
-    cy.testJsontext("defaulttext", this.data.HtmlText);
+    cy.testJsontext("defaultvalue", this.data.HtmlText);
 
     //Validate Html
     cy.validateHTMLText(
@@ -66,7 +66,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
   });
 
-  it("RichTextEditor-Enable Validation", function() {
+  it("2. RichTextEditor-Enable Validation", function() {
     //Uncheck the Disabled checkbox
     cy.UncheckWidgetProperties(formWidgetsPage.disableJs);
     cy.validateEnableWidget(
@@ -81,7 +81,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
   });
 
-  it("RichTextEditor-Disable Validation", function() {
+  it("3. RichTextEditor-Disable Validation", function() {
     //Check the Disabled checkbox
     cy.CheckWidgetProperties(formWidgetsPage.disableJs);
     cy.validateDisableWidget(
@@ -96,21 +96,21 @@ describe("RichTextEditor Widget Functionality", function() {
     );
   });
 
-  it("RichTextEditor-check Visible field  validation", function() {
+  it("4. RichTextEditor-check Visible field  validation", function() {
     // Uncheck the visible checkbox
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publishPage.richTextEditorWidget).should("not.exist");
   });
 
-  it("RichTextEditor-uncheck Visible field validation", function() {
+  it("5. RichTextEditor-uncheck Visible field validation", function() {
     // Check the visible checkbox
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publishPage.richTextEditorWidget).should("be.visible");
   });
 
-  it("RichTextEditor-check Hide toolbar field validation", function() {
+  it("6. RichTextEditor-check Hide toolbar field validation", function() {
     // Check the Hide toolbar checkbox
     cy.CheckWidgetProperties(commonlocators.hideToolbarCheckbox);
     cy.validateToolbarHidden(
@@ -124,7 +124,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
   });
 
-  it("RichTextEditor-uncheck Hide toolbar field validation", function() {
+  it("7. RichTextEditor-uncheck Hide toolbar field validation", function() {
     // Uncheck the Hide toolbar checkbox
     cy.UncheckWidgetProperties(commonlocators.hideToolbarCheckbox);
     cy.validateToolbarVisible(
@@ -138,7 +138,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
   });
 
-  it("Reset RichTextEditor", function() {
+  it("8. Reset RichTextEditor", function() {
     // Enable the widget
     cy.UncheckWidgetProperties(formWidgetsPage.disableJs);
 
@@ -159,7 +159,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
   });
 
-  it("Check isDirty meta property", function() {
+  it("9. Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -167,7 +167,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
     cy.openPropertyPane("richtexteditorwidget");
     // Change defaultText
-    cy.testJsontext("defaulttext", "a");
+    cy.testJsontext("defaultvalue", "a");
     // Check if isDirty has been changed into false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -179,7 +179,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
     cy.openPropertyPane("richtexteditorwidget");
-    cy.testJsontext("defaulttext", "b");
+    cy.testJsontext("defaultvalue", "b");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
 
@@ -190,30 +190,30 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(".t--widget-buttonwidget .bp3-button").click({ force: true });
     cy.wait(500);
     cy.openPropertyPane("richtexteditorwidget");
-    cy.testJsontext("defaulttext", "c");
+    cy.testJsontext("defaultvalue", "c");
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
-  it("Check if the binding is getting removed from the text and the RTE widget", function() {
+  it("10. Check if the binding is getting removed from the text and the RTE widget", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{RichtextEditor.text}}`);
     // Change defaultText of the RTE
     cy.openPropertyPane("richtexteditorwidget");
-    cy.testJsontext("defaulttext", "Test Content");
+    cy.testJsontext("defaultvalue", "Test Content");
 
     //Check if the text widget has the defaultText of RTE
     cy.get(".t--widget-textwidget").should("contain", "Test Content");
 
     //Clear the default text from RTE
     cy.openPropertyPane("richtexteditorwidget");
-    cy.testJsontext("defaulttext", "");
+    cy.testJsontext("defaultvalue", "");
 
     //Check if text widget and RTE widget does not have any text in it.
     cy.get(".t--widget-richtexteditorwidget").should("contain", "");
     cy.get(".t--widget-textwidget").should("contain", "");
   });
 
-  it("Check if text does not re-appear when cut, inside the RTE widget", function() {
+  it("11. Check if text does not re-appear when cut, inside the RTE widget", function() {
     cy.window().then((win) => {
       const tinyMceId = "rte-6h8j08u7ea";
 
@@ -233,7 +233,7 @@ describe("RichTextEditor Widget Functionality", function() {
     });
   });
 
-  it("Check if the cursor position is at the end for the RTE widget", function() {
+  it("12. Check if the cursor position is at the end for the RTE widget", function() {
     const tinyMceId = "rte-6h8j08u7ea";
     const testString = "Test Content";
     const testStringLen = testString.length;
@@ -246,19 +246,13 @@ describe("RichTextEditor Widget Functionality", function() {
 
     // Changing the input type to markdown and again testing the cursor position
     cy.openPropertyPane("richtexteditorwidget");
-    cy.selectDropdownValue(
-      ".t--property-control-inputtype .bp3-popover-target",
-      "Markdown",
-    );
+    cy.get(".t--button-tab-markdown").click({ force: true });
     setRTEContent(testString);
     testCursorPoistion(testStringLen, tinyMceId);
-    cy.selectDropdownValue(
-      ".t--property-control-inputtype .bp3-popover-target",
-      "HTML",
-    );
+    cy.get(".t--button-tab-html").click({ force: true });
   });
 
-  it("Check if different font size texts are supported inside the RTE widget", function() {
+  it("13. Check if different font size texts are supported inside the RTE widget", function() {
     const tinyMceId = "rte-6h8j08u7ea";
     const testString = "Test Content";
 
@@ -278,6 +272,18 @@ describe("RichTextEditor Widget Functionality", function() {
       expect(getCurrentHtmlContent).contains("<h1>");
       expect(getCurrentHtmlContent).contains("<p>");
     });
+  });
+
+  it("14. Check if button for Underline exists within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Underline"]').should("exist");
+  });
+
+  it("15. Check if button for Background Color is rendered only once within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Background color"]').should("have.length", 1);
+  });
+
+  it("16. Check if button for Text Color is rendered only once within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Text color"]').should("have.length", 1);
   });
 
   afterEach(() => {

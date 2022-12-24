@@ -84,7 +84,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultCheckedState property
     cy.openPropertyPane("checkboxwidget");
-    cy.get(".t--property-control-defaultselected label")
+    cy.get(".t--property-control-defaultstate label")
       .last()
       .click();
     // Check if isDirty is reset to false

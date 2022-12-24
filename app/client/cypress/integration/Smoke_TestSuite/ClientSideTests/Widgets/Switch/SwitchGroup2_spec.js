@@ -1,95 +1,97 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/SwitchGroupWidgetDsl.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+let agHelper = ObjectsRegistry.AggregateHelper,
+  propPane = ObjectsRegistry.PropertyPane,
+  ee = ObjectsRegistry.EntityExplorer;
 
 describe("Switch Group Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-
-  beforeEach(() => {
-    cy.openPropertyPane("switchgroupwidget");
-  });
-
+  /*
   afterEach(() => {
     cy.goToEditFromPublish();
   });
-
-  it("Widget name changes", function() {
+*/
+  it("1. Widget name changes", function() {
     /**
      * @param{Text} Random Text
      * @param{RadioWidget}Mouseover
      * @param{RadioPre Css} Assertion
      */
-
-    cy.widgetText(
-      "switchgrouptest",
-      formWidgetsPage.switchGroupWidget,
-      formWidgetsPage.switchGroupInput,
-    );
-    cy.closePropertyPane();
+    ee.SelectEntityByName("SwitchGroup1");
+    agHelper.RenameWidget("SwitchGroup1", "SwitchGroupTest");
   });
 
-  it("Property: options", function() {
+  it("2. Property: options", function() {
     // Add a new option
-    const optionToAdd = { label: "Yellow", value: "YELLOW" };
-    cy.get(".t--property-control-options .CodeMirror textarea")
-      .first()
-      .focus({ force: true })
-      .type("{ctrl}{end}", { force: true })
-      .type("{ctrl}{uparrow}", { force: true })
-      .type("{end}", { force: true })
-      .type(",{enter}")
-      .type(JSON.stringify(optionToAdd), {
-        parseSpecialCharSequences: false,
-      });
+    ee.SelectEntityByName("SwitchGroupTest");
+
+    const optionToAdd = `[
+      {
+        "label": "Blue",
+        "value": "BLUE"
+      },
+      {
+        "label": "Green",
+        "value": "GREEN"
+      },
+      {
+        "label": "Red",
+        "value": "RED"
+      },
+      {
+        "label": "Yellow",
+        "value": "YELLOW"
+      }
+    ]`;
+    propPane.UpdatePropertyFieldValue("Options", optionToAdd);
     // Assert
     cy.get(formWidgetsPage.labelSwitchGroup)
       .should("have.length", 4)
       .eq(3)
       .contains("Yellow");
-    cy.closePropertyPane();
   });
 
-  it("Property: defaultSelectedValues", function() {
+  it("3. Property: defaultSelectedValues", function() {
     // Add a new option
-    const valueToAdd = "GREEN";
-    cy.get(".t--property-control-defaultselectedvalues .CodeMirror textarea")
-      .first()
-      .focus({ force: true })
-      .type("{ctrl}{end}", { force: true })
-      .type("{ctrl}{uparrow}", { force: true })
-      .type("{end}", { force: true })
-      .type(",{enter}")
-      .type(`"${valueToAdd}"`);
+    const valueToAdd = `[
+      "BLUE", "GREEN"
+    ]`;
+    propPane.UpdatePropertyFieldValue("Default Selected Values", valueToAdd);
     // Assert
     cy.get(`${formWidgetsPage.labelSwitchGroup} input:checked`)
       .should("have.length", 2)
       .eq(1)
       .parent()
       .contains("Green");
-    cy.closePropertyPane();
   });
 
-  it("Property: isVisible === FALSE", function() {
+  it("4. Property: isVisible === FALSE", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
+    /*
     cy.PublishtheApp();
     cy.get(publish.switchGroupWidget + " " + "input").should("not.exist");
+    */
   });
 
-  it("Property: isVisible === TRUE", function() {
+  it("5. Property: isVisible === TRUE", function() {
     cy.togglebar(commonlocators.visibleCheckbox);
+    /*
     cy.PublishtheApp();
     cy.get(publish.switchGroupWidget + " " + "input")
       .eq(0)
       .should("exist");
+      */
   });
 
-  it("Property: onSelectionChange", function() {
+  it("6. Property: onSelectionChange", function() {
     // create an alert modal and verify its name
     cy.createModal(this.data.ModalName);
+    /*
     cy.PublishtheApp();
     cy.get(publish.switchGroupWidget + " " + "label.bp3-switch")
       .children()
@@ -99,13 +101,14 @@ describe("Switch Group Widget Functionality", function() {
       "have.text",
       this.data.ModalName,
     );
+    */
   });
 
-  it("Check isDirty meta property", function() {
+  it("7. Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
-      `{{switchgrouptest.isDirty}}`,
+      `{{SwitchGroupTest.isDirty}}`,
     );
     // Change defaultSelectedValues
     cy.openPropertyPane("switchgroupwidget");

@@ -62,10 +62,12 @@ function changeFieldType(fieldName, fieldType) {
 
 function addCustomField(fieldType) {
   cy.openPropertyPane("jsonformwidget");
+  cy.backFromPropertyPanel();
 
-  cy.get(".t--property-pane-section-general button")
-    .contains("Add a new field")
-    .click({ force: true });
+  // Add new field
+  cy.get(commonlocators.jsonFormAddNewCustomFieldBtn).click({
+    force: true,
+  });
 
   changeFieldType("customField1", fieldType);
 }
@@ -82,7 +84,7 @@ describe("JSON Form Hidden fields", () => {
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
   });
 
-  it("can hide Array Field", () => {
+  it("1. can hide Array Field", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("education");
     hideAndVerifyProperties("education", [
@@ -93,18 +95,18 @@ describe("JSON Form Hidden fields", () => {
     ]);
   });
 
-  it("can hide Array Field's inner fields", () => {
+  it("2. can hide Array Field's inner fields", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("college");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("college", false);
 
     hideAndVerifyProperties("education-0--college", "MIT", (formData) => {
       return formData.education[0].college;
     });
   });
 
-  it("can hide Checkbox Field", () => {
+  it("3. can hide Checkbox Field", () => {
     // Add new custom field
     addCustomField("Checkbox");
 
@@ -113,7 +115,7 @@ describe("JSON Form Hidden fields", () => {
     removeCustomField();
   });
 
-  it("can hide Currency Field", () => {
+  it("4. can hide Currency Field", () => {
     const defaultValue = 1000;
     // Add new custom field
     addCustomField("Currency Input");
@@ -122,28 +124,28 @@ describe("JSON Form Hidden fields", () => {
     removeCustomField();
   });
 
-  it("can hide Date Field", () => {
+  it("5. can hide Date Field", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("dob");
 
     hideAndVerifyProperties("dob", "10/12/1992");
   });
 
-  it("can hide Input Field", () => {
+  it("6. can hide Input Field", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("name");
 
     hideAndVerifyProperties("name", "John");
   });
 
-  it("can hide Multiselect Field", () => {
+  it("7. can hide Multiselect Field", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("hobbies");
 
     hideAndVerifyProperties("hobbies", ["travelling", "swimming"]);
   });
 
-  it("can hide Object Field", () => {
+  it("8. can hide Object Field", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("address");
 
@@ -153,7 +155,7 @@ describe("JSON Form Hidden fields", () => {
     });
   });
 
-  it("can hide Phone Number Input Field", () => {
+  it("9. can hide Phone Number Input Field", () => {
     const defaultValue = "1000";
     // Add new custom field
     addCustomField("Phone Number Input");
@@ -165,7 +167,7 @@ describe("JSON Form Hidden fields", () => {
     removeCustomField();
   });
 
-  it("can hide Radio Group Field", () => {
+  it("10. can hide Radio Group Field", () => {
     const defaultValue = "Y";
     // Add new custom field
     addCustomField("Phone Number Input");
@@ -177,19 +179,19 @@ describe("JSON Form Hidden fields", () => {
     removeCustomField();
   });
 
-  it("can hide Select Field", () => {
+  it("11. can hide Select Field", () => {
     const defaultValue = "BLUE";
     // Add new custom field
     addCustomField(/^Select/);
 
-    cy.testJsontext("defaultvalue", defaultValue);
+    cy.testJsontext("defaultselectedvalue", defaultValue);
 
     hideAndVerifyProperties("customField1", defaultValue);
 
     removeCustomField();
   });
 
-  it("can hide Switch Field", () => {
+  it("12. can hide Switch Field", () => {
     // Add new custom field
     addCustomField("Switch");
 
@@ -198,7 +200,7 @@ describe("JSON Form Hidden fields", () => {
     removeCustomField();
   });
 
-  it("hides fields on first load", () => {
+  it("13. hides fields on first load", () => {
     cy.openPropertyPane("jsonformwidget");
 
     // hide education field
@@ -213,6 +215,7 @@ describe("JSON Form Hidden fields", () => {
 
     // publish the app
     cy.PublishtheApp();
+    cy.wait(1000);
 
     // Check if name is hidden
     cy.get(`${fieldPrefix}-name`).should("not.exist");

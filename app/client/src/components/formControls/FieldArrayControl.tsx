@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import FormControl from "pages/Editor/FormControl";
-import { Icon, IconSize, Text, TextType } from "design-system";
-import { Classes } from "components/ads/common";
+import { Classes, Icon, IconSize, Text, TextType } from "design-system";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
 import { ControlProps } from "./BaseControl";

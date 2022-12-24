@@ -5,7 +5,6 @@ import {
   isNumber,
   isString,
   isNil,
-  isEqual,
   xor,
   without,
   isBoolean,
@@ -15,6 +14,7 @@ import {
   isEmpty,
   find,
 } from "lodash";
+import equal from "fast-deep-equal/es6";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
@@ -53,6 +53,7 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -72,6 +73,31 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        menuButton: {
+          menuColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        iconButton: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+      },
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -566,7 +592,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (
           xor(newColumnIds, columnOrder).length > 0 &&
           newColumnIds.length > 0 &&
-          !isEqual(sortBy(newColumnIds), sortBy(previousDerivedColumnIds))
+          !equal(sortBy(newColumnIds), sortBy(previousDerivedColumnIds))
         ) {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
@@ -709,7 +735,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     // If the user changed the defaultSelectedRow(s)
-    if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
+    if (!equal(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
       //Runs only when defaultSelectedRow is changed from property pane
       this.updateSelectedRowIndex();
     }
@@ -793,7 +819,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("filters", filters);
 
     // Reset Page only when a filter is added
-    if (!isEmpty(xorWith(filters, defaultFilter, isEqual))) {
+    if (!isEmpty(xorWith(filters, defaultFilter, equal))) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
   };

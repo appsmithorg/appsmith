@@ -1,7 +1,10 @@
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
-import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { DSLWidget } from "widgets/constants";
 import {
   ClonePageActionPayload,
@@ -24,6 +27,7 @@ export type SavePageRequest = {
   dsl: DSLWidget;
   layoutId: string;
   pageId: string;
+  applicationId: string;
 };
 
 export type PageLayout = {
@@ -31,6 +35,7 @@ export type PageLayout = {
   dsl: Partial<DSLWidget>;
   layoutOnLoadActions: PageAction[][];
   layoutActions: PageAction[];
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
 
 export type FetchPageResponseData = {
@@ -41,6 +46,8 @@ export type FetchPageResponseData = {
   layouts: Array<PageLayout>;
   lastUpdatedTime: number;
   customSlug?: string;
+  userPermissions?: string[];
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
 
 export type FetchPublishedPageResponseData = FetchPageResponseData;
@@ -56,6 +63,7 @@ export type SavePageResponseData = {
     name: string;
     collectionId?: string;
   }>;
+  layoutOnLoadActionErrors?: Array<LayoutOnLoadActionErrors>;
 };
 
 export type CreatePageRequest = Omit<
@@ -68,6 +76,18 @@ export type UpdatePageRequest = {
   name?: string;
   isHidden?: boolean;
   customSlug?: string;
+};
+
+export type UpdatePageResponse = {
+  id: string;
+  name: string;
+  slug: string;
+  customSlug?: string;
+  applicationId: string;
+  layouts: Array<PageLayout>;
+  isHidden: boolean;
+  lastUpdatedTime: number;
+  defaultResources: unknown[];
 };
 
 export type SetPageOrderRequest = {
@@ -86,6 +106,7 @@ export type FetchPageListResponseData = {
     isHidden?: boolean;
     layouts: Array<PageLayout>;
     slug: string;
+    userPermissions?: string[];
   }>;
   workspaceId: string;
 };
@@ -141,8 +162,12 @@ class PageApi extends Api {
   static url = "v1/pages";
   static refactorLayoutURL = "v1/layouts/refactor";
   static pageUpdateCancelTokenSource?: CancelTokenSource = undefined;
-  static getLayoutUpdateURL = (pageId: string, layoutId: string) => {
-    return `v1/layouts/${layoutId}/pages/${pageId}`;
+  static getLayoutUpdateURL = (
+    applicationId: string,
+    pageId: string,
+    layoutId: string,
+  ) => {
+    return `v1/layouts/${layoutId}/pages/${pageId}?applicationId=${applicationId}`;
   };
 
   static getGenerateTemplateURL = (pageId?: string) => {
@@ -177,6 +202,7 @@ class PageApi extends Api {
     PageApi.pageUpdateCancelTokenSource = axios.CancelToken.source();
     return Api.put(
       PageApi.getLayoutUpdateURL(
+        savePageRequest.applicationId,
         savePageRequest.pageId,
         savePageRequest.layoutId,
       ),
@@ -200,7 +226,9 @@ class PageApi extends Api {
     return Api.post(PageApi.url, createPageRequest);
   }
 
-  static updatePage(request: UpdatePageRequest): AxiosPromise<ApiResponse> {
+  static updatePage(
+    request: UpdatePageRequest,
+  ): AxiosPromise<ApiResponse<UpdatePageResponse>> {
     return Api.put(PageApi.updatePageUrl(request.id), request);
   }
 

@@ -14,10 +14,10 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "../Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { builderURL } from "RouteBuilder";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 
 const Section = styled.section`
   height: 100%;
@@ -32,7 +32,7 @@ type AppViewerPageContainerProps = RouteComponentProps<AppViewerRouteParams>;
 
 function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   const currentPageName = useSelector(getCurrentPageName);
-  const widgetsStructure = useSelector(getCanvasWidgetsStructure, isEqual);
+  const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const canvasWidth = useSelector(getCanvasWidth);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentApplication = useSelector(getCurrentApplication);

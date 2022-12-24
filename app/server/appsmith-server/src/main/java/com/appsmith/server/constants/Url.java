@@ -5,11 +5,9 @@ public interface Url {
     String VERSION = "/v1";
     String LOGIN_URL = BASE_URL + VERSION + "/login";
     String LOGOUT_URL = BASE_URL + VERSION + "/logout";
-    String WIDGET_URL = BASE_URL + VERSION + "/widgets";
     String WORKSPACE_URL = BASE_URL + VERSION + "/workspaces";
     String LAYOUT_URL = BASE_URL + VERSION + "/layouts";
     String PLUGIN_URL = BASE_URL + VERSION + "/plugins";
-    String SETTING_URL = BASE_URL + VERSION + "/settings";
     String DATASOURCE_URL = BASE_URL + VERSION + "/datasources";
     String SAAS_URL = BASE_URL + VERSION + "/saas";
     String ACTION_URL = BASE_URL + VERSION + "/actions";
@@ -17,11 +15,8 @@ public interface Url {
     String BACKGROUND_URL = BASE_URL + VERSION + "/background";
     String APPLICATION_URL = BASE_URL + VERSION + "/" + Entity.APPLICATIONS;
     String PAGE_URL = BASE_URL + VERSION + "/" + Entity.PAGES;
-    String PROPERTY_URL = BASE_URL + VERSION + "/properties";
     String CONFIG_URL = BASE_URL + VERSION + "/configs";
-    String TEAM_URL = BASE_URL + VERSION + "/teams";
     String GROUP_URL = BASE_URL + VERSION + "/groups";
-    String PERMISSION_URL = BASE_URL + VERSION + "/permissions";
     String COLLECTION_URL = BASE_URL + VERSION + "/collections";
     String ACTION_COLLECTION_URL = COLLECTION_URL + "/actions";
     String IMPORT_URL = BASE_URL + VERSION + "/import";
@@ -37,4 +32,6 @@ public interface Url {
     String THEME_URL = BASE_URL + VERSION + "/themes";
     String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
     String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
+    String TENANT_URL = BASE_URL + VERSION + "/tenants";
+    String CUSTOM_JS_LIB_URL = BASE_URL + VERSION + "/libraries";
 }

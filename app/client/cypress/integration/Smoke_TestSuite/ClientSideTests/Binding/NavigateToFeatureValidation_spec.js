@@ -2,13 +2,21 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/navigateTotabledsl.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/navigateToInputDsl.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table Widget with Input Widget and Navigate to functionality validation", function() {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   before(() => {
     cy.addDsl(dsl);
   });
@@ -24,7 +32,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 

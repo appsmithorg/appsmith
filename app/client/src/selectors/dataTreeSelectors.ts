@@ -6,23 +6,24 @@ import {
   getPluginEditorConfigs,
   getJSCollectionsForCurrentPage,
 } from "./entitiesSelector";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   DataTree,
   DataTreeFactory,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
-import { getWidgets, getWidgetsMeta } from "sagas/selectors";
+import { getWidgetsForEval, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "@appsmith/reducers";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
 import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import { get } from "lodash";
+import { EvaluationError, getEvalErrorPath } from "utils/DynamicBindingUtils";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
-  getWidgets,
+  getWidgetsForEval,
   getWidgetsMeta,
   getPageList,
   getAppData,
@@ -84,24 +85,15 @@ export const getWidgetEvalValues = createSelector(
 // there isn't a response already
 export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-  (tree: DataTree, actions: ActionDataState) => {
-    //js actions needs to be added
-    const cachedResponses: Record<string, any> = {};
-    if (actions && actions.length) {
-      actions.forEach((action) => {
-        if (!(action.config.name in tree) && action.config.cacheResponse) {
-          try {
-            cachedResponses[action.config.name] = JSON.parse(
-              action.config.cacheResponse,
-            );
-          } catch (e) {
-            cachedResponses[action.config.name] = action.config.cacheResponse;
-          }
-        }
-      });
-    }
+  (tree: DataTree) => {
     return tree;
   },
+);
+export const getPathEvalErrors = createSelector(
+  [
+    getDataTreeForAutocomplete,
+    (_: unknown, dataTreePath: string) => dataTreePath,
+  ],
+  (dataTree: DataTree, dataTreePath: string) =>
+    get(dataTree, getEvalErrorPath(dataTreePath), []) as EvaluationError[],
 );

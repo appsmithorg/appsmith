@@ -1,6 +1,5 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/uiBindDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
@@ -26,7 +25,7 @@ describe("API Panel Test Functionality", function() {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-name:contains('FirstAPI')").should("be.visible");
     cy.hoverAndClick();
     cy.selectAction("Edit Name");

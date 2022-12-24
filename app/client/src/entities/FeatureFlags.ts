@@ -3,9 +3,11 @@ type FeatureFlags = {
   JS_EDITOR?: boolean;
   MULTIPLAYER?: boolean;
   SNIPPET?: boolean;
-  GIT?: boolean;
-  GIT_IMPORT?: boolean;
-  PROPERTY_PANE_GROUPING?: boolean;
+  TEMPLATES_PHASE_2?: boolean;
+  RBAC?: boolean;
+  CONTEXT_SWITCHING?: boolean;
+  USAGE?: boolean;
+  DATASOURCE_ENVIRONMENTS?: boolean;
 };
 
 export default FeatureFlags;

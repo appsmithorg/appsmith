@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import styled from "constants/DefaultTheme";
-import { useSelector } from "store";
 import {
   getConnectingErrorDocUrl,
   getGitConnectError,
@@ -9,7 +9,7 @@ import {
   NotificationBanner,
   NotificationBannerProps,
   NotificationVariant,
-} from "../../../../components/ads/NotificationBanner";
+} from "design-system";
 
 const NotificationContainer = styled.div`
   margin-top: 16px;

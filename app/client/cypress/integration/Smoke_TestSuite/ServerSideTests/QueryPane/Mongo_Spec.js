@@ -4,7 +4,8 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const formControls = require("../../../../locators/FormControl.json");
 import homePage from "../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer;
+const ee = ObjectsRegistry.EntityExplorer;
+const dataSources = ObjectsRegistry.DataSources;
 
 let datasourceName;
 
@@ -63,7 +64,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     // cy.EvaluateCurrentValue(`{"find": "listingAndReviews","limit": 10}`);
 
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "10 Records");
+    dataSources.CheckResponseRecordsCount(10);
     cy.deleteQueryUsingContext();
   });
 
@@ -81,18 +82,18 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
     cy.typeValueNValidate("listingAndReviews", formControls.mongoCollection);
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "10 Records");
+    dataSources.CheckResponseRecordsCount(10);
 
     cy.typeValueNValidate("{beds : {$lte: 2}}", formControls.mongoFindQuery);
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "10 Records");
+    dataSources.CheckResponseRecordsCount(10);
 
     cy.typeValueNValidate(
       "{number_of_reviews: -1}",
       formControls.mongoFindSort,
     ); //sort descending
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "10 Records");
+    dataSources.CheckResponseRecordsCount(10);
 
     cy.typeValueNValidate(
       "{house_rules: 1, description:1}",
@@ -108,7 +109,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
         "Response is not as expected for Find commmand with multiple conditions",
       );
     });
-    cy.xpath(queryLocators.countText).should("have.text", "5 Records");
+    dataSources.CheckResponseRecordsCount(5);
 
     cy.typeValueNValidate("2", formControls.mongoFindSkip); //Skip field
     cy.onlyQueryRun();
@@ -119,7 +120,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
         "Response is not as expected for Find commmand with multiple conditions",
       );
     });
-    cy.xpath(queryLocators.countText).should("have.text", "5 Records");
+    dataSources.CheckResponseRecordsCount(5);
     cy.deleteQueryUsingContext();
   });
 
@@ -263,6 +264,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
   it("9. Bug 7399: Validate Form based & Raw command based templates", function() {
     let id;
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(`${datasourceName}`);
     cy.xpath(queryLocators.listingAndReviewContext)
       .invoke("show")
@@ -340,7 +342,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
           .replace(/['"]+/g, ""),
       );
     });
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.actionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 
@@ -377,7 +379,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     cy.get(datasource.MongoDB).click({ force: true });
     cy.fillMongoDatasourceForm();
 
-    cy.CheckAndUnfoldEntityItem("DATASOURCES");
+    cy.CheckAndUnfoldEntityItem("Datasources");
     cy.generateUUID().then((uid) => {
       datasourceName = `Mongo Documents ${uid}`;
       cy.renameDatasource(datasourceName);
@@ -418,10 +420,10 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     );
 
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "3 Records");
+    dataSources.CheckResponseRecordsCount(3);
 
     cy.get("@dSName").then((dbName) => {
-      //cy.CheckAndUnfoldEntityItem("DATASOURCES");
+      //cy.CheckAndUnfoldEntityItem("Datasources");
       cy.actionContextMenuByEntityName(dbName, "Refresh");
       // cy.get(`.t--entity.datasource:contains(${dbName})`)
       //   .find(explorer.collapse)
@@ -439,7 +441,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
     });
 
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.get(queryLocators.suggestedWidgetChart)
       .click()
@@ -538,14 +540,14 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     //cy.get(queryLocators.templateMenu).click();
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}', formControls.rawBody);
     cy.runQuery();
-    cy.CheckAndUnfoldEntityItem("DATASOURCES");
+    cy.CheckAndUnfoldEntityItem("Datasources");
     cy.get("@dSName").then((dbName) => {
       cy.actionContextMenuByEntityName(dbName, "Refresh");
     });
     cy.xpath("//div[text()='NonAsciiTest']").should("not.exist"); //validating drop is successful!
 
     cy.deleteQueryUsingContext();
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     cy.actionContextMenuByEntityName("Table1");
     cy.actionContextMenuByEntityName("Chart1");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails

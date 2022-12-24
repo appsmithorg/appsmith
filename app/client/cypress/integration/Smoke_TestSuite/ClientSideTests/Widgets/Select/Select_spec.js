@@ -2,6 +2,7 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Select widget", () => {
   it("1. Drag and drop Select/Text widgets", () => {
@@ -25,7 +26,7 @@ describe("Select widget", () => {
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultOptionValue property
-    cy.updateCodeInput(".t--property-control-defaultvalue", "RED");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "RED");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
@@ -78,5 +79,13 @@ describe("Select widget", () => {
     cy.get(commonlocators.selectInputSearch)
       .invoke("val")
       .should("not.be.empty");
+  });
+
+  it("5. Select tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("selectwidget");
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
+    // tooltip help icon shows
+    cy.get(".select-tooltip").should("be.visible");
   });
 });

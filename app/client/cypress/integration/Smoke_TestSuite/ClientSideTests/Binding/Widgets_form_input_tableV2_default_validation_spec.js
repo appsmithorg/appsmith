@@ -9,7 +9,7 @@ describe("Binding the multiple input Widget", function() {
 
   it("1. Input widget test with default value from table widget v2", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
+    cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait(2000);
     cy.wait("@updateLayout").should(

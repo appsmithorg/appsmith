@@ -6,6 +6,7 @@ const pages = require("../../../../../locators/Pages.json");
 import homePage from "../../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
+let agHelper = ObjectsRegistry.AggregateHelper;
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
 const tempBranch0 = "tempBranch0";
@@ -14,6 +15,14 @@ const jsObject = "JSObject1";
 let repoName;
 
 describe("Git sync Bug #10773", function() {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -30,14 +39,14 @@ describe("Git sync Bug #10773", function() {
     });
   });
 
-  it("Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
+  it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     // adding a new page "ChildPage" to master
     cy.Createpage(pagename);
     cy.get(".t--entity-name:contains('Page1')").click();
     cy.commitAndPush();
     cy.wait(2000);
     cy.createGitBranch(tempBranch);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     // verify tempBranch should contain this page
     cy.get(`.t--entity-name:contains("${pagename}")`).should("be.visible");
     cy.get(`.t--entity-name:contains("${pagename}")`).click();
@@ -52,17 +61,15 @@ describe("Git sync Bug #10773", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify ChildPage is not on master
     cy.switchGitBranch(mainBranch);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
     // create another branch and verify deleted page doesn't exist on it
     cy.createGitBranch(tempBranch0);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
   });
-});
 
-describe("Git Bug: Fix clone page issue where JSObject are not showing up in destination page when application is connected to git", function() {
-  it("Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
+  it("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -76,7 +83,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       cy.createTestGithubRepo(repoName);
       cy.connectToGitRepo(repoName);
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -101,7 +108,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       "response.body.responseMeta.status",
       201,
     );
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -129,16 +136,16 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
     cy.wait(1000);
   });
 
-  it("Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
+  it("3. Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
     // create a new branch, clone page and validate jsObject data binding
     cy.createGitBranch(tempBranch);
     cy.wait(2000);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(".t--entity-name:contains(Page1)")
       .last()
       .trigger("mouseover")
       .click({ force: true });
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -159,14 +166,10 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       "response.body.responseMeta.status",
       201,
     );
-  });
-
-  after(() => {
     cy.deleteTestGithubRepo(repoName);
   });
-});
-describe("Git synced app with JSObject", function() {
-  it("Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
+
+  it("4. Create an app with JSObject, connect it to git and verify its data in edit and deploy mode", function() {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -174,7 +177,7 @@ describe("Git synced app with JSObject", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.addDsl(dsl);
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -237,7 +240,7 @@ describe("Git synced app with JSObject", function() {
           }
 
           // verify jsObject data binding on Page 1
-          cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+          cy.CheckAndUnfoldEntityItem("Queries/JS");
           cy.get(`.t--entity-name:contains(${jsObject})`).should(
             "have.length",
             1,
@@ -246,12 +249,12 @@ describe("Git synced app with JSObject", function() {
             "be.visible",
           );
           // switch to Page1 copy and verify jsObject data binding
-          cy.CheckAndUnfoldEntityItem("PAGES");
+          cy.CheckAndUnfoldEntityItem("Pages");
           cy.get(".t--entity-name:contains(Page1)")
             .last()
             .trigger("mouseover")
             .click({ force: true });
-          cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+          cy.CheckAndUnfoldEntityItem("Queries/JS");
           // verify jsObject is not duplicated
           cy.get(`.t--entity-name:contains(${jsObject})`).should(
             "have.length",
@@ -262,13 +265,10 @@ describe("Git synced app with JSObject", function() {
           );
         });
     });
-  });
-  after(() => {
     cy.deleteTestGithubRepo(repoName);
   });
-});
-describe("Git sync Bug #13385", function() {
-  it("Bug:13385 : Unable to see application in home page after the git connect flow is aborted in middle", () => {
+
+  it("5. Bug:13385 : Unable to see application in home page after the git connect flow is aborted in middle", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {

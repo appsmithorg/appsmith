@@ -15,30 +15,20 @@ const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
 const pages = require("../locators/Pages.json");
-const datasourceFormData = require("../fixtures/datasources.json");
 const commonlocators = require("../locators/commonlocators.json");
-const queryEditor = require("../locators/QueryEditor.json");
-const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
-const LayoutPage = require("../locators/Layout.json");
-const formWidgetsPage = require("../locators/FormWidgets.json");
 import ApiEditor from "../locators/ApiEditor";
 const apiwidget = require("../locators/apiWidgetslocator.json");
-const dynamicInputLocators = require("../locators/DynamicInput.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
-const commonLocators = require("../locators/commonlocators.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-const themelocator = require("../locators/ThemeLocators.json");
-import gitSyncLocators from "../locators/gitSyncLocators";
 
 let pageidcopy = " ";
-const GITHUB_API_BASE = "https://api.github.com";
 const chainStart = Symbol();
 
 export const initLocalstorage = () => {
@@ -387,7 +377,7 @@ Cypress.Commands.add(
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
   },
 );
@@ -587,9 +577,8 @@ Cypress.Commands.add("generateUUID", () => {
 });
 
 Cypress.Commands.add("addDsl", (dsl) => {
-  let currentURL;
-  let pageid;
-  let layoutId;
+  let currentURL, pageid, layoutId, appId;
+  appId = localStorage.getItem("applicationId");
   cy.url().then((url) => {
     currentURL = url;
     pageid = currentURL
@@ -598,14 +587,21 @@ Cypress.Commands.add("addDsl", (dsl) => {
       .pop();
     cy.log(pageidcopy + "page id copy");
     cy.log(pageid + "page id");
+    appId = localStorage.getItem("applicationId");
     //Fetch the layout id
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
       const respBody = JSON.stringify(response.body);
       layoutId = JSON.parse(respBody).data.layouts[0].id;
+      cy.log("appid:" + appId);
       // Dumping the DSL to the created page
       cy.request(
         "PUT",
-        "api/v1/layouts/" + layoutId + "/pages/" + pageid,
+        "api/v1/layouts/" +
+          layoutId +
+          "/pages/" +
+          pageid +
+          "?applicationId=" +
+          appId,
         dsl,
       ).then((response) => {
         cy.log(response.body);
@@ -671,7 +667,7 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.wait("@createDatasource").should(
+  cy.wait("@saveDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     201,
@@ -685,8 +681,9 @@ Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
   cy.get(explorer.createNew).click({ force: true });
+  // 2 is the index value of the JS Object in omnibar ui
   cy.get(".t--file-operation")
-    .eq(1)
+    .eq(2)
     .click({ force: true });
 });
 
@@ -893,8 +890,9 @@ Cypress.Commands.add("setTinyMceContent", (tinyMceId, content) => {
 
 Cypress.Commands.add("startRoutesForDatasource", () => {
   cy.server();
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("POST", "/api/v1/datasources").as("saveDatasource");
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
+  cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
@@ -902,7 +900,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.server();
   cy.route("PUT", "/api/v1/themes/applications/*").as("updateTheme");
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+  cy.route("POST", "/api/v1/datasources").as("saveDatasource");
   cy.route("GET", "/api/v1/applications/new").as("applications");
   cy.route("GET", "/api/v1/users/profile").as("getUser");
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
@@ -921,9 +919,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "getTemplateCollections",
   );
   cy.route("PUT", "/api/v1/pages/*").as("updatePage");
+  cy.route("PUT", "api/v1/applications/*/page/*/makeDefault").as(
+    "makePageDefault",
+  );
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApp");
   cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
-  cy.route("POST", "/api/v1/datasources").as("createDatasource");
+  //cy.route("POST", "/api/v1/datasources").as("createDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
     "getDatasourceStructure",
@@ -1008,6 +1009,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
   cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
+  cy.intercept("GET", "/api/v1/app-templates").as("fetchTemplate");
+  cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
+  cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
+  cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1019,7 +1024,7 @@ Cypress.Commands.add("startErrorRoutes", () => {
 Cypress.Commands.add("NavigateToPaginationTab", () => {
   cy.get(ApiEditor.apiTab)
     .contains("Pagination")
-    .click();
+    .click({ force: true });
   cy.xpath(apiwidget.paginationWithUrl).click({ force: true });
 });
 
@@ -1056,10 +1061,11 @@ Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });
+  cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
@@ -1092,10 +1098,11 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });
+  cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
@@ -1155,10 +1162,6 @@ Cypress.Commands.add(
     });
   },
 );
-
-Cypress.Commands.add("skipGenerateCRUDPage", () => {
-  cy.get(generatePage.buildFromScratchActionCard).click();
-});
 
 Cypress.Commands.add("updateMapType", (mapType) => {
   // Command to change the map chart type if the property pane of the map chart widget is opened.
@@ -1596,15 +1599,17 @@ Cypress.Commands.add("isNotInViewport", (element) => {
 });
 
 Cypress.Commands.add("isInViewport", (element) => {
-  cy.xpath(element).then(($el) => {
-    const bottom = Cypress.$(cy.state("window")).height();
-    const rect = $el[0].getBoundingClientRect();
+  cy.xpath(element)
+    .scrollIntoView()
+    .then(($el) => {
+      const bottom = Cypress.$(cy.state("window")).height();
+      const rect = $el[0].getBoundingClientRect();
 
-    expect(rect.top).not.to.be.greaterThan(bottom);
-    expect(rect.bottom).not.to.be.greaterThan(bottom);
-    expect(rect.top).not.to.be.greaterThan(bottom);
-    expect(rect.bottom).not.to.be.greaterThan(bottom);
-  });
+      expect(rect.top).not.to.be.greaterThan(bottom);
+      expect(rect.bottom).not.to.be.greaterThan(bottom);
+      expect(rect.top).not.to.be.greaterThan(bottom);
+      expect(rect.bottom).not.to.be.greaterThan(bottom);
+    });
 });
 
 Cypress.Commands.add("validateEvaluatedValue", (value) => {
@@ -1684,21 +1689,17 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .contains(labelText);
 
   // Set the label position: Auto
-  cy.selectDropdownValue(labelPositionSelector, "Auto");
+  cy.get(".t--button-tab-Auto").click({ force: true });
   // Assert label position: Auto
-  cy.get(containerSelector).should(
-    "have.css",
-    "flex-direction",
-    `${isCompact ? "row" : "column"}`,
-  );
+  cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
-  cy.selectDropdownValue(labelPositionSelector, "Top");
+  cy.get(".t--button-tab-Top").click({ force: true });
   // Assert label position: Top
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Left
-  cy.selectDropdownValue(labelPositionSelector, "Left");
+  cy.get(".t--button-tab-Left").click({ force: true });
   // Assert label position: Left
   cy.get(containerSelector).should("have.css", "flex-direction", "row");
 
@@ -1907,3 +1908,41 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("CreatePage", () => {
+  cy.get(pages.AddPage)
+    .first()
+    .click({ force: true });
+  cy.get("[data-cy='add-page']").click();
+});
+
+Cypress.Commands.add("GenerateCRUD", () => {
+  cy.get(pages.AddPage)
+    .first()
+    .click({ force: true });
+  cy.get("[data-cy='generate-page']").click();
+});
+
+Cypress.Commands.add("AddPageFromTemplate", () => {
+  cy.get(pages.AddPage)
+    .first()
+    .click({ force: true });
+  cy.get("[data-cy='add-page-from-template']").click();
+});
+
+Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
+  cy.wait(1000); //waiting for window to load
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
+  cy.visit("/user/login");
+  cy.get(loginPage.username).should("be.visible");
+  cy.get(loginPage.username).type(uname);
+  cy.get(loginPage.password).type(pword, { log: false });
+  cy.get(loginPage.submitBtn).click();
+  cy.wait("@getMe");
+  cy.wait(3000);
+  initLocalstorage();
+});

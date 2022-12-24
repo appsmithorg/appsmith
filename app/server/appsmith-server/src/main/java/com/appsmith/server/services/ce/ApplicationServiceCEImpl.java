@@ -10,20 +10,19 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
-import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
@@ -40,12 +39,19 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
+import com.mongodb.DBObject;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -58,18 +64,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
-import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationServiceCE {
@@ -85,6 +84,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final TenantService tenantService;
 
     private final UserRepository userRepository;
+    private final DatasourcePermission datasourcePermission;
+    private final ApplicationPermission applicationPermission;
 
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
@@ -100,7 +101,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     ResponseUtils responseUtils,
                                     PermissionGroupService permissionGroupService,
                                     TenantService tenantService,
-                                    UserRepository userRepository) {
+                                    UserRepository userRepository,
+                                    DatasourcePermission datasourcePermission,
+                                    ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
@@ -111,6 +114,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
         this.userRepository = userRepository;
+        this.datasourcePermission = datasourcePermission;
+        this.applicationPermission = applicationPermission;
     }
 
     @Override
@@ -119,7 +124,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             params.add("gitApplicationMetadata.branchName", params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME));
             params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         }
-        return setTransientFields(super.getWithPermission(params, READ_APPLICATIONS))
+        return setTransientFields(super.getWithPermission(params, applicationPermission.getReadPermission()))
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
@@ -129,7 +134,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository.findById(id, READ_APPLICATIONS)
+        return repository.findById(id, applicationPermission.getReadPermission())
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .zipWith(sessionUserService.getCurrentUser())
@@ -142,7 +147,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     @Override
     public Mono<Application> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, id, READ_APPLICATIONS)
+        return findByIdAndBranchName(id, null, branchName);
+    }
+
+    @Override
+    public Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, id, projectionFieldNames,
+                        applicationPermission.getReadPermission())
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
@@ -247,13 +258,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Mono<String> applicationIdMono;
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
         if (gitData != null && !StringUtils.isEmpty(gitData.getBranchName()) && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
-            applicationIdMono = this.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
+            applicationIdMono = this.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                     .map(Application::getId);
         } else {
             applicationIdMono = Mono.just(id);
         }
         return applicationIdMono
-                .flatMap(appId -> repository.updateById(appId, application, AclPermission.MANAGE_APPLICATIONS)
+                .flatMap(appId -> repository.updateById(appId, application, applicationPermission.getEditPermission())
                         .onErrorResume(error -> {
                             if (error instanceof DuplicateKeyException) {
                                 // Error message : E11000 duplicate key error collection: appsmith.application index:
@@ -268,12 +279,31 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             }
                             return Mono.error(error);
                         })
-                        .flatMap(analyticsService::sendUpdateEvent)
-                );
+                        .flatMap(application1 -> {
+                            final Map<String, Object> eventData = Map.of(
+                                    FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                    FieldName.APPLICATION, application1
+                            );
+                            final Map<String, Object> data = Map.of(
+                                    FieldName.APPLICATION_ID, application1.getId(),
+                                    FieldName.WORKSPACE_ID, application1.getWorkspaceId(),
+                                    FieldName.EVENT_DATA, eventData
+                            );
+                            return analyticsService.sendUpdateEvent(application1, data);
+                        }));
+    }
+
+    public Mono<UpdateResult> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
+        String defaultIdPath = "id";
+        if (!isBlank(branchName)) {
+            defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
+        }
+        return repository.updateFieldByDefaultIdAndBranchName(defaultApplicationId, defaultIdPath, fieldNameValueMap,
+                branchName, "gitApplicationMetadata.branchName", MANAGE_APPLICATIONS);
     }
 
     public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
                     application.setPages(null);
                     application.setGitApplicationMetadata(null);
@@ -288,110 +318,32 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
-        Mono<Application> updateApplicationMono = repository
-                .findById(id, MAKE_PUBLIC_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                // Validity checks before proceeding further
-                .flatMap(application -> {
+        Mono<String> publicPermissionGroupIdMono = permissionGroupService.getPublicPermissionGroupId().cache();
 
-                    if ((application.getDefaultPermissionGroup() != null) && applicationAccessDTO.getPublicAccess()) {
+        Mono<Application> updateApplicationMono = repository.findById(id, applicationPermission.getMakePublicPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                .zipWith(publicPermissionGroupIdMono)
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    String publicPermissionGroupId = tuple.getT2();
+
+                    boolean isApplicationPublic = permissionGroupService.isEntityAccessible(application, applicationPermission.getReadPermission().getValue(), publicPermissionGroupId);
+
+                    // Validity checks before proceeding further
+                    if (isApplicationPublic && applicationAccessDTO.getPublicAccess()) {
                         // No change. The required public access is the same as current public access. Do nothing
                         return Mono.just(application);
                     }
 
-                    if (application.getDefaultPermissionGroup() == null && applicationAccessDTO.getPublicAccess().equals(false)) {
+                    if (!isApplicationPublic && applicationAccessDTO.getPublicAccess().equals(false)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
 
-                    return Mono.just(application);
-                })
-                .flatMap(application -> {
-
-                    Mono<PermissionGroup> permissionGroupMono = null;
-                    Mono<Application> applicationMono = Mono.just(application);
-
-                    if (applicationAccessDTO.getPublicAccess()) {
-
-                        // if public access is being enabled, then create a public permission group for the application
-                        permissionGroupMono = createPublicPermissionGroup(application)
-                                .cache();
-
-                        // Set the permission group in application for sharing viewable applications
-                        applicationMono = permissionGroupMono
-                                .zipWith(Mono.just(application))
-                                .map(tuple -> {
-                                    PermissionGroup permissionGroup = tuple.getT1();
-                                    Application application1 = tuple.getT2();
-
-                                    application1.setDefaultPermissionGroup(permissionGroup.getId());
-
-                                    return application1;
-                                });
-
-                    } else {
-
-                        String existingPermissionGroupId = application.getDefaultPermissionGroup();
-                        if (StringUtils.hasLength(existingPermissionGroupId)) {
-                            log.debug("Application is being turned from public to private. Setting permission group to null in application");
-
-                            // Delete the permission group since it is no longer required.
-                            permissionGroupMono = permissionGroupService.findById(existingPermissionGroupId)
-                                    .flatMap(permissionGroup -> {
-                                        return permissionGroupService.delete(permissionGroup.getId())
-                                                .then(Mono.just(permissionGroup));
-                                    })
-                                    .cache();
-
-                            // Remove the default permission group from the application.
-                            applicationMono = Mono.just(application)
-                                    .map(application1 -> {
-                                        application1.setDefaultPermissionGroup(null);
-                                        return application1;
-                                    });
-                        }
-                    }
-
-                    if (permissionGroupMono != null) {
-
-                        Mono<PermissionGroup> updatedPermissionGroupMono = null;
-
-                        // Assign the permission group to anonymous user
-                        if (applicationAccessDTO.getPublicAccess()) {
-                            // Assign anonymousUser to use the newly created permission group
-                            updatedPermissionGroupMono = tenantService.getDefaultTenantId()
-                                    .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId))
-                                    .zipWith(permissionGroupMono)
-                                    .flatMap(tuple -> {
-                                        User anonymousUser = tuple.getT1();
-                                        PermissionGroup permissionGroup = tuple.getT2();
-                                        return permissionGroupService
-                                                .assignToUser(permissionGroup, anonymousUser);
-                                    })
-                                    .cache();
-                        } else {
-                            updatedPermissionGroupMono = permissionGroupMono;
-                        }
-
-                        Mono<Application> updatedApplicationMono = updatedPermissionGroupMono
-                                .zipWith(applicationMono)
-                                .flatMap(tuple -> {
-                                    PermissionGroup permissionGroup = tuple.getT1();
-                                    Application application1 = tuple.getT2();
-
-                                    // Set policies for view in all the objects with the permission group.
-                                    return generateAndSetPoliciesForView(application1, permissionGroup,
-                                            applicationAccessDTO.getPublicAccess());
-                                });
-
-                        return updatedPermissionGroupMono
-                                .then(updatedApplicationMono);
-                    }
-
-                    // This is an erroneous scenario where permissionGroupMono has not been initialized yet.
-                    return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    // Now update the policies to change the access to the application
+                    return generateAndSetPoliciesForView(application, publicPermissionGroupId,
+                            applicationAccessDTO.getPublicAccess());
                 })
                 .flatMap(this::setTransientFields);
-
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
         //  subscriber has cancelled its subscription, the create method will still generate its event.
@@ -400,49 +352,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         );
     }
 
-    private Mono<PermissionGroup> createPublicPermissionGroup(Application application) {
-        return tenantService.getDefaultTenantId()
-                .flatMap(tenantId -> createPublicPermissionGroup(application, tenantId));
-    }
-
-    private Mono<PermissionGroup> createPublicPermissionGroup(Application application, String tenantId) {
-        PermissionGroup publicPermissionGroup = new PermissionGroup();
-        publicPermissionGroup.setName(application.getName() + " Public");
-        publicPermissionGroup.setTenantId(tenantId);
-        publicPermissionGroup.setDescription("Default permissions generated for sharing an application for viewing.");
-
-        Set<Policy> applicationPolicies = application.getPolicies();
-        Policy makePublicPolicy = applicationPolicies.stream()
-                .filter(policy -> policy.getPermission().equals(MAKE_PUBLIC_APPLICATIONS.getValue()))
-                .findFirst()
-                .get();
-
-
-        // Let this newly created permission group be assignable by everyone who has permission for make public application
-        Policy assignPermissionGroup = Policy.builder()
-                .permission(ASSIGN_PERMISSION_GROUPS.getValue())
-                .permissionGroups(makePublicPolicy.getPermissionGroups())
-                .build();
-        // Let this newly created permission group also be unassignable by everyone who has permission for make public application
-        Policy managePermissionGroup = Policy.builder()
-                .permission(UNASSIGN_PERMISSION_GROUPS.getValue())
-                .permissionGroups(makePublicPolicy.getPermissionGroups())
-                .build();
-
-        publicPermissionGroup.setPolicies(new HashSet<>(Set.of(assignPermissionGroup, managePermissionGroup)));
-
-        return permissionGroupService.create(publicPermissionGroup);
-    }
-
     @Override
     public Mono<Application> changeViewAccess(String defaultApplicationId,
                                               String branchName,
                                               ApplicationAccessDTO applicationAccessDTO) {
         // For git connected application update the policy for all the branch's
-        return findAllApplicationsByDefaultApplicationId(defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
-                .switchIfEmpty(this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS))
+        return findAllApplicationsByDefaultApplicationId(defaultApplicationId, applicationPermission.getMakePublicPermission())
+                .switchIfEmpty(this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getMakePublicPermission()))
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
-                .then(repository.findById(defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+                .then(repository.findById(defaultApplicationId, applicationPermission.getMakePublicPermission())
                         .flatMap(this::setTransientFields)
                         .map(responseUtils::updateApplicationWithDefaultResources));
     }
@@ -455,14 +373,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName) {
 
-        return this.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return this.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .flatMap(this::getApplicationInViewMode)
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override
     public Mono<Application> getApplicationInViewMode(String applicationId) {
-        return repository.findById(applicationId, READ_APPLICATIONS)
+        return repository.findById(applicationId, applicationPermission.getReadPermission())
                 .map(application -> {
                     application.setViewMode(true);
                     return application;
@@ -475,10 +393,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    private Mono<? extends Application> generateAndSetPoliciesForView(Application application, PermissionGroup permissionGroup,
+    private Mono<? extends Application> generateAndSetPoliciesForView(Application application, String permissionGroupId,
                                                                       Boolean addViewAccess) {
-
-        String permissionGroupId = permissionGroup.getId();
 
         Map<String, Policy> applicationPolicyMap = policyUtils
                 .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
@@ -487,7 +403,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Map<String, Policy> actionPolicyMap = policyUtils
                 .generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> datasourcePolicyMap = policyUtils
-                .generatePolicyFromPermissionWithPermissionGroup(EXECUTE_DATASOURCES, permissionGroupId);
+                .generatePolicyFromPermissionWithPermissionGroup(datasourcePermission.getExecutePermission(), permissionGroupId);
         Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class
         );
@@ -531,35 +447,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                             datasourcePolicyMap, addViewAccess)
                                     .collectList();
 
-
-                    if (addViewAccess) {
-
-                        Set<Permission> datasourcePermissions = datasourceIds.stream()
-                                .map(datasourceId -> new Permission(datasourceId, EXECUTE_DATASOURCES))
-                                .collect(Collectors.toSet());
-                        // the newly created permission group must be updated to store the top level permissions
-                        Set<Permission> permissionGroupPermissions = permissionGroup.getPermissions();
-                        permissionGroupPermissions.add(new Permission(application.getId(), READ_APPLICATIONS));
-                        permissionGroupPermissions.addAll(datasourcePermissions);
-                        permissionGroup.setPermissions(permissionGroupPermissions);
-
-                        return permissionGroupService.update(permissionGroup.getId(), permissionGroup)
-                                .then(updatedDatasourcesMono);
-                    }
-
                     return updatedDatasourcesMono;
-
                 })
                 .thenReturn(application)
                 .flatMap(app -> {
                     Application updatedApplication;
-
                     if (addViewAccess) {
                         updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
                     } else {
                         updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);
                     }
-
                     return repository.save(updatedApplication);
                 });
 
@@ -570,38 +467,18 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     private Flux<Application> setTransientFields(Flux<Application> applicationsFlux) {
+        Flux<String> publicPermissionGroupIdFlux = permissionGroupService.getPublicPermissionGroupId().cache().repeat();
 
         // Set isPublic field if the application is public
-        Flux<Application> updatedApplicationWithIsPublicFlux = applicationsFlux
-                .flatMap(application -> {
+        Flux<Application> updatedApplicationWithIsPublicFlux = permissionGroupService.getPublicPermissionGroupId().cache().repeat()
+                .zipWith(applicationsFlux)
+                .map(tuple -> {
+                    Application application = tuple.getT2();
+                    String publicPermissionGroupId = tuple.getT1();
 
-                    // default the application to be private
-                    application.setIsPublic(FALSE);
+                    application.setIsPublic(permissionGroupService.isEntityAccessible(application, applicationPermission.getReadPermission().getValue(), publicPermissionGroupId));
 
-                    // if no default permission group exists, then the application can not be public
-                    if (application.getDefaultPermissionGroup() == null) {
-                        return Mono.just(application);
-                    }
-
-                    Mono<User> anonymousUserMono = tenantService.getDefaultTenantId()
-                            .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId));
-                    Mono<PermissionGroup> defaultPermissionGroupMono =
-                            permissionGroupService.findById(application.getDefaultPermissionGroup())
-                                    .switchIfEmpty(Mono.just(new PermissionGroup()));
-
-                    return Mono.zip(anonymousUserMono, defaultPermissionGroupMono)
-                            .flatMap(tuple -> {
-                                User anonymousUser = tuple.getT1();
-                                PermissionGroup permissionGroup = tuple.getT2();
-
-                                // If the permission group is assigned to anonymous user, only then the application
-                                // would be public.
-                                if (permissionGroup.getAssignedToUserIds().contains(anonymousUser.getId())) {
-                                    application.setIsPublic(TRUE);
-                                }
-
-                                return Mono.just(application);
-                            });
+                    return application;
                 });
 
         return configService.getTemplateApplications()
@@ -631,7 +508,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
-        return repository.findById(applicationId, MANAGE_APPLICATIONS)
+        return repository.findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)
                 ))
@@ -662,7 +539,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     }
                     gitAuth.setRegeneratedKey(true);
 
-                    return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
+                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .flatMap(defaultApplication -> {
                                 GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
                                 gitApplicationMetadata.setDefaultApplicationId(defaultApplication.getId());
@@ -674,12 +551,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(application -> {
                     // Send generate SSH key analytics event
                     assert application.getId() != null;
-                    final Map<String, Object> data = Map.of(
-                            "applicationId", application.getId(),
-                            "organizationId", application.getWorkspaceId(),
-                            "isRegeneratedKey", gitAuth.isRegeneratedKey()
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                            FieldName.APPLICATION, application
                     );
-
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            "organizationId", application.getWorkspaceId(),
+                            "isRegeneratedKey", gitAuth.isRegeneratedKey(),
+                            FieldName.EVENT_DATA, eventData
+                    );
                     return analyticsService.sendObjectEvent(AnalyticsEvents.GENERATE_SSH_KEY, application, data)
                             .onErrorResume(e -> {
                                 log.warn("Error sending ssh key generation data point", e);
@@ -697,7 +578,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      */
     @Override
     public Mono<GitAuthDTO> getSshKey(String applicationId) {
-        return repository.findById(applicationId, MANAGE_APPLICATIONS)
+        return repository.findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 )
@@ -728,7 +609,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     }
 
 
-                    return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
+                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .map(rootApplication -> {
                                 GitAuthDTO gitAuthDTO = new GitAuthDTO();
                                 GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
@@ -742,16 +623,42 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    @Override
     public Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
                                                                      String defaultApplicationId,
                                                                      AclPermission aclPermission) {
+        return findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, null, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
+                                                                     String defaultApplicationId,
+                                                                     List<String> projectionFieldNames,
+                                                                     AclPermission aclPermission) {
+        if (StringUtils.isEmpty(branchName)) {
+            return repository.findById(defaultApplicationId, projectionFieldNames, aclPermission)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                    );
+        }
+        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, projectionFieldNames
+                        , branchName, aclPermission)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
+                );
+    }
+
+    @Override
+    public Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(String branchName,
+                                                                                 String defaultApplicationId,
+                                                                                 String fieldName,
+                                                                                 AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
                     );
         }
+
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + "," + branchName))
@@ -775,7 +682,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
           We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
           by the updateById method of the BaseAppsmithRepositoryImpl
          */
-        return repository.updateById(applicationId, application, MANAGE_APPLICATIONS) // it'll do a set operation
+        return repository.updateById(applicationId, application, applicationPermission.getEditPermission()) // it'll do a set operation
                 .flatMap(this::setTransientFields);
     }
 

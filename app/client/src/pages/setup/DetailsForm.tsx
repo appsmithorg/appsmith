@@ -9,7 +9,6 @@ import {
   FormHeaderWrapper,
   withDropdown,
 } from "./common";
-import StyledFormGroup from "components/ads/formFields/FormGroup";
 import {
   createMessage,
   WELCOME_FORM_EMAIL_ID,
@@ -24,10 +23,15 @@ import {
   WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER,
   WELCOME_FORM_USE_CASE_PLACEHOLDER,
 } from "@appsmith/constants/messages";
-import FormTextField from "components/ads/formFields/TextField";
+import FormTextField from "components/utils/ReduxFormTextField";
 import { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
-import { Button, Category, Size } from "design-system";
+import {
+  Button,
+  Category,
+  FormGroup as StyledFormGroup,
+  Size,
+} from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 
 const DetailsFormWrapper = styled.div`
@@ -137,7 +141,7 @@ export default function DetailsForm(
         )}
         <ButtonWrapper>
           <Button
-            category={Category.tertiary}
+            category={Category.secondary}
             className="t--welcome-form-next-button"
             disabled={props.invalid}
             onClick={props.onNext}

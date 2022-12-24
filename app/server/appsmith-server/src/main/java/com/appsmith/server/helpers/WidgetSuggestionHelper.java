@@ -238,7 +238,9 @@ public class WidgetSuggestionHelper {
         WidgetSuggestionDTO widgetSuggestionDTO = new WidgetSuggestionDTO();
         widgetSuggestionDTO.setType(widgetType);
         String query = String.format(widgetType.getMessage(), args);
-        query = query.replace("data", "data."+nestedFieldName);
+        if (nestedFieldName != null) {
+            query = query.replace("data", "data." + nestedFieldName);
+        }
         widgetSuggestionDTO.setBindingQuery(query);
         return  widgetSuggestionDTO;
     }

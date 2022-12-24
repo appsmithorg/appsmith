@@ -1,7 +1,4 @@
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsWorkspaces } from "./applicationSelectors";
@@ -11,7 +8,7 @@ import {
   getActions,
   getCanvasWidgets,
 } from "./entitiesSelector";
-import { getSelectedWidget } from "./ui";
+import { getLastSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 
 // Signposting selectors
@@ -71,20 +68,20 @@ export const getIsOnboardingTasksView = createSelector(
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>
-  state.ui.onBoarding.exploring;
-export const inGuidedTour = (state: AppState) => state.ui.onBoarding.guidedTour;
+  state.ui.guidedTour.exploring;
+export const inGuidedTour = (state: AppState) => state.ui.guidedTour.guidedTour;
 export const getCurrentStep = (state: AppState) =>
-  state.ui.onBoarding.currentStep;
+  state.ui.guidedTour.currentStep;
 export const wasTableWidgetSelected = (state: AppState) =>
-  state.ui.onBoarding.tableWidgetWasSelected;
+  state.ui.guidedTour.tableWidgetWasSelected;
 export const showEndTourDialogSelector = (state: AppState) =>
-  state.ui.onBoarding.showEndTourDialog;
+  state.ui.guidedTour.showEndTourDialog;
 export const showDeviatingDialogSelector = (state: AppState) =>
-  state.ui.onBoarding.showDeviatingDialog;
+  state.ui.guidedTour.showDeviatingDialog;
 export const showPostCompletionMessage = (state: AppState) =>
-  state.ui.onBoarding.showPostCompletionMessage;
+  state.ui.guidedTour.showPostCompletionMessage;
 export const forceShowContentSelector = (state: AppState) =>
-  state.ui.onBoarding.forceShowContent;
+  state.ui.guidedTour.forceShowContent;
 
 export const getTableWidget = createSelector(getWidgets, (widgets) => {
   return Object.values(widgets).find(
@@ -126,7 +123,7 @@ export const isQueryExecutionSuccessful = createSelector(
 
 export const isTableWidgetSelected = createSelector(
   getTableWidget,
-  getSelectedWidget,
+  getLastSelectedWidget,
   wasTableWidgetSelected,
   (tableWidget, selectedWidgetId, tableWidgetWasSelected) => {
     if (!tableWidgetWasSelected) {
@@ -157,7 +154,7 @@ export const containerWidgetAdded = createSelector(getWidgets, (widgets) => {
 });
 
 export const getHadReachedStep = (state: AppState) =>
-  state.ui.onBoarding.hadReachedStep;
+  state.ui.guidedTour.hadReachedStep;
 
 export const isNameInputBoundSelector = createSelector(
   getTableWidget,
@@ -196,7 +193,7 @@ export const nameInputSelector = createSelector(getWidgets, (widgets) => {
 // Check if CountryInput is selected
 export const countryInputSelector = createSelector(
   getWidgets,
-  getSelectedWidget,
+  getLastSelectedWidget,
   (widgets, selectedWidgetId) => {
     const widgetValues = Object.values(widgets);
     const countryInput = widgetValues.find((widget) => {
@@ -300,11 +297,11 @@ export const buttonWidgetHasOnSuccessBinding = createSelector(
 );
 
 export const showSuccessMessage = (state: AppState) =>
-  state.ui.onBoarding.showSuccessMessage;
+  state.ui.guidedTour.showSuccessMessage;
 export const showInfoMessageSelector = (state: AppState) =>
-  state.ui.onBoarding.showInfoMessage;
+  state.ui.guidedTour.showInfoMessage;
 
-export const loading = (state: AppState) => state.ui.onBoarding.loading;
+export const loading = (state: AppState) => state.ui.guidedTour.loading;
 
 // To find an workspace where the user has permission to create an
 // application
@@ -312,10 +309,7 @@ export const getOnboardingWorkspaces = createSelector(
   getUserApplicationsWorkspaces,
   (userWorkspaces) => {
     return userWorkspaces.filter((userWorkspace) =>
-      isPermitted(
-        userWorkspace.workspace.userPermissions || [],
-        PERMISSION_TYPE.CREATE_APPLICATION,
-      ),
+      hasCreateNewAppPermission(userWorkspace.workspace.userPermissions ?? []),
     );
   },
 );

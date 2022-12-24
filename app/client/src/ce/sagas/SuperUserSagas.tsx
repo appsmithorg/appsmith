@@ -1,7 +1,6 @@
 import React from "react";
 import UserApi, { SendTestEmailPayload } from "@appsmith/api/UserApi";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -9,7 +8,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import { User } from "constants/userConstants";
-import { takeLatest, all, call, put, delay, select } from "redux-saga/effects";
+import { call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -41,6 +40,14 @@ export function* FetchAdminSettingsSaga() {
         cloudHosting,
       ),
     };
+
+    // Converting empty values to boolean false
+    Object.keys(settings).forEach((key) => {
+      if ((settings[key] as string).trim() === "") {
+        settings[key] = false;
+      }
+    });
+
     yield put({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
       payload: settings,
@@ -58,9 +65,13 @@ export function* FetchAdminSettingsErrorSaga() {
 }
 
 export function* SaveAdminSettingsSaga(
-  action: ReduxAction<Record<string, string>>,
+  action: ReduxAction<{
+    settings: Record<string, any>;
+    needsRestart: boolean;
+  }>,
 ) {
-  const settings = action.payload;
+  const { needsRestart = true, settings } = action.payload;
+
   try {
     const response: ApiResponse = yield call(
       UserApi.saveAdminSettings,
@@ -76,13 +87,21 @@ export function* SaveAdminSettingsSaga(
       yield put({
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
       });
+
+      yield put({
+        type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG,
+      });
+
       yield put({
         type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
         payload: settings,
       });
-      yield put({
-        type: ReduxActionTypes.RESTART_SERVER_POLL,
-      });
+
+      if (needsRestart) {
+        yield put({
+          type: ReduxActionTypes.RESTART_SERVER_POLL,
+        });
+      }
     } else {
       yield put({
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_ERROR,
@@ -103,7 +122,7 @@ export function* RestartServerPoll() {
   yield call(RestryRestartServerPoll);
 }
 
-function* RestryRestartServerPoll() {
+export function* RestryRestartServerPoll() {
   let pollCount = 0;
   const maxPollCount = RESTART_POLL_TIMEOUT / RESTART_POLL_INTERVAL;
   while (pollCount < maxPollCount) {
@@ -155,31 +174,4 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
       });
     }
   } catch (e) {}
-}
-
-export function* InitSuperUserSaga(action: ReduxAction<User>) {
-  const user = action.payload;
-  if (user.isSuperUser) {
-    yield all([
-      takeLatest(ReduxActionTypes.FETCH_ADMIN_SETTINGS, FetchAdminSettingsSaga),
-      takeLatest(
-        ReduxActionTypes.FETCH_ADMIN_SETTINGS_ERROR,
-        FetchAdminSettingsErrorSaga,
-      ),
-      takeLatest(ReduxActionTypes.SAVE_ADMIN_SETTINGS, SaveAdminSettingsSaga),
-      takeLatest(ReduxActionTypes.RESTART_SERVER_POLL, RestartServerPoll),
-      takeLatest(
-        ReduxActionTypes.RETRY_RESTART_SERVER_POLL,
-        RestryRestartServerPoll,
-      ),
-      takeLatest(ReduxActionTypes.SEND_TEST_EMAIL, SendTestEmail),
-    ]);
-  }
-}
-
-export default function* SuperUserSagas() {
-  yield takeLatest(
-    ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-    InitSuperUserSaga,
-  );
 }

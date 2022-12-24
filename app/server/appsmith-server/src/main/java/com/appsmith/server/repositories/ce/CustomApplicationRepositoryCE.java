@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 public interface CustomApplicationRepositoryCE extends AppsmithRepository<Application> {
 
@@ -22,7 +23,14 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
 
-    Flux<Application> findAll(AclPermission permission);
+    /**
+     * Finds all the applications that are directly assigned to the user.
+     * This method would not return public applications.
+     *
+     * @param permission
+     * @return A Flux of applications.
+     */
+    Flux<Application> findAllUserApps(AclPermission permission);
 
     Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
@@ -35,6 +43,11 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission);
 
     Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission);
+
+    Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId,
+                                                                       List<String> projectionFieldNames,
+                                                                       String branchName,
+                                                                       AclPermission aclPermission);
 
     Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
@@ -49,4 +62,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Flux<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId);
 
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
+
+    Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, Map<String,
+            Object> fieldNameValueMap, String branchName, String branchNamePath, AclPermission permission);
 }

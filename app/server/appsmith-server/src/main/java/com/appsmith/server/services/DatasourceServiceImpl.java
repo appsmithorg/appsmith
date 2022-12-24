@@ -1,11 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.ce.DatasourceServiceCEImpl;
+import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -31,11 +32,14 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
                                  NewActionRepository newActionRepository,
-								 CloudServicesConfig cloudServicesConfig) {
+                                 DatasourceContextService datasourceContextService,
+                                 DatasourcePermission datasourcePermission,
+                                 WorkspacePermission workspacePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
                 analyticsService, sessionUserService, pluginService, pluginExecutorHelper, policyGenerator,
-                sequenceService, newActionRepository, cloudServicesConfig);
+                sequenceService, newActionRepository, datasourceContextService, datasourcePermission,
+                workspacePermission);
 
     }
 }

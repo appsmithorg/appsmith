@@ -8,13 +8,13 @@ describe("Divider Widget Functionality", function() {
 
   it("Add new Divider", () => {
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("dividerwidget", { x: 300, y: 300 });
+    cy.dragAndDropToCanvas("dividerwidget", { x: 320, y: 300 });
     cy.get(".t--divider-widget").should("exist");
   });
 
   it("Open Existing Divider from created Widgets list", () => {
     cy.get("#switcher--explorer").click({ force: true });
-    cy.GlobalSearchEntity("WIDGETS");
+    cy.GlobalSearchEntity("Widgets");
     cy.get(".t--entity-name:contains(Divider1)").click();
     cy.get(".t--entity-name:contains(Divider2)").click();
   });

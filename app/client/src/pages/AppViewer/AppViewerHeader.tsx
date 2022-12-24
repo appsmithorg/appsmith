@@ -30,10 +30,15 @@ import Button from "./AppViewerButton";
 import MenuIcon from "remixicon-react/MenuFillIcon";
 import CloseIcon from "remixicon-react/CloseFillIcon";
 import PageMenu from "./PageMenu";
-import BackToHomeButton from "./BackToHomeButton";
+import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
+import {
+  createMessage,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
 
 /**
  * ----------------------------------------------------------------------------
@@ -89,7 +94,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
     <ThemeProvider theme={props.lightTheme}>
       <>
         <nav
-          className="relative js-appviewer-header bg-white"
+          className="relative bg-white js-appviewer-header"
           data-testid={"t--appsmith-app-viewer-header"}
           ref={headerRef}
         >
@@ -119,7 +124,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             </div>
             <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
-                <div className="hidden md:flex space-x-3">
+                <div className="hidden space-x-3 md:flex">
                   <FormDialogComponent
                     Form={AppInviteUsersForm}
                     applicationId={currentApplicationDetails.id}
@@ -129,6 +134,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                       bgColor: "transparent",
                     }}
                     isOpen={showAppInviteUsersDialog}
+                    message={createMessage(INVITE_USERS_MESSAGE)}
+                    placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
                     title={currentApplicationDetails.name}
                     trigger={
                       <Button
@@ -141,6 +148,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                         }
                         buttonVariant="SECONDARY"
                         className="h-8"
+                        data-cy="viewmode-share"
                         text="Share"
                       />
                     }

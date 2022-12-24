@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -9,7 +10,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
@@ -19,11 +19,15 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,8 +45,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
@@ -53,10 +55,14 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
+    private final RefactoringSolution refactoringSolution;
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
+    private final ActionCollectionRepository actionCollectionRepository;
+    private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
 
     /**
      * Called by ActionCollection controller to create ActionCollection
@@ -83,7 +89,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
         final String pageId = collection.getPageId();
         Mono<NewPage> pageMono = newPageService
-                .findById(pageId, MANAGE_PAGES)
+                .findById(pageId, pagePermission.getActionCreatePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .cache();
@@ -121,7 +127,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         action.setDefaultResources(collection.getDefaultResources());
                         // Action doesn't exist. Create now.
                         return layoutActionService
-                                .createSingleAction(action)
+                                .createSingleAction(action, Boolean.TRUE)
                                 // return an empty action so that this action is disregarded from the list
                                 .onErrorResume(throwable -> {
                                     log.debug("Failed to create action with name {} for collection: {}", action.getName(), collection.getName());
@@ -150,13 +156,13 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
                     // Store the default resource ids
                     // Only store defaultPageId for collectionDTO level resource
-                    DefaultResources defaultDTOResource =  new DefaultResources();
+                    DefaultResources defaultDTOResource = new DefaultResources();
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(collection.getDefaultResources(), defaultDTOResource);
 
                     defaultDTOResource.setApplicationId(null);
                     defaultDTOResource.setCollectionId(null);
                     defaultDTOResource.setBranchName(null);
-                    if(StringUtils.isEmpty(defaultDTOResource.getPageId())) {
+                    if (StringUtils.isEmpty(defaultDTOResource.getPageId())) {
                         defaultDTOResource.setPageId(collection.getPageId());
                     }
                     collection.setDefaultResources(defaultDTOResource);
@@ -165,7 +171,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     DefaultResources defaults = new DefaultResources();
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
                     defaults.setPageId(null);
-                    if(StringUtils.isEmpty(defaults.getApplicationId())) {
+                    if (StringUtils.isEmpty(defaults.getApplicationId())) {
                         defaults.setApplicationId(actionCollection.getApplicationId());
                     }
                     actionCollection.setDefaultResources(defaults);
@@ -188,6 +194,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 }
                                 return actionCollectionService.save(savedActionCollection);
                             })
+                            .flatMap(actionCollectionRepository::setUserPermissionsInObject)
                             .cache();
 
                     return actionCollectionMono
@@ -214,7 +221,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                                         actionCollection1.getUnpublishedCollection(),
                                                         actionDTOList,
                                                         false));
-                            });
+                            })
+                            .flatMap(updatedCollection -> layoutActionService.updatePageLayoutsByPageId(updatedCollection.getPageId()).thenReturn(updatedCollection));
                 });
     }
 
@@ -224,13 +232,13 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return newPageService.findById(collection.getPageId(), MANAGE_PAGES)
+        return newPageService.findById(collection.getPageId(), pagePermission.getActionCreatePermission())
                 .flatMap(newPage -> {
                     // Insert defaultPageId and defaultAppId from page
                     DefaultResources defaultResources = newPage.getDefaultResources();
                     defaultResources.setBranchName(branchName);
                     collection.setDefaultResources(defaultResources);
-                    return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultResources.getPageId(), MANAGE_PAGES);
+                    return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultResources.getPageId(), pagePermission.getEditPermission());
                 })
                 .flatMap(branchedPage -> {
                     // Update the page and application id with branched resource
@@ -252,14 +260,14 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         Mono<String> branchedPageIdMono = StringUtils.isEmpty(branchName)
                 ? Mono.just(pageId)
                 : newPageService
-                .findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES)
+                .findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getReadPermission())
                 .map(NewPage::getId)
                 .cache();
 
         Mono<String> branchedActionCollectionIdMono = StringUtils.isEmpty(branchName)
                 ? Mono.just(actionCollectionId)
                 : actionCollectionService
-                .findByBranchNameAndDefaultCollectionId(branchName, actionCollectionId, MANAGE_ACTIONS)
+                .findByBranchNameAndDefaultCollectionId(branchName, actionCollectionId, actionPermission.getEditPermission())
                 .map(ActionCollection::getId);
 
         return branchedPageIdMono
@@ -271,7 +279,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                     if (Boolean.TRUE.equals(isNameAllowed)) {
                                         return branchedActionCollectionIdMono
                                                 .flatMap(collectionId -> actionCollectionService
-                                                        .findActionCollectionDTObyIdAndViewMode(collectionId, false, MANAGE_ACTIONS));
+                                                        .findActionCollectionDTObyIdAndViewMode(collectionId, false, actionPermission.getEditPermission()));
                                     }
                                     // Throw an error since the new action collection's name matches an existing action, widget or collection name.
                                     return Mono.error(new AppsmithException(
@@ -291,7 +299,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
                     Flux<ActionDTO> actionUpdatesFlux = Flux
                             .fromIterable(actionIds.values())
-                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS))
+                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, actionPermission.getEditPermission()))
                             .flatMap(actionDTO -> {
                                 actionDTO.setFullyQualifiedName(newName + "." + actionDTO.getName());
                                 return newActionService
@@ -309,9 +317,14 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     return actionUpdatesFlux
                             .then(actionCollectionService.update(branchedActionCollection.getId(), branchedActionCollection))
                             .then(branchedPageIdMono)
-                            .flatMap(branchedPageId -> layoutActionService.refactorName(branchedPageId, layoutId, oldName, newName));
+                            .flatMap(branchedPageId -> refactoringSolution.refactorActionCollectionName(
+                                    branchedActionCollection.getApplicationId(),
+                                    branchedPageId,
+                                    layoutId,
+                                    oldName,
+                                    newName));
                 })
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
+                .map(layoutDTO -> responseUtils.updateLayoutDTOWithDefaultResources(layoutDTO));
     }
 
     @Override
@@ -319,14 +332,14 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         final String collectionId = actionCollectionMoveDTO.getCollectionId();
         final String destinationPageId = actionCollectionMoveDTO.getDestinationPageId();
 
-        Mono<NewPage> destinationPageMono = newPageService.findById(actionCollectionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+        Mono<NewPage> destinationPageMono = newPageService.findById(actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)))
                 .cache();
 
         return Mono.zip(
                         destinationPageMono,
                         actionCollectionService
-                                .findActionCollectionDTObyIdAndViewMode(collectionId, false, MANAGE_ACTIONS))
+                                .findActionCollectionDTObyIdAndViewMode(collectionId, false, actionPermission.getEditPermission()))
                 .flatMap(tuple -> {
                     NewPage destinationPage = tuple.getT1();
                     ActionCollectionDTO actionCollectionDTO = tuple.getT2();
@@ -339,7 +352,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     }
 
                     final Flux<ActionDTO> actionUpdatesFlux = Flux.fromIterable(actionIds.values())
-                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS))
+                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, actionPermission.getEditPermission()))
                             .flatMap(actionDTO -> {
                                 actionDTO.setPageId(destinationPageId);
                                 // Update default page ID in actions as per destination page object
@@ -369,7 +382,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     final String oldPageId = tuple.getT2();
 
                     return newPageService
-                            .findPageById(oldPageId, MANAGE_PAGES, false)
+                            .findPageById(oldPageId, pagePermission.getEditPermission(), false)
                             .flatMap(page -> {
                                 if (page.getLayouts() == null) {
                                     return Mono.empty();
@@ -379,12 +392,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
                                             layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(page.getId(), layout.getId(), layout);
+                                            return layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());
                             })
                             // fetch the unpublished destination page
-                            .then(newPageService.findPageById(actionCollectionMoveDTO.getDestinationPageId(), MANAGE_PAGES, false))
+                            .then(newPageService.findPageById(actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission(), false))
                             .flatMap(page -> {
                                 if (page.getLayouts() == null) {
                                     return Mono.empty();
@@ -394,7 +407,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
                                             layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(page.getId(), layout.getId(), layout);
+                                            return layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());
                             })
@@ -407,11 +420,11 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     public Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO, String branchName) {
 
         Mono<String> destinationPageMono = newPageService
-                .findByBranchNameAndDefaultPageId(branchName, actionCollectionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+                .findByBranchNameAndDefaultPageId(branchName, actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission())
                 .map(NewPage::getId);
 
         Mono<String> branchedCollectionMono = actionCollectionService
-                .findByBranchNameAndDefaultCollectionId(branchName, actionCollectionMoveDTO.getCollectionId(), MANAGE_ACTIONS)
+                .findByBranchNameAndDefaultCollectionId(branchName, actionCollectionMoveDTO.getCollectionId(), actionPermission.getEditPermission())
                 .map(ActionCollection::getId);
 
         return Mono.zip(destinationPageMono, branchedCollectionMono)
@@ -437,8 +450,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        final String pageId = actionCollectionDTO.getPageId();
+
         Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
-                .findByBranchNameAndDefaultCollectionId(branchName, id, MANAGE_ACTIONS)
+                .findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getEditPermission())
                 .cache();
 
         // It is expected that client will be aware of defaultActionIds and not the branched (actual) action ID
@@ -477,14 +492,14 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 final String defaultPageId = branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId();
                                 actionDTO.getDefaultResources().setPageId(defaultPageId);
                                 // actionCollectionService is a new action, we need to create one
-                                return layoutActionService.createSingleAction(actionDTO);
+                                return layoutActionService.createSingleAction(actionDTO, Boolean.TRUE);
                             } else {
                                 actionDTO.setCollectionId(null);
                                 // Client only knows about the default action ID, fetch branched action id to update the action
                                 Mono<String> branchedActionIdMono = StringUtils.isEmpty(branchName)
                                         ? Mono.just(actionDTO.getId())
                                         : newActionService
-                                        .findByBranchNameAndDefaultActionId(branchName, actionDTO.getId(), MANAGE_ACTIONS)
+                                        .findByBranchNameAndDefaultActionId(branchName, actionDTO.getId(), actionPermission.getEditPermission())
                                         .map(NewAction::getId);
                                 actionDTO.setId(null);
                                 return branchedActionIdMono
@@ -510,7 +525,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 final String defaultPageId = branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId();
                                 actionDTO.getDefaultResources().setPageId(defaultPageId);
                                 // actionCollectionService is a new action, we need to create one
-                                return layoutActionService.createSingleAction(actionDTO)
+                                return layoutActionService.createSingleAction(actionDTO, Boolean.TRUE)
                                         // return an empty action so that the filter can remove it from the list
                                         .onErrorResume(throwable -> {
                                             log.debug("Failed to create action with name {} for collection: {}", actionDTO.getName(), actionCollectionDTO.getName());
@@ -522,7 +537,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 Mono<String> branchedActionIdMono = StringUtils.isEmpty(branchName)
                                         ? Mono.just(actionDTO.getId())
                                         : newActionService
-                                        .findByBranchNameAndDefaultActionId(branchName, actionDTO.getId(), MANAGE_ACTIONS)
+                                        .findByBranchNameAndDefaultActionId(branchName, actionDTO.getId(), actionPermission.getEditPermission())
                                         .map(NewAction::getId);
                                 actionDTO.setId(null);
                                 return branchedActionIdMono
@@ -531,6 +546,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         })
                         .collect(toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId))
                 );
+
 
         // First collect all valid action ids from before, and diff against incoming action ids
         return branchedActionCollectionMono
@@ -558,7 +574,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             .collect(Collectors.toUnmodifiableSet());
                 })
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(defaultActionId -> newActionService.findBranchedIdByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+                .flatMap(defaultActionId -> newActionService.findBranchedIdByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                         .flatMap(newActionService::deleteUnpublishedAction)
                         // return an empty action so that the filter can remove it from the list
                         .onErrorResume(throwable -> {
@@ -579,23 +595,35 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
+                .flatMap(actionCollectionRepository::setUserPermissionsInObject)
+                .flatMap(savedActionCollection -> layoutActionService.updatePageLayoutsByPageId(savedActionCollection.getUnpublishedCollection().getPageId()).thenReturn(savedActionCollection))
                 .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))
                 .flatMap(actionCollection -> actionCollectionService.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),
                                 false)))
-                .map(responseUtils::updateCollectionDTOWithDefaultResources);
+                .map(responseUtils::updateCollectionDTOWithDefaultResources)
+                .zipWith(newPageService.findById(pageId, pagePermission.getEditPermission()),
+                        (branchedActionCollection, newPage) -> {
+                            //redundant check
+                            if (newPage.getUnpublishedPage().getLayouts().size() > 0) {
+                                // redundant check as the collection lies inside a layout. Maybe required for testcases
+                                branchedActionCollection.setErrorReports(newPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActionErrors());
+                            }
+
+                            return branchedActionCollection;
+                        });
     }
 
     @Override
     public Mono<LayoutDTO> refactorAction(RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO) {
         // First perform refactor of the action itself
-        final Mono<LayoutDTO> layoutDTOMono = layoutActionService
+        final Mono<LayoutDTO> layoutDTOMono = refactoringSolution
                 .refactorActionName(refactorActionNameInCollectionDTO.getRefactorAction())
                 .cache();
 
         final ActionCollectionDTO actionCollectionDTO = refactorActionNameInCollectionDTO.getActionCollection();
-        Mono<ActionCollection> actionCollectionMono = actionCollectionService.findById(actionCollectionDTO.getId(), MANAGE_ACTIONS)
+        Mono<ActionCollection> actionCollectionMono = actionCollectionService.findById(actionCollectionDTO.getId(), actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, actionCollectionDTO.getId())));
 
         return layoutDTOMono
@@ -619,7 +647,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         Map<String, String> defaultToBranchedActionIdMap = new HashMap<>();
         // Fetch branched action as client only knows about the default action IDs
         Mono<RefactorActionNameDTO> refactorBranchedActionMono = newActionService
-                .findByBranchNameAndDefaultActionId(branchName, refactorActionNameDTO.getActionId(), MANAGE_ACTIONS)
+                .findByBranchNameAndDefaultActionId(branchName, refactorActionNameDTO.getActionId(), actionPermission.getEditPermission())
                 .map(branchedAction -> {
                     refactorActionNameDTO.setActionId(branchedAction.getId());
                     refactorActionNameDTO.setPageId(branchedAction.getUnpublishedAction().getPageId());
@@ -629,9 +657,9 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 });
 
         Mono<String> branchedCollectionIdMono = StringUtils.isEmpty(branchName)
-                ?  Mono.just(defaultActionCollection.getId())
+                ? Mono.just(defaultActionCollection.getId())
                 : actionCollectionService
-                .findByBranchNameAndDefaultCollectionId(branchName, defaultActionCollection.getId(), MANAGE_ACTIONS)
+                .findByBranchNameAndDefaultCollectionId(branchName, defaultActionCollection.getId(), actionPermission.getEditPermission())
                 .map(actionCollection -> {
                     defaultToBranchedActionIdMap.putAll(actionCollection.getUnpublishedCollection().getDefaultToBranchedActionIdsMap());
                     defaultToBranchedActionIdMap.putAll(actionCollection.getUnpublishedCollection().getDefaultToBranchedArchivedActionIdsMap());

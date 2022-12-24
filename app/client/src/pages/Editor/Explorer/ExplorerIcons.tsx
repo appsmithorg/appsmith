@@ -4,12 +4,16 @@ import { Colors } from "constants/Colors";
 import { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
-import { HTTP_METHOD, HTTP_METHODS_COLOR } from "constants/ApiEditorConstants";
+import {
+  HTTP_METHOD,
+  HTTP_METHODS_COLOR,
+} from "constants/ApiEditorConstants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
 import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
+import { ReactComponent as GraphqlIcon } from "assets/images/Graphql-logo.svg";
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -311,3 +315,11 @@ export const JsFileIconV2 = (
     <EntityIcon.textIcon>JS</EntityIcon.textIcon>
   </EntityIcon>
 );
+
+export function GraphQLIconV2() {
+  return (
+    <EntityIcon>
+      <GraphqlIcon />
+    </EntityIcon>
+  );
+}

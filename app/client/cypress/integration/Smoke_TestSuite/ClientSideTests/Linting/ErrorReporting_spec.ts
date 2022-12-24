@@ -6,7 +6,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   apiPage = ObjectsRegistry.ApiPage,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Lint error reporting", () => {
   before(() => {
@@ -37,11 +38,15 @@ describe("Lint error reporting", () => {
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
     agHelper.PressEscape();
     agHelper.GetNClick(locator._errorTab);
-    agHelper.AssertContains("'name' is defined but never used.", "not.exist");
+    debuggerHelper.DebuggerListDoesnotContain(
+      "'name' is defined but never used.",
+    );
 
     agHelper.RefreshPage();
     agHelper.GetNClick(locator._errorTab);
-    agHelper.AssertContains("'name' is defined but never used.", "not.exist");
+    debuggerHelper.DebuggerListDoesnotContain(
+      "'name' is defined but never used.",
+    );
   });
 
   it("2. TC. 1939 - Shows correct error when await keyword is used in sync functions", () => {
@@ -55,8 +60,8 @@ describe("Lint error reporting", () => {
     }`;
 
     // Test in PropertyPane
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
       `{{
@@ -108,8 +113,8 @@ describe("Lint error reporting", () => {
     }`;
 
     // Test in PropertyPane
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
       `{{ {
@@ -161,8 +166,8 @@ describe("Lint error reporting", () => {
     }`;
 
     // Test in PropertyPane
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
       `{{ {
@@ -216,8 +221,8 @@ describe("Lint error reporting", () => {
     }
     `;
     // Test in PropertyPane
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Tooltip", "{{currentItem}}");
     propPane.UpdatePropertyFieldValue("Label", "{{currentRow}}");
     propPane.UpdatePropertyFieldValue("onClick", "");
@@ -225,7 +230,7 @@ describe("Lint error reporting", () => {
     agHelper.AssertElementLength(locator._lintErrorElement, 2);
 
     //Test in Table for no error when using {{currentRow}}
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     agHelper.GetNClick(table._columnSettings("step"));
     agHelper.AssertElementAbsence(locator._lintErrorElement);
 
@@ -264,7 +269,7 @@ describe("Lint error reporting", () => {
     }
     `;
     // Test in PropertyPane
-    ee.SelectEntityByName("Button1", "QUERIES/JS");
+    ee.SelectEntityByName("Button1", "Queries/JS");
     propPane.UpdatePropertyFieldValue("Tooltip", "");
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.UpdatePropertyFieldValue(
@@ -280,7 +285,7 @@ describe("Lint error reporting", () => {
     agHelper.AssertElementAbsence(locator._lintErrorElement);
 
     // Test in JS Object
-    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
+    ee.SelectEntityByName("JSObject1", "Queries/JS");
     jsEditor.EditJSObj(JSOBJECT_WITH_UNNECCESARY_SEMICOLON);
     agHelper.AssertElementAbsence(locator._lintErrorElement);
 

@@ -1,6 +1,6 @@
 import { precacheAndRoute } from "workbox-precaching";
 import { clientsClaim, setCacheNameDetails, skipWaiting } from "workbox-core";
-import { registerRoute } from "workbox-routing";
+import { registerRoute, Route } from "workbox-routing";
 import {
   CacheFirst,
   NetworkOnly,
@@ -27,7 +27,11 @@ const regexMap = {
 };
 
 /* eslint-disable no-restricted-globals */
-precacheAndRoute(self.__WB_MANIFEST || []);
+const toPrecache = self.__WB_MANIFEST.filter(
+  (file) => !file.url.includes("index.html"),
+);
+precacheAndRoute(toPrecache);
+
 self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
 skipWaiting();
 clientsClaim();
@@ -58,4 +62,10 @@ registerRoute(
       }),
     ],
   }),
+);
+
+registerRoute(
+  new Route(({ request, sameOrigin }) => {
+    return sameOrigin && request.destination === "document";
+  }, new NetworkOnly()),
 );

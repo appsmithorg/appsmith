@@ -10,7 +10,6 @@ import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { Def } from "tern";
-import { ButtonGroupWidgetProps } from "widgets/ButtonGroupWidget/widget";
 
 const isVisible = {
   "!type": "bool",
@@ -155,6 +154,10 @@ export const entityDefinitions = {
     updatedRows: generateTypeDef(widget.updatedRows, extraDefsToDefine),
     updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
     triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
+    pageOffset: generateTypeDef(widget.pageOffset),
+    tableHeaders: generateTypeDef(widget.tableHeaders),
+    newRow: generateTypeDef(widget.newRow),
+    isAddRowInProgress: "bool",
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -274,13 +277,11 @@ export const entityDefinitions = {
     isDisabled: "bool",
     recaptchaToken: "string",
   },
-  BUTTON_GROUP_WIDGET: (widget: ButtonGroupWidgetProps) => {
-    return {
-      "!doc":
-        "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
-      "!url": "https://docs.appsmith.com/widget-reference/button-group",
-      groupButtons: generateTypeDef(widget.groupButtons),
-    };
+  BUTTON_GROUP_WIDGET: {
+    "!doc":
+      "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
+    "!url": "https://docs.appsmith.com/widget-reference/button-group",
+    isVisible: isVisible,
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -330,7 +331,6 @@ export const entityDefinitions = {
   },
   MODAL_WIDGET: {
     isVisible: isVisible,
-    isOpen: "bool",
   },
   RICH_TEXT_EDITOR_WIDGET: {
     isVisible: isVisible,
@@ -562,6 +562,11 @@ export const entityDefinitions = {
       "!doc": "The text value of the input",
       "!url": "https://docs.appsmith.com/widget-reference/input",
     },
+    inputText: {
+      "!type": "string",
+      "!doc": "The unformatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
@@ -647,9 +652,38 @@ export const entityDefinitions = {
     isVisible: isVisible,
     docUrl: "string",
   },
+  NUMBER_SLIDER_WIDGET: {
+    "!doc":
+      "Number slider widget is used to capture user feedback from a range of values",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    value: "number",
+  },
+  CATEGORY_SLIDER_WIDGET: {
+    "!doc":
+      "Category slider widget is used to capture user feedback from a range of categories",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    value: "string",
+  },
+  RANGE_SLIDER_WIDGET: {
+    "!doc":
+      "Range slider widget is used to capture user feedback from a range of values",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    start: "number",
+    end: "number",
+  },
+  CODE_SCANNER_WIDGET: {
+    "!doc": "Scan a Code",
+    "!url": "https://docs.appsmith.com/reference/widgets/code-scanner",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    value: "string",
+  },
 };
 
-/* 
+/*
   $__name__$ is just to reduce occurrences of global def showing up in auto completion for user as `$` is less commonly used as entityName/
 
   GLOBAL_DEFS are maintained to support definition for array of objects which currently aren't supported by our generateTypeDef.
@@ -700,6 +734,14 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Store key value data locally",
     "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
   },
+  removeValue: {
+    "!doc": "Remove key value data locally",
+    "!type": "fn(key: string) -> +Promise[:t=[!0.<i>.:t]]",
+  },
+  clearStore: {
+    "!doc": "Clear all key value data locally",
+    "!type": "fn() -> +Promise[:t=[!0.<i>.:t]]",
+  },
   download: {
     "!doc": "Download anything as a file",
     "!type":
@@ -721,6 +763,11 @@ export const GLOBAL_FUNCTIONS = {
   clearInterval: {
     "!doc": "Stop executing a setInterval with id",
     "!type": "fn(id: string) -> void",
+  },
+  postWindowMessage: {
+    "!doc":
+      "Establish cross-origin communication between Window objects/page and iframes",
+    "!type": "fn(message: unknown, source: string, targetOrigin: string)",
   },
 };
 

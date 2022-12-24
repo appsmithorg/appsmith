@@ -13,6 +13,15 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
   it("Test to validate parsing link", function() {
     // Add link to text widget
+    cy.testCodeMirror("app.appsmith.com");
+    // check if it's a link when no http or https is passed,
+    cy.get(`${commonlocators.headingTextStyle} a`).should(
+      "have.attr",
+      "href",
+      "http://app.appsmith.com",
+    );
+
+    // Add link to text widget
     cy.testCodeMirror("https://app.appsmith.com");
     // check if it's parsed as link
     cy.get(commonlocators.headingTextStyle);
@@ -41,7 +50,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
 
     //Changing the text label
     cy.testCodeMirror(this.data.TextLabelValueScrollable);
-
+    cy.moveToStyleTab();
     cy.ChangeTextStyle(
       this.data.TextHeading,
       commonlocators.headingTextStyle,
@@ -56,6 +65,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
 
   it("Test to validate text format", function() {
+    cy.moveToStyleTab();
     //Changing the Text Style's and validating
     cy.get(widgetsPage.italics).click({ force: true });
     cy.readTextDataValidateCSS("font-style", "italic");
@@ -69,6 +79,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
 
   it("Test to validate color changes in text and background", function() {
+    cy.moveToStyleTab();
     //Changing the Text Style's and validating
     cy.get(widgetsPage.textColor)
       .first()
@@ -90,7 +101,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.selectColor("cellbackgroundcolor");
+    cy.selectColor("backgroundcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
@@ -125,13 +136,8 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
 
   it("Test to validate enable scroll feature", function() {
-    cy.selectDropdownValue(
-      commonlocators.textOverflowDropdown,
-      "Scroll contents",
-    );
-    cy.get(commonlocators.textOverflowDropdown)
-      .last()
-      .should("have.text", "Scroll contents");
+    cy.moveToContentTab();
+    cy.get(".t--button-tab-SCROLL").click({ force: true });
     cy.wait("@updateLayout");
     cy.get(commonlocators.headingTextStyle).trigger("mouseover", {
       force: true,
@@ -140,6 +146,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.closePropertyPane();
   });
   it("Test border width, color and verity", function() {
+    cy.moveToStyleTab();
     cy.testJsontext("borderwidth", "10");
     cy.wait("@updateLayout");
     cy.get(`${widgetsPage.textWidget} .t--text-widget-container`).should(

@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("MultiSelectTree Widget Functionality", function() {
   before(() => {
@@ -19,7 +20,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     );
     // Change defaultValue
     cy.openPropertyPane("multiselecttreewidget");
-    cy.testJsontext("defaultvalue", "GREEN\n");
+    cy.testJsontext("defaultselectedvalues", "GREEN\n");
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -30,14 +31,14 @@ describe("MultiSelectTree Widget Functionality", function() {
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Reset isDirty by changing defaultValue
-    cy.testJsontext("defaultvalue", "BLUE\n");
+    cy.testJsontext("defaultselectedvalues", "BLUE\n");
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
   it("2. Selects value with enter in default value", () => {
     cy.openPropertyPane("multiselecttreewidget");
-    cy.testJsontext("defaultvalue", "RED\n");
+    cy.testJsontext("defaultselectedvalues", "RED\n");
     cy.get(formWidgetsPage.multiselecttreeWidget)
       .find(".rc-tree-select-selection-item-content")
       .first()
@@ -53,7 +54,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     // open the multi-tree select widget
     // search for option Red in the search input
     cy.openPropertyPane("multiselecttreewidget");
-    cy.testJsontext("defaultvalue", "");
+    cy.testJsontext("defaultselectedvalues", "");
     cy.get(formWidgetsPage.treeSelectInput)
       .first()
       .click({ force: true });
@@ -76,7 +77,7 @@ describe("MultiSelectTree Widget Functionality", function() {
       .invoke("val")
       .should("be.empty");
     cy.wait(100);
-    cy.testJsontext("defaultvalue", "RED\n");
+    cy.testJsontext("defaultselectedvalues", "RED\n");
   });
 
   it("4. To Validate Options", function() {
@@ -118,6 +119,16 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(".tree-multiselect-dropdown .rc-tree-select-empty").contains(
       "No Results Found",
     );
+  });
+
+  it("8. Select tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("multiselecttreewidget");
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
+    // tooltip help icon shows
+    cy.get(".multitree-select-tooltip")
+      .scrollIntoView()
+      .should("be.visible");
   });
 });
 afterEach(() => {

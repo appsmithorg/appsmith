@@ -43,6 +43,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.editColumn("id");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
+    cy.moveToStyleTab();
     // Click on cell background JS button
     cy.get(widgetsPage.toggleJsBcgColor)
       .first()
@@ -66,6 +67,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("4. Edit column name and validate test for computed value based on column type selected", function() {
     // opoen customColumn1 property pane
     cy.editColumn("customColumn1");
+    cy.moveToContentTab();
     // Enter Apil 1st user email data into customColumn1
     cy.readTableV2dataPublish("1", "9").then((tabData) => {
       const tabValue = tabData;
@@ -81,6 +83,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("5. Update table json data and check the column names updated", function() {
     // Open table propert pane
     cy.SearchEntityandOpen("Table1");
+    cy.backFromPropertyPanel();
     // Change the table data
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));
     cy.wait("@updateLayout");

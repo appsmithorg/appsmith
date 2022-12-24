@@ -15,7 +15,7 @@ import {
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";

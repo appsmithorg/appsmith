@@ -2,16 +2,17 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -23,10 +24,13 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
@@ -54,8 +58,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -68,23 +70,27 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
-	private final CloudServicesConfig cloudServicesConfig;
-
+    private final DatasourceContextService datasourceContextService;
+    private final DatasourcePermission datasourcePermission;
+    private final WorkspacePermission workspacePermission;
 
     @Autowired
     public DatasourceServiceCEImpl(Scheduler scheduler,
-								   Validator validator,
-								   MongoConverter mongoConverter,
-								   ReactiveMongoTemplate reactiveMongoTemplate,
-								   DatasourceRepository repository,
-								   WorkspaceService workspaceService,
-								   AnalyticsService analyticsService,
-								   SessionUserService sessionUserService,
-								   PluginService pluginService,
-								   PluginExecutorHelper pluginExecutorHelper,
-								   PolicyGenerator policyGenerator,
-								   SequenceService sequenceService,
-								   NewActionRepository newActionRepository, CloudServicesConfig cloudServicesConfig) {
+                                   Validator validator,
+                                   MongoConverter mongoConverter,
+                                   ReactiveMongoTemplate reactiveMongoTemplate,
+                                   DatasourceRepository repository,
+                                   WorkspaceService workspaceService,
+                                   AnalyticsService analyticsService,
+                                   SessionUserService sessionUserService,
+                                   PluginService pluginService,
+                                   PluginExecutorHelper pluginExecutorHelper,
+                                   PolicyGenerator policyGenerator,
+                                   SequenceService sequenceService,
+                                   NewActionRepository newActionRepository,
+                                   DatasourceContextService datasourceContextService,
+                                   DatasourcePermission datasourcePermission,
+                                   WorkspacePermission workspacePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -94,8 +100,10 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
-		this.cloudServicesConfig = cloudServicesConfig;
-	}
+        this.datasourceContextService = datasourceContextService;
+        this.datasourcePermission = datasourcePermission;
+        this.workspacePermission = workspacePermission;
+    }
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
@@ -129,15 +137,16 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return datasourceWithPoliciesMono
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(savedDatasource ->
-                    analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
+                        analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
                 )
-                .flatMap(this::populateHintMessages); // For REST API datasource create flow.
+                .flatMap(this::populateHintMessages)  // For REST API datasource create flow.
+                .flatMap(repository::setUserPermissionsInObject);
     }
 
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_DATASOURCES)
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), workspacePermission.getDatasourceCreatePermission())
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
                     return workspaceMono.map(workspace -> {
@@ -150,7 +159,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     public Mono<Datasource> populateHintMessages(Datasource datasource) {
 
-        if(datasource == null) {
+        if (datasource == null) {
             /*
              * - Not throwing an exception here because we do not throw an error in case of missing datasource.
              *   We try not to fail as much as possible during create and update actions.
@@ -158,7 +167,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             return Mono.just(new Datasource());
         }
 
-        if(datasource.getPluginId() == null) {
+        if (datasource.getPluginId() == null) {
             /*
              * - Not throwing an exception here because we try not to fail as much as possible during datasource create
              * and update events.
@@ -186,7 +195,27 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
+    public Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission) {
+        // Global datasource requires us to fetch the datasource from DB.
+        if (actionDTO.getDatasource() != null && actionDTO.getDatasource().getId() != null) {
+            return this.findById(actionDTO.getDatasource().getId(), aclPermission)
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                            FieldName.DATASOURCE,
+                            actionDTO.getDatasource().getId())));
+        }
+        // This is a nested datasource. Return as is.
+        return Mono.justOrEmpty(actionDTO.getDatasource());
+    }
+
+    @Override
     public Mono<Datasource> update(String id, Datasource datasource) {
+        // since there was no datasource update differentiator between server invoked due to refresh token,
+        // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
+        // adding a default false value here, the value is true only when the user calls the update event from datasource controller, else it's false.
+        return update(id, datasource, Boolean.FALSE);
+    }
+
+    public Mono<Datasource> update(String id, Datasource datasource, Boolean isUserRefreshedUpdate) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -196,6 +225,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         Mono<Datasource> datasourceMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+
         return datasourceMono
                 .map(dbDatasource -> {
                     copyNestedNonNullProperties(datasource, dbDatasource);
@@ -207,9 +237,15 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
-                .flatMap(savedDatasource ->
-                        analyticsService.sendUpdateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
-                )
+                .flatMap(savedDatasource -> {
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
+                    if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
+                    } else {
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
+                    }
+                    return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
+                })
                 .flatMap(this::populateHintMessages);
     }
 
@@ -240,11 +276,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 }));
 
         if (datasource.getDatasourceConfiguration() == null) {
-			//默认初始化成 ip+port/api/版本/xxx
-			final String baseUrl = cloudServicesConfig.getBaseUrl();
-			datasource.setDatasourceConfiguration(DatasourceConfiguration.builder()
-							.url(baseUrl + "/api/v1/background/")
-					.build());
             invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
         }
 
@@ -296,14 +327,15 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
                 .flatMap(unsavedDatasource -> {
-
-                    return repository.save(unsavedDatasource).map(savedDatasource -> {
-                        // datasource.pluginName is a transient field. It was set by validateDatasource method
-                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
-                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                        return savedDatasource;
-                    });
-                });
+                    return repository.save(unsavedDatasource)
+                            .map(savedDatasource -> {
+                                // datasource.pluginName is a transient field. It was set by validateDatasource method
+                                // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                                savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                                return savedDatasource;
+                            });
+                })
+                .flatMap(repository::setUserPermissionsInObject);
     }
 
     /**
@@ -369,7 +401,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Set<String> extractKeysFromDatasource(Datasource datasource) {
+    public Set<MustacheBindingToken> extractKeysFromDatasource(Datasource datasource) {
         if (datasource == null || datasource.getDatasourceConfiguration() == null) {
             return new HashSet<>();
         }
@@ -385,7 +417,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         if (params.getFirst(fieldName(QDatasource.datasource.workspaceId)) != null) {
-            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), AclPermission.READ_DATASOURCES)
+            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), datasourcePermission.getReadPermission())
                     .collectList()
                     .map(datasourceList -> {
                         markRecentlyUsed(datasourceList, 3);
@@ -415,7 +447,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Mono<Datasource> archiveById(String id) {
         return repository
-                .findById(id, MANAGE_DATASOURCES)
+                .findById(id, datasourcePermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))
                 .flatMap(objects -> {
@@ -425,8 +457,19 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     }
                     return Mono.just(objects.getT1());
                 })
-                .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(toDelete -> {
+                    return datasourceContextService.deleteDatasourceContext(toDelete.getId())
+                            .then(repository.archive(toDelete))
+                            .thenReturn(toDelete);
+                })
+                .flatMap(datasource -> {
+                    Map<String, String> eventData = Map.of(
+                            FieldName.WORKSPACE_ID, datasource.getWorkspaceId()
+                    );
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(datasource);
+                    analyticsProperties.put(FieldName.EVENT_DATA, eventData);
+                    return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
+                });
     }
 
     @Override
@@ -450,11 +493,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
      * Sets isRecentlyCreated flag to the datasources that were created recently.
      * It finds the most recent `recentlyUsedCount` numbers of datasources based on the `createdAt` field and set
      * the flag on for them.
-     * @param datasourceList List datasources
+     *
+     * @param datasourceList    List datasources
      * @param recentlyUsedCount How many should be marked as recently created
      */
     private void markRecentlyUsed(List<Datasource> datasourceList, int recentlyUsedCount) {
-        if(CollectionUtils.isEmpty(datasourceList)) { // list is null or empty, nothing to do
+        if (CollectionUtils.isEmpty(datasourceList)) { // list is null or empty, nothing to do
             return;
         }
 
@@ -466,7 +510,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         List<Tuple2<Integer, Instant>> indexAndCreatedDates = new ArrayList<>(datasourceList.size());
 
-        for(int i = 0; i < datasourceList.size(); i++) {
+        for (int i = 0; i < datasourceList.size(); i++) {
             Datasource datasource = datasourceList.get(i);
             indexAndCreatedDates.add(Tuples.of(i, datasource.getCreatedAt()));
         }
@@ -475,7 +519,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         indexAndCreatedDates.sort(Comparator.comparing(Tuple2::getT2, Comparator.reverseOrder()));
 
         // set the flag based on indexes from indexAndCreatedDates
-        for(int i = 0; i < recentlyUsedCount && i < indexAndCreatedDates.size(); i++) {
+        for (int i = 0; i < recentlyUsedCount && i < indexAndCreatedDates.size(); i++) {
             Tuple2<Integer, Instant> objects = indexAndCreatedDates.get(i);
             Datasource datasource = datasourceList.get(objects.getT1());
             datasource.setIsRecentlyCreated(true);

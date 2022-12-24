@@ -83,6 +83,10 @@ export class JSEditor {
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
+  _dialogInDeployView =
+    "//div[@class='bp3-dialog-body']//*[contains(text(), '" +
+    Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
+    "')]";
   _funcDropdown = ".t--formActionButtons div[role='listbox']";
   _funcDropdownOptions = ".ads-dropdown-options-wrapper div > span div";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
@@ -91,6 +95,7 @@ export class JSEditor {
   _debugCTA = `button.js-editor-debug-cta`;
   _lineinJsEditor = (lineNumber: number) =>
     ":nth-child(" + lineNumber + ") > .CodeMirror-line";
+  _logsTab = "[data-cy=t--tab-LOGS_TAB]";
   //#endregion
 
   //#region constants
@@ -118,7 +123,10 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.AssertContains("created successfully");
+    // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
+    //Checking JS object was created successfully
+    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
+
     this.agHelper.Sleep();
   }
 
@@ -149,8 +157,8 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
-      this.agHelper.AssertAutoSave();
       this.agHelper.AssertContains("Start object with export default");
+      //this.agHelper.AssertAutoSave();
     }
 
     toWriteAfterToastsDisappear && this.agHelper.WaitUntilAllToastsDisappear();
@@ -164,7 +172,7 @@ export class JSEditor {
         } else {
           cy.get(el).type(JSCode, {
             parseSpecialCharSequences: false,
-            delay: 50,
+            delay: 40,
             force: true,
           });
         }
@@ -189,7 +197,11 @@ export class JSEditor {
   }
 
   //Edit the name of a JSObject's property (variable or function)
-  public EditJSObj(newContent: string, toPrettify = true) {
+  public EditJSObj(
+    newContent: string,
+    toPrettify = true,
+    toVerifyAutoSave = true,
+  ) {
     cy.get(this.locator._codeMirrorTextArea)
       .first()
       .focus()
@@ -199,7 +211,13 @@ export class JSEditor {
       });
     this.agHelper.Sleep(2000); //Settling time for edited js code
     toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify Code");
-    this.agHelper.AssertAutoSave();
+    toVerifyAutoSave && this.agHelper.AssertAutoSave();
+  }
+
+  public RunJSObj() {
+    this.agHelper.GetNClick(this._runButton);
+    this.agHelper.Sleep(); //for function to run
+    this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 
   public DisableJSContext(endp: string) {
@@ -212,7 +230,7 @@ export class JSEditor {
             .click({ force: true });
         else this.agHelper.Sleep(500);
       });
-   }
+  }
 
   public RenameJSObjFromPane(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });
@@ -280,7 +298,6 @@ export class JSEditor {
     onLoad = true,
     bfrCalling = true,
   ) {
-
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
 

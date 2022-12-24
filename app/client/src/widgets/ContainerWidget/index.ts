@@ -1,4 +1,6 @@
 import { ButtonBoxShadowTypes } from "components/constants";
+import { Colors } from "constants/Colors";
+import { WidgetHeightLimits } from "constants/WidgetConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -7,15 +9,21 @@ export const CONFIG = {
   name: "Container",
   iconSVG: IconSVG,
   isCanvas: true,
+  features: {
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
+  },
   searchTags: ["div", "parent", "group"],
   defaults: {
     backgroundColor: "#FFFFFF",
-    rows: 40,
+    rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
     columns: 24,
     widgetName: "Container",
     containerStyle: "card",
-    borderColor: "transparent",
-    borderWidth: "0",
+    borderColor: Colors.GREY_5,
+    borderWidth: "1",
     boxShadow: ButtonBoxShadowTypes.NONE,
     animateLoading: true,
     children: [],
@@ -42,6 +50,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

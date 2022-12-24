@@ -49,7 +49,7 @@ describe("Bind a button and Api usecase", function() {
   });
 
   it("API datasource binding with button name validation", function() {
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.SearchEntityandOpen("Api1");
     cy.get(apiwidget.headerValue)
       .first()

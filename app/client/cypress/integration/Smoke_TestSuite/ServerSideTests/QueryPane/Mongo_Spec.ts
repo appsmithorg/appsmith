@@ -2,14 +2,14 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsName: any;
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   deployMode = ObjectsRegistry.DeployMode,
   table = ObjectsRegistry.Table,
-  propPane = ObjectsRegistry.PropertyPane;
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Validate Mongo Query Pane Validations", () => {
   before(() => {
@@ -49,11 +49,11 @@ describe("Validate Mongo Query Pane Validations", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    propPane.ChangeTheme("Modern");
+    appSettings.OpenPaneAndChangeTheme("Sunrise");
   });
 
   it("2. Create new CRUD collection 'AuthorNAwards' & refresh Entity Explorer to find the new collection", () => {
-    let authorNAwardsArray = `[{
+    const authorNAwardsArray = `[{
       "_id" : 1,
       "name" : {
           "first" : "John",
@@ -305,7 +305,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
@@ -331,7 +331,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("5. Validate 'Insert' record from new collection & verify query response", () => {
-    let insertauthorNAwards = `[{
+    const insertauthorNAwards = `[{
   "_id" : 8,
   "name" : {
       "first" : "Yukihiro",
@@ -622,7 +622,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.ExpandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName(
       "AuthorNAwards",
       "Delete",
@@ -632,7 +632,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("17. Validate Drop of the Newly Created - AuthorNAwards - collection from datasource", () => {
-    let dropCollection = `{ "drop": "AuthorNAwards" }`;
+    const dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
 
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
@@ -644,14 +644,14 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
   });
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function() {
-    let dropCollection = `{ "drop": "AuthorNAwards" }`;
+    const dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
@@ -668,7 +668,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("19. Bug 13285 - Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
-    let birthNDeathArray = `[{
+    const birthNDeathArray = `[{
       "name": {
         "first": "John",
         "last": "Backus"
@@ -740,7 +740,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
 
     //Execute a find query on this collection to see if dates are fetched properly
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("BirthNDeath"));
@@ -751,7 +751,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
 
     //Drop the collection `BirthNDeath`
-    let dropCollection = `{ "drop": "BirthNDeath" }`;
+    const dropCollection = `{ "drop": "BirthNDeath" }`;
 
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
@@ -761,7 +761,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
 
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("BirthNDeath"));
@@ -769,7 +769,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("20. Verify Deletion of the datasource", () => {
     //Delete the test data
-    // ee.expandCollapseEntity("PAGES")
+    // ee.expandCollapseEntity("Pages")
     // ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
     // agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();

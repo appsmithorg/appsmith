@@ -34,7 +34,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -47,6 +47,7 @@ export default {
     {
       propertyName: "buttonLabel",
       label: "Text",
+      helpText: "Sets the label of the button",
       controlType: "TABLE_COMPUTE_VALUE",
       defaultValue: "Action",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -59,6 +60,7 @@ export default {
     {
       propertyName: "menuButtonLabel",
       label: "Text",
+      helpText: "Sets the label of the button",
       controlType: "TABLE_COMPUTE_VALUE",
       defaultValue: "Open Menu",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -129,7 +131,7 @@ export default {
                 isBindProperty: true,
                 isTriggerProperty: false,
                 validation: {
-                  type: ValidationTypes.TABLE_PROPERTY,
+                  type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {
                     type: ValidationTypes.BOOLEAN,
                   },
@@ -146,7 +148,7 @@ export default {
                 isBindProperty: true,
                 isTriggerProperty: false,
                 validation: {
-                  type: ValidationTypes.TABLE_PROPERTY,
+                  type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {
                     type: ValidationTypes.BOOLEAN,
                   },
@@ -206,7 +208,7 @@ export default {
                 isTriggerProperty: false,
                 dependencies: ["primaryColumns", "columnOrder"],
                 validation: {
-                  type: ValidationTypes.TABLE_PROPERTY,
+                  type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {
                     type: ValidationTypes.TEXT,
                     params: {
@@ -226,7 +228,7 @@ export default {
                 isTriggerProperty: false,
                 dependencies: ["primaryColumns", "columnOrder"],
                 validation: {
-                  type: ValidationTypes.TABLE_PROPERTY,
+                  type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {
                     type: ValidationTypes.TEXT,
                     params: {

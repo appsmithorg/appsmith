@@ -624,3 +624,193 @@ export const replacePropertyName = (
   path.pop();
   return `${path.join(".")}.${targetPropertyName}`;
 };
+
+export const updateCustomColumnAliasOnLabelChange = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<PropertyHookUpdates> | undefined => {
+  // alias will be updated along with label change only for custom columns
+  const regex = /^primaryColumns\.(customColumn\d+)\.label$/;
+  if (propertyPath?.length && regex.test(propertyPath)) {
+    return [
+      {
+        propertyPath: propertyPath.replace("label", "alias"),
+        propertyValue: propertyValue,
+      },
+    ];
+  }
+};
+
+export function selectColumnOptionsValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) {
+  let _isValid = true,
+    _parsed,
+    _message = "";
+  let uniqueValues: Set<unknown>;
+  const invalidMessage = `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`;
+  const allowedValueTypes = ["string", "number", "boolean"];
+  const allowedLabelTypes = ["string", "number"];
+
+  const generateErrorMessagePrefix = (
+    rowIndex: number | null,
+    optionIndex: number,
+  ) => {
+    return `Invalid entry at${
+      rowIndex !== null ? ` Row: ${rowIndex}` : ""
+    } index: ${optionIndex}.`;
+  };
+
+  const validateOption = (
+    option: any,
+    rowIndex: number | null,
+    optionIndex: number,
+  ) => {
+    /*
+     *  Option should
+     *    1. be an object
+     *    2. have label property
+     *    3. label should be of type string | number
+     *    4. have value property
+     *    5. value should be of type string | number | boolean
+     *    6. value should be unique amoig the options array
+     */
+    if (!_.isObject(option)) {
+      // 1
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
+    }
+
+    if (!option.hasOwnProperty("label")) {
+      // 2
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} Missing required key: label`;
+    }
+
+    if (!allowedLabelTypes.includes(typeof option.label)) {
+      // 3
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} label does not evaluate to type ${allowedLabelTypes.join(" | ")}`;
+    }
+
+    if (!option.hasOwnProperty("value")) {
+      // 4
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} Missing required key: value`;
+    }
+
+    if (!allowedValueTypes.includes(typeof option.value)) {
+      // 5
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} value does not evaluate to type ${allowedValueTypes.join(" | ")}`;
+    }
+
+    if (uniqueValues.has(option.value)) {
+      // 6
+      return `Duplicate values found for the following properties, in the array entries, that must be unique -- value.`;
+    } else {
+      uniqueValues.add(option.value);
+    }
+
+    return "";
+  };
+
+  try {
+    if (value === "" || _.isNil(value)) {
+      // empty values
+      return {
+        isValid: true,
+        parsed: [],
+        messages: [""],
+      };
+    } else if (typeof value === "string") {
+      // json string
+      const _value = JSON.parse(value);
+      if (Array.isArray(_value)) {
+        value = _value;
+      } else {
+        _isValid = false;
+        _message = invalidMessage;
+      }
+    }
+
+    if (Array.isArray(value)) {
+      if (value.length) {
+        //when value is array of option json string
+        if (value.every((d) => _.isString(d))) {
+          value = value.map((d) => JSON.parse(d));
+        }
+
+        if (Array.isArray(value) && Array.isArray(value[0])) {
+          // value is array of array of label, value
+          //Value should be an array of array
+          if (!value.every((d) => Array.isArray(d))) {
+            _parsed = [];
+            _isValid = false;
+            _message = invalidMessage;
+          } else {
+            _parsed = value;
+            _isValid = true;
+
+            for (let i = 0; i < value.length; i++) {
+              uniqueValues = new Set();
+
+              for (let j = 0; j < value[i].length; j++) {
+                if ((_message = validateOption(value[i][j], i, j))) {
+                  _isValid = false;
+                  break;
+                }
+              }
+
+              if (!_isValid) {
+                break;
+              }
+            }
+          }
+        } else {
+          uniqueValues = new Set();
+          _parsed = value;
+          _isValid = true;
+          for (let i = 0; i < (value as Array<unknown>).length; i++) {
+            if (
+              (_message = validateOption((value as Array<unknown>)[i], null, i))
+            ) {
+              _isValid = false;
+              break;
+            }
+          }
+        }
+      } else {
+        _isValid = true;
+        _parsed = [];
+      }
+    } else {
+      _parsed = [];
+      _isValid = false;
+      _message = invalidMessage;
+    }
+  } catch (e) {
+    _parsed = [];
+    _isValid = false;
+    _message = invalidMessage;
+  }
+
+  return {
+    isValid: _isValid,
+    parsed: _parsed,
+    messages: [_message],
+  };
+}

@@ -1,5 +1,10 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
+import {
+  ACTION_EXECUTION_CANCELLED,
+  createMessage,
+} from "../../../../support/Objects/CommonErrorMessages";
+
 const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   apiPage = ObjectsRegistry.ApiPage,
@@ -10,15 +15,14 @@ let dsName: any;
 const largeResponseApiUrl = "https://api.publicapis.org/entries";
 //"https://jsonplaceholder.typicode.com/photos";//Commenting since this is faster sometimes & case is failing
 
-export const ACTION_EXECUTION_CANCELLED = (actionName: string) =>
-  `${actionName} was cancelled`;
-
 describe("Abort Action Execution", function() {
   it("1. Bug #14006, #16093 - Cancel Request button should abort API action execution", function() {
     apiPage.CreateAndFillApi(largeResponseApiUrl, "AbortApi", 0);
     apiPage.RunAPI(false, 0);
     agHelper.GetNClick(locator._cancelActionExecution, 0, true);
-    agHelper.AssertContains(ACTION_EXECUTION_CANCELLED("AbortApi"));
+    agHelper.AssertContains(
+      createMessage(ACTION_EXECUTION_CANCELLED, "AbortApi"),
+    );
     agHelper.AssertElementAbsence(locator._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
     agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
   });
@@ -38,7 +42,9 @@ describe("Abort Action Execution", function() {
       dataSources.SetQueryTimeout(0);
       dataSources.RunQuery(false, false, 0);
       agHelper.GetNClick(locator._cancelActionExecution, 0, true);
-      agHelper.AssertContains(ACTION_EXECUTION_CANCELLED("AbortQuery"));
+      agHelper.AssertContains(
+        createMessage(ACTION_EXECUTION_CANCELLED, "AbortQuery"),
+      );
       agHelper.AssertElementAbsence(locator._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
       agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
       dataSources.DeleteDatasouceFromWinthinDS(dsName);

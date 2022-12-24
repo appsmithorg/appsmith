@@ -10,8 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
 
-import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
-import PropertyControlsGenerator from "./Generator";
+import PropertyPaneTitle from "./PropertyPaneTitle";
+import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
@@ -26,30 +26,14 @@ import {
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
-import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
-import {
-  IconSize,
-  InputWrapper,
-  SearchInput,
-  SearchVariant,
-} from "design-system";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { BannerMessage, IconSize } from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
-import styled from "styled-components";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
-
-export const StyledSearchInput = styled(SearchInput)`
-  position: sticky;
-  top: 52px;
-  z-index: 3;
-
-  ${InputWrapper} {
-    background: ${Colors.GRAY_50};
-    padding: 0 8px;
-  }
-`;
+import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
+import { disableWidgetFeatures } from "utils/WidgetFeatures";
+import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -79,8 +63,8 @@ function PropertyPaneView(
     getWidgetPropsForPropertyPaneView,
     equal,
   );
+
   const doActionsExist = useSelector(actionsExist);
-  const featureFlags = useSelector(selectFeatureFlags);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
@@ -113,6 +97,18 @@ function PropertyPaneView(
       );
     };
   }, []);
+
+  /**
+   * Analytics for property pane Search
+   */
+  useEffect(() => {
+    sendPropertyPaneSearchAnalytics({
+      widgetType: widgetProperties?.type,
+      searchText,
+      widgetName: widgetProperties.widgetName,
+      searchPath: "",
+    });
+  }, [searchText]);
 
   /**
    * on delete button click
@@ -177,6 +173,10 @@ function PropertyPaneView(
     ];
   }, [onCopy, onDelete, handleTabKeyDownForButton]);
 
+  useEffect(() => {
+    setSearchText("");
+  }, [widgetProperties?.widgetId]);
+
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
@@ -201,7 +201,7 @@ function PropertyPaneView(
 
   return (
     <div
-      className="w-full overflow-y-scroll"
+      className="w-full overflow-y-scroll h-full"
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >
@@ -242,46 +242,56 @@ function PropertyPaneView(
         className="t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
-        {featureFlags.PROPERTY_PANE_GROUPING &&
-        (isContentConfigAvailable || isStyleConfigAvailable) ? (
+        {isContentConfigAvailable || isStyleConfigAvailable ? (
           <>
-            <StyledSearchInput
-              className="propertyPaneSearch"
-              fill
-              onChange={setSearchText}
-              placeholder="Search for controls, labels etc"
-              variant={SearchVariant.BACKGROUND}
-            />
-            <PropertyPaneTab
-              contentComponent={
-                isContentConfigAvailable ? (
-                  <PropertyControlsGenerator
-                    config={WidgetFactory.getWidgetPropertyPaneContentConfig(
-                      widgetProperties.type,
-                    )}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    searchQuery={searchText}
-                    theme={EditorTheme.LIGHT}
-                    type={widgetProperties.type}
-                  />
-                ) : null
-              }
-              styleComponent={
-                isStyleConfigAvailable ? (
-                  <PropertyControlsGenerator
-                    config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
-                      widgetProperties.type,
-                    )}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    searchQuery={searchText}
-                    theme={EditorTheme.LIGHT}
-                    type={widgetProperties.type}
-                  />
-                ) : null
-              }
-            />
+            <PropertyPaneSearchInput onTextChange={setSearchText} />
+            {searchText.length > 0 ? (
+              <PropertyControlsGenerator
+                config={disableWidgetFeatures(
+                  WidgetFactory.getWidgetPropertyPaneSearchConfig(
+                    widgetProperties.type,
+                  ),
+                  widgetProperties.disabledWidgetFeatures,
+                )}
+                id={widgetProperties.widgetId}
+                panel={panel}
+                searchQuery={searchText}
+                theme={EditorTheme.LIGHT}
+                type={widgetProperties.type}
+              />
+            ) : (
+              <PropertyPaneTab
+                contentComponent={
+                  isContentConfigAvailable ? (
+                    <PropertyControlsGenerator
+                      config={disableWidgetFeatures(
+                        WidgetFactory.getWidgetPropertyPaneContentConfig(
+                          widgetProperties.type,
+                        ),
+                        widgetProperties.disabledWidgetFeatures,
+                      )}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={EditorTheme.LIGHT}
+                      type={widgetProperties.type}
+                    />
+                  ) : null
+                }
+                styleComponent={
+                  isStyleConfigAvailable ? (
+                    <PropertyControlsGenerator
+                      config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
+                        widgetProperties.type,
+                      )}
+                      id={widgetProperties.widgetId}
+                      panel={panel}
+                      theme={EditorTheme.LIGHT}
+                      type={widgetProperties.type}
+                    />
+                  ) : null
+                }
+              />
+            )}
           </>
         ) : (
           <PropertyControlsGenerator
@@ -290,7 +300,6 @@ function PropertyPaneView(
             )}
             id={widgetProperties.widgetId}
             panel={panel}
-            searchQuery={searchText}
             theme={EditorTheme.LIGHT}
             type={widgetProperties.type}
           />

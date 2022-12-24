@@ -5,10 +5,10 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
-import _ from "lodash";
+import _, { omit } from "lodash";
 import {
   WidgetType,
-  MAIN_CONTAINER_WIDGET_ID,
+  WIDGET_PROPS_TO_SKIP_FROM_EVAL,
 } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
@@ -18,6 +18,17 @@ import { Plugin } from "api/PluginApi";
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
+
+export const getWidgetsForEval = createSelector(getWidgets, (widgets) => {
+  const widgetForEval: CanvasWidgetsReduxState = {};
+  for (const key of Object.keys(widgets)) {
+    widgetForEval[key] = omit(
+      widgets[key],
+      Object.keys(WIDGET_PROPS_TO_SKIP_FROM_EVAL),
+    ) as FlattenedWidgetProps;
+  }
+  return widgetForEval;
+});
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
@@ -59,11 +70,12 @@ export const getWidgetOptionsTree = createSelector(getWidgets, (widgets) =>
 
 export const getEditorConfigs = (
   state: AppState,
-): { pageId: string; layoutId: string } | undefined => {
+): { applicationId: string; pageId: string; layoutId: string } | undefined => {
   const pageId = state.entities.pageList.currentPageId;
   const layoutId = state.ui.editor.currentLayoutId;
-  if (!pageId || !layoutId) return undefined;
-  return { pageId, layoutId };
+  const applicationId = state.ui.applications.currentApplication?.id;
+  if (!pageId || !layoutId || !applicationId) return undefined;
+  return { pageId, layoutId, applicationId };
 };
 
 export const getDefaultPageId = (state: AppState): string =>
@@ -136,7 +148,7 @@ export const getPluginIdOfPackageName = (
   name: string,
 ): string | undefined => {
   const plugins = state.entities.plugins.list;
-  const plugin = _.find(plugins, { packageName: name });
+  const plugin = plugins.find((plugin) => plugin.packageName === name);
   if (plugin) return plugin.id;
   return undefined;
 };
@@ -178,30 +190,3 @@ export const getWidgetImmediateChildren = createSelector(
     return childrenIds;
   },
 );
-
-/**
- * get actual parent of widget based on widgetId
- * for button inside form, button's parent is form
- * for button on canvas, parent is main container
- */
-export const getWidgetParent = (widgetId: string) => {
-  return createSelector(
-    getWidgets,
-    (canvasWidgets: CanvasWidgetsReduxState) => {
-      let widget = canvasWidgets[widgetId];
-      // While this widget has a parent
-      while (widget?.parentId) {
-        // Get parent widget props
-        const parent = _.get(canvasWidgets, widget.parentId, undefined);
-        // keep walking up the tree to find the parent untill parent exist or parent is the main container
-        if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
-          widget = canvasWidgets[widget.parentId];
-          continue;
-        } else {
-          return parent;
-        }
-      }
-      return;
-    },
-  );
-};

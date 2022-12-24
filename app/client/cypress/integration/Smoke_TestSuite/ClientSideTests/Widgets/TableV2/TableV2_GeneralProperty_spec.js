@@ -21,6 +21,7 @@ describe("Table Widget property pane feature validation", function() {
   it("2. Test to validate text allignment", function() {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
+    cy.moveToStyleTab();
     // Change the text align to center
     cy.get(widgetsPage.centerAlign)
       .first()
@@ -42,7 +43,8 @@ describe("Table Widget property pane feature validation", function() {
   });
 
   it("3. Test to validate column heading allignment", function() {
-    // cy.openPropertyPane("tablewidget");
+    cy.openPropertyPane("tablewidgetv2");
+    cy.moveToStyleTab();
     // Change the text align to center
     cy.get(widgetsPage.centerAlign)
       .first()
@@ -78,8 +80,10 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.italics).click({ force: true });
     // Verify the font style is italic
     cy.readTableV2dataValidateCSS("1", "0", "font-style", "italic");
+    cy.moveToContentTab();
     // Change the font style to underline
     cy.editColumn("id");
+    cy.moveToStyleTab();
     cy.get(widgetsPage.underline).click({ force: true });
     // Verify the font style is underline
     cy.readTableV2dataValidateCSS(
@@ -92,6 +96,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("5. Test to validate vertical allignment", function() {
     cy.openPropertyPane("tablewidgetv2");
+    cy.moveToStyleTab();
     // Select the top vertical alignment
     cy.get(widgetsPage.verticalTop).click({ force: true });
     // verify vertical alignment is top
@@ -131,12 +136,6 @@ describe("Table Widget property pane feature validation", function() {
     // Verify font size is 14px
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
 
-    // Click on text size JS
-    cy.get(widgetsPage.toggleTextAlign)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
     // Open txe size dropdown options
     cy.get(widgetsPage.textSize)
       .last()
@@ -163,6 +162,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     // Open email property pane
     cy.editColumn("email");
+    cy.moveToContentTab();
     // Change column type to url
     cy.changeColumnType("URL");
     //Check all the occurance
@@ -182,12 +182,11 @@ describe("Table Widget property pane feature validation", function() {
 
   it("10. Edit Row height and test table for changes", function() {
     cy.openPropertyPane("tablewidgetv2");
+    cy.moveToStyleTab();
     cy.get(widgetsPage.rowHeight)
       .last()
       .click({ force: true });
-    cy.get(".t--dropdown-option")
-      .contains("Short")
-      .click({ force: true });
+    cy.get(".t--button-tab-SHORT").click({ force: true });
     cy.wait(2000);
     cy.PublishtheApp();
     cy.readTableV2dataValidateCSS("0", "1", "height", "29px", true);

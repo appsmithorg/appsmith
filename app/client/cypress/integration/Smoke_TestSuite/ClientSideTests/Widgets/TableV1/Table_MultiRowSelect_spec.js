@@ -8,7 +8,7 @@ describe("Table Widget row multi select validation", function() {
   });
   it("Test multi select column shows when enable Multirowselection is true", function() {
     cy.openPropertyPane("tablewidget");
-    cy.get(widgetsPage.toggleEnableMultirowselection)
+    cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)
       .first()
       .click({ force: true });
     cy.closePropertyPane("tablewidget");

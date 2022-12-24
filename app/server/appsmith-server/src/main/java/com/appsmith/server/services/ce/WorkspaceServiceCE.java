@@ -20,7 +20,7 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Workspace> createDefault(Workspace workspace, User user);
 
-    Mono<Workspace> create(Workspace workspace, User user);
+    Mono<Workspace> create(Workspace workspace, User user, Boolean isDefault);
 
     Mono<Workspace> findById(String id, AclPermission permission);
 

@@ -17,3 +17,10 @@ We wanted to share common logic with different applications within our repo, so 
 ## Verifying the Installed Shared Modules
 - Run `yarn run verify` inside `shared` directory to verify shared dependencies for an application.
 
+## Command `link-package`
+- `yarn install` : installs packages
+- `rollup -c` : Module bundler bundles the package and creates a build
+- `cd build` : Change the present working directory
+- `cp -R ../node_modules ./node_modules` : copies its own node_modules directory to its build directory to make sure its own version dependencies do not mismatch when its installed in other directories as shared module
+- `yarn link` : Creates a link for the package to make it available for other directories to use.
+

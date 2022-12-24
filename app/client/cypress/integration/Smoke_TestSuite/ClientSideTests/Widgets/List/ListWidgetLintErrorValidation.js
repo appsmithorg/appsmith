@@ -42,7 +42,7 @@ describe("Linting warning validation with list widget", function() {
     //lint warning message
     cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
-      .contains("'ERROR' is not defined.");
+      .contains("'DATA' is not defined.");
 
     cy.get(commonlocators.debugger)
       .should("be.visible")
@@ -52,12 +52,6 @@ describe("Linting warning validation with list widget", function() {
       .should("be.visible")
       .click({ force: true });
 
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(0)
-      .contains("ReferenceError: ERROR is not defined");
-
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(1)
-      .contains("SyntaxError: Unexpected identifier");
+    cy.get(commonlocators.debugErrorMsg).should("have.length", 6);
   });
 });

@@ -1,29 +1,27 @@
-import { updateExplorerWidthAction } from "actions/explorerActions";
+import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
 import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
-import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import React, { useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 
 function PropertyPaneContainer() {
   const dispatch = useDispatch();
+  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
 
-  const [propertyPaneWidth, setPropertyPaneWidth] = React.useState(
-    DEFAULT_PROPERTY_PANE_WIDTH,
-  );
   /**
    * on property pane sidebar drag end
    *
    * @return void
    */
   const onRightSidebarDragEnd = useCallback(() => {
-    dispatch(updateExplorerWidthAction(propertyPaneWidth));
+    dispatch(setPropertyPaneWidthAction(propertyPaneWidth));
   }, [propertyPaneWidth]);
 
   /**
    * on property pane sidebar width change
    */
   const onRightSidebarWidthChange = useCallback((newWidth) => {
-    setPropertyPaneWidth(newWidth);
+    dispatch(setPropertyPaneWidthAction(newWidth));
   }, []);
 
   return (

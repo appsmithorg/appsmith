@@ -6,6 +6,7 @@ import {
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
 import {
+  getWidgetIdsByType,
   getWidgetImmediateChildren,
   getWidgetMetaProps,
   getWidgets,
@@ -18,13 +19,12 @@ import {
   selectWidgetInitAction,
   silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system";
 import {
   createMessage,
   SELECT_ALL_WIDGETS_MSG,
 } from "@appsmith/constants/messages";
-import { Variant } from "components/ads/common";
-import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -33,7 +33,15 @@ import { getWidgetChildrenIds } from "./WidgetOperationUtils";
 import { AppState } from "@appsmith/reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
-import { showModal } from "actions/widgetActions";
+import { closeAllModals, showModal } from "actions/widgetActions";
+import history from "utils/history";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { builderURL } from "RouteBuilder";
+import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import {
+  getCanvasWidgetsWithParentId,
+  getParentModalId,
+} from "selectors/entitiesSelector";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -105,7 +113,7 @@ function* getDroppingCanvasOfWidget(widgetLastSelected: FlattenedWidgetProps) {
 }
 
 function* getLastSelectedCanvas() {
-  const lastSelectedWidget: string = yield select(getSelectedWidget);
+  const lastSelectedWidget: string = yield select(getLastSelectedWidget);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgetLastSelected =
     lastSelectedWidget && canvasWidgets[lastSelectedWidget];
@@ -131,7 +139,7 @@ const isChildOfDropDisabledCanvas = (
 };
 
 function* getAllSelectableChildren() {
-  const lastSelectedWidget: string = yield select(getSelectedWidget);
+  const lastSelectedWidget: string = yield select(getLastSelectedWidget);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgetLastSelected = canvasWidgets[lastSelectedWidget];
   const canvasId: string = yield call(getLastSelectedCanvas);
@@ -258,7 +266,7 @@ function* shiftSelectWidgetsSaga(
   try {
     const { siblingWidgets, widgetId } = action.payload;
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
-    const lastSelectedWidget: string = yield select(getSelectedWidget);
+    const lastSelectedWidget: string = yield select(getLastSelectedWidget);
     const lastSelectedWidgetIndex = siblingWidgets.indexOf(lastSelectedWidget);
     const isWidgetSelected = selectedWidgets.includes(widgetId);
     if (!isWidgetSelected && lastSelectedWidgetIndex > -1) {
@@ -293,21 +301,20 @@ function* selectMultipleWidgetsSaga(
 ) {
   try {
     const { widgetIds } = action.payload;
-    if (!widgetIds || !widgetIds.length) {
+    if (!widgetIds) {
       return;
     }
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const parentToMatch = allWidgets[widgetIds[0]].parentId;
+    const allWidgets: CanvasWidgetsReduxState = yield select(
+      getCanvasWidgetsWithParentId,
+    );
+    const parentToMatch = allWidgets[widgetIds[0]]?.parentId;
     const doesNotMatchParent = widgetIds.some((each) => {
-      return allWidgets[each].parentId !== parentToMatch;
+      return allWidgets[each]?.parentId !== parentToMatch;
     });
     if (doesNotMatchParent) {
       return;
-    } else if (
-      widgetIds.length === 1 &&
-      allWidgets[widgetIds[0]]?.type === "MODAL_WIDGET"
-    ) {
-      yield put(showModal(widgetIds[0]));
+    } else if (widgetIds.length === 1) {
+      yield put(selectWidgetInitAction(widgetIds[0]));
     } else {
       yield put(selectWidgetAction());
       yield put(selectMultipleWidgetsAction(widgetIds));
@@ -323,6 +330,37 @@ function* selectMultipleWidgetsSaga(
   }
 }
 
+/**
+ * Append Selected widgetId as hash to the url path
+ * @param action
+ */
+function* appendSelectedWidgetToUrlSaga(
+  action: ReduxAction<{ selectedWidgets: string[] }>,
+) {
+  const { hash, pathname } = window.location;
+  const { selectedWidgets } = action.payload;
+  const currentPageId: string = yield select(getCurrentPageId);
+
+  const currentURL = hash ? `${pathname}${hash}` : pathname;
+  let canvasEditorURL;
+  if (selectedWidgets.length === 1) {
+    canvasEditorURL = `${builderURL({
+      pageId: currentPageId,
+      hash: selectedWidgets[0],
+      persistExistingParams: true,
+    })}`;
+  } else {
+    canvasEditorURL = `${builderURL({
+      pageId: currentPageId,
+      persistExistingParams: true,
+    })}`;
+  }
+
+  if (currentURL !== canvasEditorURL) {
+    history.replace(canvasEditorURL);
+  }
+}
+
 function* canPerformSelectionSaga(saga: any, action: any) {
   const isDragging: boolean = yield select(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
@@ -334,6 +372,85 @@ function* canPerformSelectionSaga(saga: any, action: any) {
 
 function* deselectAllWidgetsSaga() {
   yield put(selectMultipleWidgetsAction([]));
+}
+
+/**
+ * Deselect widgets only if it is or inside the modal. Otherwise will not deselect any widgets.
+ * @param action
+ * @returns
+ */
+function* deselectModalWidgetSaga(
+  action: ReduxAction<{
+    modalId: string;
+    modalWidgetChildren?: CanvasWidgetsStructureReduxState[];
+  }>,
+) {
+  const { modalId, modalWidgetChildren } = action.payload;
+  const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  if (selectedWidgets.length == 0) return;
+
+  if (
+    (selectedWidgets.length === 1 && selectedWidgets[0] === modalId) ||
+    isWidgetPartOfChildren(selectedWidgets[0], modalWidgetChildren)
+  )
+    yield put(selectMultipleWidgetsAction([]));
+}
+
+function* openOrCloseModalSaga(
+  action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
+) {
+  if (!action.payload.widgetId) return;
+  if (action.payload.isMultiSelect) return;
+
+  const modalWidgetIds: string[] = yield select(
+    getWidgetIdsByType,
+    "MODAL_WIDGET",
+  );
+
+  const widgetIsModal = modalWidgetIds.includes(action.payload.widgetId);
+
+  if (widgetIsModal) {
+    yield put(showModal(action.payload.widgetId));
+    return;
+  }
+
+  const widgetMap: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widget = widgetMap[action.payload.widgetId];
+
+  if (widget && widget.parentId) {
+    const parentModalId = getParentModalId(widget, widgetMap);
+    const widgetInModal = modalWidgetIds.includes(parentModalId);
+    if (widgetInModal) {
+      yield put(showModal(parentModalId));
+      return;
+    }
+  }
+
+  yield put(closeAllModals());
+}
+
+/**
+ * Checks if the given widgetId is part of the children recursively
+ * @param widgetId
+ * @param children
+ * @returns
+ */
+function isWidgetPartOfChildren(
+  widgetId: string,
+  children?: CanvasWidgetsStructureReduxState[],
+) {
+  if (!children) return false;
+
+  for (const child of children) {
+    if (
+      child.widgetId === widgetId ||
+      isWidgetPartOfChildren(widgetId, child.children)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export function* widgetSelectionSagas() {
@@ -359,6 +476,11 @@ export function* widgetSelectionSagas() {
       deselectNonSiblingsOfWidgetSaga,
     ),
     takeLatest(
+      ReduxActionTypes.SELECT_WIDGET_INIT,
+      canPerformSelectionSaga,
+      openOrCloseModalSaga,
+    ),
+    takeLatest(
       ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
       canPerformSelectionSaga,
       selectAllWidgetsInCanvasSaga,
@@ -372,6 +494,14 @@ export function* widgetSelectionSagas() {
       ReduxActionTypes.DESELECT_MULTIPLE_WIDGETS_INIT,
       canPerformSelectionSaga,
       deselectAllWidgetsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.DESELECT_MODAL_WIDGETS,
+      deselectModalWidgetSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
+      appendSelectedWidgetToUrlSaga,
     ),
   ]);
 }

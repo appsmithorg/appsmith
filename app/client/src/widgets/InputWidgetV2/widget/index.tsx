@@ -17,7 +17,7 @@ import {
 } from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
@@ -25,6 +25,8 @@ import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
+import { Stylesheet } from "entities/AppTheming";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -173,173 +175,6 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
   }
 }
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
-    return mergeWidgetConfig(
-      [
-        {
-          sectionName: "General",
-          children: [
-            {
-              helpText: "Changes the type of data captured in the input",
-              propertyName: "inputType",
-              label: "Data Type",
-              controlType: "DROP_DOWN",
-              options: [
-                {
-                  label: "Text",
-                  value: "TEXT",
-                },
-                {
-                  label: "Number",
-                  value: "NUMBER",
-                },
-                {
-                  label: "Password",
-                  value: "PASSWORD",
-                },
-                {
-                  label: "Email",
-                  value: "EMAIL",
-                },
-              ],
-              isBindProperty: false,
-              isTriggerProperty: false,
-            },
-            {
-              helpText: "Sets maximum allowed text length",
-              propertyName: "maxChars",
-              label: "Max Chars",
-              controlType: "INPUT_TEXT",
-              placeholderText: "255",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.NUMBER,
-                params: { min: 1, natural: true },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.TEXT;
-              },
-              dependencies: ["inputType"],
-            },
-            {
-              helpText:
-                "Sets the default text of the widget. The text is updated if the default text changes",
-              propertyName: "defaultText",
-              label: "Default Text",
-              controlType: "INPUT_TEXT",
-              placeholderText: "John Doe",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: defaultValueValidation,
-                  expected: {
-                    type: "string or number",
-                    example: `John | 123`,
-                    autocompleteDataType: AutocompleteDataType.STRING,
-                  },
-                },
-              },
-              dependencies: ["inputType"],
-            },
-            {
-              helpText: "Sets the minimum allowed value",
-              propertyName: "minNum",
-              label: "Min",
-              controlType: "INPUT_TEXT",
-              placeholderText: "1",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: minValueValidation,
-                  expected: {
-                    type: "number",
-                    example: `1`,
-                    autocompleteDataType: AutocompleteDataType.NUMBER,
-                  },
-                },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.NUMBER;
-              },
-              dependencies: ["inputType"],
-            },
-            {
-              helpText: "Sets the maximum allowed value",
-              propertyName: "maxNum",
-              label: "Max",
-              controlType: "INPUT_TEXT",
-              placeholderText: "100",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: maxValueValidation,
-                  expected: {
-                    type: "number",
-                    example: `100`,
-                    autocompleteDataType: AutocompleteDataType.NUMBER,
-                  },
-                },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.NUMBER;
-              },
-              dependencies: ["inputType"],
-            },
-          ],
-        },
-        {
-          sectionName: "Icon Options",
-          children: [
-            {
-              propertyName: "iconName",
-              label: "Icon",
-              helpText: "Sets the icon to be used in input field",
-              controlType: "ICON_SELECT",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              isJSConvertible: true,
-              validation: {
-                type: ValidationTypes.TEXT,
-                params: {
-                  allowedValues: ICON_NAMES,
-                },
-              },
-            },
-            {
-              propertyName: "iconAlign",
-              label: "Icon alignment",
-              helpText: "Sets the icon alignment of input field",
-              controlType: "ICON_TABS",
-              options: [
-                {
-                  icon: "VERTICAL_LEFT",
-                  value: "left",
-                },
-                {
-                  icon: "VERTICAL_RIGHT",
-                  value: "right",
-                },
-              ],
-              isBindProperty: false,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
-              hidden: (props: InputWidgetProps) => !props.iconName,
-              dependencies: ["iconName"],
-            },
-          ],
-        },
-      ],
-      super.getPropertyPaneConfig(),
-    );
-  }
-
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
@@ -423,7 +258,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isTriggerProperty: false,
               validation: {
                 type: ValidationTypes.NUMBER,
-                params: { min: 1, natural: true },
+                params: { min: 1, natural: true, passThroughOnZero: false },
               },
               hidden: (props: InputWidgetProps) => {
                 return props.inputType !== InputTypes.TEXT;
@@ -511,6 +346,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Position",
               helpText: "Sets the icon alignment of input field",
               controlType: "ICON_TABS",
+              fullWidth: true,
               options: [
                 {
                   icon: "VERTICAL_LEFT",
@@ -542,7 +378,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
-      inputText: undefined,
+      inputText: "",
+      text: "",
     });
   }
 
@@ -553,7 +390,33 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   handleFocusChange = (focusState: boolean) => {
+    if (focusState) {
+      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+    }
+    if (!focusState) {
+      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
+    }
     super.handleFocusChange(focusState);
   };
 
@@ -717,6 +580,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}

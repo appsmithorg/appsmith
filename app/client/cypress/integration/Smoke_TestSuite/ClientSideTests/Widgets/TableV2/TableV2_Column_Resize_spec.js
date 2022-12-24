@@ -1,7 +1,4 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableV2ResizedColumnsDsl.json");
 
 describe("Table Widget V2 Functionality with Hidden and Resized Columns", function() {
@@ -18,7 +15,7 @@ describe("Table Widget V2 Functionality with Hidden and Resized Columns", functi
         cy.get(".t--widget-tablewidgetv2 .thead .tr")
           .invoke("outerWidth")
           .then((columnHeaderWidth) => {
-            expect(columnHeaderWidth).to.be.at.least(tableWidth);
+            expect(columnHeaderWidth).to.be.at.least(tableWidth - 8);
           });
       });
   });

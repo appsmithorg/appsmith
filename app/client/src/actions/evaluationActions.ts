@@ -14,6 +14,24 @@ export const FIRST_EVAL_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
 ];
 
+export const LINT_REDUX_ACTIONS = {
+  [ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION]: true,
+  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: true,
+  [ReduxActionTypes.DELETE_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.COPY_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.MOVE_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.DELETE_JS_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.COPY_JS_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.MOVE_JS_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.SET_USER_CURRENT_GEO_LOCATION]: true,
+  [ReduxActionTypes.UPDATE_LAYOUT]: true,
+  [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: true,
+  [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: true,
+  [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: true,
+};
+
 export const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
@@ -35,7 +53,6 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.CLEAR_ACTION_RESPONSE,
   // JS Actions
   ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
-  ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
   ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
   ReduxActionTypes.COPY_JS_ACTION_SUCCESS,
   ReduxActionTypes.MOVE_JS_ACTION_SUCCESS,
@@ -85,6 +102,21 @@ export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
   }
   return true;
 };
+
+export function shouldLint(action: ReduxAction<unknown>) {
+  if (
+    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+    Array.isArray(action.payload)
+  ) {
+    const batchedActionTypes = action.payload.map(
+      (batchedAction) => batchedAction.type,
+    );
+    return batchedActionTypes.some(
+      (actionType) => LINT_REDUX_ACTIONS[actionType],
+    );
+  }
+  return LINT_REDUX_ACTIONS[action.type];
+}
 
 export const setEvaluatedTree = (
   updates: Diff<DataTree, DataTree>[],

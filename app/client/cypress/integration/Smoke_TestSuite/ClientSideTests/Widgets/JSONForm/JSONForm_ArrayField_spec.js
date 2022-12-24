@@ -1,13 +1,22 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
-
 const fieldPrefix = ".t--jsonformfield";
 const education = `${fieldPrefix}-education`;
 const addButton = ".t--jsonformfield-array-add-btn";
 const deleteButton = ".t--jsonformfield-array-delete-btn";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSON Form Widget Array Field", () => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("can remove default items when default value changes from undefined to an array", () => {
     cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData);
 
@@ -204,8 +213,8 @@ describe("JSON Form Widget Array Field", () => {
     cy.openPropertyPane("jsonformwidget");
 
     cy.openFieldConfiguration("education")
-      .openFieldConfiguration("__array_item__")
-      .openFieldConfiguration("college");
+      .openFieldConfiguration("__array_item__", false)
+      .openFieldConfiguration("college", false);
 
     // Modify default text of eductation -> college field
     cy.testJsontext("defaultvalue", collegeFieldDefaultValue);
@@ -238,14 +247,14 @@ describe("JSON Form Widget Array Field", () => {
     cy.openPropertyPane("jsonformwidget");
 
     cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
+    cy.openFieldConfiguration("__array_item__", false);
 
     // Add new custom field
-    cy.get(".t--property-pane-section-general button")
-      .contains("Add a new field")
-      .click({ force: true });
+    cy.get(".t--property-control-fieldconfiguration .t--add-column-btn").click({
+      force: true,
+    });
 
-    cy.openFieldConfiguration("customField1");
+    cy.openFieldConfiguration("customField1", false);
     cy.selectDropdownValue(
       commonlocators.jsonFormFieldType,
       /^Phone Number Input/,
@@ -256,7 +265,7 @@ describe("JSON Form Widget Array Field", () => {
       ".t--property-control-allowcountrycodechange input[type='checkbox']",
     );
     // Change the label of the field to Phone Number
-    cy.testJsontext("label", "Phone Number");
+    cy.testJsontext("text", "Phone Number");
 
     // Open country code dropdown and select +91
     cy.get(".t--input-country-code-change")
@@ -276,14 +285,14 @@ describe("JSON Form Widget Array Field", () => {
     cy.openPropertyPane("jsonformwidget");
 
     cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
+    cy.openFieldConfiguration("__array_item__", false);
 
     // Add new custom field
-    cy.get(".t--property-pane-section-general button")
-      .contains("Add a new field")
-      .click({ force: true });
+    cy.get(".t--property-control-fieldconfiguration .t--add-column-btn").click({
+      force: true,
+    });
 
-    cy.openFieldConfiguration("customField1");
+    cy.openFieldConfiguration("customField1", false);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Currency Input/);
 
     // Enable Allow Country Code Change
@@ -291,7 +300,7 @@ describe("JSON Form Widget Array Field", () => {
       ".t--property-control-allowcurrencychange input[type='checkbox']",
     );
     // Change the label of the field to Phone Number
-    cy.testJsontext("label", "Currency");
+    cy.testJsontext("text", "Currency");
 
     // Open country code dropdown and select gbp
     cy.get(".t--input-currency-change")

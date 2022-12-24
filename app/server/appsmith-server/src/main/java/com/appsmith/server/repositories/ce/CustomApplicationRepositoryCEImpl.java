@@ -6,8 +6,10 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +20,14 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -32,10 +36,16 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepositoryCE {
 
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
+    private final ApplicationPermission applicationPermission;
     @Autowired
     public CustomApplicationRepositoryCEImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                             @NonNull MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+                                             @NonNull MongoConverter mongoConverter,
+                                             CacheableRepositoryHelper cacheableRepositoryHelper,
+                                             ApplicationPermission applicationPermission) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+        this.applicationPermission = applicationPermission;
     }
 
     @Override
@@ -70,8 +80,26 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Flux<Application> findAll(AclPermission permission) {
-        return queryAll(List.of(), permission);
+    public Flux<Application> findAllUserApps(AclPermission permission) {
+        Mono<User> currentUserWithTenantMono = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> (User) auth.getPrincipal())
+                .flatMap(user -> {
+                    if (user.getTenantId() == null) {
+                        return cacheableRepositoryHelper.getDefaultTenantId()
+                                .map(tenantId -> {
+                                    user.setTenantId(tenantId);
+                                    return user;
+                                });
+                    }
+                    return Mono.just(user);
+                });
+
+        return currentUserWithTenantMono
+                .flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
+                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
+                        List.of(), null, permission, null, permissionGroups, NO_RECORD_LIMIT)
+                );
     }
 
     @Override
@@ -136,12 +164,19 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission) {
+        return getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, null, branchName, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId,
+                                                                              List<String> projectionFieldNames,
+                                                                              String branchName,
+                                                                              AclPermission aclPermission) {
 
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
-
         Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
-        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), aclPermission);
+        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), projectionFieldNames, aclPermission);
     }
 
     @Override
@@ -193,7 +228,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria repoCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).exists(Boolean.TRUE);
         Criteria gitAuthCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.gitAuth)).exists(Boolean.TRUE);
         Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        return queryAll(List.of(workspaceIdCriteria, repoCriteria, gitAuthCriteria), AclPermission.MANAGE_APPLICATIONS);
+        return queryAll(List.of(workspaceIdCriteria, repoCriteria, gitAuthCriteria), applicationPermission.getEditPermission());
     }
 
     @Override
@@ -220,5 +255,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         }
 
         return this.updateById(applicationId, updateObj, aclPermission);
+    }
+
+    @Override
+    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, Map<String, Object> fieldValueMap, String branchName,
+                                                                  String branchNamePath, AclPermission permission) {
+        return super.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldValueMap, branchName,
+                branchNamePath, permission);
     }
 }

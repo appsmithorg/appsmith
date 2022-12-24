@@ -4,12 +4,13 @@ import { Action } from "entities/Action";
 import moment from "moment-timezone";
 import { WidgetProps } from "widgets/BaseWidget";
 import parser from "fast-xml-parser";
+
 import { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
   isTrueObject,
-} from "workers/evaluationUtils";
+} from "workers/Evaluation/evaluationUtils";
 import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
@@ -119,8 +120,8 @@ export enum EvalErrorTypes {
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
   BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
   PARSE_JS_ERROR = "PARSE_JS_ERROR",
-  CLONE_ERROR = "CLONE_ERROR",
   EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
+  CLONE_ERROR = "CLONE_ERROR",
 }
 
 export type EvalError = {
@@ -144,6 +145,7 @@ export enum EVAL_WORKER_ACTIONS {
   SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
   INIT_FORM_EVAL = "INIT_FORM_EVAL",
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
+  LINT_TREE = "LINT_TREE",
 }
 
 export type ExtraLibrary = {
@@ -186,20 +188,18 @@ export const extraLibraries: ExtraLibrary[] = [
     displayName: "forge",
   },
 ];
-
 /**
  * creates dynamic list of constants based on
  * current list of extra libraries i.e lodash("_"), moment etc
  * to be used in widget and entity name validations
  */
 export const extraLibrariesNames = extraLibraries.reduce(
-  (prev: any, curr: any) => {
+  (prev: Record<string, string>, curr) => {
     prev[curr.accessor] = curr.accessor;
     return prev;
   },
   {},
 );
-
 export interface DynamicPath {
   key: string;
   value?: string;
@@ -315,12 +315,10 @@ export const isThemeBoundProperty = (
 };
 
 export const unsafeFunctionForEval = [
-  "setTimeout",
-  "fetch",
+  "XMLHttpRequest",
   "setInterval",
   "clearInterval",
   "setImmediate",
-  "XMLHttpRequest",
   "importScripts",
   "Navigator",
 ];
@@ -432,18 +430,28 @@ export enum PropertyEvaluationErrorType {
   LINT = "LINT",
 }
 
-export type EvaluationError = {
+export interface DataTreeError {
   raw: string;
-  errorType: PropertyEvaluationErrorType;
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;
-  errorSegment?: string;
+}
+
+export interface EvaluationError extends DataTreeError {
+  errorType:
+    | PropertyEvaluationErrorType.PARSE
+    | PropertyEvaluationErrorType.VALIDATION;
   originalBinding?: string;
-  variables?: (string | undefined | null)[];
-  code?: string;
-  line?: number;
-  ch?: number;
-};
+}
+
+export interface LintError extends DataTreeError {
+  errorType: PropertyEvaluationErrorType.LINT;
+  errorSegment: string;
+  originalBinding: string;
+  variables: (string | undefined | null)[];
+  code: string;
+  line: number;
+  ch: number;
+}
 
 export interface DataTreeEvaluationProps {
   __evaluation__?: {

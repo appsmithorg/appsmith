@@ -14,6 +14,7 @@ export interface SelectButtonProps {
   togglePopoverVisibility: () => void;
   tooltipText?: string;
   value?: string;
+  hideCancelIcon?: boolean;
 }
 
 function SelectButton(props: SelectButtonProps) {
@@ -21,11 +22,13 @@ function SelectButton(props: SelectButtonProps) {
     disabled,
     displayText,
     handleCancelClick,
+    hideCancelIcon,
     spanRef,
     togglePopoverVisibility,
     tooltipText,
     value,
   } = props;
+
   return (
     <Button
       className="select-button"
@@ -34,7 +37,7 @@ function SelectButton(props: SelectButtonProps) {
       onClick={togglePopoverVisibility}
       rightIcon={
         <StyledDiv>
-          {!isEmptyOrNill(value) ? (
+          {!isEmptyOrNill(value) && !hideCancelIcon ? (
             <Icon
               className="dropdown-icon cancel-icon"
               data-testid="selectbutton.btn.cancel"

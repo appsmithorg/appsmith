@@ -50,24 +50,52 @@ export class EntityExplorer {
     "//span[text()='" + spanText + " Query']";
   _createNewPopup = ".bp3-overlay-content";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
+  _pinEntityExplorer = ".t--pin-entity-explorer";
+  _entityExplorer = ".t--entity-explorer";
+  private _modalTextWidget = (modalName: string) =>
+    "//div[contains(@class, 't--entity-name')][text()='" +
+    modalName +
+    "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
+  private _newPageOptions = (option: string) => `[data-cy='${option}']`;
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
-    section: "WIDGETS" | "QUERIES/JS" | "DATASOURCES" | "" = "",
+    section: "Widgets" | "Queries/JS" | "Datasources" | "Pages" | "" = "",
+    ctrlKey = false,
   ) {
     this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
-      .click({ multiple: true });
-    this.agHelper.Sleep();
+      .click(ctrlKey ? { ctrlKey } : { multiple: true });
+    this.agHelper.Sleep(500);
   }
 
-  public AddNewPage() {
-    cy.get(this.locator._newPage)
-      .first()
-      .click();
-    this.agHelper.ValidateNetworkStatus("@createPage", 201);
+  public SelectEntityInModal(
+    modalNameinEE: string,
+    section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
+    ctrlKey = false,
+  ) {
+    this.NavigateToSwitcher("explorer");
+    if (section) this.ExpandCollapseEntity(section); //to expand respective section
+    this.ExpandCollapseEntity(modalNameinEE);
+    cy.xpath(this._modalTextWidget(modalNameinEE))
+      .last()
+      .click(ctrlKey ? { ctrlKey } : { multiple: true });
+    this.agHelper.Sleep(500);
+  }
+
+  public AddNewPage(
+    option:
+      | "add-page"
+      | "generate-page"
+      | "add-page-from-template" = "add-page",
+  ) {
+    this.agHelper.GetNClick(this.locator._newPage);
+    this.agHelper.GetNClick(this._newPageOptions(option));
+    if (option === "add-page") {
+      this.agHelper.ValidateNetworkStatus("@createPage", 201);
+    }
   }
 
   public NavigateToSwitcher(navigationTab: "explorer" | "widgets") {
@@ -142,7 +170,11 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(widgetType: string, x: number, y: number) {
+  public DragDropWidgetNVerify(
+    widgetType: string,
+    x: number = 200,
+    y: number = 200,
+  ) {
     this.NavigateToSwitcher("widgets");
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))
@@ -158,7 +190,7 @@ export class EntityExplorer {
   }
 
   public ClonePage(pageName = "Page1") {
-    this.ExpandCollapseEntity("PAGES");
+    this.ExpandCollapseEntity("Pages");
     cy.get(this.getPageLocator(pageName))
       .trigger("mouseover")
       .click({ force: true });
@@ -183,5 +215,27 @@ export class EntityExplorer {
     this.SelectEntityByName(widgetName);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);
+  }
+
+  public PinUnpinEntityExplorer(pin = true) {
+    this.agHelper
+      .GetElement(this._entityExplorer)
+      .invoke("attr", "class")
+      .then(($classes) => {
+        if (pin && !$classes?.includes("fixed"))
+          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+        else if (!pin && $classes?.includes("fixed"))
+          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+        else this.agHelper.Sleep(200); //do nothing
+      });
+  }
+
+  public RenameEntityFromExplorer(entityName: string, renameVal: string) {
+    cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
+    cy.xpath(this.locator._entityNameEditing(entityName)).type(
+      renameVal + "{enter}",
+    );
+    this.AssertEntityPresenceInExplorer(renameVal);
+    this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 }
