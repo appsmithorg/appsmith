@@ -32,9 +32,9 @@ export class EntityExplorer {
     entityNameinLeftSidebar +
     "']";
   private _expandCollapseArrow = (entityNameinLeftSidebar: string) =>
-    "//div[contains(string(), '" +
+    "//div[text()='" +
     entityNameinLeftSidebar +
-    "')]/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]";
+    "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]";
   private _templateMenuTrigger = (entityNameinLeftSidebar: string) =>
     "//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
