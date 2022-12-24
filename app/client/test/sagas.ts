@@ -20,7 +20,7 @@ import recentEntitiesSagas from "../src/sagas/RecentEntitiesSagas";
 import websocketSagas from "../src/sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "../src/sagas/DebuggerSagas";
 import { watchActionSagas } from "sagas/ActionSagas";
-import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
+import { watchActionExecutionSagas } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
 import applicationSagas from "../src/sagas/ApplicationSagas";
 import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
@@ -28,6 +28,8 @@ import { watchJSActionSagas } from "sagas/JSActionSagas";
 import selectionCanvasSagas from "../src/sagas/CanvasSagas/SelectionCanvasSagas";
 import draggingCanvasSagas from "../src/sagas/CanvasSagas/DraggingCanvasSagas";
 import formEvaluationChangeListener from "../src/sagas/FormEvaluationSaga";
+import LintingSaga from "../src/sagas/LintingSagas";
+import JSLibrarySaga from "../src/sagas/JSLibrarySaga";
 
 export const sagasToRunForTests = [
   initSagas,
@@ -60,4 +62,6 @@ export const sagasToRunForTests = [
   watchJSActionSagas,
   selectionCanvasSagas,
   draggingCanvasSagas,
+  LintingSaga,
+  JSLibrarySaga,
 ];

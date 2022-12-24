@@ -52,7 +52,7 @@ import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "workers/Evaluation/evaluationUtils";
+import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { MetaState } from "reducers/entityReducers/metaReducer";
 

@@ -166,4 +166,7 @@ export class CommonLocators {
   _omnibarDescription = "[data-cy='description']";
   _previewModeToggle = ".t--switch-preview-mode-toggle";
   _editModeToggle = ".t--switch-comment-mode-off";
+  _editorVariable = ".cm-variable";
+  _consoleString = ".cm-string";
+  _commentString = ".cm-comment";
 }

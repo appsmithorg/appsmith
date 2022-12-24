@@ -1,9 +1,10 @@
-import classNames from "classnames";
 import React, { useCallback } from "react";
+import { ButtonTab } from "design-system";
 
 import { AppTheme } from "entities/AppTheming";
 import { TooltipComponent } from "design-system";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
+import { invertedBoxShadowOptions } from "constants/ThemeConstants";
 
 interface ThemeBoxShadowControlProps {
   options: {
@@ -37,31 +38,36 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
     [updateTheme, theme],
   );
 
+  const selectedOptionKey = selectedOption
+    ? [invertedBoxShadowOptions[selectedOption]]
+    : [];
+
+  const buttonTabOptions = Object.keys(options).map((optionKey) => ({
+    icon: (
+      <TooltipComponent
+        content={optionKey}
+        key={optionKey}
+        openOnTargetFocus={false}
+      >
+        <div
+          className="flex items-center justify-center w-5 h-5 bg-white  t--theme-appBoxShadow"
+          style={{ boxShadow: options[optionKey] }}
+        >
+          {options[optionKey] === "none" && (
+            <CloseLineIcon className="text-gray-700" />
+          )}
+        </div>
+      </TooltipComponent>
+    ),
+    value: optionKey,
+  }));
+
   return (
-    <div className="grid grid-flow-col gap-2 auto-cols-max">
-      {Object.keys(options).map((optionKey) => (
-        <TooltipComponent content={optionKey} key={optionKey}>
-          <button
-            className={classNames({
-              "flex items-center justify-center w-8 h-8 bg-white border ring-gray-700": true,
-              "ring-1": selectedOption === options[optionKey],
-            })}
-            onClick={() => onChangeShadow(optionKey)}
-          >
-            <div
-              className="flex items-center justify-center w-5 h-5 bg-white"
-              style={{
-                boxShadow: options[optionKey],
-              }}
-            >
-              {options[optionKey] === "none" && (
-                <CloseLineIcon className="text-gray-700" />
-              )}
-            </div>
-          </button>
-        </TooltipComponent>
-      ))}
-    </div>
+    <ButtonTab
+      options={buttonTabOptions}
+      selectButton={onChangeShadow}
+      values={selectedOptionKey}
+    />
   );
 }
 
