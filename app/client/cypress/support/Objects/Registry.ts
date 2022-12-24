@@ -13,6 +13,7 @@ import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
 import { DebuggerHelper } from "../Pages/DebuggerHelper";
 import { LibraryInstaller } from "../Pages/LibraryInstaller";
+import { InviteModal } from "../Pages/InviteModal";
 import { AppSettings } from "../Pages/AppSettings/AppSettings";
 import { GeneralSettings } from "../Pages/AppSettings/GeneralSettings";
 import { PageSettings } from "../Pages/AppSettings/PageSettings";
@@ -178,6 +179,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.LibraryInstaller__ = new LibraryInstaller();
     }
     return ObjectsRegistry.LibraryInstaller__;
+  }
+
+  private static inviteModal__: InviteModal;
+  static get InviteModal(): InviteModal {
+    if (ObjectsRegistry.inviteModal__ === undefined) {
+      ObjectsRegistry.inviteModal__ = new InviteModal();
+    }
+    return ObjectsRegistry.inviteModal__;
   }
 }
 

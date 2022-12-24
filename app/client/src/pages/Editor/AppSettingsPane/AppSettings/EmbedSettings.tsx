@@ -87,6 +87,7 @@ function EmbedSettings() {
                 <Switch
                   checked={application?.isPublic}
                   className="mb-0"
+                  data-cy="show-navigation-bar-toggle"
                   disabled={isFetchingApplication || isChangingViewAccess}
                   id="t--embed-settings-application-public"
                   large
@@ -118,7 +119,10 @@ function EmbedSettings() {
       {embedSnippet.isSuperUser && (
         <div className="px-4">
           <div className="flex justify-between content-center pb-3">
-            <div className="flex gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]">
+            <div
+              className="flex gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]"
+              data-cy={"frame-ancestors-setting"}
+            >
               <Icon
                 name={embedSnippet.embedSettingContent.icon}
                 size={IconSize.XXL}

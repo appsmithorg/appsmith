@@ -14,4 +14,4 @@ export const homePage = ObjectsRegistry.HomePage;
 export const theme = ObjectsRegistry.ThemeSettings;
 export const dataSources = ObjectsRegistry.DataSources;
 export const apiPage = ObjectsRegistry.ApiPage;
-
+export const inviteModal = ObjectsRegistry.InviteModal;
