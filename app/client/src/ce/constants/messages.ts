@@ -1073,7 +1073,7 @@ export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
 export const GRANULAR_ACCESS_CONTROL_FOR_TEAMS = () =>
   "Granular Access Controls for teams";
 export const ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING = () =>
-  "Control view, create, edit, delete, share, and export permissions for all resources in your apps in a workspace. Manage permissions by attributes as granularly or broadly as you want. Use permissions and user groups to easily define access levels of new and existing users.";
+  "Control all permissions for all resources in your apps in a workspace. Manage permissions granularly by attributes. Use permissions and user groups to easily define access levels.";
 export const SECURITY_APPS_LEAST_PRIVILEGE = () =>
   "Secure apps by the least privilege needed";
 export const SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1 = () =>
