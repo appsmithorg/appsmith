@@ -1,6 +1,19 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("In-app embed settings", () => {
+  function ValidateSyncWithInviteModal(showNavigationBar: "true" | "false") {
+    _.embedSettings.OpenEmbedSettings();
+    _.embedSettings.ToggleShowNavigationBar("true");
+    _.inviteModal.OpenShareModal();
+    _.inviteModal.SelectEmbedTab();
+    const assertion =
+      showNavigationBar === "true" ? "be.checked" : "not.be.checked";
+    _.agHelper
+      .GetElement(_.embedSettings.locators._showNavigationBar)
+      .should(assertion);
+    _.inviteModal.CloseModal();
+  }
+
   it("1. Updating Embed size values from AppSettings should update the snippet", () => {
     _.embedSettings.OpenEmbedSettings();
     _.embedSettings.UpdateDimension("H", "1000px");
@@ -24,17 +37,7 @@ describe("In-app embed settings", () => {
   });
 
   it("4. Check Show/Hides Navigation bar syncs between AppSettings Pane Embed tab & Share modal", () => {
-    _.embedSettings.OpenEmbedSettings();
-    _.embedSettings.ToggleShowNavigationBar("true");
-
-    _.inviteModal.OpenShareModal();
-    _.inviteModal.SelectEmbedTab();
-
-    _.agHelper
-      .GetElement(_.embedSettings.locators._showNavigationBar)
-      .should("be.checked");
-
-    _.embedSettings.ToggleShowNavigationBar("false");
-    _.inviteModal.CloseModal();
+    ValidateSyncWithInviteModal("true");
+    ValidateSyncWithInviteModal("false");
   });
 });
