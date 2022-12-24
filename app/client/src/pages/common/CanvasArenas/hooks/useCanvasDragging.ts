@@ -601,15 +601,18 @@ export const useCanvasDragging = (
             } else if (!isUpdatingRows) {
               currentDirection.current = getMouseMoveDirection(e);
               triggerReflow(e, firstMove);
+              let highlight: HighlightInfo | undefined;
               if (
                 useAutoLayout &&
                 isCurrentDraggedCanvas &&
                 currentDirection.current !== ReflowDirection.UNSET
-              )
-                debounce(() => {
-                  highlightDropPosition(e, currentDirection.current);
-                }, 100)();
-              renderBlocks();
+              ) {
+                // debounce(() => {
+                //   highlightDropPosition(e, currentDirection.current);
+                // }, 100)();
+                highlight = highlightDropPosition(e, currentDirection.current);
+              }
+              renderBlocks(highlight);
             }
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
@@ -677,7 +680,7 @@ export const useCanvasDragging = (
           },
         );
 
-        const renderBlocks = () => {
+        const renderBlocks = (highlight?: HighlightInfo | undefined) => {
           if (
             slidingArenaRef.current &&
             isCurrentDraggedCanvas &&
@@ -698,6 +701,12 @@ export const useCanvasDragging = (
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);
               });
+            }
+            if (highlight) {
+              canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
+              const { height, posX, posY, width } = highlight;
+              canvasCtx.fillRect(posX, posY, width, height);
+              canvasCtx.save();
             }
             canvasCtx.restore();
           }

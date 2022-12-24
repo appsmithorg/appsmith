@@ -24,6 +24,7 @@ import {
 } from "sagas/AutoLayoutUtils";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -225,7 +226,17 @@ function* reorderAutolayoutChildren(params: {
       bottomRow: parentWidget.topRow + height,
     };
   }
-
+  const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
+    updatedWidgets,
+    parentId,
+  );
+  updatedWidgets = {
+    ...updatedWidgets,
+    [parentId]: {
+      ...updatedWidgets[parentId],
+      highlights,
+    },
+  };
   return updatedWidgets;
 }
 

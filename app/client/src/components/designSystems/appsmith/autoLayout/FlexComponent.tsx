@@ -1,4 +1,10 @@
-import React, { ReactNode, useCallback } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 
 import { AppState } from "ce/reducers";
@@ -50,6 +56,7 @@ const FlexWidget = styled.div<{
   isAffectedByDrag: boolean;
   parentId?: string;
   flexVerticalAlignment: FlexVerticalAlignment;
+  ref: any;
 }>`
   position: relative;
   z-index: ${({ zIndex }) => zIndex};
@@ -74,6 +81,8 @@ const FlexWidget = styled.div<{
 const DEFAULT_MARGIN = 16;
 
 export function FlexComponent(props: AutoLayoutProps) {
+  const ref = useRef();
+  const [observer, setObserver] = useState<any>(null);
   const isMobile = useSelector(getIsMobile);
   const isSnipingMode = useSelector(snipingModeSelector);
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
@@ -101,6 +110,28 @@ export function FlexComponent(props: AutoLayoutProps) {
   const stopEventPropagation = (e: any) => {
     !isSnipingMode && e.stopPropagation();
   };
+
+  const callback = (mutations: any, observer: any) => {
+    console.log("#### mutations", mutations);
+    if (mutations.length)
+      console.log("#### mutations[0].target", mutations[0].target.offsetTop);
+  };
+
+  useEffect(() => {
+    const observer = new MutationObserver(callback);
+    setObserver(observer);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!ref.current || !observer) return;
+    return;
+    observer.observe(ref.current, {
+      attributes: true,
+      childList: false,
+      subtree: false,
+    });
+  }, [observer, ref.current]);
   /**
    * In a vertical stack,
    * Fill widgets grow / shrink to take up all the available space.
@@ -150,6 +181,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       onClickCapture={onClickFn}
       padding={WIDGET_PADDING}
       parentId={props.parentId}
+      ref={ref}
       zIndex={zIndex}
       zIndexOnHover={onHoverZIndex}
     >

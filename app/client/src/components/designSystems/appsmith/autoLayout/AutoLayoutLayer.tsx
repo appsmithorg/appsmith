@@ -20,7 +20,6 @@ export interface AutoLayoutLayerProps {
   widgetId: string;
   isMobile?: boolean;
   isCurrentCanvasDragging: boolean;
-  currentChildCount: number;
   wrapStart: boolean;
   wrapCenter: boolean;
   wrapEnd: boolean;
