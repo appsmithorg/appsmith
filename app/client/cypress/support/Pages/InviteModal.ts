@@ -31,23 +31,19 @@ export class InviteModal {
     this.agHelper.GetNClick(this.locators._closeButton);
   }
 
-  public ValidatePreviewEmbed() {
-    this.embedSettings.ToggleShowNavigationBar();
-    cy.get(this.locators._previewEmbed)
-      .invoke("removeAttr", "target")
-      .click();
-    this.agHelper.AssertElementExist(this.commonLocators._backToEditor);
-
-    this.deployPage.NavigateBacktoEditor();
-
+  public ValidatePreviewEmbed(toShowNavBar: true | false = true) {
     this.OpenShareModal();
     this.SelectEmbedTab();
     this.embedSettings.ToggleShowNavigationBar();
     cy.get(this.locators._previewEmbed)
       .invoke("removeAttr", "target")
       .click();
-    this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
-
-    cy.go("back");
+    if (toShowNavBar) {
+      this.agHelper.AssertElementExist(this.commonLocators._backToEditor);
+      this.deployPage.NavigateBacktoEditor();
+    } else {
+      this.agHelper.AssertElementAbsence(this.commonLocators._backToEditor);
+      cy.go("back");
+    }
   }
 }

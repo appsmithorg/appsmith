@@ -42,10 +42,6 @@ export class EmbedSettings {
       this.locators._showNavigationBar,
       this.locators._controlIndicator,
     );
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    this.agHelper.ValidateNetworkStatus("@updateApplication");
   }
 }
