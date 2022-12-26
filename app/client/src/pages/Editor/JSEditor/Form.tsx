@@ -140,7 +140,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       }
     }
   }, [hash]);
-  
+
   const isChangePermitted = hasManageActionPermission(
     currentJSCollection?.userPermissions || [],
   );
