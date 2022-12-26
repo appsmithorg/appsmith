@@ -1548,6 +1548,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     examplesWorkspaceCloner.makePristine(actionCollection);
                     actionCollection.setWorkspaceId(workspaceId);
                     actionCollection.setApplicationId(importedApplication.getId());
+                    actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
 
                     Map<String, ActionCollection> savedActionCollectionGitIdToCollectionsMap = new HashMap<>();
 
