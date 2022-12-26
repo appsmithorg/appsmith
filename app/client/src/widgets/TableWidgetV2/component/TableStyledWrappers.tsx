@@ -185,12 +185,13 @@ export const TableWrapper = styled.div<{
     }
 
     [role="columnheader"] {
-      background-color: var(--wds-color-bg);
+      background-color: var(--wds-color-bg) !important;
     }
 
     [data-sticky-td] {
       position: sticky;
       position: -webkit-sticky;
+      background-color: inherit;
     }
 
     [data-sticky-last-left-td] {
