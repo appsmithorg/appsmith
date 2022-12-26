@@ -215,7 +215,7 @@ describe("JSON Form Hidden fields", () => {
 
     // publish the app
     cy.PublishtheApp();
-    cy.wait(1000);
+    cy.wait(4000);
 
     // Check if name is hidden
     cy.get(`${fieldPrefix}-name`).should("not.exist");
