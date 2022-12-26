@@ -4,8 +4,7 @@ const formWidgetsPage = require("../../../../../../locators/FormWidgets.json");
 import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
 const widgetLocators = require("../../../../../../locators/Widgets.json");
 
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer;
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 const items = JSON.parse(dsl.dsl.children[0].listData);
 

@@ -1,10 +1,6 @@
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const widgetsPage = require("../../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
