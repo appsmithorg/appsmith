@@ -20,8 +20,8 @@ export const deleteAclUser = (payload: FetchSingleDataPayload) => ({
 export const updateGroupsInUser = (
   userId: string,
   user: string,
-  groupsAdded: string[],
-  groupsRemoved: string[],
+  groupsAdded: BaseAclProps[],
+  groupsRemoved: BaseAclProps[],
 ) => ({
   type: ReduxActionTypes.UPDATE_GROUPS_IN_USER,
   payload: {

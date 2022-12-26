@@ -251,12 +251,14 @@ export function PageHeader(props: PageHeaderProps) {
             />
           </StyledSettingsSubHeader>
         ) : (
-          <StyledSettingsSubHeader
-            className="not-editable settings-sub-header"
-            data-testid="t--page-description"
-          >
-            {description}
-          </StyledSettingsSubHeader>
+          description && (
+            <StyledSettingsSubHeader
+              className="not-editable settings-sub-header"
+              data-testid="t--page-description"
+            >
+              {description}
+            </StyledSettingsSubHeader>
+          )
         )}
       </HeaderWrapper>
       <Container alignItems="center">

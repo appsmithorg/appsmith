@@ -26,6 +26,7 @@ import {
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentUser } from "actions/authActions";
 
 export function* fetchAclUsersSaga() {
@@ -83,7 +84,12 @@ export function* deleteAclUserSaga(action: ReduxAction<any>) {
 }
 
 export function* fetchAclUserByIdSaga(
-  action: ReduxAction<FetchSingleDataPayload>,
+  action: ReduxAction<
+    FetchSingleDataPayload & {
+      triggerUpdateEvent?: boolean;
+      updatePayload?: any;
+    }
+  >,
 ) {
   try {
     const response: ApiResponse[] = yield all([
@@ -106,6 +112,27 @@ export function* fetchAclUserByIdSaga(
 
     if (isValidResponse1) {
       const data: any = response[0].data;
+      if (action.payload.triggerUpdateEvent && action.payload.updatePayload) {
+        if (action.payload.updatePayload.tab === "roles") {
+          AnalyticsUtil.logEvent("GAC_USER_ROLE_UPDATE", {
+            origin: "User Details page > Roles tab",
+            email: data.username,
+            rolesAdded: action.payload.updatePayload.rolesAdded,
+            rolesRemoved: action.payload.updatePayload.rolesRemoved,
+            roles: data.roles,
+          });
+        }
+
+        if (action.payload.updatePayload.tab === "groups") {
+          AnalyticsUtil.logEvent("GAC_USER_GROUP_UPDATE", {
+            origin: "User Details page > Groups tab",
+            email: data.username,
+            groupsAdded: action.payload.updatePayload.groupsAdded,
+            groupsRemoved: action.payload.updatePayload.groupsRemoved,
+            groups: data.groups,
+          });
+        }
+      }
       yield put({
         type: ReduxActionTypes.FETCH_ACL_USER_BY_ID_SUCCESS,
         payload: {
@@ -161,6 +188,11 @@ export function* updateGroupsInUserSaga(
         type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
         payload: {
           id: action.payload.userId || "",
+          triggerUpdateEvent: true,
+          updatePayload: {
+            ...action.payload,
+            tab: "groups",
+          },
         },
       });
     } else {
@@ -194,6 +226,11 @@ export function* updateRolesInUserSaga(
         type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
         payload: {
           id: action.payload?.users[0]?.id || "",
+          triggerUpdateEvent: true,
+          updatePayload: {
+            ...action.payload,
+            tab: "roles",
+          },
         },
       });
     } else {
@@ -233,7 +270,12 @@ export function* fetchAclGroupsSaga() {
 }
 
 export function* fetchAclGroupSagaById(
-  action: ReduxAction<FetchSingleDataPayload>,
+  action: ReduxAction<
+    FetchSingleDataPayload & {
+      triggerUpdateEvent?: boolean;
+      updatePayload?: any;
+    }
+  >,
 ) {
   try {
     const response: ApiResponse[] = yield all([
@@ -245,6 +287,15 @@ export function* fetchAclGroupSagaById(
 
     if (isValidResponse1) {
       const data: any = response[0].data;
+      if (action.payload.triggerUpdateEvent && action.payload.updatePayload) {
+        AnalyticsUtil.logEvent("GAC_GROUP_ROLE_UPDATE", {
+          origin: "Group Details page > Roles tab",
+          name: data.name,
+          rolesAdded: action.payload.updatePayload.rolesAdded,
+          rolesRemoved: action.payload.updatePayload.rolesRemoved,
+          roles: data.roles,
+        });
+      }
       yield put({
         type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID_SUCCESS,
         payload: {
@@ -414,6 +465,8 @@ export function* updateRolesInGroupSaga(
         type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID,
         payload: {
           id: action.payload?.groups[0]?.id || "",
+          triggerUpdateEvent: true,
+          updatePayload: action.payload,
         },
       });
       Toaster.show({

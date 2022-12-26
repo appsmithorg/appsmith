@@ -45,6 +45,7 @@ import {
 } from "@appsmith/selectors/aclSelectors";
 import { BaseAclProps, ListingType, UserProps } from "./types";
 import { getCurrentUser } from "selectors/usersSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -145,28 +146,36 @@ export function UserListing() {
 
   const onFormSubmitHandler = ({ ...values }) => {
     if (values.selectedTab === INVITE_USERS_TAB_ID.VIA_GROUPS) {
-      dispatch(
-        inviteUsersViaGroups(
-          values.users ? values.users.split(",") : [],
-          values.options.map((option: any) => option.value),
-          values.selectedTab,
-        ),
-      );
+      const usernames = values.users ? values.users.split(",") : [];
+      const groupIds = values.options.map((option: any) => option.value);
+      const groupsAdded = values.options.map((option: any) => ({
+        id: option.value,
+        name: option.label,
+      }));
+      AnalyticsUtil.logEvent("GAC_INVITE_USER_CLICK", {
+        origin: "Users page > Add user modal",
+        groups: groupsAdded,
+        roles: [],
+        numberOfUsersInvited: usernames.length,
+      });
+      dispatch(inviteUsersViaGroups(usernames, groupIds, values.selectedTab));
     } else {
-      dispatch(
-        inviteUsersViaRoles(
-          values.users
-            ? values.users.split(",").map((user: string) => ({
-                username: user,
-              }))
-            : [],
-          values.options.map((option: any) => ({
-            id: option.value,
-            name: option.label,
-          })),
-          values.selectedTab,
-        ),
-      );
+      const users = values.users
+        ? values.users.split(",").map((user: string) => ({
+            username: user,
+          }))
+        : [];
+      const rolesAdded = values.options.map((option: any) => ({
+        id: option.value,
+        name: option.label,
+      }));
+      AnalyticsUtil.logEvent("GAC_INVITE_USER_CLICK", {
+        origin: "Users page > Add user modal",
+        groups: [],
+        roles: rolesAdded,
+        numberOfUsersInvited: users.length,
+      });
+      dispatch(inviteUsersViaRoles(users, rolesAdded, values.selectedTab));
     }
     setShowModal(false);
   };
@@ -176,9 +185,16 @@ export function UserListing() {
       Header: `Users (${data.length})`,
       accessor: "username",
       Cell: function UserCell(cellProps: any) {
+        const { username } = cellProps.cell.row.values;
         return (
           <Link
             data-testid="acl-user-listing-link"
+            onClick={() =>
+              AnalyticsUtil.logEvent("GAC_USER_CLICK", {
+                origin: "Users page",
+                email: username,
+              })
+            }
             to={adminSettingsCategoryUrl({
               category: SettingCategories.USER_LISTING,
               selected: cellProps.cell.row.original.id,
@@ -191,13 +207,10 @@ export function UserListing() {
               <ProfileImage
                 className="user-icons"
                 size={20}
-                source={`/api/v1/users/photo/${cellProps.cell.row.values.username}`}
-                userName={cellProps.cell.row.values.username}
+                source={`/api/v1/users/photo/${username}`}
+                userName={username}
               />
-              <HighlightText
-                highlight={searchValue}
-                text={cellProps.cell.row.values.username}
-              />
+              <HighlightText highlight={searchValue} text={username} />
             </CellContainer>
           </Link>
         );
@@ -208,11 +221,12 @@ export function UserListing() {
       accessor: "roles",
       Cell: function RoleCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
+        const values = cellProps.cell.row.values;
         return (
           <CellContainer data-testid="user-listing-rolesCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.roles?.map((group: BaseAclProps) => (
+                {values.roles?.map((group: BaseAclProps) => (
                   <div key={group.id}>{group.name}</div>
                 ))}
                 <ShowLess
@@ -224,32 +238,32 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.roles?.[0]?.name}
-                {cellProps.cell.row.values.roles?.[0]?.name.length < 40 &&
-                cellProps.cell.row.values.roles?.length > 1 ? (
+                {values.roles?.[0]?.name}
+                {values.roles?.[0]?.name.length < 40 &&
+                values.roles?.length > 1 ? (
                   <>
-                    , {cellProps.cell.row.values.roles?.[1]?.name}
-                    {cellProps.cell.row.values.roles?.length > 2 && (
+                    , {values.roles?.[1]?.name}
+                    {values.roles?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
                         onClick={() => setShowAllGroups(true)}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
-                          cellProps.cell.row.values.roles?.length - 2,
+                          values.roles?.length - 2,
                         )}
                       </MoreGroups>
                     )}
                   </>
                 ) : (
-                  cellProps.cell.row.values.roles?.length > 1 && (
+                  values.roles?.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
                       onClick={() => setShowAllGroups(true)}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values.roles?.length - 1,
+                        values.roles?.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -265,15 +279,14 @@ export function UserListing() {
       accessor: "groups",
       Cell: function GroupCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
+        const values = cellProps.cell.row.values;
         return (
           <CellContainer data-testid="user-listing-groupCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.groups?.map(
-                  (group: BaseAclProps) => (
-                    <div key={group.id}>{group.name}</div>
-                  ),
-                )}
+                {values.groups?.map((group: BaseAclProps) => (
+                  <div key={group.id}>{group.name}</div>
+                ))}
                 <ShowLess
                   data-testid="t--show-less"
                   onClick={() => setShowAllGroups(false)}
@@ -283,32 +296,32 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.groups?.[0]?.name}
-                {cellProps.cell.row.values.groups?.[0]?.name.length < 40 &&
-                cellProps.cell.row.values.groups?.length > 1 ? (
+                {values.groups?.[0]?.name}
+                {values.groups?.[0]?.name.length < 40 &&
+                values.groups?.length > 1 ? (
                   <>
-                    , {cellProps.cell.row.values.groups?.[1]?.name}
-                    {cellProps.cell.row.values.groups?.length > 2 && (
+                    , {values.groups?.[1]?.name}
+                    {values.groups?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
                         onClick={() => setShowAllGroups(true)}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
-                          cellProps.cell.row.values.groups?.length - 2,
+                          values.groups?.length - 2,
                         )}
                       </MoreGroups>
                     )}
                   </>
                 ) : (
-                  cellProps.cell.row.values.groups?.length > 1 && (
+                  values.groups?.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
                       onClick={() => setShowAllGroups(true)}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values.groups?.length - 1,
+                        values.groups?.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -400,6 +413,9 @@ export function UserListing() {
 
   const onButtonClick = () => {
     setShowModal(true);
+    AnalyticsUtil.logEvent("GAC_ADD_USER_CLICK", {
+      origin: "Users page",
+    });
     dispatch({
       type: ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE,
     });
