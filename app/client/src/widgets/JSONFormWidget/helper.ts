@@ -20,7 +20,7 @@ type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
   toId: keyof SchemaItem;
   useSourceData?: boolean;
-  sourceValue?: unknown;
+  sourceData?: unknown;
 };
 
 /**
@@ -92,12 +92,15 @@ const convertObjectTypeToFormData = (
     const formData: Record<string, unknown> = {};
 
     Object.values(schema).forEach((schemaItem) => {
-      let sourceValue;
-      if (options.sourceValue) {
-        sourceValue = valueLookup(
-          options.sourceValue as Record<string, unknown>,
+      let sourceData;
+      if (options.sourceData) {
+        sourceData = valueLookup(
+          options.sourceData as Record<string, unknown>,
           schemaItem,
-          options.fromId,
+          // sourceData lookup can only be done using originalIdentifier
+          // if sourceData lookup done using other id e.g. accessor or identify, the return
+          // value could be undefined.
+          "originalIdentifier",
         );
       }
       const toKey = schemaItem[options.toId];
@@ -109,16 +112,16 @@ const convertObjectTypeToFormData = (
         );
         formData[toKey] = convertSchemaItemToFormData(schemaItem, value, {
           ...options,
-          sourceValue,
+          sourceData,
         });
       } else if (
         !schemaItem.isVisible &&
         options.useSourceData &&
-        sourceValue !== undefined
+        sourceData !== undefined
       ) {
-        formData[toKey] = convertSchemaItemToFormData(schemaItem, sourceValue, {
+        formData[toKey] = convertSchemaItemToFormData(schemaItem, sourceData, {
           ...options,
-          sourceValue,
+          sourceData,
         });
       }
     });
@@ -139,12 +142,12 @@ const convertArrayTypeToFormData = (
     const arraySchemaItem = schema[ARRAY_ITEM_KEY];
 
     formValues.forEach((formValue, index) => {
-      const sourceValue = (options?.sourceValue as unknown[])?.[index];
+      const sourceData = (options?.sourceData as unknown[])?.[index];
 
       formData[index] = convertSchemaItemToFormData(
         arraySchemaItem,
         formValue,
-        { ...options, sourceValue },
+        { ...options, sourceData },
       );
     });
 

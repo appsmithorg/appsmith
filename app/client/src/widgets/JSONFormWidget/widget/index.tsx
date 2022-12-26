@@ -239,31 +239,14 @@ class JSONFormWidget extends BaseWidget<
       this.state.resetObserverCallback(this.props.schema);
     }
     if (prevProps.useSourceData !== this.props.useSourceData) {
-      this.updateAndMergeFormDataIfRequired();
+      const { formData, sourceData } = this.props;
+      this.updateFormData(formData, isEmpty(formData) && isEmpty(sourceData));
     }
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,
     );
-  }
-
-  updateAndMergeFormDataIfRequired() {
-    const { formData, sourceData, useSourceData } = this.props;
-
-    const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
-    // If useSourceData is toggled off, remove hidden fields value if any.
-    let formValue: any = formData;
-    if (!isEmpty(formData) || !isEmpty(sourceData)) {
-      formValue = convertSchemaItemToFormData(rootSchemaItem, formData, {
-        fromId: "identifier",
-        toId: "accessor",
-        useSourceData,
-        sourceValue: sourceData,
-      });
-    }
-
-    this.props.updateWidgetMetaProperty("formData", formValue);
   }
 
   computeDynamicPropertyPathList = (schema: Schema) => {
@@ -371,7 +354,7 @@ class JSONFormWidget extends BaseWidget<
         fromId: "identifier",
         toId: "accessor",
         useSourceData,
-        sourceValue: sourceData,
+        sourceData,
       });
     }
 
