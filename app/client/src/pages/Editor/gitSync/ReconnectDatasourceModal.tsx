@@ -99,12 +99,19 @@ const TabsContainer = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  height: calc(100% - 76px);
+  height: calc(100% - 96px);
   display: flex;
   margin-left: -${(props) => props.theme.spaces[8]}px;
 
   .t--json-to-form-wrapper {
     width: 100%;
+
+    .t--json-to-form-body {
+      padding: 0 20px;
+      .t--collapse-section-container {
+        margin-top: 20px;
+      }
+    }
 
     .t--close-editor {
       display: none;
@@ -226,7 +233,6 @@ const TooltipWrapper = styled.div`
 `;
 
 const DBFormWrapper = styled.div`
-  padding: 10px;
   width: calc(100% - 206px);
   overflow: auto;
 

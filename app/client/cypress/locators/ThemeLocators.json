@@ -2,7 +2,7 @@
     "canvas": "#canvas-selection-0",
     "border": ".t--theme-appBorderRadius",
     "popover": ".bp3-popover-content",
-    "shadow": "//h3[contains(text(),'Shadow')]/following-sibling::div//button",
+    "shadow": ".t--theme-appBoxShadow",
     "color": ".t--property-pane-sidebar .bp3-popover-target .cursor-pointer",
     "inputColor": ".t--colorpicker-v2-popover input",
     "colorPicker": "[data-testid='color-picker']",

@@ -44,7 +44,6 @@ export const StyledHeader = styled.div`
 
 export const CategoryList = styled.ul`
   margin: 0;
-  padding: 0 0 0 16px;
   list-style-type: none;
 `;
 
@@ -159,20 +158,18 @@ export default function LeftPane() {
       <HeaderContainer>
         <StyledHeader>Business</StyledHeader>
         <CategoryList data-testid="t--enterprise-settings-category-list">
-          {features.RBAC && (
-            <CategoryItem>
-              <StyledLink
-                $active={category === "access-control"}
-                data-testid="t--enterprise-settings-category-item-access-control"
-                to="/settings/access-control"
-              >
-                <div>
-                  <Icon name="lock-2-line" size={IconSize.XL} />
-                </div>
-                <div>Access Control</div>
-              </StyledLink>
-            </CategoryItem>
-          )}
+          <CategoryItem>
+            <StyledLink
+              $active={category === "access-control"}
+              data-testid="t--enterprise-settings-category-item-access-control"
+              to="/settings/access-control"
+            >
+              <div>
+                <Icon name="lock-2-line" size={IconSize.XL} />
+              </div>
+              <div>Access Control</div>
+            </StyledLink>
+          </CategoryItem>
           <CategoryItem>
             <StyledLink
               $active={category === "audit-logs"}

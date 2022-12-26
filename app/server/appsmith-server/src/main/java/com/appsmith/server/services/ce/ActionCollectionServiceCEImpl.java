@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -323,8 +324,17 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     @Override
+    public Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id) {
+        return deleteUnpublishedActionCollectionEx(id, Optional.empty());
+    }
+
+    @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        Mono<ActionCollection> actionCollectionMono = repository.findById(id, actionPermission.getDeletePermission())
+        return deleteUnpublishedActionCollectionEx(id, Optional.of(actionPermission.getDeletePermission()));
+    }
+
+    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionEx(String id, Optional<AclPermission> permission) {
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
         return actionCollectionMono
                 .flatMap(toDelete -> {

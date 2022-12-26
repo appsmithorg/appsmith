@@ -8,7 +8,12 @@ import {
   Toaster,
   Variant,
 } from "design-system";
-import { ERROR_ADD_API_INVALID_URL } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  ERROR_ADD_API_INVALID_URL,
+  NEW_API_BUTTON_TEXT,
+  NEW_QUERY_BUTTON_TEXT,
+} from "@appsmith/constants/messages";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
@@ -16,6 +21,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { EventLocation } from "utils/AnalyticsUtil";
+import { noop } from "utils/AppsmithUtils";
 
 const ActionButton = styled(Button)`
   padding: 10px 10px;
@@ -43,9 +49,10 @@ type NewActionButtonProps = {
   isLoading?: boolean;
   eventFrom?: string; // this is to track from where the new action is being generated
   plugin?: Plugin;
+  style?: any;
 };
 function NewActionButton(props: NewActionButtonProps) {
-  const { datasource, disabled, plugin } = props;
+  const { datasource, disabled, plugin, style = {} } = props;
   const pluginType = plugin?.type;
   const [isSelected, setIsSelected] = useState(false);
 
@@ -88,13 +95,18 @@ function NewActionButton(props: NewActionButtonProps) {
   return (
     <ActionButton
       className="t--create-query"
-      disabled={disabled}
+      disabled={!!disabled}
       icon="plus"
       iconPosition={IconPositions.left}
       isLoading={isSelected || props.isLoading}
-      onClick={createQueryAction}
+      onClick={disabled ? noop : createQueryAction}
+      style={style}
       tag="button"
-      text={pluginType === PluginType.DB ? "New Query" : "New API"}
+      text={
+        pluginType === PluginType.DB || pluginType === PluginType.SAAS
+          ? createMessage(NEW_QUERY_BUTTON_TEXT)
+          : createMessage(NEW_API_BUTTON_TEXT)
+      }
     />
   );
 }

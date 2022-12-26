@@ -1,9 +1,15 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
+export enum CursorPositionOrigin {
+  Navigation = "Navigation",
+  LastFocus = "LastFocus",
+}
+
 export type CursorPosition = {
   line: number;
   ch: number;
+  origin: CursorPositionOrigin;
 };
 
 export type EvaluatedPopupState = {
@@ -32,7 +38,7 @@ export type EditorContextState = {
   entityCollapsibleFields: Record<string, boolean>;
   subEntityCollapsibleFields: Record<string, boolean>;
   explorerSwitchIndex: number;
-  focusableCodeEditor?: string;
+  focusedInputField?: string;
   codeEditorHistory: Record<string, CodeEditorContext>;
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
@@ -51,7 +57,13 @@ const initialState: EditorContextState = {
   explorerSwitchIndex: 0,
 };
 
-const entitySections = ["Pages", "Widgets", "Queries/JS", "Datasources"];
+const entitySections = [
+  "Pages",
+  "Widgets",
+  "Queries/JS",
+  "Datasources",
+  "Libraries",
+];
 
 export const isSubEntities = (name: string): boolean => {
   return entitySections.indexOf(name) < 0;
@@ -61,14 +73,14 @@ export const isSubEntities = (name: string): boolean => {
  * Context Reducer to store states of different components of editor
  */
 export const editorContextReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.SET_FOCUSABLE_CODE_EDITOR_FIELD]: (
+  [ReduxActionTypes.SET_FOCUSABLE_INPUT_FIELD]: (
     state: EditorContextState,
     action: {
       payload: { path: string };
     },
   ) => {
     const { path } = action.payload;
-    state.focusableCodeEditor = path;
+    state.focusedInputField = path;
   },
   [ReduxActionTypes.SET_CODE_EDITOR_CURSOR]: (
     state: EditorContextState,

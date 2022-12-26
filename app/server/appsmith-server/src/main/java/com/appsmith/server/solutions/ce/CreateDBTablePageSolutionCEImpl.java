@@ -66,8 +66,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-
 
 @RequiredArgsConstructor
 @Slf4j
@@ -601,7 +599,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
                                 return actionDTO;
                             })
-                            .flatMap(layoutActionService::createSingleAction);
+                            .flatMap(action -> layoutActionService.createSingleAction(action, Boolean.FALSE));
                 });
     }
 

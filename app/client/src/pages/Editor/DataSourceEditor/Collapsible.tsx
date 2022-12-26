@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { Collapse, Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Icon as AdsIcon, IconName, IconSize } from "design-system";
+import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { getDatasourceCollapsibleState } from "selectors/ui";
@@ -31,8 +32,8 @@ const SectionContainer = styled.div`
 `;
 
 const TopBorder = styled.div`
-  height: 2px;
-  background-color: #d0d7dd;
+  height: 1px;
+  background-color: ${Colors.ALTO};
   margin-top: 24px;
   margin-bottom: 24px;
 `;
@@ -46,12 +47,21 @@ interface ComponentProps {
     name: IconName;
     color?: string;
   };
+  showTopBorder?: boolean;
+  showSection?: boolean;
 }
 
 type Props = ComponentProps;
 
 function Collapsible(props: Props) {
-  const { children, defaultIsOpen, headerIcon, title } = props;
+  const {
+    children,
+    defaultIsOpen,
+    headerIcon,
+    showSection = true,
+    showTopBorder = true,
+    title,
+  } = props;
   const dispatch = useDispatch();
   const isOpen = useSelector((state: AppState) =>
     getDatasourceCollapsibleState(state, title),
@@ -69,35 +79,35 @@ function Collapsible(props: Props) {
   }, [defaultIsOpen, isOpen]);
 
   return (
-    <>
-      <TopBorder className="t--collapse-top-border" />
-      <SectionContainer
-        className="t--collapse-section-container"
-        data-cy={`section-${title}`}
-        data-replay-id={`section-${title}`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <SectionLabel>
-          {title}
-          {headerIcon && (
-            <AdsIcon
-              fillColor={headerIcon.color}
-              name={headerIcon.name}
-              size={IconSize.MEDIUM}
-            />
-          )}
-        </SectionLabel>
-        <Icon
-          icon={isOpen ? "chevron-up" : "chevron-down"}
-          iconSize={16}
-          style={{ color: "#2E3D49" }}
-        />
-      </SectionContainer>
+    <section data-cy={`section-${title}`} data-replay-id={`section-${title}`}>
+      {showTopBorder && <TopBorder className="t--collapse-top-border" />}
+      {showSection && (
+        <SectionContainer
+          className="t--collapse-section-container"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <SectionLabel>
+            {title}
+            {headerIcon && (
+              <AdsIcon
+                fillColor={headerIcon.color}
+                name={headerIcon.name}
+                size={IconSize.MEDIUM}
+              />
+            )}
+          </SectionLabel>
+          <Icon
+            icon={isOpen ? "chevron-up" : "chevron-down"}
+            iconSize={16}
+            style={{ color: "#2E3D49" }}
+          />
+        </SectionContainer>
+      )}
 
       <Collapse isOpen={isOpen} keepChildrenMounted>
         {children}
       </Collapse>
-    </>
+    </section>
   );
 }
 

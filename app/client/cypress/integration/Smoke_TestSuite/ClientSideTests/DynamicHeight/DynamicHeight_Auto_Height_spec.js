@@ -1,6 +1,8 @@
 const dsl = require("../../../../fixtures/dynamicHeightContainerCheckboxdsl.json");
 const cdsl = require("../../../../fixtures/dynamicHeigthContainerFixedDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
@@ -18,6 +20,47 @@ describe("Dynamic Height Width validation", function() {
     cy.openPropertyPane("containerwidget");
     //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.openPropertyPane("checkboxgroupwidget");
+    cy.moveToStyleTab();
+    cy.get(".t--property-control-fontsize .ur--has-border")
+      .invoke("css", "font-size")
+      .then((dropdownFont) => {
+        cy.get(".t--property-control-fontsize .remixicon-icon").click({
+          force: true,
+        });
+        cy.get(".t--dropdown-option span")
+          .should("have.length.greaterThan", 2)
+          .its("length")
+          .then((n) => {
+            for (let i = n - 2; i >= 0; i--) {
+              cy.get(".t--dropdown-option span")
+                .eq(i)
+                .invoke("css", "font-size")
+                .then((selectedFont) => {
+                  expect(dropdownFont).to.equal(selectedFont);
+                });
+              i--;
+            }
+          });
+      });
+    cy.get(".t--property-control-fontsize .ur--has-border")
+      .invoke("css", "font-family")
+      .then((dropdownFont) => {
+        //cy.get(".t--property-control-fontsize .remixicon-icon").click({ force: true })
+        cy.get(".t--dropdown-option span")
+          .should("have.length.greaterThan", 2)
+          .its("length")
+          .then((n) => {
+            for (let i = 0; i < n; i++) {
+              cy.get(".t--dropdown-option span")
+                .eq(i)
+                .invoke("css", "font-family")
+                .then((selectedFont) => {
+                  expect(dropdownFont).to.equal(selectedFont);
+                });
+            }
+          });
+      });
+    cy.moveToContentTab();
     //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
