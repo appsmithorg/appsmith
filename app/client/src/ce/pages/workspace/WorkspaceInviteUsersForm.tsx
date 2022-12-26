@@ -58,7 +58,6 @@ import {
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
-import { ScrollIndicator } from "design-system";
 import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
@@ -569,7 +568,6 @@ function WorkspaceInviteUsersForm(props: any) {
                     );
                   },
                 )}
-                <ScrollIndicator containerRef={userRef} mode="DARK" />
               </UserList>
             )}
           </>

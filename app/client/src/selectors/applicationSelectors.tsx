@@ -125,6 +125,12 @@ export const getIsFetchingApplications = createSelector(
     applications.isFetchingApplications,
 );
 
+export const getIsChangingViewAccess = createSelector(
+  getApplicationsState,
+  (applications: ApplicationsReduxState): boolean =>
+    applications.isChangingViewAccess,
+);
+
 export const getIsCreatingApplication = createSelector(
   getApplicationsState,
   (applications: ApplicationsReduxState): creatingApplicationMap =>
