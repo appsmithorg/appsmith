@@ -780,7 +780,7 @@ export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
       canvasId: MAIN_CONTAINER_WIDGET_ID,
       containerWidget: canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
       canvasDOM: document.querySelector(
-        `#${getSlidingCanvasName(MAIN_CONTAINER_WIDGET_ID)}`,
+        `#${getStickyCanvasName(MAIN_CONTAINER_WIDGET_ID)}`,
       ),
     };
   }
@@ -821,11 +821,12 @@ export function getCanvasIdForContainer(layoutWidget: WidgetProps) {
         )}`;
   const containerDOM = document.querySelector(selector);
   if (!containerDOM) return {};
+  const dropTargetDOM = containerDOM.querySelector(".t--drop-target");
   const canvasDOM = containerDOM.getElementsByTagName("canvas");
 
   return {
-    canvasId: canvasDOM ? canvasDOM[0]?.id.split("-")[2] : undefined,
-    canvasDOM: canvasDOM[0],
+    canvasId: canvasDOM ? canvasDOM[0].id.split("-")[2] : undefined,
+    canvasDOM: dropTargetDOM,
   };
 }
 
