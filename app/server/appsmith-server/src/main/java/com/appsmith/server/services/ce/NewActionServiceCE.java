@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public interface NewActionServiceCE extends CrudService<NewAction, String> {
@@ -58,9 +59,13 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId, AclPermission permission);
 
+    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission);
+
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission);
 
     Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
+
+    Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort);
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 

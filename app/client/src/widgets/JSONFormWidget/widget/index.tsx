@@ -29,6 +29,7 @@ import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContaine
 import { convertSchemaItemToFormData } from "../helper";
 import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -517,6 +518,7 @@ class JSONFormWidget extends BaseWidget<
   };
 
   getPageView() {
+    const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,
       // it would lead to severe performance degradation due to frequent
@@ -531,6 +533,7 @@ class JSONFormWidget extends BaseWidget<
         disabledWhenInvalid={this.props.disabledWhenInvalid}
         executeAction={this.onExecuteAction}
         fieldLimitExceeded={this.props.fieldLimitExceeded}
+        fixMessageHeight={isAutoHeightEnabled}
         fixedFooter={this.props.fixedFooter}
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}

@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.util.WebClientUtils;
+import com.external.constants.ErrorMessages;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -64,6 +66,12 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
         JsonNode bodyNode;
         try {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
+        } catch (IllegalArgumentException e) {
+            if (!StringUtils.hasLength(methodConfig.getRowObjects())) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE);
+            }
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
@@ -72,7 +80,7 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
 
         if (!bodyNode.isArray()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR, "Request body was not an array.");
+                    AppsmithPluginError.PLUGIN_ERROR, ErrorMessages.REQUEST_BODY_NOT_ARRAY);
         }
         return true;
     }
@@ -249,10 +257,16 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
 
     private List<RowObject> getRowObjectListFromBody(JsonNode body) {
 
-        if (!body.isArray() || body.isEmpty()) {
+        if (!body.isArray()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected an array of row objects");
+                    ErrorMessages.EXPECTED_ARRAY_OF_ROW_OBJECT_MESSAGE);
         }
+
+        if (body.isEmpty()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE);
+        }
+
         return StreamSupport
                 .stream(body.spliterator(), false)
                 .map(rowJson -> new RowObject(

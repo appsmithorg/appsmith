@@ -37,7 +37,7 @@ jobs:
           set -o xtrace
           cat "${{ github.workspace }}/deploy/helm/Chart.yaml"
           chart_version="$(awk '$1 == "version:" {print $2}' "${{ github.workspace }}/deploy/helm/Chart.yaml")"
-          echo "::set-output name=version::$chart_version"
+          echo "version=$chart_version" >> $GITHUB_OUTPUT
       # Scan the S3 bucket with the Helm version retrieved from Chart.yaml
       # If an archive with this version already exists in the bucket, fail immediately.
       - name: Check chart version is not already published

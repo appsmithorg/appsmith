@@ -60,6 +60,7 @@ import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelper
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
+import RouteChangeListener from "RouteChangeListener";
 
 /*
     We use this polyfill to show emoji flags
@@ -94,6 +95,7 @@ function AppRouter(props: {
   return (
     <Router history={history}>
       <Suspense fallback={loadingIndicator}>
+        <RouteChangeListener />
         {props.safeCrash && props.safeCrashCode ? (
           <>
             <ErrorPageHeader />
@@ -130,10 +132,14 @@ function AppRouter(props: {
               <Redirect
                 exact
                 from={ADMIN_SETTINGS_PATH}
-                to={getDefaultAdminSettingsPath({
-                  isSuperUser: user?.isSuperUser || false,
-                  tenantPermissions,
-                })}
+                to={
+                  !user
+                    ? ADMIN_SETTINGS_PATH
+                    : getDefaultAdminSettingsPath({
+                        isSuperUser: user?.isSuperUser || false,
+                        tenantPermissions,
+                      })
+                }
               />
               <SentryRoute
                 component={Settings}
