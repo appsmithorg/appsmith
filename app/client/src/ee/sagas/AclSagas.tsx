@@ -26,6 +26,7 @@ import {
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
+import { getCurrentUser } from "actions/authActions";
 
 export function* fetchAclUsersSaga() {
   try {
@@ -90,6 +91,16 @@ export function* fetchAclUserByIdSaga(
       AclApi.fetchRolesForInvite(),
       AclApi.fetchGroupsForInvite(),
     ]);
+
+    if (
+      !response[0]?.responseMeta?.success &&
+      response[0]?.responseMeta?.status === 403 &&
+      response[0]?.responseMeta?.error?.message === "Unauthorized access"
+    ) {
+      history.push(`/applications`);
+      yield put(getCurrentUser());
+      return;
+    }
 
     const isValidResponse1: boolean = yield validateResponse(response[0]);
 

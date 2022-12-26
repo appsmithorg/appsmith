@@ -24,7 +24,7 @@ export default function WithSuperUserHOC(
       return <Redirect to={APPLICATIONS_URL} />;
     } else if (
       !user?.isSuperUser &&
-      ["groups", "roles", "users", "audit-logs"].indexOf(category) === -1
+      ["groups", "roles", "audit-logs"].indexOf(category) === -1
     ) {
       return (
         <Redirect

@@ -248,8 +248,10 @@ function WorkspaceInviteUsersForm(props: any) {
   }, []);
 
   const styledRoles =
-    props.options && props.options.length > 0 && isAclFlow
-      ? props.options
+    props.options && isAclFlow
+      ? props.options.length > 0
+        ? props.options
+        : []
       : props.roles.map((role: any) => {
           return {
             id: role.id,
