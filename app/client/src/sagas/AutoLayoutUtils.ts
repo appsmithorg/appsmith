@@ -354,25 +354,42 @@ function calculateWidgetPositions(
 
   const startChildren = [],
     centerChildren = [],
-    endChildren = [];
+    endChildren = [],
+    fillChildren = [];
   let startColumns = 0,
     centerColumns = 0,
     endColumns = 0;
   let startSize = 0,
     centerSize = 0,
     endSize = 0;
-  // Calculate the number of columns occupied by each alignment.
+
+  // Calculate the number of columns occupied by hug widgets in each alignment.
   for (const child of layer.children) {
     const widget = widgets[child.id];
+    const isFillWidget = widget.responsiveBehavior === ResponsiveBehavior.Fill;
+    if (isFillWidget) fillChildren.push(child);
     if (child.align === FlexLayerAlignment.Start) {
       startChildren.push(widget);
-      startColumns += widget.rightColumn - widget.leftColumn;
+      if (!isFillWidget) startColumns += widget.rightColumn - widget.leftColumn;
     } else if (child.align === FlexLayerAlignment.Center) {
       centerChildren.push(widget);
-      centerColumns += widget.rightColumn - widget.leftColumn;
+      if (!isFillWidget)
+        centerColumns += widget.rightColumn - widget.leftColumn;
     } else if (child.align === FlexLayerAlignment.End) {
       endChildren.push(widget);
-      endColumns += widget.rightColumn - widget.leftColumn;
+      if (!isFillWidget) endColumns += widget.rightColumn - widget.leftColumn;
+    }
+  }
+
+  const availableColumns = 64 - startColumns - centerColumns - endColumns;
+  const fillWidgetLength = availableColumns / fillChildren.length;
+  for (const child of fillChildren) {
+    if (child.align === FlexLayerAlignment.Start) {
+      startColumns += fillWidgetLength;
+    } else if (child.align === FlexLayerAlignment.Center) {
+      centerColumns += fillWidgetLength;
+    } else if (child.align === FlexLayerAlignment.End) {
+      endColumns += fillWidgetLength;
     }
   }
 
@@ -398,25 +415,6 @@ function calculateWidgetPositions(
   }
 
   let maxHeight = 0;
-  // Calculate positions for start aligned children.
-  let rightColumn = 0;
-  for (const widget of startChildren) {
-    const height = widget.bottomRow - widget.topRow;
-    const width = widget.rightColumn - widget.leftColumn;
-    maxHeight = Math.max(maxHeight, height);
-    widgets = {
-      ...widgets,
-      [widget.widgetId]: {
-        ...widget,
-        leftColumn: rightColumn,
-        rightColumn: rightColumn + width,
-        topRow,
-        bottomRow: topRow + height,
-      },
-    };
-    rightColumn = widget.rightColumn;
-  }
-
   [
     { children: startChildren, leftColumn: 0 },
     {
@@ -431,7 +429,10 @@ function calculateWidgetPositions(
     let left = each.leftColumn;
     for (const widget of each.children) {
       const height = widget.bottomRow - widget.topRow;
-      const width = widget.rightColumn - widget.leftColumn;
+      const width =
+        widget.responsiveBehavior === ResponsiveBehavior.Fill
+          ? fillWidgetLength
+          : widget.rightColumn - widget.leftColumn;
       maxHeight = Math.max(maxHeight, height);
       widgets = {
         ...widgets,

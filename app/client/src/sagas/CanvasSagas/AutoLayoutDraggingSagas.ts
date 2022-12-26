@@ -35,7 +35,6 @@ function* addWidgetAndReorderSaga(
   }>,
 ) {
   const start = performance.now();
-  console.log("#### action payload", actionPayload);
   const { direction, dropPayload, newWidget, parentId } = actionPayload.payload;
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
   try {
