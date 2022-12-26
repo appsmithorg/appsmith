@@ -1,12 +1,12 @@
 import { changeAppViewAccessInit } from "actions/applicationActions";
 import {
-  IconSize,
-  TextType,
-  Text,
-  Switch,
   Case,
   Classes,
   Icon,
+  IconSize,
+  TextType,
+  Text,
+  Toggle,
 } from "design-system";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -84,13 +84,11 @@ function EmbedSettings() {
                 tooltip={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
               />
               <SwitchWrapper>
-                <Switch
-                  checked={application?.isPublic}
+                <Toggle
                   className="mb-0"
+                  cypressSelector="t--embed-settings-application-public"
                   disabled={isFetchingApplication || isChangingViewAccess}
-                  id="t--embed-settings-application-public"
-                  large
-                  onChange={() =>
+                  onToggle={() =>
                     application &&
                     dispatch(
                       changeAppViewAccessInit(
@@ -99,6 +97,7 @@ function EmbedSettings() {
                       ),
                     )
                   }
+                  value={application?.isPublic}
                 />
               </SwitchWrapper>
             </div>
@@ -154,17 +153,16 @@ function EmbedSettings() {
           {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
         </Text>
         <SwitchWrapper>
-          <Switch
+          <Toggle
             className="mb-0"
-            data-cy="show-navigation-bar-toggle"
-            defaultChecked={embedSnippet.currentEmbedSetting?.showNavigationBar}
-            large
-            onChange={() =>
+            cypressSelector="show-navigation-bar-toggle"
+            onToggle={() =>
               embedSnippet.onChange({
                 showNavigationBar: !embedSnippet.currentEmbedSetting
                   ?.showNavigationBar,
               })
             }
+            value={embedSnippet.currentEmbedSetting?.showNavigationBar}
           />
         </SwitchWrapper>
       </div>

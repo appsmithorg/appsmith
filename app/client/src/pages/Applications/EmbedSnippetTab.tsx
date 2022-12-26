@@ -1,13 +1,13 @@
 import {
-  IconSize,
-  TextType,
-  Text,
-  Switch,
   Case,
-  TooltipComponent,
   Classes,
   Icon,
+  IconSize,
   IconWrapper,
+  TextType,
+  Text,
+  Toggle,
+  TooltipComponent,
 } from "design-system";
 import React from "react";
 import styled from "styled-components";
@@ -105,19 +105,16 @@ function EmbedSnippetTab() {
                 {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
               </Text>
               <SwitchWrapper>
-                <Switch
+                <Toggle
                   className="mb-0"
-                  data-cy={"show-navigation-bar-toggle"}
-                  defaultChecked={
-                    embedSnippet.currentEmbedSetting?.showNavigationBar
-                  }
-                  large
-                  onChange={() =>
+                  cypressSelector={"show-navigation-bar-toggle"}
+                  onToggle={() =>
                     embedSnippet.onChange({
                       showNavigationBar: !embedSnippet.currentEmbedSetting
                         .showNavigationBar,
                     })
                   }
+                  value={embedSnippet.currentEmbedSetting?.showNavigationBar}
                 />
               </SwitchWrapper>
             </div>
