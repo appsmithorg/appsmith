@@ -31,7 +31,7 @@ describe("Button Widget Functionality", function() {
     // Assert if the icon exists
     cy.get(`${widgetsPage.buttonWidget} .bp3-icon-add`).should("exist");
     // Change icon alignment to right
-    cy.get(`${iconAlignmentProperty} .t--button-tab-right`)
+    cy.get(`${iconAlignmentProperty} .t--button-group-right`)
       .last()
       .click({
         force: true,

@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 
 import { AppTheme } from "entities/AppTheming";
-import { ButtonTab, TooltipComponent } from "design-system";
+import { ButtonGroup, TooltipComponent } from "design-system";
 import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
 
 interface ThemeBorderRadiusControlProps {
@@ -39,7 +39,7 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
     ? [invertedBorderRadiusOptions[selectedOption]]
     : [];
 
-  const buttonTabOptions = Object.keys(options).map((optionKey) => ({
+  const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
     icon: (
       <TooltipComponent
         content={optionKey}
@@ -56,8 +56,8 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
   }));
 
   return (
-    <ButtonTab
-      options={buttonTabOptions}
+    <ButtonGroup
+      options={buttonGroupOptions}
       selectButton={onChangeBorder}
       values={selectedOptionKey}
     />
