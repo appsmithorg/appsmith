@@ -129,7 +129,7 @@ public class PostgresPlugin extends BasePlugin {
     @Extension
     public static class PostgresPluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +

@@ -1,23 +1,32 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.external.converters.HttpMethodConverter;
+import com.appsmith.external.converters.ISOStringToInstantConverter;
+import com.appsmith.external.models.DatasourceStructure;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.gson.GsonBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,12 +85,14 @@ public class CommonConfig {
 
     @Bean
     public Scheduler scheduler() {
-        return Schedulers.newElastic(ELASTIC_THREAD_POOL_NAME);
+        return Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, ELASTIC_THREAD_POOL_NAME);
     }
 
     @Bean
     public Validator validator() {
-        return Validation.buildDefaultValidatorFactory().getValidator();
+        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+            return validatorFactory.getValidator();
+        }
     }
 
     @Bean
@@ -92,6 +103,22 @@ public class CommonConfig {
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return objectMapper;
+    }
+
+    @Bean
+    public GsonBuilderCustomizer typeAdapterRegistration() {
+        return builder -> {
+            builder.registerTypeAdapter(Instant.class, new ISOStringToInstantConverter());
+            builder.registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator());
+            builder.registerTypeAdapter(HttpMethod.class, new HttpMethodConverter());
+        };
+    }
+
+    @Bean
+    public Gson gsonInstance() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        typeAdapterRegistration().customize(gsonBuilder);
+        return gsonBuilder.create();
     }
 
     public List<String> getOauthAllowedDomains() {

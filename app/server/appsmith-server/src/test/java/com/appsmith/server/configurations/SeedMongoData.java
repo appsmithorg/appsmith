@@ -73,8 +73,6 @@ public class SeedMongoData {
                            PluginRepository pluginRepository,
                            ReactiveMongoTemplate mongoTemplate,
                            TenantRepository tenantRepository,
-                           UserService userService,
-                           CommonConfig commonConfig,
                            PermissionGroupRepository permissionGroupRepository,
                            PermissionGroupService permissionGroupService,
                            ConfigRepository configRepository,

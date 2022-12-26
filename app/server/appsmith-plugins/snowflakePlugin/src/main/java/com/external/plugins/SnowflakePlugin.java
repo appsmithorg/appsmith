@@ -48,7 +48,7 @@ public class SnowflakePlugin extends BasePlugin {
     @Extension
     public static class SnowflakePluginExecutor implements PluginExecutor<Connection> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {

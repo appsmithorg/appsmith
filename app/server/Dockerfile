@@ -1,12 +1,12 @@
 #When you are building, name it appsmith-server which is how it is referenced in docker-compose.yml
 
-FROM adoptopenjdk/openjdk11:jdk-11.0.10_9-alpine
+FROM eclipse-temurin:17-jdk-alpine as jdk-image
 
 RUN ${JAVA_HOME}/bin/jlink --module-path jmods --add-modules jdk.jcmd --output /jcmd
 
-FROM adoptopenjdk/openjdk11:jre-11.0.10_9-alpine
+FROM eclipse-temurin:17-jre-alpine
 
-COPY --from=0 /jcmd /jcmd
+COPY --from=jdk-image /jcmd /jcmd
 
 LABEL maintainer="tech@appsmith.com"
 

@@ -44,7 +44,9 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.DateUtils;
+import com.appsmith.server.helpers.ElapsedTimeUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -68,10 +70,13 @@ import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
+import org.slf4j.MDC;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -82,6 +87,7 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -89,7 +95,6 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple5;
 
 import javax.lang.model.SourceVersion;
-import javax.validation.Validator;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -151,6 +156,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
 
+    private final ObservationRegistry observationRegistry;
+
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
                                   MongoConverter mongoConverter,
@@ -174,7 +181,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission,
                                   PagePermission pagePermission,
-                                  ActionPermission actionPermission) {
+                                  ActionPermission actionPermission,
+                                  ObservationRegistry observationRegistry) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -197,6 +205,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
+        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -1002,7 +1011,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     return result;
                 })
-                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
+                .tag("test_this", "with_value")
+                .tap(Micrometer.observation(observationRegistry))
+                .timed()
+                .map(timedInput -> ElapsedTimeUtils.addElapsedTimeToContext(timedInput, ElapsedTimeUtils.EXECUTION_POST_REQUEST))
+                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()))
+                .tag("test_this_after", "with_value_after")
+                .tap(Micrometer.observation(observationRegistry))
+                .timed()
+                .map(timedInput -> ElapsedTimeUtils.addElapsedTimeToContext(timedInput, ElapsedTimeUtils.EXECUTION_WIDGET_SUGGESTION));
     }
 
     /**

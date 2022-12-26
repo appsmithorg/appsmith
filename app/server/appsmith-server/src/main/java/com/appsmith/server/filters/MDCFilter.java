@@ -31,7 +31,7 @@ public class MDCFilter implements WebFilter {
     private static final String MDC_HEADER_PREFIX = "X-MDC-";
     private static final String REQUEST_ID_HEADER = "X-REQUEST-ID";
     public static final String USER_EMAIL = "userEmail";
-    private static final String REQUEST_ID_LOG = "requestId";
+    public static final String REQUEST_ID_LOG = "requestId";
     private static final String SESSION_ID_LOG = "sessionId";
     private static final String SESSION = "SESSION";
     public static final String THREAD = "thread";

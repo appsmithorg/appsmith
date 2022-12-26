@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.converters.GsonISOStringToInstantConverter;
+import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -183,7 +183,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .bodyToMono(String.class)
                 .map(jsonString -> {
                     Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
+                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
                             .create();
                     Type fileType = new TypeToken<ApplicationJson>() {
                     }.getType();
