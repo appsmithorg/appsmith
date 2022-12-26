@@ -294,7 +294,8 @@ export function sortWidgetsByPosition(
  *
  * Note:
  * if the user is tabbing out of the json form, we need to get the next tabbable descendant of the current widget
- * if the user is not tabbing out of the json form, we need to get the next tabbable descendant of the json form
+ * else tabbing will work as expected as widgets inside the json form are regular components
+ * and will be handled by the default tabbing logic
  *
  *
  * @param currentWidget
