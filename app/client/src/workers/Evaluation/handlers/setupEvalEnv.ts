@@ -5,6 +5,7 @@ import setupDOM from "../SetupDOM";
 import overrideTimeout from "../TimeoutOverride";
 import { EvalWorkerSyncRequest } from "../types";
 import userLogs from "../UserLog";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 
 export default function() {
   const libraries = resetJSLibraries();
@@ -24,6 +25,7 @@ export default function() {
   overrideTimeout();
   interceptAndOverrideHttpRequest();
   setupDOM();
+  addPlatformFunctionsToEvalContext(self);
   return true;
 }
 
