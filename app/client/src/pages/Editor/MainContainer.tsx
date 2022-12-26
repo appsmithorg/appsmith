@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useCallback, useEffect } from "react";
-import { Route, Switch, useLocation } from "react-router";
+import React, { useCallback } from "react";
+import { Route, Switch } from "react-router";
 
 import EditorsRouter from "./routes";
 import BottomBar from "./BottomBar";
@@ -16,10 +16,8 @@ import {
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { routeChanged } from "actions/focusHistoryActions";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { getExplorerWidth } from "selectors/explorerSelector";
-import { AppsmithLocationState } from "utils/history";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -55,12 +53,6 @@ function MainContainer() {
   }, [sidebarWidth]);
 
   const isPreviewMode = useSelector(previewModeSelector);
-
-  const location = useLocation<AppsmithLocationState>();
-
-  useEffect(() => {
-    dispatch(routeChanged(location));
-  }, [location.pathname, location.hash]);
 
   return (
     <>

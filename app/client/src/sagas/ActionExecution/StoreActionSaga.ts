@@ -10,7 +10,7 @@ import { getAppStoreData } from "selectors/entitiesSelector";
 import {
   RemoveValueActionDescription,
   StoreValueActionDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
