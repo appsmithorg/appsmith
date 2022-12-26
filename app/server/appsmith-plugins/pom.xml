@@ -98,7 +98,7 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit4-mock</artifactId>
-            <version>2.11.2.Final</version>
+            <version>2.14.2.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>

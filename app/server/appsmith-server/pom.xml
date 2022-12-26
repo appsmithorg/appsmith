@@ -16,7 +16,7 @@
     <description>This is the API server for the Appsmith project</description>
 
     <properties>
-        <ff4j.version>1.8.12</ff4j.version>
+        <ff4j.version>1.9</ff4j.version>
         <org.modelmapper.version>2.4.4</org.modelmapper.version>
         <jmh.version>1.35</jmh.version>
     </properties>
@@ -101,7 +101,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>3.0.0</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
