@@ -184,10 +184,13 @@ export const TableWrapper = styled.div<{
       z-index: 0;
     }
 
+    [role="columnheader"] {
+      background-color: var(--wds-color-bg);
+    }
+
     [data-sticky-td] {
       position: sticky;
       position: -webkit-sticky;
-      background-color: inherit;
     }
 
     [data-sticky-last-left-td] {

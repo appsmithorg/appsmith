@@ -731,15 +731,18 @@ export const generateNewColumnOrderFromStickyValue = (
      */
     columnIndex = -1;
 
-    for (let k = 0; k < columnOrder.length; k++) {
-      const colName = columnOrder[k];
-      if (primaryColumns[colName].sticky === "right") {
-        columnIndex = k;
-        break;
-      }
-      if (primaryColumns[colName].sticky === "left") {
-        columnIndex = k;
-      }
+    const staleStickyValue = primaryColumns[columnName].sticky;
+
+    if (staleStickyValue === "left") {
+      columnIndex = columnOrder
+        .map((column) => primaryColumns[column])
+        .filter(
+          (column) => column.sticky === "left" && column.id !== columnName,
+        ).length;
+    } else if (staleStickyValue === "right") {
+      columnIndex = columnOrder
+        .map((column) => primaryColumns[column])
+        .filter((column) => column.sticky !== "right").length;
     }
   }
   newColumnOrder.splice(columnIndex, 0, columnName);
