@@ -1027,7 +1027,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         // They don't get access to the same resources in feature branch. When they do operations like commit and push we publish the changes automatically
                         // and this will fail due to permission issue. Hence removing the throwing error part and handling it gracefully
                         // Only the pages which the user pocesses permission will be published
-                        //.switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, applicationPage.getId())))
                         .map(page -> {
                             page.setPublishedPage(page.getUnpublishedPage());
                             return page;
