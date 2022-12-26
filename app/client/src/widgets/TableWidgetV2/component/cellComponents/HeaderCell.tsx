@@ -7,7 +7,7 @@ import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 import { Colors } from "constants/Colors";
 import styled from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
-import { CellAlignment, JUSTIFY_CONTENT } from "../Constants";
+import { CellAlignment, JUSTIFY_CONTENT, StickyType } from "../Constants";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
@@ -111,7 +111,7 @@ export function HeaderCell(props: {
   columnIndex: number;
   isHidden: boolean;
   isAscOrder?: boolean;
-  handleColumnFreeze?: (columnName: string, sticky?: string) => void;
+  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
@@ -135,11 +135,11 @@ export function HeaderCell(props: {
     column.columnProperties.isEditable &&
     isColumnTypeEditable(column.columnProperties.columnType);
 
-  const toggleColumnFreeze = (value: string) => {
+  const toggleColumnFreeze = (value: StickyType) => {
     props.handleColumnFreeze &&
       props.handleColumnFreeze(
         props.column.id,
-        props.column.sticky !== value ? value : "",
+        props.column.sticky !== value ? value : StickyType.NONE,
       );
   };
   return (
@@ -183,17 +183,21 @@ export function HeaderCell(props: {
               <MenuDivider />
               <MenuItem
                 disabled={!props.canFreezeColumn}
-                labelElement={column.sticky === "left" ? <Check /> : undefined}
+                labelElement={
+                  column.sticky === StickyType.LEFT ? <Check /> : undefined
+                }
                 onClick={() => {
-                  toggleColumnFreeze("left");
+                  toggleColumnFreeze(StickyType.LEFT);
                 }}
                 text="Freeze column left"
               />
               <MenuItem
                 disabled={!props.canFreezeColumn}
-                labelElement={column.sticky === "right" ? <Check /> : undefined}
+                labelElement={
+                  column.sticky === StickyType.RIGHT ? <Check /> : undefined
+                }
                 onClick={() => {
-                  toggleColumnFreeze("right");
+                  toggleColumnFreeze(StickyType.RIGHT);
                 }}
                 text="Freeze column right"
               />
@@ -201,9 +205,7 @@ export function HeaderCell(props: {
           }
           interactionKind="click"
           isOpen={isMenuOpen}
-          onInteraction={(state: any) => {
-            setIsMenuOpen(state);
-          }}
+          onInteraction={setIsMenuOpen}
           placement="bottom-end"
         >
           <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />

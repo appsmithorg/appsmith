@@ -224,6 +224,11 @@ export interface TableColumnMetaProps {
   type: ColumnTypes;
 }
 
+export enum StickyType {
+  LEFT = "left",
+  RIGHT = "right",
+  NONE = "NONE",
+}
 export interface TableColumnProps {
   id: string;
   Header: string;
@@ -237,7 +242,7 @@ export interface TableColumnProps {
   metaProperties?: TableColumnMetaProps;
   isDerived?: boolean;
   columnProperties: ColumnProperties;
-  sticky?: string;
+  sticky?: StickyType;
 }
 export interface ReactTableColumnProps extends TableColumnProps {
   Cell: (props: any) => JSX.Element;

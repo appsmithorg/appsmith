@@ -11,6 +11,7 @@ import {
 import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
+import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 
 export default {
   sectionName: "General",
@@ -143,7 +144,7 @@ export default {
       helpText:
         "Choose column that needs to be frozen left or right of the table",
       controlType: "ICON_TABS",
-      defaultValue: undefined,
+      defaultValue: StickyType.NONE,
       label: "Column Freeze",
       fullWidth: true,
       isBindProperty: true,
@@ -152,15 +153,15 @@ export default {
       options: [
         {
           icon: "VERTICAL_LEFT",
-          value: "left",
+          value: StickyType.LEFT,
         },
         {
           icon: "CENTER_ALIGN",
-          value: undefined,
+          value: StickyType.NONE,
         },
         {
           icon: "VERTICAL_RIGHT",
-          value: "right",
+          value: StickyType.RIGHT,
         },
       ],
       updateHook: updateColumnOrderWhenFrozen,

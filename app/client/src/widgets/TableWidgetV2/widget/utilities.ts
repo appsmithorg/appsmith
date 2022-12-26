@@ -6,6 +6,7 @@ import {
   CellAlignmentTypes,
   CellLayoutProperties,
   ColumnProperties,
+  StickyType,
   TableStyles,
   VerticalAlignmentTypes,
 } from "../component/Constants";
@@ -712,15 +713,15 @@ export const generateNewColumnOrderFromStickyValue = (
   newColumnOrder = without(newColumnOrder, columnName);
 
   let columnIndex;
-  if (sticky === "left") {
+  if (sticky === StickyType.LEFT) {
     columnIndex = columnOrder
       .map((column) => primaryColumns[column])
-      .filter((column) => column.sticky === "left").length;
-  } else if (sticky === "right") {
+      .filter((column) => column.sticky === StickyType.LEFT).length;
+  } else if (sticky === StickyType.RIGHT) {
     columnIndex =
       columnOrder
         .map((column) => primaryColumns[column])
-        .filter((column) => column.sticky !== "right").length - 1;
+        .filter((column) => column.sticky !== StickyType.RIGHT).length - 1;
   } else {
     /**
      * This block will manage the column order when column is unfrozen.
@@ -733,16 +734,17 @@ export const generateNewColumnOrderFromStickyValue = (
 
     const staleStickyValue = primaryColumns[columnName].sticky;
 
-    if (staleStickyValue === "left") {
+    if (staleStickyValue === StickyType.LEFT) {
       columnIndex = columnOrder
         .map((column) => primaryColumns[column])
         .filter(
-          (column) => column.sticky === "left" && column.id !== columnName,
+          (column) =>
+            column.sticky === StickyType.LEFT && column.id !== columnName,
         ).length;
-    } else if (staleStickyValue === "right") {
+    } else if (staleStickyValue === StickyType.RIGHT) {
       columnIndex = columnOrder
         .map((column) => primaryColumns[column])
-        .filter((column) => column.sticky !== "right").length;
+        .filter((column) => column.sticky !== StickyType.RIGHT).length;
     }
   }
   newColumnOrder.splice(columnIndex, 0, columnName);

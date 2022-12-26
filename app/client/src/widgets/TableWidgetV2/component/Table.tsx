@@ -23,6 +23,7 @@ import {
   CompactMode,
   CompactModeTypes,
   AddNewRowActions,
+  StickyType,
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
@@ -97,7 +98,7 @@ interface TableProps {
     onActionComplete: () => void,
   ) => void;
   disabledAddNewRowSave: boolean;
-  handleColumnFreeze?: (columnName: string, sticky?: string) => void;
+  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
   canFreezeColumn?: boolean;
 }
 

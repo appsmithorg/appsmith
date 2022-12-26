@@ -30,6 +30,7 @@ import {
   ReactTableFilter,
   OperatorTypes,
   AddNewRowActions,
+  StickyType,
 } from "../component/Constants";
 import {
   ActionColumnTypes,
@@ -305,7 +306,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       // Get the index of the first column that is frozen to right
       const rightFrozenColumnIdx = findLastIndex(
         columns,
-        (col) => col.sticky === "right",
+        (col) => col.sticky === StickyType.RIGHT,
       );
       if (rightFrozenColumnIdx !== -1) {
         columns.splice(rightFrozenColumnIdx, 0, ...hiddenColumns);
@@ -1089,7 +1090,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   };
 
-  handleColumnFreeze = (columnName: string, sticky?: string) => {
+  handleColumnFreeze = (columnName: string, sticky?: StickyType) => {
     if (this.props.columnOrder) {
       super.updateWidgetProperty(`primaryColumns.${columnName}.sticky`, sticky);
       const newColumnOrder = generateNewColumnOrderFromStickyValue(

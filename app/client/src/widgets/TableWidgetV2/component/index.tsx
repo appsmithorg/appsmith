@@ -5,6 +5,7 @@ import {
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
+  StickyType,
 } from "./Constants";
 import { Row } from "react-table";
 
@@ -98,7 +99,7 @@ interface ReactTableComponentProps {
   allowRowSelection: boolean;
   allowSorting: boolean;
   disabledAddNewRowSave: boolean;
-  handleColumnFreeze?: (columnName: string, sticky?: string) => void;
+  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
   canFreezeColumn?: boolean;
 }
 
@@ -178,9 +179,9 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     const rightOrder: string[] = [];
     const middleOrder: string[] = [];
     columns.forEach((item) => {
-      if (item.sticky === "left") {
+      if (item.sticky === StickyType.LEFT) {
         leftOrder.push(item.alias);
-      } else if (item.sticky === "right") {
+      } else if (item.sticky === StickyType.RIGHT) {
         rightOrder.push(item.alias);
       } else {
         middleOrder.push(item.alias);

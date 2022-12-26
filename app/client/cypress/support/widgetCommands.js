@@ -1723,3 +1723,32 @@ Cypress.Commands.add("checkMaxDefaultValue", (endp, value) => {
       expect(someText).to.equal(value);
     });
 });
+
+Cypress.Commands.add("freezeColumnFromDropdown", (columnName, direction) => {
+  cy.get(
+    `[data-header=${columnName}] .header-menu .bp3-popover2-target`,
+  ).click({ force: true });
+  cy.get(".bp3-menu")
+    .contains(`Freeze column ${direction}`)
+    .click({ force: true });
+
+  cy.wait(500);
+});
+
+Cypress.Commands.add("checkIfColumnIsFrozenViaCSS", (rowNum, coumnNum) => {
+  cy.getTableV2DataSelector(rowNum, coumnNum).then((selector) => {
+    cy.get(selector).should("have.css", "position", "sticky");
+  });
+});
+
+Cypress.Commands.add(
+  "checkColumnPosition",
+  (columnName, expectedColumnPosition) => {
+    cy.get(`[data-header]`)
+      .eq(expectedColumnPosition)
+      .then(($elem) => {
+        const dataHeaderAttribute = $elem.attr("data-header");
+        expect(dataHeaderAttribute).to.equal(columnName);
+      });
+  },
+);
