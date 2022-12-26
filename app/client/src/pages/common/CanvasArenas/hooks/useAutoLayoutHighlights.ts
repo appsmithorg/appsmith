@@ -177,7 +177,7 @@ export const useAutoLayoutHighlights = ({
        */
       if (!updateContainerDimensions()) return [];
       isFillWidget = checkForFillWidget();
-      highlights = getDropPositions();
+      highlights = deriveHighlightsFromLayers(allWidgets, canvasId);
     }
     // console.log("#### highlights", highlights);
     return highlights;
@@ -186,56 +186,6 @@ export const useAutoLayoutHighlights = ({
   /**
    * END AUTO LAYOUT OFFSET CALCULATION
    */
-
-  const updateHighlight = (index: number): HighlightInfo => {
-    const highlight = highlights[index];
-    if (!highlight || !highlight.el) return highlight;
-    const rect: DOMRect = highlight.el.getBoundingClientRect();
-
-    highlight.posX = rect.x - containerDimensions.left;
-    highlight.posY = rect.y - containerDimensions.top;
-    highlight.width = isFillWidget
-      ? highlight.alignment === FlexLayerAlignment.Start
-        ? containerDimensions.width
-        : 0
-      : containerDimensions?.width / 3;
-    highlight.height = rect.height;
-    (highlight.el as HTMLElement).style.width = `${highlight.width}px`;
-    highlights[index] = highlight;
-
-    return highlight;
-  };
-
-  const updateHighlights = (moveDirection?: ReflowDirection) => {
-    if (!highlights?.length || !moveDirection) return;
-    highlights.map((highlight: HighlightInfo, index: number) => {
-      let updatedHighlight: HighlightInfo = highlight;
-      if (highlight.isNewLayer || !highlight.height)
-        updatedHighlight = updateHighlight(index);
-      return updatedHighlight;
-    });
-  };
-
-  const toggleHighlightVisibility = (
-    arr: HighlightInfo[],
-    selected: HighlightInfo,
-  ): void => {
-    arr.forEach((each: HighlightInfo) => {
-      const el = each.el as HTMLElement;
-      // if (!isVerticalStack) el.style.opacity = "1";
-      el.style.opacity = selected === each ? "1" : "0";
-    });
-  };
-
-  const updateSelection = (highlight: HighlightInfo): void => {
-    if (lastActiveHighlight) {
-      const lastEl = lastActiveHighlight?.el as HTMLElement;
-      if (lastEl) lastEl.style.backgroundColor = "rgba(223, 158, 206, 0.6)";
-    }
-    const el = highlight.el as HTMLElement;
-    if (el) el.style.backgroundColor = "rgba(196, 139, 181, 1)";
-    lastActiveHighlight = highlight;
-  };
 
   const highlightDropPosition = (
     e: any,
@@ -255,7 +205,7 @@ export const useAutoLayoutHighlights = ({
     );
 
     // updateSelection(highlight);
-    console.log("#### selection", highlight);
+    // console.log("#### selection", highlight);
     lastActiveHighlight = highlight;
     return highlight;
   };

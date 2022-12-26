@@ -2,7 +2,6 @@ import { FlexLayerAlignment } from "components/constants";
 import {
   DEFAULT_HIGHLIGHT_SIZE,
   FlexLayer,
-  LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";

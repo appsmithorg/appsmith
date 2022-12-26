@@ -226,17 +226,17 @@ function* reorderAutolayoutChildren(params: {
       bottomRow: parentWidget.topRow + height,
     };
   }
-  const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
-    updatedWidgets,
-    parentId,
-  );
-  updatedWidgets = {
-    ...updatedWidgets,
-    [parentId]: {
-      ...updatedWidgets[parentId],
-      highlights,
-    },
-  };
+  // const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
+  //   updatedWidgets,
+  //   parentId,
+  // );
+  // updatedWidgets = {
+  //   ...updatedWidgets,
+  //   [parentId]: {
+  //     ...updatedWidgets[parentId],
+  //     highlights,
+  //   },
+  // };
   return updatedWidgets;
 }
 

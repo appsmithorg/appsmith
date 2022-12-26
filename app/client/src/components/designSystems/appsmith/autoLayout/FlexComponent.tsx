@@ -52,8 +52,6 @@ const FlexWidget = styled.div<{
   padding: number;
   zIndex: number;
   zIndexOnHover: number;
-  dragMargin: number;
-  isAffectedByDrag: boolean;
   parentId?: string;
   flexVerticalAlignment: FlexVerticalAlignment;
   ref: any;
@@ -66,8 +64,7 @@ const FlexWidget = styled.div<{
     isMobile ? "auto" : Math.floor(componentHeight) + "px"};
 
   min-height: 30px;
-  padding: ${({ isAffectedByDrag, padding }) =>
-    isAffectedByDrag ? 0 : padding + "px"};
+  padding: ${({ padding }) => padding + "px"};
 
   flex-grow: ${({ isFillWidget }) => (isFillWidget ? "1" : "0")};
   align-self: ${({ flexVerticalAlignment }) => flexVerticalAlignment};
@@ -75,7 +72,6 @@ const FlexWidget = styled.div<{
   &:hover {
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
-  margin-top: ${({ isAffectedByDrag }) => (isAffectedByDrag ? "4px" : "0px")};
 `;
 
 const DEFAULT_MARGIN = 16;
@@ -114,7 +110,12 @@ export function FlexComponent(props: AutoLayoutProps) {
   const callback = (mutations: any, observer: any) => {
     console.log("#### mutations", mutations);
     if (mutations.length)
-      console.log("#### mutations[0].target", mutations[0].target.offsetTop);
+      console.log(
+        "#### mutations[0].target",
+        mutations[0].target.classList[3],
+        mutations[0].target.offsetTop,
+        observer,
+      );
   };
 
   useEffect(() => {
@@ -125,7 +126,7 @@ export function FlexComponent(props: AutoLayoutProps) {
 
   useEffect(() => {
     if (!ref.current || !observer) return;
-    return;
+    // return;
     observer.observe(ref.current, {
       attributes: true,
       childList: false,
@@ -170,11 +171,9 @@ export function FlexComponent(props: AutoLayoutProps) {
     <FlexWidget
       className={className}
       componentHeight={props.componentHeight}
-      componentWidth={resizedWidth}
-      dragMargin={dragMargin}
+      componentWidth={props.componentWidth}
       flexVerticalAlignment={props.flexVerticalAlignment}
       id={props.widgetId}
-      isAffectedByDrag={isAffectedByDrag}
       isFillWidget={isFillWidget}
       isMobile={isMobile}
       onClick={stopEventPropagation}
