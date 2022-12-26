@@ -58,6 +58,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -170,7 +171,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
+    @Deprecated
     public Mono<Application> findById(String id, AclPermission aclPermission) {
+        return repository.findById(id, aclPermission)
+                .flatMap(this::setTransientFields);
+    }
+
+    @Override
+    public Mono<Application> findById(String id, Optional<AclPermission> aclPermission) {
         return repository.findById(id, aclPermission)
                 .flatMap(this::setTransientFields);
     }
@@ -679,13 +687,27 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     public Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
-        if (StringUtils.isEmpty(branchName)) {
-            if (StringUtils.isEmpty(defaultApplicationId)) {
+        if (!StringUtils.hasLength(branchName)) {
+            if (!StringUtils.hasLength(defaultApplicationId)) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, defaultApplicationId));
             }
             return Mono.just(defaultApplicationId);
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
+                )
+                .map(Application::getId);
+    }
+
+    public Mono<String> findBranchedApplicationId(Optional<String> branchName, String defaultApplicationId, Optional<AclPermission> permission) {
+        if (branchName.isEmpty()) {
+            if (!StringUtils.hasLength(defaultApplicationId)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, defaultApplicationId));
+            }
+            return Mono.just(defaultApplicationId);
+        }
+        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName.get(), permission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
                 )

@@ -77,7 +77,6 @@ import {
 } from "entities/Widget/utils";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { getAllPaths } from "workers/Evaluation/evaluationUtils";
 import { validateProperty } from "./EvaluationsSaga";
 
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
@@ -156,6 +155,7 @@ import {
   WIDGET_PASTE_PADDING,
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
+import { getAllPaths } from "ce/workers/Evaluation/evaluationUtils";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,

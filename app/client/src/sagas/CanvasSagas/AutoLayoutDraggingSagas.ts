@@ -21,6 +21,7 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import {
   updateFlexChildColumns,
   updateSizeOfAllChildren,
+  updateWidgetPositions,
 } from "sagas/AutoLayoutUtils";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
@@ -226,18 +227,13 @@ function* reorderAutolayoutChildren(params: {
       bottomRow: parentWidget.topRow + height,
     };
   }
-  // const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
-  //   updatedWidgets,
-  //   parentId,
-  // );
-  // updatedWidgets = {
-  //   ...updatedWidgets,
-  //   [parentId]: {
-  //     ...updatedWidgets[parentId],
-  //     highlights,
-  //   },
-  // };
-  return updatedWidgets;
+
+  const widgetsAfterPositionUpdate = updateWidgetPositions(
+    updatedWidgets,
+    parentId,
+  );
+  console.log("#### updatedWidgets", widgetsAfterPositionUpdate);
+  return widgetsAfterPositionUpdate;
 }
 
 /**
