@@ -3,7 +3,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import {
   ActionTriggerType,
   ShowAlertActionDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import {
   ActionValidationError,
   TriggerFailureError,

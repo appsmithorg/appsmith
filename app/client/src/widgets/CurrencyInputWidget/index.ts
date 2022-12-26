@@ -28,6 +28,7 @@ export const CONFIG = {
     allowCurrencyChange: false,
     defaultCurrencyCode: getDefaultCurrency().currency,
     decimals: 0,
+    showStepArrows: false,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },

@@ -25,6 +25,7 @@ export const CONFIG = {
     inputType: "TEXT",
     widgetName: "Input",
     version: 2,
+    showStepArrows: false,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },

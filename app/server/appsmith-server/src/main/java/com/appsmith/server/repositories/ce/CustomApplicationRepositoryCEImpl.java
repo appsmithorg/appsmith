@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Map;
 import java.util.Set;
 
@@ -163,6 +164,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
+    @Deprecated
     public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission) {
         return getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, null, branchName, aclPermission);
     }
@@ -177,6 +179,16 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
         return queryOne(List.of(defaultAppCriteria, branchNameCriteria), projectionFieldNames, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, Optional<AclPermission> aclPermission) {
+
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+
+        Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
+        Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
+        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), aclPermission);
     }
 
     @Override

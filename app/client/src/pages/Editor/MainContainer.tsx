@@ -1,11 +1,9 @@
 import * as Sentry from "@sentry/react";
-import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Route, Switch, useLocation } from "react-router";
-import styled from "styled-components";
+import React, { useCallback } from "react";
+import { Route, Switch } from "react-router";
 
 import { updateExplorerWidthAction } from "actions/explorerActions";
-import { routeChanged } from "actions/focusHistoryActions";
 import classNames from "classnames";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import {
@@ -14,11 +12,11 @@ import {
   BUILDER_PATH_DEPRECATED,
 } from "constants/routes";
 import { previewModeSelector } from "selectors/editorSelectors";
+import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { getExplorerWidth } from "selectors/explorerSelector";
-import { AppsmithLocationState } from "utils/history";
 import BottomBar from "./BottomBar";
-import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
+import EditorsRouter from "./routes";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -55,12 +53,6 @@ function MainContainer() {
 
   const isPreviewMode = useSelector(previewModeSelector);
 
-  const location = useLocation<AppsmithLocationState>();
-
-  useEffect(() => {
-    dispatch(routeChanged(location));
-  }, [location.pathname, location.hash]);
-
   return (
     <>
       <Container className="relative w-full overflow-x-hidden">
@@ -96,6 +88,7 @@ function MainContainer() {
           "transition-all transform duration-400": true,
         })}
       />
+      <Installer left={sidebarWidth} />
     </>
   );
 }

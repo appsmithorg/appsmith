@@ -5,7 +5,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
-import { isJSAction } from "workers/Evaluation/evaluationUtils";
+import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.

@@ -1,3 +1,4 @@
+import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
 import { Positioning } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -26,7 +27,6 @@ import log from "loglevel";
 import memoizeOne from "memoize-one";
 import React from "react";
 import shallowEqual from "shallowequal";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { removeFalsyEntries } from "utils/helpers";
 import WidgetFactory from "utils/WidgetFactory";
