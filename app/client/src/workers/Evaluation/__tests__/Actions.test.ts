@@ -1,8 +1,16 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
-import { createGlobalData } from "workers/Evaluation/evaluate";
+import {
+  createEvaluationContext,
+  EvalContext,
+} from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
 import { MessageType } from "utils/MessageUtil";
+import {
+  addDataTreeToContext,
+  addPlatformFunctionsToEvalContext,
+} from "@appsmith/workers/Evaluation/Actions";
+
 jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
@@ -31,14 +39,14 @@ describe("Add functions", () => {
     },
   };
   self.TRIGGER_COLLECTOR = [];
-  const dataTreeWithFunctions = createGlobalData({
+  const evalContext = createEvaluationContext({
     dataTree,
     resolvedFunctions: {},
     isTriggerBased: true,
-    context: {
-      requestId: "EVAL_TRIGGER",
-    },
+    context: {},
   });
+
+  addPlatformFunctionsToEvalContext(evalContext);
 
   const messageCreator = (type: string, body: unknown) => ({
     messageId: expect.stringContaining(type),
@@ -58,9 +66,9 @@ describe("Add functions", () => {
     const actionParams = { param1: "value1" };
 
     // Old syntax works with functions
-    expect(
-      dataTreeWithFunctions.action1.run(onSuccess, onError, actionParams),
-    ).toBe(undefined);
+    expect(evalContext.action1.run(onSuccess, onError, actionParams)).toBe(
+      undefined,
+    );
     expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
@@ -77,9 +85,9 @@ describe("Add functions", () => {
     self.TRIGGER_COLLECTOR.pop();
 
     // Old syntax works with one undefined value
-    expect(
-      dataTreeWithFunctions.action1.run(onSuccess, undefined, actionParams),
-    ).toBe(undefined);
+    expect(evalContext.action1.run(onSuccess, undefined, actionParams)).toBe(
+      undefined,
+    );
     expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
@@ -95,9 +103,9 @@ describe("Add functions", () => {
 
     self.TRIGGER_COLLECTOR.pop();
 
-    expect(
-      dataTreeWithFunctions.action1.run(undefined, onError, actionParams),
-    ).toBe(undefined);
+    expect(evalContext.action1.run(undefined, onError, actionParams)).toBe(
+      undefined,
+    );
     expect(self.TRIGGER_COLLECTOR).toHaveLength(1);
     expect(self.TRIGGER_COLLECTOR[0]).toStrictEqual({
       payload: {
@@ -123,9 +131,9 @@ describe("Add functions", () => {
     });
 
     // Old syntax works with null values is treated as new syntax
-    expect(
-      dataTreeWithFunctions.action1.run(null, null, actionParams),
-    ).resolves.toBe({ a: "b" });
+    expect(evalContext.action1.run(null, null, actionParams)).resolves.toBe({
+      a: "b",
+    });
     expect(workerEventMock).lastCalledWith(
       messageCreator("RUN_PLUGIN_ACTION", {
         data: {
@@ -143,7 +151,7 @@ describe("Add functions", () => {
 
     // Old syntax works with undefined values is treated as new syntax
     expect(
-      dataTreeWithFunctions.action1.run(undefined, undefined, actionParams),
+      evalContext.action1.run(undefined, undefined, actionParams),
     ).resolves.toBe({ a: "b" });
     expect(workerEventMock).lastCalledWith(
       messageCreator("RUN_PLUGIN_ACTION", {
@@ -162,7 +170,7 @@ describe("Add functions", () => {
 
     // new syntax works
     expect(
-      dataTreeWithFunctions.action1
+      evalContext.action1
         .run(actionParams)
         .then(onSuccess)
         .catch(onError),
@@ -182,7 +190,7 @@ describe("Add functions", () => {
       }),
     );
     // New syntax without params
-    expect(dataTreeWithFunctions.action1.run()).resolves.toBe({ a: "b" });
+    expect(evalContext.action1.run()).resolves.toBe({ a: "b" });
 
     expect(workerEventMock).lastCalledWith(
       messageCreator("RUN_PLUGIN_ACTION", {
@@ -201,7 +209,7 @@ describe("Add functions", () => {
   });
 
   it("action.clear works", () => {
-    expect(dataTreeWithFunctions.action1.clear()).resolves.toBe({});
+    expect(evalContext.action1.clear()).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("CLEAR_PLUGIN_ACTION", {
         data: {
@@ -223,9 +231,9 @@ describe("Add functions", () => {
     const params = "{ param1: value1 }";
     const target = "NEW_WINDOW";
 
-    expect(
-      dataTreeWithFunctions.navigateTo(pageNameOrUrl, params, target),
-    ).resolves.toBe({});
+    expect(evalContext.navigateTo(pageNameOrUrl, params, target)).resolves.toBe(
+      {},
+    );
     expect(workerEventMock).lastCalledWith(
       messageCreator("NAVIGATE_TO", {
         data: {
@@ -247,7 +255,7 @@ describe("Add functions", () => {
   it("showAlert works", () => {
     const message = "Alert message";
     const style = "info";
-    expect(dataTreeWithFunctions.showAlert(message, style)).resolves.toBe({});
+    expect(evalContext.showAlert(message, style)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("SHOW_ALERT", {
         data: {
@@ -268,7 +276,7 @@ describe("Add functions", () => {
   it("showModal works", () => {
     const modalName = "Modal 1";
 
-    expect(dataTreeWithFunctions.showModal(modalName)).resolves.toBe({});
+    expect(evalContext.showModal(modalName)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("SHOW_MODAL_BY_NAME", {
         data: {
@@ -287,7 +295,7 @@ describe("Add functions", () => {
 
   it("closeModal works", () => {
     const modalName = "Modal 1";
-    expect(dataTreeWithFunctions.closeModal(modalName)).resolves.toBe({});
+    expect(evalContext.closeModal(modalName)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("CLOSE_MODAL", {
         data: {
@@ -313,9 +321,7 @@ describe("Add functions", () => {
     // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
     uniqueId.mockReturnValueOnce(uniqueActionRequestId);
 
-    expect(dataTreeWithFunctions.storeValue(key, value, persist)).resolves.toBe(
-      {},
-    );
+    expect(evalContext.storeValue(key, value, persist)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("STORE_VALUE", {
         data: {
@@ -337,7 +343,7 @@ describe("Add functions", () => {
 
   it("removeValue works", () => {
     const key = "some";
-    expect(dataTreeWithFunctions.removeValue(key)).resolves.toBe({});
+    expect(evalContext.removeValue(key)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("REMOVE_VALUE", {
         data: {
@@ -355,7 +361,7 @@ describe("Add functions", () => {
   });
 
   it("clearStore works", () => {
-    expect(dataTreeWithFunctions.clearStore()).resolves.toBe({});
+    expect(evalContext.clearStore()).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("CLEAR_STORE", {
         data: {
@@ -375,7 +381,7 @@ describe("Add functions", () => {
     const name = "downloadedFile.txt";
     const type = "text";
 
-    expect(dataTreeWithFunctions.download(data, name, type)).resolves.toBe({});
+    expect(evalContext.download(data, name, type)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("DOWNLOAD", {
         data: {
@@ -396,7 +402,7 @@ describe("Add functions", () => {
 
   it("copyToClipboard works", () => {
     const data = "file";
-    expect(dataTreeWithFunctions.copyToClipboard(data)).resolves.toBe({});
+    expect(evalContext.copyToClipboard(data)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("COPY_TO_CLIPBOARD", {
         data: {
@@ -418,9 +424,9 @@ describe("Add functions", () => {
     const widgetName = "widget1";
     const resetChildren = true;
 
-    expect(
-      dataTreeWithFunctions.resetWidget(widgetName, resetChildren),
-    ).resolves.toBe({});
+    expect(evalContext.resetWidget(widgetName, resetChildren)).resolves.toBe(
+      {},
+    );
     expect(workerEventMock).lastCalledWith(
       messageCreator("RESET_WIDGET_META_RECURSIVE_BY_NAME", {
         data: {
@@ -443,9 +449,7 @@ describe("Add functions", () => {
     const interval = 5000;
     const id = "myInterval";
 
-    expect(dataTreeWithFunctions.setInterval(callback, interval, id)).toBe(
-      undefined,
-    );
+    expect(evalContext.setInterval(callback, interval, id)).toBe(undefined);
     expect(self.TRIGGER_COLLECTOR).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -463,7 +467,7 @@ describe("Add functions", () => {
   it("clearInterval works", () => {
     const id = "myInterval";
 
-    expect(dataTreeWithFunctions.clearInterval(id)).toBe(undefined);
+    expect(evalContext.clearInterval(id)).toBe(undefined);
     expect(self.TRIGGER_COLLECTOR).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -483,9 +487,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as a string", () => {
       const message = "Hello world!";
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -504,9 +508,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as undefined", () => {
       const message = undefined;
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -525,9 +529,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as null", () => {
       const message = null;
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -546,9 +550,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as a number", () => {
       const message = 1826;
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -567,9 +571,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as a boolean", () => {
       const message = true;
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -588,9 +592,9 @@ describe("Add functions", () => {
     it("Post message with first argument (message) as an array", () => {
       const message = [1, 2, 3, [1, 2, 3, [1, 2, 3]]];
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -616,9 +620,9 @@ describe("Add functions", () => {
         randomArr: [1, 2, 3],
       };
 
-      expect(
-        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
-      ).toBe(undefined);
+      expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
+        undefined,
+      );
 
       expect(self.TRIGGER_COLLECTOR).toEqual(
         expect.arrayContaining([
@@ -640,5 +644,255 @@ describe("Add functions", () => {
         ]),
       );
     });
+  });
+});
+
+const dataTree = {
+  Text1: {
+    widgetName: "Text1",
+    displayName: "Text",
+    type: "TEXT_WIDGET",
+    hideCard: false,
+    animateLoading: true,
+    overflow: "SCROLL",
+    fontFamily: "Nunito Sans",
+    parentColumnSpace: 15.0625,
+    dynamicTriggerPathList: [],
+    leftColumn: 4,
+    dynamicBindingPathList: [],
+    shouldTruncate: false,
+    text: '"2022-11-27T21:36:00.128Z"',
+    key: "gt93hhlp15",
+    isDeprecated: false,
+    rightColumn: 29,
+    textAlign: "LEFT",
+    dynamicHeight: "FIXED",
+    widgetId: "ajg9fjegvr",
+    isVisible: true,
+    fontStyle: "BOLD",
+    textColor: "#231F20",
+    version: 1,
+    parentId: "0",
+    renderMode: "CANVAS",
+    isLoading: false,
+    borderRadius: "0.375rem",
+    maxDynamicHeight: 9000,
+    fontSize: "1rem",
+    minDynamicHeight: 4,
+    value: '"2022-11-27T21:36:00.128Z"',
+    defaultProps: {},
+    defaultMetaProps: [],
+    logBlackList: {
+      value: true,
+    },
+    meta: {},
+    propertyOverrideDependency: {},
+    overridingPropertyPaths: {},
+    bindingPaths: {
+      text: "TEMPLATE",
+      isVisible: "TEMPLATE",
+    },
+    reactivePaths: {
+      value: "TEMPLATE",
+      fontFamily: "TEMPLATE",
+    },
+    triggerPaths: {},
+    validationPaths: {},
+    ENTITY_TYPE: "WIDGET",
+    privateWidgets: {},
+    __evaluation__: {
+      errors: {},
+      evaluatedValues: {},
+    },
+    backgroundColor: "",
+    borderColor: "",
+  },
+  pageList: [
+    {
+      pageName: "Page1",
+      pageId: "63349fb5d39f215f89b8245e",
+      isDefault: false,
+      isHidden: false,
+      slug: "page1",
+    },
+    {
+      pageName: "Page2",
+      pageId: "637cc6b4a3664a7fe679b7b0",
+      isDefault: true,
+      isHidden: false,
+      slug: "page2",
+    },
+  ],
+  appsmith: {
+    store: {},
+    geolocation: {
+      canBeRequested: true,
+      currentPosition: {},
+    },
+    mode: "EDIT",
+    ENTITY_TYPE: "APPSMITH",
+  },
+  Api2: {
+    run: {},
+    clear: {},
+    name: "Api2",
+    pluginType: "API",
+    config: {},
+    dynamicBindingPathList: [
+      {
+        key: "config.path",
+      },
+    ],
+    responseMeta: {
+      isExecutionSuccess: false,
+    },
+    ENTITY_TYPE: "ACTION",
+    isLoading: false,
+    bindingPaths: {
+      "config.path": "TEMPLATE",
+      "config.body": "SMART_SUBSTITUTE",
+      "config.pluginSpecifiedTemplates[1].value": "SMART_SUBSTITUTE",
+      "config.pluginSpecifiedTemplates[2].value.limitBased.limit.value":
+        "SMART_SUBSTITUTE",
+    },
+    reactivePaths: {
+      data: "TEMPLATE",
+      isLoading: "TEMPLATE",
+      datasourceUrl: "TEMPLATE",
+      "config.path": "TEMPLATE",
+      "config.body": "SMART_SUBSTITUTE",
+      "config.pluginSpecifiedTemplates[1].value": "SMART_SUBSTITUTE",
+    },
+    dependencyMap: {
+      "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+    },
+    logBlackList: {},
+    datasourceUrl: "",
+    __evaluation__: {
+      errors: {
+        config: [],
+      },
+      evaluatedValues: {
+        "config.path": "/users/undefined",
+        config: {
+          timeoutInMillisecond: 10000,
+          paginationType: "NONE",
+          path: "/users/test",
+          headers: [],
+          encodeParamsToggle: true,
+          queryParameters: [],
+          bodyFormData: [],
+          httpMethod: "GET",
+          selfReferencingDataPaths: [],
+          pluginSpecifiedTemplates: [
+            {
+              value: true,
+            },
+          ],
+          formData: {
+            apiContentType: "none",
+          },
+        },
+      },
+    },
+  },
+  JSObject1: {
+    name: "JSObject1",
+    actionId: "637cda3b2f8e175c6f5269d5",
+    pluginType: "JS",
+    ENTITY_TYPE: "JSACTION",
+    body:
+      "export default {\n\tstoreTest2: () => {\n\t\tlet values = [\n\t\t\t\t\tstoreValue('val1', 'number 1'),\n\t\t\t\t\tstoreValue('val2', 'number 2'),\n\t\t\t\t\tstoreValue('val3', 'number 3'),\n\t\t\t\t\tstoreValue('val4', 'number 4')\n\t\t\t\t];\n\t\treturn Promise.all(values)\n\t\t\t.then(() => {\n\t\t\tshowAlert(JSON.stringify(appsmith.store))\n\t\t})\n\t\t\t.catch((err) => {\n\t\t\treturn showAlert('Could not store values in store ' + err.toString());\n\t\t})\n\t},\n\tnewFunction: function() {\n\t\tJSObject1.storeTest()\n\t}\n}",
+    meta: {
+      newFunction: {
+        arguments: [],
+        isAsync: false,
+        confirmBeforeExecute: false,
+      },
+      storeTest2: {
+        arguments: [],
+        isAsync: true,
+        confirmBeforeExecute: false,
+      },
+    },
+    bindingPaths: {
+      body: "SMART_SUBSTITUTE",
+      newFunction: "SMART_SUBSTITUTE",
+      storeTest2: "SMART_SUBSTITUTE",
+    },
+    reactivePaths: {
+      body: "SMART_SUBSTITUTE",
+      newFunction: "SMART_SUBSTITUTE",
+      storeTest2: "SMART_SUBSTITUTE",
+    },
+    dynamicBindingPathList: [
+      {
+        key: "body",
+      },
+      {
+        key: "newFunction",
+      },
+      {
+        key: "storeTest2",
+      },
+    ],
+    variables: [],
+    dependencyMap: {
+      body: ["newFunction", "storeTest2"],
+    },
+    __evaluation__: {
+      errors: {
+        storeTest2: [],
+        newFunction: [],
+        body: [],
+      },
+    },
+  },
+};
+
+describe("Test addDataTreeToContext method", () => {
+  const evalContext: EvalContext = {};
+  beforeAll(() => {
+    addDataTreeToContext({
+      EVAL_CONTEXT: evalContext,
+      dataTree: (dataTree as unknown) as DataTree,
+      isTriggerBased: true,
+    });
+    addPlatformFunctionsToEvalContext(evalContext);
+  });
+
+  it("1. Assert platform actions are added", () => {
+    const frameworkActions = {
+      navigateTo: true,
+      showAlert: true,
+      showModal: true,
+      closeModal: true,
+      storeValue: true,
+      removeValue: true,
+      clearStore: true,
+      download: true,
+      copyToClipboard: true,
+      resetWidget: true,
+      setInterval: true,
+      clearInterval: true,
+      postWindowMessage: true,
+    };
+
+    for (const actionName of Object.keys(frameworkActions)) {
+      expect(evalContext).toHaveProperty(actionName);
+      expect(typeof evalContext[actionName]).toBe("function");
+    }
+  });
+
+  it("2. Assert Api has run and clear method", () => {
+    expect(evalContext.Api2).toHaveProperty("run");
+    expect(evalContext.Api2).toHaveProperty("clear");
+
+    expect(typeof evalContext.Api2.run).toBe("function");
+    expect(typeof evalContext.Api2.clear).toBe("function");
+  });
+
+  it("3. Assert input dataTree is not mutated", () => {
+    expect(typeof dataTree.Api2.run).not.toBe("function");
   });
 });

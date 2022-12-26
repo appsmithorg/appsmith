@@ -46,6 +46,7 @@ import {
   setPageIdForImport,
   setWorkspaceIdForImport,
   showReconnectDatasourceModal,
+  updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -378,6 +379,11 @@ export function* updateApplicationSaga(
           });
         if (request.icon) {
           yield put(updateCurrentApplicationIcon(response.data.icon));
+        }
+        if (request.embedSetting) {
+          yield put(
+            updateCurrentApplicationEmbedSetting(response.data.embedSetting),
+          );
         }
       }
     }
