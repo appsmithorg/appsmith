@@ -17,6 +17,7 @@ import { getExplorerWidth } from "selectors/explorerSelector";
 import BottomBar from "./BottomBar";
 import WidgetsEditor from "./WidgetsEditor";
 import EditorsRouter from "./routes";
+import styled from "styled-components";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
