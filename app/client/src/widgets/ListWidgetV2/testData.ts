@@ -585,7 +585,7 @@ export const nestedListInput = {
       selectedItemView: "{{{}}}",
       triggeredItemView: "{{{}}}",
       enhancements: true,
-      itemGap: 0,
+      itemSpacing: 8,
       templateBottomRow: 16,
       listData: [
         {

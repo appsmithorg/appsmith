@@ -429,7 +429,7 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
     },
     isVisible: isVisible,
-    gridGap: "number",
+    itemSpacing: "number",
     selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
     selectedItemView: generateTypeDef(
       widget.selectedItemView,

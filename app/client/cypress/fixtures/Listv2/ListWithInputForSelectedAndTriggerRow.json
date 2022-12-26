@@ -86,7 +86,7 @@
                 "parentRowSpace": 10,
                 "type": "LIST_WIDGET_V2",
                 "hideCard": false,
-                "gridGap": 0,
+                "itemSpacing": 8,
                 "templateBottomRow": 16,
                 "mainContainerId": "r1ntguz2d7",
                 "animateLoading": true,

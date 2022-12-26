@@ -63,7 +63,7 @@ export const CONFIG = {
         },
       },
     },
-    itemGap: 0,
+    itemSpacing: 8,
     templateBottomRow: 16,
     listData: DEFAULT_LIST_DATA,
     pageSize: DEFAULT_LIST_DATA.length,
@@ -100,6 +100,7 @@ export const CONFIG = {
                     dragDisabled: true,
                     isDeletable: false,
                     disallowCopy: true,
+                    noContainerOffset: true,
                     disabledWidgetFeatures: [
                       RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
                     ],

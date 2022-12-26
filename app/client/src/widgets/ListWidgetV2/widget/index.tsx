@@ -36,7 +36,6 @@ const getCurrentItemsViewBindingTemplate = () => ({
   suffix: "]}}",
 });
 
-const MINIMUM_ROW_GAP = -8;
 export const DEFAULT_TEMPLATE_BOTTOM_ROW = 10;
 
 export enum DynamicPathType {
@@ -219,7 +218,7 @@ class ListWidget extends BaseWidget<
     if (this.props.infiniteScroll && prevProps?.infiniteScroll) {
       this.metaWidgetGenerator.recalculateVirtualList(() => {
         return (
-          this.props.itemGap !== prevProps.itemGap ||
+          this.props.itemSpacing !== prevProps.itemSpacing ||
           this.props.flattenedChildCanvasWidgets !==
             prevProps.flattenedChildCanvasWidgets ||
           this.props.listData?.length !== prevProps?.listData?.length ||
@@ -251,7 +250,7 @@ class ListWidget extends BaseWidget<
       containerWidgetId: mainContainerId,
       currTemplateWidgets: flattenedChildCanvasWidgets,
       data: listData,
-      itemGap: this.getItemGap(),
+      itemSpacing: this.props.itemSpacing || 0,
       infiniteScroll: this.props.infiniteScroll ?? false,
       levelData: this.props.levelData,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
@@ -367,18 +366,17 @@ class ListWidget extends BaseWidget<
   };
 
   getContainerRowHeight = () => {
-    const { listData, parentRowSpace } = this.props;
+    const { itemSpacing = 0, listData, parentRowSpace } = this.props;
     const templateBottomRow = this.getTemplateBottomRow();
-    const itemGap = this.getItemGap();
 
     const itemsCount = (listData || []).length;
 
     const templateHeight = templateBottomRow * parentRowSpace;
 
-    const averageItemGap = itemsCount
-      ? itemGap * ((itemsCount - 1) / itemsCount)
+    const averageitemSpacing = itemsCount
+      ? itemSpacing * ((itemsCount - 1) / itemsCount)
       : 0;
-    return templateHeight + averageItemGap;
+    return templateHeight + averageitemSpacing;
   };
 
   getPageSize = () => {
@@ -626,11 +624,6 @@ class ListWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("triggeredItemIndex", -1);
   };
 
-  getItemGap = () =>
-    this.props.itemGap && this.props.itemGap >= MINIMUM_ROW_GAP
-      ? this.props.itemGap
-      : 0;
-
   shouldPaginate = () => {
     /**
      * if client side pagination and not infinite scroll and data is more than page size
@@ -776,7 +769,7 @@ class ListWidget extends BaseWidget<
     if (this.props.isLoading) {
       return (
         <Loader
-          gridGap={this.props.itemGap}
+          itemSpacing={this.props.itemSpacing}
           pageSize={this.pageSize}
           templateHeight={templateHeight}
         />
@@ -859,7 +852,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   boxShadow?: string;
   children?: T[];
   currentItemStructure?: Record<string, string>;
-  itemGap?: number;
+  itemSpacing?: number;
   infiniteScroll?: boolean;
   level?: number;
   levelData?: LevelData;

@@ -49,7 +49,7 @@
                 "currentItemsView": "{{[]}}",
                 "type": "LIST_WIDGET_V2",
                 "hideCard": false,
-                "gridGap": 0,
+                "itemSpacing": 8,
                 "templateBottomRow": 16,
                 "mainContainerId": "5usx7zt5y3",
                 "animateLoading": true,
