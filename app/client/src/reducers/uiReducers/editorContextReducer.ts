@@ -1,9 +1,15 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
+export enum CursorPositionOrigin {
+  Navigation = "Navigation",
+  LastFocus = "LastFocus",
+}
+
 export type CursorPosition = {
   line: number;
   ch: number;
+  origin: CursorPositionOrigin;
 };
 
 export type EvaluatedPopupState = {
