@@ -44,8 +44,8 @@ import {
 } from "reflow/reflowTypes";
 import {
   getBaseWidgetClassName,
-  getSlidingCanvasName,
   getStickyCanvasName,
+  getSlidingCanvasName,
   POSITIONED_WIDGET,
 } from "constants/componentClassNameConstants";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
@@ -705,7 +705,7 @@ export function getMousePositions(
 
   //get DOM of the overall canvas including it's total scroll height
   const stickyCanvasDOM = document.querySelector(
-    `#${getStickyCanvasName(canvasId)}`,
+    `#${getSlidingCanvasName(canvasId)}`,
   );
   if (!stickyCanvasDOM) return;
 
@@ -780,7 +780,7 @@ export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
       canvasId: MAIN_CONTAINER_WIDGET_ID,
       containerWidget: canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
       canvasDOM: document.querySelector(
-        `#${getStickyCanvasName(MAIN_CONTAINER_WIDGET_ID)}`,
+        `#${getSlidingCanvasName(MAIN_CONTAINER_WIDGET_ID)}`,
       ),
     };
   }
@@ -795,7 +795,7 @@ export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
 export function getContainerIdForCanvas(canvasId: string) {
   if (canvasId === MAIN_CONTAINER_WIDGET_ID) return canvasId;
 
-  const selector = `#${getSlidingCanvasName(canvasId)}`;
+  const selector = `#${getStickyCanvasName(canvasId)}`;
   const canvasDOM = document.querySelector(selector);
   if (!canvasDOM) return "";
   //check for positionedWidget parent
@@ -1648,7 +1648,7 @@ export function getParentColumnSpace(
 
   const containerWidget = canvasWidgets[containerId];
   const canvasDOM = document.querySelector(
-    `#${getSlidingCanvasName(pastingIntoWidgetId)}`,
+    `#${getStickyCanvasName(pastingIntoWidgetId)}`,
   );
 
   if (!canvasDOM || !containerWidget) return;
