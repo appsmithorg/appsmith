@@ -1,5 +1,5 @@
 import { fetchApplication } from "actions/applicationActions";
-import { setAppMode, updateAppPersistentStore } from "actions/pageActions";
+import { setAppMode, updateAppStore } from "actions/pageActions";
 import {
   ApplicationPayload,
   ReduxActionErrorTypes,
@@ -69,9 +69,7 @@ export default abstract class AppEngine {
     if (!apiCalls)
       throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
     const application: ApplicationPayload = yield select(getCurrentApplication);
-    yield put(
-      updateAppPersistentStore(getPersistentAppStore(application.id, branch)),
-    );
+    yield put(updateAppStore(getPersistentAppStore(application.id, branch)));
     const toLoadPageId: string = pageId || (yield select(getDefaultPageId));
     this._urlRedirect = URLGeneratorFactory.create(
       application.applicationVersion,

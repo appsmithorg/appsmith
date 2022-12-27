@@ -23,10 +23,7 @@ export type UrlDataState = {
   fullPath: string;
 };
 
-export type AppStoreState = {
-  transient: Record<string, unknown>;
-  persistent: Record<string, unknown>;
-};
+export type AppStoreState = Record<string, unknown>;
 
 export type AppDataState = {
   mode?: APP_MODE;

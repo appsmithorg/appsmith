@@ -112,6 +112,7 @@ import {
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
 import { MessageType, TMessage } from "utils/MessageUtil";
+import { storeValueInBulk } from "./ActionExecution/StoreActionSaga";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -377,6 +378,10 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       if (messageType === MessageType.REQUEST)
         yield call(evalWorker.respond, message.messageId, result);
       break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_STORE_VALUES: {
+      const { eventType, triggerMeta, triggers } = data;
+      yield call(storeValueInBulk, triggers);
     }
   }
   yield call(evalErrorHandler, data?.errors || []);

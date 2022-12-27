@@ -13,7 +13,12 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
-
+import {
+  _internalClearTimeout,
+  _internalSetTimeout,
+} from "workers/Evaluation/TimeoutOverride";
+import { MessageType, sendMessage } from "utils/MessageUtil";
+import { MAIN_THREAD_ACTION } from "workers/Evaluation/evalWorkerActions";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -363,7 +368,14 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    context[funcName] = pusher.bind({}, fn);
+    if (funcName === "storeValue") {
+      context[funcName] = (...args: any) => {
+        const req = fn(...args);
+        LazyRequest.getInstance().send(req);
+      };
+    } else {
+      context[funcName] = pusher.bind({}, fn);
+    }
   }
 };
 
@@ -425,3 +437,30 @@ export const pusher = function(
     return promisifyAction(actionPayload, this.EVENT_TYPE);
   }
 };
+
+class LazyRequest {
+  requests: ActionDescription[] = [];
+  timerId = 0;
+  static instance: LazyRequest;
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new LazyRequest();
+    }
+    return this.instance;
+  }
+  send = (request: ActionDescription) => {
+    this.requests.push(request);
+    _internalClearTimeout(this.timerId);
+    this.timerId = _internalSetTimeout(() => {
+      sendMessage.call(self, {
+        messageType: MessageType.DEFAULT,
+        body: {
+          method: MAIN_THREAD_ACTION.PROCESS_STORE_VALUES,
+          data: { triggers: this.requests },
+        },
+      });
+      this.requests = [];
+    }, 0);
+    return Promise.resolve();
+  };
+}
