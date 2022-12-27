@@ -600,7 +600,7 @@ public class AuditLogServiceImpl implements AuditLogService {
             } else if (properties.containsKey(FieldName.REMOVED_USERS_FROM_USER_GROUPS)) {
                 userGroupMetadata.setRemovedUsers((Set) properties.get(FieldName.REMOVED_USERS_FROM_USER_GROUPS));
             }
-            auditLog.setUserGroup(userGroupMetadata);
+            auditLog.setGroup(userGroupMetadata);
         }
 
         return Mono.just(auditLog);
@@ -627,7 +627,7 @@ public class AuditLogServiceImpl implements AuditLogService {
                 permissionGroupMetadata.setAssignedGroups((List) properties.get(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS));
             if (properties.containsKey(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS))
                 permissionGroupMetadata.setUnassignedGroups((List) properties.get(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS));
-            auditLog.setPermissionGroup(permissionGroupMetadata);
+            auditLog.setRole(permissionGroupMetadata);
 
             if (properties.containsKey(FieldName.GAC_TAB) && properties.containsKey(FieldName.ENTITY_UPDATED_PERMISSIONS)) {
                 AuditLogGacMetadata auditLogGacMetadata = new AuditLogGacMetadata();

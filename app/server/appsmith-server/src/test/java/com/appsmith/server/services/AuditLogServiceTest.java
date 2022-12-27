@@ -3507,10 +3507,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
                     assertThat(auditLog.getPage()).isNull();
 
                     AuditLogUserMetadata userMetadata = auditLog.getUser();
@@ -3542,10 +3542,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
                     assertThat(auditLog.getPage()).isNull();
 
                     AuditLogUserMetadata userMetadata = auditLog.getUser();
@@ -3581,10 +3581,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNotNull();
+                    assertThat(auditLog.getGroup()).isNotNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
                     assertThat(auditLog.getPage()).isNull();
 
                     AuditLogUserMetadata userMetadata = auditLog.getUser();
@@ -3599,7 +3599,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getId()).isEqualTo(userGroupDTO.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(userGroupDTO.getName());
 
-                    AuditLogUserGroupMetadata userGroupMetadata = auditLog.getUserGroup();
+                    AuditLogUserGroupMetadata userGroupMetadata = auditLog.getGroup();
                     assertThat(userGroupMetadata.getInvitedUsers()).hasSize(1);
                     userGroupMetadata.getInvitedUsers().forEach(invitedUser -> assertThat(usernamesInGroup).contains(invitedUser));
                     assertThat(userGroupMetadata.getRemovedUsers()).isNull();
@@ -3623,10 +3623,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNotNull();
+                    assertThat(auditLog.getGroup()).isNotNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
                     assertThat(auditLog.getPage()).isNull();
 
                     AuditLogUserMetadata userMetadata = auditLog.getUser();
@@ -3641,7 +3641,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getId()).isEqualTo(userGroupDTO.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(userGroupDTO.getName());
 
-                    AuditLogUserGroupMetadata userGroupMetadata = auditLog.getUserGroup();
+                    AuditLogUserGroupMetadata userGroupMetadata = auditLog.getGroup();
                     assertThat(userGroupMetadata.getRemovedUsers()).hasSize(1);
                     userGroupMetadata.getRemovedUsers().forEach(removedUser -> assertThat(usernamesInGroup).doesNotContain(removedUser));
                     assertThat(userGroupMetadata.getInvitedUsers()).isNull();
@@ -3662,10 +3662,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
                     assertThat(auditLog.getPage()).isNull();
 
                     AuditLogUserMetadata userMetadata = auditLog.getUser();
@@ -3715,10 +3715,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
                     assertThat(auditLog.getPage()).isNull();
 
                     AuditLogUserMetadata userMetadata = auditLog.getUser();
@@ -3750,10 +3750,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
                     assertThat(auditLog.getPage()).isNull();
 
                     AuditLogUserMetadata userMetadata = auditLog.getUser();
@@ -3794,8 +3794,8 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getPermissionGroup()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNotNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
@@ -3812,7 +3812,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
 
-                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
+                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getRole();
                     assertThat(permissionGroupMetadata.getAssignedGroups()).hasSize(1);
                     assertThat(permissionGroupMetadata.getAssignedGroups().get(0)).isEqualTo(createdUserGroup.getName());
                     assertThat(permissionGroupMetadata.getUnassignedGroups()).isNull();
@@ -3840,8 +3840,8 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getPermissionGroup()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNotNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
@@ -3858,7 +3858,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
 
-                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
+                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getRole();
                     assertThat(permissionGroupMetadata.getUnassignedGroups()).hasSize(1);
                     assertThat(permissionGroupMetadata.getUnassignedGroups().get(0)).isEqualTo(createdUserGroup.getName());
                     assertThat(permissionGroupMetadata.getAssignedGroups()).isNull();
@@ -3886,8 +3886,8 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getPermissionGroup()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNotNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
@@ -3904,7 +3904,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
 
-                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
+                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getRole();
                     assertThat(permissionGroupMetadata.getAssignedUsers()).hasSize(1);
                     assertThat(permissionGroupMetadata.getAssignedUsers().get(0)).isEqualTo(createdUser.getEmail());
                     assertThat(permissionGroupMetadata.getUnassignedUsers()).isNull();
@@ -3932,8 +3932,8 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getPermissionGroup()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNotNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
@@ -3950,7 +3950,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
 
-                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
+                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getRole();
                     assertThat(permissionGroupMetadata.getUnassignedUsers()).hasSize(1);
                     assertThat(permissionGroupMetadata.getUnassignedUsers().get(0)).isEqualTo(createdUser.getEmail());
                     assertThat(permissionGroupMetadata.getAssignedUsers()).isNull();
@@ -3973,10 +3973,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
                     assertThat(auditLog.getPage()).isNull();
 
                     AuditLogUserMetadata userMetadata = auditLog.getUser();
@@ -4126,9 +4126,9 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getPermissionGroup()).isNotNull();
+                    assertThat(auditLog.getRole()).isNotNull();
                     assertThat(auditLog.getGacMetadata()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
@@ -4247,10 +4247,10 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNotNull();
+                    assertThat(auditLog.getGroup()).isNotNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
                     assertThat(auditLog.getPage()).isNull();
 
                     AuditLogUserMetadata userMetadata = auditLog.getUser();
@@ -4265,7 +4265,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getId()).isEqualTo(createdUserGroupAfterUserDelete.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(createdUserGroupAfterUserDelete.getName());
 
-                    AuditLogUserGroupMetadata userGroupMetadata = auditLog.getUserGroup();
+                    AuditLogUserGroupMetadata userGroupMetadata = auditLog.getGroup();
                     assertThat(userGroupMetadata.getRemovedUsers()).hasSize(1);
                     userGroupMetadata.getRemovedUsers().forEach(removedUser -> assertThat(createdUserGroupAfterUserDelete.getUsers()).doesNotContain(removedUser));
                     assertThat(userGroupMetadata.getInvitedUsers()).isNull();
@@ -4286,8 +4286,8 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getPermissionGroup()).isNotNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNotNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
@@ -4304,7 +4304,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getId()).isEqualTo(createdPermissionGroupAfterUserDelete.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(createdPermissionGroupAfterUserDelete.getName());
 
-                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
+                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getRole();
                     assertThat(permissionGroupMetadata.getUnassignedUsers()).hasSize(1);
                     assertThat(permissionGroupMetadata.getUnassignedUsers().get(0)).isEqualTo(createdUser.getEmail());
                     assertThat(permissionGroupMetadata.getAssignedUsers()).isNull();
@@ -4327,8 +4327,8 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
                     assertThat(auditLog.getUser()).isNotNull();
-                    assertThat(auditLog.getPermissionGroup()).isNull();
-                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getRole()).isNull();
+                    assertThat(auditLog.getGroup()).isNull();
                     assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
