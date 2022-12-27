@@ -271,6 +271,7 @@ function generateHighlightsForSubWrapper(data: {
           : 0,
         canvasWidth,
         parentColumnSpace,
+        canvasId,
       ),
       posY: offsetTop,
       width: DEFAULT_HIGHLIGHT_SIZE,
@@ -287,9 +288,12 @@ function getPositionForInitialHighlight(
   posX: number,
   containerWidth: number,
   parentColumnSpace: number,
+  canvasId: string,
 ): number {
   if (alignment === FlexLayerAlignment.End) {
-    return 64 * parentColumnSpace;
+    return (
+      64 * parentColumnSpace - (canvasId === MAIN_CONTAINER_WIDGET_ID ? 6 : 0)
+    );
   } else if (alignment === FlexLayerAlignment.Center) {
     if (!highlights.length) return containerWidth / 2;
     return posX;
