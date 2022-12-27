@@ -100,51 +100,6 @@ export const useAutoLayoutHighlights = ({
     newLayers = {};
   };
 
-  const getDropPositions = () => {
-    const els = document.querySelectorAll(`.t--drop-position-${canvasId}`);
-    const highlights: HighlightInfo[] = [];
-
-    for (const el of els) {
-      const rect: DOMRect = el.getBoundingClientRect();
-      const classList = Array.from(el.classList);
-
-      const highlight: HighlightInfo = classList.reduce(
-        (acc: HighlightInfo, curr) => {
-          if (curr.indexOf("alignment") > -1)
-            acc.alignment = curr.split("-")[1] as FlexLayerAlignment;
-          else if (curr.indexOf("layer-index") > -1)
-            acc.layerIndex = parseInt(curr.split("layer-index-")[1]);
-          else if (curr.indexOf("child-index") > -1)
-            acc.index = parseInt(curr.split("child-index-")[1]);
-          else if (curr.indexOf("row-index") > -1)
-            acc.rowIndex = parseInt(curr.split("row-index-")[1]);
-          else if (curr.indexOf("isNewLayer") > -1) acc.isNewLayer = true;
-          else if (curr.indexOf("isVertical") > -1) acc.isVertical = true;
-
-          return acc;
-        },
-        {
-          isNewLayer: false,
-          index: 0,
-          layerIndex: 0,
-          rowIndex: 0,
-          alignment: FlexLayerAlignment.Start,
-          posX: rect.x - containerDimensions.left,
-          posY: rect.y - containerDimensions?.top,
-          width: rect.width,
-          height: rect.height,
-          isVertical: false,
-          el,
-          canvasId: "0",
-        },
-      );
-      if (!highlight.isVertical) newLayers[highlights.length] = highlight.posY;
-      highlights.push(highlight);
-    }
-
-    return highlights;
-  };
-
   const checkForFillWidget = (): boolean => {
     let flag = false;
     if (!blocksToDraw?.length) return flag;
@@ -184,6 +139,7 @@ export const useAutoLayoutHighlights = ({
         canvasId,
         canvasWidth,
         blocksToDraw.map((block) => block?.widgetId),
+        isFillWidget,
       );
     }
     // console.log("#### highlights", highlights);
@@ -205,6 +161,7 @@ export const useAutoLayoutHighlights = ({
         canvasId,
         canvasWidth,
         blocksToDraw.map((block) => block?.widgetId),
+        isFillWidget,
       );
     // console.log("#### highlights", highlights);
     if (!highlights) return;
@@ -254,7 +211,7 @@ export const useAutoLayoutHighlights = ({
         )
       );
     });
-    // toggleHighlightVisibility(base, arr[0]);
+
     // console.log("#### arr", arr, base, moveDirection);
     return arr[0];
   };

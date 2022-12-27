@@ -28,6 +28,7 @@ export function deriveHighlightsFromLayers(
   canvasId: string,
   mainCanvasWidth = 0,
   draggedWidgets: string[] = [],
+  hasFillWidget = false,
 ): HighlightInfo[] {
   const widgets = { ...allWidgets };
   try {
@@ -88,6 +89,7 @@ export function deriveHighlightsFromLayers(
             offsetTop,
             canvasWidth,
             canvasId,
+            hasFillWidget,
           ),
         );
 
@@ -105,6 +107,7 @@ export function deriveHighlightsFromLayers(
         offsetTop,
         canvasWidth,
         canvasId,
+        hasFillWidget,
       ),
     );
     return highlights;
@@ -309,6 +312,7 @@ function generateHorizontalHighlights(
   offsetTop: number,
   containerWidth: number,
   canvasId: string,
+  hasFillWidget: boolean,
 ): HighlightInfo[] {
   const width = containerWidth / 3;
   const arr: HighlightInfo[] = [];
@@ -323,9 +327,17 @@ function generateHorizontalHighlights(
       layerIndex,
       rowIndex: 0,
       alignment,
-      posX: width * index,
+      posX: hasFillWidget
+        ? alignment === FlexLayerAlignment.Start
+          ? 0
+          : containerWidth
+        : width * index,
       posY: offsetTop,
-      width,
+      width: hasFillWidget
+        ? alignment === FlexLayerAlignment.Start
+          ? containerWidth
+          : 0
+        : width,
       height: DEFAULT_HIGHLIGHT_SIZE,
       isVertical: false,
       canvasId,
