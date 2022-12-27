@@ -1757,10 +1757,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       case ColumnTypes.DATE:
-        let validationErrorMessageD;
+        let validationErrorMessageDate;
 
         if (isCellEditMode) {
-          validationErrorMessageD =
+          validationErrorMessageDate =
             column.validation.isColumnEditableCellRequired &&
             (isNil(props.cell.value) || props.cell.value === "")
               ? "This field is required"
@@ -1810,7 +1810,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             timePrecision={TimePrecision.MINUTE}
             toggleCellEditMode={this.toggleCellEditMode}
-            validationErrorMessage={validationErrorMessageD}
+            validationErrorMessage={validationErrorMessageDate}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}

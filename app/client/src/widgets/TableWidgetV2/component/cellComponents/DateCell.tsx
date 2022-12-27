@@ -19,16 +19,12 @@ import { RenderDefaultPropsType } from "./PlainTextCell";
 import styled from "styled-components";
 import {
   ColumnTypes,
-  EditableCell,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import moment from "moment";
 import { BasicCell } from "./BasicCell";
-import { InlineCellEditor } from "./InlineCellEditor";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { Colors } from "constants/Colors";
-import { setEvalPopupState } from "actions/editorContextActions";
 
 type DateComponentProps = RenderDefaultPropsType &
   editPropertyType & {
@@ -225,17 +221,8 @@ export const DateCell = (props: DateComponentProps) => {
   const [hasFocus, setHasFocus] = useState(false);
 
   const value = props.value;
-  const [date, setDate] = useState(value);
-  const [isBlur, setIsBlur] = useState(false);
 
-  useEffect(() => {
-    // if (!hasFocus) {
-    //   editEvents.onDiscard();
-    // }
-    console.log("datatree hasFocus", hasFocus);
-  }, [hasFocus]);
-
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  // const wrapperRef = useRef<HTMLDivElement>(null);
   // const inputRef = useRef<HTMLInputElement>(null);
 
   const editEvents = useMemo(
@@ -251,15 +238,6 @@ export const DateCell = (props: DateComponentProps) => {
           EditableCellActions.DISCARD,
         ),
       onEdit: () => toggleCellEditMode(true, rowIndex, alias, value),
-      onSave: () =>
-        toggleCellEditMode(
-          false,
-          rowIndex,
-          alias,
-          date,
-          onSubmitString,
-          EditableCellActions.SAVE,
-        ),
     }),
     [
       onCellTextChange,
@@ -289,32 +267,12 @@ export const DateCell = (props: DateComponentProps) => {
     return value;
   }, [value, props.outputFormat]);
 
-  // useEffect(() => {
-  //   if (isCellEditMode) {
-  //     toggleCellEditMode(true, rowIndex, alias, value);
-  //   }
-  // }, [isCellEditMode]);
-
   const onDateSelected = (date: string) => {
     const formattedDate = moment(date).format(inputFormat);
     onDateSelection(rowIndex, onDateSelectedString);
     onDateSave(rowIndex, alias, formattedDate, onSubmitString);
-    onBlur(null, true);
-  };
-
-  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    // const { key } = event;
-    // switch (key) {
-    //   case "Escape":
-    //     editEvents.onDiscard();
-    //     break;
-    //   case "Enter":
-    //     if (!event.shiftKey) {
-    //       editEvents.onSave();
-    //       event.preventDefault();
-    //     }
-    //     break;
-    // }
+    // onBlur(null, true);
+    // setIsDateSelected(true);
   };
 
   const onDateCellEdit = () => {
@@ -323,12 +281,14 @@ export const DateCell = (props: DateComponentProps) => {
     editEvents.onEdit();
   };
 
-  const onBlur = (e: any, flag: boolean) => {
-    // console.log("datatree onBlur 328", e);
-    if (flag || isBlur) {
-      editEvents.onDiscard();
-      setIsBlur(false);
-    }
+  const onBlur = (e: any) => {
+    setHasFocus(false);
+    // setIsBlur(true);
+    editEvents.onDiscard();
+    // if (isBlur) {
+    //   editEvents.onDiscard();
+    //   setIsBlur(false);
+    // }
   };
 
   let editor;
@@ -344,11 +304,11 @@ export const DateCell = (props: DateComponentProps) => {
           "t--inlined-cell-editor-has-error"}`}
         compactMode={compactMode}
         isEditableCellValid={isEditableCellValid}
-        onBlur={(e) => onBlur(e, false)}
+        // onBlur={(e) => onBlur(e, false)}
         // onFocus={() => console.log("datatree wrapper focusss")}
-        onKeyDown={onKeyDown}
+        // onKeyDown={onKeyDown}
         paddedInput
-        ref={wrapperRef}
+        // ref={wrapperRef}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
       >
@@ -366,11 +326,10 @@ export const DateCell = (props: DateComponentProps) => {
           labelText=""
           maxDate={maxDate || COMPONENT_DEFAULT_VALUES.maxDate}
           minDate={minDate || COMPONENT_DEFAULT_VALUES.minDate}
-          // onBlur={() => console.log("datatree datecomponent blur")}
           // onBlur={() => console.log("datatree datecomponent blurrr")}
           onDateSelected={onDateSelected}
+          onPopoverClose={onBlur}
           // onFocus={() => console.log("datatree datecomponent focus")}
-          // onSave={editEvents.onSave}
           // paddedInput={isNewRow}
           selectedDate={valueInISOFormat}
           shortcuts

@@ -357,6 +357,7 @@ class DatePickerComponent extends React.Component<
                 usePortal: !this.props.withoutPortal,
                 canEscapeKeyClose: true,
                 portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
+                onClose: (e) => this.props.onPopoverClose?.(e),
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
@@ -474,6 +475,7 @@ interface DatePickerComponentProps extends ComponentProps {
   labelTooltip?: string;
   onFocus?: () => void;
   onBlur?: () => void;
+  onPopoverClose?: (e: any) => void;
 }
 
 interface DatePickerComponentState {
