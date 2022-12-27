@@ -105,6 +105,7 @@ export const CONFIG = {
                       RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
                     ],
                     shouldScrollContents: false,
+                    // Removed dynamicHeight to enable dropping of widgets on the container
                     // dynamicHeight: "FIXED",
                     children: [],
                     blueprint: {
