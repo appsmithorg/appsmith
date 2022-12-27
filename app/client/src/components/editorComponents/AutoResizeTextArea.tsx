@@ -6,14 +6,23 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
-type AutoResizeTextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement>;
+interface AutoResizeTextAreaStyledProps {
+  fitToContainer: boolean;
+}
+
+interface AutoResizeTextAreaProps
+  extends TextareaHTMLAttributes<HTMLTextAreaElement>,
+    AutoResizeTextAreaStyledProps {
+  autoResize: boolean;
+}
 
 const PADDING = 10;
 
-const StyledTextArea = styled.textarea`
+const StyledTextArea = styled.textarea<AutoResizeTextAreaStyledProps>`
   padding: ${PADDING}px;
   box-sizing: border-box;
   width: 100%;
+  height: ${(props) => (props.fitToContainer ? "100%" : "auto")};
 `;
 
 const ProxyTextArea = styled(StyledTextArea)`
@@ -32,13 +41,15 @@ const AutoResizeTextArea: React.ForwardRefRenderFunction<
   const proxyTextAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useLayoutEffect(() => {
-    const height = proxyTextAreaRef.current?.scrollHeight;
-    if (height) {
-      if (textAreaRef.current !== null) {
-        textAreaRef.current.style.height = `${height}px`;
+    if (props.autoResize) {
+      const height = proxyTextAreaRef.current?.scrollHeight;
+      if (height) {
+        if (textAreaRef.current !== null) {
+          textAreaRef.current.style.height = `${height}px`;
+        }
       }
     }
-  }, [props.value]);
+  }, [props.value, props.autoResize]);
 
   function assignRef(element: HTMLTextAreaElement) {
     try {
@@ -61,7 +72,12 @@ const AutoResizeTextArea: React.ForwardRefRenderFunction<
         // textarea which is not displayed on the screen whose height
         // is always auto.
       }
-      <ProxyTextArea readOnly ref={proxyTextAreaRef} value={props.value} />
+      <ProxyTextArea
+        fitToContainer={props.fitToContainer}
+        readOnly
+        ref={proxyTextAreaRef}
+        value={props.value}
+      />
     </>
   );
 };
