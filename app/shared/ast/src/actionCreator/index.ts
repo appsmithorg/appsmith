@@ -2,6 +2,7 @@ import {
     ArrowFunctionExpressionNode, getAST,
     attachCommentsToAst,
     isArrowFunctionExpression,
+    MemberExpressionNode,
     isCallExpressionNode,
     isMemberExpressionNode,
     LiteralNode,
@@ -98,13 +99,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     let changedValue: string = currentValue;
     let changedValueCommentArray: Array<Comment> = [];
     let currentValueCommentArray: Array<Comment> = [];
-    let requiredNode: ArrowFunctionExpressionNode = {
-        end: 0,
-        start: 0,
-        type: NodeTypes.ArrowFunctionExpression,
-        params: [],
-        id: null,
-    };
+    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode;
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -127,10 +122,15 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
 
     simple(changeValueAstWithComments, {
         ArrowFunctionExpression(node) {
-            if (isArrowFunctionExpression(node)) {
+            if(isArrowFunctionExpression(node)) {
                 requiredNode = node;
             }
-        }
+        },
+        MemberExpression(node) {
+            if (isMemberExpressionNode(node)) {
+                requiredNode = node;
+            }
+        },
     });
 
     simple(currentValueAstWithComments, {
@@ -138,6 +138,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
             if (isCallExpressionNode(node) && node.arguments[argNum]) {
                 requiredNode.start = node.arguments[0].start;
                 requiredNode.end = node.arguments[0].start + changedValue.length;
+                // @ts-ignore
                 node.arguments[argNum] = requiredNode;
                 changedValue = `{{${generate(currentValueAstWithComments, {comments: true}).trim()}}}`;
             }

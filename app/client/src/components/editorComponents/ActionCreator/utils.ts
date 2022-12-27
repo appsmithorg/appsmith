@@ -75,11 +75,26 @@ export const textSetter = (
   argNum: number,
 ): string => {
   const requiredValue = stringToJS(currentValue);
+  const changeValueWithoutBraces = stringToJS(changeValue);
   let requiredChangeValue;
-  try {
-    requiredChangeValue = JSON.parse(stringToJS(changeValue));
-  } catch (e) {
-    requiredChangeValue = stringToJS(changeValue);
+  if (changeValue.indexOf("{{") === -1) {
+    // raw string values
+    requiredChangeValue = changeValue;
+  } else {
+    try {
+      // raw js values that are not strings
+      requiredChangeValue = JSON.parse(changeValueWithoutBraces);
+    } catch (e) {
+      // code
+      return (
+        setCallbackFunctionField(
+          requiredValue,
+          changeValueWithoutBraces,
+          argNum,
+          self.evaluationVersion,
+        ) || currentValue
+      );
+    }
   }
   return setTextArgumentAtPosition(
     requiredValue,

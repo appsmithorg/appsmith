@@ -28,7 +28,7 @@ type Pattern = IdentifierNode | AssignmentPatternNode;
 type Expression = Node;
 export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
-interface MemberExpressionNode extends Node {
+export interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
   object: MemberExpressionNode | IdentifierNode;
   property: IdentifierNode | LiteralNode;
