@@ -1685,9 +1685,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               index?: number,
               onComplete?: () => void,
             ) => {
-              const additionalData: {
-                [key: string]: string | number | Record<string, unknown>;
-              } = {};
+              const additionalData: Record<
+                string,
+                string | number | Record<string, unknown>
+              > = {};
 
               if (cellProperties?.sourceData && _.isNumber(index)) {
                 additionalData.currentItem = cellProperties.sourceData[index];
