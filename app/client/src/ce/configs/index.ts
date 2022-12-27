@@ -228,9 +228,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       id: smartLook.value,
     },
     segment: {
-      enabled: true,
-      apiKey: "MPLIuK2CELVDZdgJiSaiFaWeB4foNWlb",
-      ceKey: "MPLIuK2CELVDZdgJiSaiFaWeB4foNWlb",
+      enabled: segment.enabled,
+      apiKey: segment.value,
+      ceKey: segmentCEKey.value,
     },
     fusioncharts: {
       enabled: fusioncharts.enabled,
