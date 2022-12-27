@@ -1,7 +1,10 @@
 import { difference } from "lodash";
 import { klona } from "klona";
 
-import MetaWidgetGenerator, { GeneratorOptions } from "./MetaWidgetGenerator";
+import MetaWidgetGenerator, {
+  ConstructorProps,
+  GeneratorOptions,
+} from "./MetaWidgetGenerator";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { nestedListInput, simpleListInput } from "./testData";
 import { RenderModes } from "constants/WidgetConstants";
@@ -11,6 +14,11 @@ import { LevelData } from "./widget";
 type Validator = {
   widgetType: string;
   occurrence: number;
+};
+
+type InitProps = {
+  optionsProps?: Partial<GeneratorOptions>;
+  constructorProps?: Partial<ConstructorProps>;
 };
 
 const data = [
@@ -129,10 +137,10 @@ class Cache {
   };
 }
 
-const init = (optionsOverride?: Partial<GeneratorOptions>) => {
+const init = ({ constructorProps, optionsProps }: InitProps = {}) => {
   const options = klona({
     ...DEFAULT_OPTIONS,
-    ...optionsOverride,
+    ...optionsProps,
   });
   const cache = new Cache();
 
@@ -146,6 +154,7 @@ const init = (optionsOverride?: Partial<GeneratorOptions>) => {
     primaryWidgetType: "LIST_WIDGET_V2",
     renderMode: RenderModes.CANVAS,
     prefixMetaWidgetId: "test",
+    ...constructorProps,
   });
 
   const initialResult = generator.withOptions(options).generate();
@@ -196,7 +205,7 @@ const validateMetaWidgetType = (
 };
 
 describe("#generate", () => {
-  it("it generates meta widgets for first instance", () => {
+  it("generates meta widgets for first instance", () => {
     const cache = new Cache();
 
     const generator = new MetaWidgetGenerator({
@@ -247,7 +256,7 @@ describe("#generate", () => {
     ]);
   });
 
-  it("it re-generates meta widgets data change", () => {
+  it("re-generates meta widgets data change", () => {
     const { generator, options } = init();
 
     const newData = [
@@ -261,34 +270,34 @@ describe("#generate", () => {
     const result = generator.withOptions(options).generate();
     const count = Object.keys(result.metaWidgets).length;
 
-    expect(count).toEqual(6);
+    expect(count).toEqual(12);
     expect(result.removedMetaWidgetIds.length).toEqual(6);
 
     validateMetaWidgetType(result.metaWidgets, [
       {
         widgetType: "CANVAS_WIDGET",
-        occurrence: 1,
-      },
-      {
-        widgetType: "CONTAINER_WIDGET",
-        occurrence: 1,
-      },
-      {
-        widgetType: "IMAGE_WIDGET",
-        occurrence: 1,
-      },
-      {
-        widgetType: "TEXT_WIDGET",
         occurrence: 2,
       },
       {
+        widgetType: "CONTAINER_WIDGET",
+        occurrence: 2,
+      },
+      {
+        widgetType: "IMAGE_WIDGET",
+        occurrence: 2,
+      },
+      {
+        widgetType: "TEXT_WIDGET",
+        occurrence: 4,
+      },
+      {
         widgetType: "INPUT_WIDGET_V2",
-        occurrence: 1,
+        occurrence: 2,
       },
     ]);
   });
 
-  it("it does not re-generates meta widgets when options don't change", () => {
+  it("does not re-generates meta widgets when options don't change", () => {
     const { generator, options } = init();
 
     const result = generator.withOptions(options).generate();
@@ -298,7 +307,7 @@ describe("#generate", () => {
     expect(result.removedMetaWidgetIds.length).toEqual(0);
   });
 
-  it("it re-generates meta widgets when template widgets change", () => {
+  it("re-generates meta widgets when template widgets change", () => {
     const { generator, options } = init();
 
     const buttonWidget = ButtonFactory.build();
@@ -375,8 +384,45 @@ describe("#generate", () => {
     ]);
   });
 
-  it("it re-generates meta widgets when page no changes", () => {
+  it("re-generates meta widgets when page no changes in edit mode", () => {
     const { generator, options } = init();
+
+    options.pageNo = 2;
+
+    const result = generator.withOptions(options).generate();
+    const count = Object.keys(result.metaWidgets).length;
+
+    expect(count).toEqual(12);
+    expect(result.removedMetaWidgetIds.length).toEqual(6);
+
+    validateMetaWidgetType(result.metaWidgets, [
+      {
+        widgetType: "CANVAS_WIDGET",
+        occurrence: 2,
+      },
+      {
+        widgetType: "CONTAINER_WIDGET",
+        occurrence: 2,
+      },
+      {
+        widgetType: "IMAGE_WIDGET",
+        occurrence: 2,
+      },
+      {
+        widgetType: "TEXT_WIDGET",
+        occurrence: 4,
+      },
+      {
+        widgetType: "INPUT_WIDGET_V2",
+        occurrence: 2,
+      },
+    ]);
+  });
+
+  it("re-generates meta widgets when page no changes in view mode", () => {
+    const { generator, options } = init({
+      constructorProps: { renderMode: RenderModes.PAGE },
+    });
 
     options.pageNo = 2;
 
@@ -410,7 +456,7 @@ describe("#generate", () => {
     ]);
   });
 
-  it("it generates only extra meta widgets when page size increases", () => {
+  it("generates only extra meta widgets when page size increases", () => {
     const { generator, options } = init();
 
     options.pageSize = 3;
@@ -445,7 +491,7 @@ describe("#generate", () => {
     ]);
   });
 
-  it("it removes meta widgets when page size decreases", () => {
+  it("removes meta widgets when page size decreases", () => {
     const { generator, options } = init();
 
     options.pageSize = 3;
@@ -462,8 +508,8 @@ describe("#generate", () => {
     validateMetaWidgetType(result.metaWidgets, []);
   });
 
-  it("it re-generates all meta widgets when primary keys changes in page > 1", () => {
-    const { generator, options } = init({ pageNo: 2 });
+  it("re-generates all meta widgets when primary keys changes in page > 1", () => {
+    const { generator, options } = init({ optionsProps: { pageNo: 2 } });
 
     options.primaryKeys = options.primaryKeys.map((i) => i + "100");
 
@@ -471,7 +517,7 @@ describe("#generate", () => {
     const count = Object.keys(result.metaWidgets).length;
 
     expect(count).toEqual(12);
-    expect(result.removedMetaWidgetIds.length).toEqual(12);
+    expect(result.removedMetaWidgetIds.length).toEqual(6);
 
     validateMetaWidgetType(result.metaWidgets, [
       {
@@ -497,7 +543,7 @@ describe("#generate", () => {
     ]);
   });
 
-  it("it re-generates non template meta widgets when primary keys changes in page = 1", () => {
+  it("re-generates non template meta widgets when primary keys changes in page = 1", () => {
     const { generator, options } = init();
 
     options.primaryKeys = options.primaryKeys.map((i) => i + "100");
@@ -505,36 +551,38 @@ describe("#generate", () => {
     const result = generator.withOptions(options).generate();
     const count = Object.keys(result.metaWidgets).length;
 
-    expect(count).toEqual(6);
+    // template and non template meta widgets will update
+    expect(count).toEqual(12);
+    // non template meta widgets will get removed
     expect(result.removedMetaWidgetIds.length).toEqual(6);
 
     validateMetaWidgetType(result.metaWidgets, [
       {
         widgetType: "CANVAS_WIDGET",
-        occurrence: 1,
-      },
-      {
-        widgetType: "CONTAINER_WIDGET",
-        occurrence: 1,
-      },
-      {
-        widgetType: "IMAGE_WIDGET",
-        occurrence: 1,
-      },
-      {
-        widgetType: "TEXT_WIDGET",
         occurrence: 2,
       },
       {
+        widgetType: "CONTAINER_WIDGET",
+        occurrence: 2,
+      },
+      {
+        widgetType: "IMAGE_WIDGET",
+        occurrence: 2,
+      },
+      {
+        widgetType: "TEXT_WIDGET",
+        occurrence: 4,
+      },
+      {
         widgetType: "INPUT_WIDGET_V2",
-        occurrence: 1,
+        occurrence: 2,
       },
     ]);
   });
 
-  it("it doesn't re-generates meta widgets when only serverSizePagination is toggled while other options remains the same", () => {
+  it("doesn't re-generates meta widgets when only serverSizePagination is toggled while other options remains the same", () => {
     const listData = data.slice(0, 2);
-    const { generator, options } = init({ data: listData });
+    const { generator, options } = init({ optionsProps: { data: listData } });
 
     options.serverSidePagination = true;
 
@@ -545,7 +593,7 @@ describe("#generate", () => {
     expect(result.removedMetaWidgetIds.length).toEqual(0);
   });
 
-  it("it doesn't re-generates meta widgets when templateBottomRow changes", () => {
+  it("doesn't re-generates meta widgets when templateBottomRow changes", () => {
     const { generator, options } = init();
 
     options.templateBottomRow += 100;
@@ -558,7 +606,7 @@ describe("#generate", () => {
   });
 
   it("disables widget operations non template rows", () => {
-    const { initialResult } = init({ pageSize: 3 });
+    const { initialResult } = init({ optionsProps: { pageSize: 3 } });
     const templateWidgetIds = Object.keys(simpleListInput.templateWidgets);
 
     const count = Object.keys(initialResult.metaWidgets).length;
@@ -606,9 +654,11 @@ describe("#generate", () => {
 
   it("generates till it finds a nested list and not beyond that", () => {
     const { initialResult } = init({
-      currTemplateWidgets: nestedListInput.templateWidgets,
-      containerParentId: nestedListInput.containerParentId,
-      containerWidgetId: nestedListInput.mainContainerId,
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+      },
     });
 
     const count = Object.keys(initialResult.metaWidgets).length;
@@ -619,9 +669,11 @@ describe("#generate", () => {
 
   it("adds LevelData to nested list", () => {
     const { initialResult } = init({
-      currTemplateWidgets: nestedListInput.templateWidgets,
-      containerParentId: nestedListInput.containerParentId,
-      containerWidgetId: nestedListInput.mainContainerId,
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+      },
     });
 
     const expectedLevelData = {
@@ -670,6 +722,7 @@ describe("#generate", () => {
             templateWidgetName: "List6",
             type: "LIST_WIDGET_V2",
           },
+          Canvas1: {},
           Canvas2: {
             entityDefinition: "",
             rowIndex: 0,
@@ -774,7 +827,7 @@ describe("#generate", () => {
     const expectedCurrentIndex = 0;
     const expectedCurrentItem = `{{${listWidgetName}.listData[${textWidgetName}.currentIndex]}}`;
     const expectedCurrentView =
-      "{{{\n          Text4: {isVisible: Text4.isVisible,text: Text4.text}\n        }}}";
+      "{{{\n            Text4: {isVisible: Text4.isVisible,text: Text4.text}\n          }}}";
     const expectedLevel_1 = {
       currentItem: "{{List1.listData[0]}}",
       currentIndex: 0,
@@ -805,9 +858,11 @@ describe("#generate", () => {
 
   it("adds data property to the container widget", () => {
     const { initialResult } = init({
-      currTemplateWidgets: nestedListInput.templateWidgets,
-      containerParentId: nestedListInput.containerParentId,
-      containerWidgetId: nestedListInput.mainContainerId,
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+      },
     });
 
     const expectedDataBinding =
@@ -822,6 +877,287 @@ describe("#generate", () => {
         }
       }
     });
+  });
+
+  it("only the template meta widgets should have the actual widget name references in the bindings", () => {
+    const { generator, initialResult, options } = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+      },
+    });
+
+    options.pageSize = 3;
+    options.data = [
+      { id: 0, name: "Green" },
+      { id: 1, name: "Blue" },
+      { id: 2, name: "Pink" },
+      { id: 3, name: "Black" },
+      { id: 4, name: "White" },
+    ];
+    options.primaryKeys = options.data.map((d) => (d.id as number).toString());
+
+    const { metaWidgets, removedMetaWidgetIds } = generator
+      .withOptions(options)
+      .generate();
+
+    const generatedMetaWidgets = {
+      ...initialResult.metaWidgets,
+      ...metaWidgets,
+    };
+
+    const expectedDataBinding =
+      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,gridGap: List6.gridGap,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,items: List6.items,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,selectedItemIndex: List6.selectedItemIndex,triggeredItemIndex: List6.triggeredItemIndex }\n        \n      }\n    }}";
+
+    const count = Object.keys(metaWidgets).length;
+    expect(count).toEqual(18);
+    expect(removedMetaWidgetIds.length).toEqual(0);
+
+    Object.values(generatedMetaWidgets).forEach((widget) => {
+      if (widget.type === "CONTAINER_WIDGET") {
+        expect(widget.data).not.toBeUndefined();
+
+        if (widget.widgetId === nestedListInput.mainContainerId) {
+          expect(widget.data).toEqual(expectedDataBinding);
+        } else {
+          expect(widget.data).not.toEqual(expectedDataBinding);
+        }
+      }
+    });
+  });
+
+  it("generates all meta widget and removes non first item meta widget when data re-shuffles in Edit mode", () => {
+    const page1Data = [
+      { id: 1, name: "Blue" },
+      { id: 2, name: "Pink" },
+    ];
+    const page1PrimaryKeys = page1Data.map((d) => d.id);
+
+    const page2Data = [
+      { id: 3, name: "Red" },
+      { id: 4, name: "Blue" },
+    ];
+    const page2PrimaryKeys = page2Data.map((d) => d.id);
+
+    /**
+     * Here page1Data's first item got shuffled into 2nd item and
+     * first item has id 5
+     */
+    const updatedPage1Data = [
+      { id: 5, name: "Green" },
+      { id: 1, name: "White" },
+    ];
+    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id);
+
+    const { generator, initialResult, options } = init({
+      optionsProps: {
+        data: page1Data,
+        primaryKeys: page1PrimaryKeys,
+        serverSidePagination: true,
+      },
+    });
+
+    const count1 = Object.keys(initialResult.metaWidgets).length;
+    expect(count1).toEqual(12);
+    expect(initialResult.removedMetaWidgetIds.length).toEqual(0);
+
+    const result2 = generator
+      .withOptions({
+        ...options,
+        data: page2Data,
+        primaryKeys: page2PrimaryKeys,
+        pageNo: 2,
+      })
+      .generate();
+
+    const count2 = Object.keys(result2.metaWidgets).length;
+    expect(count2).toEqual(12);
+    expect(result2.removedMetaWidgetIds.length).toEqual(6);
+
+    const result3 = generator
+      .withOptions({
+        ...options,
+        data: updatedPage1Data,
+        primaryKeys: updatePage1PrimaryKeys,
+        pageNo: 1,
+      })
+      .generate();
+
+    const count3 = Object.keys(result3.metaWidgets).length;
+    expect(count3).toEqual(12);
+    expect(result3.removedMetaWidgetIds.length).toEqual(6);
+  });
+
+  it("generates all meta widget and removes all meta widget when data re-shuffles in View mode", () => {
+    const page1Data = [
+      { id: 1, name: "Blue" },
+      { id: 2, name: "Pink" },
+    ];
+    const page1PrimaryKeys = page1Data.map((d) => d.id);
+
+    const page2Data = [
+      { id: 3, name: "Red" },
+      { id: 4, name: "Blue" },
+    ];
+    const page2PrimaryKeys = page2Data.map((d) => d.id);
+
+    /**
+     * Here page1Data's first item got shuffled into 2nd item and
+     * first item has id 5
+     */
+    const updatedPage1Data = [
+      { id: 5, name: "Green" },
+      { id: 1, name: "White" },
+    ];
+    const updatePage1PrimaryKeys = updatedPage1Data.map((d) => d.id);
+
+    const { generator, initialResult, options } = init({
+      constructorProps: {
+        renderMode: RenderModes.PAGE,
+      },
+      optionsProps: {
+        data: page1Data,
+        primaryKeys: page1PrimaryKeys,
+        serverSidePagination: true,
+      },
+    });
+
+    const count1 = Object.keys(initialResult.metaWidgets).length;
+    expect(count1).toEqual(12);
+    expect(initialResult.removedMetaWidgetIds.length).toEqual(0);
+
+    const result2 = generator
+      .withOptions({
+        ...options,
+        data: page2Data,
+        primaryKeys: page2PrimaryKeys,
+        pageNo: 2,
+      })
+      .generate();
+
+    const count2 = Object.keys(result2.metaWidgets).length;
+    expect(count2).toEqual(12);
+    expect(result2.removedMetaWidgetIds.length).toEqual(12);
+
+    const result3 = generator
+      .withOptions({
+        ...options,
+        data: updatedPage1Data,
+        primaryKeys: updatePage1PrimaryKeys,
+        pageNo: 1,
+      })
+      .generate();
+
+    const count3 = Object.keys(result3.metaWidgets).length;
+    expect(count3).toEqual(12);
+    expect(result3.removedMetaWidgetIds.length).toEqual(12);
+  });
+
+  it("should not have any template widgets when renderMode is PAGE", () => {
+    const { initialResult, options } = init({
+      constructorProps: { renderMode: RenderModes.PAGE },
+    });
+
+    const templateWidgetNames = Object.values(options.currTemplateWidgets).map(
+      (w) => w.widgetName,
+    );
+    const templateWidgetIds = Object.keys(options.currTemplateWidgets);
+    Object.values(initialResult.metaWidgets).forEach(
+      ({ widgetId, widgetName }) => {
+        expect(templateWidgetIds).not.toContain(widgetId);
+        expect(templateWidgetNames).not.toContain(widgetName);
+      },
+    );
+  });
+
+  it("should have some template widgets and some meta widgets when renderMode is CANVAS", () => {
+    const { initialResult } = init();
+
+    const options = DEFAULT_OPTIONS;
+    const { currTemplateWidgets } = options;
+
+    const { metaWidgets } = initialResult;
+    const templateWidgetIds = Object.keys(currTemplateWidgets);
+
+    const templateWidgetCount = Object.values(metaWidgets).reduce(
+      (count, metaWidget) => {
+        if (templateWidgetIds.includes(metaWidget.widgetId)) {
+          count += 1;
+        }
+
+        return count;
+      },
+      0,
+    );
+    const metaWidgetsCount = Object.keys(metaWidgets).length;
+    const nonTemplateWidgetsCount = metaWidgetsCount - templateWidgetCount;
+
+    expect(metaWidgetsCount).toEqual(12);
+    expect(templateWidgetCount).toEqual(6);
+    expect(nonTemplateWidgetsCount).toEqual(6);
+  });
+
+  it("should add metaWidgetId to all the meta widgets", () => {
+    const { initialResult } = init();
+
+    Object.values(initialResult.metaWidgets).forEach((metaWidget) => {
+      expect(metaWidget.metaWidgetId).toBeDefined();
+    });
+  });
+
+  it("should match the metaWidgetId and meta widget's widgetId for row > 0", () => {
+    const { initialResult } = init();
+
+    Object.values(initialResult.metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.currentIndex > 0) {
+        expect(metaWidget.metaWidgetId).toEqual(metaWidget.widgetId);
+      }
+    });
+  });
+
+  it("should not match the widgetId and meta widget's widgetId for 0th row for every page", () => {
+    const { generator, initialResult, options } = init();
+
+    const startIndex = (options.pageNo - 1) * options.pageSize;
+
+    Object.values(initialResult.metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.currentIndex === startIndex) {
+        expect(metaWidget.metaWidgetId).not.toEqual(metaWidget.widgetId);
+      } else {
+        expect(metaWidget.metaWidgetId).toEqual(metaWidget.widgetId);
+      }
+    });
+
+    options.pageNo = 2;
+
+    const updatedStartIndex = (options.pageNo - 1) * options.pageSize;
+    const result1 = generator.withOptions(options).generate();
+
+    Object.values(result1.metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.currentIndex === updatedStartIndex) {
+        expect(metaWidget.metaWidgetId).not.toEqual(metaWidget.widgetId);
+      } else {
+        expect(metaWidget.metaWidgetId).toEqual(metaWidget.widgetId);
+      }
+    });
+  });
+
+  it("should regenerate all meta widgets on page toggle and remove only non template widgets", () => {
+    const { generator, options } = init();
+
+    options.pageNo = 2;
+    const result1 = generator.withOptions(options).generate();
+
+    const count1 = Object.keys(result1.metaWidgets).length;
+    expect(count1).toEqual(12);
+    expect(result1.removedMetaWidgetIds.length).toEqual(6);
+
+    options.pageNo = 1;
+    const result2 = generator.withOptions(options).generate();
+    const count2 = Object.keys(result2.metaWidgets).length;
+    expect(count2).toEqual(12);
+    expect(result2.removedMetaWidgetIds.length).toEqual(6);
   });
 });
 
@@ -840,8 +1176,10 @@ describe("#getStartIndex", () => {
     expect(result2).toEqual(4);
   });
 
-  it("return 0 when server side pagination is enabled", () => {
-    const { generator, options } = init({ serverSidePagination: true });
+  it("return valid starting index when server side pagination is enabled", () => {
+    const { generator, options } = init({
+      optionsProps: { serverSidePagination: true },
+    });
 
     const result1 = generator.getStartIndex();
 
@@ -887,5 +1225,12 @@ describe("#getMetaContainers", () => {
     expect(containers.ids.length).toEqual(2);
     expect(containers.names.length).toEqual(2);
     expect(page1Containers).toEqual(containers);
+  });
+
+  it("page 1 meta container should have the template widget name", () => {
+    const containers = generator.getMetaContainers();
+
+    expect(containers.names[0]).toEqual("Container1");
+    expect(containers.names[1]).not.toEqual("Container1");
   });
 });

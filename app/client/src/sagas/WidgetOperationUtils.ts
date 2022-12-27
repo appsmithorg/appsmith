@@ -476,7 +476,7 @@ export const getParentWidgetIdForPasting = function*(
       // Find the currently selected tab canvas widget
       const { selectedTabWidgetId } = yield select(
         getWidgetMetaProps,
-        parentWidget.widgetId,
+        parentWidget,
       );
       if (selectedTabWidgetId) childWidget = widgets[selectedTabWidgetId];
     }
