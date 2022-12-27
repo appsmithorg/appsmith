@@ -184,7 +184,14 @@ export const useAutoLayoutHighlights = ({
     val?: XYCord,
   ): HighlightInfo | undefined => {
     let base: HighlightInfo[] = [];
-    if (!highlights || !highlights.length) highlights = getDropPositions();
+    if (!highlights || !highlights.length)
+      highlights = deriveHighlightsFromLayers(
+        allWidgets,
+        canvasId,
+        canvasWidth,
+        blocksToDraw.map((block) => block?.widgetId),
+        isFillWidget,
+      );
     base = highlights;
 
     const pos: XYCord = {
