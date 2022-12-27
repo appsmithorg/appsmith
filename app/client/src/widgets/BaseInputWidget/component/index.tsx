@@ -564,7 +564,6 @@ class BaseInputComponent extends React.Component<
       autoResize={!!this.props.isDynamicHeightEnabled}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
-      fitToContainer={!this.props.isDynamicHeightEnabled}
       maxLength={this.props.maxChars}
       onBlur={() => this.setFocusState(false)}
       onChange={this.onTextChange}

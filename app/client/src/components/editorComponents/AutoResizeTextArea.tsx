@@ -7,14 +7,11 @@ import React, {
 import styled from "styled-components";
 
 interface AutoResizeTextAreaStyledProps {
-  fitToContainer: boolean;
-}
-
-interface AutoResizeTextAreaProps
-  extends TextareaHTMLAttributes<HTMLTextAreaElement>,
-    AutoResizeTextAreaStyledProps {
   autoResize: boolean;
 }
+
+type AutoResizeTextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> &
+  AutoResizeTextAreaStyledProps;
 
 const PADDING = 10;
 
@@ -22,7 +19,7 @@ const StyledTextArea = styled.textarea<AutoResizeTextAreaStyledProps>`
   padding: ${PADDING}px;
   box-sizing: border-box;
   width: 100%;
-  height: ${(props) => (props.fitToContainer ? "100%" : "auto")};
+  height: ${(props) => (!props.autoResize ? "100%" : "auto")};
 `;
 
 const ProxyTextArea = styled(StyledTextArea)`
@@ -67,17 +64,17 @@ const AutoResizeTextArea: React.ForwardRefRenderFunction<
   return (
     <>
       <StyledTextArea {...props} ref={assignRef} />
-      {
-        // This is added to get the correct scroll height of a similar
-        // textarea which is not displayed on the screen whose height
-        // is always auto.
-      }
-      <ProxyTextArea
-        fitToContainer={props.fitToContainer}
-        readOnly
-        ref={proxyTextAreaRef}
-        value={props.value}
-      />
+      {// This is added to get the correct scroll height of a similar
+      // textarea which is not displayed on the screen whose height
+      // is always auto.
+      props.autoResize ? (
+        <ProxyTextArea
+          autoResize={props.autoResize}
+          readOnly
+          ref={proxyTextAreaRef}
+          value={props.value}
+        />
+      ) : null}
     </>
   );
 };
