@@ -56,6 +56,7 @@ export default {
   shareApp: ".t--application-share-btn",
   enablePublicAccess: ".t--share-public-toggle .slider",
   closeBtn: ".bp3-dialog-close-button",
+  editModeInviteModalCloseBtn: ".t--close-form-dialog",
   applicationName: ".t--application-name",
   applicationEditMenu: ".t--application-edit-menu",
   editingAppName: "bp3-editable-text-editing",

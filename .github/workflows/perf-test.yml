@@ -261,6 +261,8 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           POSTGRES_PASSWORD: postgres
           NODE_TLS_REJECT_UNAUTHORIZED: "0"
+          MACHINE: ubuntu-latest-4-cores
+
         run: ./start-test.sh
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
@@ -272,12 +274,6 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
-
-      - uses: actions/upload-artifact@v3
-        if: success() || failure()
-        with:
-          name: performance-summaries
-          path: app/client/perf/traces
 
         # Set status = success
       - name: Save the status of the run
