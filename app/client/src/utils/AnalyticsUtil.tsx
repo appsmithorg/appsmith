@@ -477,6 +477,11 @@ class AnalyticsUtil {
     }
   }
 
+  static getAnonymousId() {
+    const windowDoc: any = window;
+    return windowDoc.analytics?.user?.().anonymousId();
+  }
+
   static reset() {
     const windowDoc: any = window;
     if (windowDoc.Intercom) {
