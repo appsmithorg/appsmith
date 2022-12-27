@@ -80,7 +80,7 @@ import {
   ActionValidationConfigMap,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { klona } from "klona/full";
+import { klona } from "klona/lite";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
   updateDependencyMap,

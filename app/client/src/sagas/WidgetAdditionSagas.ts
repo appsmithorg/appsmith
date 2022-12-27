@@ -39,7 +39,7 @@ import omit from "lodash/omit";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
-import { klona as clone } from "klona/full";
+import { klona as clone } from "klona/lite";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { getMainCanvasProps } from "selectors/editorSelectors";
