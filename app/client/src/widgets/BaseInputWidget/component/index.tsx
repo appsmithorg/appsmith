@@ -343,6 +343,7 @@ const TextInputWrapper = styled.div<{
   hasError?: boolean;
   disabled?: boolean;
   isDynamicHeightEnabled?: boolean;
+  isMultiLine: boolean;
 }>`
   width: 100%;
   display: flex;
@@ -396,6 +397,8 @@ const TextInputWrapper = styled.div<{
 
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { height: auto; }" : ""};
+
+  ${({ isMultiLine }) => (!isMultiLine ? "&& { flex: 0 !important; }" : "")};
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -704,6 +707,7 @@ class BaseInputComponent extends React.Component<
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isMultiLine={!!multiline}
           labelPosition={labelPosition}
         >
           <ErrorTooltip
