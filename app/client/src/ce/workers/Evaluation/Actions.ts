@@ -371,7 +371,7 @@ export const addPlatformFunctionsToEvalContext = (context: any) => {
     if (funcName === "storeValue") {
       context[funcName] = (...args: any) => {
         const req = fn(...args);
-        LazyRequest.getInstance().send(req);
+        return LazyRequest.getInstance().send(req);
       };
     } else {
       context[funcName] = pusher.bind({}, fn);
