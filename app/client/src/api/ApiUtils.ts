@@ -18,7 +18,6 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -48,12 +47,6 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
   if (config.url?.indexOf("/git/") !== -1) {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
-  }
-
-  if (config.headers) {
-    console.log("------ mix - api", config.url);
-    AnalyticsUtil.isAnonymousUser &&
-      (config.headers["X-User-Id"] = AnalyticsUtil.getAnonymousUserId() ?? "");
   }
 
   return { ...config, timer: performance.now() };

@@ -316,10 +316,6 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
-  static anonymousId?: string;
-
-  static tempUserId?: string;
-  static isAnonymousUser = false;
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -479,47 +475,6 @@ class AnalyticsUtil {
         username: userData.username,
       });
     }
-  }
-
-  static initAnonymousUser() {
-    AnalyticsUtil.isAnonymousUser = true;
-    const windowDoc: any = window;
-    windowDoc.analytics &&
-      windowDoc.analytics.ready(() => {
-        windowDoc.analytics.register({
-          name: "Cookie Compatibility",
-          version: "0.1.0",
-          type: "utility",
-          load: (_ctx: any, ajs: any) => {
-            const user = ajs.user();
-            user.anonymousId(user.anonymousId());
-            user.id(user.id());
-
-            AnalyticsUtil.tempUserId = user.id();
-            AnalyticsUtil.anonymousId = user.anonymousId();
-
-            console.log(
-              "------------------ mix anonymous user init ------------------",
-            );
-            console.log("mix - user INIT", user.id(), user.anonymousId());
-            console.log(
-              "------------------ mix anonymous user init ------------------",
-            );
-          },
-          isLoaded: () => true,
-        });
-      });
-  }
-
-  static getAnonymousUserId() {
-    console.log(
-      "mix - get anonymousId",
-      AnalyticsUtil.isAnonymousUser,
-      AnalyticsUtil.tempUserId,
-      AnalyticsUtil.anonymousId,
-      (window as any).analytics,
-    );
-    return AnalyticsUtil.anonymousId;
   }
 
   static reset() {
