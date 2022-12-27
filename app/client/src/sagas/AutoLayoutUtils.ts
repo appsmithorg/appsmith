@@ -114,7 +114,7 @@ export function* updateFlexLayersOnDelete(
   widgets[parentId] = parent;
 
   if (layerIndex === -1) return widgets;
-  return updateFlexChildColumns(widgets, layerIndex, parentId);
+  return updateWidgetPositions(widgets, parentId);
 }
 // TODO: refactor these implementations
 export function updateFillChildStatus(
