@@ -153,7 +153,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
        * but a different internal id as over page changes the first row widgets should reflect distinct
        * values entered in that particular page.
        *
-       * Note: metaWidgetId would be undefined for almost all the widgets.
+       * Note: metaWidgetId would be undefined for all the non meta-widgets.
        */
       const widgetId = this.props.metaWidgetId || this.props.widgetId;
 

@@ -143,12 +143,12 @@ export function* showModalSaga(
 
   yield put(focusWidget(action.payload.modalId));
 
-  const modalWidget = {
+  const widgetLikeProps = {
     widgetId: action.payload.modalId,
   } as WidgetProps;
   const metaProps: Record<string, unknown> = yield select(
     getWidgetMetaProps,
-    modalWidget,
+    widgetLikeProps,
   );
   if (!metaProps || !metaProps.isVisible) {
     // Then show the modal we would like to show.
