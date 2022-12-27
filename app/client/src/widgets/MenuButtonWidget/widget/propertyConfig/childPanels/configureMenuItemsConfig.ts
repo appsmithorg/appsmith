@@ -6,14 +6,6 @@ export default {
   editableTitle: false,
   titlePropertyName: "label",
   panelIdPropertyName: "id",
-  updateHook: (props: any, propertyPath: string, propertyValue: string) => {
-    return [
-      {
-        propertyPath,
-        propertyValue,
-      },
-    ];
-  },
   contentChildren: [
     {
       sectionName: "General",
