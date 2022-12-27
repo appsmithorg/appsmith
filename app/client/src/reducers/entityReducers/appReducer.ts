@@ -52,10 +52,7 @@ const initialState: AppDataState = {
     hash: "",
     fullPath: "",
   },
-  store: {
-    transient: {},
-    persistent: {},
-  },
+  store: {},
   geolocation: {
     canBeRequested: "geolocation" in navigator,
     currentPosition: {},
@@ -90,19 +87,7 @@ const appReducer = createReducer(initialState, {
       URL: action.payload,
     };
   },
-  [ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE]: (
-    state: AppDataState,
-    action: ReduxAction<Record<string, unknown>>,
-  ) => {
-    return {
-      ...state,
-      store: {
-        ...state.store,
-        transient: action.payload,
-      },
-    };
-  },
-  [ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE]: (
+  [ReduxActionTypes.UPDATE_APP_STORE]: (
     state: AppDataState,
     action: ReduxAction<Record<string, unknown>>,
   ) => {

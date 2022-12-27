@@ -65,8 +65,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
-  ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
+  ReduxActionTypes.UPDATE_APP_STORE,
   ReduxActionTypes.SET_USER_CURRENT_GEO_LOCATION,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,

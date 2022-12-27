@@ -360,7 +360,7 @@ export const updateAppStore = (
   storeValueAction?: StoreValueActionDescription["payload"],
 ): EvaluationReduxAction<Record<string, unknown>> => {
   return {
-    type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
+    type: ReduxActionTypes.UPDATE_APP_STORE,
     payload,
     postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
   };
