@@ -13,9 +13,7 @@ import {
 } from "../Constants";
 import DateComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-// import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import { RenderDefaultPropsType } from "./PlainTextCell";
-// import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import {
   ColumnTypes,
@@ -111,6 +109,7 @@ const Wrapper = styled.div<{
   transform: translate(-50%, 0);
   overflow: hidden;
   border-radius: 3px;
+  display: flex;
   height: ${(props) => {
     if (props.allowCellWrapping) {
       return props.paddedInput
@@ -146,8 +145,10 @@ const Wrapper = styled.div<{
          */
       box-shadow: none !important;
       padding: 0px 5px 0px 6px;
-      min-height: 34px;
+      min-height: 28px;
       font-size: ${(props) => props.textSize};
+      background: transparent;
+      color: inherit;
     }
     .bp3-button-group.bp3-vertical {
       display: none;
@@ -215,7 +216,6 @@ export const DateCell = (props: DateComponentProps) => {
     toggleCellEditMode,
     validationErrorMessage,
     verticalAlignment,
-    widgetId,
   } = props;
 
   const [hasFocus, setHasFocus] = useState(false);
@@ -271,24 +271,16 @@ export const DateCell = (props: DateComponentProps) => {
     const formattedDate = moment(date).format(inputFormat);
     onDateSelection(rowIndex, onDateSelectedString);
     onDateSave(rowIndex, alias, formattedDate, onSubmitString);
-    // onBlur(null, true);
-    // setIsDateSelected(true);
   };
 
   const onDateCellEdit = () => {
     setHasFocus(true);
-    // inputRef.current?.click();
     editEvents.onEdit();
   };
 
   const onBlur = (e: any) => {
     setHasFocus(false);
-    // setIsBlur(true);
     editEvents.onDiscard();
-    // if (isBlur) {
-    //   editEvents.onDiscard();
-    //   setIsBlur(false);
-    // }
   };
 
   let editor;
@@ -304,11 +296,7 @@ export const DateCell = (props: DateComponentProps) => {
           "t--inlined-cell-editor-has-error"}`}
         compactMode={compactMode}
         isEditableCellValid={isEditableCellValid}
-        // onBlur={(e) => onBlur(e, false)}
-        // onFocus={() => console.log("datatree wrapper focusss")}
-        // onKeyDown={onKeyDown}
         paddedInput
-        // ref={wrapperRef}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
       >
@@ -319,25 +307,17 @@ export const DateCell = (props: DateComponentProps) => {
           compactMode
           dateFormat={outputFormat}
           datePickerType="DATE_PICKER"
-          // inputRef={inputRef}
-          // firstDayOfWeek={firstDayOfWeek || 0}
-          isDisabled={!!isCellDisabled}
+          isDisabled
           isLoading={false}
+          isPopoverOpen
           labelText=""
           maxDate={maxDate || COMPONENT_DEFAULT_VALUES.maxDate}
           minDate={minDate || COMPONENT_DEFAULT_VALUES.minDate}
-          // onBlur={() => console.log("datatree datecomponent blurrr")}
           onDateSelected={onDateSelected}
-          onPopoverClose={onBlur}
-          // onFocus={() => console.log("datatree datecomponent focus")}
-          // paddedInput={isNewRow}
+          onPopoverClosed={onBlur}
           selectedDate={valueInISOFormat}
           shortcuts
           timePrecision={TimePrecision.MINUTE}
-          // textSize={textSize}
-          // validationErrorMessage={validationErrorMessage}
-          // value={value}
-          // verticalAlignment={verticalAlignment}
           widgetId={"adsasd"}
         />
       </Wrapper>
