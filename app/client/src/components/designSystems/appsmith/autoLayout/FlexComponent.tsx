@@ -37,7 +37,7 @@ export type AutoLayoutProps = {
 };
 
 const FlexWidget = styled.div`
-  position: "relative";
+  position: relative;
 `;
 
 export function FlexComponent(props: AutoLayoutProps) {
