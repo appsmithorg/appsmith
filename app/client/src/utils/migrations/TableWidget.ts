@@ -678,13 +678,15 @@ export const migrateMenuButtonDynamicItemsInsideTableWidget = (
     if (widget.type === "TABLE_WIDGET_V2") {
       const primaryColumns = widget.primaryColumns;
 
-      for (const column in primaryColumns) {
-        if (
-          primaryColumns.hasOwnProperty(column) &&
-          primaryColumns[column].columnType === "menuButton" &&
-          !primaryColumns[column].menuItemsSource
-        ) {
-          primaryColumns[column].menuItemsSource = "STATIC";
+      if (primaryColumns) {
+        for (const column in primaryColumns) {
+          if (
+            primaryColumns.hasOwnProperty(column) &&
+            primaryColumns[column].columnType === "menuButton" &&
+            !primaryColumns[column].menuItemsSource
+          ) {
+            primaryColumns[column].menuItemsSource = "STATIC";
+          }
         }
       }
     }
