@@ -25,7 +25,6 @@ import {
 } from "sagas/AutoLayoutUtils";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -232,7 +231,7 @@ function* reorderAutolayoutChildren(params: {
     updatedWidgets,
     parentId,
   );
-  console.log("#### updatedWidgets", widgetsAfterPositionUpdate);
+
   return widgetsAfterPositionUpdate;
 }
 
@@ -255,13 +254,14 @@ function updateRelationships(
   const orphans = movedWidgets.filter(
     (item) => widgets[item].parentId !== parentId,
   );
-  let prevParentId: string | undefined;
+  const prevParents: string[] = [];
   if (orphans && orphans.length) {
     //parent has changed
     orphans.forEach((item) => {
       // remove from previous parent
-      prevParentId = widgets[item].parentId;
+      const prevParentId = widgets[item].parentId;
       if (prevParentId !== undefined) {
+        prevParents.push(prevParentId);
         const prevParent = Object.assign({}, widgets[prevParentId]);
         if (prevParent.children && isArray(prevParent.children)) {
           const updatedPrevParent = {
@@ -284,8 +284,15 @@ function updateRelationships(
       };
     });
   }
-  if (prevParentId) {
-    return updateSizeOfAllChildren(widgets, prevParentId);
+  if (prevParents.length) {
+    for (const id of prevParents) {
+      const updatedWidgets = updateSizeOfAllChildren(widgets, id);
+      const updatedWidgetsAfterPositionCalculation = updateWidgetPositions(
+        updatedWidgets,
+        id,
+      );
+      return updatedWidgetsAfterPositionCalculation;
+    }
   }
   return widgets;
 }
@@ -325,7 +332,7 @@ function updateExistingLayer(
   rowIndex: number,
 ): CanvasWidgetsReduxState {
   try {
-    const widgets: CanvasWidgetsReduxState = Object.assign({}, allWidgets);
+    const widgets: CanvasWidgetsReduxState = { ...allWidgets };
     const canvas = widgets[parentId];
     if (!canvas || !newLayer) return widgets;
 

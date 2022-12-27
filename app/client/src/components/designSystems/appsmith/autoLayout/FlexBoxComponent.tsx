@@ -60,8 +60,8 @@ export const FlexContainer = styled.div<{
   overflow-y: ${({ isMainContainer, isMobile }) =>
     isMainContainer || isMobile ? "auto" : "hidden"};
 
-  padding: ${({ isDragging, leaveSpaceForWidgetName }) =>
-    !isDragging && leaveSpaceForWidgetName ? "4px 4px 22px 4px;" : "4px;"};
+  padding: ${({ leaveSpaceForWidgetName }) =>
+    leaveSpaceForWidgetName ? "4px 4px 22px 4px;" : "0px;"};
 `;
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;

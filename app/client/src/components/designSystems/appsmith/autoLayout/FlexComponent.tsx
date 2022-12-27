@@ -1,31 +1,21 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { ReactNode, useCallback } from "react";
 import styled from "styled-components";
 
-import { AppState } from "ce/reducers";
 import {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
 } from "components/constants";
 import {
-  MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
   widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import { getSiblingCount } from "selectors/autoLayoutSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
-import { DRAG_MARGIN } from "widgets/constants";
 import { checkIsDropTarget } from "../PositionedContainer";
 
 export type AutoLayoutProps = {
@@ -54,7 +44,6 @@ const FlexWidget = styled.div<{
   zIndexOnHover: number;
   parentId?: string;
   flexVerticalAlignment: FlexVerticalAlignment;
-  ref: any;
 }>`
   position: relative;
   z-index: ${({ zIndex }) => zIndex};
@@ -74,26 +63,13 @@ const FlexWidget = styled.div<{
   }
 `;
 
-const DEFAULT_MARGIN = 16;
-
 export function FlexComponent(props: AutoLayoutProps) {
-  const ref = useRef();
-  const [observer, setObserver] = useState<any>(null);
   const isMobile = useSelector(getIsMobile);
   const isSnipingMode = useSelector(snipingModeSelector);
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(() => {
     clickToSelectWidget(props.widgetId);
   }, [props.widgetId, clickToSelectWidget]);
-
-  const { dragDetails } = useSelector(
-    (state: AppState) => state.ui.widgetDragResize,
-  );
-  const isDragging: boolean = dragDetails?.draggedOn !== undefined;
-
-  const siblingCount = useSelector(
-    getSiblingCount(props.widgetId, props.parentId || MAIN_CONTAINER_WIDGET_ID),
-  );
 
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
@@ -107,32 +83,6 @@ export function FlexComponent(props: AutoLayoutProps) {
     !isSnipingMode && e.stopPropagation();
   };
 
-  const callback = (mutations: any, observer: any) => {
-    console.log("#### mutations", mutations);
-    if (mutations.length)
-      console.log(
-        "#### mutations[0].target",
-        mutations[0].target.classList[3],
-        mutations[0].target.offsetTop,
-        observer,
-      );
-  };
-
-  useEffect(() => {
-    const observer = new MutationObserver(callback);
-    setObserver(observer);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!ref.current || !observer) return;
-    // return;
-    observer.observe(ref.current, {
-      attributes: true,
-      childList: false,
-      subtree: false,
-    });
-  }, [observer, ref.current]);
   /**
    * In a vertical stack,
    * Fill widgets grow / shrink to take up all the available space.
@@ -144,28 +94,6 @@ export function FlexComponent(props: AutoLayoutProps) {
   const className = `auto-layout-parent-${props.parentId} auto-layout-child-${
     props.widgetId
   } ${widgetTypeClassname(props.widgetType)}`;
-
-  const dragMargin =
-    props.parentId === MAIN_CONTAINER_WIDGET_ID
-      ? DEFAULT_MARGIN
-      : Math.max(props.parentColumnSpace, DRAG_MARGIN);
-
-  const isAffectedByDrag: boolean = isDragging;
-  // TODO: Simplify this logic.
-  /**
-   * resize logic:
-   * if isAffectedByDrag
-   * newWidth = width - drag margin -
-   * (decrease in parent width) / # of siblings -
-   * width of the DropPosition introduced due to the widget.
-   */
-  const resizedWidth: number = isAffectedByDrag
-    ? props.componentWidth -
-      dragMargin -
-      (siblingCount > 0
-        ? (DEFAULT_MARGIN * siblingCount + 2) / siblingCount
-        : 0)
-    : props.componentWidth;
 
   return (
     <FlexWidget
@@ -180,7 +108,6 @@ export function FlexComponent(props: AutoLayoutProps) {
       onClickCapture={onClickFn}
       padding={WIDGET_PADDING}
       parentId={props.parentId}
-      ref={ref}
       zIndex={zIndex}
       zIndexOnHover={onHoverZIndex}
     >

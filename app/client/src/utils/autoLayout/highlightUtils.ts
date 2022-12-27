@@ -3,8 +3,16 @@ import {
   DEFAULT_HIGHLIGHT_SIZE,
   FlexLayer,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import {
+  CONTAINER_GRID_PADDING,
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+
+const HORIZONTAL_HIGHLIGHT_MARGIN = 4;
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState
@@ -17,6 +25,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 export function deriveHighlightsFromLayers(
   allWidgets: CanvasWidgetsReduxState,
   canvasId: string,
+  mainCanvasWidth = 0,
   draggedWidgets: string[] = [],
 ): HighlightInfo[] {
   const widgets = { ...allWidgets };
@@ -25,18 +34,50 @@ export function deriveHighlightsFromLayers(
     if (!canvas) return [];
 
     const columns: number = canvas.rightColumn - canvas.leftColumn;
-    const columnSpace: number =
-      canvas.parentColumnSpace === 1 && canvas.parentId
-        ? widgets[canvas.parentId].parentColumnSpace
-        : canvas.parentColumnSpace;
-    const canvasWidth: number = columns * columnSpace;
 
-    const layers: FlexLayer[] = canvas.flexLayers;
+    let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+    if (
+      canvas.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+      canvas.type === "CONTAINER_WIDGET"
+    ) {
+      //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+      padding = CONTAINER_GRID_PADDING * 2;
+    }
+    if (canvas.noPad) {
+      // Widgets like ListWidget choose to have no container padding so will only have widget padding
+      padding = WIDGET_PADDING * 2;
+    }
+    const columnSpace: number =
+      canvas.parentColumnSpace === 1
+        ? canvas.parentId
+          ? (widgets[canvas.parentId].parentColumnSpace * columns -
+              (padding || 0)) /
+            GridDefaults.DEFAULT_GRID_COLUMNS
+          : mainCanvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS
+        : canvas.parentColumnSpace;
+    // const columnSpace = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
+    const canvasWidth: number =
+      canvasId === MAIN_CONTAINER_WIDGET_ID
+        ? mainCanvasWidth
+        : columns * columnSpace - padding;
+
+    console.log(
+      "#### canvasWidth: " + canvasWidth,
+      "columnSpace: " + columnSpace,
+      "padding",
+      padding,
+      canvas.leftColumn,
+      canvas.rightColumn,
+      widgets,
+      columns * columnSpace,
+    );
+
+    const layers: FlexLayer[] = canvas.flexLayers || [];
     const highlights: HighlightInfo[] = [];
     let childCount = 0;
     let layerIndex = 0;
     // TODO: remove offsetTop and use child positions after widget positioning on grid is solved.
-    let offsetTop = 0; // used to calculate distance of a highlight from parents's top.
+    let offsetTop = HORIZONTAL_HIGHLIGHT_MARGIN; // used to calculate distance of a highlight from parents's top.
     for (const layer of layers) {
       /**
        * If the layer is empty, after discounting the dragged widgets,
@@ -76,11 +117,12 @@ export function deriveHighlightsFromLayers(
         offsetTop,
         canvasWidth,
         canvasId,
+        columnSpace,
       });
 
       highlights.push(...payload.highlights);
       childCount += payload.childCount;
-      offsetTop += tallestChild || 0;
+      offsetTop += (tallestChild || 0) + HORIZONTAL_HIGHLIGHT_MARGIN;
       layerIndex += 1;
     }
     // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
@@ -113,11 +155,13 @@ function generateVerticalHighlights(data: {
   offsetTop: number;
   canvasWidth: number;
   canvasId: string;
+  columnSpace: number;
 }): VerticalHighlightsPayload {
   const {
     canvasId,
     canvasWidth,
     childCount,
+    columnSpace,
     height,
     layer,
     layerIndex,
@@ -159,7 +203,8 @@ function generateVerticalHighlights(data: {
         height,
         offsetTop,
         canvasId,
-        parentColumnSpace: widgets[canvasId].parentColumnSpace,
+        parentColumnSpace: columnSpace,
+        parentRowSpace: widgets[canvasId].parentRowSpace,
         canvasWidth,
       }),
       ...generateHighlightsForSubWrapper({
@@ -170,7 +215,8 @@ function generateVerticalHighlights(data: {
         height,
         offsetTop,
         canvasId,
-        parentColumnSpace: widgets[canvasId].parentColumnSpace,
+        parentColumnSpace: columnSpace,
+        parentRowSpace: widgets[canvasId].parentRowSpace,
         canvasWidth,
         avoidInitialHighlight: startColumns > 25 || endColumns > 25,
       }),
@@ -182,7 +228,8 @@ function generateVerticalHighlights(data: {
         height,
         offsetTop,
         canvasId,
-        parentColumnSpace: widgets[canvasId].parentColumnSpace,
+        parentColumnSpace: columnSpace,
+        parentRowSpace: widgets[canvasId].parentRowSpace,
         canvasWidth,
       }),
     ],
@@ -199,6 +246,7 @@ function generateHighlightsForSubWrapper(data: {
   offsetTop: number;
   canvasId: string;
   parentColumnSpace: number;
+  parentRowSpace: number;
   canvasWidth: number;
   avoidInitialHighlight?: boolean;
 }): HighlightInfo[] {
@@ -216,20 +264,15 @@ function generateHighlightsForSubWrapper(data: {
   } = data;
   const res: HighlightInfo[] = [];
   let count = 0;
-  let lastWidgetWidth = 0;
   for (const child of arr) {
-    const { leftColumn, rightColumn, widgetId } = child;
-    const el = document.querySelector(`.auto-layout-child-${widgetId}`);
-    if (!el) continue;
-    // TODO: remove boundingClientRect after widget positioning on grid is solved.
-    const { x } = el.getBoundingClientRect();
+    const { leftColumn } = child;
     res.push({
       isNewLayer: false,
       index: count + childCount,
       layerIndex,
       rowIndex: count,
       alignment,
-      posX: x,
+      posX: leftColumn * parentColumnSpace,
       posY: offsetTop,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height,
@@ -237,8 +280,8 @@ function generateHighlightsForSubWrapper(data: {
       canvasId,
     });
     count += 1;
-    lastWidgetWidth = (rightColumn - leftColumn) * parentColumnSpace;
   }
+
   if (!avoidInitialHighlight)
     res.push({
       isNewLayer: false,
@@ -249,8 +292,11 @@ function generateHighlightsForSubWrapper(data: {
       posX: getPositionForInitialHighlight(
         res,
         alignment,
-        lastWidgetWidth,
+        arr && arr.length
+          ? arr[arr.length - 1].rightColumn * parentColumnSpace
+          : 0,
         canvasWidth,
+        parentColumnSpace,
       ),
       posY: offsetTop,
       width: DEFAULT_HIGHLIGHT_SIZE,
@@ -264,18 +310,18 @@ function generateHighlightsForSubWrapper(data: {
 function getPositionForInitialHighlight(
   highlights: HighlightInfo[],
   alignment: FlexLayerAlignment,
-  width: number,
+  posX: number,
   containerWidth: number,
+  parentColumnSpace: number,
 ): number {
   if (alignment === FlexLayerAlignment.End) {
-    return containerWidth - 2;
-    // return highlights[highlights.length - 1].posX - width;
+    return 64 * parentColumnSpace;
   } else if (alignment === FlexLayerAlignment.Center) {
     if (!highlights.length) return containerWidth / 2;
-    return highlights[highlights.length - 1].posX + width;
+    return posX;
   } else {
     if (!highlights.length) return 2;
-    return highlights[highlights.length - 1].posX + width;
+    return posX;
   }
 }
 

@@ -6,6 +6,7 @@ import {
 import { useSelector } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
+import { getCanvasWidth } from "selectors/editorSelectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
@@ -54,6 +55,7 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
+  const canvasWidth: number = useSelector(getCanvasWidth);
   let highlights: HighlightInfo[] = [];
   let newLayers: { [key: string]: number } = {};
   let lastActiveHighlight: HighlightInfo | undefined;
@@ -177,7 +179,11 @@ export const useAutoLayoutHighlights = ({
        */
       if (!updateContainerDimensions()) return [];
       isFillWidget = checkForFillWidget();
-      highlights = deriveHighlightsFromLayers(allWidgets, canvasId);
+      highlights = deriveHighlightsFromLayers(
+        allWidgets,
+        canvasId,
+        canvasWidth,
+      );
     }
     // console.log("#### highlights", highlights);
     return highlights;
@@ -192,10 +198,13 @@ export const useAutoLayoutHighlights = ({
     moveDirection: ReflowDirection,
     // acceleration: number,
   ): HighlightInfo | undefined => {
-    highlights = allWidgets[canvasId].highlights;
     if (!highlights)
-      highlights = deriveHighlightsFromLayers(allWidgets, canvasId);
-
+      highlights = deriveHighlightsFromLayers(
+        allWidgets,
+        canvasId,
+        canvasWidth,
+      );
+    // console.log("#### highlights", highlights);
     if (!highlights) return;
     // updateHighlights(moveDirection);
 
