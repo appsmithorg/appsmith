@@ -670,8 +670,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             validOnPageLoadActions.set(FALSE);
                             layout.setLayoutOnLoadActionErrors(List.of(
                                     new ErrorDTO(error.getAppErrorCode(),
+                                            error.getErrorType(),
                                             layoutOnLoadActionErrorToastMessage,
-                                            error.getMessage())));
+                                            error.getMessage(),
+                                            error.getTitle())));
                             return Mono.just(new ArrayList<>());
                         }));
 

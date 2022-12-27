@@ -17,6 +17,8 @@ public class ErrorDTO implements Serializable {
 
     private int code;
 
+    private String title;
+
     private String message;
 
     private String errorType;
@@ -29,10 +31,10 @@ public class ErrorDTO implements Serializable {
         this.message = message;
     }
 
-    public ErrorDTO(int code, String errorType, String message) {
+    public ErrorDTO(int code, String errorType, String message, String title) {
         this.code = code;
         this.errorType = errorType;
         this.message = message;
-
+        this.title = title;
     }
 }
