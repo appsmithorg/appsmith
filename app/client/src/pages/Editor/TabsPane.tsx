@@ -1,0 +1,69 @@
+import React, { useCallback, useRef, useState } from "react";
+import styled from "styled-components";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
+import { tailwindLayers } from "constants/Layers";
+import classNames from "classnames";
+import { useSelector } from "react-redux";
+import { previewModeSelector } from "selectors/editorSelectors";
+import EditorsRouter from "pages/Editor/routes";
+import * as Sentry from "@sentry/react";
+import { Route } from "react-router";
+
+const TabsContainer = styled.div`
+  height: calc(
+    100vh - ${(props) => props.theme.smallHeaderHeight} -
+      ${(props) => props.theme.bottomBarHeight}
+  );
+`;
+
+const SentryRoute = Sentry.withSentryRouting(Route);
+
+const TabsPane = () => {
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const [width, setWidth] = useState(300);
+
+  const onWidthChange = useCallback((width: number) => {
+    setWidth(width);
+  }, []);
+  const resizer = useHorizontalResize(sidebarRef, onWidthChange);
+
+  return (
+    <TabsContainer
+      className={classNames({
+        "transition-all transform duration-400 border-r border-gray-200": true,
+        "translate-x-0 opacity-0": isPreviewMode,
+        "opacity-100": !isPreviewMode,
+        [`w-[${width}px] min-w-[${width}px] translate-x-${width}`]: !isPreviewMode,
+      })}
+      ref={sidebarRef}
+    >
+      <div
+        className="overflow-x-hidden overflow-y-auto"
+        style={{ width: width }}
+      >
+        <SentryRoute component={EditorsRouter} />
+      </div>
+      {/* RESIZER */}
+      <div
+        className={`absolute w-2 h-full -mr-1 ${tailwindLayers.resizer} group cursor-ew-resize`}
+        onMouseDown={resizer.onMouseDown}
+        onTouchEnd={resizer.onMouseUp}
+        onTouchStart={resizer.onTouchStart}
+        style={{
+          left: width,
+          display: isPreviewMode ? "none" : "initial",
+        }}
+      >
+        <div
+          className={classNames({
+            "w-2 h-full bg-transparent group-hover:bg-gray-300 transform transition flex items-center": true,
+            "bg-blue-500": resizer.resizing,
+          })}
+        />
+      </div>
+    </TabsContainer>
+  );
+};
+
+export default TabsPane;

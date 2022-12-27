@@ -26,8 +26,8 @@ export const zIndexLayers = {
 
 export type PaneConfig = {
   tabsPanelWidth: number;
-  canvasScale: number;
   propertyPaneWidth: number;
+  canvasPaneWidth: number;
 };
 
 export enum ScreenSize {
@@ -37,25 +37,15 @@ export enum ScreenSize {
   // EXTRA_LARGE = "EXTRA_LARGE", // more than 17 inch
 }
 
-export type ScreenSizePaneConfigType = Record<
-  ScreenSize,
-  { min: PaneConfig; max: PaneConfig }
->;
+export type ScreenSizePaneConfigType = Record<ScreenSize, PaneConfig>;
 
 export const ScreenSizePaneConfig: ScreenSizePaneConfigType = {
   // EXTRA_LARGE: { max: undefined, min: undefined },
   // LARGE: { max: undefined, min: undefined },
   // MEDIUM: { max: undefined, min: undefined },
   [ScreenSize.SMALL]: {
-    min: {
-      tabsPanelWidth: 400,
-      canvasScale: 0.7,
-      propertyPaneWidth: 300,
-    },
-    max: {
-      tabsPanelWidth: 400,
-      canvasScale: 0.7,
-      propertyPaneWidth: 300,
-    },
+    tabsPanelWidth: 4,
+    propertyPaneWidth: 0,
+    canvasPaneWidth: 6,
   },
 };

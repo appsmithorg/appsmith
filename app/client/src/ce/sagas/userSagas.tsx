@@ -56,6 +56,7 @@ import {
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
+import FeatureFlags from "entities/FeatureFlags";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -435,11 +436,14 @@ export function* updatePhoto(
 
 export function* fetchFeatureFlags() {
   try {
-    const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
+    const response: ApiResponse<FeatureFlags> = yield call(
+      UserApi.fetchFeatureFlags,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      // @ts-expect-error: response.data is of type unknown
-      yield put(fetchFeatureFlagsSuccess(response.data));
+      yield put(
+        fetchFeatureFlagsSuccess({ ...response.data, MULTIPLE_PANES: true }),
+      );
     }
   } catch (error) {
     log.error(error);

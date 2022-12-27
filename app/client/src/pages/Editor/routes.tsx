@@ -19,6 +19,7 @@ import {
   GENERATE_TEMPLATE_FORM_PATH,
   matchBuilderPath,
   BUILDER_CHECKLIST_PATH,
+  BUILDER_CUSTOM_PATH,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -28,6 +29,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -36,6 +38,8 @@ import history from "utils/history";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
+import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -65,6 +69,7 @@ function EditorsRouter() {
     () => !matchBuilderPath(pathname),
   );
   const pageId = useSelector(getCurrentPageId);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   useEffect(() => {
     const isOnBuilder = matchBuilderPath(pathname);
@@ -92,6 +97,13 @@ function EditorsRouter() {
     <Wrapper isVisible={isVisible} onClick={handleClose}>
       <PaneDrawer isVisible={isVisible} onClick={preventClose}>
         <Switch key={path}>
+          {featureFlags.MULTIPLE_PANES && (
+            <SentryRoute
+              component={PropertyPaneContainer}
+              exact
+              path={BUILDER_CUSTOM_PATH}
+            />
+          )}
           <SentryRoute
             component={IntegrationEditor}
             exact
@@ -165,6 +177,7 @@ type PaneDrawerProps = {
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };
+
 function PaneDrawer(props: PaneDrawerProps) {
   const showPropertyPane = useShowPropertyPane();
   const { focusWidget, selectWidget } = useWidgetSelection();

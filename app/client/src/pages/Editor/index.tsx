@@ -22,7 +22,7 @@ import {
 } from "actions/initActions";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { getCurrentUser } from "selectors/usersSelectors";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
 import * as Sentry from "@sentry/react";
@@ -50,6 +50,8 @@ import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
+import FeatureFlags from "entities/FeatureFlags";
+import MultiPaneContainer from "pages/Editor/MultiPaneContainer";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -72,6 +74,7 @@ type EditorProps = {
   collabStartSharingPointerEvent: (pageId: string) => void;
   collabStopSharingPointerEvent: (pageId?: string) => void;
   pageLevelSocketRoomId: string;
+  featureFlags: FeatureFlags;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -217,7 +220,11 @@ class Editor extends Component<Props> {
               </title>
             </Helmet>
             <GlobalHotKeys>
-              <MainContainer />
+              {this.props.featureFlags.MULTIPLE_PANES ? (
+                <MultiPaneContainer />
+              ) : (
+                <MainContainer />
+              )}
               <GitSyncModal />
               <DisconnectGitModal />
               <GuidedTourModal />
@@ -247,6 +254,7 @@ const mapStateToProps = (state: AppState) => ({
   currentPageId: getCurrentPageId(state),
   isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
   loadingGuidedTour: loading(state),
+  featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
