@@ -1596,12 +1596,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             sourceData,
           } = cellProperties;
 
-          if (menuItemsSource === MenuItemsSource.STATIC) {
-            const visibleItems = Object.values(menuItems).filter((item) =>
+          if (menuItemsSource === MenuItemsSource.STATIC && menuItems) {
+            const visibleItems = Object.values(menuItems)?.filter((item) =>
               getBooleanPropertyValue(item.isVisible, rowIndex),
             );
 
-            return orderBy(visibleItems, ["index"], ["asc"]);
+            return visibleItems?.length
+              ? orderBy(visibleItems, ["index"], ["asc"])
+              : [];
           } else if (
             menuItemsSource === MenuItemsSource.DYNAMIC &&
             isArray(sourceData) &&
