@@ -1,7 +1,8 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
-  dataSources = ObjectsRegistry.DataSources;
+  dataSources = ObjectsRegistry.DataSources,
+  ee = ObjectsRegistry.EntityExplorer;
 
 let guid;
 let dataSourceName: string;
@@ -11,26 +12,24 @@ describe("Datasource form related tests", function() {
     cy.get("@guid").then((uid) => {
       guid = uid;
       dataSourceName = "Postgres " + guid;
-      cy.get(dataSources._dsEntityItem).click();
+      ee.ExpandCollapseEntity("Datasources");
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.RenameWithInPane(dataSourceName, false);
       dataSources.FillPostgresDSForm(false, "docker", "wrongPassword");
       dataSources.verifySchema(dataSourceName, "Failed to initialize pool");
-      agHelper.GetNClick(dataSources._editButton)
+      agHelper.GetNClick(dataSources._editButton);
       dataSources.updatePassword("docker");
       dataSources.verifySchema(dataSourceName, "public.", true);
     });
   });
-  
+
   it("2. Verify if schema was fetched once #18448", () => {
     agHelper.RefreshPage();
     cy.intercept("GET", dataSources._getStructureReq).as("getDSStructure");
-    cy.get(dataSources._dsEntityItem).click();
-    cy.get(dataSources.getDSEntity(dataSourceName))
-      .children(dataSources._entityCollapseButton)
-      .click({ force: true });
-    cy.wait(2000);
+    ee.ExpandCollapseEntity("Datasources");
+    ee.ExpandCollapseEntity(dataSourceName);
+    agHelper.Sleep(1500);
     cy.verifyCallCount(`@getDatasourceStructure`, 1);
     dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
   });
