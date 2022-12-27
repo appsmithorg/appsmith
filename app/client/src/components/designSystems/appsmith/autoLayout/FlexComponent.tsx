@@ -78,7 +78,7 @@ export function FlexComponent(props: AutoLayoutProps) {
 
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
-      display: isSelected && isDragging ? "none" : "block",
+      display: isSelected && isDragging ? "none" : "flex",
       zIndex,
       width: `${Math.floor(props.componentWidth)}px`,
       height: isMobile ? "auto" : Math.floor(props.componentHeight) + "px",
