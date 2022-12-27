@@ -41,7 +41,6 @@ import {
   AppsmithFunction,
   FieldType,
   AppsmithFunctionsWithFields,
-  FUNCTIONS_WITH_CALLBACKS,
 } from "./constants";
 import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
@@ -246,18 +245,28 @@ function getFieldsForSelectedAction(
   });
 
   /**
-   * check if value has a function with callbacks
-   * if yes, directly set that as the function match
-   * if no, go over the list of platform functions and find which function matches
-   * We do this to prevent fields of the platform functions inside callbacks being pushed as the fields of this function
-   * See - https://github.com/appsmithorg/appsmith/issues/15895
+   *  We need to find out if there are more than one function in the value
+   *  If yes, we need to find out the first position position-wise
+   *  this is done to get rid of other functions fields being shown in the selector
+   *  See - https://github.com/appsmithorg/appsmith/issues/15895
    **/
-  const isFunctionWithCallbackFields = FUNCTIONS_WITH_CALLBACKS.filter((func) =>
+  const matches = AppsmithFunctionsWithFields.filter((func) =>
     value.includes(func),
-  )[0];
-  const functionMatch =
-    isFunctionWithCallbackFields ||
-    AppsmithFunctionsWithFields.filter((func) => value.includes(func))[0];
+  );
+
+  const functionMatchesWithPositions: Array<{
+    position: number;
+    func: string;
+  }> = [];
+  matches.forEach((match) => {
+    functionMatchesWithPositions.push({
+      position: value.indexOf(match),
+      func: match,
+    });
+  });
+  functionMatchesWithPositions.sort((a, b) => a.position - b.position);
+
+  const functionMatch = functionMatchesWithPositions[0].func;
 
   if (functionMatch && functionMatch.length > 0) {
     for (const field of FIELD_GROUP_CONFIG[functionMatch].fields) {

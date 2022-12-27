@@ -33,11 +33,6 @@ export const AppsmithFunctionsWithFields = [
   ...Object.keys(APPSMITH_GLOBAL_FUNCTIONS),
 ];
 
-export const FUNCTIONS_WITH_CALLBACKS = [
-  APPSMITH_GLOBAL_FUNCTIONS.setInterval,
-  APPSMITH_NAMESPACED_FUNCTIONS.getGeolocation,
-];
-
 export const RESET_CHILDREN_OPTIONS = [
   { label: "true", value: "true", id: "true" },
   { label: "false", value: "false", id: "false" },
