@@ -39,24 +39,48 @@ public class ActionExecutionResult {
 
     List<WidgetSuggestionDTO> suggestedWidgets;
 
+    PluginErrorDetails pluginErrorDetails;
+
     public void setErrorInfo(Throwable error, AppsmithPluginErrorUtils pluginErrorUtils) {
         this.body = error.getMessage();
+        pluginErrorDetails = new PluginErrorDetails();
+        pluginErrorDetails.appsmithErrorMessage = error.getMessage();
 
         if (error instanceof AppsmithPluginException) {
-            this.statusCode = ((AppsmithPluginException) error).getAppErrorCode().toString();
-            this.title = ((AppsmithPluginException) error).getTitle();
-            this.errorType = ((AppsmithPluginException) error).getErrorType();
+            AppsmithPluginException pluginException = (AppsmithPluginException) error;
+            this.statusCode = pluginException.getAppErrorCode();
+            this.title = pluginException.getTitle();
+            this.errorType = pluginException.getErrorType();
 
             if (((AppsmithPluginException) error).getExternalError() != null && pluginErrorUtils != null) {
                 this.readableError = pluginErrorUtils.getReadableError(error);
             }
+            pluginErrorDetails.title = pluginException.getTitle();
+            pluginErrorDetails.errorType = pluginException.getErrorType();
+            pluginErrorDetails.appsmithErrorCode = pluginException.getAppErrorCode();
+            pluginErrorDetails.appsmithErrorMessage = pluginException.getMessage();
+
         } else if (error instanceof BaseException) {
-            this.statusCode = ((BaseException) error).getAppErrorCode().toString();
+            this.statusCode = ((BaseException) error).getAppErrorCode();
             this.title = ((BaseException) error).getTitle();
         }
     }
 
     public void setErrorInfo(Throwable error) {
         this.setErrorInfo(ExceptionHelper.getRootCause(error), null);
+    }
+
+    @ToString
+    @Getter
+    @Setter
+    class PluginErrorDetails {
+        String title;
+        String errorType;
+        String appsmithErrorCode;
+        String appsmithErrorMessage;
+        String downstreamErrorCode;
+        String downstreamErrorMessage;
+        String solutionHint;
+
     }
 }

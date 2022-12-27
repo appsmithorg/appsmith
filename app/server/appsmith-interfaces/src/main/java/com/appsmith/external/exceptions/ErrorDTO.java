@@ -15,7 +15,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class ErrorDTO implements Serializable {
 
-    private int code;
+    private String code;
 
     private String title;
 
@@ -26,12 +26,12 @@ public class ErrorDTO implements Serializable {
     // Document on how to resolve the error
     private String referenceDoc;
 
-    public ErrorDTO(int code, String message) {
+    public ErrorDTO(String code, String message) {
         this.code = code;
         this.message = message;
     }
 
-    public ErrorDTO(int code, String errorType, String message, String title) {
+    public ErrorDTO(String code, String errorType, String message, String title) {
         this.code = code;
         this.errorType = errorType;
         this.message = message;

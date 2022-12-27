@@ -32,8 +32,8 @@ public class AppsmithPluginException extends BaseException {
         return this.error.getMessage(args);
     }
 
-    public Integer getAppErrorCode() {
-        return this.error == null ? 0 : this.error.getAppErrorCode();
+    public String getAppErrorCode() {
+        return this.error == null ? AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode() : this.error.getAppErrorCode();
     }
 
     public AppsmithErrorAction getErrorAction() {

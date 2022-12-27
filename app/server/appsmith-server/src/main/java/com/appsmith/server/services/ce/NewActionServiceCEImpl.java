@@ -848,8 +848,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                     actionDTO.getName(),
                                                     timeoutDuration))
                 .onErrorMap(StaleConnectionException.class, error ->
-                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                                                    "Secondary stale connection error."))
+                        new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR))
                 .onErrorResume(e -> {
                     log.debug("{}: In the action execution error mode.",
                               Thread.currentThread().getName(), e);

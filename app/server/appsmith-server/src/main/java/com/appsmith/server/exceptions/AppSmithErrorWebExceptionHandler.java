@@ -75,7 +75,7 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
 
         return responseBuilder.body(
                 BodyInserters
-                        .fromValue(new ResponseDTO<>(errorCode, new ErrorDTO(errorCode, String.valueOf(error.get("error")))))
+                        .fromValue(new ResponseDTO<>(errorCode, new ErrorDTO(String.valueOf(errorCode), String.valueOf(error.get("error")))))
         );
     }
 }

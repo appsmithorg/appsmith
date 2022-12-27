@@ -30,6 +30,9 @@ import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
+import io.r2dbc.spi.R2dbcBadGrammarException;
+import io.r2dbc.spi.R2dbcException;
+import io.r2dbc.spi.R2dbcPermissionDeniedException;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -191,22 +194,22 @@ public class MySqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (query == null) {
+            if (! StringUtils.hasLength(query)) {
                 ActionExecutionResult errorResult = new ActionExecutionResult();
-                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+
                 errorResult.setIsExecutionSuccess(false);
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Missing required " +
-                        "parameter: Query."));
-                errorResult.setTitle(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle());
+
                 ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                 actionExecutionRequest.setProperties(requestData);
                 errorResult.setRequest(actionExecutionRequest);
+
+                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.MYSQL_EMPTY_QUERY));
                 return Mono.just(errorResult);
             }
 
             actionConfiguration.setBody(query.trim());
 
-            // In case of non prepared statement, simply do binding replacement and execute
+            // In case of non-prepared statement, simply do binding replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connection, actionConfiguration, FALSE, null, null, requestData);
@@ -239,12 +242,7 @@ public class MySqlPlugin extends BasePlugin {
              */
             if (preparedStatement && isIsOperatorUsed(query)) {
                 return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Appsmith currently does not support the IS keyword with the prepared statement " +
-                                        "setting turned ON. Please re-write your SQL query without the IS keyword or " +
-                                        "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab."
-                        )
+                        new AppsmithPluginException(AppsmithPluginError.MYSQL_IS_KEYWORD_NOT_ALLOWED_IN_PREPARED_STATEMENT)
                 );
             }
 
@@ -322,13 +320,19 @@ public class MySqlPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
+                        } else if (error instanceof R2dbcBadGrammarException) {
+                            error = new AppsmithPluginException(AppsmithPluginError.MYSQL_INVALID_QUERY_SYNTAX);
+                        } else if (error instanceof R2dbcPermissionDeniedException) {
+                            error = new AppsmithPluginException(AppsmithPluginError.MYSQL_MISSING_REQUIRED_PERMISSION);
+                        } else if (error instanceof R2dbcException) {
+                            error = new AppsmithPluginException(AppsmithPluginError.MYSQL_QUERY_EXECUTION_FAILED);
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(finalQuery);
