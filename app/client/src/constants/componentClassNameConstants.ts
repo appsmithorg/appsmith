@@ -1,4 +1,4 @@
-export function getSlidingCanvasName(widgetId: string) {
+export function getSlidingArenaName(widgetId: string) {
   return `div-selection-${widgetId}`;
 }
 

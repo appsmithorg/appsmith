@@ -24,7 +24,7 @@ import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getAbsolutePixels } from "utils/helpers";
 import {
   getStickyCanvasName,
-  getSlidingCanvasName,
+  getSlidingArenaName,
 } from "constants/componentClassNameConstants";
 
 export interface SelectedArenaDimensions {
@@ -485,7 +485,7 @@ export function CanvasSelectionArena({
       canvasId={getStickyCanvasName(widgetId)}
       canvasPadding={canvasPadding}
       getRelativeScrollingParent={getNearestParentCanvas}
-      id={getSlidingCanvasName(widgetId)}
+      id={getSlidingArenaName(widgetId)}
       ref={canvasRef}
       showCanvas={shouldShow}
       snapColSpace={snapColumnSpace}
