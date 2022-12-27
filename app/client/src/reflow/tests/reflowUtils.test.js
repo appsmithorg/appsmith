@@ -32,7 +32,10 @@ import {
   willItCauseUndroppableState,
   verifyMovementLimits,
 } from "../reflowUtils";
-import { HORIZONTAL_RESIZE_LIMIT, VERTICAL_RESIZE_LIMIT } from "../reflowTypes";
+import {
+  HORIZONTAL_RESIZE_MIN_LIMIT,
+  VERTICAL_RESIZE_MIN_LIMIT,
+} from "../reflowTypes";
 
 const gridProps = {
   parentColumnSpace: 20,
@@ -537,7 +540,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.LEFT,
-          depth * HORIZONTAL_RESIZE_LIMIT,
+          depth * HORIZONTAL_RESIZE_MIN_LIMIT,
           30,
           false,
         ),
@@ -550,13 +553,13 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.LEFT,
-          depth * HORIZONTAL_RESIZE_LIMIT,
+          depth * HORIZONTAL_RESIZE_MIN_LIMIT,
           30,
           true,
         ),
       ).toBe(
         -1 *
-          (collisionTree.left - depth * HORIZONTAL_RESIZE_LIMIT) *
+          (collisionTree.left - depth * HORIZONTAL_RESIZE_MIN_LIMIT) *
           gridProps.parentColumnSpace,
       );
     });
@@ -567,7 +570,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.RIGHT,
-          depth * HORIZONTAL_RESIZE_LIMIT,
+          depth * HORIZONTAL_RESIZE_MIN_LIMIT,
           30,
           false,
         ),
@@ -583,14 +586,14 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.RIGHT,
-          depth * HORIZONTAL_RESIZE_LIMIT,
+          depth * HORIZONTAL_RESIZE_MIN_LIMIT,
           30,
           true,
         ),
       ).toBe(
         (gridProps.maxGridColumns -
           collisionTree.right -
-          depth * HORIZONTAL_RESIZE_LIMIT) *
+          depth * HORIZONTAL_RESIZE_MIN_LIMIT) *
           gridProps.parentColumnSpace,
       );
     });
@@ -613,7 +616,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.TOP,
-          depth * VERTICAL_RESIZE_LIMIT,
+          depth * VERTICAL_RESIZE_MIN_LIMIT,
           20,
           false,
         ),
@@ -626,13 +629,13 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.TOP,
-          depth * VERTICAL_RESIZE_LIMIT,
+          depth * VERTICAL_RESIZE_MIN_LIMIT,
           20,
           true,
         ),
       ).toBe(
         -1 *
-          (collisionTree.top - depth * VERTICAL_RESIZE_LIMIT) *
+          (collisionTree.top - depth * VERTICAL_RESIZE_MIN_LIMIT) *
           gridProps.parentRowSpace,
       );
     });
@@ -643,7 +646,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.BOTTOM,
-          depth * VERTICAL_RESIZE_LIMIT,
+          depth * VERTICAL_RESIZE_MIN_LIMIT,
           230,
           false,
         ),
@@ -806,7 +809,7 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentRowSpace,
             emptySpaces,
-            VERTICAL_RESIZE_LIMIT,
+            VERTICAL_RESIZE_MIN_LIMIT,
           ),
         ).toBe(height);
       });
@@ -821,7 +824,7 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentRowSpace,
             emptySpaces,
-            VERTICAL_RESIZE_LIMIT,
+            VERTICAL_RESIZE_MIN_LIMIT,
             true,
           ),
         ).toBe(height);
@@ -840,7 +843,7 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentRowSpace,
             emptySpaces,
-            VERTICAL_RESIZE_LIMIT,
+            VERTICAL_RESIZE_MIN_LIMIT,
             true,
           ),
         ).toBe(resizedHeight);
@@ -856,10 +859,10 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentRowSpace,
             emptySpaces,
-            VERTICAL_RESIZE_LIMIT,
+            VERTICAL_RESIZE_MIN_LIMIT,
             true,
           ),
-        ).toBe(VERTICAL_RESIZE_LIMIT * gridProps.parentRowSpace);
+        ).toBe(VERTICAL_RESIZE_MIN_LIMIT * gridProps.parentRowSpace);
       });
     });
 
@@ -879,7 +882,7 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentColumnSpace,
             emptySpaces,
-            HORIZONTAL_RESIZE_LIMIT,
+            HORIZONTAL_RESIZE_MIN_LIMIT,
           ),
         ).toBe(width);
       });
@@ -894,7 +897,7 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentColumnSpace,
             emptySpaces,
-            HORIZONTAL_RESIZE_LIMIT,
+            HORIZONTAL_RESIZE_MIN_LIMIT,
             true,
           ),
         ).toBe(width);
@@ -915,7 +918,7 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentColumnSpace,
             emptySpaces,
-            HORIZONTAL_RESIZE_LIMIT,
+            HORIZONTAL_RESIZE_MIN_LIMIT,
             true,
           ),
         ).toBe(resizedWidth);
@@ -931,10 +934,10 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentColumnSpace,
             emptySpaces,
-            HORIZONTAL_RESIZE_LIMIT,
+            HORIZONTAL_RESIZE_MIN_LIMIT,
             true,
           ),
-        ).toBe(HORIZONTAL_RESIZE_LIMIT * gridProps.parentColumnSpace);
+        ).toBe(HORIZONTAL_RESIZE_MIN_LIMIT * gridProps.parentColumnSpace);
       });
     });
 
@@ -954,7 +957,7 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentColumnSpace,
             emptySpaces,
-            HORIZONTAL_RESIZE_LIMIT,
+            HORIZONTAL_RESIZE_MIN_LIMIT,
           ),
         ).toBe(width);
       });
@@ -969,7 +972,7 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentColumnSpace,
             emptySpaces,
-            HORIZONTAL_RESIZE_LIMIT,
+            HORIZONTAL_RESIZE_MIN_LIMIT,
             true,
           ),
         ).toBe(width);
@@ -991,7 +994,7 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentColumnSpace,
             emptySpaces,
-            HORIZONTAL_RESIZE_LIMIT,
+            HORIZONTAL_RESIZE_MIN_LIMIT,
             true,
           ),
         ).toBe(resizedWidth);
@@ -1007,10 +1010,10 @@ describe("Test reflow util methods", () => {
             dimensionBeforeCollision,
             gridProps.parentColumnSpace,
             emptySpaces,
-            HORIZONTAL_RESIZE_LIMIT,
+            HORIZONTAL_RESIZE_MIN_LIMIT,
             true,
           ),
-        ).toBe(HORIZONTAL_RESIZE_LIMIT * gridProps.parentColumnSpace);
+        ).toBe(HORIZONTAL_RESIZE_MIN_LIMIT * gridProps.parentColumnSpace);
       });
     });
   });
@@ -1918,7 +1921,7 @@ describe("Test reflow util methods", () => {
         "1234": {
           BOTTOM: {
             value: 10,
-            occupiedLength: 5 * VERTICAL_RESIZE_LIMIT,
+            occupiedLength: 5 * VERTICAL_RESIZE_MIN_LIMIT,
             occupiedSpace: 10,
             currentEmptySpaces: 10,
           },
@@ -1926,7 +1929,7 @@ describe("Test reflow util methods", () => {
       };
       expect(checkProcessNodeForTree(collidingSpace, processedNodes)).toEqual({
         shouldProcessNode: false,
-        occupiedLength: 5 * VERTICAL_RESIZE_LIMIT,
+        occupiedLength: 5 * VERTICAL_RESIZE_MIN_LIMIT,
         occupiedSpace: 10,
         currentEmptySpaces: 10,
       });
@@ -1948,7 +1951,7 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth * VERTICAL_RESIZE_LIMIT,
+          depth * VERTICAL_RESIZE_MIN_LIMIT,
         ),
       ).toBe(collidingValue);
     });
@@ -1963,7 +1966,7 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth * VERTICAL_RESIZE_LIMIT,
+          depth * VERTICAL_RESIZE_MIN_LIMIT,
         ),
       ).toBe(collidingValue);
     });
@@ -1978,9 +1981,9 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth * VERTICAL_RESIZE_LIMIT,
+          depth * VERTICAL_RESIZE_MIN_LIMIT,
         ),
-      ).toBe(depth * VERTICAL_RESIZE_LIMIT);
+      ).toBe(depth * VERTICAL_RESIZE_MIN_LIMIT);
     });
     it("should return calculated colliding value if depth is high compared to colliding value in LEFT direction", () => {
       const direction = ReflowDirection.LEFT;
@@ -1993,9 +1996,9 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth * HORIZONTAL_RESIZE_LIMIT,
+          depth * HORIZONTAL_RESIZE_MIN_LIMIT,
         ),
-      ).toBe(depth * HORIZONTAL_RESIZE_LIMIT);
+      ).toBe(depth * HORIZONTAL_RESIZE_MIN_LIMIT);
     });
     it("should return calculated colliding value if depth is high compared to colliding value in RIGHT direction", () => {
       const direction = ReflowDirection.RIGHT;
@@ -2008,9 +2011,9 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth * HORIZONTAL_RESIZE_LIMIT,
+          depth * HORIZONTAL_RESIZE_MIN_LIMIT,
         ),
-      ).toBe(gridProps.maxGridColumns - depth * HORIZONTAL_RESIZE_LIMIT);
+      ).toBe(gridProps.maxGridColumns - depth * HORIZONTAL_RESIZE_MIN_LIMIT);
     });
   });
 
@@ -2256,7 +2259,7 @@ describe("Test reflow util methods", () => {
         left: 19,
         right: 40,
         top: 19,
-        bottom: 19 + VERTICAL_RESIZE_LIMIT,
+        bottom: 19 + VERTICAL_RESIZE_MIN_LIMIT,
       };
 
       expect(
@@ -2270,7 +2273,7 @@ describe("Test reflow util methods", () => {
       resizedPosition = {
         id: "id",
         left: 19,
-        right: 19 + HORIZONTAL_RESIZE_LIMIT,
+        right: 19 + HORIZONTAL_RESIZE_MIN_LIMIT,
         top: 19,
         bottom: 95,
       };

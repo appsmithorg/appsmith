@@ -1,7 +1,7 @@
 import {
-  HORIZONTAL_RESIZE_LIMIT,
+  HORIZONTAL_RESIZE_MIN_LIMIT,
   ReflowDirection,
-  VERTICAL_RESIZE_LIMIT,
+  VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
 import { getAccessor } from "reflow/reflowUtils";
 import {
@@ -368,7 +368,7 @@ describe("Test reflow helper methods", () => {
           directionY: "BOTTOM",
           height: 200,
           maxY: Infinity,
-          verticalOccupiedLength: VERTICAL_RESIZE_LIMIT,
+          verticalOccupiedLength: VERTICAL_RESIZE_MIN_LIMIT,
           verticalEmptySpaces: 0,
           verticalMaxOccupiedSpace: 20,
         },
@@ -574,7 +574,7 @@ describe("Test reflow helper methods", () => {
           gridProps,
           ReflowDirection.RIGHT,
           20,
-          3 * HORIZONTAL_RESIZE_LIMIT,
+          3 * HORIZONTAL_RESIZE_MIN_LIMIT,
           -10,
           7,
           7,
@@ -585,7 +585,7 @@ describe("Test reflow helper methods", () => {
         X: 30,
         dimensionXBeforeCollision: -10,
         directionX: "RIGHT",
-        horizontalOccupiedLength: 3 * HORIZONTAL_RESIZE_LIMIT,
+        horizontalOccupiedLength: 3 * HORIZONTAL_RESIZE_MIN_LIMIT,
         horizontalEmptySpaces: 7,
         horizontalMaxOccupiedSpace: 20,
         maxX: 80,
@@ -599,7 +599,7 @@ describe("Test reflow helper methods", () => {
           gridProps,
           ReflowDirection.BOTTOM,
           20,
-          3 * VERTICAL_RESIZE_LIMIT,
+          3 * VERTICAL_RESIZE_MIN_LIMIT,
           -10,
           7,
           7,
@@ -612,7 +612,7 @@ describe("Test reflow helper methods", () => {
         directionY: "BOTTOM",
         height: 200,
         maxY: Infinity,
-        verticalOccupiedLength: 3 * VERTICAL_RESIZE_LIMIT,
+        verticalOccupiedLength: 3 * VERTICAL_RESIZE_MIN_LIMIT,
         verticalEmptySpaces: 7,
         verticalMaxOccupiedSpace: 20,
       });

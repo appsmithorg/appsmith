@@ -1,15 +1,17 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import {
-  HORIZONTAL_RESIZE_LIMIT,
+  HORIZONTAL_RESIZE_MIN_LIMIT,
+  MovementLimitMap,
   ReflowDirection,
   ReflowedSpaceMap,
   SpaceMap,
-  VERTICAL_RESIZE_LIMIT,
+  VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
 import {
   getDraggingSpacesFromBlocks,
   getDropZoneOffsets,
+  noCollision,
 } from "utils/WidgetPropsUtils";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
@@ -104,13 +106,12 @@ export function modifyDrawingRectangles(
   snapColumnSpace: number,
   snapRowSpace: number,
 ): WidgetDraggingBlock[] {
-  if (
-    rectanglesToDraw.length !== 1 ||
-    !spaceMap?.[rectanglesToDraw[0]?.widgetId]
-  )
+  const rectangleToDraw = rectanglesToDraw?.[0];
+
+  if (rectanglesToDraw.length !== 1 || !spaceMap?.[rectangleToDraw?.widgetId])
     return rectanglesToDraw;
 
-  const { bottom, left, right, top } = spaceMap[rectanglesToDraw[0].widgetId];
+  const { bottom, left, right, top } = spaceMap[rectangleToDraw.widgetId];
 
   const resizedPosition = getDraggingSpacesFromBlocks(
     rectanglesToDraw,
@@ -222,22 +223,22 @@ export const modifyBlockDimension = (
   // calculate offsets based on collisions and limits
   if (leftColumn < 0) {
     leftOffset =
-      leftColumn + columnWidth > HORIZONTAL_RESIZE_LIMIT
+      leftColumn + columnWidth > HORIZONTAL_RESIZE_MIN_LIMIT
         ? leftColumn
-        : HORIZONTAL_RESIZE_LIMIT - columnWidth;
+        : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
   } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
     rightOffset = GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
     rightOffset =
-      columnWidth + rightOffset >= HORIZONTAL_RESIZE_LIMIT
+      columnWidth + rightOffset >= HORIZONTAL_RESIZE_MIN_LIMIT
         ? rightOffset
-        : HORIZONTAL_RESIZE_LIMIT - columnWidth;
+        : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
   }
 
   if (topRow < 0 && fixedHeight === undefined) {
     topOffset =
-      topRow + rowHeight > VERTICAL_RESIZE_LIMIT
+      topRow + rowHeight > VERTICAL_RESIZE_MIN_LIMIT
         ? topRow
-        : VERTICAL_RESIZE_LIMIT - rowHeight;
+        : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
   }
 
   if (
@@ -247,9 +248,9 @@ export const modifyBlockDimension = (
   ) {
     bottomOffset = parentBottomRow - topRow - rowHeight;
     bottomOffset =
-      rowHeight + bottomOffset >= VERTICAL_RESIZE_LIMIT
+      rowHeight + bottomOffset >= VERTICAL_RESIZE_MIN_LIMIT
         ? bottomOffset
-        : VERTICAL_RESIZE_LIMIT - rowHeight;
+        : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
   }
 
   return {
@@ -261,4 +262,55 @@ export const modifyBlockDimension = (
     columnWidth: columnWidth + leftOffset + rightOffset,
     rowHeight: rowHeight + topOffset + bottomOffset,
   };
+};
+
+/**
+ * updates isColliding of each block based on movementLimitMap post reflow
+ * @param movementLimitMap limits of each widgets
+ * @param currentRectanglesToDraw dragging parameters of widget
+ * @param snapColumnSpace width between each columns
+ * @param snapRowSpace height between each rows
+ * @param rows number of rows in canvas
+ * @returns array of rectangle blocks to draw
+ */
+export const updateRectanglesPostReflow = (
+  movementLimitMap: MovementLimitMap | undefined,
+  currentRectanglesToDraw: WidgetDraggingBlock[],
+  snapColumnSpace: number,
+  snapRowSpace: number,
+  rows: number,
+) => {
+  const rectanglesToDraw: WidgetDraggingBlock[] = [];
+  for (const block of currentRectanglesToDraw) {
+    const isWithinParentBoundaries = noCollision(
+      { x: block.left, y: block.top },
+      snapColumnSpace,
+      snapRowSpace,
+      { x: 0, y: 0 },
+      block.columnWidth,
+      block.rowHeight,
+      block.widgetId,
+      [],
+      rows,
+      GridDefaults.DEFAULT_GRID_COLUMNS,
+      block.detachFromLayout,
+    );
+
+    let isNotReachedLimit = true;
+    const currentBlockLimit =
+      movementLimitMap && movementLimitMap[block.widgetId];
+
+    if (currentBlockLimit) {
+      isNotReachedLimit =
+        currentBlockLimit.canHorizontalMove &&
+        currentBlockLimit.canVerticalMove;
+    }
+
+    rectanglesToDraw.push({
+      ...block,
+      isNotColliding: isWithinParentBoundaries && isNotReachedLimit,
+    });
+  }
+
+  return rectanglesToDraw;
 };

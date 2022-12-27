@@ -1,8 +1,8 @@
 import { GridDefaults } from "constants/WidgetConstants";
 import {
-  HORIZONTAL_RESIZE_LIMIT,
+  HORIZONTAL_RESIZE_MIN_LIMIT,
   ReflowDirection,
-  VERTICAL_RESIZE_LIMIT,
+  VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
 import {
   getEdgeDirection,
@@ -10,6 +10,7 @@ import {
   getReflowedSpaces,
   modifyBlockDimension,
   modifyDrawingRectangles,
+  updateRectanglesPostReflow,
 } from "./canvasDraggingUtils";
 
 describe("test canvasDraggingUtils Methods", () => {
@@ -203,10 +204,10 @@ describe("test canvasDraggingUtils Methods", () => {
       const modifiedBlock = {
         left: -10,
         top: -20,
-        width: HORIZONTAL_RESIZE_LIMIT * 10,
-        height: VERTICAL_RESIZE_LIMIT * 10,
-        columnWidth: HORIZONTAL_RESIZE_LIMIT,
-        rowHeight: VERTICAL_RESIZE_LIMIT,
+        width: HORIZONTAL_RESIZE_MIN_LIMIT * 10,
+        height: VERTICAL_RESIZE_MIN_LIMIT * 10,
+        columnWidth: HORIZONTAL_RESIZE_MIN_LIMIT,
+        rowHeight: VERTICAL_RESIZE_MIN_LIMIT,
         widgetId: "id",
         isNotColliding: true,
       };
@@ -256,9 +257,9 @@ describe("test canvasDraggingUtils Methods", () => {
       const modifiedBlock = {
         left: 630,
         top: 600,
-        width: HORIZONTAL_RESIZE_LIMIT * 10,
+        width: HORIZONTAL_RESIZE_MIN_LIMIT * 10,
         height: 900,
-        columnWidth: HORIZONTAL_RESIZE_LIMIT,
+        columnWidth: HORIZONTAL_RESIZE_MIN_LIMIT,
         rowHeight: 90,
         widgetId: "id",
         isNotColliding: true,
@@ -267,6 +268,125 @@ describe("test canvasDraggingUtils Methods", () => {
       expect(modifyBlockDimension(draggingBlock, 10, 10, 100, false)).toEqual(
         modifiedBlock,
       );
+    });
+  });
+
+  describe("should test updateRectanglesPostReflow method", () => {
+    it("should update noCollision properties based on respective rectangles", () => {
+      const rectanglesToDraw = [
+        {
+          left: -10,
+          top: 200,
+          width: 600,
+          height: 900,
+          columnWidth: 60,
+          rowHeight: 90,
+          widgetId: "1",
+          isNotColliding: true,
+        },
+        {
+          left: 100,
+          top: 200,
+          width: 700,
+          height: 950,
+          columnWidth: 70,
+          rowHeight: 95,
+          widgetId: "2",
+          isNotColliding: true,
+        },
+        {
+          left: 300,
+          top: 100,
+          width: 200,
+          height: 340,
+          columnWidth: 20,
+          rowHeight: 34,
+          widgetId: "3",
+          isNotColliding: true,
+        },
+        {
+          left: 400,
+          top: 500,
+          width: 200,
+          height: 120,
+          columnWidth: 20,
+          rowHeight: 12,
+          widgetId: "4",
+          isNotColliding: true,
+        },
+      ];
+
+      const result = [
+        {
+          left: -10,
+          top: 200,
+          width: 600,
+          height: 900,
+          columnWidth: 60,
+          rowHeight: 90,
+          widgetId: "1",
+          isNotColliding: false,
+        },
+        {
+          left: 100,
+          top: 200,
+          width: 700,
+          height: 950,
+          columnWidth: 70,
+          rowHeight: 95,
+          widgetId: "2",
+          isNotColliding: false,
+        },
+        {
+          left: 300,
+          top: 100,
+          width: 200,
+          height: 340,
+          columnWidth: 20,
+          rowHeight: 34,
+          widgetId: "3",
+          isNotColliding: false,
+        },
+        {
+          left: 400,
+          top: 500,
+          width: 200,
+          height: 120,
+          columnWidth: 20,
+          rowHeight: 12,
+          widgetId: "4",
+          isNotColliding: true,
+        },
+      ];
+
+      const movementLimitMap = {
+        "1": {
+          canHorizontalMove: true,
+          canVerticalMove: true,
+        },
+        "2": {
+          canHorizontalMove: true,
+          canVerticalMove: true,
+        },
+        "3": {
+          canHorizontalMove: true,
+          canVerticalMove: false,
+        },
+        "4": {
+          canHorizontalMove: true,
+          canVerticalMove: true,
+        },
+      };
+
+      expect(
+        updateRectanglesPostReflow(
+          movementLimitMap,
+          rectanglesToDraw,
+          10,
+          10,
+          2000,
+        ),
+      ).toEqual(result);
     });
   });
 });

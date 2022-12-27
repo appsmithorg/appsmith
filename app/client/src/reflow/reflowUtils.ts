@@ -10,7 +10,7 @@ import {
   CollisionTree,
   CollisionTreeCache,
   GridProps,
-  HORIZONTAL_RESIZE_LIMIT,
+  HORIZONTAL_RESIZE_MIN_LIMIT,
   MathComparators,
   MovementLimitMap,
   OrientationAccessors,
@@ -22,7 +22,7 @@ import {
   SpaceAttributes,
   SpaceMap,
   SpaceMovementMap,
-  VERTICAL_RESIZE_LIMIT,
+  VERTICAL_RESIZE_MIN_LIMIT,
 } from "./reflowTypes";
 
 /**
@@ -314,6 +314,7 @@ export function getCollidingSpaceMap(
   //if droptargets are not to be reflowed, resize space positions
   // and omit drop targets from the spaces
   if (!shouldReflowDropTarget) {
+    // reset values based on function's result
     ({
       currSpacePositions,
       reflowableOccSpaces,
@@ -2031,8 +2032,9 @@ export function getCollisionDirectionOfDropTarget(
   if (
     possiblePushDirections.length < 1 ||
     possiblePushDirections.includes(currentDirection)
-  )
+  ) {
     return currentDirection;
+  }
 
   return possiblePushDirections[0];
 }
@@ -2188,8 +2190,9 @@ export function modifyResizePosition(
   collidingContainer: BlockSpace,
   direction: ReflowDirection,
 ): BlockSpace {
-  if (!direction || direction === ReflowDirection.UNSET)
+  if (!direction || direction === ReflowDirection.UNSET) {
     return newSpacePosition;
+  }
 
   const spacePosition = { ...newSpacePosition };
   const {
@@ -2207,9 +2210,9 @@ export function modifyResizePosition(
   );
 
   const minDimension = isHorizontal
-    ? HORIZONTAL_RESIZE_LIMIT
+    ? HORIZONTAL_RESIZE_MIN_LIMIT
     : newSpacePosition.fixedHeight === undefined
-    ? VERTICAL_RESIZE_LIMIT
+    ? VERTICAL_RESIZE_MIN_LIMIT
     : newSpacePosition.fixedHeight;
 
   spacePosition[directionAccessor] = Math[oppositeMathComparator](

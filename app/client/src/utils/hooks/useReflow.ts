@@ -243,7 +243,8 @@ export const useReflow = (
               shouldReflowDropTargets.current = false;
             }
           }, 500);
-        } else if (
+        } // This checks if colliding space does not contain any drop targets
+        else if (
           !collidingSpaces.some(
             (collidingSpaces) => collidingSpaces.isDropTarget,
           )
@@ -281,7 +282,7 @@ export const useReflow = (
         spacePositionMap,
       };
     },
-    //reset Reflow parameters when this is called, usually while resetting dragging canvas
+    //reset Reflow parameters when this is called, usually while resetting  canvas
     resetReflow: () => {
       clearTimeout(timeOutFunction.current);
       shouldReflowDropTargets.current = false;

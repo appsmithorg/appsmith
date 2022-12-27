@@ -1,7 +1,7 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
-export const HORIZONTAL_RESIZE_LIMIT = 2;
-export const VERTICAL_RESIZE_LIMIT = 4;
+export const HORIZONTAL_RESIZE_MIN_LIMIT = 2;
+export const VERTICAL_RESIZE_MIN_LIMIT = 4;
 
 export enum ReflowDirection {
   LEFT = "LEFT",

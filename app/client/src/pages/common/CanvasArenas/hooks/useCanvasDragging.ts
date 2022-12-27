@@ -23,6 +23,7 @@ import {
   getReflowedSpaces,
   modifyBlockDimension,
   modifyDrawingRectangles,
+  updateRectanglesPostReflow,
 } from "./canvasDraggingUtils";
 import {
   useBlocksToBeDraggedOnCanvas,
@@ -284,33 +285,15 @@ export const useCanvasDragging = (
 
             if (isReflowing) {
               const { movementLimitMap } = currentReflowParams;
+              // update isColliding of each block based on movementLimitMap
+              currentRectanglesToDraw = updateRectanglesPostReflow(
+                movementLimitMap,
+                currentRectanglesToDraw,
+                snapColumnSpace,
+                snapRowSpace,
+                rowRef.current,
+              );
 
-              for (const block of currentRectanglesToDraw) {
-                const isWithinParentBoundaries = noCollision(
-                  { x: block.left, y: block.top },
-                  snapColumnSpace,
-                  snapRowSpace,
-                  { x: 0, y: 0 },
-                  block.columnWidth,
-                  block.rowHeight,
-                  block.widgetId,
-                  [],
-                  rowRef.current,
-                  GridDefaults.DEFAULT_GRID_COLUMNS,
-                  block.detachFromLayout,
-                );
-
-                let isNotReachedLimit = true;
-                const currentBlockLimit =
-                  movementLimitMap && movementLimitMap[block.widgetId];
-                if (currentBlockLimit) {
-                  isNotReachedLimit =
-                    currentBlockLimit.canHorizontalMove &&
-                    currentBlockLimit.canVerticalMove;
-                }
-                block.isNotColliding =
-                  isWithinParentBoundaries && isNotReachedLimit;
-              }
               const widgetIdsToExclude = currentRectanglesToDraw.map(
                 (a) => a.widgetId,
               );
@@ -323,6 +306,7 @@ export const useCanvasDragging = (
             }
           }
         };
+
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && slidingArenaRef.current) {
             const delta = {
