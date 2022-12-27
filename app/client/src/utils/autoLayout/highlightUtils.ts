@@ -155,7 +155,7 @@ function generateVerticalHighlights(data: {
     const widget = widgets[child.id];
     if (!widget) continue;
     count += 1;
-
+    if (draggedWidgets.indexOf(child.id) > -1) continue;
     if (child.align === FlexLayerAlignment.End) {
       endChildren.push(widget);
       endColumns += widget.rightColumn - widget.leftColumn;
