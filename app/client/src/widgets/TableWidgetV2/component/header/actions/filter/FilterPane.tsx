@@ -17,6 +17,7 @@ import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { selectWidgetAction } from "actions/widgetSelectionActions";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const DragBlock = styled.div`
   height: 40px;
@@ -119,10 +120,14 @@ class TableFilterPane extends Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, ownProps: TableFilterPaneProps) => {
+  const widgetLikeProps = {
+    widgetId: ownProps.widgetId,
+  } as WidgetProps;
+
   return {
     tableFilterPane: getTableFilterState(state),
     themeMode: getCurrentThemeMode(state),
-    metaProps: getWidgetMetaProps(state, ownProps.widgetId),
+    metaProps: getWidgetMetaProps(state, widgetLikeProps),
   };
 };
 

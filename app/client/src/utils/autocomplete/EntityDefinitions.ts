@@ -208,6 +208,8 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
+    isValid: "bool",
+    isDirty: "bool",
     options: "[$__dropdownOption__$]",
   },
   MULTI_SELECT_WIDGET: {
@@ -252,6 +254,8 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
+    isValid: "bool",
+    isDirty: "bool",
     options: "[$__dropdownOption__$]",
   },
   IMAGE_WIDGET: {
@@ -397,6 +401,8 @@ export const entityDefinitions = {
     isVisible: isVisible,
     files: "[$__file__$]",
     isDisabled: "bool",
+    isValid: "bool",
+    isDirty: "bool",
   },
   LIST_WIDGET: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":

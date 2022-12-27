@@ -573,6 +573,7 @@ export interface WidgetBuilder<
 
 export interface WidgetBaseProps {
   widgetId: string;
+  metaWidgetId?: string;
   type: WidgetType;
   widgetName: string;
   parentId?: string;

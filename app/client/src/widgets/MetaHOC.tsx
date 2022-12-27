@@ -146,7 +146,16 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       actionExecution?: DebouncedExecuteActionPayload,
     ) => {
       const { syncUpdateWidgetMetaProperty } = this.context;
-      const { widgetId } = this.props;
+      /**
+       * Some meta widget will have the actual widget's widgetId as it's widgetId.
+       * Eg - these are the widgets that are present in the first row of the List widget.
+       * For these widgets, it's expected for the meta updates to not go into the actual widgetId
+       * but a different internal id as over page changes the first row widgets should reflect distinct
+       * values entered in that particular page.
+       *
+       * Note: metaWidgetId would be undefined for all the non meta-widgets.
+       */
+      const widgetId = this.props.metaWidgetId || this.props.widgetId;
 
       if (syncUpdateWidgetMetaProperty) {
         syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue);
@@ -192,7 +201,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
   const mapStateToProps = (state: AppState, ownProps: WidgetProps) => {
     return {
-      metaState: getWidgetMetaProps(state, ownProps.widgetId),
+      metaState: getWidgetMetaProps(state, ownProps),
     };
   };
   return connect(mapStateToProps)(MetaHOC);
