@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit
 
 # Remove previous dist directory
 rm -rf dist/
