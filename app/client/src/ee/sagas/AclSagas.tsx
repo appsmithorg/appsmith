@@ -20,9 +20,12 @@ import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/AccessControl/components";
 import log from "loglevel";
 import { Toaster, Variant } from "design-system";
-import { createMessage } from "design-system/build/constants/messages";
 import {
+  createMessage,
   ACL_DELETED_SUCCESS,
+  EVENT_GROUP_ROLES_TAB,
+  EVENT_USER_GROUPS_TAB,
+  EVENT_USER_ROLES_TAB,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
@@ -115,7 +118,7 @@ export function* fetchAclUserByIdSaga(
       if (action.payload.triggerUpdateEvent && action.payload.updatePayload) {
         if (action.payload.updatePayload.tab === "roles") {
           AnalyticsUtil.logEvent("GAC_USER_ROLE_UPDATE", {
-            origin: "User Details page > Roles tab",
+            origin: createMessage(EVENT_USER_ROLES_TAB),
             email: data.username,
             rolesAdded: action.payload.updatePayload.rolesAdded,
             rolesRemoved: action.payload.updatePayload.rolesRemoved,
@@ -125,7 +128,7 @@ export function* fetchAclUserByIdSaga(
 
         if (action.payload.updatePayload.tab === "groups") {
           AnalyticsUtil.logEvent("GAC_USER_GROUP_UPDATE", {
-            origin: "User Details page > Groups tab",
+            origin: createMessage(EVENT_USER_GROUPS_TAB),
             email: data.username,
             groupsAdded: action.payload.updatePayload.groupsAdded,
             groupsRemoved: action.payload.updatePayload.groupsRemoved,
@@ -289,7 +292,7 @@ export function* fetchAclGroupSagaById(
       const data: any = response[0].data;
       if (action.payload.triggerUpdateEvent && action.payload.updatePayload) {
         AnalyticsUtil.logEvent("GAC_GROUP_ROLE_UPDATE", {
-          origin: "Group Details page > Roles tab",
+          origin: createMessage(EVENT_GROUP_ROLES_TAB),
           name: data.name,
           rolesAdded: action.payload.updatePayload.rolesAdded,
           rolesRemoved: action.payload.updatePayload.rolesRemoved,

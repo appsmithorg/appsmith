@@ -33,6 +33,8 @@ import {
   SHOW_LESS_GROUPS,
   SHOW_MORE_GROUPS,
   SEARCH_USERS_PLACEHOLDER,
+  EVENT_USER_INVITE,
+  EVENT_USERS_PAGE,
 } from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -153,7 +155,7 @@ export function UserListing() {
         name: option.label,
       }));
       AnalyticsUtil.logEvent("GAC_INVITE_USER_CLICK", {
-        origin: "Users page > Add user modal",
+        origin: createMessage(EVENT_USER_INVITE),
         groups: groupsAdded,
         roles: [],
         numberOfUsersInvited: usernames.length,
@@ -170,7 +172,7 @@ export function UserListing() {
         name: option.label,
       }));
       AnalyticsUtil.logEvent("GAC_INVITE_USER_CLICK", {
-        origin: "Users page > Add user modal",
+        origin: createMessage(EVENT_USER_INVITE),
         groups: [],
         roles: rolesAdded,
         numberOfUsersInvited: users.length,
@@ -191,7 +193,7 @@ export function UserListing() {
             data-testid="acl-user-listing-link"
             onClick={() =>
               AnalyticsUtil.logEvent("GAC_USER_CLICK", {
-                origin: "Users page",
+                origin: createMessage(EVENT_USERS_PAGE),
                 email: username,
               })
             }
@@ -414,7 +416,7 @@ export function UserListing() {
   const onButtonClick = () => {
     setShowModal(true);
     AnalyticsUtil.logEvent("GAC_ADD_USER_CLICK", {
-      origin: "Users page",
+      origin: createMessage(EVENT_USERS_PAGE),
     });
     dispatch({
       type: ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE,

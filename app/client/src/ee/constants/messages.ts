@@ -7,6 +7,7 @@ import {
   MEMBERS_TAB_TITLE as CE_MEMBERS_TAB_TITLE,
 } from "ce/constants/messages";
 
+// GAC begin
 export const SHOW_LESS_GROUPS = () => `show less`;
 export const SHOW_MORE_GROUPS = (count: number) => `show ${count} more`;
 export const ADD_USERS = () => `Add Users`;
@@ -62,6 +63,20 @@ export const MEMBERS_TAB_TITLE = (length: number, cloudHosting?: boolean) =>
   cloudHosting
     ? createMessage(CE_MEMBERS_TAB_TITLE, length)
     : `Users / User Groups (${length})`;
+export const EVENT_GROUP_ADD_USER_TOP_BAR = () =>
+  "Group Details page > Top bar";
+export const EVENT_GROUP_ADD_USER_EMPTY_STATE = () =>
+  "Group Details page > Users tab > Empty state";
+export const EVENT_GROUP_INVITE_USER_TOP_BAR = () =>
+  "Group Details page > Top bar > Add user modal";
+export const EVENT_GROUP_INVITE_USER_EMPTY_STATE = () =>
+  "Group Details page > Users tab > Empty state > Add user modal";
+export const EVENT_USER_INVITE = () => "Users page > Add user modal";
+export const EVENT_USERS_PAGE = () => "Users page";
+export const EVENT_USER_ROLES_TAB = () => "User Details page > Roles tab";
+export const EVENT_USER_GROUPS_TAB = () => "User Details page > Groups tab";
+export const EVENT_GROUP_ROLES_TAB = () => "Group Details page > Roles tab";
+// GAC end
 
 // Audit logs begin
 export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";

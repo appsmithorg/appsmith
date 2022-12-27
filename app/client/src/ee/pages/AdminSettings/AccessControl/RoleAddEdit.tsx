@@ -23,7 +23,7 @@ import {
 import RoleTabs from "./RolesTree";
 
 export function RoleAddEdit(props: RoleEditProps) {
-  const { isNew = false, selected } = props;
+  const { isLoading = false, isNew = false, selected } = props;
   const [searchValue, setSearchValue] = useState("");
   const history = useHistory();
   const dispatch = useDispatch();
@@ -127,7 +127,11 @@ export function RoleAddEdit(props: RoleEditProps) {
         searchValue={searchValue}
         title={selected.name || ""}
       />
-      <RoleTabs searchValue={searchValue} selected={selected} />
+      <RoleTabs
+        isLoading={isLoading}
+        searchValue={searchValue}
+        selected={selected}
+      />
     </div>
   );
 }

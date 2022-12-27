@@ -469,7 +469,12 @@ export function traverseSubRows(subrows: any[], map: any): any {
   });
 }
 
-export function updateDataToBeSent(row: any, mapPIndex: number, value: any) {
+export function updateDataToBeSent(
+  row: any,
+  mapPIndex: number,
+  value: any,
+  dependencies = 0,
+) {
   const replaceDataIndex = dataToBeSent.findIndex(
     (a: any) => a.id === row.id && a.name === row.name,
   );
@@ -479,7 +484,13 @@ export function updateDataToBeSent(row: any, mapPIndex: number, value: any) {
       permissions:
         mapPIndex !== -1
           ? row?.permissions?.map((r: number, rI: number) => {
-              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+              return rI === mapPIndex &&
+                r !== -1 &&
+                ((!value && dependencies < 1) || value)
+                ? value
+                  ? 1
+                  : 0
+                : r;
             })
           : row?.permissions,
       type: row.type,
@@ -491,7 +502,13 @@ export function updateDataToBeSent(row: any, mapPIndex: number, value: any) {
       permissions:
         mapPIndex !== -1
           ? row?.permissions?.map((r: number, rI: number) => {
-              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+              return rI === mapPIndex &&
+                r !== -1 &&
+                ((!value && dependencies < 1) || value)
+                ? value
+                  ? 1
+                  : 0
+                : r;
             })
           : row?.permissions,
       type: row.type,
@@ -510,7 +527,7 @@ export function updateSubRows(
   const returnData = rows.map((subRow: any) => {
     if (map.id === subRow.id) {
       if (subRow.type !== "Header") {
-        updateDataToBeSent(subRow, mapPIndex, value);
+        updateDataToBeSent(subRow, mapPIndex, value, dependencies);
       }
       return {
         ...subRow,
@@ -530,7 +547,7 @@ export function updateSubRows(
         !dataToBeSent.some((a) => a.id === subRow.id) &&
         subRow.type !== "Header"
       ) {
-        updateDataToBeSent(subRow, mapPIndex, value);
+        updateDataToBeSent(subRow, mapPIndex, value, dependencies);
       }
       return subRow.subRows
         ? {
@@ -983,6 +1000,7 @@ export function EachTab(
   selected: RoleProps,
   showSaveModal: boolean,
   setShowSaveModal: (val: boolean) => void,
+  isLoading: boolean,
 ) {
   const [tabCount, setTabCount] = useState<number>(0);
   const dataFromProps = useMemo(() => {
@@ -1005,7 +1023,11 @@ export function EachTab(
     key,
     title: key,
     count: tabCount,
-    panelComponent: (
+    panelComponent: isLoading ? (
+      <CentralizedWrapper>
+        <Spinner size={IconSize.XXL} />
+      </CentralizedWrapper>
+    ) : (
       <RolesTree
         currentTabName={key}
         dataFromProps={dataFromProps}
@@ -1021,10 +1043,11 @@ export function EachTab(
 }
 
 export default function RoleTabs(props: {
+  isLoading: boolean;
   selected: RoleProps;
   searchValue: string;
 }) {
-  const { searchValue, selected } = props;
+  const { isLoading, searchValue, selected } = props;
   const isEditing = useSelector(getAclIsEditing);
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -1038,6 +1061,7 @@ export default function RoleTabs(props: {
           selected,
           showSaveModal,
           setShowSaveModal,
+          isLoading,
         ),
       )
     : [];

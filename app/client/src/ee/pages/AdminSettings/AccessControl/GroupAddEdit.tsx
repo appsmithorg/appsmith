@@ -40,6 +40,10 @@ import {
   ACL_RENAME,
   SEARCH_PLACEHOLDER,
   REMOVE_USER,
+  EVENT_GROUP_ADD_USER_EMPTY_STATE,
+  EVENT_GROUP_ADD_USER_TOP_BAR,
+  EVENT_GROUP_INVITE_USER_TOP_BAR,
+  EVENT_GROUP_INVITE_USER_EMPTY_STATE,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
@@ -201,8 +205,8 @@ export function GroupAddEdit(props: GroupEditProps) {
     setOriginAddUsers(isTopBar ? "top-bar" : "empty-state");
     AnalyticsUtil.logEvent("GAC_ADD_USER_CLICK", {
       origin: isTopBar
-        ? "Group Details page > Top bar"
-        : "Group Details page > Users tab > Empty state",
+        ? createMessage(EVENT_GROUP_ADD_USER_TOP_BAR)
+        : createMessage(EVENT_GROUP_ADD_USER_EMPTY_STATE),
     });
   };
 
@@ -309,8 +313,8 @@ export function GroupAddEdit(props: GroupEditProps) {
     AnalyticsUtil.logEvent("GAC_INVITE_USER_CLICK", {
       origin:
         originAddUsers === "top-bar"
-          ? "Group Details page > Top bar > Add user modal"
-          : "Group Details page > Users tab > Empty state > Add user modal",
+          ? createMessage(EVENT_GROUP_INVITE_USER_TOP_BAR)
+          : createMessage(EVENT_GROUP_INVITE_USER_EMPTY_STATE),
       groups: [
         {
           id: groupId,
