@@ -183,6 +183,7 @@ export const useAutoLayoutHighlights = ({
         allWidgets,
         canvasId,
         canvasWidth,
+        blocksToDraw.map((block) => block?.widgetId),
       );
     }
     // console.log("#### highlights", highlights);
@@ -203,8 +204,9 @@ export const useAutoLayoutHighlights = ({
         allWidgets,
         canvasId,
         canvasWidth,
+        blocksToDraw.map((block) => block?.widgetId),
       );
-    // console.log("#### highlights", highlights);
+    console.log("#### highlights", highlights);
     if (!highlights) return;
     // updateHighlights(moveDirection);
 

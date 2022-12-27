@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback } from "react";
+import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import {
@@ -17,6 +17,8 @@ import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
+import { isWidgetSelected } from "selectors/widgetSelectors";
+import { AppState } from "ce/reducers";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -33,39 +35,18 @@ export type AutoLayoutProps = {
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
 };
-// TODO: create a memoized style object for the div instead.
-const FlexWidget = styled.div<{
-  componentHeight: number;
-  componentWidth: number;
-  isMobile: boolean;
-  isFillWidget: boolean;
-  padding: number;
-  zIndex: number;
-  zIndexOnHover: number;
-  parentId?: string;
-  flexVerticalAlignment: FlexVerticalAlignment;
-}>`
-  position: relative;
-  z-index: ${({ zIndex }) => zIndex};
 
-  width: ${({ componentWidth }) => `${Math.floor(componentWidth)}px`};
-  height: ${({ componentHeight, isMobile }) =>
-    isMobile ? "auto" : Math.floor(componentHeight) + "px"};
-
-  min-height: 30px;
-  padding: ${({ padding }) => padding + "px"};
-
-  flex-grow: ${({ isFillWidget }) => (isFillWidget ? "1" : "0")};
-  align-self: ${({ flexVerticalAlignment }) => flexVerticalAlignment};
-
-  &:hover {
-    z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
-  }
+const FlexWidget = styled.div`
+  position: "relative";
 `;
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isMobile = useSelector(getIsMobile);
   const isSnipingMode = useSelector(snipingModeSelector);
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(() => {
     clickToSelectWidget(props.widgetId);
@@ -95,21 +76,38 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.widgetId
   } ${widgetTypeClassname(props.widgetType)}`;
 
+  const flexComponentStyle: CSSProperties = useMemo(() => {
+    return {
+      display: isSelected && isDragging ? "none" : "block",
+      zIndex,
+      width: `${Math.floor(props.componentWidth)}px`,
+      height: isMobile ? "auto" : Math.floor(props.componentHeight) + "px",
+      minHeight: "30px",
+      padding: WIDGET_PADDING + "px",
+      flexGrow: isFillWidget ? 1 : 0,
+      alignSelf: props.flexVerticalAlignment,
+      "&:hover": {
+        zIndex: onHoverZIndex + " !important",
+      },
+    };
+  }, [
+    isDragging,
+    isFillWidget,
+    isMobile,
+    isSelected,
+    props.componentWidth,
+    props.componentHeight,
+    props.flexVerticalAlignment,
+    zIndex,
+    onHoverZIndex,
+  ]);
+
   return (
     <FlexWidget
       className={className}
-      componentHeight={props.componentHeight}
-      componentWidth={props.componentWidth}
-      flexVerticalAlignment={props.flexVerticalAlignment}
-      id={props.widgetId}
-      isFillWidget={isFillWidget}
-      isMobile={isMobile}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
-      padding={WIDGET_PADDING}
-      parentId={props.parentId}
-      zIndex={zIndex}
-      zIndexOnHover={onHoverZIndex}
+      style={flexComponentStyle}
     >
       {props.children}
     </FlexWidget>

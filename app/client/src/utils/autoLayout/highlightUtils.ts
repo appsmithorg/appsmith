@@ -2,6 +2,7 @@ import { FlexLayerAlignment } from "components/constants";
 import {
   DEFAULT_HIGHLIGHT_SIZE,
   FlexLayer,
+  LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   CONTAINER_GRID_PADDING,
@@ -33,33 +34,11 @@ export function deriveHighlightsFromLayers(
     const canvas = widgets[canvasId];
     if (!canvas) return [];
 
-    const columns: number = canvas.rightColumn - canvas.leftColumn;
-
-    let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
-    if (
-      canvas.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-      canvas.type === "CONTAINER_WIDGET"
-    ) {
-      //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-      padding = CONTAINER_GRID_PADDING * 2;
-    }
-    if (canvas.noPad) {
-      // Widgets like ListWidget choose to have no container padding so will only have widget padding
-      padding = WIDGET_PADDING * 2;
-    }
-    const columnSpace: number =
-      canvas.parentColumnSpace === 1
-        ? canvas.parentId
-          ? (widgets[canvas.parentId].parentColumnSpace * columns -
-              (padding || 0)) /
-            GridDefaults.DEFAULT_GRID_COLUMNS
-          : mainCanvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS
-        : canvas.parentColumnSpace;
-    // const columnSpace = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
-    const canvasWidth: number =
-      canvasId === MAIN_CONTAINER_WIDGET_ID
-        ? mainCanvasWidth
-        : columns * columnSpace - padding;
+    const { canvasWidth, columnSpace } = getCanvasDimensions(
+      canvas,
+      widgets,
+      mainCanvasWidth,
+    );
 
     const layers: FlexLayer[] = canvas.flexLayers || [];
     const highlights: HighlightInfo[] = [];
@@ -72,10 +51,10 @@ export function deriveHighlightsFromLayers(
        * If the layer is empty, after discounting the dragged widgets,
        * then don't process it for vertical highlights.
        */
-      // const isEmpty =
-      //   layer?.children?.filter(
-      //     (child: LayerChild) => draggedWidgets.indexOf(child.id) === -1,
-      //   ).length === 0;
+      const isEmpty: boolean =
+        layer?.children?.filter(
+          (child: LayerChild) => draggedWidgets.indexOf(child.id) === -1,
+        ).length === 0;
       const tallestChild = layer.children?.reduce((acc, child) => {
         const widget = widgets[child.id];
         return Math.max(
@@ -84,19 +63,6 @@ export function deriveHighlightsFromLayers(
         );
       }, 0);
 
-      /**
-       * Add a layer of horizontal highlights before each flex layer
-       * to account for new vertical drop positions.
-       */
-      highlights.push(
-        ...generateHorizontalHighlights(
-          childCount,
-          layerIndex,
-          offsetTop,
-          canvasWidth,
-          canvasId,
-        ),
-      );
       const payload: VerticalHighlightsPayload = generateVerticalHighlights({
         widgets,
         layer,
@@ -107,12 +73,29 @@ export function deriveHighlightsFromLayers(
         canvasWidth,
         canvasId,
         columnSpace,
+        draggedWidgets,
       });
 
-      highlights.push(...payload.highlights);
+      if (!isEmpty) {
+        /**
+         * Add a layer of horizontal highlights before each flex layer
+         * to account for new vertical drop positions.
+         */
+        highlights.push(
+          ...generateHorizontalHighlights(
+            childCount,
+            layerIndex,
+            offsetTop,
+            canvasWidth,
+            canvasId,
+          ),
+        );
+
+        highlights.push(...payload.highlights);
+        offsetTop += tallestChild || 0;
+        layerIndex += 1;
+      }
       childCount += payload.childCount;
-      offsetTop += tallestChild || 0;
-      layerIndex += 1;
     }
     // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
     highlights.push(
@@ -145,12 +128,14 @@ function generateVerticalHighlights(data: {
   canvasWidth: number;
   canvasId: string;
   columnSpace: number;
+  draggedWidgets: string[];
 }): VerticalHighlightsPayload {
   const {
     canvasId,
     canvasWidth,
     childCount,
     columnSpace,
+    draggedWidgets,
     height,
     layer,
     layerIndex,
@@ -343,4 +328,39 @@ function generateHorizontalHighlights(
     });
   });
   return arr;
+}
+
+function getCanvasDimensions(
+  canvas: any,
+  widgets: CanvasWidgetsReduxState,
+  mainCanvasWidth: number,
+): { canvasWidth: number; columnSpace: number } {
+  const columns: number = canvas.rightColumn - canvas.leftColumn;
+
+  let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+  if (
+    canvas.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+    canvas.type === "CONTAINER_WIDGET"
+  ) {
+    //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
+    padding = CONTAINER_GRID_PADDING * 2;
+  }
+  if (canvas.noPad) {
+    // Widgets like ListWidget choose to have no container padding so will only have widget padding
+    padding = WIDGET_PADDING * 2;
+  }
+  const columnSpace: number =
+    canvas.parentColumnSpace === 1
+      ? canvas.parentId
+        ? (widgets[canvas.parentId].parentColumnSpace * columns -
+            (padding || 0)) /
+          GridDefaults.DEFAULT_GRID_COLUMNS
+        : mainCanvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS
+      : canvas.parentColumnSpace;
+  // const columnSpace = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
+  const canvasWidth: number =
+    canvas.widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? mainCanvasWidth
+      : columns * columnSpace - padding;
+  return { canvasWidth, columnSpace };
 }
