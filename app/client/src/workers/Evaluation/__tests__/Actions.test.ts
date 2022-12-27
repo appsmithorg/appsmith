@@ -312,34 +312,34 @@ describe("Add functions", () => {
     );
   });
 
-  it("storeValue works", () => {
-    const key = "some";
-    const value = "thing";
-    const persist = false;
-    const uniqueActionRequestId = "kjebd";
+  // it("storeValue works", () => {
+  //   const key = "some";
+  //   const value = "thing";
+  //   const persist = false;
+  //   const uniqueActionRequestId = "kjebd";
 
-    // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
-    uniqueId.mockReturnValueOnce(uniqueActionRequestId);
+  //   // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
+  //   uniqueId.mockReturnValueOnce(uniqueActionRequestId);
 
-    expect(evalContext.storeValue(key, value, persist)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith(
-      messageCreator("STORE_VALUE", {
-        data: {
-          trigger: {
-            type: "STORE_VALUE",
-            payload: {
-              key,
-              value,
-              persist,
-              uniqueActionRequestId,
-            },
-          },
-          eventType: undefined,
-        },
-        method: "PROCESS_TRIGGER",
-      }),
-    );
-  });
+  //   expect(evalContext.storeValue(key, value, persist)).resolves.toBe({});
+  //   expect(workerEventMock).lastCalledWith(
+  //     messageCreator("STORE_VALUE", {
+  //       data: {
+  //         trigger: {
+  //           type: "STORE_VALUE",
+  //           payload: {
+  //             key,
+  //             value,
+  //             persist,
+  //             uniqueActionRequestId,
+  //           },
+  //         },
+  //         eventType: undefined,
+  //       },
+  //       method: "PROCESS_TRIGGER",
+  //     }),
+  //   );
+  // });
 
   it("removeValue works", () => {
     const key = "some";
