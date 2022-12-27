@@ -752,6 +752,7 @@ export const ReduxActionTypes = {
   SET_DATASOURCE_SAVE_ACTION_FLAG: "SET_DATASOURCE_SAVE_ACTION_FLAG",
   SET_DATASOURCE_SAVE_ACTION_FROM_POPUP_FLAG:
     "SET_DATASOURCE_SAVE_ACTION_FROM_POPUP_FLAG",
+  SET_TABS_PANE_WIDTH: "SET_TABS_PANE_WIDTH",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

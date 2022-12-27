@@ -18,14 +18,16 @@ const TabsContainer = styled.div`
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const TabsPane = () => {
+type Props = {
+  width: number;
+  onWidthChange: (width: number) => void;
+};
+
+const TabsPane = (props: Props) => {
+  const { onWidthChange, width } = props;
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isPreviewMode = useSelector(previewModeSelector);
-  const [width, setWidth] = useState(300);
 
-  const onWidthChange = useCallback((width: number) => {
-    setWidth(width);
-  }, []);
   const resizer = useHorizontalResize(sidebarRef, onWidthChange);
 
   return (

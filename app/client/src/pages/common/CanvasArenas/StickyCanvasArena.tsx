@@ -1,6 +1,8 @@
 import styled from "constants/DefaultTheme";
 import React, { forwardRef, RefObject, useEffect, useRef } from "react";
 import ResizeObserver from "resize-observer-polyfill";
+import { useSelector } from "react-redux";
+import { getCanvasScale } from "selectors/editorSelectors";
 
 interface StickyCanvasArenaProps {
   showCanvas: boolean;
@@ -48,6 +50,8 @@ export const StickyCanvasArena = forwardRef(
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
 
+    const canvasScale = useSelector(getCanvasScale);
+
     const interSectionObserver = useRef(
       new IntersectionObserver((entries) => {
         entries.forEach(updateCanvasStylesIntersection);
@@ -58,10 +62,13 @@ export const StickyCanvasArena = forwardRef(
         observeSlider();
       }),
     );
-    const { devicePixelRatio: scale = 1 } = window;
+    let { devicePixelRatio: scale = 1 } = window;
+
+    scale *= canvasScale;
 
     const repositionSliderCanvas = (entry: IntersectionObserverEntry) => {
-      stickyCanvasRef.current.style.width = entry.intersectionRect.width + "px";
+      stickyCanvasRef.current.style.width =
+        entry.intersectionRect.width / canvasScale + "px";
       stickyCanvasRef.current.style.position = "absolute";
       const calculatedLeftOffset =
         entry.intersectionRect.left - entry.boundingClientRect.left;
@@ -70,14 +77,17 @@ export const StickyCanvasArena = forwardRef(
       stickyCanvasRef.current.style.top = calculatedTopOffset + "px";
       stickyCanvasRef.current.style.left = calculatedLeftOffset + "px";
       stickyCanvasRef.current.style.height =
-        entry.intersectionRect.height + "px";
+        entry.intersectionRect.height / canvasScale + "px";
     };
 
     const rescaleSliderCanvas = (entry: IntersectionObserverEntry) => {
       stickyCanvasRef.current.height = entry.intersectionRect.height * scale;
       stickyCanvasRef.current.width = entry.intersectionRect.width * scale;
-      const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
+      const canvasCtx: CanvasRenderingContext2D = stickyCanvasRef.current.getContext(
+        "2d",
+      );
       canvasCtx.scale(scale, scale);
+      canvasCtx.transform(canvasScale, 0, 0, canvasScale, 0, 0);
     };
 
     const updateCanvasStylesIntersection = (

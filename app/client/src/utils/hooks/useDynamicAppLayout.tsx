@@ -25,6 +25,10 @@ import { updateCanvasLayoutAction } from "actions/editorActions";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import {
+  getTabsPaneWidth,
+  isMultiPaneActive,
+} from "selectors/multiPaneSelectors";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -42,6 +46,8 @@ export const useDynamicAppLayout = () => {
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
+  const tabsPaneWidth = useSelector(getTabsPaneWidth);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   // /**
   //  * calculates min height
@@ -83,8 +89,6 @@ export const useDynamicAppLayout = () => {
    *  - if calculated width is larger than max width, use max width
    *  - by default use min width
    *
-   * @param screenWidth
-   * @param layoutMaxWidth
    * @returns
    */
   const calculateCanvasWidth = () => {
@@ -112,6 +116,10 @@ export const useDynamicAppLayout = () => {
       appMode === APP_MODE.EDIT
     ) {
       calculatedWidth -= explorerWidth;
+    }
+
+    if (isMultiPane) {
+      calculatedWidth = screenWidth - scrollbarWidth() - tabsPaneWidth - 55;
     }
 
     switch (true) {
@@ -144,15 +152,22 @@ export const useDynamicAppLayout = () => {
   const resizeToLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
     const { width: rightColumn } = mainCanvasProps || {};
-
-    if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
-      dispatch(updateCanvasLayoutAction(calculatedWidth));
+    let scale = 1;
+    if (isMultiPane) {
+      if (appLayout?.type !== "FLUID") {
+        const canvasSpace = screenWidth - tabsPaneWidth - 100;
+        scale = Number(Math.abs(canvasSpace / calculatedWidth).toFixed(2));
+        dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
+      }
+    } else if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
+      dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     }
   };
 
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
     mainCanvasProps,
     screenWidth,
+    tabsPaneWidth,
   ]);
 
   /**
@@ -166,7 +181,7 @@ export const useDynamicAppLayout = () => {
 
   useEffect(() => {
     if (isCanvasInitialized) debouncedResize();
-  }, [screenWidth]);
+  }, [screenWidth, tabsPaneWidth]);
 
   /**
    * resize the layout if any of the following thing changes:

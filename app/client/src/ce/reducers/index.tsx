@@ -73,6 +73,7 @@ import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReduce
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import lintErrorReducer from "reducers/lintingReducers";
 import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
+import { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -132,6 +133,7 @@ export interface AppState {
     editorContext: EditorContextState;
     libraries: LibraryState;
     autoHeightUI: AutoHeightUIState;
+    multiPaneConfig: MultiPaneReduxState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
