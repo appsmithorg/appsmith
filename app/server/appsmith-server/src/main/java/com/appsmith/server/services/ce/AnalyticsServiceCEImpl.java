@@ -158,7 +158,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         return Mono.zip(
                         Mono.deferContextual(Mono::just)
                                 .map(contextView -> ObjectUtils.defaultIfNull(
-                                        contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst("X-User-Id"),
+                                        contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst("x-anonymous-user-id"),
                                         FieldName.ANONYMOUS_USER
                                 ))
                                 .defaultIfEmpty(FieldName.ANONYMOUS_USER),
