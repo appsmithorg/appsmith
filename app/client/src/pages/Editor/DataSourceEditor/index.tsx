@@ -453,6 +453,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         const newValues = _.get(formData, propPath[0], []);
         _.set(this.props.initialValue, propPath[0], newValues);
       }
+
+      // since we have consumed key value pair config to initialize datasource form,
+      // below function will reset the config array in redux store
       this.props.resetDefaultKeyValPairFlag();
     }
   }

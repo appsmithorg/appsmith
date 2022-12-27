@@ -105,6 +105,8 @@ function KeyValueRow(
     if (props.fields.length < 1) {
       for (let i = props.fields.length; i < 1; i += 1) {
         addRow();
+        // Since we are initializing one default key value pair, it needs to stored in redux store
+        // so that it can be used to initilize datasource config form as well
         dispatch(setDefaultKeyValPairFlag(props.configProperty));
       }
     }

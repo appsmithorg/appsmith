@@ -338,6 +338,8 @@ export const toggleSaveActionFromPopupFlag = (isDSSavedFromPopup: boolean) => {
   };
 };
 
+// This function stores the config property for key value pairs in
+// datasource form which are initialized by default
 export const setDefaultKeyValPairFlag = (defaultKeyValArrayConfig: string) => {
   return {
     type: ReduxActionTypes.SET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET,
@@ -345,6 +347,9 @@ export const setDefaultKeyValPairFlag = (defaultKeyValArrayConfig: string) => {
   };
 };
 
+// This function resets the config property stored in redux for key value pairs in
+// datasource form which are initialized by default, once these key value pairs are initialized
+// in the datasource config form, store needs to reset those values
 export const resetDefaultKeyValPairFlag = () => {
   return {
     type: ReduxActionTypes.RESET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET,
