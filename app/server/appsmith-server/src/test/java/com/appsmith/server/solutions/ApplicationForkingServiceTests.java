@@ -31,6 +31,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -79,6 +80,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -88,6 +90,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -163,6 +166,8 @@ public class ApplicationForkingServiceTests {
 
     @Autowired
     NewPageRepository newPageRepository;
+    @Autowired
+    WorkspaceRepository workspaceRepository;
 
     private static String sourceAppId;
 
@@ -571,6 +576,42 @@ public class ApplicationForkingServiceTests {
                 .verify();
         updatedGitAppPage.setPolicies(existingPolicies);
         NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
+
+        Mono<List<Application>> applicationsInWorkspace = applicationService.findAllApplicationsByWorkspaceId(targetWorkspace.getId()).collectList();
+        /*
+         * Check that no applications have been created in the Target Workspace
+         */
+        StepVerifier.create(applicationsInWorkspace).assertNext(applications -> assertThat(applications).isEmpty());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test6_failForkApplication_noDatasourceCreatePermission() {
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("Target Workspace");
+        targetWorkspace = workspaceService.create(targetWorkspace).block();
+        final String workspaceId = targetWorkspace.getId();
+
+        Set<Policy> existingPolicies = targetWorkspace.getPolicies();
+        /*
+         * We take away Workspace Datasource Permission for Target Workspace.
+         * Now since, no one has the permissions for Target Workspace, the application forking will fail.
+         */
+        Set<Policy> newPoliciesWithoutCreateDatasource = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission().equals(WORKSPACE_CREATE_DATASOURCE.getValue()))
+                .collect(Collectors.toSet());
+        targetWorkspace.setPolicies(newPoliciesWithoutCreateDatasource);
+        Workspace updatedargetWorkspace = workspaceRepository.save(targetWorkspace).block();
+
+        final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS
+                                .getMessage("workspace", workspaceId)))
+                .verify();
+        targetWorkspace.setPolicies(existingPolicies);
+        Workspace setPoliciesBack = workspaceRepository.save(updatedargetWorkspace).block();
 
         Mono<List<Application>> applicationsInWorkspace = applicationService.findAllApplicationsByWorkspaceId(targetWorkspace.getId()).collectList();
         /*

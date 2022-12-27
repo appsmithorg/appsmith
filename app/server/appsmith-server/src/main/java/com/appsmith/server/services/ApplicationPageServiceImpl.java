@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -11,12 +12,14 @@ import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.ApplicationPageServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
 @Slf4j
@@ -37,9 +43,11 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
+    private final DatasourceRepository datasourceRepository;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final DatasourcePermission datasourcePermission;
 
 
 
@@ -66,8 +74,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                                       NewPageRepository newPageRepository,
                                       NewActionRepository newActionRepository,
                                       ActionCollectionRepository actionCollectionRepository,
-                                      PagePermission pagePermission1,
-                                      ActionPermission actionPermission1) {
+                                      DatasourceRepository datasourceRepository, DatasourcePermission datasourcePermission) {
 
         super(workspaceService, applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
                 policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
@@ -79,8 +86,10 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
         this.newPageRepository = newPageRepository;
         this.newActionRepository = newActionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
-        this.pagePermission = pagePermission1;
-        this.actionPermission = actionPermission1;
+        this.datasourceRepository = datasourceRepository;
+        this.pagePermission = pagePermission;
+        this.actionPermission = actionPermission;
+        this.datasourcePermission = datasourcePermission;
     }
 
     @Override
@@ -110,7 +119,29 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                     return Mono.just(application);
                 }).cache();
 
-        return Mono.when(validateAllObjectsForPermissions(applicationMono, AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS)).then(super.cloneApplication(applicationId, branchName));
+        return Mono.when(validateAllObjectsForPermissions(applicationMono, AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS), validateDatasourcesForCreatePermission(applicationMono))
+                .then(super.cloneApplication(applicationId, branchName));
+    }
+
+    private Mono validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
+        Flux<BaseDomain> datasourceFlux = applicationMono
+                .flatMapMany(application -> newActionRepository
+                        . findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource.id))))
+                .collectList()
+                .map(actions -> {
+                    return actions.stream()
+                            .map(action -> action.getUnpublishedAction().getDatasource().getId())
+                            .filter(datasourceId -> StringUtils.hasLength(datasourceId))
+                            .collect(Collectors.toSet());
+                })
+                .flatMapMany(datasourceIds -> datasourceRepository.findAllByIdsWithoutPermission(datasourceIds, List.of("id", "policies"))
+                        .flatMap(datasourceRepository::setUserPermissionsInObject));
+
+        return UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                datasourceFlux, FieldName.DATASOURCE, permissionGroupService.getSessionUserPermissionGroupIds(),
+                datasourcePermission.getActionCreatePermission(),
+                AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS);
+
     }
 
     private Mono validateAllObjectsForPermissions(Mono<Application> applicationMono, AppsmithError expectedError) {
