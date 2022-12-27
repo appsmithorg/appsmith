@@ -63,12 +63,13 @@ export const CONFIG = {
         },
       },
     },
-    itemGap: 0,
+    itemSpacing: 8,
     templateBottomRow: 16,
     listData: DEFAULT_LIST_DATA,
     pageSize: DEFAULT_LIST_DATA.length,
     widgetName: "List",
     children: [],
+    passThroughPropsKeys: ["level", "levelData", "prefixMetaWidgetId"],
     primaryKeys:
       '{{List1.listData.map((currentItem, currentIndex) => currentItem["id"] )}}',
     blueprint: {
@@ -99,9 +100,11 @@ export const CONFIG = {
                     dragDisabled: true,
                     isDeletable: false,
                     disallowCopy: true,
+                    noContainerOffset: true,
                     disabledWidgetFeatures: [
                       RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
                     ],
+                    shouldScrollContents: false,
                     dynamicHeight: "FIXED",
                     children: [],
                     blueprint: {

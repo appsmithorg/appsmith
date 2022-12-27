@@ -48,7 +48,7 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { Stylesheet } from "entities/AppTheming";
 import { CSSProperties } from "styled-components";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
@@ -588,6 +588,11 @@ export interface WidgetBaseProps {
   isMetaWidget?: boolean;
   suppressAutoComplete?: boolean;
   suppressDebuggerError?: boolean;
+  /**
+   * The keys of the props mentioned here would always be picked from the canvas widget
+   * rather than the evaluated values in withWidgetProps HOC.
+   *  */
+  passThroughPropsKeys?: string[];
 }
 
 export type WidgetRowCols = {

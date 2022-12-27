@@ -35,7 +35,7 @@
             "type": "LIST_WIDGET_V2",
             "hideCard": false,
             "onPageSizeChange": "{{Query1.run(() => {}, () => {})}}",
-            "gridGap": 0,
+            "itemSpacing": 8,
             "templateBottomRow": 16,
             "mainContainerId": "4tkkypkwmh",
             "animateLoading": true,

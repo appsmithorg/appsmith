@@ -14,7 +14,11 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { extractTillNestedListWidget } from "./widget/helper";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  RenderModes,
+  WIDGET_PADDING,
+} from "constants/WidgetConstants";
 import {
   DEFAULT_TEMPLATE_BOTTOM_ROW,
   DynamicPathType,
@@ -42,7 +46,7 @@ export type GeneratorOptions = {
   currTemplateWidgets: TemplateWidgets;
   prevTemplateWidgets?: TemplateWidgets;
   data: Record<string, unknown>[];
-  itemGap: number;
+  itemSpacing: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
   levelData?: LevelData;
   pageNo?: number;
@@ -60,10 +64,10 @@ type ConstructorProps = {
   isListCloned: boolean;
   level: number;
   onVirtualListScroll: () => void;
+  prefixMetaWidgetId: string;
   primaryWidgetType: string;
   renderMode: string;
   setWidgetCache: (data: MetaWidgetCache) => void;
-  widgetId: string;
 };
 
 type TemplateWidgetStatus = {
@@ -157,7 +161,7 @@ class MetaWidgetGenerator {
   private currViewMetaWidgetIds: string[];
   private data: GeneratorOptions["data"];
   private getWidgetCache: ConstructorProps["getWidgetCache"];
-  private itemGap: GeneratorOptions["itemGap"];
+  private itemSpacing: GeneratorOptions["itemSpacing"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
   private isListCloned: ConstructorProps["isListCloned"];
   private level: ConstructorProps["level"];
@@ -167,6 +171,7 @@ class MetaWidgetGenerator {
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
   private pageNo?: number;
   private pageSize?: number;
+  private prefixMetaWidgetId: string;
   private prevOptions?: GeneratorOptions;
   private prevTemplateWidgets: TemplateWidgets;
   private prevViewMetaWidgetIds: string[];
@@ -192,7 +197,7 @@ class MetaWidgetGenerator {
     this.currViewMetaWidgetIds = [];
     this.data = [];
     this.getWidgetCache = props.getWidgetCache;
-    this.itemGap = 0;
+    this.itemSpacing = 0;
     this.infiniteScroll = props.infiniteScroll;
     this.isListCloned = props.isListCloned;
     this.level = props.level;
@@ -201,6 +206,7 @@ class MetaWidgetGenerator {
     this.onVirtualListScroll = props.onVirtualListScroll;
     this.pageNo = 1;
     this.pageSize = 0;
+    this.prefixMetaWidgetId = props.prefixMetaWidgetId;
     this.prevTemplateWidgets = {};
     this.prevViewMetaWidgetIds = [];
     this.primaryWidgetType = props.primaryWidgetType;
@@ -226,7 +232,7 @@ class MetaWidgetGenerator {
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
-    this.itemGap = options.itemGap;
+    this.itemSpacing = options.itemSpacing;
     this.infiniteScroll = options.infiniteScroll;
     this.levelData = options.levelData;
     this.pageNo = options.pageNo;
@@ -339,6 +345,9 @@ class MetaWidgetGenerator {
       removedMetaWidgetIds,
     };
   };
+
+  private generateMetaWidgetId = () =>
+    `${this.prefixMetaWidgetId}_${generateReactKey()}`;
 
   private getMetaWidgetIdsInCachedRows = () => {
     const cachedMetaWidgetIds: string[] = [];
@@ -454,6 +463,7 @@ class MetaWidgetGenerator {
 
     if (templateWidget.type === this.primaryWidgetType) {
       this.addLevelData(metaWidget, rowIndex);
+      metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
     }
 
     if (this.isRowNonConfigurable(metaCacheProps)) {
@@ -533,7 +543,7 @@ class MetaWidgetGenerator {
 
       const currentCache = rowCache[templateWidgetId] || {};
       const metaWidgetId = isClonedRow
-        ? currentCache.metaWidgetId || generateReactKey()
+        ? currentCache.metaWidgetId || this.generateMetaWidgetId()
         : templateWidgetId;
 
       const metaWidgetName = isClonedRow
@@ -580,7 +590,7 @@ class MetaWidgetGenerator {
       } = templateWidget;
 
       const metaWidgetId = this.isListCloned
-        ? currentCache.metaWidgetId || generateReactKey()
+        ? currentCache.metaWidgetId || this.generateMetaWidgetId()
         : containerParentId;
 
       const metaWidgetName = this.isListCloned
@@ -868,7 +878,6 @@ class MetaWidgetGenerator {
   ) => {
     const viewIndex = this.getViewIndex(rowIndex);
     const mainContainer = this.getContainerWidget();
-    const gap = this.itemGap;
     const virtualItems = this.virtualizer?.getVirtualItems() || [];
     const virtualItem = virtualItems[viewIndex];
     const index = virtualItem ? virtualItem.index : viewIndex;
@@ -876,16 +885,17 @@ class MetaWidgetGenerator {
     const start = index * mainContainer.bottomRow;
     const end = (index + 1) * mainContainer.bottomRow;
 
-    metaWidget.gap = gap;
-
     if (this.infiniteScroll) {
       metaWidget.rightColumn -= 1;
     }
 
-    metaWidget.topRow =
-      start + index * (this.itemGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
-    metaWidget.bottomRow =
-      end + index * (this.itemGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
+    const verticalPadding = WIDGET_PADDING * 2;
+    const verticalSpacing =
+      (this.itemSpacing - verticalPadding) /
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+    metaWidget.topRow = start + index * verticalSpacing;
+    metaWidget.bottomRow = end + index * verticalSpacing;
   };
 
   /**
@@ -928,7 +938,7 @@ class MetaWidgetGenerator {
 
   private updateModificationsQueue = (nextOptions: GeneratorOptions) => {
     if (
-      this.itemGap !== nextOptions.itemGap ||
+      this.itemSpacing !== nextOptions.itemSpacing ||
       this.infiniteScroll != nextOptions.infiniteScroll
     ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
@@ -1034,7 +1044,7 @@ class MetaWidgetGenerator {
       nextOptions?.currTemplateWidgets !== nextOptions?.prevTemplateWidgets ||
       nextOptions.data.length !== this.data.length ||
       nextOptions.infiniteScroll !== this.infiniteScroll ||
-      nextOptions.itemGap !== this.itemGap ||
+      nextOptions.itemSpacing !== this.itemSpacing ||
       nextOptions.pageNo !== this.pageNo ||
       nextOptions.pageSize !== this.pageSize ||
       nextOptions.primaryKeys !== this.primaryKeys ||
@@ -1332,9 +1342,9 @@ class MetaWidgetGenerator {
         count: this.data?.length || 0,
         estimateSize: () => {
           const listCount = this.data?.length || 0;
-          const itemGap =
-            listCount && ((listCount - 1) * this.itemGap) / listCount;
-          return this.templateBottomRow * 10 + itemGap;
+          const itemSpacing =
+            listCount && ((listCount - 1) * this.itemSpacing) / listCount;
+          return this.templateBottomRow * 10 + itemSpacing;
         },
         getScrollElement: () => scrollElement,
         observeElementOffset,

@@ -18,10 +18,10 @@ export const createCanvasWidget = (
   evaluatedWidget: DataTreeWidget,
   specificChildProps?: string[],
 ) => {
-  const widgetStaticProps = pick(
-    canvasWidget,
-    Object.keys(WIDGET_STATIC_PROPS),
-  );
+  const widgetStaticProps = pick(canvasWidget, [
+    ...Object.keys(WIDGET_STATIC_PROPS),
+    ...(canvasWidget.passThroughPropsKeys || []),
+  ]);
 
   //Pick required only contents for specific widgets
   const evaluatedStaticProps = specificChildProps

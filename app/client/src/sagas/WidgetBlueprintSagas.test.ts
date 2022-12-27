@@ -42,7 +42,7 @@ describe("WidgetBlueprintSagas", () => {
           disablePropertyPane: false,
         },
       },
-      "widgetId",
+      ["widgetId"],
       "parentId",
     );
 

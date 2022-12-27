@@ -3,7 +3,6 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
@@ -33,6 +32,11 @@ export const CONFIG = {
         },
         updateDataTreePath: (parentProps: any, dataTreePath: string) => {
           return `${parentProps.widgetName}.template.${dataTreePath}`;
+        },
+        shouldHideProperty: (parentProps: any, propertyName: string) => {
+          if (propertyName === "dynamicHeight") return true;
+
+          return false;
         },
         propertyUpdateHook: (
           parentProps: any,
@@ -124,9 +128,6 @@ export const CONFIG = {
                     isDeletable: false,
                     disallowCopy: true,
                     disablePropertyPane: true,
-                    disabledWidgetFeatures: [
-                      RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
-                    ],
                     openParentPropertyPane: true,
                     children: [],
                     blueprint: {
@@ -180,6 +181,7 @@ export const CONFIG = {
                                     textStyle: "HEADING",
                                     textAlign: "LEFT",
                                     boxShadow: "none",
+                                    dynamicHeight: "FIXED",
                                     dynamicBindingPathList: [
                                       {
                                         key: "text",
@@ -203,6 +205,7 @@ export const CONFIG = {
                                     textStyle: "BODY",
                                     textAlign: "LEFT",
                                     boxShadow: "none",
+                                    dynamicHeight: "FIXED",
                                     dynamicBindingPathList: [
                                       {
                                         key: "text",
@@ -331,6 +334,8 @@ export const CONFIG = {
             const parent = { ...widgets[parentId] };
             const logBlackList: { [key: string]: boolean } = {};
 
+            widget.dynamicHeight = "FIXED";
+
             /*
              * Only widgets that don't have derived or meta properties
              * work well inside the current version of List widget.
@@ -376,18 +381,11 @@ export const CONFIG = {
                 widgets[widget.parentId] = _parent;
               }
               delete widgets[widgetId];
-
               return {
                 widgets,
                 message: `This widget cannot be used inside the list widget.`,
               };
             }
-
-            const template = {
-              ...get(parent, "template", {}),
-              [widget.widgetName]: widget,
-            };
-            parent.template = template;
 
             // add logBlackList for the children being added
             Object.keys(widget).map((key) => {
@@ -398,7 +396,6 @@ export const CONFIG = {
 
             widgets[parentId] = parent;
             widgets[widgetId] = widget;
-
             return { widgets };
           },
         },

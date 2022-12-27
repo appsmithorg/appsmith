@@ -30,6 +30,7 @@ export type ModifyMetaWidgetPayload = {
 export type DeleteMetaWidgetsPayload = {
   creatorIds: string[];
 };
+
 type MetaWidgetPropertyUpdate = {
   path: string;
   value: unknown;
