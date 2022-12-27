@@ -1946,3 +1946,19 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
   cy.wait(3000);
   initLocalstorage();
 });
+
+Cypress.Commands.add(
+  "RenameWidgetFromPropertyPane",
+  (widgetType, oldName, newName) => {
+    cy.openPropertyPaneByWidgetName(oldName, widgetType);
+    cy.get(".t--property-pane-title").click({ force: true });
+    cy.get(".t--property-pane-title")
+      .type(newName, { delay: 300 })
+      .type("{enter}");
+    cy.wait("@updateWidgetName").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  },
+);
