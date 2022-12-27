@@ -636,6 +636,7 @@ export default connect(
       applicationId?: string;
       workspaceId?: string;
       isApplicationInvite?: boolean;
+      placeholder?: string;
     }
   >({
     validate,

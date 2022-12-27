@@ -21,6 +21,7 @@ import useWorkspace from "utils/hooks/useWorkspace";
 import TooltipWrapper from "pages/Applications/EmbedSnippet/TooltipWrapper";
 import {
   createMessage,
+  INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   MAKE_APPLICATION_PUBLIC,
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
@@ -85,6 +86,7 @@ function AppInviteUsersForm(props: any) {
       {canInviteToWorkspace && (
         <WorkspaceInviteUsersForm
           isApplicationInvite
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
           workspaceId={props.workspaceId}
         />
       )}
