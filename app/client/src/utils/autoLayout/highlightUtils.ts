@@ -61,17 +61,6 @@ export function deriveHighlightsFromLayers(
         ? mainCanvasWidth
         : columns * columnSpace - padding;
 
-    console.log(
-      "#### canvasWidth: " + canvasWidth,
-      "columnSpace: " + columnSpace,
-      "padding",
-      padding,
-      canvas.leftColumn,
-      canvas.rightColumn,
-      widgets,
-      columns * columnSpace,
-    );
-
     const layers: FlexLayer[] = canvas.flexLayers || [];
     const highlights: HighlightInfo[] = [];
     let childCount = 0;
@@ -122,7 +111,7 @@ export function deriveHighlightsFromLayers(
 
       highlights.push(...payload.highlights);
       childCount += payload.childCount;
-      offsetTop += (tallestChild || 0) + HORIZONTAL_HIGHLIGHT_MARGIN;
+      offsetTop += tallestChild || 0;
       layerIndex += 1;
     }
     // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
