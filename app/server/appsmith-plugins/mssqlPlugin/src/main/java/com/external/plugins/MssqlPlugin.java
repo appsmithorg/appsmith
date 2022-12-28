@@ -125,9 +125,8 @@ public class MssqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
-                        "parameter: Query."));
+            if (! StringUtils.hasLength(query)) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.SQLSERVER_EMPTY_QUERY));
             }
 
             Boolean isPreparedStatement;
@@ -149,7 +148,7 @@ public class MssqlPlugin extends BasePlugin {
                 isPreparedStatement = true;
             }
 
-            // In case of non prepared statement, simply do binding replacement and execute
+            // In case of non-prepared statement, simply do binding replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(hikariDSConnection, actionConfiguration, FALSE, null, null);
@@ -208,12 +207,6 @@ public class MssqlPlugin extends BasePlugin {
                             // This exception is thrown only when the timeout to `isValid` is negative. Since, that's not the case,
                             // here, this should never happen.
                             log.error("Error checking validity of MsSQL connection.", error);
-                        }
-
-                        if (query == null) {
-                            sqlConnectionFromPool.close();
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Missing required parameter: Query."));
                         }
 
                         HikariPoolMXBean poolProxy = hikariDSConnection.getHikariPoolMXBean();
@@ -309,7 +302,7 @@ public class MssqlPlugin extends BasePlugin {
                             }
 
                         } catch (SQLException e) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.SQLSERVER_QUERY_EXECUTION_FAILED, e.getMessage(), "SQLSTATE: "+ e.getSQLState()));
 
                         } finally {
                             sqlConnectionFromPool.close();
@@ -357,7 +350,7 @@ public class MssqlPlugin extends BasePlugin {
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
@@ -437,7 +430,7 @@ public class MssqlPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.SQLSERVER_QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -512,8 +505,8 @@ public class MssqlPlugin extends BasePlugin {
 
             } catch (SQLException | IllegalArgumentException | IOException e) {
                 String message = "Query preparation failed while inserting value: "
-                        + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                        + value + " for binding: {{" + binding + "}}. Please check the query again.";
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message, e.getMessage());
             }
 
             return preparedStatement;

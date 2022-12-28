@@ -332,6 +332,26 @@ public enum AppsmithPluginError {
             "{0}",
             "{1}"
     ),
+    SQLSERVER_EMPTY_QUERY(
+            500,
+            AppsmithPluginErrorCode.SQLSERVER_EMPTY_QUERY.getCode(),
+            AppsmithPluginErrorCode.SQLSERVER_EMPTY_QUERY.getDescription(),
+            AppsmithErrorAction.DEFAULT,
+            "Query configuration is invalid",
+            ErrorType.ACTION_CONFIGURATION_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    SQLSERVER_QUERY_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.SQLSERVER_QUERY_EXECUTION_FAILED.getCode(),
+            AppsmithPluginErrorCode.SQLSERVER_QUERY_EXECUTION_FAILED.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
 
     ;
 
