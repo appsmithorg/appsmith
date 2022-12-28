@@ -127,6 +127,7 @@ const levelData: LevelData = {
 
 class Cache {
   data = {};
+  refData = {};
 
   getWidgetCache = () => {
     return this.data;
@@ -134,6 +135,14 @@ class Cache {
 
   setWidgetCache = (data: any) => {
     this.data = data;
+  };
+
+  setWidgetReferenceCache = (data: any) => {
+    this.refData = data;
+  };
+
+  getWidgetReferenceCache = () => {
+    return this.refData;
   };
 }
 
@@ -143,6 +152,7 @@ const init = ({ constructorProps, optionsProps }: InitProps = {}) => {
     ...optionsProps,
   });
   const cache = new Cache();
+  const onMetaWidgetsUpdate = jest.fn;
 
   const generator = new MetaWidgetGenerator({
     getWidgetCache: cache.getWidgetCache,
@@ -154,6 +164,9 @@ const init = ({ constructorProps, optionsProps }: InitProps = {}) => {
     primaryWidgetType: "LIST_WIDGET_V2",
     renderMode: RenderModes.CANVAS,
     prefixMetaWidgetId: "test",
+    setWidgetReferenceCache: cache.setWidgetReferenceCache,
+    getWidgetReferenceCache: cache.getWidgetReferenceCache,
+    onMetaWidgetsUpdate,
     ...constructorProps,
   });
 
@@ -207,10 +220,13 @@ const validateMetaWidgetType = (
 describe("#generate", () => {
   it("generates meta widgets for first instance", () => {
     const cache = new Cache();
+    const onMetaWidgetsUpdate = jest.fn;
 
     const generator = new MetaWidgetGenerator({
       getWidgetCache: cache.getWidgetCache,
       setWidgetCache: cache.setWidgetCache,
+      getWidgetReferenceCache: cache.getWidgetReferenceCache,
+      setWidgetReferenceCache: cache.setWidgetReferenceCache,
       infiniteScroll: false,
       isListCloned: false,
       level: 1,
@@ -218,6 +234,7 @@ describe("#generate", () => {
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
       prefixMetaWidgetId: "test",
+      onMetaWidgetsUpdate,
     });
 
     const expectedGeneratedCount = 12;
@@ -773,6 +790,8 @@ describe("#generate", () => {
     const generator = new MetaWidgetGenerator({
       getWidgetCache: cache.getWidgetCache,
       setWidgetCache: cache.setWidgetCache,
+      getWidgetReferenceCache: cache.getWidgetReferenceCache,
+      setWidgetReferenceCache: cache.setWidgetReferenceCache,
       infiniteScroll: false,
       prefixMetaWidgetId: "test",
       isListCloned: false,
@@ -780,6 +799,7 @@ describe("#generate", () => {
       onVirtualListScroll: jest.fn,
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
+      onMetaWidgetsUpdate: jest.fn,
     });
 
     const nestedListWidgetId = "fs2d2lqjgd";
@@ -809,6 +829,8 @@ describe("#generate", () => {
     const generator = new MetaWidgetGenerator({
       getWidgetCache: cache.getWidgetCache,
       setWidgetCache: cache.setWidgetCache,
+      getWidgetReferenceCache: cache.getWidgetReferenceCache,
+      setWidgetReferenceCache: cache.setWidgetReferenceCache,
       infiniteScroll: false,
       prefixMetaWidgetId: "fs2d2lqjgd",
       isListCloned: false,
@@ -816,6 +838,7 @@ describe("#generate", () => {
       onVirtualListScroll: jest.fn,
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
+      onMetaWidgetsUpdate: jest.fn,
     });
     const listWidgetName = "List6";
     const nestedListWidgetId = "fs2d2lqjgd";
@@ -908,7 +931,7 @@ describe("#generate", () => {
     };
 
     const expectedDataBinding =
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,gridGap: List6.gridGap,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,items: List6.items,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,selectedItemIndex: List6.selectedItemIndex,triggeredItemIndex: List6.triggeredItemIndex }\n        \n      }\n    }}";
+      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,items: List6.items,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,selectedItemIndex: List6.selectedItemIndex,triggeredItemIndex: List6.triggeredItemIndex }\n        \n      }\n    }}";
 
     const count = Object.keys(metaWidgets).length;
     expect(count).toEqual(18);
