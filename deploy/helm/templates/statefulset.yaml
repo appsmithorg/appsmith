@@ -46,10 +46,8 @@ spec:
       initContainers:
       {{- if .Values.redis.enabled }}
       - name: redis-init-container
-      {{- if .Values.initContainer.redis }}
-      {{- if .Values.initContainer.redis.image }}
+      {{- if ((.Values.initContainer.redis).image) }}
         image: {{ .Values.initContainer.redis.image }}
-      {{- end }}
       {{- else }}
         image: "alpine"
       {{- end }}
@@ -57,10 +55,8 @@ spec:
       {{- end }}
       {{- if .Values.mongodb.enabled }}
       - name: mongo-init-container
-      {{- if .Values.initContainer.mongodb }}
-      {{- if .Values.initContainer.mongodb.image }}
+      {{- if ((.Values.initContainer.mongodb).image) }}
         image: {{ .Values.initContainer.mongodb.image }}
-      {{- end }}
       {{- else }}
         image:  "docker.io/bitnami/mongodb:4.4.11-debian-10-r12"
       {{- end }}
