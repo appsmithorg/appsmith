@@ -278,6 +278,8 @@ export function UserEdit(props: UserEditProps) {
   const onClearChanges = () => {
     setRemovedActiveUserGroups([]);
     setRemovedActivePermissionGroups([]);
+    setAddedAllUserGroups([]);
+    setAddedAllPermGroups([]);
   };
 
   const onDeleteHandler = () => {
