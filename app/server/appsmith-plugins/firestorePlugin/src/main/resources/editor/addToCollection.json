@@ -17,7 +17,8 @@
       "label": "Body",
       "configProperty": "actionConfiguration.formData.body.data",
       "controlType": "QUERY_DYNAMIC_TEXT",
-      "initialValue": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
+      "initialValue": "",
+      "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
     },
     {
       "label": "Timestamp Path",
