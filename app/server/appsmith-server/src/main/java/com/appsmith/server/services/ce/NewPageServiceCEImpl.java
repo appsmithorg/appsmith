@@ -552,6 +552,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
                 )
                 .map(newPage -> {
+                    log.debug("Retrieved possible application ids for page, picking the appropriate one now");
                     if (newPage.getDefaultResources() != null) {
                         return newPage.getDefaultResources().getApplicationId();
                     } else {
