@@ -46,8 +46,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
 
 
@@ -545,7 +543,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository.findById(defaultPageId, pagePermission.getReadPermission());
+            getPageMono = repository.findRootApplicationIdById(defaultPageId, pagePermission.getReadPermission());
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission());
         }
