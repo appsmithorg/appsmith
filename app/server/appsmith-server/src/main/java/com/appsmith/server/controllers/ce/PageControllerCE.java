@@ -166,6 +166,7 @@ public class PageControllerCE {
                                                               @RequestParam(required = false) String pageId,
                                                               @RequestParam(required = true, defaultValue = "EDIT") ApplicationMode mode,
                                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to fetch applicationPageDTO for applicationId: {}, pageId: {}, branchName: {}, mode: {}", applicationId, pageId, branchName, mode);
         return newPageService.findApplicationPages(applicationId, pageId, branchName, mode)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
