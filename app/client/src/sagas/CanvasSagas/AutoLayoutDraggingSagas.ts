@@ -21,10 +21,10 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import {
   updateFlexChildColumns,
   updateSizeOfAllChildren,
-  updateWidgetPositions,
 } from "sagas/AutoLayoutUtils";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{

@@ -113,7 +113,6 @@ import {
   collisionCheckPostReflow,
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
-import { updateWidgetPositions } from "./AutoLayoutUtils";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
@@ -156,6 +155,7 @@ import {
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { getAllPaths } from "ce/workers/Evaluation/evaluationUtils";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
