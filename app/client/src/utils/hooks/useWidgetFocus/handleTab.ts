@@ -4,7 +4,7 @@ import {
   getFocussableElementOfWidget,
   JSONFORM_WIDGET,
   WIDGET_SELECTOR,
-  getNextTabbableDescendantForJSONForm,
+  getNextTabbableDescendantForRegularWidgets,
   CHECKBOXGROUP_WIDGET,
   SWITCHGROUP_WIDGET,
   BUTTONGROUP_WIDGET,
@@ -23,7 +23,7 @@ export function handleTab(event: KeyboardEvent) {
     case currentWidget && currentWidget.matches(CHECKBOXGROUP_WIDGET):
     case currentWidget && currentWidget.matches(SWITCHGROUP_WIDGET):
     case currentWidget && currentWidget.matches(BUTTONGROUP_WIDGET):
-      nextTabbableDescendant = getNextTabbableDescendantForJSONForm(
+      nextTabbableDescendant = getNextTabbableDescendantForRegularWidgets(
         currentWidget,
         shiftKey,
       );

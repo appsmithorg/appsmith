@@ -342,8 +342,9 @@ abstract class BaseWidget<
       <PositionedContainer
         componentHeight={componentHeight}
         componentWidth={componentWidth}
-        disabled={this.props.isDisabled}
         focused={this.props.focused}
+        isDisabled={this.props.isDisabled}
+        isVisible={this.props.isVisible}
         leftColumn={this.props.leftColumn}
         noContainerOffset={this.props.noContainerOffset}
         parentColumnSpace={this.props.parentColumnSpace}
@@ -352,9 +353,6 @@ abstract class BaseWidget<
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
         topRow={this.props.topRow}
-        visible={
-          this.props.isVisible === undefined ? true : this.props.isVisible
-        }
         widgetId={this.props.widgetId}
         widgetType={this.props.type}
       >

@@ -45,8 +45,8 @@ export type PositionedContainerProps = {
   noContainerOffset?: boolean;
   leftColumn: number;
   parentColumnSpace: number;
-  disabled?: boolean;
-  visible?: boolean;
+  isDisabled?: boolean;
+  isVisible?: boolean;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -168,9 +168,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
   return (
     <PositionedWidget
       className={containerClassName}
-      data-hidden={props.visible === false || undefined}
+      data-hidden={!props.isVisible || undefined}
       data-testid="test-widget"
-      disabled={props.disabled}
+      disabled={props.isDisabled}
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.

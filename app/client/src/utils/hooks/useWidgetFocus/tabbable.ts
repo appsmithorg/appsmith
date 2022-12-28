@@ -168,9 +168,7 @@ export function getFocussableElementOfWidget(node: HTMLElement) {
     return node;
   }
 
-  const focussableElement = node.querySelector(FOCUS_SELECTOR) as HTMLElement;
-
-  return focussableElement;
+  return node.querySelector(FOCUS_SELECTOR) as HTMLElement;
 }
 /**
  *  get widgets of a given node
@@ -253,11 +251,7 @@ export function sortWidgetsByPosition(
         return element.leftDiff > 0;
       }
 
-      if (element.topDiff > 0) {
-        return true;
-      }
-
-      return false;
+      return element.topDiff > 0;
     }
 
     // if tabbing backward, only consider elements above and to the left
@@ -266,11 +260,7 @@ export function sortWidgetsByPosition(
         return element.leftDiff < 0;
       }
 
-      if (element.topDiff < 0) {
-        return true;
-      }
-
-      return false;
+      return element.topDiff < 0;
     }
   });
 
@@ -290,11 +280,11 @@ export function sortWidgetsByPosition(
 }
 
 /**
- * get next item to focus if the current widget is json form
+ * get next item to focus if the current widget has relative positioned children
  *
  * Note:
- * if the user is tabbing out of the json form, we need to get the next tabbable descendant of the current widget
- * else tabbing will work as expected as widgets inside the json form are regular components
+ * if the user is tabbing out, we need to get the next tabbable descendant of the current widget
+ * else tabbing will work as expected as widgets inside the widget are regular components
  * and will be handled by the default tabbing logic
  *
  *
@@ -302,7 +292,7 @@ export function sortWidgetsByPosition(
  * @param shiftKey
  * @returns
  */
-export function getNextTabbableDescendantForJSONForm(
+export function getNextTabbableDescendantForRegularWidgets(
   currentWidget: HTMLElement,
   shiftKey: boolean,
 ) {

@@ -13,6 +13,8 @@ function useWidgetFocus(): (instance: HTMLElement | null) => void {
     if (ref.current === node) return;
 
     ref.current = node;
+
+    return ref;
   }, []);
 
   useEffect(() => {
@@ -22,20 +24,19 @@ function useWidgetFocus(): (instance: HTMLElement | null) => void {
       if (event.key === "Tab") handleTab(event);
     };
 
-    ref.current.addEventListener("keydown", handleKeyDown);
+    const handleClick = (event: any) => {
+      const target = event.target as HTMLElement;
+      if (target.matches(CANVAS_WIDGET)) {
+        target.focus();
+      }
+    };
 
-    // focus the current element on click inside the widget
-    if (ref.current) {
-      ref.current.addEventListener("click", (event: any) => {
-        const target = event.target as HTMLElement;
-        if (target.matches(CANVAS_WIDGET)) {
-          target.focus();
-        }
-      });
-    }
+    ref.current.addEventListener("keydown", handleKeyDown);
+    ref.current.addEventListener("click", handleClick);
 
     return () => {
       ref?.current && ref.current.removeEventListener("keydown", handleKeyDown);
+      ref?.current && ref.current.removeEventListener("click", handleClick);
     };
   }, []);
 
