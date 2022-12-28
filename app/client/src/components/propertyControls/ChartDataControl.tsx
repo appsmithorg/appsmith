@@ -1,8 +1,8 @@
 import React from "react";
 import { get, isString } from "lodash";
+import styled from "styled-components";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
-import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {

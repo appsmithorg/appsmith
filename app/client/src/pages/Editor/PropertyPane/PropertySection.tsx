@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import { Collapse } from "@blueprintjs/core";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { AppIcon as Icon, Size } from "design-system";
 import { AppState } from "@appsmith/reducers";

@@ -1,9 +1,9 @@
 import React from "react";
+import styled from "styled-components";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
-import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
 import ActionCreator from "components/editorComponents/ActionCreator";

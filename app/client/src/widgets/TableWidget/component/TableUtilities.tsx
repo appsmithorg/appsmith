@@ -29,7 +29,7 @@ import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { ControlIcons } from "icons/ControlIcons";
 
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
 import { IconName, IconNames } from "@blueprintjs/icons";

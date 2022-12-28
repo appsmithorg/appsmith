@@ -1,9 +1,10 @@
 import React from "react";
+import { ThemeProvider } from "styled-components";
 import DropdownWidget, { DropdownWidgetProps } from "./";
 import configureStore from "redux-mock-store";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
-import { ThemeProvider, theme, dark } from "constants/DefaultTheme";
+import { theme, dark } from "constants/DefaultTheme";
 
 import "@testing-library/jest-dom";
 

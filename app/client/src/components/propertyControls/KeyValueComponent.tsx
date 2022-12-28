@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import {
   ControlWrapper,

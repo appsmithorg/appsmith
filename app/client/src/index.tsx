@@ -3,7 +3,7 @@ import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
-import { ThemeProvider } from "constants/DefaultTheme";
+import { ThemeProvider } from "styled-components";
 import { appInitializer } from "utils/AppUtils";
 import { Slide } from "react-toastify";
 import store, { runSagaMiddleware } from "./store";

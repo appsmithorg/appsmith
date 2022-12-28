@@ -1,6 +1,6 @@
 import React from "react";
 import { ControlIcons } from "icons/ControlIcons";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 
 const StyledIncreaseIcon = styled(ControlIcons.INCREASE_CONTROL)`
   display: flex;

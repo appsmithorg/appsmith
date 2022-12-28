@@ -1,13 +1,10 @@
 import { Classes, ControlGroup } from "@blueprintjs/core";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 
 import { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
-import {
-  BlueprintCSSTransform,
-  createGlobalStyle,
-} from "constants/DefaultTheme";
+import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import { isEmptyOrNill } from "../../../utils/helpers";
 import { LabelPosition, LABEL_MARGIN_OLD_SELECT } from "components/constants";
 import { labelLayoutStyles, LABEL_CONTAINER_CLASS } from "design-system";

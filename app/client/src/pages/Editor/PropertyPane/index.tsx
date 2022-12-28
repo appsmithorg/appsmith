@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
+import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { PanelStack, Classes } from "@blueprintjs/core";
 
-import styled from "constants/DefaultTheme";
 import { get } from "lodash";
 import { getSelectedWidgets } from "selectors/ui";
 import PropertyPaneView from "./PropertyPaneView";

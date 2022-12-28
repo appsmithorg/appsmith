@@ -2,7 +2,7 @@ import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 
 import { Colors } from "constants/Colors";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { CellAlignment, JUSTIFY_CONTENT } from "../Constants";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";

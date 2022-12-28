@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import StatusLoader from "./StatusLoader";
 import { Classes, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
