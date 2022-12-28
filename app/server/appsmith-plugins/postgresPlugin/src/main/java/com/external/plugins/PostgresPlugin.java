@@ -567,14 +567,6 @@ public class PostgresPlugin extends BasePlugin {
                     invalids.add("Missing username for authentication.");
                 }
 
-                /*
-                    Commenting the below check to allow the user to connect to
-                    postgresql without password
-                 */
-//                if (StringUtils.isEmpty(authentication.getPassword())) {
-//                    invalids.add("Missing password for authentication.");
-//                }
-
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing database name.");
                 }

@@ -85,16 +85,18 @@ public class PostgresPluginTest {
             .withPassword("password");
 
     @Container
-    public static final PostgreSQLContainer pgsqlContainerNoPwdAuth = new PostgreSQLContainer<>("postgres:alpine")
+    public static final PostgreSQLContainer pgsqlContainerNoPwdAuth =
+            new PostgreSQLContainer<>("postgres:alpine")
             .withExposedPorts(5432)
-            .withUsername("postgres_no_pwd_auth").withEnv("POSTGRES_HOST_AUTH_METHOD","trust");
+            .withUsername("postgres_no_pwd_auth")
+            .withEnv("POSTGRES_HOST_AUTH_METHOD","trust");
 
     private static String address;
     private static Integer port;
     private static String username, password;
-    private static String address_no_pwd_auth;
-    private static String username_no_pwd_auth;
-    private static Integer port_no_pwd_auth;
+    private static String addressNoPwdAuth;
+    private static String usernameNoPwdAuth;
+    private static Integer portNoPwdAuth;
 
     @BeforeAll
     public static void setUp() {
@@ -107,9 +109,9 @@ public class PostgresPluginTest {
         username = pgsqlContainer.getUsername();
         password = pgsqlContainer.getPassword();
 
-        address_no_pwd_auth = pgsqlContainerNoPwdAuth.getContainerIpAddress();
-        username_no_pwd_auth = pgsqlContainerNoPwdAuth.getUsername();
-        port_no_pwd_auth = pgsqlContainerNoPwdAuth.getFirstMappedPort();
+        addressNoPwdAuth = pgsqlContainerNoPwdAuth.getContainerIpAddress();
+        usernameNoPwdAuth = pgsqlContainerNoPwdAuth.getUsername();
+        portNoPwdAuth = pgsqlContainerNoPwdAuth.getFirstMappedPort();
 
         Properties properties = new Properties();
         properties.putAll(Map.of(
@@ -268,12 +270,12 @@ public class PostgresPluginTest {
 
     private DatasourceConfiguration createDatasourceConfigurationWithoutPwd() {
         DBAuth authDTO = new DBAuth();
-        authDTO.setUsername(username_no_pwd_auth);
+        authDTO.setUsername(usernameNoPwdAuth);
         authDTO.setDatabaseName("postgres");
 
         Endpoint endpoint = new Endpoint();
-        endpoint.setHost(address_no_pwd_auth);
-        endpoint.setPort(port_no_pwd_auth.longValue());
+        endpoint.setHost(addressNoPwdAuth);
+        endpoint.setPort(portNoPwdAuth.longValue());
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
