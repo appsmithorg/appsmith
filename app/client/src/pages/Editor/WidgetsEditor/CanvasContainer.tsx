@@ -88,8 +88,6 @@ function CanvasContainer() {
     node = pageLoading;
   }
 
-  console.log({ canvasScale, canvasWidth });
-
   if (!isPageInitializing && widgetsStructure) {
     node = (
       <Canvas

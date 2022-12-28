@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { tailwindLayers } from "constants/Layers";
