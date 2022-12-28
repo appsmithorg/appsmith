@@ -12,7 +12,7 @@ async function exec() {
     console.log(version);
   }
   else {
-    console.log("Error: could not find the current Appsmith version")
+    console.error("Error: could not find the current Appsmith version")
     process.exit(1);
   }
 }
