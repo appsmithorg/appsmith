@@ -25,6 +25,7 @@ import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
 import { quickScrollToWidget } from "utils/helpers";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 type Props = {
   width: number;
@@ -55,6 +56,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
   const isSnipingMode = useSelector(snipingModeSelector);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget Id,
@@ -119,6 +121,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     shouldNotRenderPane,
     keepThemeWhileDragging,
   ]);
+  const showResizer = isAppSettingsPaneOpen ? false : !isMultiPane;
 
   return (
     <div className="relative">
@@ -131,8 +134,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         })}
         ref={sidebarRef}
       >
-        {/* RESIZOR */}
-        {!isAppSettingsPaneOpen && (
+        {/* RESIZER */}
+        {showResizer && (
           <div
             className={`absolute top-0 left-0 w-2 h-full -ml-1 group  cursor-ew-resize ${tailwindLayers.resizer}`}
             onMouseDown={onMouseDown}

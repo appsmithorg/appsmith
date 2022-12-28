@@ -39,7 +39,7 @@ import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
 import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -69,7 +69,7 @@ function EditorsRouter() {
     () => !matchBuilderPath(pathname),
   );
   const pageId = useSelector(getCurrentPageId);
-  const featureFlags = useSelector(selectFeatureFlags);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   useEffect(() => {
     const isOnBuilder = matchBuilderPath(pathname);
@@ -97,7 +97,7 @@ function EditorsRouter() {
     <Wrapper isVisible={isVisible} onClick={handleClose}>
       <PaneDrawer isVisible={isVisible} onClick={preventClose}>
         <Switch key={path}>
-          {featureFlags.MULTIPLE_PANES && (
+          {isMultiPane && (
             <SentryRoute
               component={PropertyPaneContainer}
               exact
