@@ -92,6 +92,7 @@ const convertObjectTypeToFormData = (
     const formData: Record<string, unknown> = {};
 
     Object.values(schema).forEach((schemaItem) => {
+      if (!schemaItem.isVisible && !options.useSourceData) return;
       let sourceData;
       if (options.sourceData) {
         sourceData = valueLookup(
@@ -104,26 +105,20 @@ const convertObjectTypeToFormData = (
         );
       }
       const toKey = schemaItem[options.toId];
-      if (schemaItem.isVisible) {
-        const value = valueLookup(
+      let value;
+      if (!schemaItem.isVisible) {
+        value = sourceData;
+      } else {
+        value = valueLookup(
           formValue as Record<string, unknown>,
           schemaItem,
           options.fromId,
         );
-        formData[toKey] = convertSchemaItemToFormData(schemaItem, value, {
-          ...options,
-          sourceData,
-        });
-      } else if (
-        !schemaItem.isVisible &&
-        options.useSourceData &&
-        sourceData !== undefined
-      ) {
-        formData[toKey] = convertSchemaItemToFormData(schemaItem, sourceData, {
-          ...options,
-          sourceData,
-        });
       }
+      formData[toKey] = convertSchemaItemToFormData(schemaItem, value, {
+        ...options,
+        sourceData,
+      });
     });
 
     return formData;
