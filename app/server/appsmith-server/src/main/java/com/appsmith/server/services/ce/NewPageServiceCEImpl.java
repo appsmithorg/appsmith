@@ -268,13 +268,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return pages.stream().map(page -> page.getId()).collect(Collectors.toList());
                 })
-                .flatMapMany(pageIds -> repository.findAllByIds(pageIds, pagePermission.getReadPermission()))
+                .flatMapMany(pageIds -> repository.findAllPageDTOsByIds(pageIds, pagePermission.getReadPermission()))
                 .collectList()
                 .flatMap(pagesFromDb -> Mono.zip(
                         Mono.just(pagesFromDb),
                         defaultPageIdMono,
                         applicationMono
-                )).flatMap(tuple -> {
+                ))
+                .flatMap(tuple -> {
                     List<NewPage> pagesFromDb = tuple.getT1();
                     String defaultPageId = tuple.getT2();
 
