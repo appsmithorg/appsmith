@@ -6,6 +6,7 @@ import {
 } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
+  allowedFirstDayOfWeekRange,
   getBasePropertyPath,
   hideByColumnType,
   showByColumnType,
@@ -15,16 +16,7 @@ import {
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-
-function allowedRange(value: any) {
-  const allowedValues = [0, 1, 2, 3, 4, 5, 6];
-  const isValid = allowedValues.includes(Number(value));
-  return {
-    isValid: isValid,
-    parsed: isValid ? Number(value) : 0,
-    messages: isValid ? [] : ["Number should be between 0-6."],
-  };
-}
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 export default {
   sectionName: "Data",
@@ -435,33 +427,74 @@ export default {
       },
       isTriggerProperty: false,
     },
-    // {
-    //   propertyName: "firstDayOfWeek",
-    //   label: "First Day Of Week",
-    //   helpText: "Defines the first day of the week for calendar",
-    //   controlType: "INPUT_TEXT",
-    //   defaultValue: "0",
-    //   inputType: "INTEGER",
-    //   isBindProperty: true,
-    //   isTriggerProperty: false,
-    //   dependencies: ["primaryColumns", "columnType"],
-    //   validation: {
-    //     type: ValidationTypes.FUNCTION,
-    //     params: {
-    //       fn: allowedRange,
-    //       expected: {
-    //         type:
-    //           "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
-    //         example: "0",
-    //         autocompleteDataType: AutocompleteDataType.STRING,
-    //       },
-    //     },
-    //   },
-    //   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    //     const baseProperty = getBasePropertyPath(propertyPath);
-    //     const columnType = get(props, `${baseProperty}.columnType`, "");
-    //     return columnType !== "date";
-    //   },
-    // },
+    {
+      propertyName: "firstDayOfWeek",
+      label: "First Day Of Week",
+      helpText: "Defines the first day of the week for calendar",
+      controlType: "INPUT_TEXT",
+      defaultValue: "0",
+      inputType: "INTEGER",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      dependencies: ["primaryColumns", "columnType"],
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fnString: allowedFirstDayOfWeekRange.toString(),
+          expected: {
+            type:
+              "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
+            example: "0",
+            autocompleteDataType: AutocompleteDataType.STRING,
+          },
+        },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== "date";
+      },
+    },
+    {
+      propertyName: "timePrecision",
+      label: "Time Precision",
+      controlType: "DROP_DOWN",
+      helpText: "Sets the different time picker or hide.",
+      defaultValue: TimePrecision.MINUTE,
+      options: [
+        {
+          label: "None",
+          value: TimePrecision.NONE,
+        },
+        {
+          label: "Minute",
+          value: TimePrecision.MINUTE,
+        },
+        {
+          label: "Second",
+          value: TimePrecision.SECOND,
+        },
+      ],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: [
+            TimePrecision.NONE,
+            TimePrecision.MINUTE,
+            TimePrecision.SECOND,
+          ],
+          default: TimePrecision.MINUTE,
+        },
+      },
+      dependencies: ["primaryColumns", "columnType"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== "date";
+      },
+    },
   ],
 };

@@ -27,6 +27,7 @@ import { Colors } from "constants/Colors";
 type DateComponentProps = RenderDefaultPropsType &
   editPropertyType & {
     accentColor?: string;
+    animateLoading?: boolean;
     borderRadius?: string;
     boxShadow?: string;
     closeOnSelection: boolean;
@@ -46,7 +47,7 @@ type DateComponentProps = RenderDefaultPropsType &
     ) => void;
     onDateSelection: (rowIndex: number, onDateSelected: string) => void;
     onDateSelectedString: string;
-    // firstDayOfWeek?: number;
+    firstDayOfWeek?: number;
   };
 
 const COMPONENT_DEFAULT_VALUES = {
@@ -60,7 +61,7 @@ const COMPONENT_DEFAULT_VALUES = {
   maxDate: "2121-12-31T18:29:00.000Z",
   minDate: "1920-12-31T18:30:00.000Z",
   //   shortcuts: false,
-  //   timePrecision: TimePrecision.MINUTE,
+  timePrecision: TimePrecision.MINUTE,
   //   labelTextSize: THEMEING_TEXT_SIZES.sm,
 };
 
@@ -182,13 +183,14 @@ export const DateCell = (props: DateComponentProps) => {
     accentColor,
     alias,
     allowCellWrapping,
+    // animateLoading,
     borderRadius,
     cellBackground,
     columnType,
     compactMode,
     disabledEditIcon,
     disabledEditIconMessage,
-    // firstDayOfWeek,
+    firstDayOfWeek,
     fontStyle,
     hasUnsavedChanges,
     horizontalAlignment,
@@ -199,7 +201,7 @@ export const DateCell = (props: DateComponentProps) => {
     isCellVisible,
     isEditableCellValid,
     isHidden,
-    isNewRow,
+    // isNewRow,
     maxDate,
     minDate,
     onCellTextChange,
@@ -209,12 +211,13 @@ export const DateCell = (props: DateComponentProps) => {
     onSubmitString,
     outputFormat,
     rowIndex,
+    shortcuts,
     tableWidth,
     textColor,
     textSize,
     timePrecision,
     toggleCellEditMode,
-    validationErrorMessage,
+    // validationErrorMessage,
     verticalAlignment,
   } = props;
 
@@ -307,6 +310,7 @@ export const DateCell = (props: DateComponentProps) => {
           compactMode
           dateFormat={outputFormat}
           datePickerType="DATE_PICKER"
+          firstDayOfWeek={firstDayOfWeek}
           isDisabled
           isLoading={false}
           isPopoverOpen
@@ -316,8 +320,10 @@ export const DateCell = (props: DateComponentProps) => {
           onDateSelected={onDateSelected}
           onPopoverClosed={onBlur}
           selectedDate={valueInISOFormat}
-          shortcuts
-          timePrecision={TimePrecision.MINUTE}
+          shortcuts={shortcuts}
+          timePrecision={
+            timePrecision || COMPONENT_DEFAULT_VALUES.timePrecision
+          }
           widgetId={"adsasd"}
         />
       </Wrapper>

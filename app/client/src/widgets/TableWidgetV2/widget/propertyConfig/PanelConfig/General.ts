@@ -54,7 +54,6 @@ export default {
           ColumnTypes.ICON_BUTTON,
           ColumnTypes.MENU_BUTTON,
           ColumnTypes.BUTTON,
-          ColumnTypes.DATE,
         ]);
       },
     },
@@ -135,6 +134,34 @@ export default {
         const columnType = get(props, `${baseProperty}.columnType`, "");
         const isDerived = get(props, `${baseProperty}.isDerived`, false);
         return !isColumnTypeEditable(columnType) || isDerived;
+      },
+    },
+    // {
+    //   propertyName: "animateLoading",
+    //   label: "Animate Loading",
+    //   controlType: "SWITCH",
+    //   helpText: "Controls the loading of the widget",
+    //   defaultValue: true,
+    //   isJSConvertible: true,
+    //   isBindProperty: true,
+    //   isTriggerProperty: false,
+    //   validation: { type: ValidationTypes.BOOLEAN },
+    // },
+    {
+      propertyName: "shortcuts",
+      label: "Show Shortcuts",
+      helpText: "Choose to show shortcut menu",
+      controlType: "SWITCH",
+      isJSConvertible: false,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.BOOLEAN },
+      dependencies: ["primaryColumns", "columnType"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        // const baseProperty = getBasePropertyPath(propertyPath);
+        // const columnType = get(props, `${baseProperty}.columnType`, "");
+        // return columnType !== "date";
+        return hideByColumnType(props, propertyPath, [ColumnTypes.DATE]);
       },
     },
   ],
@@ -234,7 +261,6 @@ export const GeneralStyle = {
         },
       },
     },
-
     {
       propertyName: "imageSize",
       dependencies: ["primaryColumns", "columnType"],

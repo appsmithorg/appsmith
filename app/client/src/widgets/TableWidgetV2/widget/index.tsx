@@ -1770,6 +1770,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           <DateCell
             accentColor={this.props.accentColor}
             alias={props.cell.column.columnProperties.alias}
+            animateLoading={props.cell.column.columnProperties.alias}
             // allowCellWrapping={cellProperties.allowCellWrapping}
             cellBackground={cellProperties.cellBackground}
             closeOnSelection
@@ -1782,6 +1783,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             disabledEditIconMessage={disabledEditMessage}
             displayText={cellProperties.displayText}
+            firstDayOfWeek={props.cell.column.columnProperties.firstDayOfWeek}
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
@@ -1804,11 +1806,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onSubmitString={props.cell.column.columnProperties.onSubmit}
             outputFormat={cellProperties.outputFormat}
             rowIndex={rowIndex}
-            shortcuts
+            shortcuts={props.cell.column.columnProperties.shortcuts}
             tableWidth={this.getComponentDimensions().componentWidth}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
-            timePrecision={TimePrecision.MINUTE}
+            timePrecision={props.cell.column.columnProperties.timePrecision}
             toggleCellEditMode={this.toggleCellEditMode}
             validationErrorMessage={validationErrorMessageDate}
             value={props.cell.value}

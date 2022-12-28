@@ -641,3 +641,13 @@ export const updateCustomColumnAliasOnLabelChange = (
     ];
   }
 };
+
+export const allowedFirstDayOfWeekRange = (value: any) => {
+  const allowedValues = [0, 1, 2, 3, 4, 5, 6];
+  const isValid = allowedValues.includes(Number(value));
+  return {
+    isValid: isValid,
+    parsed: isValid ? Number(value) : 0,
+    messages: isValid ? [] : ["Number should be between 0-6."],
+  };
+};
