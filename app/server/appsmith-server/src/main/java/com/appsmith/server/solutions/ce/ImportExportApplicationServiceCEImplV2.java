@@ -13,6 +13,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
@@ -235,9 +236,9 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
                     Optional<AclPermission> optionalPermission = isGitSync ? Optional.empty() :
-                        TRUE.equals(application.getExportWithConfiguration())
-                        ? Optional.of(pagePermission.getReadPermission())
-                        : Optional.of(pagePermission.getEditPermission());
+                            TRUE.equals(application.getExportWithConfiguration())
+                                    ? Optional.of(pagePermission.getReadPermission())
+                                    : Optional.of(pagePermission.getEditPermission());
                     Flux<NewPage> pageFlux = newPageRepository.findByApplicationId(applicationId, optionalPermission);
 
                     return pageFlux
@@ -290,7 +291,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                         ? Optional.of(datasourcePermission.getReadPermission())
                                         : Optional.of(datasourcePermission.getEditPermission());
 
-                                Flux<Datasource> datasourceFlux = 
+                                Flux<Datasource> datasourceFlux =
                                         datasourceRepository.findAllByWorkspaceId(workspaceId, optionalPermission3);
                                 return datasourceFlux.collectList();
                             })
@@ -301,8 +302,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
                                 Optional<AclPermission> optionalPermission1 = isGitSync ? Optional.empty() :
                                         TRUE.equals(application.getExportWithConfiguration())
-                                        ? Optional.of(actionPermission.getReadPermission())
-                                        : Optional.of(actionPermission.getEditPermission());
+                                                ? Optional.of(actionPermission.getReadPermission())
+                                                : Optional.of(actionPermission.getEditPermission());
                                 Flux<ActionCollection> actionCollectionFlux =
                                         actionCollectionRepository.findByApplicationId(applicationId, optionalPermission1, Optional.empty());
                                 return actionCollectionFlux;
@@ -363,7 +364,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                         ? Optional.of(actionPermission.getReadPermission())
                                         : Optional.of(actionPermission.getEditPermission());
 
-                                Flux<NewAction> actionFlux = 
+                                Flux<NewAction> actionFlux =
                                         newActionRepository.findByApplicationId(applicationId, optionalPermission2, Optional.empty());
                                 return actionFlux;
                             })
@@ -1275,6 +1276,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         if (newPage.getGitSyncId() != null && savedPagesGitIdToPageMap.containsKey(newPage.getGitSyncId())) {
                             //Since the resource is already present in DB, just update resource
                             NewPage existingPage = savedPagesGitIdToPageMap.get(newPage.getGitSyncId());
+                            Set<Policy> existingPagePolicy = existingPage.getPolicies();
                             copyNestedNonNullProperties(newPage, existingPage);
                             // Update branchName
                             existingPage.getDefaultResources().setBranchName(branchName);
@@ -1282,6 +1284,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                             existingPage.getUnpublishedPage().setDeletedAt(newPage.getUnpublishedPage().getDeletedAt());
                             existingPage.setDeletedAt(newPage.getDeletedAt());
                             existingPage.setDeleted(newPage.getDeleted());
+                            existingPage.setPolicies(existingPagePolicy);
                             return newPageService.save(existingPage);
                         } else if (application.getGitApplicationMetadata() != null) {
                             final String defaultApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
@@ -1395,6 +1398,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
                         //Since the resource is already present in DB, just update resource
                         NewAction existingAction = savedActionsGitIdToActionsMap.get(newAction.getGitSyncId());
+                        Set<Policy> existingPolicy = existingAction.getPolicies();
                         copyNestedNonNullProperties(newAction, existingAction);
                         // Update branchName
                         existingAction.getDefaultResources().setBranchName(branchName);
@@ -1402,6 +1406,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         existingAction.getUnpublishedAction().setDeletedAt(newAction.getUnpublishedAction().getDeletedAt());
                         existingAction.setDeletedAt(newAction.getDeletedAt());
                         existingAction.setDeleted(newAction.getDeleted());
+                        existingAction.setPolicies(existingPolicy);
                         return newActionService.save(existingAction);
                     } else if (importedApplication.getGitApplicationMetadata() != null) {
                         final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
@@ -1548,6 +1553,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
                         //Since the resource is already present in DB, just update resource
                         ActionCollection existingActionCollection = savedActionCollectionGitIdToCollectionsMap.get(actionCollection.getGitSyncId());
+                        Set<Policy> existingPolicy = existingActionCollection.getPolicies();
                         copyNestedNonNullProperties(actionCollection, existingActionCollection);
                         // Update branchName
                         existingActionCollection.getDefaultResources().setBranchName(branchName);
@@ -1555,6 +1561,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         existingActionCollection.getUnpublishedCollection().setDeletedAt(actionCollection.getUnpublishedCollection().getDeletedAt());
                         existingActionCollection.setDeletedAt(actionCollection.getDeletedAt());
                         existingActionCollection.setDeleted(actionCollection.getDeleted());
+                        existingActionCollection.setPolicies(existingPolicy);
                         return Mono.zip(
                                 Mono.just(importedActionCollectionId),
                                 actionCollectionService.save(existingActionCollection)
