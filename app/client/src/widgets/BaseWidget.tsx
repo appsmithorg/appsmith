@@ -274,7 +274,7 @@ abstract class BaseWidget<
   };
 
   getWidgetCacheKey = () => {
-    return this.props.metaWidgetId || this.props.widgetId;
+    return (this.props.metaWidgetId || this.props.widgetId) as string;
   };
 
   setWidgetReferenceCache = <TRefCache,>(data: TRefCache) => {
