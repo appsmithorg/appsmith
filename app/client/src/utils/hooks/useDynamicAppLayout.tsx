@@ -153,12 +153,10 @@ export const useDynamicAppLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
     const { width: rightColumn } = mainCanvasProps || {};
     let scale = 1;
-    if (isMultiPane) {
-      if (appLayout?.type !== "FLUID") {
-        const canvasSpace = screenWidth - tabsPaneWidth - 100;
-        scale = Number(Math.abs(canvasSpace / calculatedWidth).toFixed(2));
-        dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
-      }
+    if (isMultiPane && appLayout?.type !== "FLUID") {
+      const canvasSpace = screenWidth - tabsPaneWidth - 100;
+      scale = Math.min(+Math.abs(canvasSpace / calculatedWidth).toFixed(2), 1);
+      dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     } else if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     }
