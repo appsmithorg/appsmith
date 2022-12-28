@@ -18,7 +18,7 @@ async function exec() {
 async function execMongoEval(queryExpression, appsmithMongoURI) {
   queryExpression = queryExpression.trim();
   if (command_args.includes('--pretty')) {
-    queryExpression = queryExpression + '.pretty()';
+    queryExpression += '.pretty()';
   }
   return await utils.execCommand(['mongo', `${appsmithMongoURI}`, `--eval=${queryExpression}`]);
 }
