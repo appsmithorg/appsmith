@@ -1,21 +1,14 @@
-import { get, isPlainObject } from "lodash";
+import { get } from "lodash";
 
-import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
+import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from ".";
-import { getBindingTemplate } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 const MIN_ITEM_SPACING = 0;
 const MAX_ITEM_SPACING = 16;
-
-const isValidListData = (
-  value: unknown,
-): value is Exclude<ListWidgetProps["listData"], undefined> => {
-  return Array.isArray(value) && value.length > 0 && isPlainObject(value[0]);
-};
 
 export const primaryColumnValidation = (
   inputValue: unknown,
@@ -65,23 +58,6 @@ export const primaryColumnValidation = (
   };
 };
 
-export const primaryKeyOptions = (props: ListWidgetProps) => {
-  const { widgetName } = props;
-  const listData = props[EVALUATION_PATH]?.evaluatedValues?.listData || [];
-  const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
-
-  if (isValidListData(listData)) {
-    return Object.keys(listData[0]).map((key) => ({
-      label: key,
-      value: `${prefixTemplate} currentItem[${JSON.stringify(
-        key,
-      )}] ${suffixTemplate}`,
-    }));
-  } else {
-    return [];
-  }
-};
-
 export const PropertyPaneContentConfig = [
   {
     sectionName: "Data",
@@ -109,9 +85,9 @@ export const PropertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         isJSConvertible: true,
-        dependencies: ["listData"],
+        dependencies: ["listData", "primaryKeyOptions"],
         evaluatedDependencies: ["listData"],
-        options: primaryKeyOptions,
+        options: (props: ListWidgetProps) => props.primaryKeyOptions,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {

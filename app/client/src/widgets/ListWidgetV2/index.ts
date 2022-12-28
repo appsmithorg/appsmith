@@ -1,10 +1,11 @@
 import { get } from "lodash";
 
 import IconSVG from "./icon.svg";
-import Widget from "./widget";
+import Widget, { isValidListData } from "./widget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "widgets/BaseWidget";
+import { getBindingTemplate } from "./constants";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -23,6 +24,24 @@ const DEFAULT_LIST_DATA = [
     img: "https://assets.appsmith.com/widgets/default.png",
   },
 ];
+
+const getPrimaryKeyOptions = (
+  listData: Record<string, unknown>[],
+  widgetName = "List1",
+) => {
+  const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
+
+  if (isValidListData(listData)) {
+    return Object.keys(listData[0]).map((key) => ({
+      label: key,
+      value: `${prefixTemplate} currentItem[${JSON.stringify(
+        key,
+      )}] ${suffixTemplate}`,
+    }));
+  } else {
+    return [];
+  }
+};
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -67,6 +86,7 @@ export const CONFIG = {
     templateBottomRow: 16,
     listData: DEFAULT_LIST_DATA,
     pageSize: DEFAULT_LIST_DATA.length,
+    primaryKeyOptions: getPrimaryKeyOptions(DEFAULT_LIST_DATA),
     widgetName: "List",
     children: [],
     passThroughPropsKeys: ["level", "levelData", "prefixMetaWidgetId"],
