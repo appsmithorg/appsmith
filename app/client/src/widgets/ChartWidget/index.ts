@@ -1,6 +1,6 @@
-import { ResponsiveBehavior } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
@@ -21,7 +21,7 @@ export const CONFIG = {
     allowScroll: false,
     version: 1,
     animateLoading: true,
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
     chartData: {
       [generateReactKey()]: {

@@ -1,9 +1,4 @@
-import {
-  LayoutDirection,
-  Overflow,
-  Positioning,
-  ResponsiveBehavior,
-} from "components/constants";
+import { LayoutDirection, Overflow, Positioning } from "components/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
@@ -12,6 +7,7 @@ import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { CSSProperties } from "react";
 import { getCanvasClassName } from "utils/generators";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -194,7 +190,9 @@ export const CONFIG = {
     version: 1,
     detachFromLayout: true,
     flexLayers: [],
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(
+      CanvasWidget.getWidgetType(),
+    ),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

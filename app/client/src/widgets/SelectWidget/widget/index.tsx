@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetType } from "constants/WidgetConstants";
 import {
@@ -19,10 +19,7 @@ import {
 } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
@@ -375,13 +372,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

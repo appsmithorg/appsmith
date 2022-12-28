@@ -1,5 +1,6 @@
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import IconSVG from "./icon.svg";
@@ -26,7 +27,7 @@ export const CONFIG = {
     widgetName: "Input",
     version: 2,
     showStepArrows: false,
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

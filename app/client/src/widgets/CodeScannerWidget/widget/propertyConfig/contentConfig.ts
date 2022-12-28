@@ -1,15 +1,10 @@
-import { ResponsiveBehavior } from "components/constants";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import {
   CodeScannerWidgetProps,
   ScannerLayout,
 } from "widgets/CodeScannerWidget/constants";
-
 export default [
   {
     sectionName: "Basic",
@@ -100,13 +95,8 @@ export default [
       },
     ],
   },
-  {
-    sectionName: "Responsive Layout",
-    children: [
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-      generateVerticalAlignmentConfig(),
-    ],
-  },
+  ...getResponsiveLayoutConfig("CODE_SCANNER_WIDGET"),
+
   {
     sectionName: "Events",
     children: [

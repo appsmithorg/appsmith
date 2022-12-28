@@ -3,7 +3,7 @@ import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { GridDefaults, NonResizableWidgets } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import React, { memo, useContext, useMemo } from "react";
@@ -28,6 +28,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { NonResizableWidgets } from "utils/layoutPropertiesUtils";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
   WidgetOperations,

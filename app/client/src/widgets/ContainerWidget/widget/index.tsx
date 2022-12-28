@@ -16,13 +16,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { Positioning, ResponsiveBehavior } from "components/constants";
+import { Positioning } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
-import {
-  generatePositioningConfig,
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -69,14 +65,7 @@ export class ContainerWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generatePositioningConfig(Positioning.Vertical),
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

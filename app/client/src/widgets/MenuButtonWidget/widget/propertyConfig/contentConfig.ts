@@ -1,18 +1,13 @@
-import { ResponsiveBehavior } from "components/constants";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
 import { MenuButtonWidgetProps, MenuItemsSource } from "../../constants";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 import menuItemsConfig from "./childPanels/menuItemsConfig";
 import { updateMenuItemsSource } from "./propertyUtils";
-
 export default [
   {
     sectionName: "Basic",
@@ -151,11 +146,5 @@ export default [
       },
     ],
   },
-  {
-    sectionName: "Responsive Layout",
-    children: [
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-      generateVerticalAlignmentConfig(),
-    ],
-  },
+  ...getResponsiveLayoutConfig("MENU_BUTTON_WIDGET"),
 ] as PropertyPaneConfig[];

@@ -1,6 +1,7 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -36,7 +37,7 @@ export const CONFIG = {
     labelWidth: 5,
     widgetName: "CheckboxGroup",
     version: 2,
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

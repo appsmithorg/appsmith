@@ -1,17 +1,17 @@
 import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, set } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { InlineEditingSaveOptions } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { escapeString } from "./widget/utilities";
-import { ResponsiveBehavior } from "components/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -19,7 +19,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: 28,
     columns: 34,
