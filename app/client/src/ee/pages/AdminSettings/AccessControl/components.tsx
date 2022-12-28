@@ -104,14 +104,6 @@ export const StyledSearchInput = styled(SearchInput)`
     color: var(--appsmith-color-black-700);
     box-shadow: none;
     margin: 0 16px 0 0;
-
-    &:active,
-    &:hover,
-    &:focus {
-      border: 1px solid var(--appsmith-color-black-250);
-      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06),
-        0px 1px 3px rgba(0, 0, 0, 0.1);
-    }
   }
 `;
 

@@ -127,6 +127,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
       <ActiveGroups data-testid="t--active-groups">
         <TitleWrapper>
           <Icon
+            clickable={false}
             fillColor={Colors.GREEN}
             name="oval-check"
             size={IconSize.XXXL}
@@ -170,6 +171,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
         <AllGroups data-testid="t--all-groups">
           <TitleWrapper>
             <Icon
+              clickable={false}
               fillColor={Colors.GREY_7}
               name="group-2-line"
               size={IconSize.XXXXL}

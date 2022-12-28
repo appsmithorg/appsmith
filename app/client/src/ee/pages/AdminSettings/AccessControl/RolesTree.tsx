@@ -570,6 +570,7 @@ export function updateSubRows(
 
 export function updateCheckbox(
   rowData: any,
+  rIndex: number,
   value: any,
   hoverMap: any[],
   permissions: any,
@@ -584,7 +585,8 @@ export function updateCheckbox(
     const disableMapForCheckbox =
       getEntireDisableMap(disableHelperMap, updatedRow.id, map.p) || [];
     for (const i of disableMapForCheckbox) {
-      const el = document.querySelector(`[data-cellId="${i}"]`);
+      const allEl = document.querySelectorAll(`[data-cellId="${i}"]`);
+      const el = allEl.length > 1 ? allEl[rIndex] : allEl[0];
       const input = el?.getElementsByTagName("input")[0];
       if (input && input.checked && !input.disabled) {
         dependencies += 1;
@@ -650,6 +652,7 @@ export function updateData(
     if (currentCellId[0] === rowDataToUpdate.id) {
       updatedData[parseInt(rowIdArray[0])] = updateCheckbox(
         rowDataToUpdate,
+        parseInt(rowIdArray[0]),
         newValue,
         hoverMap,
         permissions,
@@ -801,7 +804,7 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
 
         useEffect(() => {
           if (disableMap.length > 0 && !isDisabled) {
-            setIsDisabled(getDisabledState());
+            setIsDisabled(getDisabledState(parseInt(rowId.split(".")[0])));
           }
         }, [disableMap, isChecked]);
 
@@ -845,10 +848,16 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
           updateMyData(e, cellId, rowId, rowData.hoverMap[i]);
         };
 
-        const getDisabledState = () => {
+        const getDisabledState = (rIndex: number) => {
           let isDisabled = false;
           for (const i of disableMap) {
-            const el = document.querySelector(`[data-cellId="${i}"]`);
+            const allEl = document.querySelectorAll(`[data-cellId="${i}"]`);
+            const el =
+              allEl.length > 1
+                ? allEl[rIndex]
+                : allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
+                ? allEl[0]
+                : null;
             const input = el?.getElementsByTagName("input")[0];
             if (input?.checked) {
               isDisabled = true;
@@ -1001,17 +1010,18 @@ export function EachTab(
   showSaveModal: boolean,
   setShowSaveModal: (val: boolean) => void,
   isLoading: boolean,
+  currentTab: boolean,
 ) {
   const [tabCount, setTabCount] = useState<number>(0);
   const dataFromProps = useMemo(() => {
-    return (
-      makeData({
-        data: [tabs?.data],
-        hoverMap: tabs.hoverMap,
-        permissions: tabs.permissions,
-      }) || []
-    );
-  }, [tabs]);
+    return currentTab
+      ? makeData({
+          data: [tabs?.data],
+          hoverMap: tabs.hoverMap,
+          permissions: tabs.permissions,
+        }) || []
+      : [];
+  }, [tabs, currentTab]);
 
   useEffect(() => {
     if (!searchValue) {
@@ -1053,7 +1063,7 @@ export default function RoleTabs(props: {
   const [showSaveModal, setShowSaveModal] = useState(false);
 
   const tabs: TabProp[] = selected?.tabs
-    ? Object.entries(selected?.tabs).map(([key, value]) =>
+    ? Object.entries(selected?.tabs).map(([key, value], index) =>
         EachTab(
           key,
           searchValue,
@@ -1062,6 +1072,7 @@ export default function RoleTabs(props: {
           showSaveModal,
           setShowSaveModal,
           isLoading,
+          selectedTabIndex === index,
         ),
       )
     : [];
