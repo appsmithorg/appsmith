@@ -81,10 +81,12 @@ export function FlexComponent(props: AutoLayoutProps) {
     clickToSelectWidget(props.widgetId);
   }, [props.widgetId, clickToSelectWidget]);
 
-  const { dragDetails } = useSelector(
-    (state: AppState) => state.ui.widgetDragResize,
+  const dragDetails = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.dragDetails,
   );
-  const isDragging: boolean = dragDetails?.draggedOn !== undefined;
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
 
   const siblingCount = useSelector(
     getSiblingCount(props.widgetId, props.parentId || MAIN_CONTAINER_WIDGET_ID),
@@ -118,7 +120,8 @@ export function FlexComponent(props: AutoLayoutProps) {
       ? DEFAULT_MARGIN
       : Math.max(props.parentColumnSpace, DRAG_MARGIN);
 
-  const isAffectedByDrag: boolean = isDragging;
+  const isAffectedByDrag: boolean =
+    isDragging && dragDetails?.draggedOn !== undefined;
   // TODO: Simplify this logic.
   /**
    * resize logic:

@@ -67,8 +67,8 @@ const Title = styled.p`
 //               },
 //             ]),
 //           );
-//           if (isVerticalStack) dispatch(addWrappers(widgetId));
-//           else removeWrappers(widgetId);
+//           if (isVerticalStack) dispatch(addWrappersAction(widgetId));
+//           else removeWrappersAction(widgetId);
 //         }
 //       }}
 //     >
