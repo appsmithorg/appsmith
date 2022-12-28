@@ -154,14 +154,17 @@ class ListWidget extends BaseWidget<
 
     this.metaWidgetGenerator = new MetaWidgetGenerator({
       getWidgetCache: this.getWidgetCache,
+      getWidgetReferenceCache: this.getWidgetReferenceCache,
       infiniteScroll: props.infiniteScroll ?? false,
       isListCloned,
       level: props.level || 1,
       onVirtualListScroll: this.generateMetaWidgets,
+      onMetaWidgetsUpdate: this.onMetaWidgetsUpdate,
       prefixMetaWidgetId: props.prefixMetaWidgetId || props.widgetId,
       primaryWidgetType: ListWidget.getWidgetType(),
       renderMode: props.renderMode,
       setWidgetCache: this.setWidgetCache,
+      setWidgetReferenceCache: this.setWidgetReferenceCache,
     });
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
@@ -263,6 +266,7 @@ class ListWidget extends BaseWidget<
       itemSpacing: this.props.itemSpacing || 0,
       infiniteScroll: this.props.infiniteScroll ?? false,
       levelData: this.props.levelData,
+      nestedViewIndex: this.props.nestedViewIndex,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
       primaryKeys,
       scrollElement: this.componentRef.current,
@@ -320,6 +324,13 @@ class ListWidget extends BaseWidget<
     ) {
       this.modifyMetaWidgets(updates);
     }
+  };
+
+  onMetaWidgetsUpdate = (metaWidgets: MetaWidgets) => {
+    this.modifyMetaWidgets({
+      addOrUpdate: metaWidgets,
+      deleteIds: [],
+    });
   };
 
   generateMainMetaCanvasWidget = () => {
@@ -880,6 +891,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   triggeredItemIndex?: number;
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
+  nestedViewIndex?: number;
 }
 
 export default ListWidget;
