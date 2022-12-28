@@ -28,6 +28,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { NonResizableWidgets } from "utils/layoutPropertiesUtils";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
   WidgetOperations,
@@ -318,10 +319,12 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isVerticalResizeEnabled = useMemo(() => {
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
-
+  const allowResize = !(
+    NonResizableWidgets.includes(props.type) || isMultiSelected
+  );
   return (
     <Resizable
-      allowResize={!isMultiSelected}
+      allowResize={allowResize}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       direction={props.direction}

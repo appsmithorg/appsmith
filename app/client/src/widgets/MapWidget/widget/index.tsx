@@ -4,7 +4,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import MapComponent from "../component";
 
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { ResponsiveBehavior } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
@@ -12,10 +11,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import styled from "styled-components";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { MarkerProps } from "../constants";
 
@@ -235,13 +231,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

@@ -2,7 +2,7 @@ import { debounce, get } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateLayoutForMobileBreakpoint } from "actions/autoLayoutActions";
+import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import {
@@ -225,7 +225,7 @@ export const useDynamicAppLayout = () => {
   useEffect(() => {
     function relayoutAtBreakpoint() {
       dispatch(
-        updateLayoutForMobileBreakpoint(
+        updateLayoutForMobileBreakpointAction(
           MAIN_CONTAINER_WIDGET_ID,
           mainCanvasProps?.isMobile,
           calculateCanvasWidth(),
