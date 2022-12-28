@@ -31,4 +31,7 @@ public abstract class BaseException extends RuntimeException {
         return super.getMessage();
     }
 
+    public abstract String getDownstreamErrorMessage();
+    public abstract String getDownstreamErrorCode();
+
 }

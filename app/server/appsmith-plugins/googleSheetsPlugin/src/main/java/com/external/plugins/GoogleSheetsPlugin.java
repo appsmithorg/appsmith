@@ -123,7 +123,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
             } catch (AppsmithPluginException e) {
                 // Initializing object for error condition
                 ActionExecutionResult errorResult = new ActionExecutionResult();
-                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode());
                 errorResult.setIsExecutionSuccess(false);
                 errorResult.setErrorInfo(e);
                 return Mono.just(errorResult);
@@ -140,7 +140,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
-            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode());
             errorResult.setIsExecutionSuccess(false);
 
             // Check if method is defined

@@ -321,11 +321,14 @@ public class MySqlPlugin extends BasePlugin {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
                         } else if (error instanceof R2dbcBadGrammarException) {
-                            error = new AppsmithPluginException(AppsmithPluginError.MYSQL_INVALID_QUERY_SYNTAX);
+                            R2dbcBadGrammarException r2dbcBadGrammarException = ((R2dbcBadGrammarException) error);
+                            error = new AppsmithPluginException(AppsmithPluginError.MYSQL_INVALID_QUERY_SYNTAX, r2dbcBadGrammarException.getMessage(), "SQLSTATE: " +r2dbcBadGrammarException.getSqlState());
                         } else if (error instanceof R2dbcPermissionDeniedException) {
-                            error = new AppsmithPluginException(AppsmithPluginError.MYSQL_MISSING_REQUIRED_PERMISSION);
+                            R2dbcPermissionDeniedException r2dbcPermissionDeniedException = (R2dbcPermissionDeniedException) error;
+                            error = new AppsmithPluginException(AppsmithPluginError.MYSQL_MISSING_REQUIRED_PERMISSION, r2dbcPermissionDeniedException.getMessage(), "SQLSTATE: " + r2dbcPermissionDeniedException.getSqlState());
                         } else if (error instanceof R2dbcException) {
-                            error = new AppsmithPluginException(AppsmithPluginError.MYSQL_QUERY_EXECUTION_FAILED);
+                            R2dbcException r2dbcException = (R2dbcException) error;
+                            error = new AppsmithPluginException(AppsmithPluginError.MYSQL_QUERY_EXECUTION_FAILED, r2dbcException.getMessage(), "SQLSTATE: " + r2dbcException.getSqlState());
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);

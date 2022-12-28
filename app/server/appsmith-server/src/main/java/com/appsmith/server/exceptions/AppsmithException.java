@@ -28,6 +28,18 @@ public class AppsmithException extends BaseException {
         return this.error == null ? super.getMessage() : this.error.getMessage(this.args);
     }
 
+    @Override
+    public String getDownstreamErrorMessage() {
+        //Downstream error message is not available for AppsmithError
+        return null;
+    }
+
+    @Override
+    public String getDownstreamErrorCode() {
+        //Downstream error code is not available for AppsmithError
+        return null;
+    }
+
     public String getAppErrorCode() {
         return this.error == null ? AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode() : this.error.getAppErrorCode();
     }

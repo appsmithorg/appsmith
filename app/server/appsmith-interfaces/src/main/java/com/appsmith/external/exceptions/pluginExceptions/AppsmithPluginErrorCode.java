@@ -14,7 +14,7 @@ public enum AppsmithPluginErrorCode {
     POSTGRES_QUERY_EXECUTION_FAILED("PE-PGS-5000", "Query execution failed"),
 
     MYSQL_EMPTY_QUERY("PE-MYS-4000", "Query is null or empty"),
-    MYSQL_IS_KEYWORD_NOT_ALLOWED_IN_PREPARED_STATEMENT("PE-MYS-40001", "Appsmith currently does not support the IS keyword with the prepared statement " +
+    MYSQL_IS_KEYWORD_NOT_ALLOWED_IN_PREPARED_STATEMENT("PE-MYS-4001", "Appsmith currently does not support the IS keyword with the prepared statement " +
             "setting turned ON. Please re-write your SQL query without the IS keyword or " +
             "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab."),
     MYSQL_INVALID_QUERY_SYNTAX("PE-MYS-4002", "Query is syntactically wrong"),

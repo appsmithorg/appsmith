@@ -43,11 +43,10 @@ public class ActionExecutionResult {
 
     public void setErrorInfo(Throwable error, AppsmithPluginErrorUtils pluginErrorUtils) {
         this.body = error.getMessage();
-        pluginErrorDetails = new PluginErrorDetails();
-        pluginErrorDetails.appsmithErrorMessage = error.getMessage();
 
         if (error instanceof AppsmithPluginException) {
             AppsmithPluginException pluginException = (AppsmithPluginException) error;
+            pluginErrorDetails = new PluginErrorDetails(pluginException);
             this.statusCode = pluginException.getAppErrorCode();
             this.title = pluginException.getTitle();
             this.errorType = pluginException.getErrorType();
@@ -55,11 +54,6 @@ public class ActionExecutionResult {
             if (((AppsmithPluginException) error).getExternalError() != null && pluginErrorUtils != null) {
                 this.readableError = pluginErrorUtils.getReadableError(error);
             }
-            pluginErrorDetails.title = pluginException.getTitle();
-            pluginErrorDetails.errorType = pluginException.getErrorType();
-            pluginErrorDetails.appsmithErrorCode = pluginException.getAppErrorCode();
-            pluginErrorDetails.appsmithErrorMessage = pluginException.getMessage();
-
         } else if (error instanceof BaseException) {
             this.statusCode = ((BaseException) error).getAppErrorCode();
             this.title = ((BaseException) error).getTitle();
@@ -82,5 +76,13 @@ public class ActionExecutionResult {
         String downstreamErrorMessage;
         String solutionHint;
 
+        public PluginErrorDetails(AppsmithPluginException appsmithPluginException) {
+            this.title = appsmithPluginException.getTitle();
+            this.errorType = appsmithPluginException.getErrorType();
+            this.appsmithErrorCode = appsmithPluginException.getAppErrorCode();
+            this.appsmithErrorMessage = appsmithPluginException.getMessage();
+            this.downstreamErrorMessage = appsmithPluginException.getDownstreamErrorMessage();
+            this.downstreamErrorCode = appsmithPluginException.getDownstreamErrorCode();
+        }
     }
 }

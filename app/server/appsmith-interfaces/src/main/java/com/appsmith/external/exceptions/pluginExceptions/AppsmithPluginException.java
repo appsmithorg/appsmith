@@ -32,6 +32,16 @@ public class AppsmithPluginException extends BaseException {
         return this.error.getMessage(args);
     }
 
+    @Override
+    public String getDownstreamErrorMessage() {
+        return this.error.getDownstreamErrorMessage(args);
+    }
+
+    @Override
+    public String getDownstreamErrorCode() {
+        return this.error.getDownstreamErrorCode(args);
+    }
+
     public String getAppErrorCode() {
         return this.error == null ? AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode() : this.error.getAppErrorCode();
     }
