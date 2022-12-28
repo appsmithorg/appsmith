@@ -1,7 +1,10 @@
 import styled from "styled-components";
 
 import { LabelPosition, LABEL_MARGIN_OLD_SELECT } from "components/constants";
-import { labelLayoutStyles, LABEL_CONTAINER_CLASS } from "design-system";
+import {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "widgets/components/LabelWithTooltip";
 
 export const SliderContainer = styled.div<{
   compactMode: boolean;
