@@ -14,8 +14,7 @@ display_help()
   echo "options:"
   echo "-h     			Print this help"
   echo "-l or --local    	Use the local codebase and not git"
-  echo "-r or --remote    Use the branch from a remote repository"
-  echo "--push      Use this to push the image to docker-hub"
+  echo "-r or --remote    	Use the branch from a remote repository"
   echo "For more info please check: https://www.notion.so/appsmith/Test-an-Appsmith-branch-locally-c39ad68aea0d42bf94a149ea22e86820#9cee16c7e2054b5980513ec6f351ace2"
   echo
 }
@@ -41,13 +40,6 @@ then
   LOCAL=true
 fi
 
-PUSH=false
-if [[ ($@ == *"--push") ]]
-then
-  PUSH=true
-fi
-
-
 REMOTE=false
 if [[ ($1 == "--remote" || $1 == "-r")]]
 then
@@ -60,7 +52,7 @@ then
   BRANCH=release
 elif [[ ($REMOTE == true) ]]
 then
-  pretty_print "Setting up instance with remote repository branch ..."
+  pretty_print "Setting up instance with remote repository branch ..."	
   REMOTE_REPOSITORY_URL=$2
   REMOTE_BRANCH=$3
   pretty_print "Please ignore if the following error occurs: remote remote_origin_for_local_test already exists."	
@@ -78,7 +70,6 @@ else
   pretty_print "Local branch is now up to date. Starting server build ..."
 fi
 
-GIT_COMMIT_ID=$(git rev-parse --short HEAD)
 pretty_print "Starting server build ..."
 
 pushd app/server > /dev/null && ./build.sh -DskipTests > /dev/null && pretty_print "Server build successful. Starting client build ..."
@@ -89,16 +80,8 @@ pushd app/client > /dev/null && yarn > /dev/null && yarn build > /dev/null && pr
 popd
 pushd app/rts > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful. Starting Docker build ..."
 
-## Build and Push the docker image
-if $PUSH
-then
-   echo "Exiting because we push docker image on a github action"
-   exit 0
-fi
-
 popd
-docker build -t appsmith/appsmith:$GIT_COMMIT_ID . > /dev/null && pretty_print "Docker image build successful. Triggering run now ..."
+docker build -t appsmith/appsmith-ce:local-testing . > /dev/null && pretty_print "Docker image build successful. Triggering run now ..."
 
-## Run the docker image.
 (docker stop appsmith || true) && (docker rm appsmith || true)
-docker run -d --name appsmith -p 80:80 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith:$GIT_COMMIT_ID && sleep 15 && pretty_print "Local instance is up! Open Appsmith at http://localhost! "
+docker run -d --name appsmith -p 80:80 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:local-testing && sleep 15 && pretty_print "Local instance is up! Open Appsmith at http://localhost! "
