@@ -591,7 +591,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository.findById(defaultPageId, pagePermission.getReadPermission());
+            getPageMono = repository.findRootApplicationIdById(defaultPageId, pagePermission.getReadPermission());
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission());
         }
@@ -600,6 +600,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
                 )
                 .map(newPage -> {
+                    log.debug("Retrieved possible application ids for page, picking the appropriate one now");
                     if (newPage.getDefaultResources() != null) {
                         return newPage.getDefaultResources().getApplicationId();
                     } else {
