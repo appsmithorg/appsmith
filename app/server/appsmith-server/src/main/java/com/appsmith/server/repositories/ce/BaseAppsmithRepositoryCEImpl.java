@@ -342,7 +342,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 });
     }
 
-    protected Mono<T> queryOne(List<Criteria> criterias, Optional<List<String>> projectionFieldNames, Optional<AclPermission> permission) {
+    protected Mono<T> queryOne(List<Criteria> criterias, List<String> projectionFieldNames, Optional<AclPermission> permission) {
         Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
 
         return permissionGroupsMono
@@ -381,11 +381,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     protected Query createQueryWithPermission(List<Criteria> criterias,
-                                              Optional<List<String>> projectionFieldNames,
+                                              List<String> projectionFieldNames,
                                               Set<String> permissionGroups,
                                               Optional<AclPermission> permission) {
 
-        return createQueryWithPermission(criterias, projectionFieldNames.orElse(null), permissionGroups, permission.orElse(null));
+        return createQueryWithPermission(criterias, projectionFieldNames, permissionGroups, permission.orElse(null));
     }
 
     protected Query createQueryWithPermission(List<Criteria> criterias,
