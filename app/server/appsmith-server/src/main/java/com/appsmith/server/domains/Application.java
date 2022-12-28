@@ -257,8 +257,6 @@ public class Application extends BaseDomain {
      * EmbedSetting is used for embedding Appsmith apps on other platforms
      */
     @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class EmbedSetting {
         private String height;
         private String width;
@@ -270,8 +268,6 @@ public class Application extends BaseDomain {
      * NavigationSetting stores the navigation configuration for the app
      */
     @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class NavigationSetting {
         private Boolean showNavbar;
         private String orientation;
