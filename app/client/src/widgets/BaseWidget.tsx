@@ -432,7 +432,6 @@ abstract class BaseWidget<
 
   makeFlex(content: ReactNode) {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <FlexComponent
         componentHeight={componentHeight}
@@ -507,8 +506,11 @@ abstract class BaseWidget<
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          if (this.props.isFlexChild) content = this.makeFlex(content);
-          else content = this.makePositioned(content);
+          if (this.props.isFlexChild) {
+            content = this.makeFlex(content);
+          } else {
+            content = this.makePositioned(content);
+          }
           if (isAutoHeightEnabledForWidget(this.props, true)) {
             content = this.addAutoHeightOverlay(content);
           }

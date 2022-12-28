@@ -1,9 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  LayoutDirection,
-  Positioning,
-  ResponsiveBehavior,
-} from "components/constants";
+import { LayoutDirection, Positioning } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import {
@@ -17,8 +13,7 @@ import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
   generatePositioningConfig,
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
+  getResponsiveLayoutConfig,
 } from "utils/layoutPropertiesUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetState } from "../../BaseWidget";
@@ -188,13 +183,7 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

@@ -1,8 +1,9 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
-import { AlignWidgetTypes } from "widgets/constants";
+import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { AlignWidgetTypes } from "widgets/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   features: {
@@ -28,7 +29,7 @@ export const CONFIG = {
     isDisabled: false,
     isRequired: false,
     animateLoading: true,
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

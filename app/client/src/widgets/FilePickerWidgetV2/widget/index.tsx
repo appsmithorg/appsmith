@@ -7,7 +7,6 @@ import { UppyFile } from "@uppy/utils";
 import Webcam from "@uppy/webcam";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
-import { ResponsiveBehavior } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { WidgetType } from "constants/WidgetConstants";
@@ -22,10 +21,7 @@ import React from "react";
 import shallowequal from "shallowequal";
 import { createGlobalStyle } from "styled-components";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
@@ -429,13 +425,8 @@ class FilePickerWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
+
       {
         sectionName: "Events",
         children: [

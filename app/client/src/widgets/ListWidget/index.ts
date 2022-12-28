@@ -1,8 +1,11 @@
+import { Positioning } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
@@ -10,8 +13,6 @@ import {
 } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { Positioning, ResponsiveBehavior } from "components/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -27,7 +28,7 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     template: {},
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
     positioning: Positioning.Fixed,
     enhancements: {

@@ -6,15 +6,11 @@ import { countOccurrences } from "workers/Evaluation/helpers";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
-import { ResponsiveBehavior } from "components/constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { Color } from "constants/Colors";
 import { pick } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 import TextComponent, { TextAlign } from "../component";
@@ -391,13 +387,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

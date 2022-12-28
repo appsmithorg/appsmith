@@ -10,7 +10,6 @@ import DiscardButtonproperties, {
 import Events from "./Events";
 import General, { GeneralStyle } from "./General";
 import Icon from "./Icon";
-import ResponsiveBehavior from "./ResponsiveBehavior";
 import SaveButtonProperties, {
   saveButtonStyleConfig,
 } from "./SaveButtonProperties";
@@ -27,7 +26,7 @@ export default {
     Data,
     Basic,
     General,
-    ResponsiveBehavior,
+    // ...(ResponsiveBehaviorConfig as any),
     Validations,
     SaveButtonProperties,
     DiscardButtonproperties,

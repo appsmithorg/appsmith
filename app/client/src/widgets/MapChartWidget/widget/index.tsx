@@ -1,6 +1,5 @@
 import React, { lazy, Suspense } from "react";
 
-import { ResponsiveBehavior } from "components/constants";
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetType } from "constants/WidgetConstants";
@@ -9,10 +8,7 @@ import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { MapType } from "../component";
 import {
@@ -210,13 +206,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
