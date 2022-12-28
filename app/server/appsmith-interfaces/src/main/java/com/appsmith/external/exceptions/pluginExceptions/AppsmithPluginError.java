@@ -39,16 +39,6 @@ public enum AppsmithPluginError {
             "{2}",
             "{3}"
     ),
-    PLUGIN_MAX_RESULT_SIZE_EXCEEDED(
-            504,
-            "5009",
-            "Response size exceeded the maximum supported size of {0} MB. Please use LIMIT to reduce the amount of data fetched.",
-            AppsmithErrorAction.DEFAULT,
-            "Large Result Set Not Supported",
-            ErrorType.INTERNAL_ERROR,
-            "{1}",
-            "{2}"
-    ),
     PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(
             504,
             "5003",
@@ -61,17 +51,17 @@ public enum AppsmithPluginError {
     ),
     PLUGIN_DATASOURCE_ARGUMENT_ERROR(
             500,
-            "5004",
-            "{0}",
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_ARGUMENT_ERROR.getCode(),
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_ARGUMENT_ERROR.getDescription(),
             AppsmithErrorAction.DEFAULT,
             "Datasource configuration is invalid",
             ErrorType.DATASOURCE_CONFIGURATION_ERROR,
-            "{1}",
-            "{2}"
+            "{0}",
+            "{1}"
     ),
     PLUGIN_EXECUTE_ARGUMENT_ERROR(
             500,
-            "5005",
+            AppsmithPluginErrorCode.PLUGIN_EXECUTE_ARGUMENT_ERROR.getCode(),
             "{0}",
             AppsmithErrorAction.DEFAULT,
             "Query configuration is invalid",
@@ -282,6 +272,67 @@ public enum AppsmithPluginError {
             "{0}",
             "{1}"
     ),
+    POSTGRES_EMPTY_QUERY(
+            500,
+            AppsmithPluginErrorCode.POSTGRES_EMPTY_QUERY.getCode(),
+            AppsmithPluginErrorCode.POSTGRES_EMPTY_QUERY.getDescription(),
+            AppsmithErrorAction.DEFAULT,
+            "Query configuration is invalid",
+            ErrorType.ACTION_CONFIGURATION_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    POSTGRES_RESPONSE_SIZE_TOO_LARGE(
+            504,
+            AppsmithPluginErrorCode.POSTGRES_RESPONSE_SIZE_TOO_LARGE.getCode(),
+            "Response size exceeded the maximum supported size of {0} MB. Please use LIMIT to reduce the amount of data fetched.",
+            AppsmithErrorAction.DEFAULT,
+            "Large Result Set Not Supported",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    POSTGRES_QUERY_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.POSTGRES_QUERY_EXECUTION_FAILED.getCode(),
+            AppsmithPluginErrorCode.POSTGRES_QUERY_EXECUTION_FAILED.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    POSTGRES_PLUGIN_ERROR(
+            500,
+            AppsmithPluginErrorCode.POSTGRES_PLUGIN_ERROR.getCode(),
+            AppsmithPluginErrorCode.POSTGRES_PLUGIN_ERROR.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "PostgreSQL plugin error",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    POSTGRES_DATASOURCE_STRUCTURE_ERROR(
+            500,
+            AppsmithPluginErrorCode.POSTGRES_DATASOURCE_STRUCTURE_ERROR.getCode(),
+            AppsmithPluginErrorCode.POSTGRES_DATASOURCE_STRUCTURE_ERROR.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Fetching datasource structure failed",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    POSTGRES_SSL_CONNECTION_ERROR(
+            500,
+            AppsmithPluginErrorCode.POSTGRES_SSL_CONNECTION_ERROR.getCode(),
+            AppsmithPluginErrorCode.POSTGRES_SSL_CONNECTION_ERROR.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "SSL configuration error",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+
     ;
 
     private final Integer httpErrorCode;
