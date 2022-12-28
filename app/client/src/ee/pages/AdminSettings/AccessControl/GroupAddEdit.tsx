@@ -40,6 +40,10 @@ import {
   ACL_RENAME,
   SEARCH_PLACEHOLDER,
   REMOVE_USER,
+  EVENT_GROUP_ADD_USER_EMPTY_STATE,
+  EVENT_GROUP_ADD_USER_TOP_BAR,
+  EVENT_GROUP_INVITE_USER_TOP_BAR,
+  EVENT_GROUP_INVITE_USER_EMPTY_STATE,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
@@ -57,6 +61,7 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getGroupPermissions } from "@appsmith/selectors/aclSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ListUsers = styled.div`
   margin-top: 4px;
@@ -147,6 +152,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     BaseAclProps[]
   >([]);
   const [addedAllGroups, setAddedAllGroups] = useState<BaseAclProps[]>([]);
+  const [originAddUsers, setOriginAddUsers] = useState<string>("top-bar");
 
   const history = useHistory();
   const dispatch = useDispatch();
@@ -194,8 +200,14 @@ export function GroupAddEdit(props: GroupEditProps) {
     }
   }, [selected]);
 
-  const onButtonClick = () => {
+  const onButtonClick = (isTopBar: boolean) => {
     setShowModal(true);
+    setOriginAddUsers(isTopBar ? "top-bar" : "empty-state");
+    AnalyticsUtil.logEvent("GAC_ADD_USER_CLICK", {
+      origin: isTopBar
+        ? createMessage(EVENT_GROUP_ADD_USER_TOP_BAR)
+        : createMessage(EVENT_GROUP_ADD_USER_EMPTY_STATE),
+    });
   };
 
   const onSearch = debounce((search: string) => {
@@ -255,17 +267,19 @@ export function GroupAddEdit(props: GroupEditProps) {
       onClearChanges();
       return;
     }
+    const rolesAdded = addedAllGroups.map((group: BaseAclProps) => ({
+      id: group.id,
+      name: group.name,
+    }));
+    const rolesRemoved = removedActiveGroups.map((group: BaseAclProps) => ({
+      id: group.id,
+      name: group.name,
+    }));
     dispatch(
       updateRolesInGroup(
         { id: selected.id, name: selected.name },
-        addedAllGroups.map((group: BaseAclProps) => ({
-          id: group.id,
-          name: group.name,
-        })),
-        removedActiveGroups.map((group: BaseAclProps) => ({
-          id: group.id,
-          name: group.name,
-        })),
+        rolesAdded,
+        rolesRemoved,
       ),
     );
     setRemovedActiveGroups([]);
@@ -294,12 +308,23 @@ export function GroupAddEdit(props: GroupEditProps) {
   };
 
   const onFormSubmitHandler = ({ ...values }) => {
-    dispatch(
-      addUsersInGroup(
-        values.users ? values.users.split(",") : [],
-        values?.options?.id || selected.id,
-      ),
-    );
+    const usernames = values.users ? values.users.split(",") : [];
+    const groupId = values?.options?.id || selected.id;
+    AnalyticsUtil.logEvent("GAC_INVITE_USER_CLICK", {
+      origin:
+        originAddUsers === "top-bar"
+          ? createMessage(EVENT_GROUP_INVITE_USER_TOP_BAR)
+          : createMessage(EVENT_GROUP_INVITE_USER_EMPTY_STATE),
+      groups: [
+        {
+          id: groupId,
+          name: values?.options?.label || selected.name,
+        },
+      ],
+      roles: [],
+      numberOfUsersInvited: usernames.length,
+    });
+    dispatch(addUsersInGroup(usernames, groupId));
     setShowModal(false);
   };
 
@@ -407,7 +432,7 @@ export function GroupAddEdit(props: GroupEditProps) {
                 data-testid="t--add-users-button"
                 disabled={!canAddUsersToGroup}
                 height="36"
-                onClick={onButtonClick}
+                onClick={() => onButtonClick(false)}
                 tag="button"
                 text={createMessage(ADD_USERS)}
               />
@@ -459,11 +484,11 @@ export function GroupAddEdit(props: GroupEditProps) {
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <PageHeader
-        buttonText={createMessage(ADD_USERS)}
+        buttonText={selected.users.length > 0 ? createMessage(ADD_USERS) : ""}
         disableButton={!canAddUsersToGroup}
         isEditingTitle={isNew}
         isHeaderEditable={canManageGroup}
-        onButtonClick={onButtonClick}
+        onButtonClick={() => onButtonClick(true)}
         onEditTitle={onEditTitle}
         onSearch={onSearch}
         pageMenuItems={menuItems}

@@ -86,6 +86,7 @@ export function RolesListing() {
 
   useEffect(() => {
     if (selectedRoleId && selectedRoleProps?.id !== selectedRoleId) {
+      setSelectedRole(null);
       dispatch(getRoleById({ id: selectedRoleId }));
     } else if (!selectedRoleId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_ROLES });

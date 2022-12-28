@@ -469,7 +469,12 @@ export function traverseSubRows(subrows: any[], map: any): any {
   });
 }
 
-export function updateDataToBeSent(row: any, mapPIndex: number, value: any) {
+export function updateDataToBeSent(
+  row: any,
+  mapPIndex: number,
+  value: any,
+  dependencies = 0,
+) {
   const replaceDataIndex = dataToBeSent.findIndex(
     (a: any) => a.id === row.id && a.name === row.name,
   );
@@ -479,7 +484,13 @@ export function updateDataToBeSent(row: any, mapPIndex: number, value: any) {
       permissions:
         mapPIndex !== -1
           ? row?.permissions?.map((r: number, rI: number) => {
-              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+              return rI === mapPIndex &&
+                r !== -1 &&
+                ((!value && dependencies < 1) || value)
+                ? value
+                  ? 1
+                  : 0
+                : r;
             })
           : row?.permissions,
       type: row.type,
@@ -491,7 +502,13 @@ export function updateDataToBeSent(row: any, mapPIndex: number, value: any) {
       permissions:
         mapPIndex !== -1
           ? row?.permissions?.map((r: number, rI: number) => {
-              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+              return rI === mapPIndex &&
+                r !== -1 &&
+                ((!value && dependencies < 1) || value)
+                ? value
+                  ? 1
+                  : 0
+                : r;
             })
           : row?.permissions,
       type: row.type,
@@ -510,7 +527,7 @@ export function updateSubRows(
   const returnData = rows.map((subRow: any) => {
     if (map.id === subRow.id) {
       if (subRow.type !== "Header") {
-        updateDataToBeSent(subRow, mapPIndex, value);
+        updateDataToBeSent(subRow, mapPIndex, value, dependencies);
       }
       return {
         ...subRow,
@@ -530,7 +547,7 @@ export function updateSubRows(
         !dataToBeSent.some((a) => a.id === subRow.id) &&
         subRow.type !== "Header"
       ) {
-        updateDataToBeSent(subRow, mapPIndex, value);
+        updateDataToBeSent(subRow, mapPIndex, value, dependencies);
       }
       return subRow.subRows
         ? {
@@ -553,6 +570,7 @@ export function updateSubRows(
 
 export function updateCheckbox(
   rowData: any,
+  rIndex: number,
   value: any,
   hoverMap: any[],
   permissions: any,
@@ -567,7 +585,8 @@ export function updateCheckbox(
     const disableMapForCheckbox =
       getEntireDisableMap(disableHelperMap, updatedRow.id, map.p) || [];
     for (const i of disableMapForCheckbox) {
-      const el = document.querySelector(`[data-cellId="${i}"]`);
+      const allEl = document.querySelectorAll(`[data-cellId="${i}"]`);
+      const el = allEl.length > 1 ? allEl[rIndex] : allEl[0];
       const input = el?.getElementsByTagName("input")[0];
       if (input && input.checked && !input.disabled) {
         dependencies += 1;
@@ -633,6 +652,7 @@ export function updateData(
     if (currentCellId[0] === rowDataToUpdate.id) {
       updatedData[parseInt(rowIdArray[0])] = updateCheckbox(
         rowDataToUpdate,
+        parseInt(rowIdArray[0]),
         newValue,
         hoverMap,
         permissions,
@@ -784,7 +804,7 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
 
         useEffect(() => {
           if (disableMap.length > 0 && !isDisabled) {
-            setIsDisabled(getDisabledState());
+            setIsDisabled(getDisabledState(parseInt(rowId.split(".")[0])));
           }
         }, [disableMap, isChecked]);
 
@@ -828,10 +848,16 @@ export function RolesTree(props: RoleTreeProps & { dataFromProps: any[] }) {
           updateMyData(e, cellId, rowId, rowData.hoverMap[i]);
         };
 
-        const getDisabledState = () => {
+        const getDisabledState = (rIndex: number) => {
           let isDisabled = false;
           for (const i of disableMap) {
-            const el = document.querySelector(`[data-cellId="${i}"]`);
+            const allEl = document.querySelectorAll(`[data-cellId="${i}"]`);
+            const el =
+              allEl.length > 1
+                ? allEl[rIndex]
+                : allEl[0]?.getAttribute("data-rowid") === rIndex.toString()
+                ? allEl[0]
+                : null;
             const input = el?.getElementsByTagName("input")[0];
             if (input?.checked) {
               isDisabled = true;
@@ -983,17 +1009,19 @@ export function EachTab(
   selected: RoleProps,
   showSaveModal: boolean,
   setShowSaveModal: (val: boolean) => void,
+  isLoading: boolean,
+  currentTab: boolean,
 ) {
   const [tabCount, setTabCount] = useState<number>(0);
   const dataFromProps = useMemo(() => {
-    return (
-      makeData({
-        data: [tabs?.data],
-        hoverMap: tabs.hoverMap,
-        permissions: tabs.permissions,
-      }) || []
-    );
-  }, [tabs]);
+    return currentTab
+      ? makeData({
+          data: [tabs?.data],
+          hoverMap: tabs.hoverMap,
+          permissions: tabs.permissions,
+        }) || []
+      : [];
+  }, [tabs, currentTab]);
 
   useEffect(() => {
     if (!searchValue) {
@@ -1005,7 +1033,11 @@ export function EachTab(
     key,
     title: key,
     count: tabCount,
-    panelComponent: (
+    panelComponent: isLoading ? (
+      <CentralizedWrapper>
+        <Spinner size={IconSize.XXL} />
+      </CentralizedWrapper>
+    ) : (
       <RolesTree
         currentTabName={key}
         dataFromProps={dataFromProps}
@@ -1021,16 +1053,17 @@ export function EachTab(
 }
 
 export default function RoleTabs(props: {
+  isLoading: boolean;
   selected: RoleProps;
   searchValue: string;
 }) {
-  const { searchValue, selected } = props;
+  const { isLoading, searchValue, selected } = props;
   const isEditing = useSelector(getAclIsEditing);
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
   const [showSaveModal, setShowSaveModal] = useState(false);
 
   const tabs: TabProp[] = selected?.tabs
-    ? Object.entries(selected?.tabs).map(([key, value]) =>
+    ? Object.entries(selected?.tabs).map(([key, value], index) =>
         EachTab(
           key,
           searchValue,
@@ -1038,6 +1071,8 @@ export default function RoleTabs(props: {
           selected,
           showSaveModal,
           setShowSaveModal,
+          isLoading,
+          selectedTabIndex === index,
         ),
       )
     : [];

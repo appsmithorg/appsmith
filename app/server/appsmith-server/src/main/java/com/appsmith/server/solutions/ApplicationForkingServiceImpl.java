@@ -10,6 +10,7 @@ import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
@@ -33,9 +34,11 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
+    private final WorkspaceRepository workspaceRepository;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final WorkspacePermission workspacePermission;
 
     public ApplicationForkingServiceImpl(ApplicationService applicationService,
                                          WorkspaceService workspaceService,
@@ -50,6 +53,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                                          NewPageRepository newPageRepository,
                                          NewActionRepository newActionRepository,
                                          ActionCollectionRepository actionCollectionRepository,
+                                         WorkspaceRepository workspaceRepository,
                                          PagePermission pagePermission,
                                          ActionPermission actionPermission) {
 
@@ -62,8 +66,10 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
         this.newActionRepository = newActionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
         this.applicationPermission = applicationPermission;
+        this.workspaceRepository = workspaceRepository;
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
+        this.workspacePermission = workspacePermission;
     }
 
     @Override
@@ -83,6 +89,8 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                 .flatMapMany(application -> actionCollectionRepository
                         .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
                         .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+        Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository.retrieveById(targetWorkspaceId)
+                .flatMap(workspaceRepository::setUserPermissionsInObject));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(pageFlux,
                 FieldName.PAGE, permissionGroupService.getSessionUserPermissionGroupIds(),
@@ -93,8 +101,15 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
         Mono<Boolean> actionCollectionsValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(actionCollectionFlux,
                 FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
                 actionPermission.getEditPermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+        Mono<Boolean> workspaceValidatedForCreateApplicationPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                workspaceFlux, FieldName.WORKSPACE, permissionGroupService.getSessionUserPermissionGroupIds(),
+                workspacePermission.getApplicationCreatePermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
+        Mono<Boolean> workspaceValidatedForCreateDatasourcePermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
+                workspaceFlux, FieldName.WORKSPACE, permissionGroupService.getSessionUserPermissionGroupIds(),
+                workspacePermission.getDatasourceCreatePermission(), AppsmithError.APPLICATION_NOT_FORKED_MISSING_PERMISSIONS);
 
-        return Mono.when(pagesValidatedForPermission, actionsValidatedForPermission, actionCollectionsValidatedForPermission)
+        return Mono.when(pagesValidatedForPermission, actionsValidatedForPermission, actionCollectionsValidatedForPermission,
+                        workspaceValidatedForCreateApplicationPermission, workspaceValidatedForCreateDatasourcePermission)
                 .then(super.forkApplicationToWorkspace(srcApplicationId, targetWorkspaceId, branchName));
     }
 

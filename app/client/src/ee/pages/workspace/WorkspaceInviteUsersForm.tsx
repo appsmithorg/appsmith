@@ -359,20 +359,37 @@ function WorkspaceInviteUsersForm(props: any) {
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values, isAclFlow);
-          AnalyticsUtil.logEvent("INVITE_USER", values);
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
           updateNumberOfUsersInvited(usersAsStringsArray.length);
-          const users = usersAsStringsArray
-            .filter((user: any) => isEmail(user))
-            .join(",");
-          const groups = usersAsStringsArray
-            .filter((user: any) => !isEmail(user))
-            .join(",");
+          const usersArray = usersAsStringsArray.filter((user: any) =>
+            isEmail(user),
+          );
+          const groupsArray = usersAsStringsArray.filter(
+            (user: any) => !isEmail(user),
+          );
+          const usersStr = usersArray.join(",");
+          const groupsStr = groupsArray.join(",");
+          const groupsData = [];
+          for (const gId of groupsArray) {
+            const data = groupSuggestions.find((g) => g.id === gId);
+            data && groupsData.push(data);
+          }
+          AnalyticsUtil.logEvent("INVITE_USER", {
+            ...(isEEFeature
+              ? {
+                  groups: groupsData,
+                  numberOfGroupsInvited: groupsArray.length,
+                }
+              : {}),
+            users: usersStr,
+            numberOfUsersInvited: usersArray.length,
+            role: values.role,
+          });
           if (onSubmitHandler) {
             return onSubmitHandler({
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
-              users,
+              users: usersStr,
               options: isMultiSelectDropdown
                 ? selectedOption
                 : selectedOption[0],
@@ -380,9 +397,9 @@ function WorkspaceInviteUsersForm(props: any) {
           }
           return inviteUsersToWorkspace(
             {
-              ...(isEEFeature ? { groups } : {}),
+              ...(isEEFeature ? { groups: groupsStr } : {}),
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
-              users,
+              users: usersStr,
               permissionGroupId: isMultiSelectDropdown
                 ? selectedOption.map((group: any) => group.id).join(",")
                 : selectedOption[0].id,

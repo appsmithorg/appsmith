@@ -21,9 +21,11 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import RoleTabs from "./RolesTree";
+import { LoaderContainer } from "pages/Settings/components";
+import { Spinner } from "@blueprintjs/core";
 
 export function RoleAddEdit(props: RoleEditProps) {
-  const { isNew = false, selected } = props;
+  const { isLoading = false, isNew = false, selected } = props;
   const [searchValue, setSearchValue] = useState("");
   const history = useHistory();
   const dispatch = useDispatch();
@@ -109,7 +111,11 @@ export function RoleAddEdit(props: RoleEditProps) {
     },
   ].filter(Boolean);
 
-  return (
+  return isLoading ? (
+    <LoaderContainer>
+      <Spinner />
+    </LoaderContainer>
+  ) : (
     <div
       className="scrollable-wrapper role-edit-wrapper"
       data-testid="t--role-edit-wrapper"
@@ -127,7 +133,11 @@ export function RoleAddEdit(props: RoleEditProps) {
         searchValue={searchValue}
         title={selected.name || ""}
       />
-      <RoleTabs searchValue={searchValue} selected={selected} />
+      <RoleTabs
+        isLoading={isLoading}
+        searchValue={searchValue}
+        selected={selected}
+      />
     </div>
   );
 }

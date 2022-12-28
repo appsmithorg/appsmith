@@ -41,6 +41,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -87,6 +88,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -198,6 +200,8 @@ public class ApplicationServiceTest {
 
     @Autowired
     SessionUserService sessionUserService;
+    @Autowired
+    DatasourceRepository datasourceRepository;
 
     String workspaceId;
 
@@ -2444,6 +2448,49 @@ public class ApplicationServiceTest {
                 .verify();
         updatedGitAppPage.setPolicies(existingPolicies);
         NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
+
+        Mono<List<Application>> applicationsInWorkspace = applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList();
+        /*
+         * Check that no applications have been created in the Target Workspace
+         * This can be checked by comparing it with the existing count of applications in the Workspace.
+         */
+        StepVerifier.create(applicationsInWorkspace).assertNext(applications -> assertThat(applications).hasSize(existingApplicationCount));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplication_noDatasourceCreateActionPermissions() {
+        String gitAppPageId = gitConnectedApp.getPages().get(1).getId();
+        int existingApplicationCount = applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList().block().size();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(gitAppPageId);
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(testDatasource);
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        Set<Policy> existingPolicies = testDatasource.getPolicies();
+        /*
+         * The created Workspace has a Datasource. And we will remove the Create Datasource Action permisison.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue()))
+                .collect(Collectors.toSet());
+        testDatasource.setPolicies(newPoliciesWithoutEdit);
+        Datasource updatedTestDatasource = datasourceRepository.save(testDatasource).block();
+        StepVerifier.create(applicationPageService.cloneApplication(gitConnectedApp.getId(), null))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS
+                                .getMessage("datasource", testDatasource.getId())))
+                .verify();
+        updatedTestDatasource.setPolicies(existingPolicies);
+        Datasource setPoliciesBack = datasourceRepository.save(updatedTestDatasource).block();
+
+        ActionDTO deletedAction = layoutActionService.deleteUnpublishedAction(createdAction.getId()).block();
 
         Mono<List<Application>> applicationsInWorkspace = applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList();
         /*

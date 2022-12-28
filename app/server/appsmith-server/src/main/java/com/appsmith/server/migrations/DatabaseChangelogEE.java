@@ -60,10 +60,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 // to be 100 so that it is executed after all the CE migrations
 public class DatabaseChangelogEE {
 
-    /**
-     * TODO : Remove the runAlways to false once the RBAC feature is dev complete
-     */
-    @ChangeSet(order = "001", id = "add-tenant-admin-permissions-instance-admin", author = "", runAlways = true)
+    @ChangeSet(order = "001", id = "add-tenant-admin-permissions-instance-admin-ee", author = "")
     public void addTenantAdminPermissionsToInstanceAdmin(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
@@ -115,7 +112,7 @@ public class DatabaseChangelogEE {
         ensureIndexes(mongockTemplate, UserGroup.class, tenantIdIndex);
     }
 
-    @ChangeSet(order = "003", id = "add-index-for-audit-logs", author = "", runAlways = true)
+    @ChangeSet(order = "003", id = "add-index-for-audit-logs", author = "")
     public void addIndexOnAuditLogsCollection(MongockTemplate mongockTemplate) {
         Index userEmailIndex = makeIndex("user.email");
         ensureIndexes(mongockTemplate, AuditLog.class, userEmailIndex);

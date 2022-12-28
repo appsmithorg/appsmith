@@ -411,6 +411,7 @@ describe("Groups&Roles tab Tests", function() {
     cy.get(RBAC.groupsRow)
       .first()
       .should("have.text", GroupName)
+      .wait(3000)
       .click();
     cy.wait(3000);
     // delete group
