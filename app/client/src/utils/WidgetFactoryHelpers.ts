@@ -165,7 +165,10 @@ export function enhancePropertyPaneConfig(
   // Enhance property pane with widget features
   // TODO(abhinav): The following "configType" check should come
   // from the features themselves.
+
+  // ToDO(Ashok): Need to bring back Dynamic Height features based on mode of the editor (Fixed vs Mobile responsiveness)
   if (
+    false &&
     features &&
     (configType === undefined || configType === PropertyPaneConfigTypes.CONTENT)
   ) {
