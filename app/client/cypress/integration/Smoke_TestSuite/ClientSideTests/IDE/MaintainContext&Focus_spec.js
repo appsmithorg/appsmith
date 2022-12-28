@@ -207,7 +207,7 @@ describe("MaintainContext&Focus", function() {
     cy.SearchEntityandOpen("SQL_Query");
     cy.get(".t--form-control-SWITCH input").should("be.focused");
     cy.SearchEntityandOpen("S3_Query");
-    cy.get(queryLocators.querySettingsTab).click();
+    agHelper.GetNClick(queryLocators.querySettingsTab);
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 });
