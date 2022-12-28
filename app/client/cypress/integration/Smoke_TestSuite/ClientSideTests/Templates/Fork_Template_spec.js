@@ -7,8 +7,15 @@ describe("Fork a template to an workspace", () => {
     cy.get(templateLocators.templatesTab).click();
     cy.wait(1000);
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]",
-    ).click();
+      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+    )
+      .scrollIntoView()
+      .click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(templateLocators.templateViewForkButton).length) {
+        cy.get(templateLocators.templateViewForkButton).click();
+      }
+    });
     cy.get(templateLocators.dialogForkButton).click();
     cy.get(commonlocators.canvas).should("be.visible");
   });
