@@ -35,7 +35,7 @@ const modifiedState: MetaWidgetsReduxState = {
         key: "currentItem",
       },
       {
-        key: "currentRow",
+        key: "currentView",
       },
     ],
     dynamicTriggerPathList: [],
@@ -50,7 +50,7 @@ const modifiedState: MetaWidgetsReduxState = {
     parentId: "xbbs7cls18",
 
     currentItem: "{{List1.listData[Image1.currentIndex]}}",
-    currentRow: "{{{}}}",
+    currentView: "{{{}}}",
     currentIndex: 0,
     children: [],
     referencedWidgetId: "baowuczcgg",
@@ -95,7 +95,7 @@ const modifiedState: MetaWidgetsReduxState = {
         key: "currentItem",
       },
       {
-        key: "currentRow",
+        key: "currentView",
       },
     ],
     dynamicTriggerPathList: [],
@@ -111,7 +111,7 @@ const modifiedState: MetaWidgetsReduxState = {
     parentId: "xbbs7cls18",
 
     currentItem: "{{List1.listData[Text1.currentIndex]}}",
-    currentRow: "{{{}}}",
+    currentView: "{{{}}}",
     currentIndex: 0,
     children: [],
     referencedWidgetId: "xy20z9gxsc",
@@ -156,7 +156,7 @@ const modifiedState: MetaWidgetsReduxState = {
         key: "currentItem",
       },
       {
-        key: "currentRow",
+        key: "currentView",
       },
     ],
     dynamicTriggerPathList: [],
@@ -172,7 +172,7 @@ const modifiedState: MetaWidgetsReduxState = {
     parentId: "xbbs7cls18",
 
     currentItem: "{{List1.listData[Text2.currentIndex]}}",
-    currentRow: "{{{}}}",
+    currentView: "{{{}}}",
     currentIndex: 0,
     children: [],
     referencedWidgetId: "tsdy8whhl1",
@@ -214,11 +214,11 @@ const modifiedState: MetaWidgetsReduxState = {
         key: "accentColor",
       },
       {
-        key: "currentRow",
+        key: "currentView",
       },
     ],
 
-    currentRow: "{{{}}}",
+    currentView: "{{{}}}",
     currentIndex: 0,
     referencedWidgetId: "xbbs7cls18",
     isMetaWidget: true,
