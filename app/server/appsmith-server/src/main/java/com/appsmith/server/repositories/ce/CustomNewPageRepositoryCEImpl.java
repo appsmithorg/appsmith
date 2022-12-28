@@ -132,11 +132,27 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findAllByIds(List<String> ids, AclPermission aclPermission) {
-        Criteria idsCriterion = where("id")
-                .in(ids);
+    public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
+        ArrayList<String> includedFields = new ArrayList<>(List.of(
+                FieldName.APPLICATION_ID,
+                FieldName.DEFAULT_RESOURCES,
+                "unpublishedPage.name",
+                "unpublishedPage.isHidden",
+                "unpublishedPage.slug",
+                "unpublishedPage.customSlug",
+                "publishedPage.name",
+                "publishedPage.isHidden",
+                "publishedPage.slug",
+                "publishedPage.customSlug"
+        ));
 
-        return queryAll(List.of(idsCriterion), aclPermission);
+        Criteria idsCriterion = where("id").in(ids);
+
+        return this.queryAll(
+                new ArrayList<>(List.of(idsCriterion)),
+                includedFields,
+                aclPermission,
+                null);
     }
 
     private Criteria getNameCriterion(String name, Boolean viewMode) {
