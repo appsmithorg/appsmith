@@ -1,9 +1,9 @@
 import React from "react";
 import { ControlIcons } from "icons/ControlIcons";
-import styled, { AnyStyledComponent } from "styled-components";
+import styled from "styled-components";
 
 const StyledPickMyLocationSelectedIcon = styled(
-  ControlIcons.PICK_MY_LOCATION_SELECTED_CONTROL as AnyStyledComponent,
+  ControlIcons.PICK_MY_LOCATION_SELECTED_CONTROL,
 )`
   position: relative;
   cursor: pointer;

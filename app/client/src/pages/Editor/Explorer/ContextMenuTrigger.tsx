@@ -1,7 +1,5 @@
 import React from "react";
 import { ControlIcons } from "icons/ControlIcons";
-import { withTheme } from "styled-components";
-import { Theme } from "constants/DefaultTheme";
 import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -24,10 +22,7 @@ const ToggleIcon = styled(ControlIcons.MORE_VERTICAL_CONTROL)`
     }
   }
 `;
-export function ContextMenuTrigger(props: {
-  className?: string;
-  theme: Theme;
-}) {
+export function ContextMenuTrigger(props: { className?: string }) {
   return (
     <EntityTogglesWrapper
       className={props.className + " entity-context-menu-icon"}
@@ -38,13 +33,10 @@ export function ContextMenuTrigger(props: {
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
         position="right"
       >
-        <ToggleIcon
-          height={props.theme.fontSizes[3]}
-          width={props.theme.fontSizes[3]}
-        />
+        <ToggleIcon />
       </TooltipComponent>
     </EntityTogglesWrapper>
   );
 }
 
-export default withTheme(ContextMenuTrigger);
+export default ContextMenuTrigger;

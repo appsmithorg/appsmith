@@ -1,5 +1,4 @@
 import React, { createRef, useEffect, useState } from "react";
-import { AnyStyledComponent } from "styled-components";
 import { Tooltip } from "@blueprintjs/core";
 
 import { Colors } from "constants/Colors";
@@ -10,7 +9,7 @@ import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.s
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
 
-const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;
   position: relative;
   top: 3px;
@@ -23,7 +22,7 @@ const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   }
 `;
 
-const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;
   position: relative;
   top: 3px;

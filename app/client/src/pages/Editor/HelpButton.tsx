@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import styled, { createGlobalStyle, withTheme } from "styled-components";
+import styled, { createGlobalStyle, useTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
@@ -46,25 +46,28 @@ const StyledTrigger = styled.div`
 
 type TriggerProps = {
   tooltipsDisabled: boolean;
-  theme: Theme;
 };
 
-const Trigger = withTheme(({ theme, tooltipsDisabled }: TriggerProps) => (
-  <TooltipComponent
-    content={createMessage(HELP_RESOURCE_TOOLTIP)}
-    disabled={tooltipsDisabled}
-    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-    position="bottom"
-  >
-    <StyledTrigger>
-      <Icon
-        fillColor={theme.colors.globalSearch.helpIcon}
-        name="help"
-        size={IconSize.LARGE}
-      />
-    </StyledTrigger>
-  </TooltipComponent>
-));
+const Trigger = ({ tooltipsDisabled }: TriggerProps) => {
+  const theme = useTheme() as Theme;
+
+  return (
+    <TooltipComponent
+      content={createMessage(HELP_RESOURCE_TOOLTIP)}
+      disabled={tooltipsDisabled}
+      hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+      position="bottom"
+    >
+      <StyledTrigger>
+        <Icon
+          fillColor={theme.colors.globalSearch.helpIcon}
+          name="help"
+          size={IconSize.LARGE}
+        />
+      </StyledTrigger>
+    </TooltipComponent>
+  );
+};
 
 function HelpButton() {
   const user = useSelector(getCurrentUser);

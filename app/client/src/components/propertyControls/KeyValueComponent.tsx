@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
-import { AnyStyledComponent } from "styled-components";
 import {
   ControlWrapper,
   StyledInputGroup,
@@ -47,7 +46,7 @@ function updateOptionValue<T>(
   });
 }
 
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
+const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
   cursor: pointer;
 
   && svg path {

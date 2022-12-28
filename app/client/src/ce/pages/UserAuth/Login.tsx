@@ -37,8 +37,6 @@ import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "pages/UserAuth/helpers";
-import { withTheme } from "styled-components";
-import { Theme } from "constants/DefaultTheme";
 
 import {
   SpacedSubmitForm,
@@ -79,9 +77,7 @@ const validate = (values: LoginFormValues, props: ValidateProps) => {
 
 type LoginFormProps = {
   emailValue: string;
-} & InjectedFormProps<LoginFormValues, { emailValue: string }> & {
-    theme: Theme;
-  };
+} & InjectedFormProps<LoginFormValues, { emailValue: string }>;
 
 type ValidateProps = {
   isPasswordFieldDirty?: boolean;
@@ -239,5 +235,5 @@ export default connect((state) => ({
     validate,
     touchOnBlur: false,
     form: LOGIN_FORM_NAME,
-  })(withTheme(Login)),
+  })(Login),
 );

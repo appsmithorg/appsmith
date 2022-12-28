@@ -23,7 +23,6 @@ import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
 import { BlackAuthCardNavLink, FormActions } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
-import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 
 import {
@@ -42,6 +41,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import Container from "./Container";
+import { useTheme } from "styled-components";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
@@ -64,7 +64,6 @@ type ResetPasswordProps = InjectedFormProps<
   verifyToken: (token: string) => void;
   isTokenValid: boolean;
   validatingToken: boolean;
-  theme: Theme;
 } & RouteComponentProps<{ email: string; token: string }>;
 
 export function ResetPassword(props: ResetPasswordProps) {
@@ -80,6 +79,8 @@ export function ResetPassword(props: ResetPasswordProps) {
     validatingToken,
     verifyToken,
   } = props;
+
+  const theme = useTheme() as Theme;
 
   useLayoutEffect(() => {
     if (initialValues.token) verifyToken(initialValues.token);
@@ -168,10 +169,7 @@ export function ResetPassword(props: ResetPasswordProps) {
     <Container
       subtitle={
         <BlackAuthCardNavLink className="text-sm" to={AUTH_LOGIN_URL}>
-          <Icon
-            icon="arrow-left"
-            style={{ marginRight: props.theme.spaces[3] }}
-          />
+          <Icon icon="arrow-left" style={{ marginRight: theme.spaces[3] }} />
           {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
         </BlackAuthCardNavLink>
       }
@@ -242,5 +240,5 @@ export default connect(
     validate,
     form: RESET_PASSWORD_FORM_NAME,
     touchOnBlur: true,
-  })(withRouter(withTheme(ResetPassword))),
+  })(withRouter(ResetPassword)),
 );
