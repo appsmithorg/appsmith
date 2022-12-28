@@ -42,7 +42,7 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     return (
-      <ErrorBoundaryContainer>
+      <ErrorBoundaryContainer className="error-boundary">
         {this.state.hasError ? (
           <p>
             Oops, Something went wrong.

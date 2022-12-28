@@ -12,6 +12,7 @@ export const VisibilityContainer = styled.div<{
   ${(props) => (!props.visible ? invisible : "")}
   height: 100%;
   width: 100%;
+  overflow: hidden;
 `;
 
 const ResizeIndicatorStyle = css<{

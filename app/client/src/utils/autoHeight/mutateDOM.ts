@@ -1,4 +1,7 @@
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  CONTAINER_GRID_PADDING,
+  GridDefaults,
+} from "constants/WidgetConstants";
 
 // Here the data structure is the `widgetsToUpdate` data structure. If possible, we should create the `updates`
 // we use in the function directly in the `widgets.ts` (auto height saga)
@@ -17,12 +20,20 @@ export function directlyMutateDOMNodes(
     const widgetNode = document.getElementById(widgetId);
     const dropTarget = widgetNode?.querySelector(`.drop-target-${widgetId}`);
 
+    console.log("Auto Height:", updates);
     if (widgetNode) {
+      // const oldTop = parseInt(
+      //   widgetNode.style.top.slice(0, widgetNode.style.top.length - 2),
+      //   10,
+      // );
+      // widgetNode.style.transform = `translate3d(0,${updates[widgetId].y -
+      //   oldTop}px,0)`;
       widgetNode.style.height = `${updates[widgetId].height}px`;
-      widgetNode.style.transform = `translate3d(${widgetNode.style.left},${updates[widgetId].y}px)`;
       widgetNode.style.top = `${updates[widgetId].y}px`;
       if (dropTarget) {
-        (dropTarget as HTMLElement).style.height = `${updates[widgetId].height}px`;
+        const dropTargetHeight =
+          updates[widgetId].height - CONTAINER_GRID_PADDING * 2;
+        (dropTarget as HTMLElement).style.height = `${dropTargetHeight}px`;
       }
     }
   }

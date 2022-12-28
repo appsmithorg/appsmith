@@ -99,6 +99,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           widgetProps.bottomRow = props.bottomRow;
           widgetProps.minHeight = props.minHeight;
         } else if (canvasBottomRow !== undefined) {
+          console.log("Auto Height: from withWidgetProps ", {
+            parentId: props.parentId,
+            canvasBottomRow,
+          });
           widgetProps.bottomRow =
             canvasBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
           widgetProps.minHeight =

@@ -73,11 +73,8 @@ export function* updateWidgetAutoHeightSaga(
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
 
   let updates = getAutoHeightUpdateQueue();
-  const result: {
-    tree: Record<string, TreeNode>;
-    canvasLevelsMap: Record<string, number>;
-  } = yield getLayoutTree(false);
-  let dynamicHeightLayoutTree: Record<string, TreeNode> = result.tree;
+
+  let dynamicHeightLayoutTree: Record<string, TreeNode>;
 
   log.debug("Dynamic Height: updates to process", { updates });
 
@@ -85,6 +82,12 @@ export function* updateWidgetAutoHeightSaga(
     updates = { [action.payload.widgetId]: action.payload.height };
     /* Creating a new type called dynamicHeightLayoutTree. */
     dynamicHeightLayoutTree = yield select(getAutoHeightLayoutTree);
+  } else {
+    const result: {
+      tree: Record<string, TreeNode>;
+      canvasLevelsMap: Record<string, number>;
+    } = yield getLayoutTree(false);
+    dynamicHeightLayoutTree = result.tree;
   }
 
   // Get all widgets from canvasWidgetsReducer
@@ -508,8 +511,7 @@ export function* updateWidgetAutoHeightSaga(
   log.debug("Dynamic height: Widgets to update:", { widgetsToUpdate });
 
   if (Object.keys(widgetsToUpdate).length > 0) {
-    if (action?.payload) directlyMutateDOMNodes(widgetsToUpdate);
-    else {
+    if (!action?.payload) {
       // Push all updates to the CanvasWidgetsReducer.
       // Note that we're not calling `UPDATE_LAYOUT`
       // as we don't need to trigger an eval
@@ -519,6 +521,7 @@ export function* updateWidgetAutoHeightSaga(
         generateAutoHeightLayoutTreeAction(shouldRecomputeContainers, false),
       );
     }
+    directlyMutateDOMNodes(widgetsToUpdate);
   }
 
   log.debug(
