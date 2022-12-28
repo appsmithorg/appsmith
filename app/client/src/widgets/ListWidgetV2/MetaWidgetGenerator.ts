@@ -984,6 +984,14 @@ class MetaWidgetGenerator {
     if (this.pageNo !== nextOptions.pageNo) {
       this.modificationsQueue.add(MODIFICATION_TYPE.PAGE_NO_UPDATED);
     }
+
+    // only needed when there's no set primaryKey and we have to regenerate.
+    if (
+      this.primaryKeys === undefined &&
+      nextOptions.primaryKeys === undefined
+    ) {
+      this.modificationsQueue.add(MODIFICATION_TYPE.REGENERATE_META_WIDGETS);
+    }
   };
 
   private flushModificationQueue = () => {
