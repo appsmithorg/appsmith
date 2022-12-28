@@ -81,8 +81,8 @@ public enum AppsmithPluginError {
     ),
     PLUGIN_JSON_PARSE_ERROR(
             500,
-            "5006",
-            "Plugin failed to parse JSON \"{0}\" with error: {1}",
+            AppsmithPluginErrorCode.JSON_PROCESSING_ERROR.getCode(),
+            "Plugin failed to parse JSON \"{0}\"",
             AppsmithErrorAction.DEFAULT,
             "Invalid JSON found",
             ErrorType.INTERNAL_ERROR,
@@ -231,6 +231,57 @@ public enum AppsmithPluginError {
             "{0}",
             "{1}"
     ),
+    SMART_SUBSTITUTION_VALUE_MISSING(
+            500,
+            AppsmithPluginErrorCode.SMART_SUBSTITUTION_VALUE_MISSING.getCode(),
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Smart substitution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    REST_API_INVALID_URI_SYNTAX(
+            500,
+            AppsmithPluginErrorCode.REST_API_INVALID_URI_SYNTAX.getCode(),
+            AppsmithPluginErrorCode.REST_API_INVALID_URI_SYNTAX.getDescription(),
+            AppsmithErrorAction.DEFAULT,
+            "Query configuration is invalid",
+            ErrorType.ACTION_CONFIGURATION_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    REST_API_INVALID_CONTENT_TYPE(
+            500,
+            AppsmithPluginErrorCode.REST_API_INVALID_CONTENT_TYPE.getCode(),
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "Query configuration is invalid",
+            ErrorType.ACTION_CONFIGURATION_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    REST_API_INVALID_HTTP_METHOD(
+            500,
+            AppsmithPluginErrorCode.REST_API_INVALID_HTTP_METHOD.getCode(),
+            AppsmithPluginErrorCode.REST_API_INVALID_HTTP_METHOD.getDescription(),
+            AppsmithErrorAction.DEFAULT,
+            "Query configuration is invalid",
+            ErrorType.ACTION_CONFIGURATION_ERROR,
+            "{0}",
+            "{1}"
+    ),
+
+    REST_API_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.REST_API_EXECUTION_FAILED.getCode(),
+            AppsmithPluginErrorCode.REST_API_EXECUTION_FAILED.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "API execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
     ;
 
     private final Integer httpErrorCode;
@@ -273,7 +324,7 @@ public enum AppsmithPluginError {
             return null;
         }
         String formattedMessage = new MessageFormat(this.downstreamErrorMessage).format(args);
-        if (errorPlaceholderPattern.matcher(this.downstreamErrorMessage).matches()) {
+        if (errorPlaceholderPattern.matcher(formattedMessage).matches()) {
             return null;
         }
         return formattedMessage;
@@ -284,7 +335,7 @@ public enum AppsmithPluginError {
             return null;
         }
         String formattedErrorCode = new MessageFormat(this.downstreamErrorCode).format(args);
-        if (errorPlaceholderPattern.matcher(this.downstreamErrorCode).matches()) {
+        if (errorPlaceholderPattern.matcher(formattedErrorCode).matches()) {
             return null;
         }
         return formattedErrorCode;

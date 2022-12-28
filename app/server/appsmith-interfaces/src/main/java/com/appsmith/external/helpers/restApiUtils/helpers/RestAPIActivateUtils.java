@@ -93,7 +93,7 @@ public class RestAPIActivateUtils {
                     try {
                         headerInJsonString = objectMapper.writeValueAsString(headers);
                     } catch (JsonProcessingException e) {
-                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.REST_API_EXECUTION_FAILED, e.getMessage()));
                     }
 
                     // Set headers in the result now
@@ -167,7 +167,7 @@ public class RestAPIActivateUtils {
                 .onErrorResume(error -> {
                     errorResult.setRequest(requestCaptureFilter.populateRequestFields(actionExecutionRequest));
                     errorResult.setIsExecutionSuccess(false);
-                    errorResult.setErrorInfo(error);
+                    errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.REST_API_EXECUTION_FAILED, error.getMessage()));
                     return Mono.just(errorResult);
                 });
 
@@ -177,7 +177,7 @@ public class RestAPIActivateUtils {
                                           int iteration) {
         if (iteration == MAX_REDIRECTS) {
             return Mono.error(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.REST_API_EXECUTION_FAILED,
                     "Exceeded the HTTP redirect limits of " + MAX_REDIRECTS
             ));
         }
@@ -190,7 +190,7 @@ public class RestAPIActivateUtils {
                 .uri(uri)
                 .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
                 .exchange()
-                .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
+                .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.REST_API_EXECUTION_FAILED, e.getMessage())))
                 .flatMap(response -> {
                     if (response.statusCode().is3xxRedirection()) {
                         String redirectUrl = response.headers().header("Location").get(0);
@@ -205,7 +205,7 @@ public class RestAPIActivateUtils {
                         try {
                             redirectUri = new URI(redirectUrl);
                         } catch (URISyntaxException e) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.REST_API_INVALID_URI_SYNTAX, e.getMessage()));
                         }
 
                         return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1);

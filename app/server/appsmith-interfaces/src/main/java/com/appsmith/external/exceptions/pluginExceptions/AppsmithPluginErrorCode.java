@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public enum AppsmithPluginErrorCode {
     REST_API_INVALID_URI_SYNTAX("PE-RST-4000", "URI syntax is wrong"),
-    REST_API_INVALID_CONTENT_TYPE("PE-RST-4001", "Invalid value for content-type header"),
+    REST_API_INVALID_CONTENT_TYPE("PE-RST-4001", "Invalid value for Content-Type"),
     REST_API_INVALID_HTTP_METHOD("PE-RST-4002", "HTTP method either missing or invalid"),
-    REST_API_EXECUTION_FAILED("PE-RST-5000", "Any runtime error during the execution of API"),
+    REST_API_EXECUTION_FAILED("PE-RST-5000", "Something went wrong at the time of executing this API"),
 
     POSTGRES_EMPTY_QUERY("PE-PGS-4000", "Query is null or empty"),
     POSTGRES_RESPONSE_SIZE_TOO_LARGE("PE-PGS-5009", "Response size exceeds the maximum supported size"),
