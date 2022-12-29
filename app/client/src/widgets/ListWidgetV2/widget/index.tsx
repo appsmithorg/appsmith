@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { isEmpty, floor, isEqual, isPlainObject } from "lodash";
+import { isEmpty, floor } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -31,13 +31,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetState } from "../../BaseWidget";
 import { Stylesheet } from "entities/AppTheming";
-import { getBindingTemplate } from "../constants";
-
-export const isValidListData = (
-  value: unknown,
-): value is Exclude<ListWidgetProps["listData"], undefined> => {
-  return Array.isArray(value) && value.length > 0 && isPlainObject(value[0]);
-};
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -204,10 +197,6 @@ class ListWidget extends BaseWidget<
   componentDidUpdate(prevProps: ListWidgetProps) {
     this.prevFlattenedChildCanvasWidgets =
       prevProps.flattenedChildCanvasWidgets;
-
-    if (this.shouldUpdatePrimaryKeyOptions(prevProps)) {
-      this.updatePrimaryKeyOptions();
-    }
 
     this.pageSize = this.getPageSize();
 
@@ -624,40 +613,6 @@ class ListWidget extends BaseWidget<
   resetTriggeredItemViewIndex = () => {
     this.props.updateWidgetMetaProperty("triggeredItemIndex", -1);
   };
-  getPrimaryKeyOptions = () => {
-    const { listData, primaryKeyOptions, widgetName } = this.props;
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
-
-    if (isValidListData(listData)) {
-      return Object.keys(listData[0]).map((key) => ({
-        label: key,
-        value: `${prefixTemplate} currentItem[${JSON.stringify(
-          key,
-        )}] ${suffixTemplate}`,
-      }));
-    }
-    if (Array.isArray(listData)) {
-      return primaryKeyOptions;
-    }
-
-    return [];
-  };
-
-  updatePrimaryKeyOptions = () => {
-    const primaryKeyOptions = this.getPrimaryKeyOptions();
-    super.updateWidgetProperty("primaryKeyOptions", primaryKeyOptions);
-  };
-
-  shouldUpdatePrimaryKeyOptions = (prevProps: ListWidgetProps) => {
-    if (Array.isArray(this.props.listData) && this.props.listData.length) {
-      return !isEqual(
-        Object.keys(prevProps.listData?.[0] ?? {}),
-        Object.keys(this.props.listData?.[0] ?? {}),
-      );
-    }
-
-    return false;
-  };
 
   shouldPaginate = () => {
     /**
@@ -927,10 +882,6 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   selectedItemIndex?: number;
   selectedItemView: Record<string, unknown>;
   triggeredItemIndex?: number;
-  primaryKeyOptions: {
-    label: string;
-    value: string;
-  }[];
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
 }
