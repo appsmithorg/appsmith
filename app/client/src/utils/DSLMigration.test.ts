@@ -721,7 +721,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: inputCurrencyMigration,
+        moduleObj: tableMigrations,
         functionName: "migrateMenuButtonDynamicItemsInsideTableWidget",
       },
     ],
