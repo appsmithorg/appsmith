@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import SearchBox from "react-google-maps/lib/components/places/SearchBox";
-import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
+import SearchBox from "@f0c1s/react-google-maps/lib/components/places/SearchBox";
+import StandaloneSearchBox from "@f0c1s/react-google-maps/lib/components/places/StandaloneSearchBox";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { StyledInputGroup } from "./StyledControls";

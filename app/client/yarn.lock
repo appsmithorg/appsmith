@@ -1733,6 +1733,24 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
+"@f0c1s/react-google-maps@10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@f0c1s/react-google-maps/-/react-google-maps-10.0.1.tgz#8b6605bfbc3ca3b6f97081f1a1d8cba603d1cb03"
+  integrity sha512-JCAsBh5YQl/2HUOq8Af4/7jH2UYRNBlB8qbxochdUtzenPV10hFngRNnfr50zSOOW8+q4o5XvVNBuVdSCbWIHg==
+  dependencies:
+    "@types/google.maps" "^3.51.0"
+    babel-runtime "^6.11.6"
+    can-use-dom "^0.1.0"
+    google-maps-infobox "^2.0.0"
+    invariant "^2.2.1"
+    lodash "^4.16.2"
+    marker-clusterer-plus "^2.1.4"
+    markerwithlabel "^2.0.1"
+    prop-types "^15.5.8"
+    recompose "^0.26.0"
+    scriptjs "^2.5.8"
+    warning "^3.0.0"
+
 "@faker-js/faker@^7.4.0":
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.4.0.tgz#cac720d860a89d487b47e55e66a4fd114f1d3fe5"
@@ -2960,6 +2978,11 @@
 "@types/fined@*":
   version "1.1.2"
   resolved "https://registry.npmjs.org/@types/fined/-/fined-1.1.2.tgz"
+
+"@types/google.maps@^3.51.0":
+  version "3.51.0"
+  resolved "https://registry.yarnpkg.com/@types/google.maps/-/google.maps-3.51.0.tgz#56198ebe9ecb9b83821a290ae2abe97b68e3d20b"
+  integrity sha512-44/oQYjc5D6kxBcI3Qk9rk3IIOMwnlEMWDV7pwPJ2YI89s5Q1OzDrFvR7QJ3LFrpVXEhig+gyagFg54+foinFg==
 
 "@types/graceful-fs@^4.1.2":
   version "4.1.4"
@@ -4977,19 +5000,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0:
-  version "1.0.30001148"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001148.tgz"
-
-caniuse-lite@^1.0.30001332, caniuse-lite@^1.0.30001335:
-  version "1.0.30001341"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001341.tgz"
-  integrity sha512-2SodVrFFtvGENGCv0ChVJIDQ0KPaS1cg7/qtfMaICgeMolDdo/Z2OD32F0Aq9yl6F4YFwGPBS5AaPqNYiW4PoA==
-
-caniuse-lite@^1.0.30001426:
-  version "1.0.30001431"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001431.tgz#e7c59bd1bc518fae03a4656be442ce6c4887a795"
-  integrity sha512-zBUoFU0ZcxpvSt9IU66dXVT/3ctO1cy4y9cscs1szkPlcWb6pasYM144GqrUygUbT+k7cmUCW61cvskjcv0enQ==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001332, caniuse-lite@^1.0.30001335, caniuse-lite@^1.0.30001426:
+  version "1.0.30001441"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001441.tgz"
+  integrity sha512-OyxRR4Vof59I3yGWXws6i908EtGbMzVUi3ganaZQHmydk1iwDhRnvaPG2WaR0KcqrDFKrxVZHULT396LEPhXfg==
 
 capital-case@^1.0.4:
   version "1.0.4"
@@ -12552,15 +12566,14 @@ react-documents@^1.0.4:
   resolved "https://registry.npmjs.org/react-documents/-/react-documents-1.0.4.tgz"
   integrity sha512-EpoY+MZEu3hPffIWA4FadUYu8daubNkr+LK2zuoPkCAVtyNY+z+/RuzzTriuhjcDydKXzgzp42kQTfAD2j3Mxw==
 
-react-dom@^16.7.0:
-  version "16.14.0"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.14.0.tgz#7ad838ec29a777fb3c75c3a190f661cf92ab8b89"
-  integrity sha512-1gCeQXDLoIqMgqD3IO2Ah9bnf0w9kzhwN5q4FGnHZ67hBm9yePzB5JJAIQCc8x3pFnNlwFq4RidZggNAAkzWWw==
+react-dom@17.0.2:
+  version "17.0.2"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-17.0.2.tgz#ecffb6845e3ad8dbfcdc498f0d0a939736502c23"
+  integrity sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
-    prop-types "^15.6.2"
-    scheduler "^0.19.1"
+    scheduler "^0.20.2"
 
 react-error-boundary@^3.1.0:
   version "3.1.3"
@@ -12594,22 +12607,6 @@ react-fusioncharts@^3.1.2:
   integrity sha512-ilmR7gfUJL5yed0soSHKlBpq2qCPyWiSc7gyFlT2vbPQS8eN6fAWMmLHy8H2kFP/XELItoAMqgUXyrjgK82bXA==
   dependencies:
     uuid "^3.2.1"
-
-react-google-maps@^9.4.5:
-  version "9.4.5"
-  resolved "https://registry.npmjs.org/react-google-maps/-/react-google-maps-9.4.5.tgz"
-  dependencies:
-    babel-runtime "^6.11.6"
-    can-use-dom "^0.1.0"
-    google-maps-infobox "^2.0.0"
-    invariant "^2.2.1"
-    lodash "^4.16.2"
-    marker-clusterer-plus "^2.1.4"
-    markerwithlabel "^2.0.1"
-    prop-types "^15.5.8"
-    recompose "^0.26.0"
-    scriptjs "^2.5.8"
-    warning "^3.0.0"
 
 react-google-recaptcha@^2.1.0:
   version "2.1.0"
@@ -13015,14 +13012,13 @@ react-zoom-pan-pinch@^1.6.1:
   version "1.6.1"
   resolved "https://registry.npmjs.org/react-zoom-pan-pinch/-/react-zoom-pan-pinch-1.6.1.tgz"
 
-react@^16.12.0:
-  version "16.14.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
-  integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
+react@17.0.2:
+  version "17.0.2"
+  resolved "https://registry.yarnpkg.com/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
+  integrity sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
-    prop-types "^15.6.2"
 
 read-pkg@^5.2.0:
   version "5.2.0"
@@ -13555,6 +13551,14 @@ saxes@^5.0.1:
 scheduler@^0.19.1:
   version "0.19.1"
   resolved "https://registry.npmjs.org/scheduler/-/scheduler-0.19.1.tgz"
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
+scheduler@^0.20.2:
+  version "0.20.2"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.20.2.tgz#4baee39436e34aa93b4874bddcbf0fe8b8b50e91"
+  integrity sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
-import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
-import SearchBox from "react-google-maps/lib/components/places/SearchBox";
+import { withGoogleMap, GoogleMap, Marker } from "@f0c1s/react-google-maps";
+import SearchBox from "@f0c1s/react-google-maps/lib/components/places/SearchBox";
 import { MarkerProps } from "../constants";
 import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
@@ -172,7 +172,6 @@ const MyMapComponent = withGoogleMap((props: any) => {
               fillOpacity: 1,
               strokeWeight: 0,
               scale: 1,
-              // @ts-expect-error: cannot find name google
               anchor: new google.maps.Point(12, 24),
             }}
             key={index}
