@@ -104,6 +104,7 @@ function PostBodyData(props: Props) {
           label=""
           name="actionConfiguration.bodyFormData"
           // pushFields
+          preserveNewLineChars
           theme={theme}
         />
       ),
@@ -116,6 +117,7 @@ function PostBodyData(props: Props) {
           label=""
           name="actionConfiguration.bodyFormData"
           // pushFields
+          preserveNewLineChars
           theme={theme}
         />
       ),

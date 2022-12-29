@@ -23,6 +23,7 @@ class DynamicTextField extends React.Component<
       showLightningMenu?: boolean;
       height?: string;
       disabled?: boolean;
+      preserveNewLineChars?: boolean;
     }
 > {
   render() {

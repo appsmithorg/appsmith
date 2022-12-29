@@ -712,6 +712,10 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                             data={props.datasourceHeaders}
                           />
                         )}
+
+                        {/* passing preserveNewLineChars to not remove new line characters,
+                        context: for headers code editor size is compact,
+                        which removes the new line characters if present */}
                         <KeyValueFieldArray
                           actionConfig={actionConfigurationHeaders}
                           dataTreePath={`${actionName}.config.headers`}
@@ -719,6 +723,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                           label="Headers"
                           name="actionConfiguration.headers"
                           placeholder="Value"
+                          preserveNewLineChars
                           pushFields
                           theme={theme}
                         />
@@ -743,6 +748,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                           hideHeader={!!props.datasourceParams.length}
                           label="Params"
                           name="actionConfiguration.queryParameters"
+                          preserveNewLineChars
                           pushFields
                           theme={theme}
                         />

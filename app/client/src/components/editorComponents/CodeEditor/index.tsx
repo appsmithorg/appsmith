@@ -76,7 +76,7 @@ import {
   isActionEntity,
   isWidgetEntity,
   removeEventFromHighlightedElement,
-  removeNewLineChars,
+  removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -155,6 +155,7 @@ export type EditorStyleProps = {
   popperPlacement?: Placement;
   popperZIndex?: Indices;
   blockCompletions?: FieldEntityInformation["blockCompletions"];
+  preserveNewLineChars?: boolean;
 };
 /**
  *  line => Line to which the gutter is added
@@ -323,11 +324,11 @@ class CodeEditor extends Component<Props, State> {
 
       // Set value of the editor
       const inputValue = getInputValue(this.props.input.value) || "";
-      if (this.props.size === EditorSize.COMPACT) {
-        options.value = removeNewLineChars(inputValue);
-      } else {
-        options.value = inputValue;
-      }
+      options.value = removeNewLineCharsIfRequired(
+        inputValue,
+        this.props.size,
+        this.props.preserveNewLineChars,
+      );
 
       // @ts-expect-error: Types are not available
       options.finishInit = function(
