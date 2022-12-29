@@ -479,7 +479,10 @@ class AnalyticsUtil {
 
   static getAnonymousId() {
     const windowDoc: any = window;
-    return windowDoc.analytics?.user?.().anonymousId();
+    return (
+      windowDoc.analytics?.user?.().anonymousId() ||
+      JSON.parse(localStorage.getItem("ajs_anonymous_id") || "")
+    );
   }
 
   static reset() {
