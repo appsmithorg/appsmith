@@ -57,6 +57,8 @@ public class ActionConfiguration implements AppsmithDomain {
     List<Property> bodyFormData;
     // For route parameters extracted from rapid-api
     List<Property> routeParameters;
+    // All the following adapters are registered so that we can serialize between enum HttpMethod,
+    // and what is now the class HttpMethod
     @JsonSerialize(using = HttpMethodConverter.HttpMethodSerializer.class)
     @JsonDeserialize(using = HttpMethodConverter.HttpMethodDeserializer.class)
     @JsonAdapter(HttpMethodConverter.class)
