@@ -61,7 +61,7 @@ export function* wrapChildren(
   canvas = { ...canvas, flexLayers };
   widgets[canvas.widgetId] = canvas;
   // update size
-  const updatedWidgets = updateSizeOfAllChildren(widgets, canvas.widgetId);
+  const updatedWidgets = updateWidgetPositions(widgets, canvas.widgetId);
   return updatedWidgets;
 }
 
@@ -303,11 +303,10 @@ export function alterLayoutForDesktop(
     return widgets;
   if (!children || !children.length) return widgets;
 
-  widgets = updateSizeOfAllChildren(widgets, parentId);
+  widgets = updateWidgetPositions(widgets, parentId, false);
   for (const child of children) {
     widgets = alterLayoutForDesktop(widgets, child);
   }
-  widgets = updateWidgetPositions(widgets, parentId, false);
   return widgets;
 }
 

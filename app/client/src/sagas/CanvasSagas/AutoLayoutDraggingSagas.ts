@@ -18,10 +18,7 @@ import log from "loglevel";
 import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import {
-  updateFlexChildColumns,
-  updateSizeOfAllChildren,
-} from "sagas/AutoLayoutUtils";
+import { updateFlexChildColumns } from "sagas/AutoLayoutUtils";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
@@ -115,14 +112,8 @@ function* autoLayoutReorderSaga(
         rowIndex,
       },
     );
-    let updatedWidgetsAfterResizing = updatedWidgets;
-    if (direction === LayoutDirection.Vertical)
-      updatedWidgetsAfterResizing = updateSizeOfAllChildren(
-        updatedWidgets,
-        parentId,
-      );
 
-    yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
+    yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
     // console.error(e);
@@ -286,12 +277,8 @@ function updateRelationships(
   }
   if (prevParents.length) {
     for (const id of prevParents) {
-      const updatedWidgets = updateSizeOfAllChildren(widgets, id);
-      const updatedWidgetsAfterPositionCalculation = updateWidgetPositions(
-        updatedWidgets,
-        id,
-      );
-      return updatedWidgetsAfterPositionCalculation;
+      const updatedWidgets = updateWidgetPositions(widgets, id);
+      return updatedWidgets;
     }
   }
   return widgets;
