@@ -15,7 +15,7 @@
     "@blueprintjs/select": "^3.10.0",
     "@draft-js-plugins/editor": "^4.1.0",
     "@draft-js-plugins/mention": "^4.5.1",
-    "@f0c1s/react-google-maps": "10.0.1",
+    "@f0c1s/react-google-maps": "10.0.2",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
     "@manaflair/redux-batch": "^1.0.0",

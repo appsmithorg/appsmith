@@ -1733,10 +1733,10 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
-"@f0c1s/react-google-maps@10.0.1":
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/@f0c1s/react-google-maps/-/react-google-maps-10.0.1.tgz#8b6605bfbc3ca3b6f97081f1a1d8cba603d1cb03"
-  integrity sha512-JCAsBh5YQl/2HUOq8Af4/7jH2UYRNBlB8qbxochdUtzenPV10hFngRNnfr50zSOOW8+q4o5XvVNBuVdSCbWIHg==
+"@f0c1s/react-google-maps@10.0.2":
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/@f0c1s/react-google-maps/-/react-google-maps-10.0.2.tgz#26a9d13b600b1a586defd47e6d13e96aaaa574ef"
+  integrity sha512-0hCh69WfqCxS+60CWWHmjLfV0oulB9hV+tbYCG+tuIc/tGQZyKizvkUX1u+pqv4s6sNAaTDdscRq3g4DAJUsGA==
   dependencies:
     "@types/google.maps" "^3.51.0"
     babel-runtime "^6.11.6"
