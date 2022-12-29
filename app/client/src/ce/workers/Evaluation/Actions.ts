@@ -13,6 +13,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
+import frameworkFunctionWrapper from "workers/Evaluation/FunctionProxy";
 
 declare global {
   /** All identifiers added to the worker global scope should also
@@ -338,16 +339,16 @@ export const addDataTreeToContext = (args: {
       if (!funcCreator.qualifier(entity)) continue;
       const func = funcCreator.func(entity);
       const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
-      set(
-        entityFunctionCollection,
-        fullPath,
+      const entityFunc = frameworkFunctionWrapper.addProxy(
         pusher.bind(
           {
             EVENT_TYPE: eventType,
           },
           func,
         ),
+        fullPath,
       );
+      set(entityFunctionCollection, fullPath, entityFunc);
     }
   }
 
@@ -363,7 +364,10 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    context[funcName] = pusher.bind({}, fn);
+    context[funcName] = frameworkFunctionWrapper.addProxy(
+      pusher.bind({}, fn),
+      funcName,
+    );
   }
 };
 

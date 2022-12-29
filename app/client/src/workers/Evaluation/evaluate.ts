@@ -19,6 +19,7 @@ import {
   PLATFORM_FUNCTIONS,
   addDataTreeToContext,
 } from "@appsmith/workers/Evaluation/Actions";
+import auditLogs from "./AuditLogs";
 
 export type EvalResult = {
   result: any;
@@ -258,9 +259,8 @@ export default function evaluateSync(
     const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
-    if (!skipLogsOperations) {
-      userLogs.resetLogs();
-    }
+    if (!skipLogsOperations) userLogs.resetLogs();
+
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
@@ -336,13 +336,19 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
     let logs;
+
+    /**** JSObject function proxy method ****/
     const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
-    /**** Setting the eval context ****/
+
+    /**** console logs setup ****/
     userLogs.resetLogs();
     userLogs.setCurrentRequestInfo({
       eventType: context?.eventType,
       triggerMeta: context?.triggerMeta,
     });
+
+    /**** Setting the eval context ****/
+
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
@@ -351,6 +357,10 @@ export async function evaluateAsync(
       JSFunctionProxy,
       isTriggerBased: true,
     });
+
+    /**** audit logs setup ****/
+    auditLogs.setupLogs({ pageId: "", pageName: "" });
+
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     evalContext.ALLOW_ASYNC = true;
 
@@ -376,6 +386,10 @@ export async function evaluateAsync(
       logs = userLogs.flushLogs();
     } finally {
       setEvaluationEnd(true);
+
+      console.log("$$$-auditLogs", auditLogs.getLogs());
+
+      auditLogs.close();
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.

@@ -13,7 +13,7 @@ export type JSFunctionProxy = (
   fullName: string,
 ) => unknown;
 
-export const JSFunctionProxyHandler = (
+export const jsFunctionProxyHandler = (
   fullName: string,
   funcExecutionStart: () => void,
   funcExecutionEnd: (data: JSExecutionData) => void,
@@ -108,12 +108,12 @@ export class JSProxy {
 
   // Wrapper around JS Functions
   public JSFunctionProxy(
-    JSFunction: (...args: unknown[]) => unknown,
+    jsFunction: (...args: unknown[]) => unknown,
     jsFunctionFullName: string,
   ) {
     return new Proxy(
-      JSFunction,
-      JSFunctionProxyHandler(
+      jsFunction,
+      jsFunctionProxyHandler(
         jsFunctionFullName,
         this.functionExecutionStart,
         this.functionExecutionEnd,
