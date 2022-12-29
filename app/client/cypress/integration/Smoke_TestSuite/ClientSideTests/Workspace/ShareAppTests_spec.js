@@ -69,7 +69,7 @@ describe("Create new workspace and share with a user", function() {
     );
     cy.get("h2").contains("Drag and drop a widget here");
     cy.get(homePage.shareApp).click();
-    cy.enablePublicAccess();
+    cy.enablePublicAccess(true);
     cy.PublishtheApp();
     currentUrl = cy.url();
     cy.url().then((url) => {
@@ -131,7 +131,7 @@ describe("Create new workspace and share with a user", function() {
     );
     cy.get("h2").contains("Drag and drop a widget here");
     cy.get(homePage.shareApp).click();
-    cy.enablePublicAccess();
+    cy.enablePublicAccess(true);
     cy.LogOut();
   });
 

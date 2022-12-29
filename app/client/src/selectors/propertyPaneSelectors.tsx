@@ -16,10 +16,13 @@ import {
 } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import {
+  EVALUATION_PATH,
+  isPathDynamicProperty,
+  isPathDynamicTrigger,
+} from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
-import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -86,7 +89,6 @@ export const getWidgetPropsForPropertyPane = createSelector(
 );
 
 type WidgetPropertiesForPropertyPaneView = {
-  disabledWidgetFeatures?: RegisteredWidgetFeatures[];
   type: string;
   widgetId: string;
   widgetName: string;
@@ -101,7 +103,6 @@ export const getWidgetPropsForPropertyPaneView = createSelector(
       "widgetId",
       "widgetName",
       "displayName",
-      "disabledWidgetFeatures",
     ]) as WidgetPropertiesForPropertyPaneView,
 );
 
@@ -129,8 +130,14 @@ const populateWidgetProperties = (
   widgetProperties.type = widget.type;
   widgetProperties.widgetName = widget.widgetName;
   widgetProperties.widgetId = widget.widgetId;
-  widgetProperties.dynamicTriggerPathList = widget.dynamicTriggerPathList;
-  widgetProperties.dynamicPropertyPathList = widget.dynamicPropertyPathList;
+  widgetProperties.isPropertyDynamicTrigger = isPathDynamicTrigger(
+    widget,
+    propertyPath,
+  );
+  widgetProperties.isPropertyDynamicPath = isPathDynamicProperty(
+    widget,
+    propertyPath,
+  );
 
   getAndSetPath(widget, widgetProperties, propertyPath);
 
@@ -266,6 +273,7 @@ export const getIsPropertyPaneVisible = createSelector(
 export const getPropertyPaneWidth = (state: AppState) => {
   return state.ui.propertyPane.width;
 };
+
 export const getFocusablePropertyPaneField = (state: AppState) =>
   state.ui.propertyPane.focusedProperty;
 

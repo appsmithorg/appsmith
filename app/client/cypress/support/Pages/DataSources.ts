@@ -24,7 +24,8 @@ export class DataSources {
     "input[name='datasourceConfiguration.authentication.databaseName']";
   private _username =
     "input[name='datasourceConfiguration.authentication.username']";
-  private _sectionAuthentication = "[data-cy=section-Authentication]";
+  private _sectionAuthentication =
+    "[data-cy=section-Authentication] .t--collapse-section-container";
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
@@ -32,6 +33,8 @@ export class DataSources {
   private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   private _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
+  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
+  _closeDataSourceModal = ".t--reconnect-close-btn";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
@@ -425,7 +428,7 @@ export class DataSources {
       .scrollIntoView()
       .should("be.visible")
       .click();
-    this.agHelper.Sleep(2000); //for the Datasource page to open
+    this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
@@ -513,6 +516,14 @@ export class DataSources {
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     cy.get(this._saveDs).click();
+  }
+
+  public CloseReconnectDataSourceModal() {
+    cy.get('body').then(($ele) =>{
+      if($ele.find(this._reconnectDataSourceModal).length){
+    this.agHelper.GetNClick(this._closeDataSourceModal)
+      }
+    })
   }
 
   RunQuery(
@@ -777,5 +788,9 @@ export class DataSources {
         false,
         0,
       );
+  }
+
+  public getDSEntity(dSName: string){
+    return `[data-guided-tour-id="explorer-entity-${dSName}"]`;
   }
 }

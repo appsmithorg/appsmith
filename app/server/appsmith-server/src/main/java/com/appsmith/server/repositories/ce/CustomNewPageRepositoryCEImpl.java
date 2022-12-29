@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -37,6 +38,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission);
+    }
+
+    @Override
+    public Flux<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
+        Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
+        return queryAll(List.of(applicationIdCriteria), permission);
     }
 
     @Override

@@ -483,8 +483,8 @@ public class ImportExportApplicationServiceV2Tests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
-                            .then(layoutActionService.createSingleAction(action))
-                            .then(layoutActionService.createSingleAction(action2))
+                            .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
+                            .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -1569,6 +1569,8 @@ public class ImportExportApplicationServiceV2Tests {
                 })
                 .flatMap(page -> applicationRepository.findById(page.getApplicationId()))
                 .cache();
+        List<PageDTO> pageListBefore = resultMonoWithoutDiscardOperation
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()).block();
 
         StepVerifier
                 .create(resultMonoWithoutDiscardOperation
@@ -1643,6 +1645,10 @@ public class ImportExportApplicationServiceV2Tests {
                     assertThat(application.getPublishedPages()).hasSize(1);
 
                     assertThat(pageList).hasSize(2);
+                    for (PageDTO page : pageList) {
+                        PageDTO curentPage = pageListBefore.stream().filter(pageDTO -> pageDTO.getId().equals(page.getId())).collect(Collectors.toList()).get(0);
+                        assertThat(page.getPolicies()).isEqualTo(curentPage.getPolicies());
+                    }
 
                     List<String> pageNames = new ArrayList<>();
                     pageList.forEach(page -> pageNames.add(page.getName()));
@@ -1683,6 +1689,9 @@ public class ImportExportApplicationServiceV2Tests {
                 .flatMap(actionDTO -> newActionService.getById(actionDTO.getId()))
                 .flatMap(newAction -> applicationRepository.findById(newAction.getApplicationId()))
                 .cache();
+
+        List<ActionDTO> actionListBefore = resultMonoWithoutDiscardOperation
+                .flatMap(application -> getActionsInApplication(application).collectList()).block();
 
         StepVerifier
                 .create(resultMonoWithoutDiscardOperation
@@ -1737,6 +1746,10 @@ public class ImportExportApplicationServiceV2Tests {
                     List<String> actionNames = new ArrayList<>();
                     actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
                     assertThat(actionNames).doesNotContain("discard-action-test");
+                    for (ActionDTO action : actionListBefore) {
+                        ActionDTO currentAction = actionListBefore.stream().filter(actionDTO -> actionDTO.getId().equals(action.getId())).collect(Collectors.toList()).get(0);
+                        assertThat(action.getPolicies()).isEqualTo(currentAction.getPolicies());
+                    }
                 })
                 .verifyComplete();
     }
@@ -1778,6 +1791,11 @@ public class ImportExportApplicationServiceV2Tests {
                 .flatMap(actionCollectionDTO -> actionCollectionService.getById(actionCollectionDTO.getId()))
                 .flatMap(actionCollection -> applicationRepository.findById(actionCollection.getApplicationId()))
                 .cache();
+
+        List<ActionCollection> actionCollectionListBefore = resultMonoWithoutDiscardOperation
+                .flatMap(application -> actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()).block();
+        List<ActionDTO> actionListBefore = resultMonoWithoutDiscardOperation
+                .flatMap(application -> getActionsInApplication(application).collectList()).block();
 
         StepVerifier
                 .create(resultMonoWithoutDiscardOperation
@@ -1844,6 +1862,15 @@ public class ImportExportApplicationServiceV2Tests {
                     List<String> actionNames = new ArrayList<>();
                     actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
                     assertThat(actionNames).doesNotContain("discard-action-collection-test-action");
+                    for (ActionDTO action : actionListBefore) {
+                        ActionDTO currentAction = actionListBefore.stream().filter(actionDTO -> actionDTO.getId().equals(action.getId())).collect(Collectors.toList()).get(0);
+                        assertThat(action.getPolicies()).isEqualTo(currentAction.getPolicies());
+                    }
+
+                    for (ActionCollection actionCollection : actionCollectionListBefore) {
+                        ActionCollection currentAction = actionCollectionListBefore.stream().filter(actionDTO -> actionDTO.getId().equals(actionCollection.getId())).collect(Collectors.toList()).get(0);
+                        assertThat(actionCollection.getPolicies()).isEqualTo(currentAction.getPolicies());
+                    }
                 })
                 .verifyComplete();
     }
@@ -2230,8 +2257,8 @@ public class ImportExportApplicationServiceV2Tests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1)
-                            .then(layoutActionService.createSingleAction(action))
-                            .then(layoutActionService.createSingleAction(action2))
+                            .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
+                            .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
