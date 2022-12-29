@@ -479,9 +479,11 @@ class AnalyticsUtil {
 
   static getAnonymousId() {
     const windowDoc: any = window;
+    const { segment } = getAppsmithConfigs();
     return (
       windowDoc.analytics?.user?.().anonymousId() ||
-      localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', "")
+      (segment.enabled &&
+        localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', ""))
     );
   }
 
