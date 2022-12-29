@@ -13,6 +13,9 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.utils.SqlUtils;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -40,6 +43,12 @@ import static com.external.utils.ValidationUtils.validateWarehouseDatabaseSchema
 
 @Slf4j
 public class SnowflakePlugin extends BasePlugin {
+
+    static final String JDBC_DRIVER = "net.snowflake.client.jdbc.SnowflakeDriver";
+
+    private static final int MINIMUM_POOL_SIZE = 1;
+
+    private static final int MAXIMUM_POOL_SIZE = 5;
 
     public SnowflakePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -98,11 +107,16 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
             properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
             properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
+            properties.setProperty("connectTimeout",String.valueOf(10000));
+            properties.setProperty("socketTimeout",String.valueOf(15000));
+
+            log.info("marvel testing 123");
 
             return Mono
                     .fromCallable(() -> {
                         Connection conn;
                         try {
+//                            DriverManager.setLoginTimeout(10);
                             conn = DriverManager.getConnection("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com", properties);
                         } catch (SQLException e) {
                             log.error("Exception caught when connecting to Snowflake endpoint: " + datasourceConfiguration.getUrl() + ". Cause: ", e);
@@ -114,7 +128,57 @@ public class SnowflakePlugin extends BasePlugin {
                         return conn;
                     })
                     .subscribeOn(scheduler);
+
+//            return Mono
+//                    .fromCallable(() -> {
+//                        log.debug("Connecting to Postgres db");
+//                        return createConnectionPool(datasourceConfiguration,properties).getConnection();
+//                    })
+//                    .subscribeOn(scheduler);
         }
+
+//        /**
+//         * This function is blocking in nature which connects to the database and creates a connection pool
+//         *
+//         * @param datasourceConfiguration
+//         * @return connection pool
+//         */
+//        private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration,Properties properties) throws AppsmithPluginException {
+//
+//            HikariConfig config = new HikariConfig();
+//
+//            config.setDriverClassName(JDBC_DRIVER);
+//
+//            config.setMinimumIdle(MINIMUM_POOL_SIZE);
+//            config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+//
+//            // Set authentication properties
+//            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+//            if (authentication.getUsername() != null) {
+//                config.setUsername(authentication.getUsername());
+//            }
+//            if (authentication.getPassword() != null) {
+//                config.setPassword(authentication.getPassword());
+//            }
+//
+//            // Set up the connection URL
+//            StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
+//
+//            config.setDataSourceProperties(properties);
+//
+//            // Now create the connection pool from the configuration
+//            HikariDataSource datasource = null;
+//            try {
+//                datasource = new HikariDataSource(config);
+//            } catch (HikariPool.PoolInitializationException e) {
+//                throw new AppsmithPluginException(
+//                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+//                        e.getMessage()
+//                );
+//            }
+//
+//            return datasource;
+//        }
 
         @Override
         public void datasourceDestroy(Connection connection) {
