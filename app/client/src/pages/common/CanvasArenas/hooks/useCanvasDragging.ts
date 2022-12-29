@@ -705,7 +705,13 @@ export const useCanvasDragging = (
             if (highlight) {
               canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
               const { height, posX, posY, width } = highlight;
-              canvasCtx.fillRect(posX, posY, width, height);
+              const scrollTop = scrollParent?.scrollTop || 0;
+              canvasCtx.fillRect(
+                posX,
+                posY - scrollTop + startPoints?.top,
+                width,
+                height,
+              );
               canvasCtx.save();
             }
             canvasCtx.restore();
