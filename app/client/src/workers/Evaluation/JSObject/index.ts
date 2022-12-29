@@ -29,9 +29,9 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   localUnEvalTree: DataTree,
 ) => {
   if (!isEmpty(jsUpdates)) {
-    Object.keys(jsUpdates).forEach((jsEntity) => {
-      const entity = localUnEvalTree[jsEntity];
-      const parsedBody = jsUpdates[jsEntity].parsedBody;
+    Object.keys(jsUpdates).forEach((jsEntityName) => {
+      const entity = localUnEvalTree[jsEntityName];
+      const parsedBody = jsUpdates[jsEntityName].parsedBody;
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
@@ -45,6 +45,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
           localUnEvalTree = removeFunctionsAndVariableJSCollection(
             localUnEvalTree,
             entity,
+            jsEntityName,
           );
         }
       }

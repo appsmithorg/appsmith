@@ -190,6 +190,7 @@ export const updateJSCollectionInUnEvalTree = (
 export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: DataTree,
   entity: DataTreeJSAction,
+  jsEntityName: string,
 ) => {
   const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
   const modifiedDataTree: DataTree = unEvalTree;
@@ -199,10 +200,10 @@ export const removeFunctionsAndVariableJSCollection = (
   });
   //removed variables
   const varList: Array<string> = entity.variables;
-  set(modifiedDataTree, `${entity.name}.variables`, []);
+  set(modifiedDataTree, `${jsEntityName}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
-    unset(modifiedDataTree[entity.name], varName);
+    unset(modifiedDataTree[jsEntityName], varName);
   }
   //remove functions
 
@@ -213,7 +214,7 @@ export const removeFunctionsAndVariableJSCollection = (
     const actionName = functionsList[i];
     delete reactivePaths[actionName];
     delete meta[actionName];
-    unset(modifiedDataTree[entity.name], actionName);
+    unset(modifiedDataTree[jsEntityName], actionName);
 
     oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
       (path: any) => path["key"] !== actionName,
