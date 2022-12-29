@@ -56,9 +56,6 @@ import {
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
-import { getAppsmithConfigs } from "ce/configs";
-import { getIsSegmentInitialized } from "selectors/analyticsSelectors";
-import { segmentEnabled } from "actions/analyticsActions";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -99,27 +96,6 @@ export function* createUserSaga(
   }
 }
 
-export function* waitForSegmentInit() {
-  yield call(waitForFetchUserSuccess);
-  const currentUser: User | undefined = yield select(getCurrentUser);
-  const isSegmentInitialized: boolean = yield select(getIsSegmentInitialized);
-  const appsmithConfig = getAppsmithConfigs();
-  console.log(
-    "segment check for SEGMENT_INITIALIZED",
-    currentUser?.enableTelemetry,
-    appsmithConfig.segment.enabled,
-    isSegmentInitialized,
-  );
-  if (
-    currentUser?.enableTelemetry &&
-    appsmithConfig.segment.enabled &&
-    !isSegmentInitialized
-  ) {
-    console.log("segment wait for SEGMENT_INITIALIZED");
-    yield take(ReduxActionTypes.SEGMENT_INITIALIZED);
-  }
-}
-
 export function* getCurrentUserSaga() {
   try {
     PerformanceTracker.startAsyncTracking(
@@ -132,10 +108,7 @@ export function* getCurrentUserSaga() {
       //@ts-expect-error: response is of type unknown
       const { enableTelemetry } = response.data;
       if (enableTelemetry) {
-        console.log("segment enable start");
-        yield initializeAnalyticsAndTrackers();
-        console.log("segment enabled");
-        yield put(segmentEnabled());
+        initializeAnalyticsAndTrackers();
       }
       yield put(initAppLevelSocketConnection());
       yield put(initPageLevelSocketConnection());
