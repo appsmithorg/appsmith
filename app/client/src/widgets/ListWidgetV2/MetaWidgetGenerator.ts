@@ -972,8 +972,21 @@ class MetaWidgetGenerator {
     ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
     }
+    /**
+     * (Operation) Moving to Next Page
+     * 2 Things would change at different times,
+     * page No would change immediately -> causes regeneration of meta widgets
+     * Data would later change -> this is only communicated by primaryKey since the data.length is still constant.
+     * But once primaryKey is undefined, This change in data isn't known.
+     * We would need regenerate the meta widgets only at these points.
+     */
 
-    if (this.hasRegenerationOptionsChanged(nextOptions)) {
+    if (
+      this.hasRegenerationOptionsChanged(nextOptions) ||
+      (this.primaryKeys === undefined &&
+        nextOptions.primaryKeys === undefined &&
+        this.serverSidePagination)
+    ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.REGENERATE_META_WIDGETS);
     }
 
@@ -983,14 +996,6 @@ class MetaWidgetGenerator {
 
     if (this.pageNo !== nextOptions.pageNo) {
       this.modificationsQueue.add(MODIFICATION_TYPE.PAGE_NO_UPDATED);
-    }
-
-    // only needed when there's no set primaryKey and we have to regenerate.
-    if (
-      this.primaryKeys === undefined &&
-      nextOptions.primaryKeys === undefined
-    ) {
-      this.modificationsQueue.add(MODIFICATION_TYPE.REGENERATE_META_WIDGETS);
     }
   };
 
