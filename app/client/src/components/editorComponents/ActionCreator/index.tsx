@@ -266,7 +266,8 @@ function getFieldsForSelectedAction(
   });
   functionMatchesWithPositions.sort((a, b) => a.position - b.position);
 
-  const functionMatch = functionMatchesWithPositions[0].func;
+  const functionMatch =
+    functionMatchesWithPositions.length && functionMatchesWithPositions[0].func;
 
   if (functionMatch && functionMatch.length > 0) {
     for (const field of FIELD_GROUP_CONFIG[functionMatch].fields) {

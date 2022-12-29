@@ -29,7 +29,7 @@ export const AppsmithFunction = {
 };
 
 export const AppsmithFunctionsWithFields = [
-  APPSMITH_NAMESPACED_FUNCTIONS.getGeolocation,
+  ...Object.keys(APPSMITH_NAMESPACED_FUNCTIONS),
   ...Object.keys(APPSMITH_GLOBAL_FUNCTIONS),
 ];
 
