@@ -481,7 +481,7 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     return (
       windowDoc.analytics?.user?.().anonymousId() ||
-      JSON.parse(localStorage.getItem("ajs_anonymous_id") || "")
+      localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', "")
     );
   }
 
