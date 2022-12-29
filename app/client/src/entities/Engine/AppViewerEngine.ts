@@ -26,6 +26,7 @@ import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { waitForSegmentInit } from "ce/sagas/userSagas";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -113,6 +114,9 @@ export default class AppViewerEngine extends AppEngine {
         `Unable to fetch actions for the application: ${applicationId}`,
       );
 
+    console.log("---- segment load wait");
+    yield call(waitForSegmentInit);
+    console.log("---- segment loaded - call actions");
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 }
