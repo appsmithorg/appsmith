@@ -38,7 +38,7 @@ describe("Input widget V2 - ", () => {
   });
 
   it("3. Validate DataType - TEXT can be entered into Input widget", () => {
-    cy.selectDropdownValue(".t--property-control-datatype", "Text");
+    cy.selectDropdownValue(".t--property-control-datatype", "Single-line text");
     [
       {
         input: "test",

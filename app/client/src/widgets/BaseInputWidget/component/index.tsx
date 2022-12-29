@@ -75,6 +75,7 @@ const InputComponentWrapper = styled((props) => (
   boxShadow?: string;
   accentColor?: string;
   isDynamicHeightEnabled?: boolean;
+  isMultiline?: boolean;
 }>`
   ${labelLayoutStyles}
 
@@ -284,7 +285,6 @@ const InputComponentWrapper = styled((props) => (
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    height: 100%;
     align-items: ${({ compactMode, inputType, labelPosition }) => {
       if (!labelPosition && inputType !== InputTypes.TEXT) {
         return "center";
@@ -297,16 +297,17 @@ const InputComponentWrapper = styled((props) => (
       }
       if (labelPosition === LabelPosition.Left) {
         if (inputType === InputTypes.TEXT) {
-          return "stretch";
+          return "center";
+        } else if (inputType === InputTypes.MULTI_LINE_TEXT) {
+          return "flex-start";
         }
         return "center";
       }
       return "flex-start";
     }};
-  }
 
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&&&& { align-items: stretch; }" : ""};
+    height: ${({ isMultiLine }) => (isMultiLine ? "100%" : "auto")};
+  }
 `;
 
 const StyledNumericInput = styled(NumericInput)`
@@ -348,7 +349,6 @@ const TextInputWrapper = styled.div<{
   width: 100%;
   display: flex;
   flex: 1;
-  height: 100%;
   border: 1px solid;
   overflow: hidden;
   border-color: ${({ disabled, hasError }) => {
@@ -397,8 +397,6 @@ const TextInputWrapper = styled.div<{
 
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { height: auto; }" : ""};
-
-  ${({ isMultiLine }) => (!isMultiLine ? "&& { flex: 0 !important; }" : "")};
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -671,6 +669,7 @@ class BaseInputComponent extends React.Component<
         hasError={isInvalid}
         inputType={inputType}
         isDynamicHeightEnabled={isDynamicHeightEnabled}
+        isMultiLine={!!multiline}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
