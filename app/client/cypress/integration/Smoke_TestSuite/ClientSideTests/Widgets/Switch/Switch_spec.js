@@ -84,7 +84,7 @@ describe("Switch Widget Functionality", function() {
       "left",
     );
     // align right
-    cy.get(".t--property-control-alignment .t--button-tab-RIGHT")
+    cy.get(".t--property-control-alignment .t--button-group-RIGHT")
       .first()
       .click();
     cy.wait(200);
@@ -106,7 +106,7 @@ describe("Switch Widget Functionality", function() {
       .last()
       .click({ force: true });
     cy.wait(200);
-    cy.get(".t--button-tab-Left").click({ force: true });
+    cy.get(".t--button-group-Left").click({ force: true });
     cy.wait(200);
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("exist");
@@ -150,7 +150,7 @@ describe("Switch Widget Functionality", function() {
   it("11. Switch Functionality To change label style of switch", function() {
     cy.openPropertyPane("switchwidget");
     cy.moveToStyleTab();
-    cy.get(".t--property-control-emphasis .t--button-tab-BOLD").click({
+    cy.get(".t--property-control-emphasis .t--button-group-BOLD").click({
       force: true,
     });
     cy.PublishtheApp();
