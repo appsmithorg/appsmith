@@ -1,6 +1,7 @@
 import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
+import { AppState } from "ce/reducers";
 import {
   FlexVerticalAlignment,
   LayoutDirection,
@@ -14,11 +15,10 @@ import {
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
+import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
-import { isWidgetSelected } from "selectors/widgetSelectors";
-import { AppState } from "ce/reducers";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -80,10 +80,12 @@ export function FlexComponent(props: AutoLayoutProps) {
     return {
       display: isSelected && isDragging ? "none" : "flex",
       zIndex,
-      width: `${Math.floor(props.componentWidth)}px`,
-      height: isMobile ? "auto" : Math.floor(props.componentHeight) + "px",
+      width: `${Math.floor(props.componentWidth) - WIDGET_PADDING * 2}px`,
+      height: isMobile
+        ? "auto"
+        : Math.floor(props.componentHeight) - WIDGET_PADDING * 2 + "px",
       minHeight: "30px",
-      padding: WIDGET_PADDING + "px",
+      margin: WIDGET_PADDING + "px",
       flexGrow: isFillWidget ? 1 : 0,
       alignSelf: props.flexVerticalAlignment,
       "&:hover": {
