@@ -1384,11 +1384,7 @@ jobs:
         if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
 
-<<<<<<< HEAD
       # In case for any fat-container job failure, create combined failed spec
-=======
-      # Incase for any fat-container job failure, create combined failed spec
->>>>>>> 8eafc8d5b5fafa7b2224f1570a9f03e31acdb40e
       - name: "combine all specs for fat"
         if: needs.fat-container-test.result != 'success'
         run: cat ~/failed_spec_fat/failed_spec_fat* >> ~/combined_failed_spec_fat
