@@ -16,6 +16,10 @@ import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleC
 import { pick } from "lodash";
 import { Stylesheet } from "entities/AppTheming";
 import styled from "styled-components";
+import { AppState } from "@appsmith/reducers";
+import { connect } from "react-redux";
+import { LanguageEnums } from "entities/App";
+import { translate } from "utils/translate";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 
@@ -23,7 +27,13 @@ const TextContainer = styled(WidgetStyleContainer)`
   overflow: hidden;
 `;
 
-class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
+interface TextProps extends TextWidgetProps {
+  lang: LanguageEnums;
+}
+
+class TextWidget extends BaseWidget<TextProps, WidgetState> {
+  static defaultProps: Partial<TextProps> | undefined;
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -35,6 +45,19 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             label: "Text",
             controlType: "INPUT_TEXT",
             placeholderText: "Name:",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: { limitLineBreaks: true },
+            },
+          },
+          {
+            propertyName: "translationJp",
+            helpText: "Sets the translation of the widget",
+            label: "Translation JP",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter translation for JP",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -421,7 +444,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           leftColumn={this.props.leftColumn}
           overflow={this.props.overflow}
           rightColumn={this.props.rightColumn}
-          text={this.props.text}
+          text={translate(
+            this.props.lang,
+            this.props.text || "",
+            this.props.translationJp,
+          )}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
           topRow={this.props.topRow}
@@ -468,4 +495,15 @@ export interface TextWidgetProps extends WidgetProps, TextStyles {
   overflow: OverflowTypes;
 }
 
-export default TextWidget;
+TextWidget.defaultProps = {
+  ...BaseWidget.defaultProps,
+  lang: LanguageEnums.EN,
+};
+
+const mapStateToProps = (state: AppState) => {
+  return {
+    lang: state.ui.appView.lang,
+  };
+};
+
+export default connect(mapStateToProps, null)(TextWidget);
