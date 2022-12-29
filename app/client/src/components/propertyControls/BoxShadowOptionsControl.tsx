@@ -1,10 +1,9 @@
 import * as React from "react";
 
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { TooltipComponent } from "design-system";
+import { ButtonGroup, TooltipComponent } from "design-system";
 import { boxShadowOptions } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
-import { ButtonTab } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -58,7 +57,7 @@ class BoxShadowOptionsControl extends BaseControl<
 
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
-      e.detail.component === "ButtonTab" &&
+      e.detail.component === "ButtonGroup" &&
       e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
@@ -74,7 +73,7 @@ class BoxShadowOptionsControl extends BaseControl<
 
   public render() {
     return (
-      <ButtonTab
+      <ButtonGroup
         options={options}
         ref={this.componentRef}
         selectButton={(value, isUpdatedViaKeyboard = false) => {
