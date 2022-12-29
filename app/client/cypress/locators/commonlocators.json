@@ -209,8 +209,10 @@
   "showTabsControl": ".t--property-control-showtabs .bp3-control-indicator",
   "checkboxIndicator": ".t--draggable-checkboxwidget .bp3-control-indicator",
   "generalSectionHeight": ".t--property-pane-section-general .t--property-control-label:contains('Height')",
-  "listPaginateNextButton": ".t--widget-listwidgetv2 .rc-pagination-next .rc-pagination-item-link",
-  "listPaginatePrevButton": ".t--widget-listwidgetv2 .rc-pagination-prev .rc-pagination-item-link",
+  "listPaginateNextButton":".t--widget-listwidgetv2 .rc-pagination-next .rc-pagination-item-link",
+  "listPaginateActivePage":".t--widget-listwidgetv2 .rc-pagination-item-active",
+  "listPaginatePrevButton":".t--widget-listwidgetv2 .rc-pagination-prev .rc-pagination-item-link",
+  "listPaginateNextButtonDisabled":".t--widget-listwidgetv2 .rc-pagination-disabled .rc-pagination-item-link",
   "PropertyPaneSearchInput": ".t--property-pane-search-input-wrapper input",
   "BorderRadius0px": ".t--property-control-borderradius .t--button-tab-0px",
   "EnableFormatting": ".t--property-control-enableformatting input[type='checkbox']"

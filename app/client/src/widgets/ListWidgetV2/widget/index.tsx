@@ -30,6 +30,7 @@ import {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetState } from "../../BaseWidget";
+import { Stylesheet } from "entities/AppTheming";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -123,6 +124,14 @@ class ListWidget extends BaseWidget<
     return PropertyPaneStyleConfig;
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   static getDerivedPropertiesMap() {
     return {
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
@@ -193,25 +202,18 @@ class ListWidget extends BaseWidget<
 
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
-      if (this.shouldFireOnPageSizeChange()) {
-        // run onPageSizeChange if user resize widgets
-        this.triggerOnPageSizeChange();
+      if (this.props.serverSidePagination && !this.props.pageSize) {
+        this.onPageChange(this.props.pageNo);
       }
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
-      const maxPageNo = Math.ceil(
-        (this.props?.listData?.length || 0) / this.pageSize,
+      const maxPageNo = Math.max(
+        Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
+        1,
       );
 
       this.onPageChange(maxPageNo);
-    }
-
-    if (this.props.primaryKeys !== prevProps.primaryKeys) {
-      this.resetSelectedItemViewIndex();
-      this.resetSelectedItemView();
-      this.resetTriggeredItemViewIndex();
-      this.resetTriggeredItemView();
     }
 
     this.setupMetaWidgets(prevProps);
@@ -425,10 +427,6 @@ class ListWidget extends BaseWidget<
     return this.props.pageSize !== this.pageSize;
   };
 
-  shouldFireOnPageSizeChange = () => {
-    return this.props.serverSidePagination && this.props.onPageSizeChange;
-  };
-
   isCurrPageNoGreaterThanMaxPageNo = () => {
     if (
       this.props.listData &&
@@ -441,16 +439,6 @@ class ListWidget extends BaseWidget<
     }
 
     return false;
-  };
-
-  triggerOnPageSizeChange = () => {
-    super.executeAction({
-      triggerPropertyName: "onPageSizeChange",
-      dynamicString: this.props.onPageSizeChange as string,
-      event: {
-        type: EventType.ON_PAGE_SIZE_CHANGE,
-      },
-    });
   };
 
   mainMetaCanvasWidget = () => {
@@ -614,14 +602,6 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  resetTriggeredItemView = () => {
-    this.context?.syncUpdateWidgetMetaProperty?.(
-      this.props.widgetId,
-      "triggeredItemView",
-      "{{{}}}",
-    );
-  };
-
   updateTriggeredItemViewIndex = (rowIndex: number) => {
     this.props.updateWidgetMetaProperty("triggeredItemIndex", rowIndex);
   };
@@ -765,18 +745,56 @@ class ListWidget extends BaseWidget<
     this.context?.deleteWidgetProperty?.(widgetId, propertyPaths);
   };
 
+  shouldDisableNextPage = () => {
+    const { listData, serverSidePagination } = this.props;
+
+    return Boolean(serverSidePagination && !listData?.length);
+  };
+
+  renderPaginationUI = () => {
+    const { isLoading, pageNo, serverSidePagination } = this.props;
+    const disableNextPage = this.shouldDisableNextPage();
+    return (
+      this.shouldPaginate() &&
+      (serverSidePagination ? (
+        <ServerSideListPagination
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          disableNextPage={disableNextPage}
+          disabled={false && this.props.renderMode === RenderModes.CANVAS}
+          isLoading={isLoading}
+          nextPageClick={() => this.onPageChange(pageNo + 1)}
+          pageNo={this.props.pageNo}
+          prevPageClick={() => this.onPageChange(pageNo - 1)}
+        />
+      ) : (
+        <ListPagination
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          disabled={false && this.props.renderMode === RenderModes.CANVAS}
+          isLoading={isLoading}
+          onChange={this.onPageChange}
+          pageNo={this.props.pageNo}
+          pageSize={this.pageSize}
+          total={(this.props.listData || []).length}
+        />
+      ))
+    );
+  };
+
   getPageView() {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const {
-      pageNo,
+      isLoading,
       parentColumnSpace,
       parentRowSpace,
       selectedItemIndex,
-      serverSidePagination,
     } = this.props;
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
 
-    if (this.props.isLoading) {
+    if (isLoading) {
       return (
         <Loader
           itemSpacing={this.props.itemSpacing}
@@ -791,7 +809,12 @@ class ListWidget extends BaseWidget<
       this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
-      return <ListComponentEmpty>No data to display</ListComponentEmpty>;
+      return (
+        <>
+          <ListComponentEmpty>No data to display</ListComponentEmpty>
+          {this.renderPaginationUI()}
+        </>
+      );
     }
 
     if (isNaN(templateHeight) || templateHeight > componentHeight - 45) {
@@ -823,25 +846,7 @@ class ListWidget extends BaseWidget<
             selectedItemIndex,
           })}
         </MetaWidgetContextProvider>
-        {this.shouldPaginate() &&
-          (serverSidePagination ? (
-            <ServerSideListPagination
-              nextPageClick={() => this.onPageChange(pageNo + 1)}
-              pageNo={this.props.pageNo}
-              prevPageClick={() => this.onPageChange(pageNo - 1)}
-            />
-          ) : (
-            <ListPagination
-              accentColor={this.props.accentColor}
-              borderRadius={this.props.borderRadius}
-              boxShadow={this.props.boxShadow}
-              disabled={false && this.props.renderMode === RenderModes.CANVAS}
-              onChange={this.onPageChange}
-              pageNo={this.props.pageNo}
-              pageSize={this.pageSize}
-              total={(this.props.listData || []).length}
-            />
-          ))}
+        {this.renderPaginationUI()}
       </ListComponent>
     );
   }
@@ -870,7 +875,6 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   mainCanvasId?: string;
   mainContainerId?: string;
   onRowClick?: string;
-  onPageSizeChange?: string;
   pageNo: number;
   pageSize: number;
   prefixMetaWidgetId?: string;
