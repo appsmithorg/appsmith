@@ -238,10 +238,12 @@ class JSONFormWidget extends BaseWidget<
     ) {
       this.state.resetObserverCallback(this.props.schema);
     }
+
     if (prevProps.useSourceData !== this.props.useSourceData) {
-      const { formData, sourceData } = this.props;
-      this.updateFormData(formData, isEmpty(formData) && isEmpty(sourceData));
+      const { formData } = this.props;
+      this.updateFormData(formData);
     }
+
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
