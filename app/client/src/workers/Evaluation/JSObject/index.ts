@@ -4,7 +4,7 @@ import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import evaluateSync, { isFunctionAsync } from "workers/Evaluation/evaluate";
+import evaluateSync from "workers/Evaluation/evaluate";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -15,6 +15,7 @@ import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
+import { functionDeterminer } from "../functionDeterminer";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -246,16 +247,19 @@ export function parseJSActions(
     });
   }
 
+  functionDeterminer.setupEval(
+    unEvalDataTree,
+    dataTreeEvalRef.resolvedFunctions,
+  );
+
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
     if (!parsedBody) return;
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
-        isAsync: isFunctionAsync(
+        isAsync: functionDeterminer.isFunctionAsync(
           action.parsedFunction,
-          unEvalDataTree,
-          dataTreeEvalRef.resolvedFunctions,
           dataTreeEvalRef.logs,
         ),
         // parsedFunction - used only to determine if function is async
@@ -263,6 +267,9 @@ export function parseJSActions(
       } as ParsedJSSubAction;
     });
   });
+
+  functionDeterminer.setOffEval();
+
   return { jsUpdates };
 }
 

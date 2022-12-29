@@ -55,7 +55,7 @@ describe("Theme validation usecases", function() {
     cy.shadowMouseover(1, "S");
     cy.shadowMouseover(2, "M");
     cy.shadowMouseover(3, "L");
-    cy.xpath(themelocator.shadow)
+    cy.get(themelocator.shadow)
       .eq(3)
       .click({ force: true });
     cy.wait("@updateTheme").should(

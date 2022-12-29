@@ -45,7 +45,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
         expect(tabValue).to.be.equal("5");
       });
       cy.get(homePage.shareApp).click();
-      cy.enablePublicAccess();
+      cy.enablePublicAccess(true);
       cy.wait(3000);
       cy.PublishtheApp();
       cy.wait(3000);

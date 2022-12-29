@@ -1,16 +1,19 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import _, { set } from "lodash";
 import {
   ActionDescription,
+  ActionTriggerFunctionNames,
   ActionTriggerType,
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
-import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
+import { EvalContext } from "workers/Evaluation/evaluate";
+import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
+
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -37,14 +40,9 @@ type ActionDispatcherWithExecutionType = (
   ...args: any[]
 ) => ActionDescriptionWithExecutionType;
 
-export const DATA_TREE_FUNCTIONS: Record<
+export const PLATFORM_FUNCTIONS: Record<
   string,
-  | ActionDispatcherWithExecutionType
-  | {
-      qualifier: (entity: DataTreeEntity) => boolean;
-      func: (entity: DataTreeEntity) => ActionDispatcherWithExecutionType;
-      path?: string;
-    }
+  ActionDispatcherWithExecutionType
 > = {
   navigateTo: function(
     pageNameOrUrl: string,
@@ -136,6 +134,51 @@ export const DATA_TREE_FUNCTIONS: Record<
       executionType: ExecutionType.PROMISE,
     };
   },
+  setInterval: function(callback: Function, interval: number, id?: string) {
+    return {
+      type: ActionTriggerType.SET_INTERVAL,
+      payload: {
+        callback: callback?.toString(),
+        interval,
+        id,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
+  clearInterval: function(id: string) {
+    return {
+      type: ActionTriggerType.CLEAR_INTERVAL,
+      payload: {
+        id,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
+  postWindowMessage: function(
+    message: unknown,
+    source: string,
+    targetOrigin: string,
+  ) {
+    return {
+      type: ActionTriggerType.POST_MESSAGE,
+      payload: {
+        message,
+        source,
+        targetOrigin,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
+};
+
+const ENTITY_FUNCTIONS: Record<
+  string,
+  {
+    qualifier: (entity: DataTreeEntity) => boolean;
+    func: (entity: DataTreeEntity) => ActionDispatcherWithExecutionType;
+    path?: string;
+  }
+> = {
   run: {
     qualifier: (entity) => isAction(entity),
     func: (entity) =>
@@ -189,26 +232,6 @@ export const DATA_TREE_FUNCTIONS: Record<
           executionType: ExecutionType.PROMISE,
         };
       },
-  },
-  setInterval: function(callback: Function, interval: number, id?: string) {
-    return {
-      type: ActionTriggerType.SET_INTERVAL,
-      payload: {
-        callback: callback.toString(),
-        interval,
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-  clearInterval: function(id: string) {
-    return {
-      type: ActionTriggerType.CLEAR_INTERVAL,
-      payload: {
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
   },
   getGeoLocation: {
     qualifier: (entity) => isAppsmithEntity(entity),
@@ -281,70 +304,86 @@ export const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
-  postWindowMessage: function(
-    message: unknown,
-    source: string,
-    targetOrigin: string,
-  ) {
-    return {
-      type: ActionTriggerType.POST_MESSAGE,
-      payload: {
-        message,
-        source,
-        targetOrigin,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
 };
 
-export const enhanceDataTreeWithFunctions = (
-  dataTree: Readonly<DataTree>,
-  // Whether not to add functions like "run", "clear" to entity
-  skipEntityFunctions = false,
-  eventType?: EventType,
-): DataTree => {
-  const clonedDT = klona(dataTree);
+const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
+const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
+/**
+ * This method returns new dataTree with entity function and platform function
+ */
+export const addDataTreeToContext = (args: {
+  EVAL_CONTEXT: EvalContext;
+  dataTree: Readonly<DataTree>;
+  skipEntityFunctions?: boolean;
+  eventType?: EventType;
+  isTriggerBased: boolean;
+}) => {
+  const {
+    dataTree,
+    EVAL_CONTEXT,
+    eventType,
+    isTriggerBased,
+    skipEntityFunctions = false,
+  } = args;
+  const dataTreeEntries = Object.entries(dataTree);
+  const entityFunctionCollection: Record<string, Record<string, Function>> = {};
+
   self.TRIGGER_COLLECTOR = [];
-  Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
-    if (
-      typeof funcOrFuncCreator === "object" &&
-      "qualifier" in funcOrFuncCreator
-    ) {
-      !skipEntityFunctions &&
-        Object.entries(dataTree).forEach(([entityName, entity]) => {
-          if (funcOrFuncCreator.qualifier(entity)) {
-            const func = funcOrFuncCreator.func(entity);
-            const funcName = `${funcOrFuncCreator.path ||
-              `${entityName}.${name}`}`;
-            _.set(
-              clonedDT,
-              funcName,
-              pusher.bind(
-                {
-                  TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-                  EVENT_TYPE: eventType,
-                },
-                func,
-              ),
-            );
-          }
-        });
-    } else {
-      _.set(
-        clonedDT,
-        name,
+
+  for (const [entityName, entity] of dataTreeEntries) {
+    EVAL_CONTEXT[entityName] = entity;
+    if (skipEntityFunctions || !isTriggerBased) continue;
+
+    for (const [functionName, funcCreator] of entityFunctionEntries) {
+      if (!funcCreator.qualifier(entity)) continue;
+      const func = funcCreator.func(entity);
+      const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
+      set(
+        entityFunctionCollection,
+        fullPath,
         pusher.bind(
           {
-            TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+            EVENT_TYPE: eventType,
           },
-          funcOrFuncCreator,
+          func,
         ),
       );
     }
-  });
+  }
 
-  return clonedDT;
+  // if eval is not trigger based i.e., sync eval then we skip adding entity and platform function to evalContext
+  if (!isTriggerBased) return;
+
+  for (const [entityName, funcObj] of Object.entries(
+    entityFunctionCollection,
+  )) {
+    EVAL_CONTEXT[entityName] = Object.assign({}, dataTree[entityName], funcObj);
+  }
+};
+
+export const addPlatformFunctionsToEvalContext = (context: any) => {
+  for (const [funcName, fn] of platformFunctionEntries) {
+    context[funcName] = pusher.bind({}, fn);
+  }
+};
+
+export const getAllAsyncFunctions = (dataTree: DataTree) => {
+  const asyncFunctionNameMap: Record<string, true> = {};
+  const dataTreeEntries = Object.entries(dataTree);
+
+  for (const [entityName, entity] of dataTreeEntries) {
+    for (const [functionName, funcCreator] of entityFunctionEntries) {
+      if (!funcCreator.qualifier(entity)) continue;
+      const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
+      asyncFunctionNameMap[fullPath] = true;
+    }
+  }
+
+  for (const [name] of platformFunctionEntries) {
+    asyncFunctionNameMap[name] = true;
+  }
+
+  return asyncFunctionNameMap;
 };
 
 /**
@@ -363,13 +402,17 @@ export const enhanceDataTreeWithFunctions = (
  * **/
 export const pusher = function(
   this: {
-    TRIGGER_COLLECTOR: ActionDescription[];
     EVENT_TYPE?: EventType;
   },
   action: ActionDispatcherWithExecutionType,
   ...args: any[]
 ) {
   const actionDescription = action(...args);
+  if (!self.ALLOW_ASYNC) {
+    self.IS_ASYNC = true;
+    const actionName = ActionTriggerFunctionNames[actionDescription.type];
+    throw new ActionCalledInSyncFieldError(actionName);
+  }
   const { executionType, payload, type } = actionDescription;
   const actionPayload = {
     type,
@@ -377,7 +420,7 @@ export const pusher = function(
   } as ActionDescription;
 
   if (executionType && executionType === ExecutionType.TRIGGER) {
-    this.TRIGGER_COLLECTOR.push(actionPayload);
+    self.TRIGGER_COLLECTOR.push(actionPayload);
   } else {
     return promisifyAction(actionPayload, this.EVENT_TYPE);
   }
