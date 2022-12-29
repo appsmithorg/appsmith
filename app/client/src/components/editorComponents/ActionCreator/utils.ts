@@ -11,6 +11,7 @@ import {
   setCallbackFunctionField,
   getFuncExpressionAtPosition,
 } from "@shared/ast";
+import { Toaster, Variant } from "design-system";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -59,7 +60,12 @@ export const modalSetter = (changeValue: any, currentValue: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = stringToJS(currentValue);
-  return setModalName(requiredValue, changeValue, self.evaluationVersion);
+  try {
+    return setModalName(requiredValue, changeValue, self.evaluationVersion);
+  } catch (e) {
+    showError();
+    throw e;
+  }
 };
 
 export const modalGetter = (value: string) => {
@@ -86,22 +92,33 @@ export const textSetter = (
       requiredChangeValue = JSON.parse(changeValueWithoutBraces);
     } catch (e) {
       // code
-      return (
-        setCallbackFunctionField(
-          requiredValue,
-          changeValueWithoutBraces,
-          argNum,
-          self.evaluationVersion,
-        ) || currentValue
-      );
+      try {
+        return (
+          setCallbackFunctionField(
+            requiredValue,
+            changeValueWithoutBraces,
+            argNum,
+            self.evaluationVersion,
+          ) || currentValue
+        );
+      } catch (e) {
+        showError();
+        throw e;
+      }
     }
   }
-  return setTextArgumentAtPosition(
-    requiredValue,
-    requiredChangeValue,
-    argNum,
-    self.evaluationVersion,
-  );
+
+  try {
+    return setTextArgumentAtPosition(
+      requiredValue,
+      requiredChangeValue,
+      argNum,
+      self.evaluationVersion,
+    );
+  } catch (e) {
+    showError();
+    throw e;
+  }
 };
 
 export const textGetter = (value: string, argNum: number): string => {
@@ -123,12 +140,17 @@ export const enumTypeSetter = (
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
-  return setEnumArgumentAtPosition(
-    requiredValue,
-    changeValue,
-    argNum,
-    self.evaluationVersion,
-  );
+  try {
+    return setEnumArgumentAtPosition(
+      requiredValue,
+      changeValue,
+      argNum,
+      self.evaluationVersion,
+    );
+  } catch (e) {
+    showError();
+    throw e;
+  }
 };
 
 export const enumTypeGetter = (
@@ -154,14 +176,19 @@ export const callBackFieldSetter = (
 ): string => {
   const requiredValue = stringToJS(currentValue);
   const requiredChangeValue = stringToJS(changeValue);
-  return (
-    setCallbackFunctionField(
-      requiredValue,
-      requiredChangeValue,
-      argNum,
-      self.evaluationVersion,
-    ) || currentValue
-  );
+  try {
+    return (
+      setCallbackFunctionField(
+        requiredValue,
+        requiredChangeValue,
+        argNum,
+        self.evaluationVersion,
+      ) || currentValue
+    );
+  } catch (e) {
+    showError();
+    throw e;
+  }
 };
 
 export const callBackFieldGetter = (value: string) => {
@@ -189,4 +216,12 @@ export const isValueValidURL = (value: string) => {
     const str = value.substring(indices[0], indices[1] + 1);
     return isValidURL(str);
   }
+};
+
+export const showError = () => {
+  Toaster.show({
+    text:
+      "This is invalid JS which cannot be parsed. Please enter valid Javascript in the field and try again!",
+    variant: Variant.danger,
+  });
 };

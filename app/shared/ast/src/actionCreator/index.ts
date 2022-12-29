@@ -66,7 +66,7 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
         });
         ast = klona(__ast);
     } catch (error) {
-        return changedValue;
+        throw error;
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
@@ -115,7 +115,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
             onComment: changedValueCommentArray,
         });
     } catch (error) {
-        return changedValue;
+        throw error;
     }
     const changeValueAstWithComments = klona(attachCommentsToAst(changeValueAst, changedValueCommentArray));
     const currentValueAstWithComments = klona(attachCommentsToAst(ast, currentValueCommentArray));
@@ -195,7 +195,7 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
         });
         ast = klona(__ast);
     } catch (error) {
-        return changedValue;
+        throw error;
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
@@ -266,7 +266,7 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
         });
         ast = klona(__ast);
     } catch (error) {
-        return changedValue;
+        throw error;
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
@@ -380,7 +380,7 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
             onComment: changeActionCommentArray,
         });
     } catch (error) {
-        return requiredQuery;
+        throw error;
     }
     const astWithComments = klona(attachCommentsToAst(ast, commentArray));
     const changeActionAstWithComments = klona(attachCommentsToAst(changeActionAst, changeActionCommentArray));
