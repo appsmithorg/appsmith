@@ -10,6 +10,7 @@ import DraggablePageList from "./DraggablePageList";
 import PageSettings from "./PageSettings";
 import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
 import {
+  APP_NAVIGATION_SETTING,
   createMessage,
   GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER,
@@ -23,11 +24,13 @@ import {
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
+import NavigationSettings from "./NavigationSettings";
 
 export enum AppSettingsTabs {
   General,
   Embed,
   Theme,
+  Navigation,
   Page,
 }
 
@@ -107,6 +110,16 @@ function AppSettings() {
       },
       subText: createMessage(THEME_SETTINGS_SECTION_HEADER_DESC),
     },
+    {
+      id: "t--navigation-settings-header",
+      icon: "hamburger",
+      isSelected: selectedTab.type === AppSettingsTabs.Navigation,
+      name: createMessage(APP_NAVIGATION_SETTING.sectionHeader),
+      onClick: () => {
+        setSelectedTab({ type: AppSettingsTabs.Navigation });
+      },
+      subText: createMessage(APP_NAVIGATION_SETTING.sectionHeaderDesc),
+    },
   ];
 
   return (
@@ -172,6 +185,8 @@ function AppSettings() {
               );
             case AppSettingsTabs.Embed:
               return <EmbedSettings />;
+            case AppSettingsTabs.Navigation:
+              return <NavigationSettings />;
           }
         })()}
       </SectionContent>

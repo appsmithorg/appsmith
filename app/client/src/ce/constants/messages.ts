@@ -1434,6 +1434,21 @@ export const IN_APP_EMBED_SETTING = {
   showNavigationBar: () => "Show navigation bar",
 };
 
+export const APP_NAVIGATION_SETTING = {
+  sectionHeader: () => "Navigation",
+  sectionHeaderDesc: () => "Customize the navigation bar",
+  showNavbarLabel: () => "Show Navbar",
+  orientationLabel: () => "Orientation",
+  navStyleLabel: () => "Nav Style",
+  positionLabel: () => "Position",
+  itemStyleLabel: () => "Item Style",
+  colorStyleLabel: () => "Color Style",
+  logoLabel: () => "Logo",
+  logoConfigurationLabel: () => "Logo Configuration",
+  showSignInLabel: () => "Show Sign In",
+  showShareAppLabel: () => "Show Share App",
+};
+
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "GENERATE NEW PAGE";
