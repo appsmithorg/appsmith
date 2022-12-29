@@ -112,6 +112,7 @@ function calculateWidgetPositions(
   );
 }
 
+// TODO: Preet - abstract this method to use a single function for all usecases.
 function placeWidgetsWithoutWrap(
   allWidgets: CanvasWidgetsReduxState,
   arr: AlignmentInfo[],

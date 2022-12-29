@@ -15,7 +15,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { getLeftColumn, getRightColumn } from "./positionUtils";
 
 const HORIZONTAL_HIGHLIGHT_MARGIN = 4;
-
+// TODO: Preet - update logic to account for flex wrap on mobile.
 /**
  * @param allWidgets : CanvasWidgetsReduxState
  * @param canvasId : string
