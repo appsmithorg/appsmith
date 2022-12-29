@@ -10,6 +10,10 @@ import IconButtonComponent from "../component";
 import { IconNames } from "@blueprintjs/icons";
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
+import { AppState } from "ce/reducers";
+import { connect } from "react-redux";
+import { LanguageEnums } from "entities/App";
+import { translate } from "utils/translate";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -24,9 +28,13 @@ export interface IconButtonWidgetProps extends WidgetProps {
   isDisabled: boolean;
   isVisible: boolean;
   onClick?: string;
+  translationJp?: string;
+  lang?: LanguageEnums;
 }
 
 class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
+  static defaultProps: Partial<IconButtonWidgetProps> | undefined;
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -69,6 +77,16 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             label: "Tooltip",
             controlType: "INPUT_TEXT",
             placeholderText: "Add Input Field",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "translationJp",
+            label: "Translation JP",
+            helpText: "Sets the translation of the button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter translation for JP",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -220,8 +238,10 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       isVisible,
       tooltip,
       widgetId,
+      lang,
+      translationJp,
     } = this.props;
-
+    const tooltipStr = translate(lang, tooltip, translationJp);
     return (
       <IconButtonComponent
         borderRadius={borderRadius}
@@ -237,7 +257,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         isVisible={isVisible}
         onClick={this.handleClick}
         renderMode={this.props.renderMode}
-        tooltip={tooltip}
+        tooltip={tooltipStr}
         widgetId={widgetId}
         width={
           (this.props.rightColumn - this.props.leftColumn) *
@@ -266,4 +286,10 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
   };
 }
 
-export default IconButtonWidget;
+const mapStateToProps = (state: AppState) => {
+  return {
+    lang: state.ui.appView.lang,
+  };
+};
+
+export default connect(mapStateToProps, null)(IconButtonWidget);

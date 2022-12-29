@@ -42,6 +42,9 @@ import {
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
 import { ThemeProp } from "widgets/constants";
+import { getLang } from "selectors/appViewSelectors";
+import { translate } from "utils/translate";
+import { useSelector } from "react-redux";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -194,10 +197,14 @@ export type ButtonStyleProps = {
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
+  translation?: string;
 };
 
+interface ICustomButtonProps extends Omit<IButtonProps, "text"> {
+  text?: string;
+}
 // To be used in any other part of the app
-export function BaseButton(props: IButtonProps & ButtonStyleProps) {
+export function BaseButton(props: ICustomButtonProps & ButtonStyleProps) {
   const {
     borderRadius,
     boxShadow,
@@ -213,8 +220,10 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     onClick,
     placement,
     rightIcon,
-    text,
+    text = "",
+    translation = "",
   } = props;
+  const lang = useSelector(getLang);
 
   const isRightAlign = iconAlign === Alignment.RIGHT;
 
@@ -243,7 +252,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         onClick={onClick}
         placement={placement}
         rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
-        text={text}
+        text={translate(lang, text, translation)}
       />
     </DragContainer>
   );
@@ -272,6 +281,7 @@ interface RecaptchaProps {
 
 interface ButtonComponentProps extends ComponentProps {
   text?: string;
+  translation?: string;
   icon?: IconName | MaybeElement;
   tooltip?: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
@@ -474,6 +484,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         placement={props.placement}
         rightIcon={props.rightIcon}
         text={props.text}
+        translation={props.translation}
         type={props.type}
       />
     </BtnWrapper>
