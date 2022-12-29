@@ -255,7 +255,6 @@ export default function evaluateSync(
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
-    const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
     if (!skipLogsOperations) {
@@ -267,7 +266,6 @@ export default function evaluateSync(
       resolvedFunctions,
       context,
       evalArguments,
-      JSFunctionProxy,
       isTriggerBased: isJSCollection,
     });
 
@@ -311,7 +309,6 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      setEvaluationEnd(true);
       if (!skipLogsOperations) logs = userLogs.flushLogs();
       for (const entityName in evalContext) {
         if (evalContext.hasOwnProperty(entityName)) {
