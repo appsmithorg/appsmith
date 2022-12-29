@@ -23,7 +23,7 @@ public class JsonObjectType implements AppsmithType {
 
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
-    private static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     @Override

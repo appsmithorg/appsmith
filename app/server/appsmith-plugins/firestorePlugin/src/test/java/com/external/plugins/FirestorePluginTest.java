@@ -502,7 +502,7 @@ public class FirestorePluginTest {
     }
 
     private ActionConfiguration constructActionConfiguration(Map<String, Object> first, Map<String, Object> last) {
-        final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        final ObjectMapper objectMapper = new ObjectMapper();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();

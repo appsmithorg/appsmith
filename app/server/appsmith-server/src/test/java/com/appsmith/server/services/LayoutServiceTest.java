@@ -1206,7 +1206,7 @@ public class LayoutServiceTest {
                 .create(testMono)
                 .expectErrorMatches(throwable -> {
                     assertThat(throwable).isInstanceOf(AppsmithException.class);
-                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     Object oldParent = null;
                     try {
                         oldParent = objectMapper.readTree("{\"widgetName\":\"testWidget\",\"dynamicBindingPathList\":[{\"key\":\"dynamicGet_IncorrectKey\"}],\"widgetId\":\"id\",\"another\":\"Hello people of the {{input1.text}} planet!\",\"dynamicGet\":\"some dynamic {{aGetAction.data}}\",\"type\":\"test_type\",\"key\":\"value-updated\"}");

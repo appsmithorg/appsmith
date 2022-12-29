@@ -999,7 +999,7 @@ public class GitServiceTest {
                     branchedResources.setBranchName("testBranch");
                     action.setDefaultResources(branchedResources);
 
-                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     JSONObject parentDsl = null;
                     try {
                         parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
@@ -1986,7 +1986,7 @@ public class GitServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     JSONObject parentDsl = null;
                     try {
                         parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {

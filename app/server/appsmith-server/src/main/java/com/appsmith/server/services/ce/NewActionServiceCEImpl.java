@@ -199,7 +199,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
         this.permissionGroupService = permissionGroupService;
-        this.objectMapper = SerializationUtils.getDefaultObjectMapper();
+        this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
         this.configService = configService;
         this.datasourcePermission = datasourcePermission;

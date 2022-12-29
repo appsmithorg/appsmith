@@ -234,7 +234,7 @@ public class ApplicationForkingServiceTests {
 
         layoutCollectionService.createCollection(actionCollectionDTO).block();
 
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
         }));
         ArrayList children = (ArrayList) parentDsl.get("children");

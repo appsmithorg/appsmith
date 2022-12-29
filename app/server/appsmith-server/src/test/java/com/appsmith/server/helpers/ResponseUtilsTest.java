@@ -35,7 +35,7 @@ public class ResponseUtilsTest {
     ResponseUtils responseUtils;
 
     private static final File mockObjects = new File("src/test/resources/test_assets/ResponseUtilsTest/mockObjects.json");
-    private static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static JsonNode jsonNode;
     Gson gson = new Gson();
 

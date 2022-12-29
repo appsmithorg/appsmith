@@ -142,7 +142,7 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @ChangeLog(order = "001")
 public class DatabaseChangelog1 {
 
-    public static ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    public static ObjectMapper objectMapper = new ObjectMapper();
     private static final String AGGREGATE_LIMIT = "aggregate.limit";
     private static final Object DEFAULT_BATCH_SIZE = "101";
     public static final String FIRESTORE_PLUGIN_NAME = "firestore-plugin";

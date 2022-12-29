@@ -24,7 +24,7 @@ public class FileInfoMethodTest {
 
     @BeforeEach
     public void setUp() {
-        this.objectMapper = SerializationUtils.getDefaultObjectMapper();
+        this.objectMapper = new ObjectMapper();
     }
 
     @Test

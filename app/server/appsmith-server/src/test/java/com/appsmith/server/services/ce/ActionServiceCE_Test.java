@@ -1748,7 +1748,7 @@ public class ActionServiceCE_Test {
                 "    \"y\": 36000\n" +
                 "  }\n" +
                 "]}";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1861,7 +1861,7 @@ public class ActionServiceCE_Test {
                 "\t\t\t]\n" +
                 "\t}\n" +
                 "]}";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -1967,7 +1967,7 @@ public class ActionServiceCE_Test {
                 "        \"height\": 200\n" +
                 "    }\n" +
                 "]}";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -2029,7 +2029,7 @@ public class ActionServiceCE_Test {
                 "     \"carID\": \"ford123\"\n" +
                 "       }\n" +
                 "  ]}";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -2073,7 +2073,7 @@ public class ActionServiceCE_Test {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[\"string1\", \"string2\", \"string3\", \"string4\"] }";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -2117,7 +2117,7 @@ public class ActionServiceCE_Test {
         final String data = "{ \"data\":[[\"string1\", \"string2\", \"string3\", \"string4\"]," +
                 "[\"string5\", \"string6\", \"string7\", \"string8\"]," +
                 "[\"string9\", \"string10\", \"string11\", \"string12\"]] }";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -2160,7 +2160,7 @@ public class ActionServiceCE_Test {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[] }";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -2201,7 +2201,7 @@ public class ActionServiceCE_Test {
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [1] }";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -2270,7 +2270,7 @@ public class ActionServiceCE_Test {
                 "        }\n" +
                 "    ]\n" +
                 "}}";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -2325,7 +2325,7 @@ public class ActionServiceCE_Test {
                 "            \"createdAt\": \"2020-03-16T18:00:05.000Z\",\n" +
                 "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n" +
                 "        } }";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -2388,7 +2388,7 @@ public class ActionServiceCE_Test {
                 "            \"createdAt\": \"2019-10-04T03:22:23.000Z\",\n" +
                 "            \"updatedAt\": \"2019-09-11T20:18:38.000Z\"\n" +
                 "        } }";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data);
+        final JsonNode arrNode = new ObjectMapper().readTree(data);
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -2434,7 +2434,7 @@ public class ActionServiceCE_Test {
                 "    \"previous\": null,\n" +
                 "    \"users\": [1, 2, 3]\n" +
                 "}}";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);
@@ -2481,7 +2481,7 @@ public class ActionServiceCE_Test {
                 "    \"previous\": null,\n" +
                 "    \"users\": []\n" +
                 "}}";
-        final JsonNode arrNode = SerializationUtils.getDefaultObjectMapper().readTree(data).get("data");
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
         ;
 
         mockResult.setIsExecutionSuccess(true);

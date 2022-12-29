@@ -7,7 +7,7 @@ import org.pf4j.PluginWrapper;
 
 public abstract class BasePlugin extends Plugin {
 
-    protected static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    protected static final ObjectMapper objectMapper = new ObjectMapper();
 
     public BasePlugin(PluginWrapper wrapper) {
         super(wrapper);

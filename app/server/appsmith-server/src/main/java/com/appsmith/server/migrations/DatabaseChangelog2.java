@@ -136,7 +136,7 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @ChangeLog(order = "002")
 public class DatabaseChangelog2 {
 
-    private static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?[^\"]*");
 

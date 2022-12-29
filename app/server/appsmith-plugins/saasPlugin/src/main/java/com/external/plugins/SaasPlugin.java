@@ -12,10 +12,11 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
-import com.appsmith.util.SerializationUtils;
 import com.appsmith.util.WebClientUtils;
 import com.external.helpers.RequestCaptureFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.pf4j.Extension;
@@ -57,11 +58,13 @@ public class SaasPlugin extends BasePlugin {
         // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
         // `WebClient` instance was loaded as an auto-wired bean.
         private final ExchangeStrategies EXCHANGE_STRATEGIES;
-        private final ObjectMapper saasObjectMapper = SerializationUtils.getDefaultObjectMapper();
+        private final ObjectMapper saasObjectMapper = new ObjectMapper();
 
         public SaasPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;
             saasObjectMapper.disable(MapperFeature.USE_ANNOTATIONS);
+            saasObjectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            saasObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             this.EXCHANGE_STRATEGIES = ExchangeStrategies
                     .builder()
                     .codecs(clientDefaultCodecsConfigurer -> {

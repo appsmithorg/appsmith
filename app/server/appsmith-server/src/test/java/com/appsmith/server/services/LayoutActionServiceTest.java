@@ -135,7 +135,7 @@ public class LayoutActionServiceTest {
 
     Datasource jsDatasource;
 
-    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper();
 
     Plugin installed_plugin;
 

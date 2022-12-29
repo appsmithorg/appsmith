@@ -418,7 +418,7 @@ public class ImportExportApplicationServiceV2Tests {
                     PageDTO testPage = tuple.getT2();
 
                     Layout layout = testPage.getLayouts().get(0);
-                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     JSONObject dsl = new JSONObject();
                     try {
                         dsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
@@ -2205,7 +2205,7 @@ public class ImportExportApplicationServiceV2Tests {
                     PageDTO testPage = tuple.getT2();
 
                     Layout layout = testPage.getLayouts().get(0);
-                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     JSONObject dsl = new JSONObject();
                     try {
                         dsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {

@@ -148,7 +148,7 @@ public class MongoPluginQueriesTest {
                      * Note: when the codec is removed from the MongoDBPlugin, this is found failing
                      */
                     try {
-                        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
+                        ObjectMapper mapper = new ObjectMapper();
                         String expectedOutputJsonString = "{\"$db\":\"test\",\"$ref\":\"users\",\"$id\":\"1\"}";
                         JsonNode outputNode = mapper.readTree(expectedOutputJsonString);
                         assertEquals(outputNode, (((ArrayNode) result.getBody()).findValue("user")));

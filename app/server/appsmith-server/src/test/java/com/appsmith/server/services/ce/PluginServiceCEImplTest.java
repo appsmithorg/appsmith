@@ -61,7 +61,7 @@ public class PluginServiceCEImplTest {
 
     @BeforeEach
     public void setUp() {
-        objectMapper = SerializationUtils.getDefaultObjectMapper();
+        objectMapper = new ObjectMapper();
         pluginService = new PluginServiceCEImpl(
                 scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 repository, analyticsService, workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);

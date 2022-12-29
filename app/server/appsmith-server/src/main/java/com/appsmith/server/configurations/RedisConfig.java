@@ -157,7 +157,7 @@ public class RedisConfig {
 
                 final Map<String, OAuth2AuthorizedClient> sessionData = new HashMap<>();
                 for (final Map.Entry<String, Map<?, ?>> entry : clientData.entrySet()) {
-                    final OAuth2AuthorizedClientDTO dto = SerializationUtils.getDefaultObjectMapper()
+                    final OAuth2AuthorizedClientDTO dto = new ObjectMapper()
                             .convertValue(entry.getValue(), OAuth2AuthorizedClientDTO.class);
                     sessionData.put(entry.getKey(), dto.makeOAuth2AuthorizedClient());
                 }

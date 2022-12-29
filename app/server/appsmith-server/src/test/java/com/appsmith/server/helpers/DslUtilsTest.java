@@ -47,7 +47,7 @@ class DslUtilsTest {
                 "  } " +
                 "}";
 
-        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         JsonNode dsl = mapper.readTree(jsonString);
 
         Set<MustacheBindingToken> tokens = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(dsl, fieldPath);
@@ -59,7 +59,7 @@ class DslUtilsTest {
 
     @Test
     void replaceValuesInSpecificDynamicBindingPath_whenFieldPathNotFound() {
-        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         ObjectNode dsl = mapper.createObjectNode();
         dsl.put("fieldKey", "fieldValue");
         JsonNode replacedDsl = DslUtils.replaceValuesInSpecificDynamicBindingPath(dsl, "nonExistentPath", new HashMap<>());
@@ -68,7 +68,7 @@ class DslUtilsTest {
 
     @Test
     void replaceValuesInSpecificDynamicBindingPath_whenReplacementKeyNotFound() {
-        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         ObjectNode dsl = mapper.createObjectNode();
         dsl.put("existingPath", "fieldValue");
         HashMap<MustacheBindingToken, String> replacementMap = new HashMap<>();
@@ -81,7 +81,7 @@ class DslUtilsTest {
 
     @Test
     void replaceValuesInSpecificDynamicBindingPath_withSuccessfulMultipleReplacements() {
-        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         ObjectNode dsl = mapper.createObjectNode();
         dsl.put("existingPath", "oldFieldValue1 oldFieldValue2");
         HashMap<MustacheBindingToken, String> replacementMap = new HashMap<>();

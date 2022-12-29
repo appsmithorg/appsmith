@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 public class ApplicationTemplateServiceTest {
     ApplicationTemplateService applicationTemplateService;
-    private static ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @MockBean
     private UserDataService userDataService;

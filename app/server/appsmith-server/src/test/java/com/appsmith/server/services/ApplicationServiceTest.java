@@ -1576,7 +1576,7 @@ public class ApplicationServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(testDatasource);
 
-                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     JSONObject parentDsl = null;
                     try {
                         parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
@@ -1935,7 +1935,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setActions(List.of(action1, action2));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
-                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     JSONObject parentDsl = null;
                     try {
                         parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {

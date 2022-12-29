@@ -286,7 +286,7 @@ public class RedshiftPluginTest {
                                     "created_on",
                                     "created_on_tz",
                             },
-                            SerializationUtils.getDefaultObjectMapper()
+                            new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()

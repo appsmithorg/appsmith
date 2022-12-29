@@ -494,7 +494,7 @@ public class MySqlPluginTest {
                             new String[]{
                                     "user_id"
                             },
-                            SerializationUtils.getDefaultObjectMapper()
+                            new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -717,7 +717,7 @@ public class MySqlPluginTest {
                             new String[]{
                                     "id"
                             },
-                            SerializationUtils.getDefaultObjectMapper()
+                            new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -801,7 +801,7 @@ public class MySqlPluginTest {
                                     "created_on",
                                     "updated_on"
                             },
-                            SerializationUtils.getDefaultObjectMapper()
+                            new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -1321,7 +1321,7 @@ public class MySqlPluginTest {
                                     "company_name",
                                     "open_source"
                             },
-                            SerializationUtils.getDefaultObjectMapper()
+                            new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -1375,7 +1375,7 @@ public class MySqlPluginTest {
                                     "company_name",
                                     "open_source"
                             },
-                            SerializationUtils.getDefaultObjectMapper()
+                            new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -1420,7 +1420,7 @@ public class MySqlPluginTest {
                             new String[]{
                                     "numeric_string"
                             },
-                            SerializationUtils.getDefaultObjectMapper()
+                            new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -1466,7 +1466,7 @@ public class MySqlPluginTest {
                             new String[]{
                                     "id"
                             },
-                            SerializationUtils.getDefaultObjectMapper()
+                            new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());

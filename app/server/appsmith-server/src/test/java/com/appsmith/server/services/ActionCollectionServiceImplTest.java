@@ -212,7 +212,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setPluginId("testPluginId");
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
         Mockito
@@ -254,7 +254,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setDefaultResources(setDefaultResources(actionCollectionDTO));
 
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
 
@@ -327,7 +327,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setDefaultResources(setDefaultResources(actionCollectionDTO));
 
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
 
@@ -423,7 +423,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setDefaultResources(setDefaultResources(actionCollectionDTO));
         actionCollectionDTO.setPageId("testPageId");
 
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
 
@@ -453,7 +453,7 @@ public class ActionCollectionServiceImplTest {
 
     @Test
     public void testUpdateUnpublishedActionCollection_withModifiedCollection_returnsValidCollection() throws IOException {
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
         final ActionCollectionDTO modifiedActionCollectionDTO = objectMapper.convertValue(jsonNode.get("actionCollectionDTOWithModifiedActions"), ActionCollectionDTO.class);
@@ -572,7 +572,7 @@ public class ActionCollectionServiceImplTest {
 
     @Test
     public void testDeleteUnpublishedActionCollection_withPublishedCollectionAndNoActions_returnsActionCollectionDTO() throws IOException {
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
         final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
@@ -607,7 +607,7 @@ public class ActionCollectionServiceImplTest {
 
     @Test
     public void testDeleteUnpublishedActionCollection_withPublishedCollectionAndActions_returnsActionCollectionDTO() throws IOException {
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
@@ -645,7 +645,7 @@ public class ActionCollectionServiceImplTest {
 
     @Test
     public void testDeleteUnpublishedActionCollection_withoutPublishedCollectionAndNoActions_returnsActionCollectionDTO() throws IOException {
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
 
@@ -675,7 +675,7 @@ public class ActionCollectionServiceImplTest {
 
     @Test
     public void testDeleteUnpublishedActionCollection_withoutPublishedCollectionAndWithActions_returnsActionCollectionDTO() throws IOException {
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
         actionCollection.getUnpublishedCollection().setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId1", "testActionId1", "defaultTestActionId2", "testActionId2"));
@@ -957,7 +957,7 @@ public class ActionCollectionServiceImplTest {
         newPageDTO.setId("newPageId");
         newPageDTO.setLayouts(List.of(new Layout()));
 
-        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
         DefaultResources pageDefaultResources = new DefaultResources();

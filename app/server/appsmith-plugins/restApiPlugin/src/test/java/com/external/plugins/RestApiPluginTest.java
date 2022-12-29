@@ -674,7 +674,7 @@ public class RestApiPluginTest {
                     assertNotNull(result.getBody());
                     String resultBody = "{\"password\":\"12/01/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
                     JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     try {
                         JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
                         Object resultData = resultJson.get("json");
@@ -860,7 +860,7 @@ public class RestApiPluginTest {
                     assertNotNull(result.getBody());
                     String resultBody = "{\"name\":\"this is a string with a ? \",\"email\":\"email@email.com\"}";
                     JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+                    ObjectMapper objectMapper = new ObjectMapper();
                     try {
                         JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
                         Object resultData = resultJson.get("json");

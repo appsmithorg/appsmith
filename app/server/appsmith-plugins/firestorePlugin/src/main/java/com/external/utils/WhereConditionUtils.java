@@ -19,7 +19,7 @@ import java.util.List;
 
 public class WhereConditionUtils {
 
-    protected static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    protected static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static Query applyWhereConditional(Query query, String strPath, String operatorString, String strValue) throws AppsmithPluginException {
 

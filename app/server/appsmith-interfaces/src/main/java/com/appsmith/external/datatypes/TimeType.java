@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 
 public class TimeType implements AppsmithType {
 
-    private static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public boolean test(String s) {

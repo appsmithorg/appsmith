@@ -32,7 +32,7 @@ import static com.external.plugins.constants.FieldName.COLLECTION;
 public abstract class MongoCommand {
     String collection;
     List<String> fieldNamesWithNoConfiguration;
-    protected static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
+    protected static final ObjectMapper objectMapper = new ObjectMapper();
 
     public MongoCommand(ActionConfiguration actionConfiguration) {
 
