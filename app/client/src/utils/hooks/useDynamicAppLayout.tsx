@@ -170,6 +170,7 @@ export const useDynamicAppLayout = () => {
     mainCanvasProps,
     screenWidth,
     tabsPaneWidth,
+    paneCount,
   ]);
 
   /**

@@ -110,7 +110,14 @@ export const StickyCanvasArena = forwardRef(
 
     useEffect(() => {
       observeSlider();
-    }, [showCanvas, snapRows, canExtend, snapColSpace, snapRowSpace]);
+    }, [
+      showCanvas,
+      snapRows,
+      canExtend,
+      snapColSpace,
+      snapRowSpace,
+      canvasScale,
+    ]);
 
     useEffect(() => {
       let parentCanvas: Element | null;
