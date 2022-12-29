@@ -3,6 +3,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
