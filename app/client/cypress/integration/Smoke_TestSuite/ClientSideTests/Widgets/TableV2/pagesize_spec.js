@@ -11,13 +11,13 @@ describe("Table widget v2", function() {
     cy.openPropertyPane("tablewidgetv2");
 
     cy.moveToStyleTab();
-    cy.get(".t--button-tab-SHORT").click({ force: true });
+    cy.get(".t--button-group-SHORT").click({ force: true });
     cy.get(".t--widget-textwidget .bp3-ui-text").should("contain", "7");
 
-    cy.get(".t--button-tab-DEFAULT").click({ force: true });
+    cy.get(".t--button-group-DEFAULT").click({ force: true });
     cy.get(".t--widget-textwidget .bp3-ui-text").should("contain", "5");
 
-    cy.get(".t--button-tab-TALL").click({ force: true });
+    cy.get(".t--button-group-TALL").click({ force: true });
     cy.get(".t--widget-textwidget .bp3-ui-text").should("contain", "4");
   });
 });
