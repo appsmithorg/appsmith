@@ -1757,27 +1757,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       case ColumnTypes.DATE:
-        let validationErrorMessageDate;
-
-        if (isCellEditMode) {
-          validationErrorMessageDate =
-            column.validation.isColumnEditableCellRequired &&
-            (isNil(props.cell.value) || props.cell.value === "")
-              ? "This field is required"
-              : column.validation?.errorMessage;
-        }
         return (
           <DateCell
             accentColor={this.props.accentColor}
             alias={props.cell.column.columnProperties.alias}
             animateLoading={props.cell.column.columnProperties.alias}
-            // allowCellWrapping={cellProperties.allowCellWrapping}
             cellBackground={cellProperties.cellBackground}
             closeOnSelection
             columnType={column.columnType}
             compactMode={compactMode}
             convertToISO={false}
-            // dateFormat={cellProperties.dateFormat}
             disabledEditIcon={
               shouldDisableEdit || this.props.isAddRowInProgress
             }
@@ -1805,6 +1794,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onDateSelection={this.onDateSelection}
             onSubmitString={props.cell.column.columnProperties.onSubmit}
             outputFormat={cellProperties.outputFormat}
+            required={
+              props.cell.column.columnProperties.validation
+                .isColumnEditableCellRequired
+            }
             rowIndex={rowIndex}
             shortcuts={props.cell.column.columnProperties.shortcuts}
             tableWidth={this.getComponentDimensions().componentWidth}
@@ -1812,7 +1805,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             timePrecision={props.cell.column.columnProperties.timePrecision}
             toggleCellEditMode={this.toggleCellEditMode}
-            validationErrorMessage={validationErrorMessageDate}
+            validationErrorMessage="This cell is required"
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}

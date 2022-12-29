@@ -141,7 +141,7 @@ describe("Table widget inline editing functionality", () => {
       },
       {
         columnType: "Date",
-        expected: "be.disabled",
+        expected: "not.be.disabled",
       },
       {
         columnType: "Image",
@@ -198,7 +198,7 @@ describe("Table widget inline editing functionality", () => {
       },
       {
         columnType: "Date",
-        expected: "not.exist",
+        expected: "exist",
       },
       {
         columnType: "Image",
@@ -438,7 +438,7 @@ describe("Table widget inline editing functionality", () => {
       },
       {
         columnType: "Date",
-        expected: "not.exist",
+        expected: "exist",
       },
       {
         columnType: "Image",
@@ -492,7 +492,7 @@ describe("Table widget inline editing functionality", () => {
       },
       {
         columnType: "Date",
-        expected: "not.exist",
+        expected: "exist",
       },
       {
         columnType: "Image",

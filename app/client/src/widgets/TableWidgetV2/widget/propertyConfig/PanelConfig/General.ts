@@ -136,17 +136,6 @@ export default {
         return !isColumnTypeEditable(columnType) || isDerived;
       },
     },
-    // {
-    //   propertyName: "animateLoading",
-    //   label: "Animate Loading",
-    //   controlType: "SWITCH",
-    //   helpText: "Controls the loading of the widget",
-    //   defaultValue: true,
-    //   isJSConvertible: true,
-    //   isBindProperty: true,
-    //   isTriggerProperty: false,
-    //   validation: { type: ValidationTypes.BOOLEAN },
-    // },
     {
       propertyName: "shortcuts",
       label: "Show Shortcuts",
@@ -158,9 +147,6 @@ export default {
       validation: { type: ValidationTypes.BOOLEAN },
       dependencies: ["primaryColumns", "columnType"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        // const baseProperty = getBasePropertyPath(propertyPath);
-        // const columnType = get(props, `${baseProperty}.columnType`, "");
-        // return columnType !== "date";
         return hideByColumnType(props, propertyPath, [ColumnTypes.DATE]);
       },
     },

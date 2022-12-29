@@ -1,10 +1,4 @@
-import React, {
-  FocusEventHandler,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   ALIGN_ITEMS,
   VerticalAlignment,
@@ -48,21 +42,13 @@ type DateComponentProps = RenderDefaultPropsType &
     onDateSelection: (rowIndex: number, onDateSelected: string) => void;
     onDateSelectedString: string;
     firstDayOfWeek?: number;
+    required: boolean;
   };
 
 const COMPONENT_DEFAULT_VALUES = {
-  //   closeOnSelection: false,
-  //   convertToISO: false,
-  //   dateFormat: "YYYY-MM-DD HH:mm",
-  //   isDisabled: false,
-  //   isRequired: false,
-  //   isVisible: true,
-  //   label: "",
   maxDate: "2121-12-31T18:29:00.000Z",
   minDate: "1920-12-31T18:30:00.000Z",
-  //   shortcuts: false,
   timePrecision: TimePrecision.MINUTE,
-  //   labelTextSize: THEMEING_TEXT_SIZES.sm,
 };
 
 type editPropertyType = {
@@ -71,7 +57,6 @@ type editPropertyType = {
   rowIndex: number;
 };
 
-// const DEFAULT_PRIMARY_COLOR = Colors.GREEN;
 const DEFAULT_BORDER_RADIUS = "0";
 
 const Container = styled.div<{
@@ -183,7 +168,6 @@ export const DateCell = (props: DateComponentProps) => {
     accentColor,
     alias,
     allowCellWrapping,
-    // animateLoading,
     borderRadius,
     cellBackground,
     columnType,
@@ -199,9 +183,7 @@ export const DateCell = (props: DateComponentProps) => {
     isCellEditable,
     isCellEditMode,
     isCellVisible,
-    isEditableCellValid,
     isHidden,
-    // isNewRow,
     maxDate,
     minDate,
     onCellTextChange,
@@ -210,6 +192,7 @@ export const DateCell = (props: DateComponentProps) => {
     onDateSelection,
     onSubmitString,
     outputFormat,
+    required,
     rowIndex,
     shortcuts,
     tableWidth,
@@ -217,12 +200,11 @@ export const DateCell = (props: DateComponentProps) => {
     textSize,
     timePrecision,
     toggleCellEditMode,
-    // validationErrorMessage,
     verticalAlignment,
   } = props;
 
   const [hasFocus, setHasFocus] = useState(false);
-
+  const [isValid, setIsValid] = useState(true);
   const value = props.value;
 
   // const wrapperRef = useRef<HTMLDivElement>(null);
@@ -271,7 +253,12 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
-    const formattedDate = moment(date).format(inputFormat);
+    if (required && !date) {
+      setIsValid(false);
+      return;
+    }
+    setIsValid(true);
+    const formattedDate = date ? moment(date).format(inputFormat) : "";
     onDateSelection(rowIndex, onDateSelectedString);
     onDateSave(rowIndex, alias, formattedDate, onSubmitString);
   };
@@ -281,8 +268,9 @@ export const DateCell = (props: DateComponentProps) => {
     editEvents.onEdit();
   };
 
-  const onBlur = (e: any) => {
+  const onPopoverClosed = (e: any) => {
     setHasFocus(false);
+    setIsValid(true);
     editEvents.onDiscard();
   };
 
@@ -295,10 +283,10 @@ export const DateCell = (props: DateComponentProps) => {
         allowCellWrapping={allowCellWrapping}
         className={`${
           hasFocus ? FOCUS_CLASS : ""
-        } t--inlined-cell-editor ${!isEditableCellValid &&
+        } t--inlined-cell-editor ${!isValid &&
           "t--inlined-cell-editor-has-error"}`}
         compactMode={compactMode}
-        isEditableCellValid={isEditableCellValid}
+        isEditableCellValid={isValid}
         paddedInput
         textSize={textSize}
         verticalAlignment={verticalAlignment}
@@ -318,7 +306,7 @@ export const DateCell = (props: DateComponentProps) => {
           maxDate={maxDate || COMPONENT_DEFAULT_VALUES.maxDate}
           minDate={minDate || COMPONENT_DEFAULT_VALUES.minDate}
           onDateSelected={onDateSelected}
-          onPopoverClosed={onBlur}
+          onPopoverClosed={onPopoverClosed}
           selectedDate={valueInISOFormat}
           shortcuts={shortcuts}
           timePrecision={
