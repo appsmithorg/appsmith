@@ -12,7 +12,7 @@ public enum AppsmithPluginError {
 
     PLUGIN_ERROR(
             500,
-            "5000",
+            AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode(),
             "{0}",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Query execution error",
@@ -22,7 +22,7 @@ public enum AppsmithPluginError {
     ),
     PLUGIN_GET_STRUCTURE_ERROR(
             500,
-            "5001",
+            AppsmithPluginErrorCode.PLUGIN_GET_STRUCTURE_ERROR.getCode(),
             "{0}",
             AppsmithErrorAction.DEFAULT,
             "Failed to get datasource structure",
@@ -32,16 +32,17 @@ public enum AppsmithPluginError {
     ),
     PLUGIN_QUERY_TIMEOUT_ERROR(
             504,
-            "5002",
+            AppsmithPluginErrorCode.PLUGIN_QUERY_TIMEOUT_ERROR.getCode(),
             "{0} timed out in {1} milliseconds. Please increase timeout. This can be found in Settings tab of {0}.",
-            AppsmithErrorAction.DEFAULT, "Timed out on query execution",
+            AppsmithErrorAction.DEFAULT,
+            "Timed out on query execution",
             ErrorType.CONNECTIVITY_ERROR,
             "{2}",
             "{3}"
     ),
     PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(
             504,
-            "5003",
+            AppsmithPluginErrorCode.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR.getCode(),
             "{0}",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Timed out when fetching datasource structure",
@@ -81,7 +82,7 @@ public enum AppsmithPluginError {
     ),
     PLUGIN_DATASOURCE_TEST_GENERIC_ERROR(
             500,
-            "5007",
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_TEST_GENERIC_ERROR.getCode(),
             "Plugin failed to test with the given configuration. Please reach out to Appsmith customer support to report this",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Datasource configuration is invalid",
@@ -91,7 +92,7 @@ public enum AppsmithPluginError {
     ),
     PLUGIN_DATASOURCE_TIMEOUT_ERROR(
             504,
-            "5008",
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_TIMEOUT_ERROR.getCode(),
             "{0}",
             AppsmithErrorAction.DEFAULT,
             "Timed out when connecting to datasource",
@@ -101,7 +102,7 @@ public enum AppsmithPluginError {
     ),
     PLUGIN_AUTHENTICATION_ERROR(
             401,
-            "4000",
+            AppsmithPluginErrorCode.PLUGIN_AUTHENTICATION_ERROR.getCode(),
             "Invalid authentication credentials. Please check datasource configuration.",
             AppsmithErrorAction.DEFAULT,
             "Datasource authentication error",
@@ -111,7 +112,7 @@ public enum AppsmithPluginError {
     ),
     PLUGIN_IN_MEMORY_FILTERING_ERROR(
             500,
-            "5010",
+            AppsmithPluginErrorCode.PLUGIN_IN_MEMORY_FILTERING_ERROR.getCode(),
             "{0}",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Appsmith In Memory Filtering Failed",
@@ -121,7 +122,7 @@ public enum AppsmithPluginError {
     ),
     PLUGIN_UQI_WHERE_CONDITION_UNKNOWN(
             500,
-            "5011",
+            AppsmithPluginErrorCode.PLUGIN_UQI_WHERE_CONDITION_UNKNOWN.getCode(),
             "{0} is not a known conditional operator. Please reach out to Appsmith customer support to report this",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Where condition could not be parsed",
@@ -131,7 +132,7 @@ public enum AppsmithPluginError {
     ),
     UNSUPPORTED_PLUGIN_OPERATION(
             500,
-            "5012",
+            AppsmithPluginErrorCode.UNSUPPORTED_PLUGIN_OPERATION.getCode(),
             "Testing datasource for SaaS plugin is not supported",
             AppsmithErrorAction.DEFAULT,
             "Unsupported operation",
@@ -139,22 +140,12 @@ public enum AppsmithPluginError {
             "{0}",
             "{1}"
     ),
-    PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR(
-            500,
-            "5013",
-            "Plugin failed to convert formData into native query with error: {0}",
-            AppsmithErrorAction.LOG_EXTERNALLY,
-            "Failed to convert form data to native",
-            ErrorType.INTERNAL_ERROR,
-            "{1}",
-            "{2}"
-    ),
     INCOMPATIBLE_FILE_FORMAT(
             400,
-            "4001",
+            AppsmithPluginErrorCode.INCOMPATIBLE_FILE_FORMAT.getCode(),
             "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
             AppsmithErrorAction.DEFAULT,
-            "Incompatible file format",
+            AppsmithPluginErrorCode.INCOMPATIBLE_FILE_FORMAT.getDescription(),
             ErrorType.INTERNAL_ERROR,
             "{0}",
             "{1}"
@@ -346,6 +337,56 @@ public enum AppsmithPluginError {
             500,
             AppsmithPluginErrorCode.SQLSERVER_QUERY_EXECUTION_FAILED.getCode(),
             AppsmithPluginErrorCode.SQLSERVER_QUERY_EXECUTION_FAILED.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    GSHEET_MISSING_METHOD(
+            500,
+            AppsmithPluginErrorCode.GSHEET_MISSING_METHOD.getCode(),
+            AppsmithPluginErrorCode.GSHEET_MISSING_METHOD.getDescription(),
+            AppsmithErrorAction.DEFAULT,
+            "Query configuration is invalid",
+            ErrorType.ACTION_CONFIGURATION_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    GSHEET_QUERY_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.GSHEET_QUERY_EXECUTION_FAILED.getCode(),
+            AppsmithPluginErrorCode.GSHEET_QUERY_EXECUTION_FAILED.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    GSHEET_EMPTY_RESPONSE(
+            500,
+            AppsmithPluginErrorCode.GSHEET_EMPTY_RESPONSE.getCode(),
+            AppsmithPluginErrorCode.GSHEET_EMPTY_RESPONSE.getDescription(),
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    MONGODB_FORM_TO_NATIVE_TRANSLATION_ERROR(
+            500,
+            AppsmithPluginErrorCode.MONGODB_FORM_TO_NATIVE_TRANSLATION_ERROR.getCode(),
+            "Plugin failed to convert formData into native query",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            AppsmithPluginErrorCode.MONGODB_FORM_TO_NATIVE_TRANSLATION_ERROR.getDescription(),
+            ErrorType.INTERNAL_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    MONGODB_QUERY_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.MONGODB_QUERY_EXECUTION_FAILED.getCode(),
+            AppsmithPluginErrorCode.MONGODB_FORM_TO_NATIVE_TRANSLATION_ERROR.getDescription(),
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Query execution error",
             ErrorType.INTERNAL_ERROR,

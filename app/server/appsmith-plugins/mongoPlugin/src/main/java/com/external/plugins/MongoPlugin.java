@@ -276,9 +276,7 @@ public class MongoPlugin extends BasePlugin {
                             setDataValueSafelyInFormData(formData, BODY, updatedRawQuery);
                         } catch (AppsmithPluginException e) {
                             ActionExecutionResult errorResult = new ActionExecutionResult();
-                            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
-                            errorResult.setIsExecutionSuccess(false);
-                            errorResult.setBody(e.getMessage());
+                            errorResult.setErrorInfo(e);
                             return Mono.just(errorResult);
                         }
                     }
@@ -468,10 +466,10 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        actionExecutionResult.setErrorInfo(error, mongoErrorUtils);
+                        actionExecutionResult.setErrorInfo(new AppsmithPluginException(error, AppsmithPluginError.MONGODB_QUERY_EXECUTION_FAILED, error.getMessage()), mongoErrorUtils);
                         return Mono.just(actionExecutionResult);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
@@ -637,7 +635,7 @@ public class MongoPlugin extends BasePlugin {
 
 
                 //groups are discovered in greedy manner hence it's sorted by default
-                // a sub-group within a big group could be due to the regex arguments provide by user hence will not parse that
+                // a subgroup within a big group could be due to the regex arguments provide by user hence will not parse that
                 if (startIndex > mongo$regexIdentifierMatcher.start()) {
                     // the matcher walks greedily to find the pattern, if there is a group overlapping with other group means that it's a subquery, and it's not meant to be parsed.
                     continue;
@@ -975,7 +973,7 @@ public class MongoPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.MONGODB_QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         /**
@@ -1005,7 +1003,7 @@ public class MongoPlugin extends BasePlugin {
                             }
                         } catch (Exception e) {
                             throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR,
+                                    AppsmithPluginError.MONGODB_FORM_TO_NATIVE_TRANSLATION_ERROR,
                                     e.getMessage()
                             );
                         }

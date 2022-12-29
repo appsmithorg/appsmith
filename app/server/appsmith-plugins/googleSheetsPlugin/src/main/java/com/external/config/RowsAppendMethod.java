@@ -128,7 +128,7 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
 
                     if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                                 "Expected to receive a response body."));
                     }
                     String jsonBody = new String(responseBody);
@@ -144,19 +144,20 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
                     }
                     if (jsonNodeBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                                 "Expected to receive a response of existing headers."));
                     }
 
-                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
+                    if (!response.getStatusCode().is2xxSuccessful()) {
                         if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") != null) {
                             throw Exceptions.propagate(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                                    AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,   jsonNodeBody.get("error").get("message").toString(), response.getStatusCodeValue()));
                         }
 
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
+                                "Could not map request back to existing data",
+                                response.getStatusCodeValue()));
                     }
 
                     ArrayNode valueRanges = (ArrayNode) jsonNodeBody.get("valueRanges");
@@ -181,7 +182,7 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
                                 finalRowObjectFromBody.setValueMap(valueMap);
                             } else {
                                 throw Exceptions.propagate(new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                                         "Could not map values to existing data."));
                             }
                             methodConfig.setBody(finalRowObjectFromBody);
@@ -236,7 +237,7 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                     "Missing a valid response object.");
         }
 

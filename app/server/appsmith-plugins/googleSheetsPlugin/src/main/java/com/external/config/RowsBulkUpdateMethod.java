@@ -124,8 +124,9 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
                     if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Expected to receive a response body."));
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
+                                "Expected to receive a response body.",
+                                response.getStatusCodeValue()));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody;
@@ -140,15 +141,16 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
                     }
 
 
-                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
+                    if (!response.getStatusCode().is2xxSuccessful()) {
                         if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") !=null) {
                             throw Exceptions.propagate(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                                    AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,   jsonNodeBody.get("error").get("message").toString(), response.getStatusCodeValue()));
                         }
 
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
+                                "Could not map request back to existing data",
+                                response.getStatusCodeValue()));
                     }
 
                     // This is the object with the original values in the referred row
@@ -157,7 +159,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
                     if (jsonNode == null || jsonNode.isEmpty()) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                                 "No data found at these row indices. Do you want to try inserting something first?"
                         ));
                     }
@@ -189,7 +191,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
                     if (Boolean.FALSE.equals(updatable)) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                                 "Could not map to existing data. Nothing to update."
                         ));
                     }
@@ -238,7 +240,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                     "Missing a valid response object.");
         }
 

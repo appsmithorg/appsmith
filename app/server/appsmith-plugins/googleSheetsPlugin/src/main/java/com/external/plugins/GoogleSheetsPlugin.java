@@ -123,7 +123,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
             } catch (AppsmithPluginException e) {
                 // Initializing object for error condition
                 ActionExecutionResult errorResult = new ActionExecutionResult();
-                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode());
                 errorResult.setIsExecutionSuccess(false);
                 errorResult.setErrorInfo(e);
                 return Mono.just(errorResult);
@@ -150,10 +149,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                     : GoogleSheetsMethodStrategy.getExecutionMethod(formData, objectMapper);
 
             if (executionMethod == null) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Missing Google Sheets method."
-                ));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.GSHEET_MISSING_METHOD));
             }
 
             // Convert unreadable map to a DTO
@@ -241,7 +237,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                     return result;
                                 })
                                 .onErrorResume(e -> {
-                                    errorResult.setBody(Exceptions.unwrap(e).getMessage());
+                                    errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED, Exceptions.unwrap(e).getMessage()));
                                     log.debug("Received error on Google Sheets action execution", e);
                                     return Mono.just(errorResult);
                                 });
@@ -264,7 +260,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
         @Override
         public Mono<ActionExecutionResult> execute(Void connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -354,11 +350,12 @@ public class GoogleSheetsPlugin extends BasePlugin {
                         } else {
                             throw Exceptions.propagate(
                                     new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                                             jsonNodeBody
                                                     .get("error")
                                                     .get("message")
-                                                    .asText())
+                                                    .asText(),
+                                            response.getStatusCodeValue())
                             );
                         }
                     });

@@ -89,10 +89,17 @@ public class RowsDeleteMethod implements ExecutionMethod, TemplateMethod {
                 .map(response -> {// Choose body depending on response status
                     byte[] responseBody = response.getBody();
 
-                    if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
+                    if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
+                                "Could not map request back to existing data",
+                                response.getStatusCodeValue()));
+                    }
+                    if (!response.getStatusCode().is2xxSuccessful()) {
+                        throw Exceptions.propagate(new AppsmithPluginException(
+                                AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
+                                new String(response.getBody()),
+                                response.getStatusCodeValue()));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode sheets = null;
@@ -116,7 +123,7 @@ public class RowsDeleteMethod implements ExecutionMethod, TemplateMethod {
                     }
 
                     if (sheetId == null) {
-                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown Sheet Name"));
+                        throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unknown Sheet Name"));
                     } else {
                         methodConfig.setSheetId(sheetId);
                     }
@@ -155,7 +162,7 @@ public class RowsDeleteMethod implements ExecutionMethod, TemplateMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                     "Missing a valid response object.");
         }
 

@@ -120,8 +120,9 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
                     if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Expected to receive a response body."));
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
+                                "Expected to receive a response body.",
+                                response.getStatusCodeValue()));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody = null;
@@ -134,15 +135,16 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
                                 e.getMessage()
                         ));
                     }
-                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
+                    if (!response.getStatusCode().is2xxSuccessful()) {
                         if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") != null) {
                             throw Exceptions.propagate(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString(), response.getStatusCodeValue()));
                         }
 
                         throw Exceptions.propagate(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Could not map request back to existing data"));
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
+                                "Could not map request back to existing data",
+                                response.getStatusCodeValue()));
                     }
 
                     // This is the object with the original values in the referred row
@@ -152,7 +154,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
                     if (jsonNode == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                                 "No data found at this row index. Do you want to try inserting something first?"
                         ));
                     }
@@ -174,7 +176,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
                     if (Boolean.FALSE.equals(updatable)) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                                 "Could not map to existing data. Nothing to update."
                         ));
                     }
@@ -216,7 +218,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                     "Missing a valid response object.");
         }
 
@@ -226,12 +228,12 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
     private RowObject getRowObjectFromBody(JsonNode body) {
 
         if (body.isArray()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                     ErrorMessages.EXPECTED_ROW_OBJECT_MESSAGE);
         }
 
         if (body.isEmpty()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                     ErrorMessages.EMPTY_UPDATE_ROW_OBJECT_MESSAGE);
         }
 

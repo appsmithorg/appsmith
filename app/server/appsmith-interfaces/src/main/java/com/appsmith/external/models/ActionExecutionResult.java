@@ -53,6 +53,7 @@ public class ActionExecutionResult {
 
             if (((AppsmithPluginException) error).getExternalError() != null && pluginErrorUtils != null) {
                 this.readableError = pluginErrorUtils.getReadableError(error);
+                pluginErrorDetails.setDownstreamErrorMessage(this.readableError);
             }
         } else if (error instanceof BaseException) {
             this.statusCode = ((BaseException) error).getAppErrorCode();

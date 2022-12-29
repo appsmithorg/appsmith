@@ -136,8 +136,9 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
 
                     if (responseBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Expected to receive a response body."));
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
+                                "Expected to receive a response body.",
+                                response.getStatusCodeValue()));
                     }
                     String jsonBody = new String(responseBody);
                     JsonNode jsonNodeBody;
@@ -151,21 +152,23 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
                         ));
                     }
 
-                    if (response.getStatusCode() != null && !response.getStatusCode().is2xxSuccessful()) {
+                    if (!response.getStatusCode().is2xxSuccessful()) {
                         if (jsonNodeBody.get("error") != null && jsonNodeBody.get("error").get("message") !=null) {
                             throw Exceptions.propagate(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,   jsonNodeBody.get("error").get("message").toString()));
+                                    AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,   jsonNodeBody.get("error").get("message").toString(), response.getStatusCodeValue()));
                         }
 
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Could not map request back to existing data"));
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
+                                "Could not map request back to existing data",
+                                response.getStatusCodeValue()));
                     }
 
                     if (jsonNodeBody == null) {
                         throw Exceptions.propagate(new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Expected to receive a response of existing headers."));
+                                AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
+                                "Expected to receive a response of existing headers.",
+                                response.getStatusCodeValue()));
                     }
 
                     ArrayNode valueRanges = (ArrayNode) jsonNodeBody.get("valueRanges");
@@ -190,7 +193,7 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
                                     rowObject.setValueMap(valueMap);
                                 } else {
                                     throw Exceptions.propagate(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                                             "Could not map values to existing data."));
                                 }
                             }
@@ -248,7 +251,7 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                     "Missing a valid response object.");
         }
 
@@ -258,12 +261,12 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
     private List<RowObject> getRowObjectListFromBody(JsonNode body) {
 
         if (!body.isArray()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                     ErrorMessages.EXPECTED_ARRAY_OF_ROW_OBJECT_MESSAGE);
         }
 
         if (body.isEmpty()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                     ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE);
         }
 

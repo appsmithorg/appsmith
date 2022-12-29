@@ -51,10 +51,16 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
             .map(response -> {// Choose body depending on response status
                 byte[] responseBody = response.getBody();
 
-                if (responseBody == null || !response.getStatusCode().is2xxSuccessful()) {
+                if (responseBody == null) {
                     throw Exceptions.propagate(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                         "Could not map request back to existing data"));
+                }
+                if (!response.getStatusCode().is2xxSuccessful()) {
+                    throw Exceptions.propagate(new AppsmithPluginException(
+                            AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
+                            new String(response.getBody()),
+                            response.getStatusCodeValue()));
                 }
                 String jsonBody = new String(responseBody);
                 JsonNode sheets = null;
