@@ -24,13 +24,11 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Mono<NewPage> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission aclPermission, Boolean viewMode);
 
-    Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission);
+    Flux<NewPage> findAllByIds(List<String> ids, AclPermission aclPermission);
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
     Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission);
 
     Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
-
-    Mono<NewPage> findRootApplicationIdById(String defaultPageId, AclPermission readPermission);
 }
