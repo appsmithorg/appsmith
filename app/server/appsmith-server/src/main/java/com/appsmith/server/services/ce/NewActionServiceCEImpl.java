@@ -934,10 +934,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();
                     result.setIsExecutionSuccess(false);
-                    result.setStatusCode(error.getAppErrorCode().toString());
+                    result.setStatusCode(error.getAppErrorCode());
                     result.setBody(error.getMessage());
                     result.setTitle(error.getTitle());
                     result.setErrorType(error.getErrorType());
+                    result.setErrorInfo(error);
                     return Mono.just(result);
                 });
     }
