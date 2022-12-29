@@ -8,6 +8,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import EditorsRouter from "pages/Editor/routes";
 import * as Sentry from "@sentry/react";
 import { Route } from "react-router";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 
 const TabsContainer = styled.div`
   height: calc(
@@ -36,7 +37,7 @@ const TabsPane = (props: Props) => {
         "transition-all transform duration-400 border-r border-gray-200": true,
         "translate-x-0 opacity-0": isPreviewMode,
         "opacity-100": !isPreviewMode,
-        [`w-[${width}px] min-w-[200px] translate-x-${width}`]: !isPreviewMode,
+        [`w-[${width}px] min-w-[400px] translate-x-${width}`]: !isPreviewMode,
       })}
       ref={sidebarRef}
     >
