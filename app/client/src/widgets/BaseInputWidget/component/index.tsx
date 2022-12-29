@@ -397,6 +397,8 @@ const TextInputWrapper = styled.div<{
 
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { height: auto; }" : ""};
+
+  height: ${({ isMultiLine }) => (isMultiLine ? "100%" : "auto")};
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
