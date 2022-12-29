@@ -125,10 +125,10 @@ function DatasourceAuth({
       ? formData?.authType
       : formData?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const { id: datasourceId, isDeleting } = datasource;
+  const { id: datasourceId, isDeleting, pluginId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
   const pluginName = useSelector((state: AppState) =>
-    getPluginNameFromId(state, datasource?.pluginId),
+    getPluginNameFromId(state, pluginId),
   );
 
   const datasourcePermissions = datasource.userPermissions || [];
