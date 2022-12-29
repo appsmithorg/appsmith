@@ -3,6 +3,7 @@ package com.appsmith.external.models;
 import com.appsmith.external.converters.HttpMethodConverter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.gson.annotations.JsonAdapter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -58,6 +59,7 @@ public class ActionConfiguration implements AppsmithDomain {
     List<Property> routeParameters;
     @JsonSerialize(using = HttpMethodConverter.HttpMethodSerializer.class)
     @JsonDeserialize(using = HttpMethodConverter.HttpMethodDeserializer.class)
+    @JsonAdapter(HttpMethodConverter.class)
     HttpMethod httpMethod;
     // Paginated API fields
     String next;
