@@ -13,7 +13,7 @@ import {
   isAction,
   isJSAction,
   isWidget,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   EvalError,
   EvalErrorTypes,

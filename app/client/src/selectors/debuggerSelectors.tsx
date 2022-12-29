@@ -9,7 +9,7 @@ import { getWidgets } from "sagas/selectors";
 import {
   shouldSuppressDebuggerError,
   isWidget,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 
 type ErrorObejct = {

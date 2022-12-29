@@ -10,7 +10,7 @@ import {
 } from "@tanstack/virtual-core";
 
 import Queue from "./Queue";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { extractTillNestedListWidget } from "./widget/helper";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";

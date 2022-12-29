@@ -67,6 +67,7 @@ import tenantReducer, {
 } from "@appsmith/reducers/tenantReducer";
 import { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
 import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
+import { LibraryState } from "reducers/uiReducers/libraryReducer";
 import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
@@ -130,6 +131,7 @@ export interface AppState {
     appSettingsPane: AppSettingsPaneReduxState;
     focusHistory: FocusHistoryState;
     editorContext: EditorContextState;
+    libraries: LibraryState;
     autoHeightUI: AutoHeightUIState;
   };
   entities: {

@@ -70,7 +70,7 @@ import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
 } from "entities/Widget/utils";
-import { getAllPaths } from "workers/Evaluation/evaluationUtils";
+import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   createMessage,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
