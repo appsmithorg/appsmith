@@ -67,6 +67,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -198,7 +199,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
         this.permissionGroupService = permissionGroupService;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = SerializationUtils.getDefaultObjectMapper();
         this.responseUtils = responseUtils;
         this.configService = configService;
         this.datasourcePermission = datasourcePermission;

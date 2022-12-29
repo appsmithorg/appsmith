@@ -3,6 +3,7 @@ package com.appsmith.external.datatypes;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -22,7 +23,7 @@ public class JsonObjectType implements AppsmithType {
 
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
     private static final JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     @Override

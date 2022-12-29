@@ -47,6 +47,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1575,7 +1576,7 @@ public class ApplicationServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(testDatasource);
 
-                    ObjectMapper objectMapper = new ObjectMapper();
+                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
                     JSONObject parentDsl = null;
                     try {
                         parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
@@ -1934,7 +1935,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setActions(List.of(action1, action2));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
-                    ObjectMapper objectMapper = new ObjectMapper();
+                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
                     JSONObject parentDsl = null;
                     try {
                         parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {

@@ -1,10 +1,11 @@
 package com.external.utils;
 
+import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.firestore.FieldPath;
 import com.google.cloud.firestore.Query;
@@ -14,12 +15,11 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class WhereConditionUtils {
 
-    protected static final ObjectMapper objectMapper = new ObjectMapper();
+    protected static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
 
     public static Query applyWhereConditional(Query query, String strPath, String operatorString, String strValue) throws AppsmithPluginException {
 

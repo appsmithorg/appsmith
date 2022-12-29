@@ -1,10 +1,8 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.FieldName;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,9 +10,6 @@ import java.util.Set;
 
 @Slf4j
 public class WidgetSpecificUtils {
-
-    private static ObjectMapper objectMapper = new ObjectMapper();
-    private static JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
     public static JSONObject escapeTableWidgetPrimaryColumns(JSONObject dsl, Set<String> escapedWidgetNames) {
         Set<String> keySet = dsl.keySet();

@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -1205,7 +1206,7 @@ public class LayoutServiceTest {
                 .create(testMono)
                 .expectErrorMatches(throwable -> {
                     assertThat(throwable).isInstanceOf(AppsmithException.class);
-                    ObjectMapper objectMapper = new ObjectMapper();
+                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
                     Object oldParent = null;
                     try {
                         oldParent = objectMapper.readTree("{\"widgetName\":\"testWidget\",\"dynamicBindingPathList\":[{\"key\":\"dynamicGet_IncorrectKey\"}],\"widgetId\":\"id\",\"another\":\"Hello people of the {{input1.text}} planet!\",\"dynamicGet\":\"some dynamic {{aGetAction.data}}\",\"type\":\"test_type\",\"key\":\"value-updated\"}");

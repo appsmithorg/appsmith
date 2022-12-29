@@ -7,6 +7,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -34,7 +35,7 @@ public class ResponseUtilsTest {
     ResponseUtils responseUtils;
 
     private static final File mockObjects = new File("src/test/resources/test_assets/ResponseUtilsTest/mockObjects.json");
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
     private static JsonNode jsonNode;
     Gson gson = new Gson();
 

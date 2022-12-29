@@ -28,6 +28,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.RefactoringSolution;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -134,7 +135,7 @@ public class LayoutActionServiceTest {
 
     Datasource jsDatasource;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
 
     Plugin installed_plugin;
 

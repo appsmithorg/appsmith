@@ -42,6 +42,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -233,7 +234,7 @@ public class ApplicationForkingServiceTests {
 
         layoutCollectionService.createCollection(actionCollectionDTO).block();
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
         JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
         }));
         ArrayList children = (ArrayList) parentDsl.get("children");

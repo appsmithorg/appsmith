@@ -14,6 +14,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PagePermissionImpl;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +63,7 @@ class RefactoringSolutionCEImplTest {
     PagePermission pagePermission;
     ActionPermission actionPermission;
 
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
 
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";

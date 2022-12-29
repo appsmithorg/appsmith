@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +47,7 @@ class DslUtilsTest {
                 "  } " +
                 "}";
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
         JsonNode dsl = mapper.readTree(jsonString);
 
         Set<MustacheBindingToken> tokens = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(dsl, fieldPath);
@@ -58,7 +59,7 @@ class DslUtilsTest {
 
     @Test
     void replaceValuesInSpecificDynamicBindingPath_whenFieldPathNotFound() {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
         ObjectNode dsl = mapper.createObjectNode();
         dsl.put("fieldKey", "fieldValue");
         JsonNode replacedDsl = DslUtils.replaceValuesInSpecificDynamicBindingPath(dsl, "nonExistentPath", new HashMap<>());
@@ -67,7 +68,7 @@ class DslUtilsTest {
 
     @Test
     void replaceValuesInSpecificDynamicBindingPath_whenReplacementKeyNotFound() {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
         ObjectNode dsl = mapper.createObjectNode();
         dsl.put("existingPath", "fieldValue");
         HashMap<MustacheBindingToken, String> replacementMap = new HashMap<>();
@@ -80,7 +81,7 @@ class DslUtilsTest {
 
     @Test
     void replaceValuesInSpecificDynamicBindingPath_withSuccessfulMultipleReplacements() {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
         ObjectNode dsl = mapper.createObjectNode();
         dsl.put("existingPath", "oldFieldValue1 oldFieldValue2");
         HashMap<MustacheBindingToken, String> replacementMap = new HashMap<>();

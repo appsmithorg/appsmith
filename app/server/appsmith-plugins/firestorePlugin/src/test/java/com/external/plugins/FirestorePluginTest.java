@@ -15,6 +15,7 @@ import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.NoCredentials;
@@ -501,7 +502,7 @@ public class FirestorePluginTest {
     }
 
     private ActionConfiguration constructActionConfiguration(Map<String, Object> first, Map<String, Object> last) {
-        final ObjectMapper objectMapper = new ObjectMapper();
+        final ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();

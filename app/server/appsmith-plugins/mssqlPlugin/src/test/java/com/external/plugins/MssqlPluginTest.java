@@ -14,6 +14,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -206,7 +207,7 @@ public class MssqlPluginTest {
                             new String[]{
                                     "user_id"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -248,7 +249,7 @@ public class MssqlPluginTest {
                                     "dob",
                                     "time1",
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -331,7 +332,7 @@ public class MssqlPluginTest {
                                     "dob",
                                     "time1",
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -396,7 +397,7 @@ public class MssqlPluginTest {
                                     "dob",
                                     "time1",
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -471,7 +472,7 @@ public class MssqlPluginTest {
                                     "dob",
                                     "time1",
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -684,7 +685,7 @@ public class MssqlPluginTest {
                             new String[]{
                                     "numeric_string"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());

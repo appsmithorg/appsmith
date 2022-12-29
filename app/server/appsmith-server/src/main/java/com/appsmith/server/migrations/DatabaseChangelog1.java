@@ -65,6 +65,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -141,7 +142,7 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @ChangeLog(order = "001")
 public class DatabaseChangelog1 {
 
-    public static ObjectMapper objectMapper = new ObjectMapper();
+    public static ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
     private static final String AGGREGATE_LIMIT = "aggregate.limit";
     private static final Object DEFAULT_BATCH_SIZE = "101";
     public static final String FIRESTORE_PLUGIN_NAME = "firestore-plugin";
@@ -1790,9 +1791,6 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
     public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
 
             // We have found an action with dynamic binding path list set by the client.
@@ -3593,8 +3591,6 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "094", id = "migrate-s3-to-uqi", author = "")
     public void migrateS3PluginToUqi(MongoTemplate mongoTemplate) {
-
-        ObjectMapper objectMapper = new ObjectMapper();
         // First update the UI component for the s3 plugin to UQI
         Plugin s3Plugin = mongoTemplate.findOne(
                 query(where("packageName").is("amazons3-plugin")),

@@ -4,6 +4,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,7 @@ public class PluginServiceCEImplTest {
 
     @BeforeEach
     public void setUp() {
-        objectMapper = new ObjectMapper();
+        objectMapper = SerializationUtils.getDefaultObjectMapper();
         pluginService = new PluginServiceCEImpl(
                 scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 repository, analyticsService, workspaceService, pluginManager, reactiveTemplate, topic, objectMapper);

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.appsmith.util.SerializationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -147,7 +148,7 @@ public class MongoPluginQueriesTest {
                      * Note: when the codec is removed from the MongoDBPlugin, this is found failing
                      */
                     try {
-                        ObjectMapper mapper = new ObjectMapper();
+                        ObjectMapper mapper = SerializationUtils.getDefaultObjectMapper();
                         String expectedOutputJsonString = "{\"$db\":\"test\",\"$ref\":\"users\",\"$id\":\"1\"}";
                         JsonNode outputNode = mapper.readTree(expectedOutputJsonString);
                         assertEquals(outputNode, (((ArrayNode) result.getBody()).findValue("user")));

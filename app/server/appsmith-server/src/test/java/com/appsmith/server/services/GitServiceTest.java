@@ -43,6 +43,7 @@ import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -998,7 +999,7 @@ public class GitServiceTest {
                     branchedResources.setBranchName("testBranch");
                     action.setDefaultResources(branchedResources);
 
-                    ObjectMapper objectMapper = new ObjectMapper();
+                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
                     JSONObject parentDsl = null;
                     try {
                         parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
@@ -1985,7 +1986,7 @@ public class GitServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    ObjectMapper objectMapper = new ObjectMapper();
+                    ObjectMapper objectMapper = SerializationUtils.getDefaultObjectMapper();
                     JSONObject parentDsl = null;
                     try {
                         parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {

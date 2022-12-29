@@ -17,6 +17,7 @@ import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.SharedConfig;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -334,7 +335,7 @@ public class PostgresPluginTest {
                             new String[]{
                                     "user_id"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -391,7 +392,7 @@ public class PostgresPluginTest {
                                     "texts",
                                     "rating"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -679,7 +680,7 @@ public class PostgresPluginTest {
                                     "texts",
                                     "rating"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -753,7 +754,7 @@ public class PostgresPluginTest {
                                     "texts",
                                     "rating"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -837,7 +838,7 @@ public class PostgresPluginTest {
                                     "texts",
                                     "rating"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray()
@@ -1518,10 +1519,10 @@ public class PostgresPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
-                            new String[] {
+                            new String[]{
                                     "numeric_string"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getDefaultObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
