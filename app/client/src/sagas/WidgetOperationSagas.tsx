@@ -139,7 +139,7 @@ import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
-import { getSlidingCanvasName } from "constants/componentClassNameConstants";
+import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
@@ -1106,9 +1106,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
   const containerId = getContainerIdForCanvas(parentId);
 
   const containerWidget = canvasWidgets[containerId];
-  const canvasDOM = document.querySelector(
-    `#${getSlidingCanvasName(parentId)}`,
-  );
+  const canvasDOM = document.querySelector(`#${getSlidingArenaName(parentId)}`);
 
   if (!canvasDOM || !containerWidget) return {};
 
