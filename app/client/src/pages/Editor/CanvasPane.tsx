@@ -6,7 +6,7 @@ import { getCanvasScale, getCanvasWidth } from "selectors/editorSelectors";
 const CanvasPane = () => {
   const canvasWidth = useSelector(getCanvasWidth);
   const canvasScale = useSelector(getCanvasScale);
-  const width = canvasWidth * canvasScale;
+  const width = canvasWidth * canvasScale + 7;
   return (
     <div className="ml-5" style={{ width: width.toFixed(0) + "px" }}>
       <WidgetsEditor />
