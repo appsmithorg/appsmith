@@ -12,6 +12,7 @@ const initialState: MainCanvasReduxState = {
   width: 0,
   height: 0,
   scale: 1,
+  canvasSpace: 0,
 };
 
 const mainCanvasReducer = createImmerReducer(initialState, {
@@ -32,15 +33,17 @@ const mainCanvasReducer = createImmerReducer(initialState, {
   ) => {
     state.width = action.payload.width || state.width;
     state.scale = action.payload.scale;
+    state.canvasSpace = action.payload.canvasSpace;
     state.initialized = true;
   },
 });
 
 export interface MainCanvasReduxState {
+  initialized: boolean;
   width: number;
   height: number;
   scale: number;
-  initialized: boolean;
+  canvasSpace?: number;
 }
 
 export default mainCanvasReducer;

@@ -36,7 +36,7 @@ const TabsPane = (props: Props) => {
         "transition-all transform duration-400 border-r border-gray-200": true,
         "translate-x-0 opacity-0": isPreviewMode,
         "opacity-100": !isPreviewMode,
-        [`w-[${width}px] min-w-[${width}px] translate-x-${width}`]: !isPreviewMode,
+        [`w-[${width}px] min-w-[200px] translate-x-${width}`]: !isPreviewMode,
       })}
       ref={sidebarRef}
     >

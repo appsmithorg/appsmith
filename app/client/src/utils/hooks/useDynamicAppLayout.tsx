@@ -26,6 +26,7 @@ import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import {
+  getPaneCount,
   getTabsPaneWidth,
   isMultiPaneActive,
 } from "selectors/multiPaneSelectors";
@@ -48,6 +49,7 @@ export const useDynamicAppLayout = () => {
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
+  const paneCount = useSelector(getPaneCount);
 
   // /**
   //  * calculates min height
@@ -119,7 +121,8 @@ export const useDynamicAppLayout = () => {
     }
 
     if (isMultiPane) {
-      calculatedWidth = screenWidth - scrollbarWidth() - tabsPaneWidth - 55;
+      calculatedWidth = screenWidth - scrollbarWidth() - tabsPaneWidth - 100;
+      if (paneCount === 3) calculatedWidth -= propertyPaneWidth;
     }
 
     switch (true) {
@@ -154,7 +157,8 @@ export const useDynamicAppLayout = () => {
     const { width: rightColumn } = mainCanvasProps || {};
     let scale = 1;
     if (isMultiPane && appLayout?.type !== "FLUID") {
-      const canvasSpace = screenWidth - tabsPaneWidth - 100;
+      let canvasSpace = screenWidth - tabsPaneWidth - 100;
+      if (paneCount === 3) canvasSpace -= propertyPaneWidth;
       scale = Math.min(+Math.abs(canvasSpace / calculatedWidth).toFixed(2), 1);
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     } else if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
@@ -179,7 +183,7 @@ export const useDynamicAppLayout = () => {
 
   useEffect(() => {
     if (isCanvasInitialized) debouncedResize();
-  }, [screenWidth, tabsPaneWidth]);
+  }, [screenWidth, tabsPaneWidth, paneCount]);
 
   /**
    * resize the layout if any of the following thing changes:

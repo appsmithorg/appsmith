@@ -39,7 +39,7 @@ import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
 import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -70,6 +70,7 @@ function EditorsRouter() {
   );
   const pageId = useSelector(getCurrentPageId);
   const isMultiPane = useSelector(isMultiPaneActive);
+  const paneCount = useSelector(getPaneCount);
 
   useEffect(() => {
     const isOnBuilder = matchBuilderPath(pathname);
@@ -93,11 +94,13 @@ function EditorsRouter() {
     e.stopPropagation();
   }, []);
 
+  const showPropertyPane = isMultiPane ? paneCount === 2 : false;
+
   return (
     <Wrapper isVisible={isVisible} onClick={handleClose}>
       <PaneDrawer isVisible={isVisible} onClick={preventClose}>
         <Switch key={path}>
-          {isMultiPane && (
+          {showPropertyPane && (
             <SentryRoute
               component={PropertyPaneContainer}
               exact
@@ -181,24 +184,34 @@ type PaneDrawerProps = {
 function PaneDrawer(props: PaneDrawerProps) {
   const showPropertyPane = useShowPropertyPane();
   const { focusWidget, selectWidget } = useWidgetSelection();
+  const isMultiPane = useSelector(isMultiPaneActive);
   const dispatch = useDispatch();
   useEffect(() => {
-    // This pane drawer is only open when NOT on canvas.
-    // De-select all widgets
-    // Un-focus all widgets
-    // Hide property pane
-    // Close all modals
-    if (props.isVisible) {
-      showPropertyPane();
-      dispatch(closeAllModals());
-      // delaying setting select and focus state,
-      // so that the focus history has time to store the selected values
-      setTimeout(() => {
-        selectWidget(undefined);
-        focusWidget(undefined);
-      }, 0);
+    if (!isMultiPane) {
+      // This pane drawer is only open when NOT on canvas.
+      // De-select all widgets
+      // Un-focus all widgets
+      // Hide property pane
+      // Close all modals
+      if (props.isVisible) {
+        showPropertyPane();
+        dispatch(closeAllModals());
+        // delaying setting select and focus state,
+        // so that the focus history has time to store the selected values
+        setTimeout(() => {
+          selectWidget(undefined);
+          focusWidget(undefined);
+        }, 0);
+      }
     }
-  }, [dispatch, props.isVisible, selectWidget, showPropertyPane, focusWidget]);
+  }, [
+    dispatch,
+    props.isVisible,
+    selectWidget,
+    showPropertyPane,
+    focusWidget,
+    isMultiPane,
+  ]);
   return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;
 }
 

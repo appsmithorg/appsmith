@@ -8,3 +8,12 @@ export const setTabsPaneWidth = (width: number) => {
     },
   };
 };
+
+export const setPaneCount = (count: 2 | 3) => {
+  return {
+    type: ReduxActionTypes.SET_PANE_COUNT,
+    payload: {
+      count,
+    },
+  };
+};

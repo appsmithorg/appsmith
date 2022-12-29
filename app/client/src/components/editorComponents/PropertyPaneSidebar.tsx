@@ -25,7 +25,7 @@ import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
 import { quickScrollToWidget } from "utils/helpers";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 type Props = {
   width: number;
@@ -57,6 +57,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isMultiPane = useSelector(isMultiPaneActive);
+  const paneCount = useSelector(getPaneCount);
 
   //while dragging or resizing and
   //the current selected WidgetId is not equal to previous widget Id,
@@ -83,7 +84,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   });
 
   useEffect(() => {
-    if (!isSnipingMode) {
+    if (!isSnipingMode || !isMultiPane) {
       //update url hash with the selectedWidget
       dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
       if (selectedWidgetIds.length === 1) {
@@ -121,10 +122,14 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     shouldNotRenderPane,
     keepThemeWhileDragging,
   ]);
-  const showResizer = isAppSettingsPaneOpen ? false : !isMultiPane;
+  const showResizer = isAppSettingsPaneOpen
+    ? false
+    : isMultiPane
+    ? paneCount === 3
+    : false;
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       {/* PROPERTY PANE */}
       <div
         className={classNames({

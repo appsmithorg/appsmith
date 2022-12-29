@@ -8,8 +8,13 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import TabsPane from "pages/Editor/TabsPane";
 import { EntityExplorerSidebar } from "components/editorComponents/Sidebar";
 import CanvasPane from "pages/Editor/CanvasPane";
-import { getTabsPaneWidth } from "selectors/multiPaneSelectors";
+import {
+  getPaneCount,
+  getTabsPaneWidth,
+  isMultiPaneActive,
+} from "selectors/multiPaneSelectors";
 import { setTabsPaneWidth } from "actions/multiPaneActions";
+import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
 
 const Container = styled.div`
   height: calc(
@@ -19,11 +24,26 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.appBackground};
 `;
 
+const PropertyPanePane = styled.div`
+  height: calc(
+    100vh - ${(props) => props.theme.smallHeaderHeight} -
+      ${(props) => props.theme.bottomBarHeight}
+  );
+  background-color: ${(props) => props.theme.appBackground};
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+`;
+
 const MultiPaneContainer = () => {
   const dispatch = useDispatch();
   const isPreviewMode = useSelector(previewModeSelector);
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const updatePaneWidth = (width: number) => dispatch(setTabsPaneWidth(width));
+  const isMultiPane = useSelector(isMultiPaneActive);
+  const paneCount = useSelector(getPaneCount);
+  const showPropertyPane = isMultiPane ? paneCount === 3 : true;
   return (
     <>
       <Container className="relative w-full overflow-x-hidden flex">
@@ -31,6 +51,11 @@ const MultiPaneContainer = () => {
         <SideNav />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
         <CanvasPane />
+        {showPropertyPane && (
+          <PropertyPanePane>
+            <PropertyPaneContainer />
+          </PropertyPanePane>
+        )}
       </Container>
       <BottomBar
         className={classNames({

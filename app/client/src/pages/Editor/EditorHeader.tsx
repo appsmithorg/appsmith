@@ -42,7 +42,7 @@ import {
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import {
   Button,
@@ -99,6 +99,8 @@ import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
 import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -286,7 +288,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const user = useSelector(getCurrentUser);
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
-  const featureFlags = useSelector(selectFeatureFlags);
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -372,7 +374,9 @@ export function EditorHeader(props: EditorHeaderProps) {
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
-          {!featureFlags.MULTIPLE_PANES && (
+          {isMultiPane ? (
+            <PaneCountSwitcher />
+          ) : (
             <HamburgerContainer
               className={classNames({
                 "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
