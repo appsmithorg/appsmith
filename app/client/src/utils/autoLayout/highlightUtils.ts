@@ -12,6 +12,7 @@ import {
 } from "constants/WidgetConstants";
 import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getLeftColumn, getRightColumn } from "./positionUtils";
 
 const HORIZONTAL_HIGHLIGHT_MARGIN = 4;
 
@@ -29,6 +30,7 @@ export function deriveHighlightsFromLayers(
   mainCanvasWidth = 0,
   draggedWidgets: string[] = [],
   hasFillWidget = false,
+  isMobile = false,
 ): HighlightInfo[] {
   const widgets = { ...allWidgets };
   try {
@@ -39,6 +41,7 @@ export function deriveHighlightsFromLayers(
       canvas,
       widgets,
       mainCanvasWidth,
+      isMobile,
     );
 
     const layers: FlexLayer[] = canvas.flexLayers || [];
@@ -75,6 +78,7 @@ export function deriveHighlightsFromLayers(
         canvasId,
         columnSpace,
         draggedWidgets,
+        isMobile,
       });
 
       if (!isEmpty) {
@@ -132,6 +136,7 @@ function generateVerticalHighlights(data: {
   canvasId: string;
   columnSpace: number;
   draggedWidgets: string[];
+  isMobile: boolean;
 }): VerticalHighlightsPayload {
   const {
     canvasId,
@@ -140,6 +145,7 @@ function generateVerticalHighlights(data: {
     columnSpace,
     draggedWidgets,
     height,
+    isMobile,
     layer,
     layerIndex,
     offsetTop,
@@ -161,12 +167,14 @@ function generateVerticalHighlights(data: {
     if (draggedWidgets.indexOf(child.id) > -1) continue;
     if (child.align === FlexLayerAlignment.End) {
       endChildren.push(widget);
-      endColumns += widget.rightColumn - widget.leftColumn;
+      endColumns +=
+        getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
     } else if (child.align === FlexLayerAlignment.Center) {
       centerChildren.push(widget);
     } else {
       startChildren.push(widget);
-      startColumns += widget.rightColumn - widget.leftColumn;
+      startColumns +=
+        getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
     }
   }
 
@@ -183,6 +191,7 @@ function generateVerticalHighlights(data: {
         parentColumnSpace: columnSpace,
         parentRowSpace: widgets[canvasId].parentRowSpace,
         canvasWidth,
+        isMobile,
       }),
       ...generateHighlightsForSubWrapper({
         arr: centerChildren,
@@ -196,6 +205,7 @@ function generateVerticalHighlights(data: {
         parentRowSpace: widgets[canvasId].parentRowSpace,
         canvasWidth,
         avoidInitialHighlight: startColumns > 25 || endColumns > 25,
+        isMobile,
       }),
       ...generateHighlightsForSubWrapper({
         arr: endChildren,
@@ -208,6 +218,7 @@ function generateVerticalHighlights(data: {
         parentColumnSpace: columnSpace,
         parentRowSpace: widgets[canvasId].parentRowSpace,
         canvasWidth,
+        isMobile,
       }),
     ],
     childCount: count,
@@ -226,6 +237,7 @@ function generateHighlightsForSubWrapper(data: {
   parentRowSpace: number;
   canvasWidth: number;
   avoidInitialHighlight?: boolean;
+  isMobile: boolean;
 }): HighlightInfo[] {
   const {
     alignment,
@@ -235,6 +247,7 @@ function generateHighlightsForSubWrapper(data: {
     canvasWidth,
     childCount,
     height,
+    isMobile,
     layerIndex,
     offsetTop,
     parentColumnSpace,
@@ -242,14 +255,14 @@ function generateHighlightsForSubWrapper(data: {
   const res: HighlightInfo[] = [];
   let count = 0;
   for (const child of arr) {
-    const { leftColumn } = child;
+    const left = getLeftColumn(child, isMobile);
     res.push({
       isNewLayer: false,
       index: count + childCount,
       layerIndex,
       rowIndex: count,
       alignment,
-      posX: leftColumn * parentColumnSpace,
+      posX: left * parentColumnSpace,
       posY: offsetTop,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height,
@@ -273,8 +286,6 @@ function generateHighlightsForSubWrapper(data: {
           ? arr[arr.length - 1].rightColumn * parentColumnSpace
           : 0,
         canvasWidth,
-        parentColumnSpace,
-        canvasId,
       ),
       posY: offsetTop,
       width: DEFAULT_HIGHLIGHT_SIZE,
@@ -290,13 +301,9 @@ function getPositionForInitialHighlight(
   alignment: FlexLayerAlignment,
   posX: number,
   containerWidth: number,
-  parentColumnSpace: number,
-  canvasId: string,
 ): number {
   if (alignment === FlexLayerAlignment.End) {
-    return (
-      64 * parentColumnSpace - (canvasId === MAIN_CONTAINER_WIDGET_ID ? 6 : 0)
-    );
+    return containerWidth - 6;
   } else if (alignment === FlexLayerAlignment.Center) {
     if (!highlights.length) return containerWidth / 2;
     return posX;
@@ -350,8 +357,14 @@ function getCanvasDimensions(
   canvas: any,
   widgets: CanvasWidgetsReduxState,
   mainCanvasWidth: number,
+  isMobile: boolean,
 ): { canvasWidth: number; columnSpace: number } {
-  const columns: number = canvas.rightColumn - canvas.leftColumn;
+  const canvasWidth: number = getCanvasWidth(
+    canvas,
+    widgets,
+    mainCanvasWidth,
+    isMobile,
+  );
 
   let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
   if (
@@ -366,17 +379,28 @@ function getCanvasDimensions(
     padding = WIDGET_PADDING * 2;
   }
   const columnSpace: number =
-    canvas.parentColumnSpace === 1
-      ? canvas.parentId
-        ? (widgets[canvas.parentId].parentColumnSpace * columns -
-            (padding || 0)) /
-          GridDefaults.DEFAULT_GRID_COLUMNS
-        : mainCanvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS
-      : canvas.parentColumnSpace;
-  // const columnSpace = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
-  const canvasWidth: number =
-    canvas.widgetId === MAIN_CONTAINER_WIDGET_ID
-      ? mainCanvasWidth
-      : columns * columnSpace - padding;
-  return { canvasWidth, columnSpace };
+    (canvasWidth - padding) / GridDefaults.DEFAULT_GRID_COLUMNS;
+
+  return { canvasWidth: canvasWidth - padding, columnSpace };
+}
+
+function getCanvasWidth(
+  canvas: any,
+  widgets: CanvasWidgetsReduxState,
+  mainCanvasWidth: number,
+  isMobile: boolean,
+): number {
+  if (!mainCanvasWidth) return 0;
+  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) return mainCanvasWidth;
+  let widget = canvas;
+  let columns =
+    getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
+  let width = columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+  while (widget.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+    columns =
+      getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
+    width *= columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+    widget = widgets[widget.parentId];
+  }
+  return width * mainCanvasWidth;
 }

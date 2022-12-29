@@ -264,7 +264,7 @@ export function alterLayoutForMobile(
 
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
       widget.mobileRightColumn = 64;
-      widget.leftColumn = 0;
+      widget.mobileLeftColumn = 0;
     } else if (
       widget.responsiveBehavior === ResponsiveBehavior.Hug &&
       widget.minWidth
@@ -272,7 +272,7 @@ export function alterLayoutForMobile(
       const { minWidth, rightColumn } = widget;
       const columnSpace = canvasWidth / 64;
       if (columnSpace * rightColumn < minWidth) {
-        widget.leftColumn = 0;
+        widget.mobileLeftColumn = 0;
         widget.mobileRightColumn = Math.min(
           Math.floor(minWidth / columnSpace),
           64,
@@ -286,6 +286,7 @@ export function alterLayoutForMobile(
       (canvasWidth * (widget.mobileRightColumn || 1)) / 64,
     );
     widgets[child] = widget;
+    widgets = updateWidgetPositions(widgets, child, true);
   }
   return widgets;
 }
@@ -306,7 +307,7 @@ export function alterLayoutForDesktop(
   for (const child of children) {
     widgets = alterLayoutForDesktop(widgets, child);
   }
-
+  widgets = updateWidgetPositions(widgets, parentId, false);
   return widgets;
 }
 

@@ -101,10 +101,12 @@ export const ResizableComponent = memo(function ResizableComponent(
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
     width:
-      ((props.isMobile && props.mobileRightColumn
+      ((props.isMobile && props.mobileRightColumn !== undefined
         ? props.mobileRightColumn
         : props.rightColumn) -
-        props.leftColumn) *
+        (props.isMobile && props.mobileLeftColumn !== undefined
+          ? props.mobileLeftColumn
+          : props.leftColumn)) *
         props.parentColumnSpace -
       2 * props.paddingOffset,
     height:

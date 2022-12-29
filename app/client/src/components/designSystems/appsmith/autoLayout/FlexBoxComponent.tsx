@@ -128,8 +128,10 @@ function FlexBoxComponent(props: FlexBoxProps) {
   function getColumns(id: string, isMobile: boolean): number {
     const widget = allWidgets[id];
     if (!widget) return 0;
-    return isMobile && widget.mobileRightColumn
-      ? widget.mobileRightColumn - widget.leftColumn
+    return isMobile &&
+      widget.mobileRightColumn !== undefined &&
+      widget.mobileLeftColumn !== undefined
+      ? widget.mobileRightColumn - widget.mobileLeftColumn
       : widget.rightColumn - widget.leftColumn;
   }
 

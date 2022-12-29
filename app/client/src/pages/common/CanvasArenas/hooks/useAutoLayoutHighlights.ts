@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
 import { getCanvasWidth } from "selectors/editorSelectors";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
@@ -56,6 +57,7 @@ export const useAutoLayoutHighlights = ({
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
   const canvasWidth: number = useSelector(getCanvasWidth);
+  const isMobile = useSelector(getIsMobile);
   let highlights: HighlightInfo[] = [];
   let newLayers: { [key: string]: number } = {};
   let lastActiveHighlight: HighlightInfo | undefined;
@@ -140,6 +142,7 @@ export const useAutoLayoutHighlights = ({
         canvasWidth,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
+        isMobile,
       );
     }
     // console.log("#### highlights", highlights);
@@ -162,6 +165,7 @@ export const useAutoLayoutHighlights = ({
         canvasWidth,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
+        isMobile,
       );
     // console.log("#### highlights", highlights);
     if (!highlights) return;
@@ -191,6 +195,7 @@ export const useAutoLayoutHighlights = ({
         canvasWidth,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
+        isMobile,
       );
     base = highlights;
 
