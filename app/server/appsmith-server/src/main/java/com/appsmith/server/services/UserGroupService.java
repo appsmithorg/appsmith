@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
@@ -32,5 +33,5 @@ public interface UserGroupService extends CrudService<UserGroup, String> {
 
     Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId);
 
-    Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(String userId, Set<String> groupIds);
+    Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(User user, Set<String> groupIds);
 }

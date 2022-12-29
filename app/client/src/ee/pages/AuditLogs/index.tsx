@@ -21,6 +21,10 @@ import {
   toEvent,
   toUserEmail,
 } from "@appsmith/pages/AuditLogs/utils/toDropdownOption";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { isPermitted } from "@appsmith/utils/permissionHelpers";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
+import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 
 export default function AuditLogsFeatureContainer() {
   const dispatch = useDispatch();
@@ -66,7 +70,13 @@ export default function AuditLogsFeatureContainer() {
   }, []);
 
   const user = useSelector(getCurrentUser);
-  if (!user?.isSuperUser) {
+  const tenantPermissions = useSelector(getTenantPermissions);
+  const readAuditLogs = isPermitted(
+    tenantPermissions,
+    PERMISSION_TYPE.READ_AUDIT_LOGS,
+  );
+
+  if (!showAdminSettings(user) || !readAuditLogs) {
     return <ErrorPage code={ERROR_CODES.REQUEST_NOT_AUTHORISED} />;
   }
 

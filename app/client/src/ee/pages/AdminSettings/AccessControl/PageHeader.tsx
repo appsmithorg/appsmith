@@ -31,13 +31,17 @@ import {
 } from "@appsmith/constants/messages";
 import { PageHeaderProps } from "./types";
 
-const Container = styled.div`
+const Container = styled.div<{
+  isHeaderEditable?: boolean;
+  alignItems?: string;
+}>`
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: ${({ alignItems }) => alignItems || `baseline`};
 
   > div:first-child {
-    flex: 1 0 50%;
+    flex: ${({ isHeaderEditable }) =>
+      isHeaderEditable ? `1 0 50%` : `1 1 50%`};
   }
 
   h2 {
@@ -72,16 +76,16 @@ const StyledSettingsHeader = styled(SettingsHeader)`
   }
 
   &.settings-header {
-    span.bp3-popover-target.t--editname {
-      width: 100%;
+    span.bp3-popover-target {
+      width: auto;
 
       > * {
         max-width: 100%;
         flex-grow: unset;
+        width: auto;
 
         > * {
           width: 100%;
-
           .bp3-editable-text-content {
             display: block;
           }
@@ -101,6 +105,7 @@ const StyledSettingsSubHeader = styled(SettingsSubHeader)`
 
       &.bp3-editable-text-editing {
         padding: 5px;
+        width: 100%;
       }
     }
 
@@ -134,6 +139,7 @@ export function PageHeader(props: PageHeaderProps) {
   const {
     buttonText,
     description = "",
+    disableButton,
     isHeaderEditable,
     onEditDesc,
     onEditTitle,
@@ -178,7 +184,7 @@ export function PageHeader(props: PageHeaderProps) {
   };
 
   return (
-    <Container>
+    <Container isHeaderEditable={isHeaderEditable}>
       <HeaderWrapper margin={`0px`}>
         {isHeaderEditable && onEditTitle ? (
           <StyledSettingsHeader
@@ -241,18 +247,21 @@ export function PageHeader(props: PageHeaderProps) {
               onTextChanged={(desc) => onEditDesc?.(desc)}
               placeholder={createMessage(ENTER_ENTITY_DESC)}
               type="text"
+              useFullWidth
             />
           </StyledSettingsSubHeader>
         ) : (
-          <StyledSettingsSubHeader
-            className="not-editable settings-sub-header"
-            data-testid="t--page-description"
-          >
-            {description}
-          </StyledSettingsSubHeader>
+          description && (
+            <StyledSettingsSubHeader
+              className="not-editable settings-sub-header"
+              data-testid="t--page-description"
+            >
+              {description}
+            </StyledSettingsSubHeader>
+          )
         )}
       </HeaderWrapper>
-      <Container>
+      <Container alignItems="center">
         {onSearch && (
           <StyledSearchInput
             className="acl-search-input"
@@ -267,38 +276,39 @@ export function PageHeader(props: PageHeaderProps) {
         {buttonText && (
           <StyledButton
             data-testid={"t--acl-page-header-input"}
+            disabled={disableButton}
             height="36"
             onClick={props.onButtonClick}
             tag="button"
             text={buttonText}
           />
         )}
-        <Menu
-          canEscapeKeyClose
-          canOutsideClickClose
-          className="t--menu-actions-icon"
-          isOpen={showOptions}
-          menuItemWrapperWidth={"auto"}
-          onClose={() => setShowOptions(false)}
-          onClosing={() => {
-            setShowConfirmationText(false);
-            setShowOptions(false);
-          }}
-          onOpening={() => setShowOptions(true)}
-          position={Position.BOTTOM_RIGHT}
-          target={
-            <Icon
-              className="actions-icon"
-              data-testid="t--page-header-actions"
-              name="more-2-fill"
-              onClick={() => setShowOptions(!showOptions)}
-              size={IconSize.XXL}
-            />
-          }
-        >
-          <HelpPopoverStyle />
-          {pageMenuItems &&
-            pageMenuItems.map((menuItem) => (
+        {pageMenuItems && pageMenuItems.length > 0 && (
+          <Menu
+            canEscapeKeyClose
+            canOutsideClickClose
+            className="t--menu-actions-icon"
+            isOpen={showOptions}
+            menuItemWrapperWidth={"auto"}
+            onClose={() => setShowOptions(false)}
+            onClosing={() => {
+              setShowConfirmationText(false);
+              setShowOptions(false);
+            }}
+            onOpening={() => setShowOptions(true)}
+            position={Position.BOTTOM_RIGHT}
+            target={
+              <Icon
+                className="actions-icon"
+                data-testid="t--page-header-actions"
+                name="more-2-fill"
+                onClick={() => setShowOptions(!showOptions)}
+                size={IconSize.XXL}
+              />
+            }
+          >
+            <HelpPopoverStyle />
+            {pageMenuItems.map((menuItem) => (
               <MenuItem
                 className={menuItem.className}
                 icon={menuItem.icon}
@@ -316,7 +326,8 @@ export function PageHeader(props: PageHeaderProps) {
                   : {})}
               />
             ))}
-        </Menu>
+          </Menu>
+        )}
       </Container>
     </Container>
   );

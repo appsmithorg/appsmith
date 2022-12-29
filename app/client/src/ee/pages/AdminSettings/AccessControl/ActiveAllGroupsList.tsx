@@ -87,6 +87,10 @@ const EachGroup = styled.div`
       display: none;
     }
   }
+
+  &[aria-disabled="true"] {
+    pointer-events: none;
+  }
 `;
 
 const EmptyActiveGroups = styled.div`
@@ -110,11 +114,20 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
     searchValue = "",
   } = props;
 
+  const handleOnAddRoles = (group: any) => {
+    onAddGroup?.(group);
+  };
+
+  const handleOnRemoveRoles = (group: any) => {
+    onRemoveGroup?.(group);
+  };
+
   return (
     <ContentWrapper>
       <ActiveGroups data-testid="t--active-groups">
         <TitleWrapper>
           <Icon
+            clickable={false}
             fillColor={Colors.GREEN}
             name="oval-check"
             size={IconSize.XXXL}
@@ -132,9 +145,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                 className={removedGroup ? "removed" : ""}
                 data-testid="t--active-group-row"
                 key={`group-${group.id}`}
-                onClick={() => {
-                  onRemoveGroup(group);
-                }}
+                onClick={() => handleOnRemoveRoles(group)}
               >
                 <Icon fillColor={Colors.ERROR_600} name="minus" />
                 <TooltipComponent
@@ -160,6 +171,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
         <AllGroups data-testid="t--all-groups">
           <TitleWrapper>
             <Icon
+              clickable={false}
               fillColor={Colors.GREY_7}
               name="group-2-line"
               size={IconSize.XXXXL}
@@ -176,9 +188,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                   className={addedGroup ? "added" : ""}
                   data-testid="t--all-group-row"
                   key={`group-${group.id}`}
-                  onClick={() => {
-                    onAddGroup?.(group);
-                  }}
+                  onClick={() => handleOnAddRoles(group)}
                 >
                   <Icon fillColor={Colors.GREEN} name="plus" />
                   <TooltipComponent

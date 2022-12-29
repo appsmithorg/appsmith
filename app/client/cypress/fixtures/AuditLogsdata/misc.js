@@ -3,6 +3,7 @@ export const userEvents = [
   { label: "User logged in", value: "user.logged_in" },
   { label: "User logged out", value: "user.logged_out" },
   { label: "User signed up", value: "user.signed_up" },
+  { label: "User deleted", value: "user.deleted" },
   { label: "Group invite user", value: "user.invited_users" },
   { label: "Group remove user", value: "user.remove_users" },
   { label: "Role assigned users", value: "users.assigned_users" },

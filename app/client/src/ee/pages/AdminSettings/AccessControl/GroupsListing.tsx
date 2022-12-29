@@ -27,11 +27,17 @@ import {
 } from "@appsmith/constants/messages";
 import {
   getAclIsLoading,
-  getAclIsSaving,
+  getAclIsEditing,
   getGroups,
   getSelectedGroup,
 } from "@appsmith/selectors/aclSelectors";
-import { GroupProps } from "./types";
+import { GroupProps, ListingType } from "./types";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const CellContainer = styled.div`
   display: flex;
@@ -47,7 +53,7 @@ export function GroupListing() {
   const userGroups = useSelector(getGroups);
   const selectedGroup = useSelector(getSelectedGroup);
   const isLoading = useSelector(getAclIsLoading);
-  const isSaving = useSelector(getAclIsSaving);
+  const isEditing = useSelector(getAclIsEditing);
 
   const [data, setData] = useState<GroupProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -57,6 +63,13 @@ export function GroupListing() {
   const [isNewGroup, setIsNewGroup] = useState(false);
 
   const selectedUserGroupId = params?.selected;
+
+  const tenantPermissions = useSelector(getTenantPermissions);
+
+  const canCreateGroup = isPermitted(
+    tenantPermissions,
+    PERMISSION_TYPE.CREATE_USERGROUPS,
+  );
 
   useEffect(() => {
     if (searchValue) {
@@ -112,6 +125,7 @@ export function GroupListing() {
 
   const listMenuItems: MenuItemProps[] = [
     {
+      label: "edit",
       className: "edit-menu-item",
       icon: "edit-underline",
       onSelect: (e: React.MouseEvent, key: string) => {
@@ -142,9 +156,13 @@ export function GroupListing() {
   ];
 
   const onAddButtonClick = () => {
+    const newGroupName = getNextEntityName(
+      "Untitled Group ",
+      userGroups.map((el: any) => el.name),
+    );
     dispatch(
       createGroup({
-        name: "Untitled Group",
+        name: newGroupName,
       }),
     );
     setIsNewGroup(true);
@@ -179,9 +197,9 @@ export function GroupListing() {
     <AclWrapper data-testid="t--group-listing-wrapper">
       {selectedUserGroupId && selectedUserGroup ? (
         <GroupAddEdit
+          isEditing={isEditing}
           isLoading={isLoading}
           isNew={isNewGroup}
-          isSaving={isSaving}
           onDelete={onDeleteHandler}
           selected={selectedUserGroup}
         />
@@ -189,6 +207,7 @@ export function GroupListing() {
         <>
           <PageHeader
             buttonText={createMessage(ADD_GROUP)}
+            disableButton={!canCreateGroup}
             onButtonClick={onAddButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
@@ -208,6 +227,7 @@ export function GroupListing() {
             isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}
+            listingType={ListingType.GROUPS}
           />
         </>
       )}

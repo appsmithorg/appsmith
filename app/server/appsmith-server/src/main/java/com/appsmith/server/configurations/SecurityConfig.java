@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
@@ -53,7 +54,7 @@ import static com.appsmith.server.constants.Url.ANALYTICS_URL;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @EnableWebFluxSecurity
-@EnableReactiveMethodSecurity
+@EnableReactiveMethodSecurity(useAuthorizationManager = true)
 public class SecurityConfig {
 
     @Autowired
@@ -115,6 +116,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, ApiKeyAuthenticationManager apiKeyAuthenticationManager) {
+        ServerAuthenticationEntryPointFailureHandler failureHandler = new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
+
         return http
                 // This picks up the configurationSource from the bean corsConfigurationSource()
                 .csrf().disable()
@@ -154,25 +157,28 @@ public class SecurityConfig {
                 .pathMatchers("/public/**", "/oauth2/**").permitAll()
                 .anyExchange()
                 .authenticated()
-                .and().httpBasic()
-                .and().formLogin()
-                .loginPage(Url.LOGIN_URL)
-                .authenticationEntryPoint(authenticationEntryPoint)
-                .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
-                .authenticationSuccessHandler(authenticationSuccessHandler)
-                .authenticationFailureHandler(authenticationFailureHandler)
+                .and()
+                .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
+                .formLogin(formLoginSpec -> formLoginSpec.authenticationFailureHandler(failureHandler)
+                        .loginPage(Url.LOGIN_URL)
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .requiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
+                        .authenticationSuccessHandler(authenticationSuccessHandler)
+                        .authenticationFailureHandler(authenticationFailureHandler))
 
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
-                .and().oauth2Login()
-                .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository, commonConfig, redirectHelper))
-                .authenticationSuccessHandler(authenticationSuccessHandler)
-                .authenticationFailureHandler(authenticationFailureHandler)
-                .authorizedClientRepository(new ClientUserRepository(userService, commonConfig))
-                .and().logout()
+                .oauth2Login(oAuth2LoginSpec -> oAuth2LoginSpec.authenticationFailureHandler(failureHandler)
+                        .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository, commonConfig, redirectHelper))
+                        .authenticationSuccessHandler(authenticationSuccessHandler)
+                        .authenticationFailureHandler(authenticationFailureHandler)
+                        .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
+
+                .logout()
                 .logoutUrl(Url.LOGOUT_URL)
                 .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
-                .and().build();
+                .and()
+                .build();
     }
 
     /**

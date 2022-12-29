@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
-import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
@@ -102,7 +102,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     @Override
     public Mono<UserGroupDTO> createGroup(UserGroup userGroup) {
         Mono<Boolean> isCreateAllowedMono = sessionUserService.getCurrentUser()
-                .flatMap(user -> tenantService.findById(user.getTenantId(), CREATE_PERMISSION_GROUPS))
+                .flatMap(user -> tenantService.findById(user.getTenantId(), CREATE_USER_GROUPS))
                 .map(tenant -> TRUE)
                 .switchIfEmpty(Mono.just(FALSE));
 
@@ -464,17 +464,20 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
-    public Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(String userId, Set<String> groupIds) {
+    public Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(User user, Set<String> groupIds) {
         return repository.findAllById(groupIds)
                 .flatMap(userGroup -> {
                     Set<String> usersInGroup = userGroup.getUsers();
-                    usersInGroup.remove(userId);
+                    usersInGroup.remove(user.getId());
 
                     Update updateObj = new Update();
                     String path = fieldName(QUserGroup.userGroup.users);
 
                     updateObj.set(path, usersInGroup);
-                    return repository.updateById(userGroup.getId(), updateObj);
+                    return repository.updateById(userGroup.getId(), updateObj).then(Mono.defer(() -> {
+                        Map<String, Object> eventData = Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, Set.of(user.getUsername()));
+                        return analyticsService.sendObjectEvent(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, eventData);
+                    }));
                 })
                 .then(Mono.just(TRUE));
     }

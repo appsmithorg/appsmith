@@ -1,5 +1,13 @@
 export * from "ce/constants/messages";
+import {
+  createMessage,
+  INVITE_USERS_MESSAGE as CE_INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER as CE_INVITE_USERS_PLACEHOLDER,
+  INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
+  MEMBERS_TAB_TITLE as CE_MEMBERS_TAB_TITLE,
+} from "ce/constants/messages";
 
+// GAC begin
 export const SHOW_LESS_GROUPS = () => `show less`;
 export const SHOW_MORE_GROUPS = (count: number) => `show ${count} more`;
 export const ADD_USERS = () => `Add Users`;
@@ -39,10 +47,36 @@ export const BOTTOM_BAR_CLEAR_BTN = () => `Clear`;
 export const ACL_INVITE_MODAL_TITLE = () => `Add Users`;
 export const ACL_INVITE_MODAL_MESSAGE = () =>
   `Add email id(s) and select group(s)`;
-/*export const INVITE_USERS_MESSAGE = () => `Invite users or groups`;
-export const INVITE_USERS_PLACEHOLDER = () => `Enter email address or group`;
-export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
-  `Invalid Email address(es) or user group(s) found`;*/
+export const INVITE_USERS_MESSAGE = (cloudHosting?: boolean) =>
+  cloudHosting
+    ? createMessage(CE_INVITE_USERS_MESSAGE)
+    : `Invite users or groups`;
+export const INVITE_USERS_PLACEHOLDER = (cloudHosting?: boolean) =>
+  cloudHosting
+    ? createMessage(CE_INVITE_USERS_PLACEHOLDER)
+    : `Enter email address(es) or group(s)`;
+export const INVITE_USERS_VALIDATION_EMAIL_LIST = (cloudHosting?: boolean) =>
+  cloudHosting
+    ? createMessage(CE_INVITE_USERS_VALIDATION_EMAIL_LIST)
+    : `Invalid email address(es) or group(s) found`;
+export const MEMBERS_TAB_TITLE = (length: number, cloudHosting?: boolean) =>
+  cloudHosting
+    ? createMessage(CE_MEMBERS_TAB_TITLE, length)
+    : `Users / User Groups (${length})`;
+export const EVENT_GROUP_ADD_USER_TOP_BAR = () =>
+  "Group Details page > Top bar";
+export const EVENT_GROUP_ADD_USER_EMPTY_STATE = () =>
+  "Group Details page > Users tab > Empty state";
+export const EVENT_GROUP_INVITE_USER_TOP_BAR = () =>
+  "Group Details page > Top bar > Add user modal";
+export const EVENT_GROUP_INVITE_USER_EMPTY_STATE = () =>
+  "Group Details page > Users tab > Empty state > Add user modal";
+export const EVENT_USER_INVITE = () => "Users page > Add user modal";
+export const EVENT_USERS_PAGE = () => "Users page";
+export const EVENT_USER_ROLES_TAB = () => "User Details page > Roles tab";
+export const EVENT_USER_GROUPS_TAB = () => "User Details page > Groups tab";
+export const EVENT_GROUP_ROLES_TAB = () => "Group Details page > Roles tab";
+// GAC end
 
 // Audit logs begin
 export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";

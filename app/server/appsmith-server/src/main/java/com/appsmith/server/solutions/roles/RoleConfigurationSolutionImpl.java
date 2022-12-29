@@ -1,18 +1,27 @@
 package com.appsmith.server.solutions.roles;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GacEntityMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
+import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
@@ -21,6 +30,7 @@ import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,18 +38,33 @@ import reactor.util.function.Tuple3;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.constants.FieldName.ENTITY_UPDATED_PERMISSIONS;
+import static com.appsmith.server.constants.FieldName.GAC_TAB;
+import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORIZED;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
 
 @Component
@@ -52,14 +77,23 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final ApplicationRepository applicationRepository;
     private final WorkspaceRepository workspaceRepository;
     private final PermissionGroupRepository permissionGroupRepository;
+    private final PermissionGroupUtils permissionGroupUtils;
+    private final ThemeRepository themeRepository;
+    private final NewActionRepository newActionRepository;
+    private final ActionCollectionRepository actionCollectionRepository;
+    private final AnalyticsService analyticsService;
 
     public RoleConfigurationSolutionImpl(WorkspaceResources workspaceResources,
                                          TenantResources tenantResources,
                                          GenericDatabaseOperation genericDatabaseOperation,
                                          ApplicationRepository applicationRepository,
                                          WorkspaceRepository workspaceRepository,
-                                         PermissionGroupRepository permissionGroupRepository) {
-
+                                         PermissionGroupRepository permissionGroupRepository,
+                                         PermissionGroupUtils permissionGroupUtils,
+                                         ThemeRepository themeRepository,
+                                         NewActionRepository newActionRepository,
+                                         ActionCollectionRepository actionCollectionRepository,
+                                         AnalyticsService analyticsService) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -67,6 +101,11 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.applicationRepository = applicationRepository;
         this.workspaceRepository = workspaceRepository;
         this.permissionGroupRepository = permissionGroupRepository;
+        this.permissionGroupUtils = permissionGroupUtils;
+        this.themeRepository = themeRepository;
+        this.newActionRepository = newActionRepository;
+        this.actionCollectionRepository = actionCollectionRepository;
+        this.analyticsService = analyticsService;
     }
 
     @Override
@@ -123,8 +162,15 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         List<String> applicationsRevokedInApplicationResourcesTab = new ArrayList<>();
         Set<String> workspaceReadGivenAsSideEffect = new HashSet<>();
 
-        Flux<Long> updateEntityPoliciesFlux = Flux.fromIterable(entitiesChanged)
-                .flatMap(entity -> {
+        ConcurrentHashMap<String, List<AclPermission>> entityPermissionsAddedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<AclPermission>> entityPermissionsRemovedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Class> entityClassMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<AclPermission>> sideEffectsPermissionsAddedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<AclPermission>> sideEffectsPermissionsRemovedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Class> sideEffectsClassMap = new ConcurrentHashMap<>();
+
+        Mono<Map<Class, Set<String>>> preComputeMono = Flux.fromIterable(entitiesChanged)
+                .map(entity -> {
                     String id = entity.getId();
                     String type = entity.getType();
                     String name = entity.getName();
@@ -164,11 +210,6 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     }
 
                     List<Integer> permissions = entity.getPermissions();
-
-                    // Compute the side effects for this entity and add to the list.
-                    computeSideEffectOfPermissionChange(sideEffects, tab, aClass, id, permissions, permissionGroupId,
-                            applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect);
-
                     List<AclPermission> added = new ArrayList<>();
                     List<AclPermission> removed = new ArrayList<>();
                     ListIterator<Integer> permissionsIterator = permissions.listIterator();
@@ -207,9 +248,54 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                         }
                     }
 
-                    return genericDatabaseOperation.updatePolicies(id, permissionGroupId, added, removed, aClass);
+                    // Compute the side effects for this entity and add to the list.
+                    computeSideEffectOfPermissionChange(sideEffects, tab, aClass, id, permissions,
+                            applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect, added, removed,
+                            sideEffectsPermissionsAddedMap, sideEffectsPermissionsRemovedMap, sideEffectsClassMap);
+
+
+                    // Add the entity to the map of entities to be updated
+                    entityPermissionsAddedMap.merge(id, added, ListUtils::union);
+                    entityPermissionsRemovedMap.merge(id, removed, ListUtils::union);
+                    entityClassMap.put(id, aClass);
+
+                    return true;
                 })
+                .collectList()
+                .then(Mono.defer(() -> Mono.just(entityClassMap.entrySet().stream().collect(
+                        Collectors.groupingBy(Entry::getValue, Collectors.mapping(Entry::getKey, Collectors.toSet()))))));
+
+        Mono<List<Boolean>> validatedEntities = preComputeMono
+                .flatMapMany(entityObjectListMap -> Flux.fromIterable(entityObjectListMap.entrySet()))
+                .flatMap(entry -> validatePermissionsChanged(entry.getKey(), entry.getValue(), entityPermissionsAddedMap, entityPermissionsRemovedMap))
+                .collectList();
+
+        /*
+         * Before updating any of the entities, we are validating if the Entities have Correct Permissions changed or not.
+         * If not, then we are fast failing, so that there is no partial update on any of the Entity.
+         */
+        Flux<Long> updateEntityPoliciesFlux = validatedEntities
+                .flatMapMany(bool -> Flux.fromIterable(entityPermissionsAddedMap.keySet())
+                        .flatMap(id -> {
+                            List<AclPermission> added = entityPermissionsAddedMap.get(id);
+                            List<AclPermission> removed = entityPermissionsRemovedMap.get(id);
+                            Class aClass = entityClassMap.get(id);
+                            return genericDatabaseOperation.updatePolicies(id, permissionGroupId, added, removed, aClass);
+                        }))
                 .cache();
+
+        Mono<Long> computeSideEffects = Flux.fromIterable(sideEffects)
+                .flatMap(value -> value)
+                .collectList()
+                .flatMapMany(sum -> {
+                    List<Mono<Long>> dbOpList = new ArrayList<>();
+                    sideEffectsClassMap.forEach((key, value) -> {
+                        dbOpList.add(genericDatabaseOperation.updatePolicies(key, permissionGroupId,
+                                sideEffectsPermissionsAddedMap.getOrDefault(key, List.of()),
+                                sideEffectsPermissionsRemovedMap.getOrDefault(key, List.of()), value));
+                    });
+                    return Flux.fromIterable(dbOpList);
+                }).flatMap(obj -> obj).reduce(0L, Long::sum);
 
 
         Flux<Mono<Boolean>> postAllUpdatesEffectsFlux = Flux.defer(() -> {
@@ -227,15 +313,18 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             return Flux.fromIterable(postAllUpdatesSideEffects);
         });
 
+        Map<String, Object> roleUpdateProperties = getRoleUpdateMetadata(updateRoleConfigDTO);
+        Mono<PermissionGroup> sendPermissionGroupUpdatedEventMono = permissionGroupMono
+                .flatMap(permissionGroup -> analyticsService.sendUpdateEvent(permissionGroup, roleUpdateProperties));
+
         return permissionGroupMono
                 .thenMany(updateEntityPoliciesFlux)
-                .thenMany(Flux.fromIterable(sideEffects))
-                .flatMap(obj -> obj)
+                .then(computeSideEffects)
                 // Post all the entity updates and side effects, now do a cleanup for affected entities at the end
                 .thenMany(postAllUpdatesEffectsFlux)
                 .flatMap(obj -> obj)
                 .then(getAllTabViews(permissionGroupId))
-                .zipWith(permissionGroupMono)
+                .zipWith(sendPermissionGroupUpdatedEventMono)
                 // Add the user permissions and other transient fields to the response before returning
                 .map(tuple -> {
                     RoleViewDTO roleViewDTO = tuple.getT1();
@@ -243,18 +332,23 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
 
                     roleViewDTO.setId(permissionGroup.getId());
                     roleViewDTO.setName(permissionGroup.getName());
+                    roleViewDTO.setDescription(permissionGroup.getDescription());
                     roleViewDTO.setUserPermissions(permissionGroup.getUserPermissions());
                     return roleViewDTO;
                 });
     }
 
-    private Mono<Long> addReadPermissionToWorkspaceGivenApplication(String applicationId, String permissionGroupId) {
+    private Mono<Long> addReadPermissionToWorkspaceGivenApplication(String applicationId,
+                                                                    ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                                    ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
         return applicationRepository.findById(applicationId)
-                .flatMap(application -> {
+                .map(application -> {
                     String workspaceId = application.getWorkspaceId();
                     // If the workspace should be given READ permission, then we need to add the READ permission
-                    return genericDatabaseOperation.updatePolicies(workspaceId, permissionGroupId, List.of(READ_WORKSPACES), List.of(), Workspace.class);
+                    sideEffectsClassMap.put(workspaceId, Workspace.class);
+                    sideEffectsAddedMap.merge(workspaceId, List.of(READ_WORKSPACES), ListUtils::union);
+                    return 1L;
                 });
     }
 
@@ -268,29 +362,239 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                                      Class<?> aClazz,
                                                      String id,
                                                      List<Integer> permissions,
-                                                     String permissionGroupId,
                                                      List<String> applicationsRevokedInApplicationResourcesTab,
-                                                     Set<String> workspaceReadGivenAsSideEffect) {
+                                                     Set<String> workspaceReadGivenAsSideEffect,
+                                                     List<AclPermission> added,
+                                                     List<AclPermission> removed,
+                                                     ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                     ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                     ConcurrentHashMap<String, Class> sideEffectsClassMap) {
 
         if (tab == RoleTab.APPLICATION_RESOURCES && Application.class.equals(aClazz)) {
+
             // If the tab is application resources, and the entity is an application, then we need to
-            // update the READ_WORKSPACE permission for the workspace
+            // update the READ_WORKSPACE permission for the workspace to ensure that if atleast view access is given
+            // on an application, the said application loads up on the homepage.
+            sideEffectOnReadWorkspaceGivenApplicationUpdate(sideEffects, id, permissions,
+                    applicationsRevokedInApplicationResourcesTab, workspaceReadGivenAsSideEffect,
+                    sideEffectsAddedMap, sideEffectsClassMap);
 
-            // If any of the permissions are true in this tab for application, give workspace read so that
-            // the application is visible on the home page.
-            boolean anyPermissionTrue = permissions.stream().anyMatch(permission -> permission == 1);
+            // If the application is given permissions, we should give custom theme same permissions
+            sideEffectOnCustomThemeGivenApplicationUpdate(sideEffects, id, added, removed, sideEffectsAddedMap,
+                    sideEffectsRemovedMap, sideEffectsClassMap);
 
-            if (anyPermissionTrue && !workspaceReadGivenAsSideEffect.contains(id)) {
-                sideEffects.add(addReadPermissionToWorkspaceGivenApplication(id, permissionGroupId));
-                // Don't give the same workspace read permission again if done already.
-                workspaceReadGivenAsSideEffect.add(id);
-            }
+        } else if (tab == RoleTab.APPLICATION_RESOURCES && NewPage.class.equals(aClazz)) {
 
-            boolean allPermissionsFalse = permissions.stream().allMatch(permission -> permission == 0);
+            // If the tab is application resources, and the entity is a page, then we need to give actions and action
+            // collections execute permission if view is given on the page.
+            sideEffectOnActionsGivenPageUpdate(sideEffects, id, added, removed, sideEffectsAddedMap,
+                    sideEffectsRemovedMap, sideEffectsClassMap);
 
-            if (allPermissionsFalse) {
-                applicationsRevokedInApplicationResourcesTab.add(id);
-            }
+        } else if (tab == RoleTab.GROUPS_ROLES && PermissionGroup.class.equals(aClazz)) {
+
+            sideEffectOnAssociateRoleGivenPermissionGroupUpdate(id, added, removed, sideEffectsAddedMap,
+                    sideEffectsRemovedMap, sideEffectsClassMap);
+        } else if (tab == RoleTab.APPLICATION_RESOURCES && ActionCollection.class.equals(aClazz)) {
+
+            // If the tab is application resources, and the entity is an Action Collection, then we need  to give all
+            // associated actions the same permission as the entity.
+            sideEffectOnActionsGivenActionCollectionUpdate(sideEffects, id, added, removed, sideEffectsAddedMap,
+                    sideEffectsRemovedMap, sideEffectsClassMap);
+        }
+    }
+
+    private void sideEffectOnActionsGivenActionCollectionUpdate(List<Mono<Long>> sideEffects,
+                                                                String actionCollectionId,
+                                                                List<AclPermission> added,
+                                                                List<AclPermission> removed,
+                                                                ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                                ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                                ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        List<String> includedFields = List.of(fieldName(QNewAction.newAction.id));
+        Flux<String> actionFlux = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionId), includedFields)
+                .map(NewAction::getId);
+
+        Mono<Long> actionsUpdated = actionFlux.map(actionId -> {
+            sideEffectsClassMap.put(actionId, NewAction.class);
+            sideEffectsAddedMap.merge(actionId, added, ListUtils::union);
+            sideEffectsRemovedMap.merge(actionId, removed, ListUtils::union);
+            return 1L;
+        }).reduce(0L, Long::sum);
+        sideEffects.add(actionsUpdated);
+    }
+
+    private void sideEffectOnActionsGivenPageUpdate(List<Mono<Long>> sideEffects,
+                                                    String pageId,
+                                                    List<AclPermission> added,
+                                                    List<AclPermission> removed,
+                                                    ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                    ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                    ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+
+        Mono<Long> actionsUpdated = Mono.just(0L);
+        Mono<Long> actionCollectionsUpdated = Mono.just(0L);
+
+        Flux<String> actionFlux = newActionRepository.findByPageId(pageId).map(NewAction::getId);
+        Flux<String> actionCollectionFlux = actionCollectionRepository.findByPageId(pageId).map(ActionCollection::getId);
+
+        if (added.contains(READ_PAGES)) {
+            actionsUpdated = actionFlux
+                    .map(actionId -> {
+                        sideEffectsClassMap.put(actionId, NewAction.class);
+                        sideEffectsAddedMap.merge(actionId, List.of(EXECUTE_ACTIONS), ListUtils::union);
+                        return 1L;
+                    })
+                    .reduce(0L, Long::sum);
+            actionCollectionsUpdated = actionCollectionFlux
+                    .map(actionCollectionId -> {
+                        sideEffectsClassMap.put(actionCollectionId, ActionCollection.class);
+                        sideEffectsAddedMap.merge(actionCollectionId, List.of(EXECUTE_ACTIONS), ListUtils::union);
+                        return 1L;
+                    })
+                    .reduce(0L, Long::sum);
+
+        } else if (removed.contains(READ_PAGES)) {
+            actionsUpdated = actionFlux
+                    .map(actionId -> {
+                        sideEffectsClassMap.put(actionId, NewAction.class);
+                        sideEffectsRemovedMap.merge(actionId, List.of(EXECUTE_ACTIONS), ListUtils::union);
+                        return 1L;
+                    })
+                    .reduce(0L, Long::sum);
+            actionCollectionsUpdated = actionCollectionFlux
+                    .map(actionCollectionId -> {
+                        sideEffectsClassMap.put(actionCollectionId, ActionCollection.class);
+                        sideEffectsRemovedMap.merge(actionCollectionId, List.of(EXECUTE_ACTIONS), ListUtils::union);
+                        return 1L;
+                    })
+                    .reduce(0L, Long::sum);
+        }
+
+        Mono<Long> updateAllActionsOnPageUpdateMono = Mono.zip(actionsUpdated, actionCollectionsUpdated)
+                .map(tuple -> tuple.getT1() + tuple.getT2());
+
+        sideEffects.add(updateAllActionsOnPageUpdateMono);
+
+    }
+
+    private void sideEffectOnAssociateRoleGivenPermissionGroupUpdate(String id,
+                                                                     List<AclPermission> added,
+                                                                     List<AclPermission> removed,
+                                                                     ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                                     ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                                     ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+        // If assign permission is given/taken away, we must replicate the same for unassign permission as well
+        if (added.contains(ASSIGN_PERMISSION_GROUPS)) {
+            sideEffectsClassMap.put(id, PermissionGroup.class);
+            sideEffectsAddedMap.merge(id, List.of(UNASSIGN_PERMISSION_GROUPS), ListUtils::union);
+        } else if (removed.contains(ASSIGN_PERMISSION_GROUPS)) {
+            sideEffectsClassMap.put(id, PermissionGroup.class);
+            sideEffectsRemovedMap.merge(id, List.of(UNASSIGN_PERMISSION_GROUPS), ListUtils::union);
+        }
+    }
+
+    private void sideEffectOnCustomThemeGivenApplicationUpdate(List<Mono<Long>> sideEffects,
+                                                               String applicationId,
+                                                               List<AclPermission> added,
+                                                               List<AclPermission> removed,
+                                                               ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                               ConcurrentHashMap<String, List<AclPermission>> sideEffectsRemovedMap,
+                                                               ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+
+        Mono<Long> themeUpdateSideEffectMono = applicationRepository.findById(applicationId)
+                .flatMap(application -> {
+                    String editModeThemeId = application.getEditModeThemeId();
+                    String publishedModeThemeId = application.getPublishedModeThemeId();
+
+                    if (editModeThemeId == null || publishedModeThemeId == null) {
+                        // Do nothing. These are old applications which were created (and not yet edited) before theme feature
+                        return Mono.empty();
+                    }
+
+                    Mono<Theme> editModeThemeMono = themeRepository.findById(editModeThemeId);
+                    Mono<Theme> publishedModeThemeMono = themeRepository.findById(publishedModeThemeId);
+
+                    return Mono.zip(editModeThemeMono, publishedModeThemeMono)
+                            .flatMap(tuple -> {
+                                Theme editModeTheme = tuple.getT1();
+                                Theme publishedModeTheme = tuple.getT2();
+
+                                Mono<Long> editModeThemeUpdateMono = Mono.empty();
+                                Mono<Long> publishedModeThemeUpdateMono = Mono.empty();
+
+                                if (editModeTheme.isSystemTheme() && publishedModeTheme.isSystemTheme()) {
+                                    // Do nothing. These are system themes. We don't want to give system themes permissions
+                                    // since they are already accessible to everyone.
+                                    return Mono.empty();
+                                }
+
+                                // Translate application permissions to theme permissions
+                                List<AclPermission> themeAdded = new ArrayList<>();
+                                List<AclPermission> themeRemoved = new ArrayList<>();
+
+                                for (AclPermission permission : added) {
+                                    themeAdded.add(translateThemePermissionGivenApplicationPermission(permission));
+                                }
+                                for (AclPermission permission : removed) {
+                                    themeRemoved.add(translateThemePermissionGivenApplicationPermission(permission));
+                                }
+
+                                if (!editModeTheme.isSystemTheme()) {
+                                    sideEffectsClassMap.put(editModeThemeId, Theme.class);
+                                    sideEffectsAddedMap.merge(editModeThemeId, themeAdded, ListUtils::union);
+                                    sideEffectsRemovedMap.merge(editModeThemeId, themeRemoved, ListUtils::union);
+                                    editModeThemeUpdateMono = Mono.just(1L);
+                                }
+                                if (!publishedModeTheme.isSystemTheme()) {
+                                    sideEffectsClassMap.put(publishedModeThemeId, Theme.class);
+                                    sideEffectsAddedMap.merge(publishedModeThemeId, themeAdded, ListUtils::union);
+                                    sideEffectsRemovedMap.merge(publishedModeThemeId, themeRemoved, ListUtils::union);
+                                    publishedModeThemeUpdateMono = Mono.just(1L);
+                                }
+
+                                return Mono.when(editModeThemeUpdateMono, publishedModeThemeUpdateMono)
+                                        .thenReturn(1L);
+                            })
+                            .map(obj -> obj);
+
+                });
+
+        sideEffects.add(themeUpdateSideEffectMono);
+
+    }
+
+    private AclPermission translateThemePermissionGivenApplicationPermission(AclPermission permission) {
+        if (permission == READ_APPLICATIONS) {
+            return READ_THEMES;
+        } else if (permission == MANAGE_APPLICATIONS) {
+            return MANAGE_THEMES;
+        }
+        return permission;
+    }
+
+    private void sideEffectOnReadWorkspaceGivenApplicationUpdate(List<Mono<Long>> sideEffects,
+                                                                 String id,
+                                                                 List<Integer> permissions,
+                                                                 List<String> applicationsRevokedInApplicationResourcesTab,
+                                                                 Set<String> workspaceReadGivenAsSideEffect,
+                                                                 ConcurrentHashMap<String, List<AclPermission>> sideEffectsAddedMap,
+                                                                 ConcurrentHashMap<String, Class> sideEffectsClassMap) {
+
+        // If any of the permissions are true in this tab for application, give workspace read so that
+        // the application is visible on the home page.
+        boolean anyPermissionTrue = permissions.stream().anyMatch(permission -> permission == 1);
+
+        if (anyPermissionTrue && !workspaceReadGivenAsSideEffect.contains(id)) {
+            sideEffects.add(addReadPermissionToWorkspaceGivenApplication(id, sideEffectsAddedMap, sideEffectsClassMap));
+            // Don't give the same workspace read permission again if done already.
+            workspaceReadGivenAsSideEffect.add(id);
+        }
+
+        boolean allPermissionsFalse = permissions.stream().allMatch(permission -> permission == 0);
+
+        if (allPermissionsFalse) {
+            applicationsRevokedInApplicationResourcesTab.add(id);
         }
     }
 
@@ -364,6 +668,85 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     return removeReadPermissionFromWorkspace(workspace.getId(), permissionGroupId);
                 })
                 .then(Mono.just(Boolean.TRUE));
+    }
+
+    private Map<String, Object> getRoleUpdateMetadata(UpdateRoleConfigDTO updateRoleConfigDTO) {
+        Map<String, Object> roleUpdateMetadata = new HashMap<>();
+        RoleTab tab = RoleTab.getTabByValue(updateRoleConfigDTO.getTabName());
+        roleUpdateMetadata.put(GAC_TAB, updateRoleConfigDTO.getTabName());
+        List<GacEntityMetadata> entityMetadataList = new ArrayList<>();
+        updateRoleConfigDTO.getEntitiesChanged().forEach(entityChanged -> {
+            GacEntityMetadata entityMetadata = new GacEntityMetadata();
+            entityMetadata.setId(entityChanged.getId());
+            entityMetadata.setName(entityChanged.getName());
+            entityMetadata.setType(getGacEntityName(entityChanged.getType()));
+            List<PermissionViewableName> newPermissions = new ArrayList<>();
+            ListIterator<Integer> permissionsIterator = entityChanged.getPermissions().listIterator();
+            while (permissionsIterator.hasNext()) {
+                int index = permissionsIterator.nextIndex();
+                Integer permission = permissionsIterator.next();
+                if (permission == 1) {
+                    newPermissions.add(tab.getViewablePermissions().get(index));
+                }
+            }
+            entityMetadata.setPermissions(newPermissions);
+            entityMetadataList.add(entityMetadata);
+        });
+        if (!entityMetadataList.isEmpty()) {
+            roleUpdateMetadata.put(ENTITY_UPDATED_PERMISSIONS, entityMetadataList);
+        }
+        return roleUpdateMetadata;
+    }
+
+    private String getGacEntityName(String entityName) {
+        String gacEntityName = "";
+        if (entityName.equals(ActionCollection.class.getSimpleName())) {
+            gacEntityName = "JS Object";
+        } else if (entityName.equals(NewAction.class.getSimpleName())) {
+            gacEntityName = "Action";
+        } else if (entityName.equals(NewPage.class.getSimpleName())) {
+            gacEntityName = "Page";
+        } else {
+            gacEntityName = entityName;
+        }
+        return gacEntityName;
+    }
+    private Flux<Boolean> validatePermissionsChanged(Class entityClass,
+                                                     Set<String> objectIds,
+                                                     Map<String, List<AclPermission>> addedPermissions,
+                                                     Map<String, List<AclPermission>> removedPermissions) {
+        /*
+         * Permission Group validation for permission groups checks if any PermissionGroup has been given the
+         * Permissions to Edit or Delete the AutoCreated Permission Groups and invalidates them.
+         */
+        if (entityClass.equals(PermissionGroup.class)) {
+            return findPermissionGroupsByIds(objectIds)
+                    .flatMap(permissionGroup -> Mono.zip(permissionGroupUtils.isAutoCreated(permissionGroup), Mono.just(permissionGroup)))
+                    .map(tuple -> {
+                        boolean autoCreated = tuple.getT1();
+                        PermissionGroup permissionGroup = tuple.getT2();
+                        List<AclPermission> added = addedPermissions.get(permissionGroup.getId());
+                        List<AclPermission> removed = removedPermissions.get(permissionGroup.getId());
+                        boolean areInvalidPermissionChanged = autoCreated && (added.contains(AclPermission.MANAGE_PERMISSION_GROUPS)
+                                || added.contains(AclPermission.DELETE_PERMISSION_GROUPS));
+                        if (areInvalidPermissionChanged) {
+                            throw new AppsmithException(ACTION_IS_NOT_AUTHORIZED, "Update restricted permissions");
+                        }
+                        return Boolean.TRUE;
+                    });
+        }
+        return Flux.just(Boolean.TRUE);
+
+    }
+
+    private Flux<PermissionGroup> findPermissionGroupsByIds(Set<String> ids) {
+        List<String> includeFields = new ArrayList<>(
+                List.of(
+                        fieldName(QPermissionGroup.permissionGroup.id),
+                        fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)
+                )
+        );
+        return permissionGroupRepository.findAllByIdsWithoutPermission(ids, includeFields);
     }
 
 }

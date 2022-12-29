@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -11,15 +12,22 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -28,6 +36,8 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
@@ -40,7 +50,6 @@ import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,13 +67,22 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -119,6 +137,21 @@ public class WorkspaceResourcesTest {
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
+
+    @Autowired
+    TenantService tenantService;
+
+    @Autowired
+    ThemeService themeService;
+
+    @Autowired
+    ApplicationRepository applicationRepository;
+
+    @Autowired
+    ThemeRepository themeRepository;
+
+    @Autowired
+    NewActionRepository newActionRepository;
 
     User api_user = null;
 
@@ -568,6 +601,151 @@ public class WorkspaceResourcesTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testGroupsAndRolesTab_testHoverMap_testEntityViews() {
+        Workspace workspace = new Workspace();
+        workspace.setName("testGroupsAndRolesTab_testHoverMap workspace");
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+
+        List<PermissionGroup> pgList = permissionGroupRepository
+                .findAllById(createdWorkspace1.getDefaultPermissionGroups())
+                .collectList().block();
+        PermissionGroup adminPg = pgList.stream().filter(pg -> pg.getName().startsWith(ADMINISTRATOR)).findFirst().get();
+        PermissionGroup devPg = pgList.stream().filter(pg -> pg.getName().startsWith(DEVELOPER)).findFirst().get();
+        PermissionGroup viewPg = pgList.stream().filter(pg -> pg.getName().startsWith(VIEWER)).findFirst().get();
+
+        PermissionGroup pg = new PermissionGroup();
+        pg.setName("additional pg");
+        PermissionGroup additionalPg = permissionGroupService.create(pg).block();
+
+        String tenantId = tenantService.getDefaultTenantId().block();
+
+        RoleTabDTO roleTabDTO = tenantResources.createGroupsAndRolesTab(additionalPg.getId()).block();
+
+        String tenantAssociateRoleKey = tenantId + "_Associate Role";
+        String tenantCreateKey = tenantId + "_Create";
+        String tenantDeleteKey = tenantId + "_Delete";
+        String tenantEditKey = tenantId + "_Edit";
+        String tenantViewKey = tenantId + "_View";
+        String adminPgEditKey = adminPg.getId() + "_Edit";
+        String adminPgDeleteKey = adminPg.getId() + "_Delete";
+        String adminPgViewKey = adminPg.getId() + "_View";
+        String devPgEditKey = devPg.getId() + "_Edit";
+        String devPgDeleteKey = devPg.getId() + "_Delete";
+        String devPgViewKey = devPg.getId() + "_View";
+        String viewPgEditKey = viewPg.getId() + "_Edit";
+        String viewPgDeleteKey = viewPg.getId() + "_Delete";
+        String viewPgViewKey = viewPg.getId() + "_View";
+        String additionalPgEditKey = additionalPg.getId() + "_Edit";
+        String additionalPgDeleteKey = additionalPg.getId() + "_Delete";
+        String additionalPgViewKey = additionalPg.getId() + "_View";
+
+
+        assertThat(roleTabDTO.getHoverMap()).containsKeys(tenantAssociateRoleKey, tenantCreateKey, tenantDeleteKey,
+                tenantEditKey, tenantViewKey, adminPgViewKey, devPgViewKey, viewPgViewKey, additionalPgDeleteKey,
+                additionalPgEditKey, additionalPgViewKey);
+
+        assertThat(roleTabDTO.getHoverMap()).doesNotContainKeys(adminPgDeleteKey, adminPgEditKey, devPgDeleteKey,
+                devPgEditKey, viewPgDeleteKey, viewPgEditKey);
+
+        assertThat(roleTabDTO.getHoverMap().get(tenantCreateKey)).contains(
+                new IdPermissionDTO(tenantId, PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(tenantId, PermissionViewableName.DELETE),
+                new IdPermissionDTO(tenantId, PermissionViewableName.EDIT),
+                new IdPermissionDTO(tenantId, PermissionViewableName.INVITE_USER),
+                new IdPermissionDTO(tenantId, PermissionViewableName.REMOVE_USER),
+                new IdPermissionDTO(tenantId, PermissionViewableName.VIEW)
+        );
+
+        assertThat(roleTabDTO.getHoverMap().get(tenantAssociateRoleKey)).contains(
+                new IdPermissionDTO(adminPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(devPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(viewPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.ASSOCIATE_ROLE)
+        );
+
+        assertThat(roleTabDTO.getHoverMap().get(tenantDeleteKey)).contains(
+                new IdPermissionDTO(adminPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(adminPg.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(devPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(devPg.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(viewPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(viewPg.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.DELETE)
+        );
+
+        assertThat(roleTabDTO.getHoverMap().get(tenantEditKey)).contains(
+                new IdPermissionDTO(adminPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(adminPg.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(devPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(devPg.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(viewPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(viewPg.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.EDIT)
+        );
+
+        assertThat(roleTabDTO.getHoverMap().get(tenantViewKey)).contains(
+                new IdPermissionDTO(adminPg.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(devPg.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(viewPg.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.VIEW)
+        );
+
+        assertThat(roleTabDTO.getHoverMap().get(adminPgViewKey)).contains(
+                new IdPermissionDTO(adminPg.getId(), PermissionViewableName.ASSOCIATE_ROLE));
+
+        assertThat(roleTabDTO.getHoverMap().get(devPgViewKey)).contains(
+                new IdPermissionDTO(devPg.getId(), PermissionViewableName.ASSOCIATE_ROLE));
+
+        assertThat(roleTabDTO.getHoverMap().get(viewPgViewKey)).contains(
+                new IdPermissionDTO(viewPg.getId(), PermissionViewableName.ASSOCIATE_ROLE));
+
+        assertThat(roleTabDTO.getHoverMap().get(additionalPgDeleteKey)).contains(
+                new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.VIEW));
+        assertThat(roleTabDTO.getHoverMap().get(additionalPgEditKey)).contains(
+                new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.ASSOCIATE_ROLE),
+                new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.VIEW));
+        assertThat(roleTabDTO.getHoverMap().get(additionalPgViewKey)).contains(
+                new IdPermissionDTO(additionalPg.getId(), PermissionViewableName.ASSOCIATE_ROLE));
+
+        EntityView groupsAndRolesView = roleTabDTO.getData();
+        BaseView rolesView = groupsAndRolesView.getEntities().stream()
+                .filter(entity -> entity.getName().equals("Roles")).findFirst().get();
+
+        assertThat(rolesView.getId()).isEqualTo(tenantId);
+
+        BaseView adminPgBaseView = rolesView.getChildren().stream().findAny().get()
+                .getEntities().stream().filter(entity -> entity.getId().equals(adminPg.getId()))
+                .findFirst().get();
+        BaseView devPgBaseView = rolesView.getChildren().stream().findAny().get()
+                .getEntities().stream().filter(entity -> entity.getId().equals(devPg.getId()))
+                .findFirst().get();
+        BaseView viewPgBaseView = rolesView.getChildren().stream().findAny().get()
+                .getEntities().stream().filter(entity -> entity.getId().equals(viewPg.getId()))
+                .findFirst().get();
+        BaseView additionalPgBaseView = rolesView.getChildren().stream().findAny().get()
+                .getEntities().stream().filter(entity -> entity.getId().equals(additionalPg.getId()))
+                .findFirst().get();
+
+        /*
+         * Permissions which can be provided for Groups and Roles Tab:
+         * CREATE, EDIT, DELETE, VIEW, INVITE_USER, REMOVE_USER, ASSOCIATE_ROLE
+         * Note: The permissions are supposed to be given in this order only.
+         * 0 -> Permission has been disabled
+         * 1 -> Permission has been enabled
+         * -1 -> Permission can't be given
+         *
+         * Here, All the CREATE permissions can't be given.
+         * EDIT and DELETE permissions can't be given for the Auto-created Permission Groups
+         */
+        assertThat(adminPgBaseView.getEnabled()).isEqualTo(List.of(-1, -1, -1, 0, -1, -1, 0));
+        assertThat(devPgBaseView.getEnabled()).isEqualTo(List.of(-1, -1, -1, 0, -1, -1, 0));
+        assertThat(viewPgBaseView.getEnabled()).isEqualTo(List.of(-1, -1, -1, 0, -1, -1, 0));
+        assertThat(additionalPgBaseView.getEnabled()).isEqualTo(List.of(-1, 0, 0, 0, -1, -1, 0));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testDatasourceResourcesTabWithSuperAdminPermissionGroupId() {
         if (superAdminPermissionGroupId == null) {
             superAdminPermissionGroupId = userUtils.getSuperAdminPermissionGroup().block().getId();
@@ -774,7 +952,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("validActionCollection");
@@ -860,7 +1038,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing");
@@ -906,7 +1084,7 @@ public class WorkspaceResourcesTest {
 
         StepVerifier.create(roleConfigChangeMono)
                 .assertNext(roleViewDTO -> {
-                    Assertions.assertThat(roleViewDTO).isNotNull();
+                    assertThat(roleViewDTO).isNotNull();
                     BaseView workspaceView = roleViewDTO.getTabs().get(RoleTab.APPLICATION_RESOURCES.getName())
                             .getData()
                             .getEntities()
@@ -959,7 +1137,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenViewOnApp_assertViewOnWorkspace");
@@ -1008,7 +1186,7 @@ public class WorkspaceResourcesTest {
                 .assertNext(tuple -> {
                     RoleViewDTO roleViewDTO = tuple.getT1();
 
-                    Assertions.assertThat(roleViewDTO).isNotNull();
+                    assertThat(roleViewDTO).isNotNull();
                     BaseView workspaceView = roleViewDTO.getTabs().get(RoleTab.APPLICATION_RESOURCES.getName())
                             .getData()
                             .getEntities()
@@ -1065,7 +1243,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenRemoveViewOnApp_assertNoViewOnWorkspace");
@@ -1135,7 +1313,7 @@ public class WorkspaceResourcesTest {
                 .assertNext(tuple -> {
                     RoleViewDTO roleViewDTO = tuple.getT1();
 
-                    Assertions.assertThat(roleViewDTO).isNotNull();
+                    assertThat(roleViewDTO).isNotNull();
                     BaseView workspaceView = roleViewDTO.getTabs().get(RoleTab.APPLICATION_RESOURCES.getName())
                             .getData()
                             .getEntities()
@@ -1280,6 +1458,373 @@ public class WorkspaceResourcesTest {
 
     }
 
-    // TODO : Add tests for action & datasource execute on enabling edit/view for workspace & applications in Applicaiton Resources tab
+    @Test
+    @WithUserDetails(value = "api_user")
+    @DirtiesContext
+    public void testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Workspace workspace = new Workspace();
+        workspace.setName("testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions application");
+        Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
+
+        Theme systemDefaultTheme = themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES).block();
+
+        String applicationId = application.getId();
+        // publish the app to ensure system theme gets set
+        applicationPageService.publish(application.getId(), TRUE).block();
+
+        // Create and apply custom theme in edit mode.
+        Theme customTheme = new Theme();
+        customTheme.setDisplayName("My custom theme");
+        themeService.persistCurrentTheme(application.getId(), null, customTheme)
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), applicationId, null))
+                .block();
+        application = applicationRepository.findById(applicationId).block();
+
+        // Apply theme customization.
+        Theme themeCustomization = new Theme();
+        themeCustomization.setDisplayName("Updated name");
+        Mono<Theme> updateThemeMono = themeService.updateTheme(application.getId(), null, themeCustomization);
+
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenEditAndView_assertCustomThemePermissions");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+
+        // Add entity changes
+        // Application : Give edit and view permissions to the application
+        UpdateRoleEntityDTO applicationEntity = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 1, 0, 1, 0, 0),
+                createdApplication.getName()
+        );
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(
+                applicationEntity
+        ));
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+
+        // Make the role configuration changes in a blocking manner
+        roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+
+        // Fetch the application again to ensure the changes are persisted
+        // Fetch the themes : 1. Edit mode theme is custom, so we should hav gotten edit and view theme permissions. 2. View mode theme is system default, so we should not have updated the policies.
+
+        Application updatedApplication = applicationRepository.findById(createdApplication.getId()).block();
+
+        Theme editModeTheme = themeRepository.findById(updatedApplication.getEditModeThemeId(), READ_THEMES).block();
+
+        Theme publishedModeTheme = themeRepository.findById(updatedApplication.getPublishedModeThemeId(), READ_THEMES).block();
+
+
+        // Assert that application policy update happened
+        updatedApplication.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_APPLICATIONS.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that edit mode theme policy update happened
+        editModeTheme.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+        // Assert that published mode theme policy update did not happen
+        assertThat(publishedModeTheme.isSystemTheme()).isTrue();
+        publishedModeTheme.getPolicies().stream().forEach(
+                policy -> {
+                    if (policy.getPermission().equals(MANAGE_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    } else if (policy.getPermission().equals(READ_THEMES.getValue())) {
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+                    }
+                }
+        );
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSaveRoleConfigurationChangesForApplicationResourcesTab_assertExecuteActionOnPageUpdate() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Workspace workspace = new Workspace();
+        workspace.setName("testSaveRoleConfigurationChangesForApplicationResourcesTab_assertExecuteActionOnPageUpdate workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("testSaveRoleConfigurationChangesForApplicationResourcesTab_assertExecuteActionOnPageUpdate application");
+        Application createdApplication = applicationPageService.createApplication(application, workspace.getId()).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace.getId());
+        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(createdApplication.getPages().get(0).getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+
+        // Add entity changes
+        // Workspace : Give create, edit and view permissions to the workspace
+        UpdateRoleEntityDTO workspaceEntity = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(0, 1, 0, 1, 0, 0),
+                createdWorkspace.getName()
+        );
+        UpdateRoleEntityDTO applicationEntity = new UpdateRoleEntityDTO(
+                Application.class.getSimpleName(),
+                createdApplication.getId(),
+                List.of(0, 1, 0, 1, 0, 0),
+                createdApplication.getName()
+        );
+        UpdateRoleEntityDTO pageEntity = new UpdateRoleEntityDTO(
+                NewPage.class.getSimpleName(),
+                createdApplication.getPages().get(0).getId(),
+                List.of(0, 1, 0, 1, -1, -1),
+                "unnecessary name"
+        );
+        UpdateRoleEntityDTO actionEntity = new UpdateRoleEntityDTO(
+                NewAction.class.getSimpleName(),
+                createdAction.getId(),
+                List.of(-1, 1, 0, 1, -1, -1),
+                "unnecessary name"
+        );
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(
+                workspaceEntity,
+                applicationEntity,
+                pageEntity,
+                actionEntity
+        ));
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+
+        Mono<NewAction> actionPostUpdateMono = roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
+                .then(newActionRepository.findById(createdAction.getId()));
+
+        StepVerifier.create(actionPostUpdateMono)
+                .assertNext(actionPostUpdate -> {
+
+                    actionPostUpdate.getPolicies().stream().forEach(
+                            policy -> {
+                                if (policy.getPermission().equals(EXECUTE_ACTIONS.getValue())) {
+                                    assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                                }
+                            }
+                    );
+
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    @DirtiesContext
+    public void testUpdateRoles_updateGroupsAndRoles() {
+        Workspace workspace = new Workspace();
+        workspace.setName("testUpdateRoles_updateGroupsAndRoles workspace");
+        Workspace createdWs = workspaceService.create(workspace).block();
+
+        List<PermissionGroup> autoCreatedPgs = permissionGroupRepository
+                .findAllById(createdWs.getDefaultPermissionGroups())
+                .collectList().block();
+
+        PermissionGroup adminPg = autoCreatedPgs.stream().filter(pg -> pg.getName().startsWith(ADMINISTRATOR)).findFirst().get();
+        PermissionGroup devPg = autoCreatedPgs.stream().filter(pg -> pg.getName().startsWith(DEVELOPER)).findFirst().get();
+        PermissionGroup viewPg = autoCreatedPgs.stream().filter(pg -> pg.getName().startsWith(VIEWER)).findFirst().get();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing : testUpdateRoles_updateGroupsAndRoles");
+        PermissionGroup createdPg = permissionGroupService.create(permissionGroup).block();
+
+        String tenantId = tenantService.getDefaultTenantId().block();
+
+        /*
+         * Permissions which can be provided for Groups and Roles Tab:
+         * CREATE, EDIT, DELETE, VIEW, INVITE_USER, REMOVE_USER, ASSOCIATE_ROLE
+         * Note: The permissions are supposed to be given in this order only.
+         * 0 -> Permission has been disabled
+         * 1 -> Permission has been enabled
+         * -1 -> Permission can't be given
+         */
+        UpdateRoleEntityDTO tenantEntityDto = new UpdateRoleEntityDTO(Tenant.class.getSimpleName(),
+                tenantId, List.of(1, 1, 1, 1, -1, -1, 1), "Roles");
+        UpdateRoleEntityDTO adminPgEntityDto = new UpdateRoleEntityDTO(PermissionGroup.class.getSimpleName(),
+                adminPg.getId(), List.of(-1, -1, -1, 1, -1, -1, 1), adminPg.getName());
+        UpdateRoleEntityDTO devPgEntityDto = new UpdateRoleEntityDTO(PermissionGroup.class.getSimpleName(),
+                devPg.getId(), List.of(-1, -1, -1, 1, -1, -1, 1), devPg.getName());
+        UpdateRoleEntityDTO viewPgEntityDto = new UpdateRoleEntityDTO(PermissionGroup.class.getSimpleName(),
+                viewPg.getId(), List.of(-1, -1, -1, 1, -1, -1, 1), viewPg.getName());
+        UpdateRoleEntityDTO createdPgEntityDto = new UpdateRoleEntityDTO(PermissionGroup.class.getSimpleName(),
+                createdPg.getId(), List.of(-1, 1, 1, 1, -1, -1, 1), createdPg.getName());
+        UpdateRoleConfigDTO updateRoleConfigDto = new UpdateRoleConfigDTO();
+        updateRoleConfigDto.setTabName(RoleTab.GROUPS_ROLES.getName());
+        updateRoleConfigDto.setEntitiesChanged(Set.of(tenantEntityDto, adminPgEntityDto, devPgEntityDto,
+                viewPgEntityDto, createdPgEntityDto));
+
+        RoleViewDTO updatedRoleViewDto = roleConfigurationSolution.updateRoles(createdPg.getId(), updateRoleConfigDto).block();
+
+        EntityView groupsAndRolesView = updatedRoleViewDto.getTabs().get(RoleTab.GROUPS_ROLES.getName()).getData();
+        BaseView rolesView = groupsAndRolesView.getEntities().stream()
+                .filter(entity -> entity.getName().equals("Roles")).findFirst().get();
+
+        BaseView adminPgBaseView = rolesView.getChildren().stream().findAny().get()
+                .getEntities().stream().filter(entity -> entity.getId().equals(adminPg.getId()))
+                .findFirst().get();
+        BaseView devPgBaseView = rolesView.getChildren().stream().findAny().get()
+                .getEntities().stream().filter(entity -> entity.getId().equals(devPg.getId()))
+                .findFirst().get();
+        BaseView viewPgBaseView = rolesView.getChildren().stream().findAny().get()
+                .getEntities().stream().filter(entity -> entity.getId().equals(viewPg.getId()))
+                .findFirst().get();
+        BaseView createdPgBaseView = rolesView.getChildren().stream().findAny().get()
+                .getEntities().stream().filter(entity -> entity.getId().equals(createdPg.getId()))
+                .findFirst().get();
+
+        assertThat(rolesView.getId()).isEqualTo(tenantId);
+        assertThat(rolesView.getEnabled()).isEqualTo(List.of(1, 1, 1, 1, -1, -1, 1));
+        assertThat(adminPgBaseView.getEnabled()).isEqualTo(List.of(-1, -1, -1, 1, -1, -1, 1));
+        assertThat(devPgBaseView.getEnabled()).isEqualTo(List.of(-1, -1, -1, 1, -1, -1, 1));
+        assertThat(viewPgBaseView.getEnabled()).isEqualTo(List.of(-1, -1, -1, 1, -1, -1, 1));
+        assertThat(createdPgBaseView.getEnabled()).isEqualTo(List.of(-1, 1, 1, 1, -1, -1, 1));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    @DirtiesContext
+    public void testUpdateRoles_updateGroupsAndRoles_updateRestrictedPermissions() {
+        Workspace workspace = new Workspace();
+        workspace.setName("testUpdateRoles_updateGroupsAndRoles_updateRestrictedPermissions workspace");
+        Workspace createdWs = workspaceService.create(workspace).block();
+
+        List<PermissionGroup> autoCreatedPgs = permissionGroupRepository
+                .findAllById(createdWs.getDefaultPermissionGroups())
+                .collectList().block();
+
+        PermissionGroup adminPg = autoCreatedPgs.stream().filter(pg -> pg.getName().startsWith(ADMINISTRATOR)).findFirst().get();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing : testUpdateRoles_updateGroupsAndRoles_updateRestrictedPermissions");
+        PermissionGroup createdPg = permissionGroupService.create(permissionGroup).block();
+
+        /*
+         * Permissions which can be provided for Groups and Roles Tab:
+         * CREATE, EDIT, DELETE, VIEW, INVITE_USER, REMOVE_USER, ASSOCIATE_ROLE
+         * Note: The permissions are supposed to be given in this order only.
+         * 0 -> Permission has been disabled
+         * 1 -> Permission has been enabled
+         * -1 -> Permission can't be given
+         *
+         * Here we are trying to give EDIT and DELETE permissions for an auto-created role to a custom created role
+         * above and this will fail because no user should have EDIT or DELETE permissions for auto-created roles.
+         */
+        UpdateRoleEntityDTO adminPgEntityDto = new UpdateRoleEntityDTO(PermissionGroup.class.getSimpleName(),
+                adminPg.getId(), List.of(-1, 1, 1, 1, -1, -1, 1), adminPg.getName());
+        UpdateRoleConfigDTO updateRoleConfigDto = new UpdateRoleConfigDTO();
+        updateRoleConfigDto.setTabName(RoleTab.GROUPS_ROLES.getName());
+        updateRoleConfigDto.setEntitiesChanged(Set.of(adminPgEntityDto));
+
+        Mono<RoleViewDTO> updatedRoleViewDtoMono = roleConfigurationSolution.updateRoles(createdPg.getId(), updateRoleConfigDto);
+
+        StepVerifier.create(updatedRoleViewDtoMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Update restricted permissions")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test_actionCollectionPermissionSideEffectToRelatedAction() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        Workspace workspace = new Workspace();
+        workspace.setName("test_actionCollectionPermissionSideEffectToRelatedAction workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("test_actionCollectionPermissionSideEffectToRelatedAction application");
+        Application createdApplication = applicationPageService.createApplication(application, workspace.getId()).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection");
+        actionCollectionDTO.setPageId(createdApplication.getPages().get(0).getId());
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setPluginId(pluginRepository.findByPackageName("installed-js-plugin").block().getId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        ActionDTO action = new ActionDTO();
+        action.setName("testAction");
+        action.setActionConfiguration(new ActionConfiguration());
+        action.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO.setActions(List.of(action));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setBody("export default { x: 1 }");
+
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService.createCollection(actionCollectionDTO).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(
+                new UpdateRoleEntityDTO(ActionCollection.class.getSimpleName(), createdActionCollectionDTO.getId(), List.of(-1, 1, 0, 1, -1, -1), createdActionCollectionDTO.getName())));
+        List<NewAction> actionsBeforeRoleUpdate = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionDTO.getId()), null)
+                .collectList().block();
+        RoleViewDTO roleViewDTO = roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO).block();
+        List<NewAction> actionsAfterRoleUpdate = newActionRepository
+                .findAllByActionCollectionIdWithoutPermissions(List.of(actionCollectionDTO.getId()), null)
+                .collectList().block();
+
+        assertThat(actionsBeforeRoleUpdate).hasSize(1);
+        NewAction newActionBeforeRoleUpdate = actionsBeforeRoleUpdate.get(0);
+        Optional<Policy> manageActionPolicyBeforeRoleUpdate = newActionBeforeRoleUpdate.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_ACTIONS.getValue()))
+                .findFirst();
+        assertThat(manageActionPolicyBeforeRoleUpdate.isPresent()).isTrue();
+        assertThat(manageActionPolicyBeforeRoleUpdate.get().getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
+
+        assertThat(actionsAfterRoleUpdate).hasSize(1);
+        NewAction newActionAfterRoleUpdate = actionsAfterRoleUpdate.get(0);
+        Optional<Policy> manageActionPolicyAfterRoleUpdate = newActionAfterRoleUpdate.getPolicies().stream()
+                .filter(policy -> policy.getPermission().equals(MANAGE_ACTIONS.getValue()))
+                .findFirst();
+        assertThat(manageActionPolicyAfterRoleUpdate.isPresent()).isTrue();
+        assertThat(manageActionPolicyAfterRoleUpdate.get().getPermissionGroups()).contains(createdPermissionGroup.getId());
+    }
 
 }

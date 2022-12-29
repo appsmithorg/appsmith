@@ -8,6 +8,9 @@ import { response1 } from "./mocks/mockRoleTreeResponse";
 import { BaseAclProps, RoleEditProps } from "./types";
 import { makeData } from "./RolesTree";
 import { MenuItemProps } from "design-system";
+import * as selectors from "@appsmith/selectors/aclSelectors";
+import { mockGetRolePermissions } from "./mocks/mockSelectors";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 let container: any = null;
 
@@ -42,6 +45,9 @@ function renderComponent() {
 }
 
 describe("<RoleAddEdit />", () => {
+  jest
+    .spyOn(selectors, "getRolePermissions")
+    .mockImplementation(mockGetRolePermissions as any);
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -87,6 +93,20 @@ describe("<RoleAddEdit />", () => {
     const renameOption = document.getElementsByClassName("rename-menu-item");
     await userEvent.click(renameOption[0]);
     titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+  });
+  it("should show input box on role description on clicking edit description menu item", async () => {
+    const { getAllByTestId } = renderComponent();
+    const moreMenu = getAllByTestId("t--page-header-actions");
+    await userEvent.click(moreMenu[0]);
+    let titleEl = document.getElementsByClassName("t--editable-description");
+    expect(titleEl).toHaveLength(0);
+    const renameOption = document.getElementsByClassName(
+      "rename-desc-menu-item",
+    );
+    await userEvent.click(renameOption[0]);
+    titleEl = document.getElementsByClassName("t--editable-description");
+    expect(titleEl).toHaveLength(1);
     expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
   });
   it("should show tabs as per data recieved", () => {
@@ -151,7 +171,9 @@ describe("<RoleAddEdit />", () => {
   it("should show hover state using hashtable", async () => {
     const { getAllByTestId, queryAllByTestId } = renderComponent();
     const elId = "633ae5bf174013666db972c2_Create";
-    const hoverCheckboxEl = getAllByTestId(elId);
+    const hoverCheckboxEl = getAllByTestId(elId)?.[0].getElementsByTagName(
+      "div",
+    );
     const rightArrows = document.getElementsByName("right-arrow-2");
     rightArrows[0].click();
     const hoverEls: HTMLElement[] = [];
@@ -159,8 +181,8 @@ describe("<RoleAddEdit />", () => {
     tabData.hoverMap[elId].forEach((item: { id: string; p: string }) => {
       hoverEls.push(...queryAllByTestId(`${item.id}_${item.p}`));
     });
-    userEvent.hover(hoverCheckboxEl[0]);
-    expect(hoverEls[0]).toHaveClass("hover-state");
+    userEvent.hover(hoverCheckboxEl?.[0]);
+    expect(hoverEls?.[0]).toHaveClass("hover-state");
     /* expect(hoverEls[0]).toHaveStyle("opacity: 0.4"); styled-components 5.2.1 should solve this */
   });
   it("should show correct checkbox state", async () => {
@@ -169,7 +191,11 @@ describe("<RoleAddEdit />", () => {
     const td = rows[1].getElementsByTagName("td");
     const inputs = rows[1].getElementsByTagName("input");
     const tabData: any = Object.values(response1.tabs)[0];
-    const data = makeData([tabData.data] || []);
+    const data = makeData({
+      data: [tabData?.data] || [],
+      hoverMap: tabData.hoverMap,
+      permissions: tabData.permissions,
+    });
     const noCheckboxCount = data[0].permissions.filter((p: BaseAclProps) => p);
     expect(inputs.length).toEqual(
       data[0].permissions.length - noCheckboxCount.length,
@@ -215,6 +241,47 @@ describe("<RoleAddEdit />", () => {
     await clearButton?.click();
     saveButton = queryByText("Save Changes");
     expect(saveButton).not.toBeInTheDocument();
+  });
+  it("should display only the options which the user is permitted to", async () => {
+    jest
+      .spyOn(selectors, "getRolePermissions")
+      .mockImplementation(() =>
+        mockGetRolePermissions([PERMISSION_TYPE.DELETE_PERMISSIONGROUPS]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const moreMenu = queryAllByTestId("t--page-header-actions");
+    expect(moreMenu).toHaveLength(1);
+    await userEvent.click(moreMenu[0]);
+    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const editOption = document.getElementsByClassName("rename-menu-item");
+
+    expect(deleteOption).toHaveLength(0);
+    expect(editOption).toHaveLength(1);
+  });
+  it("should not display more option if the user doesn't have edit and delete permissions", () => {
+    jest
+      .spyOn(selectors, "getRolePermissions")
+      .mockImplementation(() =>
+        mockGetRolePermissions([
+          PERMISSION_TYPE.DELETE_PERMISSIONGROUPS,
+          PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
+        ]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const moreMenu = queryAllByTestId("t--page-header-actions");
+    expect(moreMenu).toHaveLength(0);
+  });
+  it("should not make title editable when user don't have edit permission", () => {
+    jest
+      .spyOn(selectors, "getRolePermissions")
+      .mockImplementation(() =>
+        mockGetRolePermissions([PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const editIcon = queryAllByTestId("t--action-name-edit-icon");
+    expect(editIcon).toHaveLength(0);
+    const editableTitle = queryAllByTestId("t--editable-title");
+    expect(editableTitle).toHaveLength(0);
   });
   /*it("should delete the group when Delete menu item is clicked", async () => {
     const { getAllByTestId, getByText } = renderComponent();

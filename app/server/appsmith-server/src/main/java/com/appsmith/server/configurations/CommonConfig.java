@@ -31,6 +31,7 @@ import java.util.Set;
 public class CommonConfig {
 
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
+    public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
 
     @Value("${appsmith.instance.name:}")
     private String instanceName;
@@ -72,7 +73,6 @@ public class CommonConfig {
 
     @Value("${APPSMITH_OAUTH2_OIDC_AUDIENCE:}")
     private String oidcAudience;
-
 
     @Bean
     public Scheduler scheduler() {

@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -39,7 +40,7 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup);
 
-    Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(String userId, Set<String> permissionGroupIds);
+    Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(User user, Set<String> permissionGroupIds);
 
     Mono<PermissionGroup> unassignFromUserGroup(PermissionGroup permissionGroup, UserGroup userGroup);
 
@@ -50,4 +51,9 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
     Flux<PermissionGroup> findAllByAssignedToUserId(String userId);
 
     Flux<PermissionGroup> findAllByAssignedToGroupId(String userGroupId);
+
+    Mono<Boolean> bulkAssignToUsersWithoutPermission(PermissionGroup pg, List<User> users);
+
+    Mono<Set<String>> getSessionUserPermissionGroupIds();
+
 }

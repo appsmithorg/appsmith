@@ -31,7 +31,10 @@ export const rolesReducers = {
     action: any,
   ) => ({
     ...state,
-    selectedRole: action.payload,
+    selectedRole: {
+      ...action.payload,
+      isSaving: false,
+    },
     isLoading: false,
   }),
   [ReduxActionTypes.CREATE_ACL_ROLE]: (state: any) => ({
@@ -44,7 +47,10 @@ export const rolesReducers = {
   }),
   [ReduxActionTypes.CREATE_ACL_ROLE_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    selectedRole: action.payload,
+    selectedRole: {
+      ...action.payload,
+      isSaving: false,
+    },
     isLoading: false,
   }),
   [ReduxActionTypes.CLONE_ACL_ROLE]: (state: any) => ({
@@ -62,11 +68,17 @@ export const rolesReducers = {
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE_NAME]: (state: any) => ({
     ...state,
-    isSaving: true,
+    selectedRole: {
+      ...state.selectedRole,
+      isSaving: true,
+    },
   }),
   [ReduxActionErrorTypes.UPDATE_ACL_ROLE_NAME_ERROR]: (state: any) => ({
     ...state,
-    isSaving: false,
+    selectedRole: {
+      ...state.selectedRole,
+      isSaving: false,
+    },
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE_NAME_SUCCESS]: (
     state: any,
@@ -77,16 +89,22 @@ export const rolesReducers = {
       ...state.selectedRole,
       name: action.payload.name,
       description: action.payload.description,
+      isSaving: false,
     },
-    isSaving: false,
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE]: (state: any) => ({
     ...state,
-    isSaving: true,
+    selectedRole: {
+      ...state.selectedRole,
+      isSaving: true,
+    },
   }),
   [ReduxActionErrorTypes.UPDATE_ACL_ROLE_ERROR]: (state: any) => ({
     ...state,
-    isSaving: false,
+    selectedRole: {
+      ...state.selectedRole,
+      isSaving: false,
+    },
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE_SUCCESS]: (state: any, action: any) => ({
     ...state,
@@ -95,8 +113,8 @@ export const rolesReducers = {
       tabs: action.payload.tabs,
       userPermissions:
         action.payload.userPermissions ?? state.selectedRole.userPermissions,
+      isSaving: false,
     },
-    isSaving: false,
   }),
   [ReduxActionTypes.DELETE_ACL_ROLE]: (state: any) => ({
     ...state,
@@ -134,5 +152,12 @@ export const rolesReducers = {
     ...state,
     selectedRole: null,
     roles: [],
+  }),
+  [ReduxActionTypes.IS_SAVING_ROLE]: (state: any, action: any) => ({
+    ...state,
+    selectedRole: {
+      ...state.selectedRole,
+      isSaving: action.payload,
+    },
   }),
 };

@@ -78,6 +78,14 @@ public enum AppsmithError {
     USER_NOT_FOUND(404, 4027, "Unable to find user with email {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     ACL_NO_RESOURCE_FOUND(404, 4028, "Unable to find {0} {1}. Either the asset doesn''t exist or you don''t have required permissions",
             AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    UNABLE_TO_DEPLOY_MISSING_PERMISSION(403, 4028, "Unable to deploy the Application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    APPLICATION_NOT_FORKED_MISSING_PERMISSIONS(403, 4034, "Unable to fork application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    APPLICATION_NOT_CLONED_MISSING_PERMISSIONS(403, 4034, "Unable to clone application. You don''t have required permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    ASSIGN_UNASSIGN_MISSING_PERMISSION(403, 4028, "Unable to perform assign or unassign operation. You don''t have permissions for {0}: {1}",
+            AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     VALIDATION_FAILURE(400, 4028, "Validation Failure(s): {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn''t import.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
@@ -153,6 +161,8 @@ public enum AppsmithError {
     ENV_FILE_NOT_FOUND(500, 5019, "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
     PUBLIC_APP_NO_PERMISSION_GROUP(500, 5020, "Invalid state. Public application does not have the required roles set for public access. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     RTS_SERVER_ERROR(500, 5021, "RTS server error while processing request: {0}", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    SCHEMA_MISMATCH_ERROR(500, 5022, "Looks like you skipped some required update(s), please go back to the mandatory upgrade path {0}, or refer to ''https://docs.appsmith.com/'' for more info", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    SCHEMA_VERSION_NOT_FOUND_ERROR(500, 5023, "Could not find mandatory instance schema version config. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null)
     ;
 
     private final Integer httpErrorCode;

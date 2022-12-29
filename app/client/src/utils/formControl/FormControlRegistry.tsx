@@ -15,9 +15,6 @@ import SwitchControl, {
 import KeyValueArrayControl, {
   KeyValueArrayControlProps,
 } from "components/formControls/KeyValueArrayControl";
-import KeyValueInputControl, {
-  KeyValueInputControlProps,
-} from "components/formControls/KeyValueInputControl";
 import FilePickerControl, {
   FilePickerControlProps,
 } from "components/formControls/FilePickerControl";
@@ -90,14 +87,6 @@ class FormControlRegistry {
       buildPropertyControl(controlProps: FilePickerControlProps): JSX.Element {
         //used by redshift datasource
         return <FilePickerControl {...controlProps} />;
-      },
-    });
-    FormControlFactory.registerControlBuilder(formControlTypes.KEY_VAL_INPUT, {
-      //TODO: may not be in use, replace it with KeyValueArrayControl
-      buildPropertyControl(
-        controlProps: KeyValueInputControlProps,
-      ): JSX.Element {
-        return <KeyValueInputControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder(

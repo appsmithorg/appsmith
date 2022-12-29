@@ -6,6 +6,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -40,6 +41,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -86,6 +88,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -197,6 +200,8 @@ public class ApplicationServiceTest {
 
     @Autowired
     SessionUserService sessionUserService;
+    @Autowired
+    DatasourceRepository datasourceRepository;
 
     String workspaceId;
 
@@ -223,7 +228,7 @@ public class ApplicationServiceTest {
         toCreate.setName("ApplicationServiceTest");
 
         if (workspaceId == null) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
             if (StringUtils.hasLength(gitConnectedApp.getId())) {
@@ -253,6 +258,14 @@ public class ApplicationServiceTest {
 
             testPlugin = pluginService.findByPackageName("restapi-plugin").block();
 
+            DefaultResources defaultResources = new DefaultResources();
+            defaultResources.setApplicationId(gitConnectedApp.getId());
+            PageDTO extraPage = new PageDTO();
+            extraPage.setName("extra page - gitConnectedApp");
+            extraPage.setApplicationId(gitConnectedApp.getId());
+            extraPage.setDefaultResources(defaultResources);
+            applicationPageService.createPageWithBranchName(extraPage, gitData.getBranchName()).block();
+
             Datasource datasource = new Datasource();
             datasource.setName("Clone App with action Test");
             datasource.setPluginId(testPlugin.getId());
@@ -261,6 +274,7 @@ public class ApplicationServiceTest {
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             datasource.setWorkspaceId(workspaceId);
             testDatasource = datasourceService.create(datasource).block();
+            gitConnectedApp = applicationService.findById(gitConnectedApp.getId()).block();
         }
     }
 
@@ -1196,7 +1210,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO savedAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -1456,7 +1470,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO savedAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(gitConnectedApp.getId(), branchName)
                 .cache();
@@ -1644,7 +1658,7 @@ public class ApplicationServiceTest {
 
                     return Mono.zip(
                             layoutCollectionService.createCollection(actionCollectionDTO),
-                            layoutActionService.createSingleAction(action),
+                            layoutActionService.createSingleAction(action, Boolean.FALSE),
                             layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
                             Mono.just(application)
                     );
@@ -1973,7 +1987,7 @@ public class ApplicationServiceTest {
 
                     return Mono.zip(
                             layoutCollectionService.createCollection(actionCollectionDTO),
-                            layoutActionService.createSingleAction(action),
+                            layoutActionService.createSingleAction(action, Boolean.FALSE),
                             Mono.just(application),
                             Mono.just(testPage),
                             Mono.just(layout)
@@ -2297,7 +2311,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setActions(List.of(action1));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
-                    return layoutActionService.createSingleAction(action)
+                    return layoutActionService.createSingleAction(action, Boolean.FALSE)
                             .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();
@@ -2370,10 +2384,10 @@ public class ApplicationServiceTest {
                     List<NewPage> pages = tuple.getT2();
 
                     assertThat(application).isNotNull();
-                    assertThat(application.getPages().size()).isEqualTo(1);
-                    assertThat(application.getPublishedPages().size()).isEqualTo(1);
+                    assertThat(application.getPages().size()).isEqualTo(2);
+                    assertThat(application.getPublishedPages().size()).isEqualTo(2);
 
-                    assertThat(pages.size()).isEqualTo(1);
+                    assertThat(pages.size()).isEqualTo(2);
                     NewPage newPage = pages.get(0);
                     assertThat(newPage.getUnpublishedPage().getName()).isEqualTo(newPage.getPublishedPage().getName());
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getId()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getId());
@@ -2383,6 +2397,107 @@ public class ApplicationServiceTest {
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void publishApplication_noPageEditPermissions() {
+        String gitAppPageId = gitConnectedApp.getPages().get(1).getId();
+        NewPage gitAppPage = newPageRepository.findById(gitAppPageId).block();
+        Set<Policy> existingPolicies = gitAppPage.getPolicies();
+        /*
+         * Git connected application has 2 pages.
+         * We take away all Manage Page permissions for 2nd page.
+         * Now since, no one has the permissions to Edit the 2nd page, teh application deployment will fail.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission().equals(MANAGE_PAGES.getValue()))
+                .collect(Collectors.toSet());
+        gitAppPage.setPolicies(newPoliciesWithoutEdit);
+        NewPage updatedGitAppPage = newPageRepository.save(gitAppPage).block();
+        StepVerifier.create(applicationPageService.publish(gitConnectedApp.getId(), null, true))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.UNABLE_TO_DEPLOY_MISSING_PERMISSION
+                                .getMessage("page", gitAppPageId)))
+                .verify();
+        updatedGitAppPage.setPolicies(existingPolicies);
+        NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplication_noPageEditPermissions() {
+        int existingApplicationCount = applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList().block().size();
+        String gitAppPageId = gitConnectedApp.getPages().get(1).getId();
+        NewPage gitAppPage = newPageRepository.findById(gitAppPageId).block();
+        Set<Policy> existingPolicies = gitAppPage.getPolicies();
+        /*
+         * Git connected application has 2 pages.
+         * We take away all Manage Page permissions for 2nd page.
+         * Now since, no one has the permissions to Edit the 2nd page, the application cloning will fail.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission().equals(MANAGE_PAGES.getValue()))
+                .collect(Collectors.toSet());
+        gitAppPage.setPolicies(newPoliciesWithoutEdit);
+        NewPage updatedGitAppPage = newPageRepository.save(gitAppPage).block();
+        StepVerifier.create(applicationPageService.cloneApplication(gitConnectedApp.getId(), null))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS
+                                .getMessage("page", gitAppPageId)))
+                .verify();
+        updatedGitAppPage.setPolicies(existingPolicies);
+        NewPage setPoliciesBack = newPageRepository.save(updatedGitAppPage).block();
+
+        Mono<List<Application>> applicationsInWorkspace = applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList();
+        /*
+         * Check that no applications have been created in the Target Workspace
+         * This can be checked by comparing it with the existing count of applications in the Workspace.
+         */
+        StepVerifier.create(applicationsInWorkspace).assertNext(applications -> assertThat(applications).hasSize(existingApplicationCount));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneApplication_noDatasourceCreateActionPermissions() {
+        String gitAppPageId = gitConnectedApp.getPages().get(1).getId();
+        int existingApplicationCount = applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList().block().size();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(gitAppPageId);
+        action.setExecuteOnLoad(true);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(testDatasource);
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        Set<Policy> existingPolicies = testDatasource.getPolicies();
+        /*
+         * The created Workspace has a Datasource. And we will remove the Create Datasource Action permisison.
+         */
+        Set<Policy> newPoliciesWithoutEdit = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission().equals(CREATE_DATASOURCE_ACTIONS.getValue()))
+                .collect(Collectors.toSet());
+        testDatasource.setPolicies(newPoliciesWithoutEdit);
+        Datasource updatedTestDatasource = datasourceRepository.save(testDatasource).block();
+        StepVerifier.create(applicationPageService.cloneApplication(gitConnectedApp.getId(), null))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS
+                                .getMessage("datasource", testDatasource.getId())))
+                .verify();
+        updatedTestDatasource.setPolicies(existingPolicies);
+        Datasource setPoliciesBack = datasourceRepository.save(updatedTestDatasource).block();
+
+        ActionDTO deletedAction = layoutActionService.deleteUnpublishedAction(createdAction.getId()).block();
+
+        Mono<List<Application>> applicationsInWorkspace = applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList();
+        /*
+         * Check that no applications have been created in the Target Workspace
+         * This can be checked by comparing it with the existing count of applications in the Workspace.
+         */
+        StepVerifier.create(applicationsInWorkspace).assertNext(applications -> assertThat(applications).hasSize(existingApplicationCount));
     }
 
     @Test
@@ -2465,11 +2580,11 @@ public class ApplicationServiceTest {
                 .assertNext(editedApplication -> {
 
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
-                    assertThat(publishedPages).size().isEqualTo(2);
+                    assertThat(publishedPages).size().isEqualTo(3);
                     assertThat(publishedPages).containsAnyOf(applicationPage);
 
                     List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
-                    assertThat(editedApplicationPages.size()).isEqualTo(1);
+                    assertThat(editedApplicationPages.size()).isEqualTo(2);
                     assertThat(editedApplicationPages).doesNotContain(applicationPage);
                 })
                 .verifyComplete();
@@ -2623,7 +2738,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action1.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction1 = layoutActionService.createSingleAction(action1).block();
+        ActionDTO savedAction1 = layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
 
         ActionDTO action2 = new ActionDTO();
         action2.setName("Clone App Test action2");
@@ -2631,7 +2746,7 @@ public class ApplicationServiceTest {
         action2.setDatasource(savedDatasource);
         action2.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction2 = layoutActionService.createSingleAction(action2).block();
+        ActionDTO savedAction2 = layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
 
         ActionDTO action3 = new ActionDTO();
         action3.setName("Clone App Test action3");
@@ -2639,7 +2754,7 @@ public class ApplicationServiceTest {
         action3.setDatasource(savedDatasource);
         action3.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
+        ActionDTO savedAction3 = layoutActionService.createSingleAction(action3, Boolean.FALSE).block();
 
         // Testing JS Objects here
         ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
@@ -2659,7 +2774,7 @@ public class ApplicationServiceTest {
 
         // Trigger the clone of application now.
         applicationPageService.cloneApplication(originalApplication.getId(), null)
-                .timeout(Duration.ofMillis(10))
+                .timeout(Duration.ofMillis(50))
                 .subscribe();
 
         // Wait for cloning to complete
@@ -2828,7 +2943,7 @@ public class ApplicationServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action1.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction1 = layoutActionService.createSingleAction(action1).block();
+        ActionDTO savedAction1 = layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
 
         ActionDTO action2 = new ActionDTO();
         action2.setName("Public View Test action2");
@@ -2836,7 +2951,7 @@ public class ApplicationServiceTest {
         action2.setDatasource(savedDatasource);
         action2.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction2 = layoutActionService.createSingleAction(action2).block();
+        ActionDTO savedAction2 = layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
 
         ActionDTO action3 = new ActionDTO();
         action3.setName("Public View Test action3");
@@ -2844,7 +2959,7 @@ public class ApplicationServiceTest {
         action3.setDatasource(savedDatasource);
         action3.setActionConfiguration(actionConfiguration);
 
-        ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
+        ActionDTO savedAction3 = layoutActionService.createSingleAction(action3, Boolean.FALSE).block();
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -3124,7 +3239,7 @@ public class ApplicationServiceTest {
                     actionCollectionDTO.setActions(List.of(action1));
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
-                    return layoutActionService.createSingleAction(action)
+                    return layoutActionService.createSingleAction(action, Boolean.FALSE)
                             .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();

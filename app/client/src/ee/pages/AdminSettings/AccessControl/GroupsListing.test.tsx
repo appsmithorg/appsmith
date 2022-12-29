@@ -140,4 +140,29 @@ describe("<GroupListing />", () => {
       `/settings/groups/${userGroupTableData[0].id}`,
     );
   });
+  it("should display only the options which the user is permitted to", async () => {
+    const { queryAllByTestId, queryByText } = renderComponent();
+    const userGroup = queryByText(userGroupTableData[2].name);
+    expect(userGroup).toBeInTheDocument();
+    const moreMenu = queryAllByTestId("actions-cell-menu-icon");
+    expect(moreMenu).toHaveLength(2);
+    await userEvent.click(moreMenu[1]);
+    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const editOption = document.getElementsByClassName("edit-menu-item");
+
+    expect(deleteOption).toHaveLength(0);
+    expect(editOption).toHaveLength(1);
+  });
+  it("should not display more option if the user doesn't have edit and delete permissions", () => {
+    const { queryAllByTestId, queryByText } = renderComponent();
+    const userGroup = queryByText(userGroupTableData[1].name);
+    expect(userGroup).toBeInTheDocument();
+    const moreMenu = queryAllByTestId("actions-cell-menu-icon");
+    expect(moreMenu).toHaveLength(2);
+  });
+  it("should disable 'Add group' CTA if the tenat level manage group permission is absent", () => {
+    renderComponent();
+    const button = screen.getAllByTestId("t--acl-page-header-input");
+    expect(button[0]).toHaveAttribute("disabled");
+  });
 });

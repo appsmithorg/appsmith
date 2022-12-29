@@ -1,5 +1,4 @@
 export * from "ce/pages/workspace/WorkspaceInviteUsersForm";
-import { default as CE_WorkspaceInviteUsersForm } from "ce/pages/workspace/WorkspaceInviteUsersForm";
 import {
   ErrorBox,
   InviteButtonWidth,
@@ -7,7 +6,6 @@ import {
   LabelText,
   Loading,
   MailConfigContainer,
-  mailEnabled,
   RoleDivider,
   StyledForm,
   StyledInviteFieldGroup,
@@ -27,7 +25,6 @@ import React, {
   useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";
@@ -36,6 +33,7 @@ import {
   getRolesForField,
   getAllUsers,
   getCurrentAppWorkspace,
+  getGroupSuggestions,
 } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -51,6 +49,7 @@ import {
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
 } from "@appsmith/constants/messages";
+import { INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST } from "ce/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
@@ -77,22 +76,33 @@ import ManageUsers from "pages/workspace/ManageUsers";
 import UserApi from "@appsmith/api/UserApi";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
-/*import { selectFeatureFlags } from "selectors/usersSelectors";*/
 import { getAppsmithConfigs } from "@appsmith/configs";
+import store from "store";
+import TagListField from "../../utils/TagInput";
+import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
+import { getCurrentUser } from "selectors/usersSelectors";
 
-const { cloudHosting } = getAppsmithConfigs();
+const { cloudHosting, mailEnabled } = getAppsmithConfigs();
 
-const validateFormValues = (values: {
-  users: string;
-  role?: string | string[];
-}) => {
+const validateFormValues = (
+  values: {
+    users: string;
+    role?: string | string[];
+  },
+  isAclFlow: boolean,
+) => {
   if (values.users && values.users.length > 0) {
     const _users = values.users.split(",").filter(Boolean);
 
     _users.forEach((user) => {
       if (!isEmail(user) && !isUserGroup(user)) {
         throw new SubmissionError({
-          _error: createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST),
+          _error: createMessage(
+            isAclFlow
+              ? CE_INVITE_USERS_VALIDATION_EMAIL_LIST
+              : INVITE_USERS_VALIDATION_EMAIL_LIST,
+            cloudHosting,
+          ),
         });
       }
     });
@@ -124,7 +134,10 @@ const validate = (values: any) => {
 
     _users.forEach((user: string) => {
       if (!isEmail(user) && !isUserGroup(user)) {
-        errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
+        errors["users"] = createMessage(
+          INVITE_USERS_VALIDATION_EMAIL_LIST,
+          cloudHosting,
+        );
       }
     });
   }
@@ -132,31 +145,10 @@ const validate = (values: any) => {
 };
 
 const isUserGroup = (user: string) => {
-  if (listOfUGs.some((ug) => ug.name === user)) {
-    return true;
-  }
-  return false;
+  return getGroupSuggestions(store.getState())?.some(
+    (ug: any) => ug.id === user,
+  );
 };
-
-const getUserGroupId = (user: string) => {
-  const ug = listOfUGs.find((ug) => ug.name === user);
-  return ug?.id || "";
-};
-
-const listOfUGs = [
-  {
-    id: "1",
-    name: "design",
-  },
-  {
-    id: "2",
-    name: "hr",
-  },
-  {
-    id: "3",
-    name: "tester",
-  },
-];
 
 const StyledInviteFieldGroupEE = styled(StyledInviteFieldGroup)`
   .wrapper {
@@ -166,11 +158,19 @@ const StyledInviteFieldGroupEE = styled(StyledInviteFieldGroup)`
   }
 `;
 
+const StyledUserList = styled(UserList)`
+  .user-icons {
+    width: 34px;
+    height: 34px;
+    justify-content: center;
+  }
+`;
+
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
+  const user = useSelector(getCurrentUser);
   const userRef = React.createRef<HTMLDivElement>();
-  /*const featureFlags = useSelector(selectFeatureFlags);*/
   const history = useHistory();
   const selectedId = props?.selected?.id;
 
@@ -195,6 +195,7 @@ function WorkspaceInviteUsersForm(props: any) {
     error,
     fetchAllRoles,
     fetchCurrentWorkspace,
+    fetchGroupSuggestions,
     fetchUser,
     handleSubmit,
     isAclFlow = false,
@@ -213,22 +214,29 @@ function WorkspaceInviteUsersForm(props: any) {
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const groupSuggestions: any[] = useSelector(getGroupSuggestions);
 
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const canManage = isPermitted(
     userWorkspacePermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
-  /*const isEEFeature = (featureFlags.RBAC && !isAclFlow) || false;*/
-  const isEEFeature = false; /* Temp change */
+  const isEEFeature = (!isAclFlow && !cloudHosting) || false;
 
   useEffect(() => {
     if (!isAclFlow) {
       fetchUser(props.workspaceId);
       fetchAllRoles(props.workspaceId);
       fetchCurrentWorkspace(props.workspaceId);
+      fetchGroupSuggestions();
     }
-  }, [props.workspaceId, fetchUser, fetchAllRoles, fetchCurrentWorkspace]);
+  }, [
+    props.workspaceId,
+    fetchUser,
+    fetchAllRoles,
+    fetchCurrentWorkspace,
+    fetchGroupSuggestions,
+  ]);
 
   useEffect(() => {
     if (selected) {
@@ -240,8 +248,10 @@ function WorkspaceInviteUsersForm(props: any) {
   }, []);
 
   const styledRoles =
-    props.options && props.options.length > 0 && isAclFlow
-      ? props.options
+    props.options && isAclFlow
+      ? props.options.length > 0
+        ? props.options
+        : []
       : props.roles.map((role: any) => {
           return {
             id: role.id,
@@ -250,7 +260,7 @@ function WorkspaceInviteUsersForm(props: any) {
           };
         });
 
-  if (isEEFeature) {
+  if (isEEFeature && showAdminSettings(user)) {
     styledRoles.push({
       id: "custom-pg",
       value: "Assign Custom Role",
@@ -266,6 +276,7 @@ function WorkspaceInviteUsersForm(props: any) {
       allUsers.map(
         (user: {
           userId: string;
+          userGroupId: string;
           username: string;
           permissionGroupId: string;
           permissionGroupName: string;
@@ -309,12 +320,15 @@ function WorkspaceInviteUsersForm(props: any) {
 
   const errorHandler = (error: string, values: string[]) => {
     if (values && values.length > 0) {
+      const hasInvalidUser = values.some(
+        (user) => !isEmail(user) && !isUserGroup(user),
+      );
       let error = "";
-      values.forEach((user: any) => {
-        if (!isEmail(user) && !isUserGroup(user)) {
-          error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
-        }
-      });
+      if (hasInvalidUser) {
+        error = isAclFlow
+          ? createMessage(CE_INVITE_USERS_VALIDATION_EMAIL_LIST, cloudHosting)
+          : createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST, cloudHosting);
+      }
       setEmailError(error);
     } else {
       props.customError?.("");
@@ -344,25 +358,38 @@ function WorkspaceInviteUsersForm(props: any) {
       )}
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
-          validateFormValues(values);
-          AnalyticsUtil.logEvent("INVITE_USER", values);
+          validateFormValues(values, isAclFlow);
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
           updateNumberOfUsersInvited(usersAsStringsArray.length);
-          const users = usersAsStringsArray
-            .filter((user: any) => isEmail(user))
-            .join(",");
-          const groupNames = usersAsStringsArray.filter(
+          const usersArray = usersAsStringsArray.filter((user: any) =>
+            isEmail(user),
+          );
+          const groupsArray = usersAsStringsArray.filter(
             (user: any) => !isEmail(user),
           );
-          const groups = groupNames
-            .map((group: string) => getUserGroupId(group))
-            .join(",");
+          const usersStr = usersArray.join(",");
+          const groupsStr = groupsArray.join(",");
+          const groupsData = [];
+          for (const gId of groupsArray) {
+            const data = groupSuggestions.find((g) => g.id === gId);
+            data && groupsData.push(data);
+          }
+          AnalyticsUtil.logEvent("INVITE_USER", {
+            ...(isEEFeature
+              ? {
+                  groups: groupsData,
+                  numberOfGroupsInvited: groupsArray.length,
+                }
+              : {}),
+            users: usersStr,
+            numberOfUsersInvited: usersArray.length,
+            role: values.role,
+          });
           if (onSubmitHandler) {
             return onSubmitHandler({
-              ...(isEEFeature ? groups : {}),
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
-              users,
+              users: usersStr,
               options: isMultiSelectDropdown
                 ? selectedOption
                 : selectedOption[0],
@@ -370,9 +397,9 @@ function WorkspaceInviteUsersForm(props: any) {
           }
           return inviteUsersToWorkspace(
             {
-              ...(isEEFeature ? groups : {}),
+              ...(isEEFeature ? { groups: groupsStr } : {}),
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
-              users,
+              users: usersStr,
               permissionGroupId: isMultiSelectDropdown
                 ? selectedOption.map((group: any) => group.id).join(",")
                 : selectedOption[0].id,
@@ -393,7 +420,7 @@ function WorkspaceInviteUsersForm(props: any) {
               intent="success"
               label="Emails"
               name="users"
-              placeholder={placeholder || "Enter email address"}
+              placeholder={placeholder || "Enter email address(es)"}
               suggestionLeftIcon={
                 <Icon
                   className="user-icons"
@@ -401,7 +428,7 @@ function WorkspaceInviteUsersForm(props: any) {
                   size={IconSize.XXL}
                 />
               }
-              suggestions={isEEFeature ? listOfUGs : undefined}
+              suggestions={isEEFeature ? groupSuggestions : undefined}
               type="text"
             />
             <SelectField
@@ -409,6 +436,7 @@ function WorkspaceInviteUsersForm(props: any) {
               data-cy="t--invite-role-input"
               disabled={props.disableDropdown}
               dropdownMaxHeight={props.dropdownMaxHeight}
+              enableSearch={isAclFlow ? true : false}
               isMultiSelect={isMultiSelectDropdown}
               labelRenderer={(selected: Partial<DropdownOption>[]) =>
                 getLabel(selected)
@@ -453,7 +481,7 @@ function WorkspaceInviteUsersForm(props: any) {
               </MailConfigContainer>
             )}
             {!disableUserList && (
-              <UserList
+              <StyledUserList
                 ref={userRef}
                 style={{ justifyContent: "space-between" }}
               >
@@ -464,19 +492,42 @@ function WorkspaceInviteUsersForm(props: any) {
                     permissionGroupId: string;
                     permissionGroupName: string;
                     initials: string;
+                    userGroupId: string;
+                    userId: string;
                   }) => {
                     return (
-                      <Fragment key={user.username}>
+                      <Fragment
+                        key={
+                          user?.userGroupId ? user.userGroupId : user.username
+                        }
+                      >
                         <User>
                           <UserInfo>
-                            <ProfileImage
-                              source={`/api/${UserApi.photoURL}/${user.username}`}
-                              userName={user.name || user.username}
-                            />
-                            <UserName>
-                              <Text type={TextType.H5}>{user.name}</Text>
-                              <Text type={TextType.P2}>{user.username}</Text>
-                            </UserName>
+                            {user?.userGroupId ? (
+                              <>
+                                <Icon
+                                  className="user-icons"
+                                  name="group-line"
+                                  size={IconSize.XXL}
+                                />
+                                <UserName>
+                                  <Text type={TextType.H5}>{user.name}</Text>
+                                </UserName>
+                              </>
+                            ) : (
+                              <>
+                                <ProfileImage
+                                  source={`/api/${UserApi.photoURL}/${user.username}`}
+                                  userName={user.name || user.username}
+                                />
+                                <UserName>
+                                  <Text type={TextType.H5}>{user.name}</Text>
+                                  <Text type={TextType.P2}>
+                                    {user.username}
+                                  </Text>
+                                </UserName>
+                              </>
+                            )}
                           </UserInfo>
                           <UserRole>
                             <Text type={TextType.P1}>
@@ -491,7 +542,7 @@ function WorkspaceInviteUsersForm(props: any) {
                   },
                 )}
                 <ScrollIndicator containerRef={userRef} mode="DARK" />
-              </UserList>
+              </StyledUserList>
             )}
           </>
         )}
@@ -519,48 +570,48 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 }
 
-const InviteUsersForm = cloudHosting
-  ? CE_WorkspaceInviteUsersForm
-  : connect(
-      (state: AppState, { formName }: { formName?: string }) => {
-        return {
-          roles: getRolesForField(state),
-          allUsers: getAllUsers(state),
-          isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
-          form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
-        };
-      },
-      (dispatch: any) => ({
-        fetchAllRoles: (workspaceId: string) =>
-          dispatch({
-            type: ReduxActionTypes.FETCH_ALL_ROLES_INIT,
-            payload: {
-              workspaceId,
-            },
-          }),
-        fetchCurrentWorkspace: (workspaceId: string) =>
-          dispatch(fetchWorkspace(workspaceId)),
-        fetchUser: (workspaceId: string) =>
-          dispatch({
-            type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
-            payload: {
-              workspaceId,
-            },
-          }),
+export default connect(
+  (state: AppState, { formName }: { formName?: string }) => {
+    return {
+      roles: getRolesForField(state),
+      allUsers: getAllUsers(state),
+      isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
+      form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
+    };
+  },
+  (dispatch: any) => ({
+    fetchAllRoles: (workspaceId: string) =>
+      dispatch({
+        type: ReduxActionTypes.FETCH_ALL_ROLES_INIT,
+        payload: {
+          workspaceId,
+        },
       }),
-    )(
-      reduxForm<
-        InviteUsersToWorkspaceFormValues,
-        {
-          fetchAllRoles: (workspaceId: string) => void;
-          roles?: any;
-          applicationId?: string;
-          workspaceId?: string;
-          isApplicationInvite?: boolean;
-        }
-      >({
-        validate,
-      })(WorkspaceInviteUsersForm),
-    );
-
-export default InviteUsersForm;
+    fetchCurrentWorkspace: (workspaceId: string) =>
+      dispatch(fetchWorkspace(workspaceId)),
+    fetchUser: (workspaceId: string) =>
+      dispatch({
+        type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
+        payload: {
+          workspaceId,
+        },
+      }),
+    fetchGroupSuggestions: () =>
+      dispatch({
+        type: ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
+      }),
+  }),
+)(
+  reduxForm<
+    InviteUsersToWorkspaceFormValues,
+    {
+      fetchAllRoles: (workspaceId: string) => void;
+      roles?: any;
+      applicationId?: string;
+      workspaceId?: string;
+      isApplicationInvite?: boolean;
+    }
+  >({
+    validate,
+  })(WorkspaceInviteUsersForm),
+);

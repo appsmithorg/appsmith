@@ -2,12 +2,15 @@ import {
   AuditLogType,
   AuthenticationType,
   DescriptionDataType,
+  PermissionGroupType,
 } from "../types";
 import { EVENT_ICON_MAP, IconInfo } from "./icons";
 import { splitJoin } from "./splitJoin";
 import { titleCase } from "./titleCase";
 import { ellipsis } from "./ellipsis";
 import { invited } from "./invited";
+import { getGroupandRoleActionDescription } from "./groupAndRoleInvite";
+import camelCase from "lodash/camelCase";
 
 export type MainDescriptionType = {
   resourceType: string;
@@ -30,6 +33,12 @@ export type ActionMapType = {
   preposition: string;
 };
 
+export enum CRUD_ACTIONS {
+  CREATED = "created",
+  UPDATED = "updated",
+  DELETED = "deleted",
+}
+
 const ACTION_MAP: Record<string, ActionMapType> = {
   cloned: { action: "cloned", preposition: "in" },
   created: { action: "created", preposition: "in" },
@@ -44,6 +53,12 @@ const ACTION_MAP: Record<string, ActionMapType> = {
   signed_up: { action: "signed up", preposition: "" },
   updated: { action: "updated", preposition: "in" },
   viewed: { action: "viewed", preposition: "in" },
+  invite_users: { action: "invited", preposition: "to" },
+  remove_users: { action: "removed", preposition: "from" },
+  assigned_users: { action: "associated", preposition: "to" },
+  unassigned_users: { action: "removed", preposition: "from" },
+  assigned_groups: { action: "associated", preposition: "to" },
+  unassigned_groups: { action: "removed", preposition: "from" },
 };
 
 function createResourceDescription(
@@ -81,7 +96,10 @@ function createResourceDescription(
       break;
     case "user":
       description.mainDescription.resourceType =
-        data.userName || data.userEmail;
+        data.action ===
+        "deleted" /* When user is deleted, we should show the deleted user and not the user who deleted it */
+          ? data.resource
+          : data.userName || data.userEmail;
       description.subDescription = "";
       break;
   }
@@ -106,6 +124,9 @@ export function generateDescription(log: AuditLogType): MultilineDescription {
     },
     subDescription: "",
   };
+  // known events for groups and roles for which we already have a generated description
+  const crudActions: string[] = Object.values(CRUD_ACTIONS);
+
   const data: DescriptionDataType = {
     action,
     application: ellipsis(log.application?.name || "(No application)", 65),
@@ -139,6 +160,35 @@ export function generateDescription(log: AuditLogType): MultilineDescription {
     return description;
   }
 
+  if (resourceType === "group" && !crudActions.includes(action)) {
+    // Special case: group invited users has "x user(s) invited/removed" structure
+    const { userGroup = {} } = log;
+
+    const users =
+      action === "invite_users"
+        ? userGroup?.invitedUsers?.map((user) => ellipsis(user)) || []
+        : userGroup?.removedUsers?.map((user) => ellipsis(user)) || [];
+    return getGroupandRoleActionDescription(
+      ACTION_MAP[action],
+      users,
+      log.resource?.name,
+    );
+  }
+
+  if (resourceType === "role" && !crudActions.includes(action)) {
+    // Special case: role associated has "x user(s)/group(s) associated/removed" structure
+    const { permissionGroup = {} } = log;
+    const users =
+      permissionGroup[
+        camelCase(action) as keyof PermissionGroupType
+      ]?.map((user) => ellipsis(user)) || [];
+    return getGroupandRoleActionDescription(
+      ACTION_MAP[action],
+      users,
+      log.resource?.name,
+    );
+  }
+
   const authUpdated =
     event === "instance_setting.updated" &&
     log?.authentication?.action &&
@@ -160,6 +210,8 @@ export function generateDescription(log: AuditLogType): MultilineDescription {
     "query",
     "workspace",
     "user",
+    "group",
+    "role",
   ].includes(resourceType);
 
   if (knownResourceType) {

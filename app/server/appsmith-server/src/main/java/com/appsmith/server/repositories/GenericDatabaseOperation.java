@@ -13,6 +13,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.helpers.CollectionUtils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -46,22 +48,31 @@ public class GenericDatabaseOperation {
     public Mono<Long> inheritPoliciesForBranchedOnlyActionCollectionsFromPage(NewPage page) {
         // Get set of actions from the page
         Mono<List<String>> actionCollectionIdsMono = mongoOperations.query(ActionCollection.class)
-            .matching(Criteria.where("unpublishedCollection.pageId").is(page.getId()))
+            .matching(
+                new Criteria().andOperator(
+                    Criteria.where("unpublishedCollection.pageId").is(page.getId()),
+                    new Criteria().norOperator(
+                        Criteria.where("deleted").is(true),
+                        Criteria.where("deletedAt").ne(null)
+                    )
+                )
+            )
             .all()
-            .map(BaseDomain::getId)
+            .map(actionCollection -> actionCollection.getDefaultResources().getCollectionId())
             .collectList();
 
         // Get only action collections which are in feature branch
         Flux<ActionCollection> actionCollectionsFlux = actionCollectionIdsMono.flatMapMany(actionCollectionIds -> {
             return mongoOperations.query(ActionCollection.class)
                     .matching(
-                        new Criteria().andOperator(
-                            Criteria.where("defaultResources.collectionId").not().in(actionCollectionIds),
-                            new Criteria().norOperator(
-                                Criteria.where("deleted").is(true),
-                                Criteria.where("deletedAt").ne(null)
+                            new Criteria().andOperator(
+                                    Criteria.where("defaultResources.collectionId").not().in(actionCollectionIds),
+                                    Criteria.where("unpublishedCollection.defaultResources.pageId").is(page.getDefaultResources().getPageId()),
+                                    new Criteria().norOperator(
+                                            Criteria.where("deleted").is(true),
+                                            Criteria.where("deletedAt").ne(null)
+                                    )
                             )
-                        )
                     )
                     .all();
         });
@@ -83,17 +94,26 @@ public class GenericDatabaseOperation {
     public Mono<Long> inheritPoliciesForBranchedOnlyActionsFromPage(NewPage page) {
         // Get set of actions from the page
         Mono<List<String>> actionIdsMono = mongoOperations.query(NewAction.class)
-            .matching(Criteria.where("unpublishedAction.pageId").is(page.getId()))
+            .matching(
+                new Criteria().andOperator(
+                    Criteria.where("unpublishedAction.pageId").is(page.getId()),
+                    new Criteria().norOperator(
+                        Criteria.where("deleted").is(true),
+                        Criteria.where("deletedAt").ne(null)
+                    )
+                )
+            )
             .all()
-            .map(BaseDomain::getId)
+            .map(actionCollection -> actionCollection.getDefaultResources().getActionId())
             .collectList();
 
         // Get only actions which are in feature branch
-        Flux<NewAction> actionsFlux = actionIdsMono.flatMapMany(actionIds -> {
+        Flux<NewAction> actionsFlux = actionIdsMono.flatMapMany(actionIdList -> {
             return mongoOperations.query(NewAction.class)
                     .matching(
                         new Criteria().andOperator(
-                            Criteria.where("defaultResources.actionId").not().in(actionIds),
+                            Criteria.where("defaultResources.actionId").not().in(actionIdList),
+                            Criteria.where("unpublishedAction.defaultResources.pageId").is(page.getDefaultResources().getPageId()),
                             new Criteria().norOperator(
                                 Criteria.where("deleted").is(true),
                                 Criteria.where("deletedAt").ne(null)
@@ -114,24 +134,38 @@ public class GenericDatabaseOperation {
     }
 
     /**
+     * Get all the pageIds from the branches for this specific page
+     * For Example if the page 1 of default branch is passed as input, we get all the pageIds of the specific branches
+     * @param page
+     * @return
+     */
+    private Mono<List<String>> getBranchedPageIdList(NewPage page) {
+        Mono<List<String>> pageIdsMono = mongoOperations.query(NewPage.class)
+                .matching(
+                        new Criteria().andOperator(
+                                Criteria.where("defaultResources.pageId").is(page.getDefaultResources().getPageId()),
+                                new Criteria().norOperator(
+                                        Criteria.where("deleted").is(true),
+                                        Criteria.where("deletedAt").ne(null))
+                        )
+                )
+                .all()
+                .map(BaseDomain::getId)
+                .collectList();
+        return pageIdsMono;
+    }
+
+    /**
      * This function is used to inherit policies to invisible pages and their childerens if application in main branch is updated
      * @param application - Application object from which to inherit policies
      */
     public Mono<Long> inheritPoliciesForBranchedOnlyPagesFromApplication(Application application) {
-        // Get a set of pageIds in the default branch
-        Mono<List<String>> pageIdsMono = mongoOperations.query(NewPage.class)
-                .matching(Criteria.where("applicationId").is(application.getId()))
-                .all()
-                .map(BaseDomain::getId)
-                .collectList();
-
         // Get only pages which are in feature branch
-        Flux<NewPage> pages = pageIdsMono
-                .flatMapMany(pageIds -> {
-                    return mongoOperations.query(NewPage.class)
+        Flux<NewPage> pages = mongoOperations.query(NewPage.class)
                             .matching(
                                 new Criteria().andOperator(
-                                    Criteria.where("defaultResources.pageId").not().in(pageIds),
+                                    Criteria.where("defaultResources.pageId").not().in(application.getPages().stream().map(page -> page.getDefaultPageId()).collect(Collectors.toList())),
+                                    Criteria.where("defaultResources.applicationId").is(application.getId()),
                                     new Criteria().norOperator(
                                         Criteria.where("deleted").is(true),
                                         Criteria.where("deletedAt").ne(null)
@@ -139,22 +173,14 @@ public class GenericDatabaseOperation {
                                 )
                             )
                             .all();
-                });
 
         // Get policies to be applied to pages that exits only in feature branch
         Set<Policy> inheritedPagePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
         Set<Policy> inheritedActionPolicies = policyGenerator.getAllChildPolicies(inheritedPagePolicies, Page.class, Action.class);
 
         return pages.flatMap(page -> {
-                    return pageIdsMono.flatMap(pageIds -> {
-                        if(!pageIds.contains(page.getId())) {
-                            // This page exisis only in feature branch
-                            page.setPolicies(inheritedPagePolicies);
-                            return mongoOperations.save(page);
-                        }
-                        // If page is not updated, return empty Mono
-                        return Mono.empty();
-                    });
+                    page.setPolicies(inheritedPagePolicies);
+                    return mongoOperations.save(page);
                 })
                 .map(NewPage::getId)
                 .collectList()
@@ -186,7 +212,7 @@ public class GenericDatabaseOperation {
      */
     private boolean isConnectedToGit(BaseDomain domain) {
         if(domain instanceof Application) {
-            return ((Application) domain).getGitApplicationMetadata() != null;
+            return ((Application) domain).getGitApplicationMetadata() != null && StringUtils.isNotEmpty(((Application) domain).getGitApplicationMetadata().getDefaultApplicationId());
         } else {
             return domain.getDefaultResources() != null && StringUtils.isNotEmpty(domain.getDefaultResources().getBranchName());
         }
@@ -256,19 +282,24 @@ public class GenericDatabaseOperation {
 
                     // Update across all the branches if it is a branchable object and connected to git
                     if(isBranchableResouce(obj) && isConnectedToGit(obj)) {
-                        Mono<?> updateMono = mongoOperations.updateMulti(Query.query(Criteria.where(getBranchResourceIdKey(obj)).is(objectId)), Update.update("policies", policies), clazz);
 
                         // If it is a application, then inherit policies from Application to invisible the pages
                         if(obj instanceof Application) {
-                            return updateMono.then(inheritPoliciesForBranchedOnlyPagesFromApplication((Application) obj))
+                            return mongoOperations.updateMulti(Query.query(Criteria.where(getBranchResourceIdKey(obj)).is(((Application)obj).getGitApplicationMetadata().getDefaultApplicationId())), Update.update("policies", policies), clazz)
+                                    .then(inheritPoliciesForBranchedOnlyPagesFromApplication((Application) obj))
                                     .thenReturn(1L);
                         // If it is a page, then inherit policies from Page to invisible the actions
                         } else if(obj instanceof NewPage) {
-                            return updateMono.then(inheritPoliciesForBranchedOnlyActionsFromPage(((NewPage) obj)))
+                            return mongoOperations.updateMulti(Query.query(Criteria.where(getBranchResourceIdKey(obj)).is(obj.getDefaultResources().getPageId())), Update.update("policies", policies), clazz)
+                                    .then(inheritPoliciesForBranchedOnlyActionsFromPage(((NewPage) obj)))
                                     .then(inheritPoliciesForBranchedOnlyActionCollectionsFromPage(((NewPage) obj)))
                                     .thenReturn(1L);
-                        } else {
-                            return updateMono.then(Mono.just(1L));
+                        } else if(obj instanceof NewAction) {
+                            return mongoOperations.updateMulti(Query.query(Criteria.where(getBranchResourceIdKey(obj)).is(obj.getDefaultResources().getActionId())), Update.update("policies", policies), clazz)
+                                    .then(Mono.just(1L));
+                        } else if(obj instanceof ActionCollection) {
+                            return mongoOperations.updateMulti(Query.query(Criteria.where(getBranchResourceIdKey(obj)).is(obj.getDefaultResources().getCollectionId())), Update.update("policies", policies), clazz)
+                                    .then(Mono.just(1L));
                         }
                     }
                     

@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -67,6 +68,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private final UserGroupRepository userGroupRepository;
     private final AnalyticsService analyticsService;
     private final UserDataRepository userDataRepository;
+    private final PermissionGroupPermission permissionGroupPermission;
 
     public UserAndAccessManagementServiceImpl(SessionUserService sessionUserService,
                                               PermissionGroupService permissionGroupService,
@@ -93,6 +95,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.userGroupRepository = userGroupRepository;
         this.analyticsService = analyticsService;
         this.userDataRepository = userDataRepository;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
 
@@ -163,21 +166,23 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                             .collect(Collectors.toSet());
 
                     Mono<Boolean> unassignedFromRolesMono = permissionGroupIdsMono
-                            .flatMap(permissionGroupIds -> permissionGroupService.bulkUnassignUserFromPermissionGroupsWithoutPermission(userId, permissionGroupIds));
+                            .flatMap(permissionGroupIds -> permissionGroupService.bulkUnassignUserFromPermissionGroupsWithoutPermission(user, permissionGroupIds));
 
                     Mono<Boolean> removedFromGroupsMono = groupIdsMono
-                            .flatMap(groupIds -> userGroupService.bulkRemoveUserFromGroupsWithoutPermission(userId, groupIds));
+                            .flatMap(groupIds -> userGroupService.bulkRemoveUserFromGroupsWithoutPermission(user, groupIds));
 
                     Mono<Void> cleanPermissionGroupCacheMono = permissionGroupService.cleanPermissionGroupCacheForUsers(List.of(user.getId()));
 
                     Mono<Void> deleteUserMono = userRepository.deleteById(userId);
                     Mono<Void> deleteUserDataMono = userDataRepository.findByUserId(userId)
                             .flatMap(userData -> userDataRepository.deleteById(userData.getId()));
+                    Mono<User> userDeletedEvent = analyticsService.sendDeleteEvent(user);
 
                     Mono<Tuple2<Void, Void>> deleteUserAndDataMono = Mono.zip(deleteUserMono, deleteUserDataMono);
 
                     return Mono.zip(unassignedFromRolesMono, removedFromGroupsMono)
                             .then(deleteUserAndDataMono)
+                            .then(userDeletedEvent)
                             .then(cleanPermissionGroupCacheMono)
                             .thenReturn(TRUE);
                 });
@@ -214,14 +219,28 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     .cache();
         }
         if (!CollectionUtils.isEmpty(rolesAddedDTOs)) {
-            rolesAddedFlux = permissionGroupRepository.findAllById(rolesAddedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()),
-                    ASSIGN_PERMISSION_GROUPS);
+            Flux<PermissionGroup> rolesToBeAddedFlux = permissionGroupRepository.findAllById(rolesAddedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet())).cache();
+            rolesAddedFlux = UserPermissionUtils
+                    .validateDomainObjectPermissionsOrError(
+                            rolesToBeAddedFlux.map(role -> role),
+                            FieldName.ROLE,
+                            permissionGroupService.getSessionUserPermissionGroupIds(),
+                            permissionGroupPermission.getAssignPermission(),
+                            AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
+                    ).thenMany(rolesToBeAddedFlux);
             isMultipleRolesFromWorkspacePresentMono = rolesAddedFlux.collectList()
                     .flatMap(this::containsPermissionGroupsFromSameWorkspace);
         }
         if (!CollectionUtils.isEmpty(rolesRemovedDTOs)) {
-            rolesRemovedFlux = permissionGroupRepository.findAllById(rolesRemovedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()),
-                    UNASSIGN_PERMISSION_GROUPS);
+            Flux<PermissionGroup> rolesToBeRemovedFlux = permissionGroupRepository.findAllById(rolesRemovedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet())).cache();
+            rolesRemovedFlux = UserPermissionUtils
+                    .validateDomainObjectPermissionsOrError(
+                            rolesToBeRemovedFlux.map(role -> role),
+                            FieldName.ROLE,
+                            permissionGroupService.getSessionUserPermissionGroupIds(),
+                            permissionGroupPermission.getUnAssignPermission(),
+                            AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
+                    ).thenMany(rolesToBeRemovedFlux);
         }
 
         // Checks and throws error, if 2 or more permission groups from the same Default Workspace ID are present

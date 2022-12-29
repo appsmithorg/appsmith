@@ -30,6 +30,7 @@ export type RoleResponsePayload = BaseAclProps & {
   }[];
   tenantId: string;
   userPermissions: string[];
+  isSaving: boolean;
 };
 
 export type RoleResponse = ApiResponse<RoleResponsePayload>;
@@ -47,8 +48,8 @@ export type GroupResponse = ApiResponse<GroupResponsePayload>;
 export type UpdateGroupsInUserRequestPayload = {
   userId: string;
   usernames: string[];
-  groupsAdded: string[];
-  groupsRemoved: string[];
+  groupsAdded: BaseAclProps[];
+  groupsRemoved: BaseAclProps[];
 };
 
 export type UpdateRolesInUserRequestPayload = {
@@ -99,10 +100,12 @@ export class AclApi extends Api {
   static async updateGroupsInUser(
     payload: UpdateGroupsInUserRequestPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
+    const groupsAdded = payload.groupsAdded.map((g) => g.id);
+    const groupsRemoved = payload.groupsRemoved.map((g) => g.id);
     const response = await Api.put(`${AclApi.userGroups}/users`, {
       usernames: payload.usernames,
-      groupsAdded: payload.groupsAdded,
-      groupsRemoved: payload.groupsRemoved,
+      groupsAdded,
+      groupsRemoved,
     });
     return response;
   }

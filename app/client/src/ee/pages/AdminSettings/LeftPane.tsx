@@ -1,3 +1,4 @@
+export * from "ce/pages/AdminSettings/LeftPane";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -9,10 +10,13 @@ import {
   Wrapper,
 } from "ce/pages/AdminSettings/LeftPane";
 import { AclFactory } from "./config";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { Category } from "./config/types";
-
-export * from "ce/pages/AdminSettings/LeftPane";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 function getAclCategory() {
   return Array.from(AclFactory.categories);
@@ -26,36 +30,54 @@ export default function LeftPane() {
    * */
   const othersCategories: Category[] = [categories.splice(-1, 1)[0]];
   const { category, selected: subCategory } = useParams() as any;
-  const featureFlags = useSelector(selectFeatureFlags);
+  const user = useSelector(getCurrentUser);
+  const isSuperUser = user?.isSuperUser;
+
+  const tenantPermissions = useSelector(getTenantPermissions);
+  const isAuditLogsEnabled = isPermitted(
+    tenantPermissions,
+    PERMISSION_TYPE.READ_AUDIT_LOGS,
+  );
+
+  const filteredAclCategories = aclCategories
+    ?.map((category) => {
+      if (category.title === "Users" && !isSuperUser) {
+        return null;
+      }
+      return category;
+    })
+    .filter(Boolean) as Category[];
 
   return (
     <Wrapper>
-      <HeaderContainer>
-        <StyledHeader>Admin Settings</StyledHeader>
-      </HeaderContainer>
-      <Categories
-        categories={categories}
-        currentCategory={category}
-        currentSubCategory={subCategory}
-      />
-      {featureFlags.RBAC && (
+      {isSuperUser && (
         <HeaderContainer>
-          <StyledHeader>Access Control</StyledHeader>
+          <StyledHeader>Admin Settings</StyledHeader>
           <Categories
-            categories={aclCategories}
+            categories={categories}
             currentCategory={category}
             currentSubCategory={subCategory}
           />
         </HeaderContainer>
       )}
       <HeaderContainer>
-        <StyledHeader>Others</StyledHeader>
+        <StyledHeader>Access Control</StyledHeader>
         <Categories
-          categories={othersCategories}
+          categories={filteredAclCategories}
           currentCategory={category}
           currentSubCategory={subCategory}
         />
       </HeaderContainer>
+      {isAuditLogsEnabled && (
+        <HeaderContainer>
+          <StyledHeader>Others</StyledHeader>
+          <Categories
+            categories={othersCategories}
+            currentCategory={category}
+            currentSubCategory={subCategory}
+          />
+        </HeaderContainer>
+      )}
     </Wrapper>
   );
 }

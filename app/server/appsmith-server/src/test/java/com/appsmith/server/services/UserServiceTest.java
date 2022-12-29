@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -100,6 +101,9 @@ public class UserServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserUtils userUtils;
 
     @BeforeEach
     public void setup() {
@@ -192,10 +196,14 @@ public class UserServiceTest {
                     return permissionGroupRepository.findById(permissionGroupId);
                 });
 
-        StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono))
+        Mono<PermissionGroup> defaultUserRoleMono = userCreateMono
+                .then(userUtils.getDefaultUserPermissionGroup());
+
+        StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono, defaultUserRoleMono))
                 .assertNext(tuple -> {
                     User user = tuple.getT1();
                     PermissionGroup permissionGroup = tuple.getT2();
+                    PermissionGroup defaultUserRole = tuple.getT3();
 
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
@@ -219,6 +227,9 @@ public class UserServiceTest {
 
                     assertThat(userPolicies).containsAll(Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy));
                     assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
+
+                    // Assert that the default user role has been assigned to the newly created user
+                    assertThat(defaultUserRole.getAssignedToUserIds()).contains(user.getId());
                 })
                 .verifyComplete();
     }

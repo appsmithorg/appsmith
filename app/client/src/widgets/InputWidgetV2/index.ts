@@ -24,6 +24,7 @@ export const CONFIG = {
     inputType: "TEXT",
     widgetName: "Input",
     version: 2,
+    showStepArrows: false,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

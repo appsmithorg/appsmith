@@ -1,4 +1,5 @@
 import {
+  DataTreeEvaluationProps,
   DependencyMap,
   EvalError,
   EvalErrorTypes,
@@ -9,7 +10,7 @@ import {
   getEvalValuePath,
   isChildPropertyPath,
   isPathADynamicBinding,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -34,13 +35,12 @@ import {
   isDynamicLeaf,
   isJSAction,
   isWidget,
-  removeFunctions,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   overrideWidgetProperties,
   getAllPaths,
   isValidEntity,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
   flatten,
@@ -81,7 +81,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
-import { EvalMetaUpdates } from "./types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
   updateDependencyMap,
   createDependencyMap,
@@ -98,8 +98,12 @@ import {
   validateActionProperty,
   validateAndParseWidgetProperty,
 } from "./validationUtils";
+import { errorModifier } from "workers/Evaluation/errorModifier";
 
 type SortedDependencies = Array<string>;
+export type EvalProps = {
+  [entityName: string]: DataTreeEvaluationProps;
+};
 
 export default class DataTreeEvaluator {
   /**
@@ -141,6 +145,11 @@ export default class DataTreeEvaluator {
   validationDependencyMap: DependencyMap = {};
   sortedValidationDependencies: SortedDependencies = [];
   inverseValidationDependencyMap: DependencyMap = {};
+
+  /**
+   * Sanitized eval values and errors
+   */
+  evalProps: EvalProps = {};
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -291,7 +300,11 @@ export default class DataTreeEvaluator {
 
     const validationStartTime = performance.now();
     // Validate Widgets
-    this.setEvalTree(getValidatedTree(evaluatedTree));
+    this.setEvalTree(
+      getValidatedTree(evaluatedTree, {
+        evalProps: this.evalProps,
+      }),
+    );
     const validationEndTime = performance.now();
 
     const timeTakenForEvalAndValidateFirstTree = {
@@ -649,6 +662,9 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const tree = klona(oldUnevalTree);
+
+    errorModifier.updateAsyncFunctions(tree);
+
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
@@ -665,14 +681,14 @@ export default class DataTreeEvaluator {
             (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
             isPathADynamicBinding(entity, propertyPath);
           const isATriggerPath =
-            isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
+            isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
           let evalPropertyValue;
           const requiresEval =
             isADynamicBindingPath &&
             !isATriggerPath &&
             (isDynamicValue(unEvalPropertyValue) || isJSAction(entity));
           if (propertyPath) {
-            set(currentTree, getEvalErrorPath(fullPropertyPath), []);
+            set(this.evalProps, getEvalErrorPath(fullPropertyPath), []);
           }
           if (requiresEval) {
             const evaluationSubstitutionType =
@@ -716,6 +732,7 @@ export default class DataTreeEvaluator {
                 currentTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
+                evalProps: this.evalProps,
               });
 
               this.setParsedValue({
@@ -761,11 +778,12 @@ export default class DataTreeEvaluator {
                 );
               }
             }
-            const safeEvaluatedValue = removeFunctions(evalPropertyValue);
+
+            if (!propertyPath) return currentTree;
             set(
-              currentTree,
+              this.evalProps,
               getEvalValuePath(fullPropertyPath),
-              safeEvaluatedValue,
+              evalPropertyValue,
             );
             set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
@@ -773,7 +791,7 @@ export default class DataTreeEvaluator {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
               const currentEvaluatedValue = get(
-                currentTree,
+                this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
@@ -781,7 +799,7 @@ export default class DataTreeEvaluator {
               );
               if (!currentEvaluatedValue) {
                 set(
-                  currentTree,
+                  this.evalProps,
                   getEvalValuePath(fullPropertyPath, {
                     isPopulated: true,
                     fullPath: true,
@@ -912,7 +930,12 @@ export default class DataTreeEvaluator {
               !toBeSentForEval.includes("console."),
           );
           if (fullPropertyPath && result.errors.length) {
-            addErrorToEntityProperty(result.errors, data, fullPropertyPath);
+            addErrorToEntityProperty({
+              errors: result.errors,
+              evalProps: this.evalProps,
+              fullPropertyPath,
+              dataTree: data,
+            });
           }
           // if there are any console outputs found from the evaluation, extract them and add them to the logs array
           if (
@@ -971,8 +994,8 @@ export default class DataTreeEvaluator {
         );
       } catch (error) {
         if (fullPropertyPath) {
-          addErrorToEntityProperty(
-            [
+          addErrorToEntityProperty({
+            errors: [
               {
                 raw: dynamicBinding,
                 errorType: PropertyEvaluationErrorType.PARSE,
@@ -980,9 +1003,10 @@ export default class DataTreeEvaluator {
                 severity: Severity.ERROR,
               },
             ],
-            data,
+            evalProps: this.evalProps,
             fullPropertyPath,
-          );
+            dataTree: data,
+          });
         }
         return undefined;
       }
@@ -993,7 +1017,6 @@ export default class DataTreeEvaluator {
   async evaluateTriggers(
     userScript: string,
     dataTree: DataTree,
-    requestId: string,
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
@@ -1002,7 +1025,6 @@ export default class DataTreeEvaluator {
     return evaluateAsync(
       jsSnippets[0] || userScript,
       dataTree,
-      requestId,
       resolvedFunctions,
       context,
       callbackData,
@@ -1015,7 +1037,7 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
-    createGlobalData: boolean,
+    isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
     skipUserLogsOperations = false,
@@ -1025,7 +1047,7 @@ export default class DataTreeEvaluator {
         js,
         data,
         resolvedFunctions,
-        createGlobalData,
+        isJSObject,
         contextData,
         callbackData,
         skipUserLogsOperations,
@@ -1103,6 +1125,7 @@ export default class DataTreeEvaluator {
             this.oldUnEvalTree,
             fullPath,
           ) as unknown) as string,
+          evalProps: this.evalProps,
         });
       });
     }
@@ -1117,7 +1140,7 @@ export default class DataTreeEvaluator {
         fullPropertyPath,
       );
       const entity = currentTree[entityName];
-      if (isWidget(entity) && !isPathADynamicTrigger(entity, propertyPath)) {
+      if (isWidget(entity) && !isPathDynamicTrigger(entity, propertyPath)) {
         this.reValidateWidgetDependentProperty({
           widget: entity,
           fullPropertyPath,
@@ -1154,7 +1177,12 @@ export default class DataTreeEvaluator {
           }) ?? [];
         // saves error in dataTree at fullPropertyPath
         // Later errors can consumed by the forms and debugger
-        addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
+        addErrorToEntityProperty({
+          errors: evalErrors,
+          evalProps: this.evalProps,
+          fullPropertyPath,
+          dataTree: currentTree,
+        });
       }
     }
   }

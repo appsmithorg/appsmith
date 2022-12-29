@@ -19,7 +19,7 @@ export enum INVITE_USERS_TAB_ID {
 export const AclWrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   margin: 32px 0 0 0;
-  padding: 0 30px 0 0;
+  padding: 0 30px 0 24px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
 
   .scrollable-wrapper {
@@ -55,7 +55,7 @@ export const SaveButtonBarWrapper = styled.div`
   width: calc(100% - 320px);
 `;
 
-export const TabsWrapper = styled.div<{ isSaving?: boolean }>`
+export const TabsWrapper = styled.div<{ isEditing?: boolean }>`
   overflow: auto;
   height: calc(100% - 80px);
   .react-tabs__tab-list {
@@ -63,8 +63,8 @@ export const TabsWrapper = styled.div<{ isSaving?: boolean }>`
     padding: 36px 0 0;
   }
   .react-tabs__tab-panel {
-    height: ${({ isSaving }) =>
-      isSaving ? `calc(100% - 148px - 80px)` : `calc(100% - 148px)`};
+    height: ${({ isEditing }) =>
+      isEditing ? `calc(100% - 148px - 80px)` : `calc(100% - 148px)`};
   }
 `;
 
@@ -104,14 +104,6 @@ export const StyledSearchInput = styled(SearchInput)`
     color: var(--appsmith-color-black-700);
     box-shadow: none;
     margin: 0 16px 0 0;
-
-    &:active,
-    &:hover,
-    &:focus {
-      border: 1px solid var(--appsmith-color-black-250);
-      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06),
-        0px 1px 3px rgba(0, 0, 0, 0.1);
-    }
   }
 `;
 
@@ -148,9 +140,11 @@ const ButtonsWrapper = styled.div`
 `;
 
 export function SaveButtonBar({
+  isLoading,
   onClear,
   onSave,
 }: {
+  isLoading?: boolean;
   onClear: () => void;
   onSave: () => void;
 }) {
@@ -164,7 +158,7 @@ export function SaveButtonBar({
           category={Category.primary}
           className="t--admin-settings-save-button"
           disabled={false}
-          isLoading={false}
+          isLoading={isLoading || false}
           onClick={() => {
             onSave();
           }}
@@ -172,7 +166,7 @@ export function SaveButtonBar({
           text={createMessage(BOTTOM_BAR_SAVE_BTN)}
         />
         <StyledClearButton
-          category={Category.tertiary}
+          category={Category.secondary}
           className="t--admin-settings-reset-button"
           disabled={false}
           onClick={() => {

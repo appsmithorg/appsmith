@@ -23,7 +23,9 @@ function BackToHomeButton() {
           borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
         }}
       />
-      <img alt="Logo" className="h-6" src={tenantConfig.brandLogoUrl} />
+      {tenantConfig.brandLogoUrl && (
+        <img alt="Logo" className="h-6" src={tenantConfig.brandLogoUrl} />
+      )}
     </Link>
   );
 }

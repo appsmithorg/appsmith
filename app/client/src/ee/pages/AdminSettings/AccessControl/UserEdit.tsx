@@ -133,7 +133,7 @@ export function UserEdit(props: UserEditProps) {
     [],
   );
   const dispatch = useDispatch();
-  const { isLoading, isSaving, searchPlaceholder, selectedUser } = props;
+  const { isEditing, isLoading, searchPlaceholder, selectedUser } = props;
 
   useEffect(() => {
     if (searchValue) {
@@ -157,10 +157,8 @@ export function UserEdit(props: UserEditProps) {
       removedActivePermissionGroups.length > 0 ||
       addedAllPermGroups.length > 0;
     dispatch({
-      type: ReduxActionTypes.ACL_IS_SAVING,
-      payload: {
-        isSaving: saving,
-      },
+      type: ReduxActionTypes.ACL_IS_EDITING,
+      payload: saving,
     });
   }, [
     removedActiveUserGroups,
@@ -201,6 +199,47 @@ export function UserEdit(props: UserEditProps) {
     }
   };
 
+  const updateOnlyGroups = () => {
+    const groupsAdded = addedAllUserGroups.map((group: BaseAclProps) => ({
+      id: group.id,
+      name: group.name,
+    }));
+    const groupsRemoved = removedActiveUserGroups.map(
+      (group: BaseAclProps) => ({
+        id: group.id,
+        name: group.name,
+      }),
+    );
+    dispatch(
+      updateGroupsInUser(
+        selectedUser.id,
+        selectedUser.username,
+        groupsAdded,
+        groupsRemoved,
+      ),
+    );
+  };
+
+  const updateOnlyRoles = () => {
+    const rolesAdded = addedAllPermGroups.map((group: BaseAclProps) => ({
+      id: group.id,
+      name: group.name,
+    }));
+    const rolesRemoved = removedActivePermissionGroups.map(
+      (role: BaseAclProps) => ({
+        id: role.id,
+        name: role.name,
+      }),
+    );
+    dispatch(
+      updateRolesInUser(
+        { id: selectedUser.id, username: selectedUser.username },
+        rolesAdded,
+        rolesRemoved,
+      ),
+    );
+  };
+
   const onSaveChanges = () => {
     const onlyGroupsUdated =
       (removedActiveUserGroups.length > 0 || addedAllUserGroups.length > 0) &&
@@ -219,70 +258,12 @@ export function UserEdit(props: UserEditProps) {
         addedAllPermGroups.length > 0);
 
     if (onlyGroupsUdated) {
-      const groupsAdded = addedAllUserGroups.map(
-        (group: BaseAclProps) => group.id,
-      );
-      const groupsRemoved = removedActiveUserGroups.map(
-        (group: BaseAclProps) => group.id,
-      );
-      dispatch(
-        updateGroupsInUser(
-          selectedUser.id,
-          selectedUser.username,
-          groupsAdded,
-          groupsRemoved,
-        ),
-      );
+      updateOnlyGroups();
     } else if (onlyRolesUdated) {
-      const rolesAdded = addedAllPermGroups.map((group: BaseAclProps) => ({
-        id: group.id,
-        name: group.name,
-      }));
-      const rolesRemoved = removedActivePermissionGroups.map(
-        (role: BaseAclProps) => ({
-          id: role.id,
-          name: role.name,
-        }),
-      );
-      dispatch(
-        updateRolesInUser(
-          { id: selectedUser.id, username: selectedUser.username },
-          rolesAdded,
-          rolesRemoved,
-        ),
-      );
+      updateOnlyRoles();
     } else if (bothGroupsRolesUpdated) {
-      const rolesAdded = addedAllPermGroups.map((group: BaseAclProps) => ({
-        id: group.id,
-        name: group.name,
-      }));
-      const rolesRemoved = removedActivePermissionGroups.map(
-        (role: BaseAclProps) => ({
-          id: role.id,
-          name: role.name,
-        }),
-      );
-      const groupsAdded = addedAllUserGroups.map(
-        (group: BaseAclProps) => group.id,
-      );
-      const groupsRemoved = removedActiveUserGroups.map(
-        (group: BaseAclProps) => group.id,
-      );
-      dispatch(
-        updateGroupsInUser(
-          selectedUser.id,
-          selectedUser.username,
-          groupsAdded,
-          groupsRemoved,
-        ),
-      );
-      dispatch(
-        updateRolesInUser(
-          { id: selectedUser.id, username: selectedUser.username },
-          rolesAdded,
-          rolesRemoved,
-        ),
-      );
+      updateOnlyGroups();
+      updateOnlyRoles();
     }
     setRemovedActiveUserGroups([]);
     setRemovedActivePermissionGroups([]);
@@ -297,6 +278,8 @@ export function UserEdit(props: UserEditProps) {
   const onClearChanges = () => {
     setRemovedActiveUserGroups([]);
     setRemovedActivePermissionGroups([]);
+    setAddedAllUserGroups([]);
+    setAddedAllPermGroups([]);
   };
 
   const onDeleteHandler = () => {
@@ -441,32 +424,32 @@ export function UserEdit(props: UserEditProps) {
             variant={SearchVariant.BACKGROUND}
             width={"376px"}
           />
-          <Menu
-            canEscapeKeyClose
-            canOutsideClickClose
-            className="t--menu-actions-icon"
-            isOpen={showOptions}
-            menuItemWrapperWidth={"auto"}
-            onClose={() => setShowOptions(false)}
-            onClosing={() => {
-              setShowConfirmationText(false);
-              setShowOptions(false);
-            }}
-            onOpening={() => setShowOptions(true)}
-            position={Position.BOTTOM_RIGHT}
-            target={
-              <Icon
-                className="actions-icon"
-                data-testid="actions-cell-menu-icon"
-                name="more-2-fill"
-                onClick={() => setShowOptions(!showOptions)}
-                size={IconSize.XXL}
-              />
-            }
-          >
-            <HelpPopoverStyle />
-            {menuItems &&
-              menuItems.map((menuItem) => (
+          {menuItems && menuItems.length > 0 && (
+            <Menu
+              canEscapeKeyClose
+              canOutsideClickClose
+              className="t--menu-actions-icon"
+              isOpen={showOptions}
+              menuItemWrapperWidth={"auto"}
+              onClose={() => setShowOptions(false)}
+              onClosing={() => {
+                setShowConfirmationText(false);
+                setShowOptions(false);
+              }}
+              onOpening={() => setShowOptions(true)}
+              position={Position.BOTTOM_RIGHT}
+              target={
+                <Icon
+                  className="actions-icon"
+                  data-testid="actions-cell-menu-icon"
+                  name="more-2-fill"
+                  onClick={() => setShowOptions(!showOptions)}
+                  size={IconSize.XXL}
+                />
+              }
+            >
+              <HelpPopoverStyle />
+              {menuItems.map((menuItem) => (
                 <MenuItem
                   className={menuItem.className}
                   icon={menuItem.icon}
@@ -480,17 +463,21 @@ export function UserEdit(props: UserEditProps) {
                   {...(showConfirmationText ? { type: "warning" } : {})}
                 />
               ))}
-          </Menu>
+            </Menu>
+          )}
         </Container>
       </Header>
-      <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
+      <TabsWrapper
+        data-testid="t--user-edit-tabs-wrapper"
+        isEditing={isEditing}
+      >
         <TabComponent
           onSelect={setSelectedTabIndex}
           selectedIndex={selectedTabIndex}
           tabs={tabs}
         />
       </TabsWrapper>
-      {isSaving && (
+      {isEditing && (
         <SaveButtonBar onClear={onClearChanges} onSave={onSaveChanges} />
       )}
     </div>
