@@ -31,6 +31,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetState } from "../../BaseWidget";
 import { Stylesheet } from "entities/AppTheming";
+import { removeSingleInstanceFromArray } from "./helper";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -78,6 +79,8 @@ export type MetaWidgetCacheProps = {
   viewIndex: number;
 };
 
+export type RowDataCache = Record<string, Record<string, unknown>>;
+
 type LevelDataMetaWidgetCacheProps = Omit<
   MetaWidgetCacheProps,
   "originalMetaWidgetId" | "originalMetaWidgetName"
@@ -115,6 +118,8 @@ class ListWidget extends BaseWidget<
   prevMetaContainerNames: string[];
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
+  cachedIndArr: number[];
+  rowDataCache: RowDataCache;
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -174,7 +179,9 @@ class ListWidget extends BaseWidget<
     });
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
+    this.cachedIndArr = [];
     this.pageSize = this.getPageSize();
+    this.rowDataCache = {};
   }
 
   componentDidMount() {
@@ -182,6 +189,7 @@ class ListWidget extends BaseWidget<
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
     }
+    this.updateRowDataCache();
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
@@ -254,10 +262,7 @@ class ListWidget extends BaseWidget<
     } = this.props;
     const pageSize = this.pageSize;
 
-    const cacheRowIndexes = this.getCachedRowIndexes();
-
     return {
-      cacheIndexArr: cacheRowIndexes,
       containerParentId: mainCanvasId,
       containerWidgetId: mainContainerId,
       currTemplateWidgets: flattenedChildCanvasWidgets,
@@ -500,6 +505,29 @@ class ListWidget extends BaseWidget<
     }
   };
 
+  setRowDataCache = () => {
+    const rowIndexes = new Set(this.cachedIndArr);
+    const rowDataCache: RowDataCache = {};
+    rowIndexes.forEach((rowIndex) => {
+      const startIndex = this.metaWidgetGenerator.getStartIndex();
+      const viewIndex = rowIndex - startIndex;
+      const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+      const rowData = this.props.listData?.[viewIndex] ?? {};
+      rowDataCache[key] = rowData;
+    });
+
+    this.metaWidgetGenerator.updateCurrCachedRows(Object.keys(rowDataCache));
+
+    if (this.props.serverSidePagination) {
+      this.rowDataCache = rowDataCache;
+      this.updateRowDataCache();
+    }
+  };
+
+  updateRowDataCache = () => {
+    super.updateWidgetProperty("rowDataCache", this.rowDataCache);
+  };
+
   onRowClick = (rowIndex: number) => {
     this.updateSelectedItemViewIndex(rowIndex);
     this.updateSelectedItemView(rowIndex);
@@ -533,15 +561,7 @@ class ListWidget extends BaseWidget<
   onRowClickCapture = (rowIndex: number) => {
     this.updateTriggeredItemViewIndex(rowIndex);
     this.updateTriggeredItemView(rowIndex);
-  };
-
-  getCachedRowIndexes = () => {
-    const cachedRowIndexes = new Set<number>();
-
-    cachedRowIndexes.add(this.props.selectedItemIndex ?? -1);
-    cachedRowIndexes.add(this.props.triggeredItemIndex ?? -1);
-
-    return Array.from(cachedRowIndexes);
+    this.setRowDataCache();
   };
 
   updateSelectedItemViewIndex = (rowIndex: number) => {
@@ -549,9 +569,14 @@ class ListWidget extends BaseWidget<
 
     if (rowIndex === selectedItemIndex) {
       this.resetSelectedItemViewIndex();
+      this.cachedIndArr = removeSingleInstanceFromArray(
+        this.cachedIndArr,
+        rowIndex,
+      );
       return;
     }
 
+    this.cachedIndArr.push(rowIndex);
     this.props.updateWidgetMetaProperty("selectedItemIndex", rowIndex);
   };
 
@@ -603,6 +628,7 @@ class ListWidget extends BaseWidget<
   };
 
   updateTriggeredItemViewIndex = (rowIndex: number) => {
+    this.cachedIndArr.push(rowIndex);
     this.props.updateWidgetMetaProperty("triggeredItemIndex", rowIndex);
   };
 
@@ -884,6 +910,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   triggeredItemIndex?: number;
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
+  rowDataCache: RowDataCache;
 }
 
 export default ListWidget;

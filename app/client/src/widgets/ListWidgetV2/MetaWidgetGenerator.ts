@@ -40,7 +40,6 @@ type TemplateWidgets = ListWidgetProps<
 >["flattenedChildCanvasWidgets"];
 
 export type GeneratorOptions = {
-  cacheIndexArr: number[];
   containerParentId: string;
   containerWidgetId: string;
   currTemplateWidgets: TemplateWidgets;
@@ -154,7 +153,6 @@ const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
 class MetaWidgetGenerator {
-  private cacheIndexArr: number[];
   private cachedRows: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
@@ -189,7 +187,6 @@ class MetaWidgetGenerator {
   private widgetName: GeneratorOptions["widgetName"];
 
   constructor(props: ConstructorProps) {
-    this.cacheIndexArr = [];
     this.cachedRows = {
       prev: new Set(),
       curr: new Set(),
@@ -231,7 +228,6 @@ class MetaWidgetGenerator {
   withOptions = (options: GeneratorOptions) => {
     this.updateModificationsQueue(options);
 
-    this.cacheIndexArr = options.cacheIndexArr;
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
@@ -334,8 +330,6 @@ class MetaWidgetGenerator {
       }
     }
 
-    this.cacheRowIndices(this.cacheIndexArr);
-
     const removedMetaWidgetIds = this.getRemovedMetaWidgetIds();
 
     this.cachedRows.prev = new Set(this.cachedRows.curr);
@@ -403,16 +397,6 @@ class MetaWidgetGenerator {
     });
 
     return Array.from(removedWidgetsFromView);
-  };
-
-  private cacheRowIndices = (rowIndices: number[]) => {
-    this.cachedRows.curr.clear();
-    rowIndices.forEach((rowIndex) => {
-      if (rowIndex !== -1 && isFinite(rowIndex)) {
-        const key = this.getPrimaryKey(rowIndex);
-        this.cachedRows.curr.add(key);
-      }
-    });
   };
 
   private generateMetaWidgetRecursively = ({
@@ -661,7 +645,11 @@ class MetaWidgetGenerator {
     const currentIndex = this.serverSidePagination
       ? this.getViewIndex(rowIndex)
       : rowIndex;
-    const currentItem = `{{${this.widgetName}.listData[${currentIndex}]}}`;
+    const dataBinding =
+      this.serverSidePagination && this.cachedRows.curr.has(key)
+        ? `${this.widgetName}.rowDataCache["${key}"]`
+        : `${this.widgetName}.listData[${currentIndex}]`;
+    const currentItem = `{{${dataBinding}}}`;
     const currentRowCache = this.getRowCacheGroupByTemplateWidgetName(key);
     const metaContainers = this.getMetaContainers();
     const metaContainerName = metaContainers.names[0];
@@ -740,7 +728,7 @@ class MetaWidgetGenerator {
       const pathTypes = new Set();
 
       if (hasCurrentItem(propertyValue)) {
-        this.addCurrentItemProperty(metaWidget, metaWidgetName);
+        this.addCurrentItemProperty(metaWidget, metaWidgetName, key);
         pathTypes.add(DynamicPathType.CURRENT_ITEM);
       }
 
@@ -786,10 +774,16 @@ class MetaWidgetGenerator {
   private addCurrentItemProperty = (
     metaWidget: MetaWidget,
     metaWidgetName: string,
+    key: string,
   ) => {
     if (metaWidget.currentItem) return;
 
-    metaWidget.currentItem = `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
+    const dataBinding =
+      this.serverSidePagination && this.cachedRows.curr.has(key)
+        ? `${this.widgetName}.rowDataCache["${key}"]`
+        : `${this.widgetName}.listData[${metaWidgetName}.currentIndex]`;
+
+    metaWidget.currentItem = `{{${dataBinding}}}`;
     metaWidget.dynamicBindingPathList = [
       ...(metaWidget.dynamicBindingPathList || []),
       { key: "currentItem" },
@@ -816,6 +810,7 @@ class MetaWidgetGenerator {
    *    value: List1_Input2_1.value,
    *    text: List1_Input2_1.text
    *  }
+   * List12.rowDataCache[543_123]
    * }}"
    *
    */
@@ -1282,7 +1277,7 @@ class MetaWidgetGenerator {
   private getContainerWidget = () =>
     this.currTemplateWidgets?.[this.containerWidgetId] as FlattenedWidgetProps;
 
-  private getPrimaryKey = (rowIndex: number): string => {
+  getPrimaryKey = (rowIndex: number): string => {
     let dataIndex = rowIndex;
 
     if (this.serverSidePagination) {
@@ -1298,6 +1293,10 @@ class MetaWidgetGenerator {
     const dataToHash = data ?? rowIndex;
 
     return hash(dataToHash, { algorithm: "md5" });
+  };
+
+  updateCurrCachedRows = (keys: string[]) => {
+    this.cachedRows.curr = new Set(keys);
   };
 
   getTemplateWidgetIdByMetaWidgetId = (metaWidgetId: string) => {
