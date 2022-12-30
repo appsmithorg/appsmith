@@ -92,7 +92,7 @@ class RefactoringSolutionCEImplTest {
              InputStream finalStream = this.getClass().getResourceAsStream("refactorDslWithOnlyWidgetsWithNewText.json")) {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
-            final String oldName = "Text3";
+            final String oldName = "Text";
             Mono<Set<String>> updatesMono = refactoringSolutionCE.refactorNameInDsl(
                     dslAsJsonNode,
                     oldName,
@@ -104,7 +104,7 @@ class RefactoringSolutionCEImplTest {
                     .assertNext(updatedPaths -> {
                         Assertions.assertThat(updatedPaths).hasSize(3);
                         Assertions.assertThat(updatedPaths).containsExactlyInAnyOrder(
-                                "Text3.widgetName",
+                                "Text.widgetName",
                                 "List1.template",
                                 "List1.onListItemClick");
                     })
@@ -139,7 +139,7 @@ class RefactoringSolutionCEImplTest {
                                 "List1.widgetName",
                                 "List1.template.Text4.text",
                                 "List1.template.Image1.image",
-                                "List1.template.Text3.text");
+                                "List1.template.Text.text");
                     })
                     .verifyComplete();
 
