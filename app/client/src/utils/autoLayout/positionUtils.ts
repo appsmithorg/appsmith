@@ -1,9 +1,15 @@
 import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { GridDefaults } from "constants/WidgetConstants";
-import { isMobile } from "react-device-detect";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
+import {
+  getLeftColumn,
+  getRightColumn,
+  getWidgetHeight,
+  getWidgetWidth,
+  setDimensions,
+} from "./flexWidgetUtils";
 
 type Widget = WidgetProps & {
   children?: string[] | undefined;
@@ -153,18 +159,18 @@ function placeWidgetsWithoutWrap(
           ? fillWidgetLength
           : getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
       maxHeight = Math.max(maxHeight, height);
-      const widgetAfterLeftUpdate = setLeftColumn(widget, left, isMobile);
-      const widgetAfterRightUpdate = setRightColumn(
-        widgetAfterLeftUpdate,
+      const updatedWidget = setDimensions(
+        widget,
+        topRow,
+        topRow + height,
+        left,
         left + width,
         isMobile,
       );
       widgets = {
         ...widgets,
         [widget.widgetId]: {
-          ...widgetAfterRightUpdate,
-          topRow,
-          bottomRow: topRow + height,
+          ...updatedWidget,
         },
       };
       left += width;
@@ -216,19 +222,13 @@ function getIndividualAlignmentInfo(
     if (isFillWidget) fillChildren.push(child);
     if (child.align === FlexLayerAlignment.Start) {
       startChildren.push(widget);
-      if (!isFillWidget)
-        startColumns +=
-          getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
+      if (!isFillWidget) startColumns += getWidgetWidth(widget, isMobile);
     } else if (child.align === FlexLayerAlignment.Center) {
       centerChildren.push(widget);
-      if (!isFillWidget)
-        centerColumns +=
-          getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
+      if (!isFillWidget) centerColumns += getWidgetWidth(widget, isMobile);
     } else if (child.align === FlexLayerAlignment.End) {
       endChildren.push(widget);
-      if (!isFillWidget)
-        endColumns +=
-          getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
+      if (!isFillWidget) endColumns += getWidgetWidth(widget, isMobile);
     }
   }
 
@@ -311,47 +311,6 @@ function getWrappedAlignmentSize(
     res[resIndex].push(each);
   }
   return res;
-}
-
-export function getRightColumn(widget: any, isMobile: boolean): number {
-  return isMobile && widget.mobileRightColumn !== undefined
-    ? widget.mobileRightColumn
-    : widget.rightColumn;
-}
-
-export function setRightColumn(
-  widget: any,
-  val: number,
-  isMobile: boolean,
-): any {
-  return isMobile && widget.mobileRightColumn !== undefined
-    ? { ...widget, mobileRightColumn: val }
-    : { ...widget, rightColumn: val };
-}
-
-export function getLeftColumn(widget: any, isMobile: boolean): number {
-  return isMobile && widget.mobileLeftColumn !== undefined
-    ? widget.mobileLeftColumn
-    : widget.leftColumn;
-}
-
-export function setLeftColumn(
-  widget: any,
-  val: number,
-  isMobile: boolean,
-): any {
-  return isMobile && widget.mobileLeftColumn !== undefined
-    ? { ...widget, mobileLeftColumn: val }
-    : { ...widget, leftColumn: val };
-}
-
-export function setColumns(
-  widget: any,
-  left: number,
-  right: number,
-  isMobile: boolean,
-) {
-  return setRightColumn(setLeftColumn(widget, left, isMobile), right, isMobile);
 }
 
 function updatePositionsForFlexWrap(data: {
@@ -462,13 +421,15 @@ function placeWrappedWidgets(
         alignment === FlexLayerAlignment.End ? columns : 0,
       );
       for (const child of children) {
-        const height = child.bottomRow - child.topRow;
+        const height = getWidgetHeight(child, isMobile);
         const width =
           child.responsiveBehavior === ResponsiveBehavior.Fill
             ? fillWidgetLength
-            : getRightColumn(child, isMobile) - getLeftColumn(child, isMobile);
-        const widgetAfterColumnUpdate = setColumns(
+            : getWidgetWidth(child, isMobile);
+        const updatedWidget = setDimensions(
           child,
+          startRow,
+          startRow + height,
           left,
           left + width,
           isMobile,
@@ -476,9 +437,7 @@ function placeWrappedWidgets(
         widgets = {
           ...widgets,
           [child.widgetId]: {
-            ...widgetAfterColumnUpdate,
-            topRow: startRow,
-            bottomRow: startRow + height,
+            ...updatedWidget,
           },
         };
         left += width;
@@ -513,8 +472,7 @@ function getWrappedRows(
     index = 0,
     maxHeight = 0;
   for (const child of arr.children) {
-    const width =
-      getRightColumn(child, isMobile) - getLeftColumn(child, isMobile);
+    const width = getWidgetWidth(child, isMobile);
     if (columns + width > space) {
       row.children.push(...temp);
       row.height = maxHeight;
@@ -530,7 +488,7 @@ function getWrappedRows(
       );
     }
     temp.push(child);
-    maxHeight = Math.max(maxHeight, child.bottomRow - child.topRow);
+    maxHeight = Math.max(maxHeight, getWidgetHeight(child, isMobile));
     columns += width;
     index += 1;
   }
