@@ -99,7 +99,7 @@ const TabsContainer = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  height: calc(100% - 76px);
+  height: calc(100% - 96px);
   display: flex;
   margin-left: -${(props) => props.theme.spaces[8]}px;
 

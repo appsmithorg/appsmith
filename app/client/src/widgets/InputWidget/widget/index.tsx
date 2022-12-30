@@ -541,7 +541,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           {
             propertyName: "labelStyle",
             label: "Label Font Style",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

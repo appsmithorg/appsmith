@@ -9,7 +9,7 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {

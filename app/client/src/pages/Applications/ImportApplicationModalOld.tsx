@@ -104,7 +104,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       </FilePickerWrapper>
       <ButtonWrapper>
         <ImportButton
-          // category={ButtonCategory.tertiary}
+          // category={ButtonCategory.secondary}
           cypressSelector={"t--workspace-import-app-button"}
           disabled={!appFileToBeUploaded}
           isLoading={importingApplication}

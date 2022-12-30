@@ -1,8 +1,8 @@
-import classNames from "classnames";
 import React, { useCallback } from "react";
 
 import { AppTheme } from "entities/AppTheming";
-import { TooltipComponent } from "design-system";
+import { ButtonGroup, TooltipComponent } from "design-system";
+import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
 
 interface ThemeBorderRadiusControlProps {
   options: {
@@ -35,33 +35,32 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
     [updateTheme, theme],
   );
 
+  const selectedOptionKey = selectedOption
+    ? [invertedBorderRadiusOptions[selectedOption]]
+    : [];
+
+  const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
+    icon: (
+      <TooltipComponent
+        content={optionKey}
+        key={optionKey}
+        openOnTargetFocus={false}
+      >
+        <div
+          className="w-5 h-5 border-t-2 border-l-2 border-gray-500 t--theme-appBorderRadius"
+          style={{ borderTopLeftRadius: options[optionKey] }}
+        />
+      </TooltipComponent>
+    ),
+    value: optionKey,
+  }));
+
   return (
-    <div className="grid grid-cols-6 gap-2 auto-cols-max">
-      {Object.keys(options).map((optionKey) => (
-        <TooltipComponent content={optionKey} key={optionKey}>
-          <button
-            className={classNames({
-              "flex items-center justify-center w-8 h-8 bg-white ring-1 cursor-pointer hover:bg-trueGray-50": true,
-              "ring-gray-800": selectedOption === options[optionKey],
-              "ring-gray-300": selectedOption !== options[optionKey],
-              [`t--theme-${sectionName}`]: true,
-            })}
-            onClick={() => onChangeBorder(optionKey)}
-          >
-            <div
-              className={classNames({
-                "w-5 h-5 border-t-2 border-l-2": true,
-                "border-gray-800": selectedOption === options[optionKey],
-                "border-gray-500": selectedOption !== options[optionKey],
-              })}
-              style={{
-                borderTopLeftRadius: options[optionKey],
-              }}
-            />
-          </button>
-        </TooltipComponent>
-      ))}
-    </div>
+    <ButtonGroup
+      options={buttonGroupOptions}
+      selectButton={onChangeBorder}
+      values={selectedOptionKey}
+    />
   );
 }
 

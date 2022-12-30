@@ -212,7 +212,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                 </MethodDetailsWrapper>
                 <StyledAuthButton
                   category={
-                    method.isConnected ? Category.primary : Category.tertiary
+                    method.isConnected ? Category.primary : Category.secondary
                   }
                   className={`t--settings-sub-category-${
                     method.needsUpgrade
