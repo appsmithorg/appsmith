@@ -4,7 +4,7 @@ import { isFunction } from "lodash";
 import {
   entityDefinitions,
   EntityDefinitionsOptions,
-} from "utils/autocomplete/EntityDefinitions";
+} from "@appsmith/utils/autocomplete/EntityDefinitions";
 import {
   ENTITY_TYPE,
   DataTreeAction,

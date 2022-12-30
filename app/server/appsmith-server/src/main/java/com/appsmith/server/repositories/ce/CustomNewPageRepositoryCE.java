@@ -7,10 +7,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
+    @Deprecated
     Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission);
+
+    Flux<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission);
 
     Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission);
 
@@ -20,11 +24,13 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Mono<NewPage> findByNameAndApplicationIdAndViewMode(String name, String applicationId, AclPermission aclPermission, Boolean viewMode);
 
-    Flux<NewPage> findAllByIds(List<String> ids, AclPermission aclPermission);
+    Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission);
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
     Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission);
 
     Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
+
+    Mono<NewPage> findRootApplicationIdById(String defaultPageId, AclPermission readPermission);
 }
