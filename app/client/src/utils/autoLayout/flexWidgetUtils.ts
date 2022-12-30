@@ -106,3 +106,8 @@ export function getWidgetWidth(widget: any, isMobile: boolean): number {
 export function getWidgetHeight(widget: any, isMobile: boolean): number {
   return getBottomRow(widget, isMobile) - getTopRow(widget, isMobile);
 }
+
+export function getWidgetRows(widget: any, isMobile: boolean): number {
+  const divisor = widget.parentRowSpace === 1 ? 10 : 1;
+  return getBottomRow(widget, isMobile) / divisor - getTopRow(widget, isMobile);
+}
