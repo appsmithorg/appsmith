@@ -43,3 +43,69 @@ export const MOBILE_MAX_WIDTH = 767;
 export const TABLET_MIN_WIDTH = 768;
 export const TABLET_MAX_WIDTH = 991;
 export const DESKTOP_MIN_WIDTH = 992;
+
+export const NAVIGATION_SETTINGS = {
+  ORIENTATION: {
+    TOP: "top",
+    SIDE: "side",
+  },
+  STYLE: {
+    STACKED: "stacked",
+    INLINE: "inline",
+    SIDEBAR: "sidebar",
+    MINIMAL: "minimal",
+  },
+  POSITION: {
+    STATIC: "static",
+    STICKY: "sticky",
+  },
+  ITEM_STYLE: {
+    TEXT_ICON: "textIcon",
+    TEXT: "text",
+    ICON: "icon",
+  },
+  COLOR_STYLE: {
+    LIGHT: "light",
+    DARK: "dark",
+    SOLID: "solid",
+  },
+  LOGO_CONFIGURATION: {
+    LOGO_AND_APPLICATION_TITLE: "logoAndApplicationTitle",
+    LOGO_ONLY: "logoOnly",
+    APPLICATION_TITLE_ONLY: "applicationTitleOnly",
+    NO_LOGO_OR_APPLICATION_TITLE: "noLogoOrApplicationTitle",
+  },
+};
+
+export type NavigationSettingsOrientation = typeof NAVIGATION_SETTINGS.ORIENTATION[keyof typeof NAVIGATION_SETTINGS.ORIENTATION];
+
+export type NavigationSettingsStyle = typeof NAVIGATION_SETTINGS.STYLE[keyof typeof NAVIGATION_SETTINGS.STYLE];
+
+export type NavigationSettingsPosition = typeof NAVIGATION_SETTINGS.POSITION[keyof typeof NAVIGATION_SETTINGS.POSITION];
+
+export type NavigationSettingsItemStyle = typeof NAVIGATION_SETTINGS.ITEM_STYLE[keyof typeof NAVIGATION_SETTINGS.ITEM_STYLE];
+
+export type NavigationSettingsColorStyle = typeof NAVIGATION_SETTINGS.COLOR_STYLE[keyof typeof NAVIGATION_SETTINGS.COLOR_STYLE];
+
+export type NavigationSettingsLogoConfiguration = typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION[keyof typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION];
+
+export type NavigationSettingsShowNavbar = boolean;
+export type NavigationSettingsShowSignIn = boolean;
+export type NavigationSettingsShowShareApp = boolean;
+
+export type PublishedNavigationSetting = {
+  showNavbar: NavigationSettingsShowNavbar;
+  orientation: NavigationSettingsOrientation;
+  navStyle: NavigationSettingsStyle;
+  position: NavigationSettingsPosition;
+  itemStyle: NavigationSettingsItemStyle;
+  colorStyle: NavigationSettingsColorStyle;
+  logoConfiguration: NavigationSettingsLogoConfiguration;
+  showSignIn: NavigationSettingsShowSignIn;
+  showShareApp: NavigationSettingsShowShareApp;
+};
+
+export type StringsFromPublishedNavigationSetting = Omit<
+  PublishedNavigationSetting,
+  "showNavbar" | "showSignIn" | "showShareApp"
+>;

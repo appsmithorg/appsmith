@@ -7,7 +7,8 @@ import {
   Case,
   Classes,
   Icon,
-  ButtonTab,
+  ButtonGroupOption,
+  ButtonGroup,
 } from "design-system";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,6 +40,13 @@ import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/
 import { ReactComponent as NavPositionStickyIcon } from "assets/icons/settings/nav-position-sticky.svg";
 import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
 import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
+import {
+  NavigationSettingsColorStyle,
+  NAVIGATION_SETTINGS,
+  PublishedNavigationSetting,
+  StringsFromPublishedNavigationSetting,
+} from "constants/AppConstants";
+import _ from "lodash";
 
 const StyledLink = styled.a`
   position: relative;
@@ -61,6 +69,74 @@ const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   }
 `;
 
+type ButtonGroupSettingProps = {
+  heading: string;
+  options: ButtonGroupOption[];
+  publishedNavigationSetting: StringsFromPublishedNavigationSetting;
+  keyName: string;
+};
+
+const ButtonGroupSetting = ({
+  heading,
+  keyName,
+  options,
+  publishedNavigationSetting,
+}: ButtonGroupSettingProps) => {
+  const value: string[] = [];
+
+  if (
+    publishedNavigationSetting[
+      keyName as keyof StringsFromPublishedNavigationSetting
+    ]
+  ) {
+    value.push(
+      publishedNavigationSetting[
+        keyName as keyof StringsFromPublishedNavigationSetting
+      ],
+    );
+  }
+
+  return (
+    <div className="pt-4">
+      <Text type={TextType.P1}>{heading}</Text>
+      <div className="pt-1 pb-4">
+        <ButtonGroup
+          fullWidth
+          options={options}
+          selectButton={(value, isUpdatedViaKeyboard = false) => {
+            return;
+          }}
+          values={value}
+        />
+      </div>
+    </div>
+  );
+};
+
+const ColorStyleIcon = (props: { style: NavigationSettingsColorStyle }) => {
+  let backgroundColor = "#fff";
+
+  if (props.style === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+    backgroundColor = "#fff";
+  } else if (props.style === NAVIGATION_SETTINGS.COLOR_STYLE.DARK) {
+    backgroundColor = "#fff";
+  } else if (props.style === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+    backgroundColor = "#fff";
+  }
+
+  return (
+    <div
+      style={{
+        backgroundColor: backgroundColor,
+        height: 14,
+        width: 14,
+        borderRadius: "100%",
+        marginRight: 4,
+      }}
+    />
+  );
+};
+
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const dispatch = useDispatch();
@@ -68,7 +144,7 @@ function NavigationSettings() {
   const isFetchingApplication = useSelector(getIsFetchingApplications);
   const embedSnippet = useUpdateEmbedSnippet();
   const userAppPermissions = application?.userPermissions ?? [];
-  const publishedNavigationSetting = {
+  const publishedNavigationSetting: PublishedNavigationSetting = {
     showNavbar: true,
     orientation: "top",
     navStyle: "stacked",
@@ -110,36 +186,108 @@ function NavigationSettings() {
         </div>
       </div>
 
-      <div className="px-4">
-        <Text type={TextType.P1}>
-          {createMessage(APP_NAVIGATION_SETTING.orientationLabel)}
-        </Text>
-        <div className="pt-1 pb-4">
-          <ButtonTab
-            fullWidth
-            options={[
-              {
-                label: "Top",
-                value: "top",
-                icon: <NavOrientationTopIcon />,
-              },
-              {
-                label: "Side",
-                value: "side",
-                icon: <NavOrientationSideIcon />,
-              },
-            ]}
-            selectButton={() => {
-              return;
-            }}
-            values={
-              publishedNavigationSetting?.orientation
-                ? [publishedNavigationSetting?.orientation]
-                : []
-            }
-          />
-        </div>
-      </div>
+      <ButtonGroupSetting
+        heading={createMessage(APP_NAVIGATION_SETTING.orientationLabel)}
+        keyName="orientation"
+        options={[
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.ORIENTATION.TOP),
+            value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
+            icon: <NavOrientationTopIcon />,
+          },
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.ORIENTATION.SIDE),
+            value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
+            icon: <NavOrientationSideIcon />,
+          },
+        ]}
+        publishedNavigationSetting={publishedNavigationSetting}
+      />
+
+      <ButtonGroupSetting
+        heading={createMessage(APP_NAVIGATION_SETTING.styleLabel)}
+        keyName="style"
+        options={[
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.STYLE.STACKED),
+            value: NAVIGATION_SETTINGS.STYLE.STACKED,
+            icon: <NavStyleStackedIcon />,
+          },
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.STYLE.INLINE),
+            value: NAVIGATION_SETTINGS.STYLE.INLINE,
+            icon: <NavStyleInlineIcon />,
+          },
+        ]}
+        publishedNavigationSetting={publishedNavigationSetting}
+      />
+
+      <ButtonGroupSetting
+        heading={createMessage(APP_NAVIGATION_SETTING.positionLabel)}
+        keyName="position"
+        options={[
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.POSITION.STATIC),
+            value: NAVIGATION_SETTINGS.POSITION.STATIC,
+            icon: "close",
+          },
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.POSITION.STICKY),
+            value: NAVIGATION_SETTINGS.POSITION.STICKY,
+            icon: <NavPositionStickyIcon />,
+          },
+        ]}
+        publishedNavigationSetting={publishedNavigationSetting}
+      />
+
+      <ButtonGroupSetting
+        heading={createMessage(APP_NAVIGATION_SETTING.itemStyleLabel)}
+        keyName="itemStyle"
+        options={[
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON),
+            value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
+          },
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT),
+            value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT,
+          },
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.ITEM_STYLE.ICON),
+            value: NAVIGATION_SETTINGS.ITEM_STYLE.ICON,
+          },
+        ]}
+        publishedNavigationSetting={publishedNavigationSetting}
+      />
+
+      <ButtonGroupSetting
+        heading={createMessage(APP_NAVIGATION_SETTING.colorStyleLabel)}
+        keyName="colorStyle"
+        options={[
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT),
+            value: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+            icon: (
+              <ColorStyleIcon style={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT} />
+            ),
+          },
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.COLOR_STYLE.SOLID),
+            value: NAVIGATION_SETTINGS.COLOR_STYLE.SOLID,
+            icon: (
+              <ColorStyleIcon style={NAVIGATION_SETTINGS.COLOR_STYLE.SOLID} />
+            ),
+          },
+          {
+            label: _.capitalize(NAVIGATION_SETTINGS.COLOR_STYLE.DARK),
+            value: NAVIGATION_SETTINGS.COLOR_STYLE.DARK,
+            icon: (
+              <ColorStyleIcon style={NAVIGATION_SETTINGS.COLOR_STYLE.DARK} />
+            ),
+          },
+        ]}
+        publishedNavigationSetting={publishedNavigationSetting}
+      />
     </div>
   );
 }
