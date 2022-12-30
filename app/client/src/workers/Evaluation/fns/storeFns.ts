@@ -27,7 +27,7 @@ export function initStoreFns(ctx: typeof globalThis) {
     },
     configurable: false,
     writable: false,
-    enumerable: true,
+    enumerable: false,
   });
 
   Object.defineProperty(ctx, "removeValue", {
@@ -45,7 +45,7 @@ export function initStoreFns(ctx: typeof globalThis) {
     },
     configurable: false,
     writable: false,
-    enumerable: true,
+    enumerable: false,
   });
 
   Object.defineProperty(ctx, "clearStore", {
@@ -58,8 +58,8 @@ export function initStoreFns(ctx: typeof globalThis) {
       });
       return Promise.resolve();
     },
-    configurable: true,
+    configurable: false,
     writable: false,
-    enumerable: true,
+    enumerable: false,
   });
 }

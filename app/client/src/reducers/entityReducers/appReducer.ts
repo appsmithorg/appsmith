@@ -95,7 +95,7 @@ const appReducer = createReducer(initialState, {
       ...state,
       store: {
         ...state.store,
-        persistent: action.payload,
+        ...action.payload,
       },
     };
   },

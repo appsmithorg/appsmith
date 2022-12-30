@@ -334,7 +334,12 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    context[funcName] = pusher.bind({}, fn);
+    Object.defineProperty(context, funcName, {
+      value: pusher.bind({}, fn),
+      enumerable: false,
+      writable: false,
+      configurable: false,
+    });
   }
   initStoreFns(context);
 };
