@@ -451,13 +451,17 @@ function WorkspaceInviteUsersForm(props: any) {
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values);
-          AnalyticsUtil.logEvent("INVITE_USER", values);
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
           updateNumberOfUsersInvited(usersAsStringsArray.length);
           const users = usersAsStringsArray
             .filter((user: any) => isEmail(user))
             .join(",");
+          AnalyticsUtil.logEvent("INVITE_USER", {
+            users: usersAsStringsArray,
+            role: values.role,
+            numberOfUsersInvited: usersAsStringsArray.length,
+          });
           return inviteUsersToWorkspace(
             {
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),

@@ -12,7 +12,7 @@ describe("Creating new app after discontinuing guided tour should not start the 
     cy.get(commonlocators.homeIcon)
       .click({ force: true })
       .wait(8000); //for page to settle!
-    datasources.CloseReconnectDataSourceModal() // Check if reconnect data source modal is visible and close it
+    datasources.CloseReconnectDataSourceModal(); // Check if reconnect data source modal is visible and close it
     cy.get(guidedTourLocators.welcomeTour)
       .click()
       .wait(2000);
