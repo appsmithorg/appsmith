@@ -36,7 +36,6 @@ import {
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
 import { get } from "lodash";
-import { Theme } from "constants/DefaultTheme";
 import {
   getCurrentApplication,
   getWorkspaceIdForImport,
@@ -161,7 +160,7 @@ function RepoLimitExceededErrorModal() {
     },
     [],
   );
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
 
   useEffect(() => {
     dispatch({

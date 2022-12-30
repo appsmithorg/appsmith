@@ -1,11 +1,10 @@
 import React, { RefObject, useEffect, useRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Classes, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
-import { css } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import {

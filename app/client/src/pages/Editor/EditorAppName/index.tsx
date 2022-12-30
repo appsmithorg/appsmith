@@ -14,11 +14,9 @@ import {
   Toaster,
   Variant,
 } from "design-system";
-
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
-import { Theme } from "constants/DefaultTheme";
 
 type EditorAppNameProps = CommonComponentProps & {
   applicationId: string | undefined;
@@ -136,7 +134,7 @@ export function EditorAppName(props: EditorAppNameProps) {
     setIsPopoverOpen,
   } = props;
 
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
 
   const [isEditingDefault, setIsEditingDefault] = useState(isNewApp);
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);

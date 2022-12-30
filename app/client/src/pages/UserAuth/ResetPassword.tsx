@@ -17,14 +17,11 @@ import {
   Size,
 } from "design-system";
 import Spinner from "components/editorComponents/Spinner";
-
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
 import { BlackAuthCardNavLink, FormActions } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
-import { Theme } from "constants/DefaultTheme";
-
 import {
   RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL,
   RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER,
@@ -80,7 +77,7 @@ export function ResetPassword(props: ResetPasswordProps) {
     verifyToken,
   } = props;
 
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
 
   useLayoutEffect(() => {
     if (initialValues.token) verifyToken(initialValues.token);

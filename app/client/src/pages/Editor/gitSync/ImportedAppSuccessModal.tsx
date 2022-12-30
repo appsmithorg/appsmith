@@ -9,7 +9,6 @@ import {
   APPLICATION_IMPORT_SUCCESS_DESCRIPTION,
 } from "@appsmith/constants/messages";
 import { Icon } from "design-system";
-import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Button, Category, Size } from "design-system";
 
@@ -63,7 +62,7 @@ function ImportedApplicationSuccessModal() {
     setIsOpen(false);
     localStorage.setItem("importApplicationSuccess", "false");
   };
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
   return (
     <Dialog
       canEscapeKeyClose

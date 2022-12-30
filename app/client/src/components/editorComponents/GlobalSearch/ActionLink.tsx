@@ -1,6 +1,5 @@
 import React from "react";
 import { Icon, IconSize } from "design-system";
-import { Theme } from "constants/DefaultTheme";
 import { useContext } from "react";
 import styled, { useTheme } from "styled-components";
 import SearchContext from "./GlobalSearchContext";
@@ -26,7 +25,7 @@ export const ActionLink = ({
   isActiveItem?: boolean;
 }) => {
   const searchContext = useContext(SearchContext);
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
 
   return (
     <StyledActionLink isActiveItem={isActiveItem}>

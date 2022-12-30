@@ -27,7 +27,6 @@ import {
   Text,
   TextType,
 } from "design-system";
-import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
@@ -204,7 +203,7 @@ const StatusbarWrapper = styled.div`
 `;
 
 function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
   const onClick = useCallback(() => {
     AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_CARD_CLICK");
     props.handler && props.handler();

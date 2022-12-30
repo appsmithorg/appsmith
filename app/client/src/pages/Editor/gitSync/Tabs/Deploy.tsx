@@ -45,7 +45,6 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
@@ -262,7 +261,7 @@ function Deploy() {
     ? commitMessage
     : NO_CHANGES_TO_COMMIT;
 
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
 
   useEffect(() => {
     if (!commitInputDisabled && commitInputRef.current) {

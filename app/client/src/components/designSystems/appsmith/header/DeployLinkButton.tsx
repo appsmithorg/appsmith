@@ -1,7 +1,6 @@
 import React, { ReactNode, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { Icon, Popover, PopoverPosition } from "@blueprintjs/core";
-import { Theme } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
@@ -71,7 +70,7 @@ type Props = {
 };
 
 export const DeployLinkButton = (props: Props) => {
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const isGitConnected = useSelector(getIsGitConnected);

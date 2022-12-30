@@ -5,7 +5,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { getLightningMenuOptions } from "./helpers";
 import { LightningMenuTrigger } from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";
-import { Theme, Skin } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
 import { useDispatch } from "react-redux";
 import { useTheme } from "styled-components";
 import CustomizedDropdown, {
@@ -71,7 +71,7 @@ export function LightningMenu(props: LightningMenuProps) {
   const { apis, queries, saas } = useActions();
   const pageId = usePageId();
   const dispatch = useDispatch();
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
 
   return (
     <CustomizedDropdown

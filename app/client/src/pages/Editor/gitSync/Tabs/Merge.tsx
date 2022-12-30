@@ -46,7 +46,6 @@ import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
 import { Button, Case, Size, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Row = styled.div`
@@ -58,7 +57,7 @@ const DEFAULT_OPTION = "--Select--";
 const DROPDOWNMENU_MAXHEIGHT = "350px";
 
 function MergeSuccessIndicator() {
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>

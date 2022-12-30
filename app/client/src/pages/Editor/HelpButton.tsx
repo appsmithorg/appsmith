@@ -7,7 +7,6 @@ import { Icon, IconSize } from "design-system";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
@@ -49,7 +48,7 @@ type TriggerProps = {
 };
 
 const Trigger = ({ tooltipsDisabled }: TriggerProps) => {
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
 
   return (
     <TooltipComponent

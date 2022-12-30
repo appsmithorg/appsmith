@@ -24,7 +24,6 @@ import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
 import InfoWrapper from "./components/InfoWrapper";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 import {
   APPLICATION_NAME,
   createMessage,
@@ -86,7 +85,7 @@ function DisconnectGitModal() {
     dispatch(revokeGit());
   }, [dispatch, revokeGit]);
 
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
 
   const shouldDisableRevokeButton =
     disconnectingApp.id === "" ||

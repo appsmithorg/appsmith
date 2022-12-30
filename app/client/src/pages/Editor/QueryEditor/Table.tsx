@@ -12,7 +12,6 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 // We need to decouple the platform stuff from the widget stuff
 import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
-import { Theme } from "constants/DefaultTheme";
 import { isArray, uniqueId } from "lodash";
 
 interface TableProps {
@@ -207,7 +206,7 @@ export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
 };
 
 function Table(props: TableProps) {
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
   const tableBodyRef = React.useRef<HTMLElement>();
 
   const data = React.useMemo(() => {

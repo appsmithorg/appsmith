@@ -13,7 +13,6 @@ import {
   BlackAuthCardNavLink,
   FormMessagesContainer,
 } from "./StyledComponents";
-import { Theme } from "constants/DefaultTheme";
 import {
   FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL,
   FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER,
@@ -65,7 +64,7 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
     submitSucceeded,
     submitting,
   } = props;
-  const theme = useTheme() as Theme;
+  const theme = useTheme();
   const dispatch = useDispatch();
 
   useEffect(() => {
