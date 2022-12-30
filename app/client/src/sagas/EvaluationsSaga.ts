@@ -379,7 +379,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
         yield call(evalWorker.respond, message.messageId, result);
       break;
     }
-    case MAIN_THREAD_ACTION.PROCESS_STORE_VALUES: {
+    case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
       const { triggers } = data;
       yield call(storeValueInBulk, triggers);
     }

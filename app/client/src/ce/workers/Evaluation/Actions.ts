@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _, { set } from "lodash";
+import set from "lodash/set";
 import {
   ActionDescription,
   ActionTriggerFunctionNames,
@@ -8,17 +8,11 @@ import {
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
-import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
-import {
-  _internalClearTimeout,
-  _internalSetTimeout,
-} from "workers/Evaluation/TimeoutOverride";
-import { MessageType, sendMessage } from "utils/MessageUtil";
-import { MAIN_THREAD_ACTION } from "workers/Evaluation/evalWorkerActions";
+import { initStoreFns } from "workers/Evaluation/fns/storeFns";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -82,34 +76,6 @@ export const PLATFORM_FUNCTIONS: Record<
       type: ActionTriggerType.CLOSE_MODAL,
       payload: { modalName },
       executionType: ExecutionType.PROMISE,
-    };
-  },
-  storeValue: function(key: string, value: string, persist = true) {
-    // momentarily store this value in local state to support loops
-    _.set(self, ["appsmith", "store", key], value);
-    return {
-      type: ActionTriggerType.STORE_VALUE,
-      payload: {
-        key,
-        value,
-        persist,
-        uniqueActionRequestId: uniqueId("store_value_id_"),
-      },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  removeValue: function(key: string) {
-    return {
-      type: ActionTriggerType.REMOVE_VALUE,
-      payload: { key },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  clearStore: function() {
-    return {
-      type: ActionTriggerType.CLEAR_STORE,
-      executionType: ExecutionType.PROMISE,
-      payload: null,
     };
   },
   download: function(data: string, name: string, type: string) {
@@ -368,15 +334,9 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    if (funcName === "storeValue") {
-      context[funcName] = (...args: any) => {
-        const req = fn(...args);
-        return LazyRequest.getInstance().send(req);
-      };
-    } else {
-      context[funcName] = pusher.bind({}, fn);
-    }
+    context[funcName] = pusher.bind({}, fn);
   }
+  initStoreFns(context);
 };
 
 export const getAllAsyncFunctions = (dataTree: DataTree) => {
@@ -437,30 +397,3 @@ export const pusher = function(
     return promisifyAction(actionPayload, this.EVENT_TYPE);
   }
 };
-
-class LazyRequest {
-  requests: ActionDescription[] = [];
-  timerId = 0;
-  static instance: LazyRequest;
-  static getInstance() {
-    if (!this.instance) {
-      this.instance = new LazyRequest();
-    }
-    return this.instance;
-  }
-  send = (request: ActionDescription) => {
-    this.requests.push(request);
-    _internalClearTimeout(this.timerId);
-    this.timerId = _internalSetTimeout(() => {
-      sendMessage.call(self, {
-        messageType: MessageType.DEFAULT,
-        body: {
-          method: MAIN_THREAD_ACTION.PROCESS_STORE_VALUES,
-          data: { triggers: this.requests },
-        },
-      });
-      this.requests = [];
-    }, 0);
-    return Promise.resolve();
-  };
-}
