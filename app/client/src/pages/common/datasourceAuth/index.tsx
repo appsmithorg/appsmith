@@ -179,7 +179,7 @@ function DatasourceAuth({
               : OAUTH_AUTHORIZATION_FAILED;
           Toaster.show({ text: display_message || message, variant });
           const oAuthStatus = status;
-          AnalyticsUtil.logEvent("update_DATASOURCE", {
+          AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
             dsName,
             oAuthStatus,
             orgId,
