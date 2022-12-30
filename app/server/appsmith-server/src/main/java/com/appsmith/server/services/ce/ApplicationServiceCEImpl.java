@@ -337,7 +337,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     }
 
                     // Now update the policies to change the access to the application
-                    return generateAndSetPoliciesForView(
+                    return generateAndSetPoliciesForPublicView(
                             application,
                             publicPermissionGroupId,
                             applicationAccessDTO.getPublicAccess()
@@ -393,8 +393,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    private Mono<? extends Application> generateAndSetPoliciesForView(Application application, String permissionGroupId,
-                                                                      Boolean addViewAccess) {
+    private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, String permissionGroupId,
+                                                                            Boolean addViewAccess) {
 
         Map<String, Policy> applicationPolicyMap = policyUtils
                 .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
@@ -442,8 +442,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             datasourceIds.add(publishedAction.getDatasource().getId());
                         }
                     }
+
+                    // Update the datasource policies without permission since the applications and datasources are at
+                    // the same level in the hierarchy. A user may have permission to change view on application, but may
+                    // not have explicit permissions on the datasource.
                     Mono<List<Datasource>> updatedDatasourcesMono =
-                            policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIds(datasourceIds,
+                            policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(datasourceIds,
                                             datasourcePolicyMap, addViewAccess)
                                     .collectList();
 

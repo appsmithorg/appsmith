@@ -28,6 +28,8 @@ import WidgetInfo from "../WidgetInfo";
 import ForkTemplate from "../ForkTemplate";
 import { templateIdUrl } from "RouteBuilder";
 import { useQuery } from "pages/Editor/utils";
+import { useSelector } from "react-redux";
+import { getForkableWorkspaces } from "selectors/templatesSelectors";
 
 export const DescriptionWrapper = styled.div`
   display: flex;
@@ -94,6 +96,7 @@ function TemplateDescription(props: TemplateDescriptionProps) {
   }>();
   const history = useHistory();
   const query = useQuery();
+  const workspaceList = useSelector(getForkableWorkspaces);
 
   const onForkButtonTrigger = () => {
     history.replace(
@@ -114,7 +117,7 @@ function TemplateDescription(props: TemplateDescriptionProps) {
               {template.description}
             </Text>
           </div>
-          {!props.hideForkButton && (
+          {!props.hideForkButton && !!workspaceList.length && (
             <ForkTemplate
               onClose={onForkModalClose}
               showForkModal={!!query.get(SHOW_FORK_MODAL_PARAM)}

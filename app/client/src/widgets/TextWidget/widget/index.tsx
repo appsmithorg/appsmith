@@ -313,7 +313,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "fontStyle",
             label: "Emphasis",
             helpText: "Controls the font emphasis of the text displayed",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

@@ -28,6 +28,7 @@ import {
   fetchAllPageEntityCompletion,
   updatePageSuccess,
   updatePageError,
+  fetchPage,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -576,7 +577,12 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     const currentPageId: string = yield select(getCurrentPageId);
     const currentPage: Page = yield select(getPageById(currentPageId));
 
-    if (!hasManagePagePermission(currentPage?.userPermissions || [])) {
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
+
+    if (
+      !hasManagePagePermission(currentPage?.userPermissions || []) &&
+      appMode === APP_MODE.EDIT
+    ) {
       yield validateResponse({
         status: 403,
         resourceType: "Page",
@@ -584,7 +590,6 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       });
     }
 
-    const appMode: APP_MODE | undefined = yield select(getAppMode);
     if (appMode === APP_MODE.EDIT) {
       yield put(saveLayout(action.payload.isRetry));
     }
@@ -1068,6 +1073,8 @@ export function* generateTemplatePageSaga(
         pageId,
         isFirstLoad: true,
       });
+
+      yield put(fetchPage(pageId));
 
       // trigger evaluation after completion of page success & fetch actions for page + fetch jsobject for page
 
