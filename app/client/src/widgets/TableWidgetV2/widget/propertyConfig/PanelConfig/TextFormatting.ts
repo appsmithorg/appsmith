@@ -64,7 +64,7 @@ export default {
       propertyName: "fontStyle",
       label: "Emphasis",
       helpText: "Controls the style of the text in the column",
-      controlType: "BUTTON_TABS",
+      controlType: "BUTTON_GROUP",
       options: [
         {
           icon: "BOLD_FONT",

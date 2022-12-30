@@ -819,8 +819,8 @@ describe("App Theming funtionality", function() {
 
     //Change Border & verify
 
-    cy.get(".t--button-tab-0px").click();
-    cy.get(".t--button-tab-0px")
+    cy.get(".t--button-group-0px").click();
+    cy.get(".t--button-group-0px")
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -842,8 +842,8 @@ describe("App Theming funtionality", function() {
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-tab-0.10px").click();
-    cy.get(".t--button-tab-0.10px div")
+    cy.get(".t--button-group-0.10px").click();
+    cy.get(".t--button-group-0.10px div")
       .eq(0)
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
@@ -1051,10 +1051,10 @@ describe("App Theming funtionality", function() {
 
     //Change Border & verify
 
-    cy.get(".t--button-tab-0\\.375rem")
+    cy.get(".t--button-group-0\\.375rem")
       .click()
       .wait(500);
-    cy.get(".t--button-tab-0\\.375rem div")
+    cy.get(".t--button-group-0\\.375rem div")
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -1076,10 +1076,10 @@ describe("App Theming funtionality", function() {
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-tab-0.1px")
+    cy.get(".t--button-group-0.1px")
       .click()
       .wait(500);
-    cy.get(".t--button-tab-0.1px div")
+    cy.get(".t--button-group-0.1px div")
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
         cy.get(widgetsPage.widgetBtn)
