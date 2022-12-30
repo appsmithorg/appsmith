@@ -224,9 +224,6 @@ export const getCurrentApplicationLayout = (state: AppState) =>
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
 export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
 
-export const getCanvasSpace = (state: AppState) =>
-  state.ui.mainCanvas.canvasSpace;
-
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
 export const getCurrentPageName = createSelector(

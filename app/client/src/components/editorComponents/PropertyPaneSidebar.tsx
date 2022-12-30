@@ -60,7 +60,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const paneCount = useSelector(getPaneCount);
 
   //while dragging or resizing and
-  //the current selected WidgetId is not equal to previous widget Id,
+  //the current selected WidgetId is not equal to previous widget id,
   //then don't render PropertyPane
   const shouldNotRenderPane =
     isDraggingOrResizing &&
@@ -84,7 +84,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   });
 
   useEffect(() => {
-    if (!isSnipingMode || !isMultiPane) {
+    if (!isSnipingMode) {
       //update url hash with the selectedWidget
       dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
       if (selectedWidgetIds.length === 1) {
@@ -126,7 +126,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     ? false
     : isMultiPane
     ? paneCount === 3
-    : false;
+    : true;
 
   return (
     <div className="relative h-full">

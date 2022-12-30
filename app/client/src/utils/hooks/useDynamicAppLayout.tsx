@@ -30,6 +30,7 @@ import {
   getTabsPaneWidth,
   isMultiPaneActive,
 } from "selectors/multiPaneSelectors";
+import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -157,7 +158,12 @@ export const useDynamicAppLayout = () => {
     const { width: rightColumn } = mainCanvasProps || {};
     let scale = 1;
     if (isMultiPane && appLayout?.type !== "FLUID") {
-      let canvasSpace = screenWidth - tabsPaneWidth - 100;
+      let canvasSpace =
+        screenWidth -
+        tabsPaneWidth -
+        SIDE_NAV_WIDTH -
+        GUTTER_WIDTH -
+        BORDERS_WIDTH;
       if (paneCount === 3) canvasSpace -= propertyPaneWidth;
       scale = Math.min(+Math.abs(canvasSpace / calculatedWidth).toFixed(2), 1);
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));

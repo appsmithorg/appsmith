@@ -4,11 +4,13 @@ import explorerIcon from "assets/icons/header/explorer-side-nav.svg";
 import dataIcon from "assets/icons/header/database-side-nav.svg";
 import libIcon from "assets/icons/header/library-side-nav.svg";
 
+export const SIDE_NAV_WIDTH = 55;
+
 const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  width: 55px;
+  width: ${SIDE_NAV_WIDTH}px;
   display: block;
 
   background: #ffffff;
@@ -24,7 +26,7 @@ const Button = styled.div`
   align-items: center;
   padding: 3px;
 
-  width: 55px;
+  width: ${SIDE_NAV_WIDTH}px;
   height: 50px;
 
   /* Grays/White
@@ -57,13 +59,13 @@ function SideNav() {
   return (
     <Container>
       <Button>
-        <img src={explorerIcon} />
+        <img alt="Explorer" src={explorerIcon} />
       </Button>
       <Button>
-        <img src={dataIcon} />
+        <img alt="Datasources" src={dataIcon} />
       </Button>
       <Button>
-        <img src={libIcon} />
+        <img alt="library" src={libIcon} />
       </Button>
     </Container>
   );

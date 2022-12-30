@@ -32,7 +32,7 @@ import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 type Props = {
   width: number;
@@ -45,11 +45,9 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const featureFlags = useSelector(selectFeatureFlags);
   let pinned = useSelector(getExplorerPinned);
-  if (featureFlags.MULTIPLE_PANES) {
-    pinned = false;
-  }
+  const isMultiPane = useSelector(isMultiPaneActive);
+  if (isMultiPane) pinned = false;
   const isPreviewMode = useSelector(previewModeSelector);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
