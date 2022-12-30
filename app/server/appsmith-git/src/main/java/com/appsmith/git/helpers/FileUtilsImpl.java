@@ -37,6 +37,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
@@ -52,6 +53,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.GitConstants.CUSTOM_JS_LIB_LIST;
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.constants.GitConstants.PAGE_LIST;
 import static com.appsmith.external.constants.GitConstants.ACTION_LIST;
@@ -59,6 +61,7 @@ import static com.appsmith.external.constants.GitConstants.ACTION_COLLECTION_LIS
 import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
+import static com.appsmith.git.constants.GitDirectories.JS_LIB_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 
@@ -189,8 +192,26 @@ public class FileUtilsImpl implements FileInterface {
                         }
                         validPages.add(pageName);
                     }
-
                     scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
+
+                    // Save JS Libs
+                    Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
+                    Set<Map.Entry<String, Object>> jsLibEntries = applicationGitReference.getJsLibraries().entrySet();
+                    Set<String> validJsLibs = new HashSet<>();
+                    jsLibEntries
+                            .forEach(jsLibEntry -> {
+                                String uidString = jsLibEntry.getKey();
+                                Boolean isResourceUpdated = updatedResources.get(CUSTOM_JS_LIB_LIST).contains(uidString);
+                                String fileNameWithExtension =
+                                        uidString.replaceAll("/", "_") + CommonConstants.JSON_EXTENSION;
+                                Path jsLibSpecificFile =
+                                        jsLibDirectory.resolve(fileNameWithExtension);
+                                if (isResourceUpdated) {
+                                    saveFile(jsLibEntry.getValue(), jsLibSpecificFile, gson);
+                                }
+                                validJsLibs.add(fileNameWithExtension);
+                            });
+                    scanAndDeleteFileForDeletedResources(validJsLibs, jsLibDirectory);
 
                     // Create HashMap for valid actions and actionCollections
                     HashMap<String, Set<String>> validActionsMap = new HashMap<>();
@@ -554,6 +575,19 @@ public class FileUtilsImpl implements FileInterface {
             default:
         }
         applicationGitReference.setMetadata(metadata);
+
+        Map<String, Object> jsLibrariesMap = new HashMap<>();
+        Path jsLibDirectory = baseRepoPath.resolve(JS_LIB_DIRECTORY);
+        File directory = jsLibDirectory.toFile();
+        if (directory.isDirectory()) {
+            // Loop through all the directories and nested directories inside the pages directory to extract
+            // pages, actions and actionCollections from the JSON files
+            for (File jsLib : directory.listFiles()) {
+                jsLibrariesMap.put(jsLib.getName(), readFile(jsLib.toPath(), gson));
+            }
+        }
+        applicationGitReference.setJsLibraries(jsLibrariesMap);
+
         return applicationGitReference;
     }
 

@@ -87,7 +87,8 @@ public class CustomJSLib extends BaseDomain {
         return ((CustomJSLib) o).getUidString().equals(this.uidString);
     }
 
-    public void sanitiseToExportDBObject() {
-        this.sanitiseToExportBaseObject();
+    @Override
+    public int hashCode() {
+        return this.uidString.hashCode();
     }
 }

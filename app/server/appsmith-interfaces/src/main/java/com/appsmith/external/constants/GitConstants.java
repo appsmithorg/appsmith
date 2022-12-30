@@ -5,6 +5,7 @@ public class GitConstants {
     // pageName{{seperator}}entityName this is needed to filter the entities to save in appropriate page directory
     public static final String NAME_SEPARATOR = "##ENTITY_SEPARATOR##";
     public static final String PAGE_LIST = "pageList";
+    public static final String CUSTOM_JS_LIB_LIST = "customJSLibList";
     public static final String ACTION_LIST = "actionList";
     public static final String ACTION_COLLECTION_LIST = "actionCollectionList";
 

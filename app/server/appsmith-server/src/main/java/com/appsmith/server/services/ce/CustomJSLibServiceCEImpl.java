@@ -145,7 +145,17 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
     @Override
     public Mono<List<CustomJSLib>> getAllJSLibsInApplicationForExport(String applicationId, String branchName, Boolean isViewMode) {
-        return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode);
+        return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode)
+                .map(jsLibList -> {
+                    jsLibList
+                            .forEach(jsLib -> {
+                                jsLib.setId(null);
+                                jsLib.setCreatedAt(null);
+                                jsLib.setUpdatedAt(null);
+                            });
+
+                    return jsLibList;
+                });
     }
 
     private Mono<List<CustomJSLib>> getAllCustomJSLibsFromApplication(String applicationId, String branchName, boolean isViewMode) {

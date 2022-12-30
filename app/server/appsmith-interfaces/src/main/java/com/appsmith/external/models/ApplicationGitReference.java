@@ -21,6 +21,7 @@ public class ApplicationGitReference {
     Map<String, Object> actionCollections;
     Map<String, Object> pages;
     Map<String, Object> datasources;
+    Map<String, Object> jsLibraries;
 
     /**
      * This field will be used to store map of files to be updated in local file system by comparing the recent
