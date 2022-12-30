@@ -19,6 +19,7 @@ import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
 } from "@appsmith/constants/messages";
+import { Theme } from "constants/DefaultTheme";
 
 type Props = {
   isModalOpen: boolean;
@@ -99,7 +100,7 @@ const Content = styled.div`
 const CloseIcon = HelpIcons.CLOSE_ICON;
 
 const Header = ({ onClose }: { onClose: () => void }) => {
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <>

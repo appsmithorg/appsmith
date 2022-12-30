@@ -47,6 +47,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import InfoWrapper from "./components/InfoWrapper";
+import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 600px;
@@ -160,7 +161,7 @@ function RepoLimitExceededErrorModal() {
     },
     [],
   );
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   useEffect(() => {
     dispatch({

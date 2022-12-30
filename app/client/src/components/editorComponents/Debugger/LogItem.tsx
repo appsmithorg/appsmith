@@ -30,6 +30,7 @@ import {
 } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
+import { Theme } from "constants/DefaultTheme";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -271,7 +272,7 @@ function LogItem(props: LogItemProps) {
 
   const messages = props.messages || [];
   const { collapsable } = props;
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   return (
     <Wrapper
       className={props.severity}

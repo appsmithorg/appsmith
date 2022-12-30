@@ -13,6 +13,7 @@ import {
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
 } from "@appsmith/constants/messages";
+import { Theme } from "constants/DefaultTheme";
 
 const DeployLinkDialog = styled.div`
   flex-direction: column;
@@ -70,7 +71,7 @@ type Props = {
 };
 
 export const DeployLinkButton = (props: Props) => {
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const isGitConnected = useSelector(getIsGitConnected);

@@ -11,6 +11,7 @@ import {
 import { Icon } from "design-system";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Button, Category, Size } from "design-system";
+import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 461px;
@@ -62,7 +63,7 @@ function ImportedApplicationSuccessModal() {
     setIsOpen(false);
     localStorage.setItem("importApplicationSuccess", "false");
   };
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   return (
     <Dialog
       canEscapeKeyClose

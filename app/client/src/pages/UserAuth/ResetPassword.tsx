@@ -39,6 +39,7 @@ import {
 } from "@appsmith/constants/messages";
 import Container from "./Container";
 import { useTheme } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
@@ -77,7 +78,7 @@ export function ResetPassword(props: ResetPasswordProps) {
     verifyToken,
   } = props;
 
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   useLayoutEffect(() => {
     if (initialValues.token) verifyToken(initialValues.token);

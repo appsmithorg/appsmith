@@ -19,6 +19,7 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";
 import { useState } from "react";
+import { Theme } from "constants/DefaultTheme";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
@@ -48,7 +49,7 @@ type TriggerProps = {
 };
 
 const Trigger = ({ tooltipsDisabled }: TriggerProps) => {
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <TooltipComponent

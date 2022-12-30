@@ -37,6 +37,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import Container from "./Container";
 import { useTheme } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 const { mailEnabled } = getAppsmithConfigs();
 
@@ -64,7 +65,7 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
     submitSucceeded,
     submitting,
   } = props;
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
 
   useEffect(() => {

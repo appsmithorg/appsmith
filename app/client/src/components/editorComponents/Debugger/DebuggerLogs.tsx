@@ -17,7 +17,7 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
-import { thinScrollbar } from "constants/DefaultTheme";
+import { Theme, thinScrollbar } from "constants/DefaultTheme";
 import { IconName } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -69,7 +69,7 @@ function DebbuggerLogs(props: Props) {
   const filteredLogs = useFilteredLogs(searchQuery, filter);
   const { next, paginatedData } = usePagination(filteredLogs);
   const listRef = useRef<HTMLDivElement>(null);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   const selectedFilter = useMemo(
     () => LOGS_FILTER_OPTIONS(theme).find((option) => option.value === filter),
     [filter, theme],

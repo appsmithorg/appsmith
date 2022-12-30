@@ -13,6 +13,7 @@ import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { isArray, uniqueId } from "lodash";
+import { Theme } from "constants/DefaultTheme";
 
 interface TableProps {
   data: Record<string, any>[];
@@ -206,7 +207,7 @@ export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
 };
 
 function Table(props: TableProps) {
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   const tableBodyRef = React.useRef<HTMLElement>();
 
   const data = React.useMemo(() => {

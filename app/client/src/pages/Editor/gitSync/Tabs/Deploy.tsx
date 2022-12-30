@@ -78,6 +78,7 @@ import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import PushFailedWarning from "../components/PushFailedWarning";
+import { Theme } from "constants/DefaultTheme";
 
 const Section = styled.div`
   margin-top: 0;
@@ -261,7 +262,7 @@ function Deploy() {
     ? commitMessage
     : NO_CHANGES_TO_COMMIT;
 
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   useEffect(() => {
     if (!commitInputDisabled && commitInputRef.current) {

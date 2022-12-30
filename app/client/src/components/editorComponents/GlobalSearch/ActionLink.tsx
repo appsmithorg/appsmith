@@ -4,6 +4,7 @@ import { useContext } from "react";
 import styled, { useTheme } from "styled-components";
 import SearchContext from "./GlobalSearchContext";
 import { SearchItem } from "./utils";
+import { Theme } from "constants/DefaultTheme";
 
 export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
   visibility: ${(props) => (props.isActiveItem ? "visible" : "hidden")};
@@ -25,7 +26,7 @@ export const ActionLink = ({
   isActiveItem?: boolean;
 }) => {
   const searchContext = useContext(SearchContext);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <StyledActionLink isActiveItem={isActiveItem}>

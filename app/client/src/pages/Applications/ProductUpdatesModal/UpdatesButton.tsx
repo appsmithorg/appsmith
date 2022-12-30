@@ -2,6 +2,7 @@ import React from "react";
 import styled, { useTheme } from "styled-components";
 import { HelpIcons } from "icons/HelpIcons";
 import { Colors } from "constants/Colors";
+import { Theme } from "constants/DefaultTheme";
 
 const StyledUpdatesButton = styled.div`
   position: absolute;
@@ -48,7 +49,7 @@ const UpdatesButtonTextContainer = styled.div`
 `;
 
 const UpdatesIcon = () => {
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <HelpIcons.UPDATES

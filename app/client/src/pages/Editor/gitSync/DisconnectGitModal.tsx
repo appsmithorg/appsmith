@@ -36,6 +36,7 @@ import {
 import Link from "./components/Link";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
+import { Theme } from "constants/DefaultTheme";
 
 const StyledDialog = styled(Dialog)`
   && .bp3-dialog-body {
@@ -85,7 +86,7 @@ function DisconnectGitModal() {
     dispatch(revokeGit());
   }, [dispatch, revokeGit]);
 
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   const shouldDisableRevokeButton =
     disconnectingApp.id === "" ||

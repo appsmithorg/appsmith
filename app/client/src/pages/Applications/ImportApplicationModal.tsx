@@ -34,6 +34,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Classes } from "@blueprintjs/core";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Theme } from "constants/DefaultTheme";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {
@@ -203,7 +204,7 @@ const StatusbarWrapper = styled.div`
 `;
 
 function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   const onClick = useCallback(() => {
     AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_CARD_CLICK");
     props.handler && props.handler();

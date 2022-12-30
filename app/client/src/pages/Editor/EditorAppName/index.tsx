@@ -17,6 +17,7 @@ import {
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
+import { Theme } from "constants/DefaultTheme";
 
 type EditorAppNameProps = CommonComponentProps & {
   applicationId: string | undefined;
@@ -134,7 +135,7 @@ export function EditorAppName(props: EditorAppNameProps) {
     setIsPopoverOpen,
   } = props;
 
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   const [isEditingDefault, setIsEditingDefault] = useState(isNewApp);
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
