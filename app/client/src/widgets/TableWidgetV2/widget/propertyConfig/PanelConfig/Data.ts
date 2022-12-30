@@ -10,6 +10,7 @@ import {
   hideByColumnType,
   showByColumnType,
   uniqueColumnAliasValidation,
+  updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
@@ -78,6 +79,7 @@ export default {
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
+        updateMenuItemsSource,
       ]),
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,

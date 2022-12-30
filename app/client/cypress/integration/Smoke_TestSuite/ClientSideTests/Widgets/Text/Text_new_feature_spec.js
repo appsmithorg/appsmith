@@ -137,7 +137,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
 
   it("Test to validate enable scroll feature", function() {
     cy.moveToContentTab();
-    cy.get(".t--button-tab-SCROLL").click({ force: true });
+    cy.get(".t--button-group-SCROLL").click({ force: true });
     cy.wait("@updateLayout");
     cy.get(commonlocators.headingTextStyle).trigger("mouseover", {
       force: true,
