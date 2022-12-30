@@ -1,7 +1,12 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { TooltipComponent } from "design-system";
+import {
+  Button,
+  Category,
+  IconPositions,
+  TooltipComponent,
+} from "design-system";
 import Pen from "remixicon-react/PencilFillIcon";
 import Eye from "remixicon-react/EyeLineIcon";
 import { Indices } from "constants/Layers";
@@ -122,50 +127,64 @@ function ToggleModeButton({ showSelectedMode = true }) {
   }, [dispatch, setPreviewModeAction]);
 
   return (
-    <Container className="t--comment-mode-switch-toggle">
-      <div style={{ display: "flex" }}>
-        {!isExploring && !isViewMode && (
-          <ModeButton
-            active={!isPreviewMode}
-            className="t--switch-comment-mode-off"
-            onClick={() => {
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode,
-                source: "CLICK",
-              });
-              dispatch(setPreviewModeAction(false));
-            }}
-            showSelectedMode={showSelectedMode}
-            type="fill"
-          >
-            <ViewOrEditMode mode={mode} />
-          </ModeButton>
-        )}
-        {appMode === APP_MODE.EDIT && (
-          <TooltipComponent
-            content={
-              <>
-                Preview Mode
-                <span style={{ color: "#fff", marginLeft: 20 }}>P</span>
-              </>
-            }
-            hoverOpenDelay={1000}
-            position="bottom"
-          >
-            <ModeButton
-              active={isPreviewMode}
-              className="t--switch-preview-mode-toggle"
-              onClick={onClickPreviewModeButton}
-              showSelectedMode={showSelectedMode}
-              type="fill"
-            >
-              <Eye size={20} />
-            </ModeButton>
-          </TooltipComponent>
-        )}
-      </div>
-    </Container>
+    <Button
+      category={Category.tertiary}
+      icon={"play"}
+      iconPosition={IconPositions.left}
+      text="PREVIEW"
+    />
   );
+
+  // return (
+  //   <Container className="t--comment-mode-switch-toggle">
+  //     <div style={{ display: "flex" }}>
+  //       <Button
+  //         category={Category.tertiary}
+  //         icon={"play"}
+  //         iconPosition={IconPositions.left}
+  //         text="PREVIEW"
+  //       />
+  //       {/* {!isExploring && !isViewMode && (
+  //         <ModeButton
+  //           active={!isPreviewMode}
+  //           className="t--switch-comment-mode-off"
+  //           onClick={() => {
+  //             AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+  //               mode,
+  //               source: "CLICK",
+  //             });
+  //             dispatch(setPreviewModeAction(false));
+  //           }}
+  //           showSelectedMode={showSelectedMode}
+  //           type="fill"
+  //         >
+  //           <ViewOrEditMode mode={mode} />
+  //         </ModeButton>
+  //       )} */}
+  //       {appMode === APP_MODE.EDIT && (
+  //         <TooltipComponent
+  //           content={
+  //             <>
+  //               Preview Mode
+  //               <span style={{ color: "#fff", marginLeft: 20 }}>P</span>
+  //             </>
+  //           }
+  //           hoverOpenDelay={1000}
+  //           position="bottom"
+  //         >
+  //           <ModeButton
+  //             active={isPreviewMode}
+  //             className="t--switch-preview-mode-toggle"
+  //             onClick={onClickPreviewModeButton}
+  //             showSelectedMode={showSelectedMode}
+  //             type="fill"
+  //           >
+  //             <Eye size={20} />
+  //           </ModeButton>
+  //         </TooltipComponent>
+  //       )}
+  //     </div>
+  //   </Container>
 }
 
 export default ToggleModeButton;

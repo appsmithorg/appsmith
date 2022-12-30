@@ -32,7 +32,14 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { EditInteractionKind, SavingState } from "design-system";
+import {
+  Category,
+  EditInteractionKind,
+  IconPositions,
+  SavingState,
+  Text,
+  TextType,
+} from "design-system";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
@@ -148,12 +155,12 @@ const AppsmithLink = styled((props) => {
   // eslint-disable @typescript-eslint/no-unused-vars
   return <Link {...props} />;
 })`
-  height: 20px;
-  width: 20px;
+  height: 24px;
+  width: 24px;
   display: inline-block;
   img {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
 `;
 
@@ -200,10 +207,6 @@ const StyledDeployIcon = styled(Icon)`
   height: 20px;
   width: 20px;
   align-self: center;
-  background: var(--ads-color-brand);
-  &:hover {
-    background: var(--ads-color-brand-hover);
-  }
 `;
 
 const ShareButton = styled.div`
@@ -252,10 +255,12 @@ const GlobalSearch = lazy(() => {
 
 export function ShareButtonComponent() {
   return (
-    <ShareButton className="flex items-center t--application-share-btn header__application-share-btn">
-      <StyledSharedIcon name="share-line" />
-      <StyledShareText>SHARE</StyledShareText>
-    </ShareButton>
+    <Button
+      category={Category.tertiary}
+      icon={"share-line"}
+      iconPosition={IconPositions.left}
+      text="SHARE"
+    />
   );
 }
 
@@ -361,8 +366,11 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
-        <HeaderSection className="space-x-3">
+      <HeaderWrapper
+        className="pl-1 pr-3"
+        data-testid="t--appsmith-editor-header"
+      >
+        <HeaderSection className="space-x-2">
           <HamburgerContainer
             className={classNames({
               "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
@@ -389,16 +397,16 @@ export function EditorHeader(props: EditorHeaderProps) {
                 className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
                 onMouseEnter={onMenuHover}
               >
-                <MenuIcon className="absolute w-4 h-4 transition-opacity cursor-pointer fill-current group-hover:opacity-0" />
+                <MenuIcon className="absolute w-3.5 h-3.5 transition-opacity cursor-pointer fill-current group-hover:opacity-0" />
                 {!pinned && (
                   <UnpinIcon
-                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
                     onClick={onPin}
                   />
                 )}
                 {pinned && (
                   <PinIcon
-                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
                     onClick={onPin}
                   />
                 )}
@@ -451,8 +459,8 @@ export function EditorHeader(props: EditorHeaderProps) {
               setIsPopoverOpen={setIsPopoverOpen}
             />
           </TooltipComponent>
-          <ToggleModeButton showSelectedMode={!isPopoverOpen} />
         </HeaderSection>
+        <EditorSaveIndicator />
         <HeaderSection
           className={classNames({
             "-translate-y-full opacity-0": isPreviewMode,
@@ -464,12 +472,12 @@ export function EditorHeader(props: EditorHeaderProps) {
           <HelpButton />
         </HeaderSection>
         <HeaderSection className="space-x-3">
-          <EditorSaveIndicator />
           <Boxed
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
           >
             <RealtimeAppEditors applicationId={applicationId} />
+            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}
@@ -507,8 +515,11 @@ export function EditorHeader(props: EditorHeaderProps) {
                 position="bottom-right"
               >
                 <StyledDeployButton
+                  category={Category.tertiary}
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
+                  icon={"rocket"}
+                  iconPosition={IconPositions.left}
                   isLoading={isPublishing}
                   onClick={() => handleClickDeploy(true)}
                   size={Size.small}
@@ -520,7 +531,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 link={deployLink}
                 trigger={
                   <StyledDeployIcon
-                    fillColor="var(--ads-color-brand-text)"
+                    fill={Colors.GREY_900}
                     name={"down-arrow"}
                     size={IconSize.XXL}
                   />
@@ -528,7 +539,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               />
             </DeploySection>
           </Boxed>
-          {user && user.username !== ANONYMOUS_USERNAME && (
+          {/* {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
                 name={user.name}
@@ -536,7 +547,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 userName={user?.username || ""}
               />
             </ProfileDropdownContainer>
-          )}
+          )} */}
         </HeaderSection>
         <Suspense fallback={<span />}>
           <GlobalSearch />

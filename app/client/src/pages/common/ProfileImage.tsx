@@ -44,9 +44,7 @@ export default function ProfileImage(props: {
   const [hasErrorLoadingImage, setHasErrorLoadingImage] = useState(false);
 
   const shouldRenderImage = props.source && !hasErrorLoadingImage;
-  const backgroundColor = shouldRenderImage
-    ? "transparent"
-    : initialsAndColorCode[1];
+  const backgroundColor = false ? "transparent" : initialsAndColorCode[1];
 
   return (
     <Profile
@@ -54,7 +52,10 @@ export default function ProfileImage(props: {
       className={props.className}
       size={props.size} // size since it's a square
     >
-      {!shouldRenderImage ? (
+      <Text highlight type={TextType.H6}>
+        {props.commonName || initialsAndColorCode[0]}
+      </Text>
+      {/* {!shouldRenderImage ? (
         <Text highlight type={TextType.H6}>
           {props.commonName || initialsAndColorCode[0]}
         </Text>
@@ -64,7 +65,7 @@ export default function ProfileImage(props: {
           onLoad={() => setHasErrorLoadingImage(false)}
           src={props.source}
         />
-      )}
+      )} */}
     </Profile>
   );
 }

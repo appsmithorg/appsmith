@@ -7,6 +7,7 @@ import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
+import { Colors } from "constants/Colors";
 
 const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
@@ -18,18 +19,17 @@ const StyledHelpBar = styled.div`
   justify-content: space-between;
   align-items: center;
   color: ${(props) => props.theme.colors.globalSearch.helpBarText};
-  background: ${(props) => props.theme.colors.globalSearch.helpBarBackground};
   height: 28px;
   flex: 1;
-  max-width: 350px;
-  border: 1.5px solid transparent;
+  max-width: 205px;
+  border: 1px solid ${Colors.GRAY_200};
   cursor: default;
   &:hover {
-    border: 1.5px solid ${(props) => props.theme.colors.tertiary.light};
+    border: 1px solid ${(props) => props.theme.colors.tertiary.light};
   }
 `;
 
-const comboText = <>{modText()} K</>;
+const comboText = <>{modText()} + K</>;
 
 type Props = {
   toggleShowModal: () => void;

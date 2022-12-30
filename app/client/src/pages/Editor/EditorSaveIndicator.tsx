@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import moment from "moment/moment";
-
+import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import { AppState } from "@appsmith/reducers";
-import { TooltipComponent } from "design-system";
+import { Icon, TextType, Text } from "design-system";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import {
@@ -13,7 +13,6 @@ import {
   EDITOR_HEADER_SAVE_INDICATOR,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
 
 const SaveStatusContainer = styled.div`
   border-radius: 50%;
@@ -55,41 +54,29 @@ export function EditorSaveIndicator() {
   };
 
   let saveStatusIcon: React.ReactNode;
+  let saveStatusText = "";
   if (isSaving) {
     saveStatusIcon = (
-      <StyledLoader className="t--save-status-is-saving" name="loader" />
+      <StyledLoader className="t--save-status-is-saving" name="refresh" />
     );
+    saveStatusText = "Saving";
   } else {
-    if (!pageSaveError) {
+    if (pageSaveError) {
       saveStatusIcon = (
-        <TooltipComponent
-          content={lastUpdatedTimeMessage}
-          hoverOpenDelay={200}
-          onOpening={findLastUpdatedTimeMessage}
-        >
-          <HeaderIcons.SAVE_SUCCESS
-            className="t--save-status-success"
-            color={Colors.GREEN}
-            height={20}
-            width={20}
-          />
-        </TooltipComponent>
+        <Icon className={"t--save-status-error"} name="cloud-off-line" />
       );
-    } else {
-      saveStatusIcon = (
-        <HeaderIcons.SAVE_FAILURE
-          className={"t--save-status-error"}
-          color={Colors.WARNING_SOLID}
-          height={20}
-          width={20}
-        />
-      );
+      saveStatusText = "Save failed";
     }
   }
+
+  if (!pageSaveError) return null;
 
   return (
     <SaveStatusContainer className={"t--save-status-container"}>
       {saveStatusIcon}
+      <Text color={Colors.GREY_9} type={TextType.P3}>
+        {saveStatusText}
+      </Text>
     </SaveStatusContainer>
   );
 }

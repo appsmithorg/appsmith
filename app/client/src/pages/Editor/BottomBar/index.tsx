@@ -4,6 +4,7 @@ import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
 import { Layers } from "constants/Layers";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import { Colors } from "constants/Colors";
+import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
 import { Icon, IconSize } from "design-system";
 
@@ -31,6 +32,7 @@ export default function BottomBar(props: { className?: string }) {
             size={IconSize.XXXL}
           />
         </ManualUpgrades>
+        <HelpButton />
         <DebuggerTrigger />
       </div>
     </Container>

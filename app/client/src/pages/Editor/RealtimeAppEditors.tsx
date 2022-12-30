@@ -12,6 +12,7 @@ import {
 } from "actions/appCollabActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
+import { User } from "constants/userConstants";
 
 const UserImageContainer = styled.div`
   display: flex;
@@ -22,14 +23,15 @@ const UserImageContainer = styled.div`
     margin-left: ${(props) => props.theme.spaces[1]}px;
     width: 24px;
     height: 24px;
-  }
-
-  div:first-child {
     margin-left: 0px;
   }
 
-  div:last-child {
-    margin-right: 0;
+  .app-realtime-editors {
+    margin-right: -6px;
+  }
+
+  .more {
+    z-index: 1;
   }
 `;
 
@@ -60,12 +62,74 @@ export function useEditAppCollabEvents(applicationId?: string) {
 
 function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
   const { applicationId } = props;
-  const realtimeAppEditors = useSelector(getRealtimeAppEditors);
-  useEditAppCollabEvents(applicationId);
+  const realtimeAppEditors: User[] = [
+    {
+      email: "Hola@test.com",
+      name: "Hola",
+      username: "Hola",
+      gender: "MALE",
+      isSuperUser: false,
+      isConfigurable: false,
+      enableTelemetry: false,
+      workspaceIds: [""],
+    },
+    {
+      email: "Abc@test.com",
+      name: "Abc",
+      username: "Abc",
+      gender: "MALE",
+      isSuperUser: false,
+      isConfigurable: false,
+      enableTelemetry: false,
+      workspaceIds: [""],
+    },
+    {
+      email: "Bamboo@test.com",
+      name: "Bamboo",
+      username: "Bamboo",
+      gender: "MALE",
+      isSuperUser: false,
+      isConfigurable: false,
+      enableTelemetry: false,
+      workspaceIds: [""],
+    },
+    {
+      email: "Hola1@test.com",
+      name: "Hola1",
+      username: "Hola1",
+      gender: "MALE",
+      isSuperUser: false,
+      isConfigurable: false,
+      enableTelemetry: false,
+      workspaceIds: [""],
+    },
+    {
+      email: "Abc2@test.com",
+      name: "Abc2",
+      username: "Abc2",
+      gender: "MALE",
+      isSuperUser: false,
+      isConfigurable: false,
+      enableTelemetry: false,
+      workspaceIds: [""],
+    },
+    {
+      email: "Bamboo3@test.com",
+      name: "Bamboo3",
+      username: "Bamboo3",
+      gender: "MALE",
+      isSuperUser: false,
+      isConfigurable: false,
+      enableTelemetry: false,
+      workspaceIds: [""],
+    },
+  ];
+  // const realtimeAppEditors = useSelector(getRealtimeAppEditors);
+  // useEditAppCollabEvents(applicationId);
 
   return realtimeAppEditors.length > 0 ? (
     <UserImageContainer>
-      {realtimeAppEditors.slice(0, 5).map((el) => (
+      {realtimeAppEditors.slice(0, 3).map((el) => (
         <TooltipComponent
           content={
             <>
@@ -85,10 +149,10 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
           />
         </TooltipComponent>
       ))}
-      {realtimeAppEditors.length > 5 ? (
+      {realtimeAppEditors.length > 3 ? (
         <ProfileImage
-          className="app-realtime-editors"
-          commonName={`+${realtimeAppEditors.length - 5}`}
+          className="app-realtime-editors more"
+          commonName={`+${realtimeAppEditors.length - 3}`}
         />
       ) : null}
     </UserImageContainer>

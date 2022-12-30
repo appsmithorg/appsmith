@@ -2143,7 +2143,7 @@ export const light: ColorType = {
   globalSearch: {
     ...globalSearch,
     helpBarBackground: "#F0F0F0",
-    helpBarText: "#A9A7A7",
+    helpBarText: Colors.GRAY_400,
     helpButtonBackground: "#F0F0F0",
     helpIcon: "#939090",
   },
@@ -2160,7 +2160,7 @@ export const light: ColorType = {
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
-    background: lightShades[0],
+    background: lightShades[11],
     deployToolTipText: lightShades[8],
     deployToolTipBackground: "#FFF",
     shareBtnHighlight: "#F86A2B",
@@ -2898,7 +2898,7 @@ export const theme: Theme = {
     sidebar: 256,
   },
   headerHeight: "48px",
-  smallHeaderHeight: "32px",
+  smallHeaderHeight: "40px",
   bottomBarHeight: "34px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
