@@ -20,7 +20,7 @@ const PlayIcon = styled(ControlIcons.PLAY_VIDEO as AnyStyledComponent)`
   }
 `;
 
-const PlayerWrapper = styled.div`	import React, { Ref } from "react";
+const PlayerWrapper = styled.div`
   width: 600px;
   height: 400px;
 `;
