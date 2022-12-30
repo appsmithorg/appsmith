@@ -1,3 +1,4 @@
+import React from "react";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
@@ -12,7 +13,7 @@ import {
   ReflowDirection,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
-import { getZoomLevel } from "selectors/editorSelectors";
+import { getCanvasScale } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
@@ -57,9 +58,10 @@ export const useCanvasDragging = (
     widgetId,
   }: CanvasDraggingArenaProps,
 ) => {
-  const canvasZoomLevel = useSelector(getZoomLevel);
+  const canvasScale = useSelector(getCanvasScale);
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
-  const { devicePixelRatio: scale = 1 } = window;
+  let { devicePixelRatio: scale = 1 } = window;
+  scale *= canvasScale;
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -608,7 +610,7 @@ export const useCanvasDragging = (
               stickyCanvasRef.current.height,
             );
             isUpdatingRows = false;
-            canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
+            canvasCtx.transform(1, 0, 0, 1, 0, 0);
             if (canvasIsDragging) {
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);
