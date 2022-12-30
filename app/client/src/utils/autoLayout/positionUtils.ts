@@ -1,17 +1,22 @@
 import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
+  getBottomRow,
   getLeftColumn,
   getRightColumn,
+  getTopRow,
   getWidgetHeight,
   getWidgetWidth,
   setDimensions,
 } from "./flexWidgetUtils";
 
-type Widget = WidgetProps & {
+export type Widget = WidgetProps & {
   children?: string[] | undefined;
 };
 
@@ -23,27 +28,67 @@ interface AlignmentInfo {
 
 /**
  * Calculate widget position on canvas.
+ * Logic -
+ * 1. If widget contains flexLayers, then update positions for all widgets in layers.
+ * 2. Else if widget contains children ( implies fixed canvas), calculate the total height consumed by children.
+ * 3. If totalChildrenHeight in either case > widgetHeight and widget.parent.type === ContainerWidget || MainContainer,
+ *  then update height of the widget and its parent.
  */
 export function updateWidgetPositions(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
-  isMobile?: boolean,
+  isMobile = false,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
     const parent = widgets[parentId];
-    if (!parent || !parent.flexLayers || !parent.flexLayers?.length)
-      return widgets;
+    if (!parent) return widgets;
 
     let height = 0;
-    for (const layer of parent.flexLayers) {
-      const payload: {
-        height: number;
-        widgets: CanvasWidgetsReduxState;
-      } = calculateWidgetPositions(widgets, layer, height, isMobile);
-      widgets = payload.widgets;
-      height += payload.height;
+    if (parent.flexLayers && parent.flexLayers?.length) {
+      for (const layer of parent.flexLayers) {
+        const payload: {
+          height: number;
+          widgets: CanvasWidgetsReduxState;
+        } = calculateWidgetPositions(widgets, layer, height, isMobile);
+        widgets = payload.widgets;
+        height += payload.height;
+      }
+    } else if (parent.children?.length) {
+      let top = 10000,
+        bottom = 0;
+      for (const childId of parent.children) {
+        const child = widgets[childId];
+        if (!child) continue;
+        const divisor = child.parentRowSpace === 1 ? 10 : 1;
+        top = Math.min(top, getTopRow(child, isMobile));
+        bottom = Math.max(bottom, getBottomRow(child, isMobile) / divisor);
+      }
+      height = bottom - top;
     }
+    const divisor = parent.parentRowSpace === 1 ? 10 : 1;
+    const parentHeight = getWidgetHeight(parent, isMobile) / divisor;
+    if (parentHeight <= height) {
+      const parentTopRow = getTopRow(parent, isMobile);
+      const updatedParent = setDimensions(
+        parent,
+        parentTopRow,
+        (parentTopRow + height + 1) * divisor,
+        null,
+        null,
+        isMobile,
+      );
+      widgets = { ...widgets, [parent.widgetId]: updatedParent };
+    }
+    const shouldUpdateHeight =
+      parent.parentId &&
+      ["CONTAINER_WIDGET", MAIN_CONTAINER_WIDGET_ID].includes(
+        allWidgets[parent.parentId].type,
+      ) &&
+      parentHeight <= height;
+
+    if (shouldUpdateHeight && parent.parentId)
+      return updateWidgetPositions(widgets, parent.parentId, isMobile);
     return widgets;
   } catch (e) {
     console.error(e);
@@ -500,3 +545,20 @@ function getWrappedRows(
   }
   return rows;
 }
+
+// function updateHeight(
+//   allWidgets: CanvasWidgetsReduxState,
+//   widgetId: string,
+//   height: number,
+//   isMobile,
+// ): void {
+//   const widgets = { ...allWidgets };
+//   const widget = widgets[widgetId];
+//   const children = widget.children;
+//   if (!children || !children?.length) return widgets;
+//   let maxHeight = 0;
+//   for (const child of children) {
+//     const childHeight = getWidgetHeight(child, isMobile);
+//     if (childHeight > maxHeight) maxHeight = childHeight;
+//   }
+// }

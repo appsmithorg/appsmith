@@ -6,10 +6,10 @@ export function getRightColumn(widget: any, isMobile: boolean): number {
 
 export function setRightColumn(
   widget: any,
-  val: number,
+  val: number | null,
   isMobile: boolean,
 ): any {
-  if (isNaN(val)) return widget;
+  if (val === null) return widget;
   return isMobile && widget.mobileRightColumn !== undefined
     ? { ...widget, mobileRightColumn: val }
     : { ...widget, rightColumn: val };
@@ -23,10 +23,10 @@ export function getLeftColumn(widget: any, isMobile: boolean): number {
 
 export function setLeftColumn(
   widget: any,
-  val: number,
+  val: number | null,
   isMobile: boolean,
 ): any {
-  if (isNaN(val)) return widget;
+  if (val === null) return widget;
   return isMobile && widget.mobileLeftColumn !== undefined
     ? { ...widget, mobileLeftColumn: val }
     : { ...widget, leftColumn: val };
@@ -38,8 +38,12 @@ export function getTopRow(widget: any, isMobile: boolean): number {
     : widget.topRow;
 }
 
-export function setTopRow(widget: any, val: number, isMobile: boolean): any {
-  if (isNaN(val)) return widget;
+export function setTopRow(
+  widget: any,
+  val: number | null,
+  isMobile: boolean,
+): any {
+  if (val === null) return widget;
   return isMobile && widget.mobileTopRow !== undefined
     ? { ...widget, mobileTopRow: val }
     : { ...widget, topRow: val };
@@ -51,8 +55,12 @@ export function getBottomRow(widget: any, isMobile: boolean): number {
     : widget.bottomRow;
 }
 
-export function setBottomRow(widget: any, val: number, isMobile: boolean): any {
-  if (isNaN(val)) return widget;
+export function setBottomRow(
+  widget: any,
+  val: number | null,
+  isMobile: boolean,
+): any {
+  if (val === null) return widget;
   return isMobile && widget.mobileBottomRow !== undefined
     ? { ...widget, mobileBottomRow: val }
     : { ...widget, bottomRow: val };
@@ -69,10 +77,10 @@ export function setColumns(
 
 export function setDimensions(
   widget: any,
-  top: number,
-  bottom: number,
-  left: number,
-  right: number,
+  top: number | null,
+  bottom: number | null,
+  left: number | null,
+  right: number | null,
   isMobile: boolean,
 ) {
   try {

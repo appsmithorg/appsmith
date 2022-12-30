@@ -279,6 +279,8 @@ export function alterLayoutForMobile(
         );
       }
     }
+    widget.mobileTopRow = widget.topRow;
+    widget.mobileBottomRow = widget.bottomRow;
     // TODO: Preet - update container row info if height changes on account of flex wrap.
     widgets = alterLayoutForMobile(
       widgets,

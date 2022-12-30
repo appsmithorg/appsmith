@@ -12,7 +12,11 @@ import {
 } from "constants/WidgetConstants";
 import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getLeftColumn, getRightColumn } from "./positionUtils";
+import {
+  getLeftColumn,
+  getWidgetHeight,
+  getWidgetWidth,
+} from "./flexWidgetUtils";
 
 const HORIZONTAL_HIGHLIGHT_MARGIN = 4;
 // TODO: Preet - update logic to account for flex wrap on mobile.
@@ -43,7 +47,6 @@ export function deriveHighlightsFromLayers(
       mainCanvasWidth,
       isMobile,
     );
-
     const layers: FlexLayer[] = canvas.flexLayers || [];
     const highlights: HighlightInfo[] = [];
     let childCount = 0;
@@ -63,7 +66,7 @@ export function deriveHighlightsFromLayers(
         const widget = widgets[child.id];
         return Math.max(
           acc,
-          (widget.bottomRow - widget.topRow) * widget.parentRowSpace,
+          getWidgetHeight(widget, isMobile) * widget.parentRowSpace,
         );
       }, 0);
 
@@ -167,14 +170,12 @@ function generateVerticalHighlights(data: {
     if (draggedWidgets.indexOf(child.id) > -1) continue;
     if (child.align === FlexLayerAlignment.End) {
       endChildren.push(widget);
-      endColumns +=
-        getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
+      endColumns += getWidgetWidth(widget, isMobile);
     } else if (child.align === FlexLayerAlignment.Center) {
       centerChildren.push(widget);
     } else {
       startChildren.push(widget);
-      startColumns +=
-        getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
+      startColumns += getWidgetWidth(widget, isMobile);
     }
   }
 
@@ -303,7 +304,7 @@ function getPositionForInitialHighlight(
   containerWidth: number,
 ): number {
   if (alignment === FlexLayerAlignment.End) {
-    return containerWidth - 6;
+    return containerWidth;
   } else if (alignment === FlexLayerAlignment.Center) {
     if (!highlights.length) return containerWidth / 2;
     return posX;
@@ -393,12 +394,10 @@ function getCanvasWidth(
   if (!mainCanvasWidth) return 0;
   if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) return mainCanvasWidth;
   let widget = canvas;
-  let columns =
-    getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
+  let columns = getWidgetWidth(widget, isMobile);
   let width = columns / GridDefaults.DEFAULT_GRID_COLUMNS;
   while (widget.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-    columns =
-      getRightColumn(widget, isMobile) - getLeftColumn(widget, isMobile);
+    columns = getWidgetWidth(widget, isMobile);
     width *= columns / GridDefaults.DEFAULT_GRID_COLUMNS;
     widget = widgets[widget.parentId];
   }
