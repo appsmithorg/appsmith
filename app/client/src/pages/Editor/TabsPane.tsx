@@ -8,7 +8,6 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import EditorsRouter from "pages/Editor/routes";
 import * as Sentry from "@sentry/react";
 import { Route } from "react-router";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 
 const TabsContainer = styled.div`
   height: calc(
