@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { StyledInputGroup } from "./StyledControls";
 import log from "loglevel";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import React, { useState } from "react";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
+
+import { StyledInputGroup } from "./StyledControls";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 
 const { google } = getAppsmithConfigs();
 
-const render = (status: Status) => {
+const renderMapStatus = (status: Status) => {
   switch (status) {
     case Status.LOADING:
       return <span>Loading...</span>;
@@ -61,7 +61,7 @@ class LocationSearchControl extends BaseControl<ControlProps> {
       <Wrapper
         apiKey={google.apiKey}
         libraries={["geometry", "drawing", "places"]}
-        render={render}
+        render={renderMapStatus}
       >
         <MapScriptWrapper
           clearLocation={this.clearLocation}
