@@ -144,7 +144,6 @@ export const StyledText = styled(Text)<{
     width: 100%;
     line-height: 1.2;
     white-space: pre-wrap;
-    display: block;
     text-align: ${(props) => props.textAlign.toLowerCase()};
   }
 `;
