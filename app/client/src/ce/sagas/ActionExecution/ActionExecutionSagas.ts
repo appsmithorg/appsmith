@@ -16,10 +16,6 @@ import {
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
-import storeValueLocally, {
-  clearLocalStore,
-  removeLocalValue,
-} from "sagas/ActionExecution/StoreActionSaga";
 import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
 import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
@@ -95,15 +91,6 @@ export function* executeActionTriggers(
       break;
     case ActionTriggerType.CLOSE_MODAL:
       yield call(closeModalSaga, trigger);
-      break;
-    case ActionTriggerType.STORE_VALUE:
-      yield call(storeValueLocally, trigger.payload);
-      break;
-    case ActionTriggerType.REMOVE_VALUE:
-      yield call(removeLocalValue, trigger.payload);
-      break;
-    case ActionTriggerType.CLEAR_STORE:
-      yield call(clearLocalStore);
       break;
     case ActionTriggerType.DOWNLOAD:
       yield call(downloadSaga, trigger.payload);
