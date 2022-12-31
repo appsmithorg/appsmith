@@ -32,14 +32,6 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import {
-  Category,
-  EditInteractionKind,
-  IconPositions,
-  SavingState,
-  Text,
-  TextType,
-} from "design-system";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
@@ -48,20 +40,21 @@ import {
   showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
-import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import { User } from "constants/userConstants";
 import {
+  Category,
+  EditInteractionKind,
+  IconPositions,
+  SavingState,
   Button,
   getTypographyByKey,
   Icon,
   IconSize,
-  Size,
   TooltipComponent,
 } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
-import HelpButton from "./HelpButton";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
@@ -168,20 +161,6 @@ const DeploySection = styled.div`
   display: flex;
 `;
 
-const ProfileDropdownContainer = styled.div``;
-
-const StyledInviteButton = styled(Button)`
-  margin-right: ${(props) => props.theme.spaces[9]}px;
-  height: ${(props) => props.theme.smallHeaderHeight};
-  ${getTypographyByKey("btnLarge")}
-  padding: ${(props) => props.theme.spaces[2]}px;
-`;
-
-const StyledDeployButton = styled(StyledInviteButton)`
-  margin-right: 0px;
-  height: 20px;
-`;
-
 const BindingBanner = styled.div`
   position: fixed;
   width: 199px;
@@ -209,20 +188,6 @@ const StyledDeployIcon = styled(Icon)`
   align-self: center;
 `;
 
-const ShareButton = styled.div`
-  cursor: pointer;
-`;
-
-const StyledShareText = styled.span`
-  font-size: 12px;
-  font-weight: 600;
-  margin-left: 4px;
-`;
-
-const StyledSharedIcon = styled(Icon)`
-  display: inline-block;
-`;
-
 const HamburgerContainer = styled.div`
   height: 34px;
   width: 34px;
@@ -231,6 +196,8 @@ const HamburgerContainer = styled.div`
     background-color: ${Colors.GEYSER_LIGHT};
   }
 `;
+
+const StyledButton = styled(Button)``;
 
 type EditorHeaderProps = {
   pageSaveError?: boolean;
@@ -255,7 +222,7 @@ const GlobalSearch = lazy(() => {
 
 export function ShareButtonComponent() {
   return (
-    <Button
+    <StyledButton
       category={Category.tertiary}
       icon={"share-line"}
       iconPosition={IconPositions.left}
@@ -280,7 +247,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
-  const user = useSelector(getCurrentUser);
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
 
@@ -459,8 +425,8 @@ export function EditorHeader(props: EditorHeaderProps) {
               setIsPopoverOpen={setIsPopoverOpen}
             />
           </TooltipComponent>
+          <EditorSaveIndicator />
         </HeaderSection>
-        <EditorSaveIndicator />
         <HeaderSection
           className={classNames({
             "-translate-y-full opacity-0": isPreviewMode,
@@ -469,15 +435,14 @@ export function EditorHeader(props: EditorHeaderProps) {
           })}
         >
           <HelpBar />
-          <HelpButton />
         </HeaderSection>
-        <HeaderSection className="space-x-3">
+        <HeaderSection>
           <Boxed
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
           >
             <RealtimeAppEditors applicationId={applicationId} />
-            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
+            <ToggleModeButton />
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}
@@ -514,7 +479,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                 position="bottom-right"
               >
-                <StyledDeployButton
+                <Button
                   category={Category.tertiary}
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
@@ -522,7 +487,6 @@ export function EditorHeader(props: EditorHeaderProps) {
                   iconPosition={IconPositions.left}
                   isLoading={isPublishing}
                   onClick={() => handleClickDeploy(true)}
-                  size={Size.small}
                   text={DEPLOY_MENU_OPTION()}
                 />
               </TooltipComponent>
@@ -539,15 +503,6 @@ export function EditorHeader(props: EditorHeaderProps) {
               />
             </DeploySection>
           </Boxed>
-          {/* {user && user.username !== ANONYMOUS_USERNAME && (
-            <ProfileDropdownContainer>
-              <ProfileDropdown
-                name={user.name}
-                photoId={user?.photoId}
-                userName={user?.username || ""}
-              />
-            </ProfileDropdownContainer>
-          )} */}
         </HeaderSection>
         <Suspense fallback={<span />}>
           <GlobalSearch />

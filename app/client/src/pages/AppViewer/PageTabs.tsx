@@ -49,7 +49,7 @@ const StyleTabText = styled.div`
   justify-content: center;
   ${getTypographyByKey("h6")}
   color: ${(props) => props.theme.colors.header.tabText};
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
+  height: 32px;
   & span {
     height: 100%;
     max-width: 138px;
