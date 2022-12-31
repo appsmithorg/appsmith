@@ -2,10 +2,13 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   SubscribeParentDescription,
   UnsubscribeParentDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { Channel, channel, Task } from "redux-saga";
 import { call, take, spawn, cancel } from "redux-saga/effects";
-import { executeAppAction, TriggerMeta } from "./ActionExecutionSagas";
+import {
+  executeAppAction,
+  TriggerMeta,
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { logActionExecutionError } from "./errorUtils";
 
 interface MessageChannelPayload {
