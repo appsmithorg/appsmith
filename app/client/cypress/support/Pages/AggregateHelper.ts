@@ -579,8 +579,8 @@ export class AggregateHelper {
     cy.get(selector)
       .contains(containsText)
       .eq(index)
-      .click()
-      .wait(200);
+      .click({ force: true })
+      .wait(500);
   }
 
   public CheckUncheck(selector: string, check = true) {

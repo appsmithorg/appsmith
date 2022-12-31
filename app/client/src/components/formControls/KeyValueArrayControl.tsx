@@ -21,6 +21,8 @@ import {
   TextInputProps,
   TextType,
 } from "design-system";
+import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
+import { useDispatch } from "react-redux";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -88,6 +90,7 @@ function KeyValueRow(
   const keyName = getFieldName(extraData[0]?.configProperty);
   const valueName = getFieldName(extraData[1]?.configProperty);
   const keyFieldProps = extraData[0];
+  const dispatch = useDispatch();
 
   const addRow = useCallback(() => {
     if (keyName && valueName) {
@@ -102,6 +105,9 @@ function KeyValueRow(
     if (props.fields.length < 1) {
       for (let i = props.fields.length; i < 1; i += 1) {
         addRow();
+        // Since we are initializing one default key value pair, it needs to stored in redux store
+        // so that it can be used to initilize datasource config form as well
+        dispatch(setDefaultKeyValPairFlag(props.configProperty));
       }
     }
   }, [props.fields, keyName, valueName]);
