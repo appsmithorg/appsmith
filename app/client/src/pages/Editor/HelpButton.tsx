@@ -3,7 +3,7 @@ import styled, { createGlobalStyle, withTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -11,8 +11,6 @@ import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
-import { Colors } from "constants/Colors";
-import { TooltipComponent } from "design-system";
 import {
   createMessage,
   HELP_RESOURCE_TOOLTIP,
@@ -29,13 +27,9 @@ const HelpPopoverStyle = createGlobalStyle`
 
 const StyledTrigger = styled.div`
   cursor: pointer;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 ${(props) => props.theme.spaces[4]}px;
 `;
 
 type TriggerProps = {
@@ -48,7 +42,10 @@ const Trigger = withTheme(({ theme, tooltipsDisabled }: TriggerProps) => (
     content={createMessage(HELP_RESOURCE_TOOLTIP)}
     disabled={tooltipsDisabled}
     hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-    position="bottom"
+    modifiers={{
+      preventOverflow: { enabled: true },
+    }}
+    position={"bottom"}
   >
     <StyledTrigger>
       <Icon
