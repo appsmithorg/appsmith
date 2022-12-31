@@ -20,6 +20,7 @@ import {
 
 const HORIZONTAL_HIGHLIGHT_MARGIN = 4;
 // TODO: Preet - update logic to account for flex wrap on mobile.
+// For mobile use widget positions to place highlights.
 /**
  * @param allWidgets : CanvasWidgetsReduxState
  * @param canvasId : string
@@ -62,6 +63,7 @@ export function deriveHighlightsFromLayers(
         layer?.children?.filter(
           (child: LayerChild) => draggedWidgets.indexOf(child.id) === -1,
         ).length === 0;
+      // TODO: use getHeightOfFixedCanvas to measure the height of the layer.
       const tallestChild = layer.children?.reduce((acc, child) => {
         const widget = widgets[child.id];
         return Math.max(
@@ -297,6 +299,14 @@ function generateHighlightsForSubWrapper(data: {
   return res;
 }
 
+/**
+ * Get the position of the initial / final highlight for an alignment.
+ * @param highlights | HighlightInfo[] : highlights for the current alignment
+ * @param alignment | FlexLayerAlignment : alignment of the current highlights
+ * @param posX | number : end position of the last widget in the current alignment. (rightColumn * columnSpace)
+ * @param containerWidth | number : width of the container
+ * @returns number
+ */
 function getPositionForInitialHighlight(
   highlights: HighlightInfo[],
   alignment: FlexLayerAlignment,
@@ -314,6 +324,19 @@ function getPositionForInitialHighlight(
   }
 }
 
+/**
+ * Create a layer of horizontal alignments to denote new vertical drop zones.
+ *  - if the layer has a fill widget,
+ *    - Start alignment spans the entire container width.
+ *  - else each layer takes up a third of the container width and are placed side to side.
+ * @param childIndex | number : child count of children placed in preceding layers.
+ * @param layerIndex | number
+ * @param offsetTop | number
+ * @param containerWidth | number
+ * @param canvasId |
+ * @param hasFillWidget | boolean : whether the layer has a fill widget or not.
+ * @returns HighlightInfo[]
+ */
 function generateHorizontalHighlights(
   childIndex: number,
   layerIndex: number,
