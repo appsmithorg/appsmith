@@ -13,6 +13,7 @@ import {
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
 import { User } from "constants/userConstants";
+import { Colors } from "constants/Colors";
 
 const UserImageContainer = styled.div`
   display: flex;
@@ -28,6 +29,10 @@ const UserImageContainer = styled.div`
 
   .app-realtime-editors {
     margin-right: -6px;
+    border: 1px solid ${Colors.WHITE};
+    span {
+      color: ${Colors.GRAY_700};
+    }
   }
 
   .more {
