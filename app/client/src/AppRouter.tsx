@@ -95,6 +95,7 @@ function AppRouter(props: {
   return (
     <Router history={history}>
       <Suspense fallback={loadingIndicator}>
+        <RouteChangeListener />
         {props.safeCrash && props.safeCrashCode ? (
           <>
             <ErrorPageHeader />

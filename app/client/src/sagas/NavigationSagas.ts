@@ -32,7 +32,7 @@ import { unsubscribeParentMessages } from "./ActionExecution/ParentMessageListen
 import {
   hasNavigatedOutOfPage,
   isEditorPath,
-} from "pages/Editor/Explorer/helpers";
+} from "@appsmith/pages/Editor/Explorer/helpers";
 
 let previousPath: string;
 let previousHash: string | undefined;

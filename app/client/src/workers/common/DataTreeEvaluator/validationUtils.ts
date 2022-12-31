@@ -6,7 +6,7 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
@@ -14,7 +14,7 @@ import {
   getEntityNameAndPropertyPath,
   isWidget,
   resetValidationErrorsForEntityProperty,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { validate } from "workers/Evaluation/validations";
 import { EvalProps } from ".";
 
@@ -34,7 +34,7 @@ export function validateAndParseWidgetProperty({
   evalProps: EvalProps;
 }): unknown {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
-  if (isPathADynamicTrigger(widget, propertyPath)) {
+  if (isPathDynamicTrigger(widget, propertyPath)) {
     // TODO find a way to validate triggers
     return unEvalPropertyValue;
   }

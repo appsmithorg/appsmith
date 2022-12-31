@@ -39,7 +39,7 @@ import {
   isChildPropertyPath,
   isDynamicValue,
   isPathADynamicBinding,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _, { cloneDeep, isString, set, uniq } from "lodash";
@@ -70,7 +70,7 @@ import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
 } from "entities/Widget/utils";
-import { getAllPaths } from "workers/Evaluation/evaluationUtils";
+import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   createMessage,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
@@ -330,12 +330,12 @@ function getDynamicTriggerPathListUpdate(
   propertyPath: string,
   propertyValue: string,
 ): DynamicPathUpdate {
-  if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+  if (propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.ADD,
     };
-  } else if (!propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+  } else if (!propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.REMOVE,

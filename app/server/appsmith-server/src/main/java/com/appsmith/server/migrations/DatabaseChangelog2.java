@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -8,9 +9,12 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.EncryptionConfig;
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -63,14 +67,23 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
 import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.ArrayUtils;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.CollectionCallback;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.index.Index;
@@ -79,6 +92,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
@@ -117,16 +132,17 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
-import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
-import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
-import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
-import static com.appsmith.server.migrations.DatabaseChangelog.installPluginToAllWorkspaces;
-import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
+import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
+import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
+import static com.appsmith.server.migrations.DatabaseChangelog1.getUpdatedDynamicBindingPathList;
+import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToAllWorkspaces;
+import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Update.update;
 
 
 @Slf4j
@@ -141,17 +157,17 @@ public class DatabaseChangelog2 {
     public void fixPluginTitleCasing(MongockTemplate mongockTemplate) {
         mongockTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("mysql-plugin")),
-                Update.update(fieldName(QPlugin.plugin.name), "MySQL"),
+                update(fieldName(QPlugin.plugin.name), "MySQL"),
                 Plugin.class);
 
         mongockTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("mssql-plugin")),
-                Update.update(fieldName(QPlugin.plugin.name), "Microsoft SQL Server"),
+                update(fieldName(QPlugin.plugin.name), "Microsoft SQL Server"),
                 Plugin.class);
 
         mongockTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
-                Update.update(fieldName(QPlugin.plugin.name), "Elasticsearch"),
+                update(fieldName(QPlugin.plugin.name), "Elasticsearch"),
                 Plugin.class);
     }
 
@@ -756,7 +772,7 @@ public class DatabaseChangelog2 {
     public void setDefaultApplicationVersion(MongockTemplate mongockTemplate) {
         mongockTemplate.updateMulti(
                 Query.query(where(fieldName(QApplication.application.deleted)).is(false)),
-                Update.update(fieldName(QApplication.application.applicationVersion),
+                update(fieldName(QApplication.application.applicationVersion),
                         ApplicationVersion.EARLIEST_VERSION),
                 Application.class);
     }
@@ -908,7 +924,7 @@ public class DatabaseChangelog2 {
             if (!newName.equals(oldName)) {
                 //Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
                 mongockTemplate.updateFirst(query(where("name").is(oldName)),
-                        Update.update("name", newName),
+                        update("name", newName),
                         Sequence.class
                 );
             }
@@ -1422,7 +1438,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "021", id = "flush-spring-redis-keys-2a", author = "")
     public void clearRedisCache2(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-        DatabaseChangelog.doClearRedisKeys(reactiveRedisOperations);
+        DatabaseChangelog1.doClearRedisKeys(reactiveRedisOperations);
     }
 
     private List<String> getCustomizedThemeIds(String fieldName, Function<Application, String> getThemeIdMethod, List<String> systemThemeIds, MongockTemplate mongockTemplate) {
@@ -2779,12 +2795,158 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongockTemplate, Workspace.class, "tenantId_deleted");
         ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
     }
-
+    
     @ChangeSet(order = "038", id = "add-unique-index-for-uidstring", author = "")
     public void addUniqueIndexOnUidString(MongockTemplate mongoTemplate) {
         Index uidStringUniqueness = makeIndex("uidString").unique()
                 .named("customjslibs_uidstring_index");
         ensureIndexes(mongoTemplate, CustomJSLib.class, uidStringUniqueness);
     }
+    
+    // TODO We'll be deleting this migration after upgrade to Spring 6.0
+    @ChangeSet(order = "039", id = "deprecate-queryabletext-encryption", author = "")
+    public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate,
+                                                 @NonLockGuarded EncryptionConfig encryptionConfig,
+                                                 EncryptionService encryptionService) {
+        Stopwatch stopwatch = new Stopwatch("Instance Schema migration to v2");
 
+        Config encryptionVersion = mongockTemplate.findOne(
+                query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
+                Config.class);
+
+        if (encryptionVersion != null && (Integer) encryptionVersion.getConfig().get("value") < 2) {
+            String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
+            TextEncryptor textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(), saltInHex);
+
+            /**
+             * - List of attributes in datasources that need to be encoded.
+             * - Each path represents where the attribute exists in mongo db document.
+             */
+            List<String> datasourcePathList = new ArrayList<>();
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.keyFile.base64Content");
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.certificateFile.base64Content");
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.caCertificateFile.base64Content");
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.file.base64Content");
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.password");
+            datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
+            datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.password");
+            datasourcePathList.add("datasourceConfiguration.authentication.value");
+            datasourcePathList.add("datasourceConfiguration.authentication.password");
+            datasourcePathList.add("datasourceConfiguration.authentication.bearerToken");
+            datasourcePathList.add("datasourceConfiguration.authentication.clientSecret");
+            datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.token");
+            datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.refreshToken");
+            datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.tokenResponse");
+            List<Bson> datasourcePathListExists = datasourcePathList
+                    .stream()
+                    .map(Filters::exists)
+                    .collect(Collectors.toList());
+
+            List<Bson> gitDeployKeysPathListExists = new ArrayList<>();
+            ArrayList<String> gitDeployKeysPathList = new ArrayList<>();
+            gitDeployKeysPathList.add("gitAuth.privateKey");
+            gitDeployKeysPathListExists.add(Filters.exists("gitAuth.privateKey"));
+
+            List<Bson> applicationPathListExists = new ArrayList<>();
+            ArrayList<String> applicationPathList = new ArrayList<>();
+            applicationPathList.add("gitApplicationMetadata.gitAuth.privateKey");
+            applicationPathListExists.add(Filters.exists("gitApplicationMetadata.gitAuth.privateKey"));
+
+            mongockTemplate.execute("datasource", getNewEncryptionCallback(textEncryptor, encryptionService, datasourcePathListExists, datasourcePathList, stopwatch));
+            mongockTemplate.execute("gitDeployKeys", getNewEncryptionCallback(textEncryptor, encryptionService, gitDeployKeysPathListExists, gitDeployKeysPathList, stopwatch));
+            mongockTemplate.execute("application", getNewEncryptionCallback(textEncryptor, encryptionService, applicationPathListExists, applicationPathList, stopwatch));
+
+            mongockTemplate.upsert(
+                    query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
+                    update("config.value", 2),
+                    Config.class);
+        }
+        stopwatch.stopAndLogTimeInMillis();
+    }
+
+    private CollectionCallback<String> getNewEncryptionCallback(
+            TextEncryptor textEncryptor,
+            EncryptionService encryptionService,
+            Iterable<Bson> collectionFilterIterable,
+            List<String> pathList,
+            Stopwatch stopwatch) {
+        return new CollectionCallback<String>() {
+            @Override
+            public String doInCollection(MongoCollection<Document> collection) {
+                MongoCursor<Document> cursor = collection
+                        .find(
+                                Filters.and(
+                                        Filters.or(collectionFilterIterable),
+                                        Filters.not(Filters.exists("encryptionVersion"))))
+                        .cursor();
+
+                log.debug("collection callback start: {}ms", stopwatch.getExecutionTime());
+
+                List<List<Bson>> documentPairList = new ArrayList<>();
+                while (cursor.hasNext()) {
+                    Document old = cursor.next();
+                    BasicDBObject query = new BasicDBObject();
+                    query.put("_id", old.getObjectId("_id"));
+                    // This document will have the encrypted values.
+                    BasicDBObject updated = new BasicDBObject();
+                    updated.put("$set", new BasicDBObject("encryptionVersion", 2));
+                    updated.put("$unset", new BasicDBObject());
+                    // Encrypt attributes
+                    pathList.stream()
+                            .forEach(path -> reapplyNewEncryptionToPathValueIfExists(old, updated, path, encryptionService, textEncryptor));
+                    documentPairList.add(List.of(query, updated));
+                }
+
+                log.debug("collection callback processing end: {}ms", stopwatch.getExecutionTime());
+                log.debug("update will be run for {} documents", documentPairList.size());
+
+                /**
+                 * - Replace old document with the updated document that has encrypted values.
+                 * - Replacing here instead of the while loop above makes sure that we attempt replacement only if
+                 * the encryption step succeeded without error for each selected document.
+                 */
+                documentPairList.stream().parallel()
+                        .forEach(docPair -> collection.updateOne(docPair.get(0), docPair.get(1)));
+
+                log.debug("collection callback update end: {}ms", stopwatch.getExecutionTime());
+
+                return null;
+            }
+        };
+    }
+
+    private void reapplyNewEncryptionToPathValueIfExists(Document document, BasicDBObject update, String path,
+                                                         EncryptionService encryptionService,
+                                                         TextEncryptor textEncryptor) {
+        String[] pathKeys = path.split("\\.");
+        /**
+         * - For attribute path "datasourceConfiguration.connection.ssl.keyFile.base64Content", first get the parent
+         * document that contains the attribute 'base64Content' i.e. fetch the document corresponding to path
+         * "datasourceConfiguration.connection.ssl.keyFile"
+         */
+        String parentDocumentPath = org.apache.commons.lang.StringUtils.join(ArrayUtils.subarray(pathKeys, 0, pathKeys.length - 1), ".");
+        Document parentDocument = DatabaseChangelog1.getDocumentFromPath(document, parentDocumentPath);
+
+        if (parentDocument != null) {
+            if (parentDocument.containsKey(pathKeys[pathKeys.length - 1])) {
+                String oldEncryptedValue = parentDocument.getString(pathKeys[pathKeys.length - 1]);
+                if (StringUtils.hasLength(String.valueOf(oldEncryptedValue))) {
+                    String decryptedValue = null;
+                    try {
+                        decryptedValue = textEncryptor.decrypt(String.valueOf(oldEncryptedValue));
+                    } catch (IllegalArgumentException e) {
+                        // This happens on release DB for some creds that are malformed
+                        if ("Hex-encoded string must have an even number of characters".equals(e.getMessage())) {
+                            decryptedValue = String.valueOf(oldEncryptedValue);
+                        }
+                    }
+                    String newEncryptedValue = encryptionService.encryptString(decryptedValue);
+                    ((BasicDBObject) update.get("$set")).put(path, newEncryptedValue);
+                    if (path.startsWith("datasourceConfiguration.authentication")) {
+                        ((BasicDBObject) update.get("$unset")).put("datasourceConfiguration.authentication.isEncrypted", 1);
+                    }
+                }
+            }
+        }
+    }
 }
