@@ -67,7 +67,7 @@ export function updateWidgetPositions(
     }
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
-    const parentHeight = getWidgetHeight(parent, isMobile);
+    const parentHeight = getWidgetRows(parent, isMobile);
     if (parentHeight <= height) {
       /**
        * if children height is greater than parent height,
@@ -87,7 +87,7 @@ export function updateWidgetPositions(
     }
     const shouldUpdateHeight =
       parent.parentId &&
-      ["CONTAINER_WIDGET", MAIN_CONTAINER_WIDGET_ID].includes(
+      ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
         allWidgets[parent.parentId].type,
       ) &&
       parentHeight <= height;
@@ -169,9 +169,8 @@ function placeWidgetsWithoutWrap(
    * Get the size (columns: number) of each alignment in this row.
    */
   const { centerSize, endSize, startSize } = getAlignmentSizeInfo(arr);
-
   let maxHeight = totalHeight ? totalHeight : 0;
-  arr.forEach((each: AlignmentInfo) => {
+  for (const each of arr) {
     // Get the starting left column for each alignment in this row.
     let left = getStartingPosition(
       each.alignment,
@@ -203,7 +202,7 @@ function placeWidgetsWithoutWrap(
       };
       left += width;
     }
-  });
+  }
 
   return { height: maxHeight, widgets };
 }
@@ -230,7 +229,7 @@ function getAlignmentSizes(
   sizes: AlignmentInfo[] = [],
 ): AlignmentInfo[] {
   if (input.length === 0) return sizes;
-  const arr: AlignmentInfo[] = input.sort((a, b) => b.columns - a.columns);
+  const arr: AlignmentInfo[] = [...input].sort((a, b) => b.columns - a.columns);
   if (arr[0].columns > space / arr.length) {
     sizes.push(arr[0]);
     arr.shift();
@@ -562,9 +561,17 @@ function getHeightOfFixedCanvas(
 ): number {
   if (!parent.children || !parent.children.length)
     return getWidgetRows(parent, isMobile);
+  return getTotalRowsOfAllChildren(widgets, parent.children, isMobile);
+}
+
+export function getTotalRowsOfAllChildren(
+  widgets: CanvasWidgetsReduxState,
+  children: string[],
+  isMobile: boolean,
+): number {
   let top = 10000,
     bottom = 0;
-  for (const childId of parent.children) {
+  for (const childId of children) {
     const child = widgets[childId];
     if (!child) continue;
     const divisor = child.parentRowSpace === 1 ? 10 : 1;

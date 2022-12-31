@@ -110,7 +110,13 @@ export const ResizableComponent = memo(function ResizableComponent(
         props.parentColumnSpace -
       2 * props.paddingOffset,
     height:
-      (props.bottomRow - props.topRow) * props.parentRowSpace -
+      ((props.isMobile && props.mobileBottomRow !== undefined
+        ? props.mobileBottomRow
+        : props.bottomRow) -
+        (props.isMobile && props.mobileTopRow !== undefined
+          ? props.mobileTopRow
+          : props.topRow)) *
+        props.parentRowSpace -
       2 * props.paddingOffset,
   };
 
