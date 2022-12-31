@@ -5,6 +5,7 @@ import {
   Button,
   Category,
   IconPositions,
+  Size,
   TooltipComponent,
 } from "design-system";
 
@@ -23,9 +24,15 @@ const StyledButton = styled(Button)<{ active: boolean }>`
     props.active &&
     `
   background-color: ${Colors.GREY_200};
-  color: ${Colors.GREY_800};
   border: 1.2px solid transparent;
   `}
+  padding: 0 6px;
+  color: ${Colors.GREY_900};
+
+  svg {
+    height: 18px;
+    width: 18px;
+  }
 `;
 
 function ToggleModeButton() {
@@ -61,6 +68,7 @@ function ToggleModeButton() {
         icon={"play-circle-line"}
         iconPosition={IconPositions.left}
         onClick={onClickPreviewModeButton}
+        size={Size.medium}
         tag={"button"}
         text="PREVIEW"
       />

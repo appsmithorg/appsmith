@@ -17,7 +17,7 @@ import { Colors } from "constants/Colors";
 
 const UserImageContainer = styled.div`
   display: flex;
-  margin-right: ${(props) => props.theme.spaces[4]}px;
+  margin-right: ${(props) => props.theme.spaces[3]}px;
 
   div {
     cursor: default;

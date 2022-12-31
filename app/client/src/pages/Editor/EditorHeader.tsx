@@ -52,6 +52,7 @@ import {
   Icon,
   IconSize,
   TooltipComponent,
+  Size,
 } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
@@ -159,6 +160,7 @@ const AppsmithLink = styled((props) => {
 
 const DeploySection = styled.div`
   display: flex;
+  align-items: center;
 `;
 
 const BindingBanner = styled.div`
@@ -197,7 +199,15 @@ const HamburgerContainer = styled.div`
   }
 `;
 
-const StyledButton = styled(Button)``;
+const StyledButton = styled(Button)`
+  padding: 0 6px;
+  color: ${Colors.GREY_900};
+
+  svg {
+    height: 18px;
+    width: 18px;
+  }
+`;
 
 type EditorHeaderProps = {
   pageSaveError?: boolean;
@@ -226,6 +236,7 @@ export function ShareButtonComponent() {
       category={Category.tertiary}
       icon={"share-line"}
       iconPosition={IconPositions.left}
+      size={Size.medium}
       text="SHARE"
     />
   );
@@ -436,7 +447,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         >
           <HelpBar />
         </HeaderSection>
-        <HeaderSection>
+        <HeaderSection className="gap-x-3">
           <Boxed
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
@@ -479,7 +490,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                 position="bottom-right"
               >
-                <Button
+                <StyledButton
                   category={Category.tertiary}
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
@@ -487,6 +498,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   iconPosition={IconPositions.left}
                   isLoading={isPublishing}
                   onClick={() => handleClickDeploy(true)}
+                  size={Size.medium}
                   text={DEPLOY_MENU_OPTION()}
                 />
               </TooltipComponent>
