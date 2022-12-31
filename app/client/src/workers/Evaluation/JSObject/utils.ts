@@ -8,7 +8,7 @@ import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
 import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import { JSAction } from "entities/JSCollection";
 import { getJSFunctionFromName } from "selectors/entitiesSelector";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
