@@ -500,6 +500,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   onClick={() => handleClickDeploy(true)}
                   size={Size.medium}
                   text={DEPLOY_MENU_OPTION()}
+                  width={"88px"}
                 />
               </TooltipComponent>
 
