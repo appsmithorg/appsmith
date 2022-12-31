@@ -27,7 +27,7 @@ const UserImageContainer = styled.div`
     margin-left: 0px;
   }
 
-  .app-realtime-editors {
+  .profile-image {
     margin-right: -6px;
     border: 1px solid ${Colors.WHITE};
     span {
@@ -133,7 +133,7 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
   // useEditAppCollabEvents(applicationId);
 
   return realtimeAppEditors.length > 0 ? (
-    <UserImageContainer>
+    <UserImageContainer className="app-realtume-editors">
       {realtimeAppEditors.slice(0, 3).map((el) => (
         <TooltipComponent
           content={
@@ -148,7 +148,7 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
           key={el.email}
         >
           <ProfileImage
-            className="app-realtime-editors"
+            className="profile-image"
             source={`/api/${UserApi.photoURL}/${el.email}`}
             userName={el.name || el.email}
           />
@@ -156,7 +156,7 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
       ))}
       {realtimeAppEditors.length > 3 ? (
         <ProfileImage
-          className="app-realtime-editors more"
+          className="profile-image more"
           commonName={`+${realtimeAppEditors.length - 3}`}
         />
       ) : null}

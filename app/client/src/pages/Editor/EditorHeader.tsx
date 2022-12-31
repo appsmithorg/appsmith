@@ -120,6 +120,18 @@ const HeaderWrapper = styled.div`
     width: 24px;
     height: 24px;
   }
+
+  @media only screen and (max-width: 900px) {
+    & .help-bar {
+      display: none;
+    }
+  }
+
+  @media only screen and (max-width: 700px) {
+    & .app-realtume-editors {
+      display: none;
+    }
+  }
 `;
 
 const HeaderSection = styled.div`
@@ -443,6 +455,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             "-translate-y-full opacity-0": isPreviewMode,
             "translate-y-0 opacity-100": !isPreviewMode,
             "transition-all transform duration-400": true,
+            "help-bar": "true",
           })}
         >
           <HelpBar />
