@@ -52,10 +52,7 @@ export default function ProfileImage(props: {
       className={props.className}
       size={props.size} // size since it's a square
     >
-      <Text highlight type={TextType.H6}>
-        {props.commonName || initialsAndColorCode[0]}
-      </Text>
-      {/* {!shouldRenderImage ? (
+      {!shouldRenderImage ? (
         <Text highlight type={TextType.H6}>
           {props.commonName || initialsAndColorCode[0]}
         </Text>
@@ -65,7 +62,7 @@ export default function ProfileImage(props: {
           onLoad={() => setHasErrorLoadingImage(false)}
           src={props.source}
         />
-      )} */}
+      )}
     </Profile>
   );
 }

@@ -12,7 +12,6 @@ import {
 } from "actions/appCollabActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
-import { User } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 
 const UserImageContainer = styled.div`
@@ -70,70 +69,8 @@ export function useEditAppCollabEvents(applicationId?: string) {
 
 function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
   const { applicationId } = props;
-  const realtimeAppEditors: User[] = [
-    {
-      email: "Hola@test.com",
-      name: "Hola",
-      username: "Hola",
-      gender: "MALE",
-      isSuperUser: false,
-      isConfigurable: false,
-      enableTelemetry: false,
-      workspaceIds: [""],
-    },
-    {
-      email: "Abc@test.com",
-      name: "Abc",
-      username: "Abc",
-      gender: "MALE",
-      isSuperUser: false,
-      isConfigurable: false,
-      enableTelemetry: false,
-      workspaceIds: [""],
-    },
-    {
-      email: "Bamboo@test.com",
-      name: "Bamboo",
-      username: "Bamboo",
-      gender: "MALE",
-      isSuperUser: false,
-      isConfigurable: false,
-      enableTelemetry: false,
-      workspaceIds: [""],
-    },
-    {
-      email: "Hola1@test.com",
-      name: "Hola1",
-      username: "Hola1",
-      gender: "MALE",
-      isSuperUser: false,
-      isConfigurable: false,
-      enableTelemetry: false,
-      workspaceIds: [""],
-    },
-    {
-      email: "Abc2@test.com",
-      name: "Abc2",
-      username: "Abc2",
-      gender: "MALE",
-      isSuperUser: false,
-      isConfigurable: false,
-      enableTelemetry: false,
-      workspaceIds: [""],
-    },
-    {
-      email: "Bamboo3@test.com",
-      name: "Bamboo3",
-      username: "Bamboo3",
-      gender: "MALE",
-      isSuperUser: false,
-      isConfigurable: false,
-      enableTelemetry: false,
-      workspaceIds: [""],
-    },
-  ];
-  // const realtimeAppEditors = useSelector(getRealtimeAppEditors);
-  // useEditAppCollabEvents(applicationId);
+  const realtimeAppEditors = useSelector(getRealtimeAppEditors);
+  useEditAppCollabEvents(applicationId);
 
   return realtimeAppEditors.length > 0 ? (
     <UserImageContainer className="app-realtume-editors">
