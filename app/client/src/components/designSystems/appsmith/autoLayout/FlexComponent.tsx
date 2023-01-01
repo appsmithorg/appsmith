@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
+import React, { ReactNode, useCallback } from "react";
 import styled from "styled-components";
 
 import { AppState } from "ce/reducers";
@@ -8,16 +8,18 @@ import {
   ResponsiveBehavior,
 } from "components/constants";
 import {
+  MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
   widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
+import { getSiblingCount } from "selectors/autoLayoutSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
-import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
+import { DRAG_MARGIN } from "widgets/constants";
 import { checkIsDropTarget } from "../PositionedContainer";
 
 export type AutoLayoutProps = {
@@ -35,22 +37,60 @@ export type AutoLayoutProps = {
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
 };
-
-const FlexWidget = styled.div`
+// TODO: create a memoized style object for the div instead.
+const FlexWidget = styled.div<{
+  componentHeight: number;
+  componentWidth: number;
+  isMobile: boolean;
+  isFillWidget: boolean;
+  padding: number;
+  zIndex: number;
+  zIndexOnHover: number;
+  dragMargin: number;
+  isAffectedByDrag: boolean;
+  parentId?: string;
+  flexVerticalAlignment: FlexVerticalAlignment;
+}>`
   position: relative;
+  z-index: ${({ zIndex }) => zIndex};
+
+  width: ${({ componentWidth }) => `${Math.floor(componentWidth)}px`};
+  height: ${({ componentHeight, isMobile }) =>
+    isMobile ? "auto" : Math.floor(componentHeight) + "px"};
+
+  min-height: 30px;
+  padding: ${({ isAffectedByDrag, padding }) =>
+    isAffectedByDrag ? 0 : padding + "px"};
+
+  flex-grow: ${({ isFillWidget }) => (isFillWidget ? "1" : "0")};
+  align-self: ${({ flexVerticalAlignment }) => flexVerticalAlignment};
+
+  &:hover {
+    z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
+  }
+  margin-top: ${({ isAffectedByDrag }) => (isAffectedByDrag ? "4px" : "0px")};
 `;
+
+const DEFAULT_MARGIN = 16;
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isMobile = useSelector(getIsMobile);
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isSelected = useSelector(isWidgetSelected(props.widgetId));
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(() => {
     clickToSelectWidget(props.widgetId);
   }, [props.widgetId, clickToSelectWidget]);
+
+  const dragDetails = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+  );
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+
+  const siblingCount = useSelector(
+    getSiblingCount(props.widgetId, props.parentId || MAIN_CONTAINER_WIDGET_ID),
+  );
 
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
@@ -63,7 +103,6 @@ export function FlexComponent(props: AutoLayoutProps) {
   const stopEventPropagation = (e: any) => {
     !isSnipingMode && e.stopPropagation();
   };
-
   /**
    * In a vertical stack,
    * Fill widgets grow / shrink to take up all the available space.
@@ -76,40 +115,46 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.widgetId
   } ${widgetTypeClassname(props.widgetType)}`;
 
-  const flexComponentStyle: CSSProperties = useMemo(() => {
-    return {
-      display: isSelected && isDragging ? "none" : "flex",
-      zIndex,
-      width: `${Math.floor(props.componentWidth) - WIDGET_PADDING * 2}px`,
-      height: isMobile
-        ? "auto"
-        : Math.floor(props.componentHeight) - WIDGET_PADDING * 2 + "px",
-      minHeight: "30px",
-      margin: WIDGET_PADDING + "px",
-      flexGrow: isFillWidget ? 1 : 0,
-      alignSelf: props.flexVerticalAlignment,
-      "&:hover": {
-        zIndex: onHoverZIndex + " !important",
-      },
-    };
-  }, [
-    isDragging,
-    isFillWidget,
-    isMobile,
-    isSelected,
-    props.componentWidth,
-    props.componentHeight,
-    props.flexVerticalAlignment,
-    zIndex,
-    onHoverZIndex,
-  ]);
+  const dragMargin =
+    props.parentId === MAIN_CONTAINER_WIDGET_ID
+      ? DEFAULT_MARGIN
+      : Math.max(props.parentColumnSpace, DRAG_MARGIN);
+
+  const isAffectedByDrag: boolean =
+    isDragging && dragDetails?.draggedOn !== undefined;
+  // TODO: Simplify this logic.
+  /**
+   * resize logic:
+   * if isAffectedByDrag
+   * newWidth = width - drag margin -
+   * (decrease in parent width) / # of siblings -
+   * width of the DropPosition introduced due to the widget.
+   */
+  const resizedWidth: number = isAffectedByDrag
+    ? props.componentWidth -
+      dragMargin -
+      (siblingCount > 0
+        ? (DEFAULT_MARGIN * siblingCount + 2) / siblingCount
+        : 0)
+    : props.componentWidth;
 
   return (
     <FlexWidget
       className={className}
+      componentHeight={props.componentHeight}
+      componentWidth={resizedWidth}
+      dragMargin={dragMargin}
+      flexVerticalAlignment={props.flexVerticalAlignment}
+      id={props.widgetId}
+      isAffectedByDrag={isAffectedByDrag}
+      isFillWidget={isFillWidget}
+      isMobile={isMobile}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
-      style={flexComponentStyle}
+      padding={WIDGET_PADDING}
+      parentId={props.parentId}
+      zIndex={zIndex}
+      zIndexOnHover={onHoverZIndex}
     >
       {props.children}
     </FlexWidget>

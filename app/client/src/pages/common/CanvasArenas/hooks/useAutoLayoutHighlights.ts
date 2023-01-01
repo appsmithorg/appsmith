@@ -6,9 +6,6 @@ import {
 import { useSelector } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
-import { getCanvasWidth } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
-import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
@@ -28,8 +25,7 @@ export interface HighlightInfo {
   width: number; // width of the highlight.
   height: number; // height of the highlight.
   isVertical: boolean; // determines if the highlight is vertical or horizontal.
-  el?: Element; // dom node of the highlight.
-  canvasId: string; // widgetId of the canvas to which the highlight belongs.
+  el: Element; // dom node of the highlight.
 }
 
 export interface AutoLayoutHighlightProps {
@@ -56,9 +52,8 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
-  const canvasWidth: number = useSelector(getCanvasWidth);
-  const isMobile = useSelector(getIsMobile);
   let highlights: HighlightInfo[] = [];
+  let newLayers: { [key: string]: number } = {};
   let lastActiveHighlight: HighlightInfo | undefined;
   let isFillWidget = false;
 
@@ -98,6 +93,51 @@ export const useAutoLayoutHighlights = ({
     // reset state
     lastActiveHighlight = undefined;
     highlights = [];
+    newLayers = {};
+  };
+
+  const getDropPositions = () => {
+    const els = document.querySelectorAll(`.t--drop-position-${canvasId}`);
+    const highlights: HighlightInfo[] = [];
+
+    for (const el of els) {
+      const rect: DOMRect = el.getBoundingClientRect();
+      const classList = Array.from(el.classList);
+
+      const highlight: HighlightInfo = classList.reduce(
+        (acc: HighlightInfo, curr) => {
+          if (curr.indexOf("alignment") > -1)
+            acc.alignment = curr.split("-")[1] as FlexLayerAlignment;
+          else if (curr.indexOf("layer-index") > -1)
+            acc.layerIndex = parseInt(curr.split("layer-index-")[1]);
+          else if (curr.indexOf("child-index") > -1)
+            acc.index = parseInt(curr.split("child-index-")[1]);
+          else if (curr.indexOf("row-index") > -1)
+            acc.rowIndex = parseInt(curr.split("row-index-")[1]);
+          else if (curr.indexOf("isNewLayer") > -1) acc.isNewLayer = true;
+          else if (curr.indexOf("isVertical") > -1) acc.isVertical = true;
+
+          return acc;
+        },
+        {
+          isNewLayer: false,
+          index: 0,
+          layerIndex: 0,
+          rowIndex: 0,
+          alignment: FlexLayerAlignment.Start,
+          posX: rect.x - containerDimensions.left,
+          posY: rect.y - containerDimensions?.top,
+          width: rect.width,
+          height: rect.height,
+          isVertical: false,
+          el,
+        },
+      );
+      if (!highlight.isVertical) newLayers[highlights.length] = highlight.posY;
+      highlights.push(highlight);
+    }
+
+    return highlights;
   };
 
   const checkForFillWidget = (): boolean => {
@@ -134,14 +174,7 @@ export const useAutoLayoutHighlights = ({
        */
       if (!updateContainerDimensions()) return [];
       isFillWidget = checkForFillWidget();
-      highlights = deriveHighlightsFromLayers(
-        allWidgets,
-        canvasId,
-        canvasWidth,
-        blocksToDraw.map((block) => block?.widgetId),
-        isFillWidget,
-        isMobile,
-      );
+      highlights = getDropPositions();
     }
     // console.log("#### highlights", highlights);
     return highlights;
@@ -151,32 +184,70 @@ export const useAutoLayoutHighlights = ({
    * END AUTO LAYOUT OFFSET CALCULATION
    */
 
+  const updateHighlight = (index: number): HighlightInfo => {
+    const highlight = highlights[index];
+    if (!highlight || !highlight.el) return highlight;
+    const rect: DOMRect = highlight.el.getBoundingClientRect();
+
+    highlight.posX = rect.x - containerDimensions.left;
+    highlight.posY = rect.y - containerDimensions.top;
+    highlight.width = isFillWidget
+      ? highlight.alignment === FlexLayerAlignment.Start
+        ? containerDimensions.width
+        : 0
+      : containerDimensions?.width / 3;
+    highlight.height = rect.height;
+    (highlight.el as HTMLElement).style.width = `${highlight.width}px`;
+    highlights[index] = highlight;
+
+    return highlight;
+  };
+
+  const updateHighlights = (moveDirection?: ReflowDirection) => {
+    if (!highlights?.length || !moveDirection) return;
+    highlights.map((highlight: HighlightInfo, index: number) => {
+      let updatedHighlight: HighlightInfo = highlight;
+      if (highlight.isNewLayer || !highlight.height)
+        updatedHighlight = updateHighlight(index);
+      return updatedHighlight;
+    });
+  };
+
+  const toggleHighlightVisibility = (
+    arr: HighlightInfo[],
+    selected: HighlightInfo,
+  ): void => {
+    arr.forEach((each: HighlightInfo) => {
+      const el = each.el as HTMLElement;
+      // if (!isVerticalStack) el.style.opacity = "1";
+      el.style.opacity = selected === each ? "1" : "0";
+    });
+  };
+
+  const updateSelection = (highlight: HighlightInfo): void => {
+    if (lastActiveHighlight) {
+      const lastEl = lastActiveHighlight?.el as HTMLElement;
+      if (lastEl) lastEl.style.backgroundColor = "rgba(223, 158, 206, 0.6)";
+    }
+    const el = highlight.el as HTMLElement;
+    if (el) el.style.backgroundColor = "rgba(196, 139, 181, 1)";
+    lastActiveHighlight = highlight;
+  };
+
   const highlightDropPosition = (
     e: any,
     moveDirection: ReflowDirection,
     // acceleration: number,
   ): HighlightInfo | undefined => {
-    if (!highlights)
-      highlights = deriveHighlightsFromLayers(
-        allWidgets,
-        canvasId,
-        canvasWidth,
-        blocksToDraw.map((block) => block?.widgetId),
-        isFillWidget,
-        isMobile,
-      );
-    // console.log("#### highlights", highlights);
     if (!highlights) return;
-    // updateHighlights(moveDirection);
+    updateHighlights(moveDirection);
 
-    const highlight: HighlightInfo | undefined = getHighlightPayload(
-      e,
-      moveDirection,
-    );
+    const highlight: HighlightInfo = getHighlightPayload(e, moveDirection);
 
-    // updateSelection(highlight);
-    // console.log("#### selection", highlight);
-    lastActiveHighlight = highlight;
+    if (!highlight) return;
+
+    updateSelection(highlight);
+
     return highlight;
   };
 
@@ -184,17 +255,9 @@ export const useAutoLayoutHighlights = ({
     e: any,
     moveDirection?: ReflowDirection,
     val?: XYCord,
-  ): HighlightInfo | undefined => {
+  ): HighlightInfo => {
     let base: HighlightInfo[] = [];
-    if (!highlights || !highlights.length)
-      highlights = deriveHighlightsFromLayers(
-        allWidgets,
-        canvasId,
-        canvasWidth,
-        blocksToDraw.map((block) => block?.widgetId),
-        isFillWidget,
-        isMobile,
-      );
+    if (!highlights || !highlights.length) highlights = getDropPositions();
     base = highlights;
 
     const pos: XYCord = {
@@ -204,8 +267,8 @@ export const useAutoLayoutHighlights = ({
 
     let filteredHighlights: HighlightInfo[] = [];
     filteredHighlights = getViableDropPositions(base, pos, moveDirection);
-    if (!filteredHighlights || !filteredHighlights?.length) return;
-    const arr = [...filteredHighlights]?.sort((a, b) => {
+
+    const arr = filteredHighlights.sort((a, b) => {
       return (
         calculateDistance(
           a,
@@ -221,7 +284,7 @@ export const useAutoLayoutHighlights = ({
         )
       );
     });
-
+    toggleHighlightVisibility(base, arr[0]);
     // console.log("#### arr", arr, base, moveDirection);
     return arr[0];
   };
@@ -329,11 +392,7 @@ export const useAutoLayoutHighlights = ({
   const getDropInfo = (val: XYCord): HighlightInfo | undefined => {
     if (lastActiveHighlight) return lastActiveHighlight;
 
-    const payload: HighlightInfo | undefined = getHighlightPayload(
-      null,
-      undefined,
-      val,
-    );
+    const payload: HighlightInfo = getHighlightPayload(null, undefined, val);
     if (!payload) return;
     lastActiveHighlight = payload;
     return payload;

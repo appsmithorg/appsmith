@@ -8,7 +8,6 @@ import { ResponsiveBehavior } from "components/constants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import {
   alterLayoutForDesktop,
   alterLayoutForMobile,

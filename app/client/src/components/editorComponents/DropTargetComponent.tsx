@@ -20,6 +20,7 @@ import {
   getOccupiedSpacesSelectorForContainer,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import styled from "styled-components";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import {
@@ -81,12 +82,15 @@ export const DropTargetContext: Context<{
  */
 function getDropTargetHeight(
   canDropTargetExtend: boolean,
+  isMobile: boolean,
   isPreviewMode: boolean,
   currentHeight: number,
   snapRowSpace: number,
   minHeight: number,
 ) {
-  let height = canDropTargetExtend
+  let height = isMobile
+    ? "auto"
+    : canDropTargetExtend
     ? `${Math.max(currentHeight * snapRowSpace, minHeight)}px`
     : "100%";
   if (isPreviewMode && canDropTargetExtend)
@@ -116,6 +120,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   );
   // Are we changing the auto height limits by dragging the signifiers?
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
+
+  const isMobile = useSelector(getIsMobile);
 
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
@@ -193,6 +199,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     if (dropTargetRef.current) {
       const height = getDropTargetHeight(
         canDropTargetExtend,
+        isMobile && props.widgetId !== MAIN_CONTAINER_WIDGET_ID,
         isPreviewMode,
         rowRef.current,
         props.snapRowSpace,
@@ -255,6 +262,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const height = getDropTargetHeight(
     canDropTargetExtend,
+    isMobile && props.widgetId !== MAIN_CONTAINER_WIDGET_ID,
     isPreviewMode,
     rowRef.current,
     props.snapRowSpace,

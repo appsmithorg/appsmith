@@ -242,10 +242,7 @@ abstract class BaseWidget<
       this.props.bottomRow,
       this.props.parentColumnSpace,
       this.props.parentRowSpace,
-      this.props.mobileLeftColumn,
       this.props.mobileRightColumn,
-      this.props.mobileTopRow,
-      this.props.mobileBottomRow,
       this.props.isMobile,
     );
   };
@@ -257,34 +254,19 @@ abstract class BaseWidget<
     bottomRow: number,
     parentColumnSpace: number,
     parentRowSpace: number,
-    mobileLeftColumn?: number,
     mobileRightColumn?: number,
-    mobileTopRow?: number,
-    mobileBottomRow?: number,
     isMobile?: boolean,
   ): {
     componentWidth: number;
     componentHeight: number;
   } {
     const right =
-      isMobile && mobileRightColumn !== undefined && parentColumnSpace !== 1
+      isMobile && mobileRightColumn && parentColumnSpace !== 1
         ? mobileRightColumn
         : rightColumn;
-    const left =
-      isMobile && mobileLeftColumn !== undefined && parentColumnSpace !== 1
-        ? mobileLeftColumn
-        : leftColumn;
-    const top =
-      isMobile && mobileTopRow !== undefined && parentRowSpace !== 1
-        ? mobileTopRow
-        : topRow;
-    const bottom =
-      isMobile && mobileBottomRow !== undefined && parentRowSpace !== 1
-        ? mobileBottomRow
-        : bottomRow;
     return {
-      componentWidth: (right - left) * parentColumnSpace,
-      componentHeight: (bottom - top) * parentRowSpace,
+      componentWidth: (right - leftColumn) * parentColumnSpace,
+      componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
   }
 
@@ -622,10 +604,7 @@ export type WidgetRowCols = {
   topRow: number;
   bottomRow: number;
   minHeight?: number; // Required to reduce the size of CanvasWidgets.
-  mobileLeftColumn?: number;
   mobileRightColumn?: number;
-  mobileTopRow?: number;
-  mobileBottomRow?: number;
   height?: number;
 };
 
