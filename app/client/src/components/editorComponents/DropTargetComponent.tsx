@@ -82,15 +82,12 @@ export const DropTargetContext: Context<{
  */
 function getDropTargetHeight(
   canDropTargetExtend: boolean,
-  isMobile: boolean,
   isPreviewMode: boolean,
   currentHeight: number,
   snapRowSpace: number,
   minHeight: number,
 ) {
-  let height = isMobile
-    ? "auto"
-    : canDropTargetExtend
+  let height = canDropTargetExtend
     ? `${Math.max(currentHeight * snapRowSpace, minHeight)}px`
     : "100%";
   if (isPreviewMode && canDropTargetExtend)
@@ -199,7 +196,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     if (dropTargetRef.current) {
       const height = getDropTargetHeight(
         canDropTargetExtend,
-        isMobile && props.widgetId !== MAIN_CONTAINER_WIDGET_ID,
         isPreviewMode,
         rowRef.current,
         props.snapRowSpace,
@@ -262,7 +258,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const height = getDropTargetHeight(
     canDropTargetExtend,
-    isMobile && props.widgetId !== MAIN_CONTAINER_WIDGET_ID,
     isPreviewMode,
     rowRef.current,
     props.snapRowSpace,
