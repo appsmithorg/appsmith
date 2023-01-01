@@ -8,6 +8,7 @@ import {
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
   const container = widgets[containerId];
@@ -60,7 +61,7 @@ export function* wrapChildren(
   canvas = { ...canvas, flexLayers };
   widgets[canvas.widgetId] = canvas;
   // update size
-  const updatedWidgets = updateSizeOfAllChildren(widgets, canvas.widgetId);
+  const updatedWidgets = updateWidgetPositions(widgets, canvas.widgetId);
   return updatedWidgets;
 }
 
@@ -114,7 +115,7 @@ export function* updateFlexLayersOnDelete(
   widgets[parentId] = parent;
 
   if (layerIndex === -1) return widgets;
-  return updateFlexChildColumns(widgets, layerIndex, parentId);
+  return updateWidgetPositions(widgets, parentId);
 }
 // TODO: refactor these implementations
 export function updateFillChildStatus(
@@ -263,7 +264,7 @@ export function alterLayoutForMobile(
 
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
       widget.mobileRightColumn = 64;
-      widget.leftColumn = 0;
+      widget.mobileLeftColumn = 0;
     } else if (
       widget.responsiveBehavior === ResponsiveBehavior.Hug &&
       widget.minWidth
@@ -271,20 +272,23 @@ export function alterLayoutForMobile(
       const { minWidth, rightColumn } = widget;
       const columnSpace = canvasWidth / 64;
       if (columnSpace * rightColumn < minWidth) {
-        widget.leftColumn = 0;
+        widget.mobileLeftColumn = 0;
         widget.mobileRightColumn = Math.min(
           Math.floor(minWidth / columnSpace),
           64,
         );
       }
     }
-
+    widget.mobileTopRow = widget.topRow;
+    widget.mobileBottomRow = widget.bottomRow;
+    // TODO: Preet - update container row info if height changes on account of flex wrap.
     widgets = alterLayoutForMobile(
       widgets,
       child,
       (canvasWidth * (widget.mobileRightColumn || 1)) / 64,
     );
     widgets[child] = widget;
+    widgets = updateWidgetPositions(widgets, child, true);
   }
   return widgets;
 }
@@ -301,11 +305,10 @@ export function alterLayoutForDesktop(
     return widgets;
   if (!children || !children.length) return widgets;
 
-  widgets = updateSizeOfAllChildren(widgets, parentId);
+  widgets = updateWidgetPositions(widgets, parentId, false);
   for (const child of children) {
     widgets = alterLayoutForDesktop(widgets, child);
   }
-
   return widgets;
 }
 

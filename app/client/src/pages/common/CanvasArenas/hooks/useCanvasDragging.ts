@@ -3,6 +3,7 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
@@ -237,7 +238,7 @@ export const useCanvasDragging = (
       const scrollParent: Element | null = getNearestParentCanvas(
         slidingArenaRef.current,
       );
-      // console.log(`#### init variable: ${widgetName}`);
+
       let canvasIsDragging = false;
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
@@ -274,8 +275,10 @@ export const useCanvasDragging = (
             stickyCanvasRef.current.height,
           );
           slidingArenaRef.current.style.zIndex = "";
-          // console.log(`#### reset canvas state: ${widgetName}`);
           canvasIsDragging = false;
+        }
+        if (isDragging) {
+          setDraggingCanvas(MAIN_CONTAINER_WIDGET_ID);
         }
       };
       if (isDragging) {
@@ -356,7 +359,6 @@ export const useCanvasDragging = (
         };
 
         const onFirstMoveOnCanvas = (e: any, over = false) => {
-          // console.log(`#### first move: ${widgetName}`);
           if (
             !isResizing &&
             isDragging &&
@@ -379,7 +381,6 @@ export const useCanvasDragging = (
               logContainerJump(widgetId, speed, acceleration);
               containerJumpThresholdMetrics.clearMetrics();
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
-              // console.log(`#### set dragging canvas: ${widgetName}`);
               setDraggingCanvas(widgetId);
             }
             canvasIsDragging = true;
@@ -566,7 +567,6 @@ export const useCanvasDragging = (
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
             };
-            // console.log("#### mouse move", delta);
             const drawingBlocks = blocksToDraw.map((each) => ({
               ...each,
               left: each.left + delta.left,
@@ -601,15 +601,18 @@ export const useCanvasDragging = (
             } else if (!isUpdatingRows) {
               currentDirection.current = getMouseMoveDirection(e);
               triggerReflow(e, firstMove);
+              let highlight: HighlightInfo | undefined;
               if (
                 useAutoLayout &&
                 isCurrentDraggedCanvas &&
                 currentDirection.current !== ReflowDirection.UNSET
-              )
-                debounce(() => {
-                  highlightDropPosition(e, currentDirection.current);
-                }, 100)();
-              renderBlocks();
+              ) {
+                // debounce(() => {
+                //   highlightDropPosition(e, currentDirection.current);
+                // }, 100)();
+                highlight = highlightDropPosition(e, currentDirection.current);
+              }
+              renderBlocks(highlight);
             }
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
@@ -677,7 +680,7 @@ export const useCanvasDragging = (
           },
         );
 
-        const renderBlocks = () => {
+        const renderBlocks = (highlight?: HighlightInfo | undefined) => {
           if (
             slidingArenaRef.current &&
             isCurrentDraggedCanvas &&
@@ -698,6 +701,18 @@ export const useCanvasDragging = (
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);
               });
+            }
+            if (highlight) {
+              canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
+              const { height, posX, posY, width } = highlight;
+              let val = 0;
+              if (
+                widgetId === MAIN_CONTAINER_WIDGET_ID &&
+                scrollParent?.scrollTop
+              )
+                val = scrollParent.scrollTop - 20;
+              canvasCtx.fillRect(posX, posY - val, width, height);
+              canvasCtx.save();
             }
             canvasCtx.restore();
           }
