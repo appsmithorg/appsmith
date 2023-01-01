@@ -70,7 +70,7 @@ export interface Oauth2Common {
   isAuthorizationHeader: boolean;
   audience: string;
   resource: string;
-  sendScopeWithRefreshToken: string;
+  sendScopeWithRefreshToken: boolean;
   refreshTokenClientCredentialsLocation: string;
   useSelfSignedCert?: boolean;
 }

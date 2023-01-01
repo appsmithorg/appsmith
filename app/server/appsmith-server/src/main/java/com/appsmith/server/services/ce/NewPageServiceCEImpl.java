@@ -244,6 +244,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     return Mono.just(application);
                 })
                 .flatMap(application -> {
+                    log.debug("Fetched application data for id: {}", applicationId);
                     if (markApplicationAsRecentlyAccessed) {
                         // add this application and workspace id to the recently used list in UserData
                         return userDataService.updateLastUsedAppAndWorkspaceList(application)
@@ -282,13 +283,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return pages.stream().map(page -> page.getId()).collect(Collectors.toList());
                 })
-                .flatMapMany(pageIds -> repository.findAllByIds(pageIds, pagePermission.getReadPermission()))
+                .flatMapMany(pageIds -> repository.findAllPageDTOsByIds(pageIds, pagePermission.getReadPermission()))
                 .collectList()
                 .flatMap(pagesFromDb -> Mono.zip(
                         Mono.just(pagesFromDb),
                         defaultPageIdMono,
                         applicationMono
-                )).flatMap(tuple -> {
+                ))
+                .flatMap(tuple -> {
+                    log.debug("Retrieved Page DTOs from DB ...");
                     List<NewPage> pagesFromDb = tuple.getT1();
                     String defaultPageId = tuple.getT2();
 
@@ -353,6 +356,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
         return Mono.zip(applicationMono, pagesListMono)
                 .map(tuple -> {
+                    log.debug("Populating applicationPagesDTO ...");
                     Application application = tuple.getT1();
                     application.setPages(null);
                     application.setPublishedPages(null);
@@ -591,7 +595,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository.findById(defaultPageId, pagePermission.getReadPermission());
+            getPageMono = repository.findRootApplicationIdById(defaultPageId, pagePermission.getReadPermission());
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission());
         }
@@ -600,6 +604,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
                 )
                 .map(newPage -> {
+                    log.debug("Retrieved possible application ids for page, picking the appropriate one now");
                     if (newPage.getDefaultResources() != null) {
                         return newPage.getDefaultResources().getApplicationId();
                     } else {

@@ -171,6 +171,9 @@ export default function ModalComponent(props: ModalComponentProps) {
     setTimeout(() => {
       setModalPosition("unset");
     }, 100);
+
+    modalContentRef.current?.focus();
+
     return () => {
       // handle modal close events when this component unmounts
       // will be called in all cases :-
@@ -248,6 +251,7 @@ export default function ModalComponent(props: ModalComponentProps) {
           id={props.widgetId}
           ref={modalContentRef}
           scroll={props.scrollContents}
+          tabIndex={0}
         >
           {props.children}
         </Content>
