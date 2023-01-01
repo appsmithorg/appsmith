@@ -14,9 +14,12 @@ import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHigh
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   getLeftColumn,
+  getRightColumn,
+  getTopRow,
   getWidgetHeight,
   getWidgetWidth,
 } from "./flexWidgetUtils";
+import { getTotalRowsOfAllChildren, Widget } from "./positionUtils";
 
 const HORIZONTAL_HIGHLIGHT_MARGIN = 4;
 // TODO: Preet - update logic to account for flex wrap on mobile.
@@ -71,6 +74,11 @@ export function deriveHighlightsFromLayers(
           getWidgetHeight(widget, isMobile) * widget.parentRowSpace,
         );
       }, 0);
+      const childrenRows = getTotalRowsOfAllChildren(
+        widgets,
+        layer.children?.map((child) => child.id) || [],
+        isMobile,
+      );
 
       const payload: VerticalHighlightsPayload = generateVerticalHighlights({
         widgets,
@@ -103,7 +111,7 @@ export function deriveHighlightsFromLayers(
         );
 
         highlights.push(...payload.highlights);
-        offsetTop += tallestChild || 0;
+        offsetTop += childrenRows * 10 || 0;
         layerIndex += 1;
       }
       childCount += payload.childCount;
@@ -266,7 +274,9 @@ function generateHighlightsForSubWrapper(data: {
       rowIndex: count,
       alignment,
       posX: left * parentColumnSpace,
-      posY: offsetTop,
+      posY:
+        getTopRow(child, isMobile) * child.parentRowSpace +
+        HORIZONTAL_HIGHLIGHT_MARGIN,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height,
       isVertical: true,
@@ -275,7 +285,8 @@ function generateHighlightsForSubWrapper(data: {
     count += 1;
   }
 
-  if (!avoidInitialHighlight)
+  if (!avoidInitialHighlight) {
+    const lastChild: Widget = arr && arr.length ? arr[arr.length - 1] : null;
     res.push({
       isNewLayer: false,
       index: count + childCount,
@@ -286,16 +297,22 @@ function generateHighlightsForSubWrapper(data: {
         res,
         alignment,
         arr && arr.length
-          ? arr[arr.length - 1].rightColumn * parentColumnSpace
+          ? getRightColumn(lastChild, isMobile) * parentColumnSpace
           : 0,
         canvasWidth,
+        canvasId,
       ),
-      posY: offsetTop,
+      posY:
+        lastChild === null
+          ? offsetTop
+          : getTopRow(lastChild, isMobile) * lastChild?.parentRowSpace +
+            HORIZONTAL_HIGHLIGHT_MARGIN,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height,
       isVertical: true,
       canvasId,
     });
+  }
   return res;
 }
 
@@ -305,6 +322,7 @@ function generateHighlightsForSubWrapper(data: {
  * @param alignment | FlexLayerAlignment : alignment of the current highlights
  * @param posX | number : end position of the last widget in the current alignment. (rightColumn * columnSpace)
  * @param containerWidth | number : width of the container
+ * @param canvasId | string : id of the canvas
  * @returns number
  */
 function getPositionForInitialHighlight(
@@ -312,9 +330,10 @@ function getPositionForInitialHighlight(
   alignment: FlexLayerAlignment,
   posX: number,
   containerWidth: number,
+  canvasId: string,
 ): number {
   if (alignment === FlexLayerAlignment.End) {
-    return containerWidth;
+    return containerWidth - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 6 : 0);
   } else if (alignment === FlexLayerAlignment.Center) {
     if (!highlights.length) return containerWidth / 2;
     return posX;
@@ -414,6 +433,7 @@ function getCanvasWidth(
   mainCanvasWidth: number,
   isMobile: boolean,
 ): number {
+  // TODO: @Preet - Update the logic to account for padding at each level.
   if (!mainCanvasWidth) return 0;
   if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) return mainCanvasWidth;
   let widget = canvas;
