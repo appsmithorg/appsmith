@@ -131,9 +131,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     };
   }, [isResizingOrDragging, isCurrentWidgetResizing]);
 
-  const widgetBoundaries = props.isFlexChild ? null : (
-    <WidgetBoundaries style={dragBoundariesStyle} />
-  );
+  const widgetBoundaries = <WidgetBoundaries style={dragBoundariesStyle} />;
 
   const classNameForTesting = `t--draggable-${props.type
     .split("_")

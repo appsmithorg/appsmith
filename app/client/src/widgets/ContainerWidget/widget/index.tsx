@@ -219,7 +219,7 @@ export class ContainerWidget extends BaseWidget<
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     return (
-      <ContainerComponent {...props} shouldScrollContents={false}>
+      <ContainerComponent {...props}>
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}

@@ -18,10 +18,12 @@ import log from "loglevel";
 import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { updateFlexChildColumns } from "sagas/AutoLayoutUtils";
+import {
+  updateFlexChildColumns,
+  updateSizeOfAllChildren,
+} from "sagas/AutoLayoutUtils";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -112,8 +114,14 @@ function* autoLayoutReorderSaga(
         rowIndex,
       },
     );
+    let updatedWidgetsAfterResizing = updatedWidgets;
+    if (direction === LayoutDirection.Vertical)
+      updatedWidgetsAfterResizing = updateSizeOfAllChildren(
+        updatedWidgets,
+        parentId,
+      );
 
-    yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
     // console.error(e);
@@ -218,12 +226,7 @@ function* reorderAutolayoutChildren(params: {
     };
   }
 
-  const widgetsAfterPositionUpdate = updateWidgetPositions(
-    updatedWidgets,
-    parentId,
-  );
-
-  return widgetsAfterPositionUpdate;
+  return updatedWidgets;
 }
 
 /**
@@ -245,14 +248,13 @@ function updateRelationships(
   const orphans = movedWidgets.filter(
     (item) => widgets[item].parentId !== parentId,
   );
-  const prevParents: string[] = [];
+  let prevParentId: string | undefined;
   if (orphans && orphans.length) {
     //parent has changed
     orphans.forEach((item) => {
       // remove from previous parent
-      const prevParentId = widgets[item].parentId;
+      prevParentId = widgets[item].parentId;
       if (prevParentId !== undefined) {
-        prevParents.push(prevParentId);
         const prevParent = Object.assign({}, widgets[prevParentId]);
         if (prevParent.children && isArray(prevParent.children)) {
           const updatedPrevParent = {
@@ -275,11 +277,8 @@ function updateRelationships(
       };
     });
   }
-  if (prevParents.length) {
-    for (const id of prevParents) {
-      const updatedWidgets = updateWidgetPositions(widgets, id);
-      return updatedWidgets;
-    }
+  if (prevParentId) {
+    return updateSizeOfAllChildren(widgets, prevParentId);
   }
   return widgets;
 }
@@ -319,7 +318,7 @@ function updateExistingLayer(
   rowIndex: number,
 ): CanvasWidgetsReduxState {
   try {
-    const widgets: CanvasWidgetsReduxState = { ...allWidgets };
+    const widgets: CanvasWidgetsReduxState = Object.assign({}, allWidgets);
     const canvas = widgets[parentId];
     if (!canvas || !newLayer) return widgets;
 
