@@ -264,6 +264,7 @@ export function* sortJSExecutionDataByCollectionId(
     const jsAction: JSAction | undefined = yield select((state: AppState) =>
       getJSFunctionFromName(state, jsfuncFullName),
     );
+
     if (jsAction && jsAction.collectionId) {
       if (sortedData[jsAction.collectionId]) {
         sortedData[jsAction.collectionId].push({
