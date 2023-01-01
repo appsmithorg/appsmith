@@ -166,7 +166,7 @@ describe("MaintainContext&Focus", function() {
   it("9. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith", "Datasources");
     dataSources.EditDatasource();
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
     ee.SelectEntityByName("Github", "Datasources");
     dataSources.AssertViewMode();
     ee.SelectEntityByName("Appsmith", "Datasources");
@@ -175,7 +175,7 @@ describe("MaintainContext&Focus", function() {
 
   it("10. Datasource collapse state has to be maintained", () => {
     // Create datasource 1
-    dataSources.SaveDSFromDialog(false);
+    agHelper.GoBack();
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
     agHelper.RenameWithInPane("Postgres1", false);
@@ -197,7 +197,7 @@ describe("MaintainContext&Focus", function() {
     dataSources.AssertSectionCollapseState(1, false);
   });
 
-  it("10. Maintain focus of form control inputs", () => {
+  it("11. Maintain focus of form control inputs", () => {
     ee.SelectEntityByName("SQL_Query");
     dataSources.ToggleUsePreparedStatement(false);
     cy.SearchEntityandOpen("S3_Query");
@@ -207,7 +207,8 @@ describe("MaintainContext&Focus", function() {
     cy.SearchEntityandOpen("SQL_Query");
     cy.get(".t--form-control-SWITCH input").should("be.focused");
     cy.SearchEntityandOpen("S3_Query");
-    cy.get(queryLocators.querySettingsTab).click();
+    agHelper.Sleep();
+    agHelper.GetNClick(dataSources._queryResponse("SETTINGS"));
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 });

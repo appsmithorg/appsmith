@@ -105,10 +105,9 @@ export const BlueprintControlTransform = css`
         border: 1px solid var(--wds-color-border-disabled) !important;
       }
 
-      &:hover {
-        & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
-          border: 1px solid ${Colors.GREY_6} !important;
-        }
+      &:hover input:not(:checked):not(:disabled) ~ .bp3-control-indicator,
+      & input:not(:checked):not(:disabled):focus ~ .bp3-control-indicator {
+        border: 1px solid var(--wds-color-bg-disabled-strong) !important;
       }
     }
 
@@ -137,11 +136,10 @@ export const BlueprintControlTransform = css`
         }
       }
 
-      &:hover {
-        & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
-          background: var(--wds-color-bg-strong-hover);
-          border: 1px solid var(--wds-color-border-hover) !important;
-        }
+      &:hover input:not(:checked):not(:disabled) ~ .bp3-control-indicator,
+      input:not(:checked):not(:disabled):focus ~ .bp3-control-indicator {
+        background: var(--wds-color-bg-strong-hover);
+        border: 1px solid var(--wds-color-border-hover) !important;
       }
     }
 

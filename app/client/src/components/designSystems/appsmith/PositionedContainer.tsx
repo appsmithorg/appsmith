@@ -23,7 +23,10 @@ import {
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
 
-const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
+const PositionedWidget = styled.div<{
+  zIndexOnHover: number;
+  disabled?: boolean;
+}>`
   &:hover {
     z-index: ${(props) => props.zIndexOnHover} !important;
   }
@@ -43,6 +46,8 @@ export type PositionedContainerProps = {
   noContainerOffset?: boolean;
   leftColumn: number;
   parentColumnSpace: number;
+  isDisabled?: boolean;
+  isVisible?: boolean;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -163,7 +168,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
   return (
     <PositionedWidget
       className={containerClassName}
+      data-hidden={!props.isVisible || undefined}
       data-testid="test-widget"
+      disabled={props.isDisabled}
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.

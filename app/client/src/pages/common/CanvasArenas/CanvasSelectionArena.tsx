@@ -4,7 +4,7 @@ import {
   setCanvasSelectionStateAction,
 } from "actions/canvasSelectionActions";
 import {
-  getSlidingCanvasName,
+  getSlidingArenaName,
   getStickyCanvasName,
 } from "constants/componentClassNameConstants";
 import { theme } from "constants/DefaultTheme";
@@ -482,10 +482,10 @@ export function CanvasSelectionArena({
   return shouldShow ? (
     <StickyCanvasArena
       canExtend={canExtend}
-      canvasId={getSlidingCanvasName(widgetId)}
+      canvasId={getStickyCanvasName(widgetId)}
       canvasPadding={canvasPadding}
       getRelativeScrollingParent={getNearestParentCanvas}
-      id={getStickyCanvasName(widgetId)}
+      id={getSlidingArenaName(widgetId)}
       ref={canvasRef}
       showCanvas={shouldShow}
       snapColSpace={snapColumnSpace}

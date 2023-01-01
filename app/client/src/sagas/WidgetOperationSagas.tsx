@@ -92,7 +92,6 @@ import {
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
-import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { MetaState } from "reducers/entityReducers/metaReducer";
 import { widgetReflow } from "reducers/uiReducers/reflowReducer";
@@ -156,6 +155,7 @@ import {
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { getAllPaths } from "ce/workers/Evaluation/evaluationUtils";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { getSlidingArenaName } from "constants/componentClassNameConstants";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -1120,9 +1120,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
   const containerId = getContainerIdForCanvas(parentId);
 
   const containerWidget = canvasWidgets[containerId];
-  const canvasDOM = document.querySelector(
-    `#${getSlidingCanvasName(parentId)}`,
-  );
+  const canvasDOM = document.querySelector(`#${getSlidingArenaName(parentId)}`);
 
   if (!canvasDOM || !containerWidget) return {};
 

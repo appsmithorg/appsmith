@@ -718,6 +718,15 @@ const migrations: Migration[] = [
     ],
     version: 73,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateMenuButtonDynamicItemsInsideTableWidget",
+      },
+    ],
+    version: 74,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};
