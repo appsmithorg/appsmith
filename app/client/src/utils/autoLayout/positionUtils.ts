@@ -1,9 +1,6 @@
 import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -96,7 +93,7 @@ export function updateWidgetPositions(
       return updateWidgetPositions(widgets, parent.parentId, isMobile);
     return widgets;
   } catch (e) {
-    console.error(e);
+    // console.error(e);
     return widgets;
   }
 }

@@ -20,7 +20,6 @@ import {
   getOccupiedSpacesSelectorForContainer,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import styled from "styled-components";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import {
@@ -117,8 +116,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   );
   // Are we changing the auto height limits by dragging the signifiers?
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
-
-  const isMobile = useSelector(getIsMobile);
 
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,

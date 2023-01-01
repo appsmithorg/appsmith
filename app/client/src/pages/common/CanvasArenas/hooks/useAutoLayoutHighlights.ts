@@ -59,7 +59,6 @@ export const useAutoLayoutHighlights = ({
   const canvasWidth: number = useSelector(getCanvasWidth);
   const isMobile = useSelector(getIsMobile);
   let highlights: HighlightInfo[] = [];
-  let newLayers: { [key: string]: number } = {};
   let lastActiveHighlight: HighlightInfo | undefined;
   let isFillWidget = false;
 
@@ -99,7 +98,6 @@ export const useAutoLayoutHighlights = ({
     // reset state
     lastActiveHighlight = undefined;
     highlights = [];
-    newLayers = {};
   };
 
   const checkForFillWidget = (): boolean => {

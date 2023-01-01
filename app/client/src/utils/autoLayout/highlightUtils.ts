@@ -129,7 +129,7 @@ export function deriveHighlightsFromLayers(
     );
     return highlights;
   } catch (e) {
-    console.error(e);
+    // console.error(e);
     return [];
   }
 }
