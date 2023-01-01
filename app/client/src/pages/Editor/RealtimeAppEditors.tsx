@@ -32,6 +32,9 @@ const UserImageContainer = styled.div`
     border: 1px solid ${Colors.WHITE};
     span {
       color: ${Colors.GRAY_700};
+      font-size: 11px;
+      line-height: 12px;
+      letter-spacing: 0.4px;
     }
   }
 

@@ -42,8 +42,10 @@ function HelpBar({ toggleShowModal }: Props) {
       data-cy="global-search-modal-trigger"
       onClick={toggleShowModal}
     >
-      <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
-      <Text italic type={TextType.P3}>
+      <Text color={Colors.GRAY_400} type={TextType.P2}>
+        {HELPBAR_PLACEHOLDER()}
+      </Text>
+      <Text color={Colors.GRAY_400} italic type={TextType.P3}>
         {comboText}
       </Text>
     </StyledHelpBar>

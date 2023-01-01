@@ -197,9 +197,12 @@ const BindingBanner = styled.div`
 `;
 
 const StyledDeployIcon = styled(Icon)`
-  height: 20px;
+  height: 30px;
   width: 20px;
   align-self: center;
+  &:hover {
+    background-color: #f1f1f1;
+  }
 `;
 
 const HamburgerContainer = styled.div`
@@ -356,7 +359,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper
-        className="pl-1 pr-3"
+        className="pl-1 pr-1"
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
