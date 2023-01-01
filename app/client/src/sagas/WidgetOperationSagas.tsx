@@ -113,7 +113,6 @@ import {
   collisionCheckPostReflow,
   getBottomRowAfterReflow,
 } from "utils/reflowHookUtils";
-import { updateChildrenSize } from "./AutoLayoutUtils";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
@@ -156,6 +155,7 @@ import {
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { getAllPaths } from "ce/workers/Evaluation/evaluationUtils";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -255,10 +255,9 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
         bottomRow: updatedCanvasBottomRow,
       };
     }
-    const updatedWidgetsAfterResizing = updateChildrenSize(
+    const updatedWidgetsAfterResizing = updateWidgetPositions(
       movedWidgets,
       parentId,
-      widgetId,
     );
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
