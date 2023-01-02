@@ -86,7 +86,6 @@ import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import { Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
-import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1784,6 +1783,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isEditableCellValid={this.isColumnCellValid(alias)}
             isHidden={isHidden}
             isNewRow={isNewRow}
+            isRequired={
+              props.cell.column.columnProperties.validation
+                .isColumnEditableCellRequired
+            }
             maxDate={props.cell.column.columnProperties.validation.maxDate}
             minDate={props.cell.column.columnProperties.validation.minDate}
             onCellTextChange={this.onCellTextChange}
@@ -1794,10 +1797,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onDateSelection={this.onDateSelection}
             onSubmitString={props.cell.column.columnProperties.onSubmit}
             outputFormat={cellProperties.outputFormat}
-            required={
-              props.cell.column.columnProperties.validation
-                .isColumnEditableCellRequired
-            }
             rowIndex={rowIndex}
             shortcuts={props.cell.column.columnProperties.shortcuts}
             tableWidth={this.getComponentDimensions().componentWidth}
@@ -1805,7 +1804,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             timePrecision={props.cell.column.columnProperties.timePrecision}
             toggleCellEditMode={this.toggleCellEditMode}
-            validationErrorMessage="This cell is required"
+            validationErrorMessage="This field is required"
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}

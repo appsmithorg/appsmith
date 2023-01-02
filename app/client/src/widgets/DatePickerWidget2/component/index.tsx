@@ -421,6 +421,9 @@ class DatePickerComponent extends React.Component<
         isValid = false;
       }
     }
+    if (!isValid && this.props?.onDateOutOfRange) {
+      this.props.onDateOutOfRange();
+    }
     return isValid;
   };
 
@@ -493,6 +496,7 @@ interface DatePickerComponentProps extends ComponentProps {
   onBlur?: () => void;
   onPopoverClosed?: (e: any) => void;
   isPopoverOpen?: boolean;
+  onDateOutOfRange?: () => void;
 }
 
 interface DatePickerComponentState {

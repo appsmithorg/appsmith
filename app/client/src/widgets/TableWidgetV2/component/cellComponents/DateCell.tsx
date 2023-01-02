@@ -17,6 +17,11 @@ import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import moment from "moment";
 import { BasicCell } from "./BasicCell";
 import { Colors } from "constants/Colors";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import {
+  createMessage,
+  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
+} from "@appsmith/constants/messages";
 
 type DateComponentProps = RenderDefaultPropsType &
   editPropertyType & {
@@ -42,7 +47,7 @@ type DateComponentProps = RenderDefaultPropsType &
     onDateSelection: (rowIndex: number, onDateSelected: string) => void;
     onDateSelectedString: string;
     firstDayOfWeek?: number;
-    required: boolean;
+    isRequired: boolean;
   };
 
 const COMPONENT_DEFAULT_VALUES = {
@@ -184,6 +189,7 @@ export const DateCell = (props: DateComponentProps) => {
     isCellEditMode,
     isCellVisible,
     isHidden,
+    isRequired,
     maxDate,
     minDate,
     onCellTextChange,
@@ -192,7 +198,6 @@ export const DateCell = (props: DateComponentProps) => {
     onDateSelection,
     onSubmitString,
     outputFormat,
-    required,
     rowIndex,
     shortcuts,
     tableWidth,
@@ -200,11 +205,14 @@ export const DateCell = (props: DateComponentProps) => {
     textSize,
     timePrecision,
     toggleCellEditMode,
+    validationErrorMessage,
     verticalAlignment,
+    widgetId,
   } = props;
 
   const [hasFocus, setHasFocus] = useState(false);
   const [isValid, setIsValid] = useState(true);
+  const [showRequiredError, setShowRequiredError] = useState(false);
   const value = props.value;
 
   // const wrapperRef = useRef<HTMLDivElement>(null);
@@ -253,11 +261,13 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
-    if (required && !date) {
+    if (isRequired && !date) {
       setIsValid(false);
+      setShowRequiredError(true);
       return;
     }
     setIsValid(true);
+    setShowRequiredError(false);
     const formattedDate = date ? moment(date).format(inputFormat) : "";
     onDateSelection(rowIndex, onDateSelectedString);
     onDateSave(rowIndex, alias, formattedDate, onSubmitString);
@@ -265,13 +275,22 @@ export const DateCell = (props: DateComponentProps) => {
 
   const onDateCellEdit = () => {
     setHasFocus(true);
+    if (isRequired && !value) {
+      setIsValid(false);
+      setShowRequiredError(true);
+    }
     editEvents.onEdit();
   };
 
-  const onPopoverClosed = (e: any) => {
+  const onPopoverClosed = () => {
     setHasFocus(false);
     setIsValid(true);
     editEvents.onDiscard();
+  };
+
+  const onDateOutOfRange = () => {
+    setIsValid(false);
+    setShowRequiredError(false);
   };
 
   let editor;
@@ -291,29 +310,39 @@ export const DateCell = (props: DateComponentProps) => {
         textSize={textSize}
         verticalAlignment={verticalAlignment}
       >
-        <DateComponent
-          accentColor={accentColor}
-          borderRadius={borderRadius || DEFAULT_BORDER_RADIUS}
-          closeOnSelection
-          compactMode
-          dateFormat={outputFormat}
-          datePickerType="DATE_PICKER"
-          firstDayOfWeek={firstDayOfWeek}
-          isDisabled
-          isLoading={false}
-          isPopoverOpen
-          labelText=""
-          maxDate={maxDate || COMPONENT_DEFAULT_VALUES.maxDate}
-          minDate={minDate || COMPONENT_DEFAULT_VALUES.minDate}
-          onDateSelected={onDateSelected}
-          onPopoverClosed={onPopoverClosed}
-          selectedDate={valueInISOFormat}
-          shortcuts={shortcuts}
-          timePrecision={
-            timePrecision || COMPONENT_DEFAULT_VALUES.timePrecision
+        <ErrorTooltip
+          boundary={`#table${widgetId} .tableWrap`}
+          isOpen={showRequiredError && !isValid}
+          message={
+            validationErrorMessage ||
+            createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
           }
-          widgetId={"adsasd"}
-        />
+        >
+          <DateComponent
+            accentColor={accentColor}
+            borderRadius={borderRadius || DEFAULT_BORDER_RADIUS}
+            closeOnSelection
+            compactMode
+            dateFormat={outputFormat}
+            datePickerType="DATE_PICKER"
+            firstDayOfWeek={firstDayOfWeek}
+            isDisabled
+            isLoading={false}
+            isPopoverOpen
+            labelText=""
+            maxDate={maxDate || COMPONENT_DEFAULT_VALUES.maxDate}
+            minDate={minDate || COMPONENT_DEFAULT_VALUES.minDate}
+            onDateOutOfRange={onDateOutOfRange}
+            onDateSelected={onDateSelected}
+            onPopoverClosed={onPopoverClosed}
+            selectedDate={valueInISOFormat}
+            shortcuts={shortcuts}
+            timePrecision={
+              timePrecision || COMPONENT_DEFAULT_VALUES.timePrecision
+            }
+            widgetId={widgetId}
+          />
+        </ErrorTooltip>
       </Wrapper>
     );
   }

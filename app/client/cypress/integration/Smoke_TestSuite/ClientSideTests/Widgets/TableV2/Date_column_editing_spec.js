@@ -72,7 +72,7 @@ describe("Table widget date column inline editing functionality", () => {
     ).should("contain", "[0]");
   });
 
-  it("4. should check that changing display format for date column changes date display format", () => {
+  it("4. should check that changing property pane display format for date column changes date display format", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
     cy.get(".t--property-control-displayformat .bp3-popover-target")
@@ -100,7 +100,7 @@ describe("Table widget date column inline editing functionality", () => {
     ).should("contain", "17/05/2021");
   });
 
-  it("5. should check that changing first day of week changes the date picker starting day", () => {
+  it("5. should check that changing property pane first day of week changes the date picker starting day", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
     cy.get(".t--property-control-firstdayofweek .t--code-editor-wrapper")
@@ -115,7 +115,6 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(
       ".bp3-datepicker .DayPicker .DayPicker-Months .DayPicker-WeekdaysRow div:first-child abbr",
     ).should("contain", "Mo");
-    cy.wait(5000);
 
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
@@ -133,10 +132,10 @@ describe("Table widget date column inline editing functionality", () => {
     ).should("contain", "Fr");
   });
 
-  it("6. should check that changing time precision changes the date picker time precision", () => {
+  it("6. should check that changing property pane time precision changes the date picker time precision", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
-    cy.get(".t--property-control-timeprecision .t--code-editor-wrapper")
+    cy.get(".t--property-control-timeprecision .bp3-popover-target")
       .last()
       .click();
     cy.get(".t--dropdown-option")
@@ -156,7 +155,7 @@ describe("Table widget date column inline editing functionality", () => {
 
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
-    cy.get(".t--property-control-timeprecision .t--code-editor-wrapper")
+    cy.get(".t--property-control-timeprecision .bp3-popover-target")
       .last()
       .click();
     cy.get(".t--dropdown-option")
@@ -172,7 +171,7 @@ describe("Table widget date column inline editing functionality", () => {
 
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
-    cy.get(".t--property-control-timeprecision .t--code-editor-wrapper")
+    cy.get(".t--property-control-timeprecision .bp3-popover-target")
       .last()
       .click();
     cy.get(".t--dropdown-option")
@@ -187,5 +186,144 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(".bp3-timepicker-input-row .bp3-timepicker-hour").should("exist");
     cy.get(".bp3-timepicker-input-row .bp3-timepicker-minute").should("exist");
     cy.get(".bp3-timepicker-input-row .bp3-timepicker-second").should("exist");
+  });
+
+  it("7. should check visible property control functionality", () => {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.editColumn("release_date");
+    cy.get(
+      ".t--property-pane-section-general .t--property-control-visible",
+    ).should("exist");
+    cy.get(
+      ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]+span",
+    ).click();
+    cy.get(
+      `${commonlocators.TableV2Head} [data-header="release_date"] .hidden-header`,
+    ).should("exist");
+
+    cy.openPropertyPane("tablewidgetv2");
+    cy.editColumn("release_date");
+    cy.get(
+      ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]+span",
+    ).click();
+    cy.get(
+      `${commonlocators.TableV2Head} [data-header="release_date"] .draggable-header`,
+    ).should("exist");
+  });
+
+  it("8. should check Show Shortcuts property control functionality", () => {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.editColumn("release_date");
+    cy.get(
+      ".t--property-pane-section-general .t--property-control-showshortcuts",
+    ).should("exist");
+    cy.get(
+      ".t--property-pane-section-general .t--property-control-showshortcuts input[type=checkbox]+span",
+    ).click();
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
+    ).dblclick({
+      force: true,
+    });
+    cy.get(`.bp3-dateinput-popover .bp3-daterangepicker-shortcuts`).should(
+      "not.exist",
+    );
+
+    cy.openPropertyPane("tablewidgetv2");
+    cy.editColumn("release_date");
+    cy.get(
+      ".t--property-pane-section-general .t--property-control-showshortcuts",
+    ).should("exist");
+    cy.get(
+      ".t--property-pane-section-general .t--property-control-showshortcuts input[type=checkbox]+span",
+    ).click();
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
+    ).dblclick({
+      force: true,
+    });
+    cy.get(`.bp3-dateinput-popover .bp3-daterangepicker-shortcuts`).should(
+      "exist",
+    );
+  });
+
+  it("9. should check min date and max date property control functionality", () => {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.editColumn("release_date");
+    cy.get(
+      ".t--property-pane-section-validation .t--property-control-mindate",
+    ).should("exist");
+    cy.get(
+      ".t--property-pane-section-validation .t--property-control-maxdate",
+    ).should("exist");
+
+    cy.get(
+      ".t--property-pane-section-validation .t--property-control-mindate div:last-child .bp3-popover-wrapper",
+    )
+      .click()
+      .clear()
+      .type("2021-05-05T00:00:10.1010+05:30{enter}");
+    cy.get(
+      ".t--property-pane-section-validation .t--property-control-maxdate div:last-child .bp3-popover-wrapper",
+    )
+      .click()
+      .clear()
+      .type("2021-05-30T00:00:10.1010+05:30{enter}");
+
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
+    ).realHover();
+    cy.get(`.t--editable-cell-icon`)
+      .first()
+      .click({
+        force: true,
+      });
+    cy.get(".bp3-dateinput-popover [aria-label='Tue May 04 2021']").should(
+      "have.class",
+      "DayPicker-Day--disabled",
+    );
+    cy.get(".bp3-dateinput-popover [aria-label='Mon May 31 2021']").should(
+      "have.class",
+      "DayPicker-Day--disabled",
+    );
+  });
+
+  it("10. should chceck property pane Required toggle functionality", () => {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.editColumn("release_date");
+    cy.get(
+      ".t--property-pane-section-validation .t--property-control-required",
+    ).should("exist");
+    cy.get(
+      ".t--property-pane-section-validation .t--property-control-required input[type=checkbox]+span",
+    ).click();
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
+    ).realHover();
+    cy.get(`.t--editable-cell-icon`)
+      .first()
+      .click({
+        force: true,
+      });
+    cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
+    ).realHover();
+    cy.get(`.t--editable-cell-icon`)
+      .first()
+      .click({
+        force: true,
+      });
+    cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
+    cy.get(
+      ".bp3-transition-container .bp3-popover .bp3-popover-content",
+    ).should("exist");
+    cy.get(
+      ".bp3-transition-container .bp3-popover .bp3-popover-content",
+    ).should("contain", "This field is required");
+    cy.get(".bp3-dateinput-popover [aria-label='Wed May 26 2021']").click();
+    cy.get(
+      ".bp3-transition-container .bp3-popover .bp3-popover-content",
+    ).should("not.exist");
   });
 });
