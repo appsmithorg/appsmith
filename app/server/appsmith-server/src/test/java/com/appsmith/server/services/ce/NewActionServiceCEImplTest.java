@@ -1,14 +1,13 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -31,6 +30,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import io.micrometer.observation.ObservationRegistry;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,8 +60,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
-
-import jakarta.validation.Validator;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -167,8 +165,7 @@ public class NewActionServiceCEImplTest {
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,
-                actionPermission,
-                observationRegistry);
+                actionPermission);
     }
 
     @BeforeEach
