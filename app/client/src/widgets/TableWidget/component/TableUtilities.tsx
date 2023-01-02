@@ -726,7 +726,9 @@ export function getTableStyles(props: TableStyles) {
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 
-const StyledSingleDropDown = styled(SingleDropDown)`
+const StyledSingleDropDown = styled(SingleDropDown)<{
+  children?: React.ReactNode;
+}>`
   div {
     padding: 0 10px;
     display: flex;

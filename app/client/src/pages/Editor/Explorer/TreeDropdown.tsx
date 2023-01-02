@@ -53,7 +53,9 @@ type TreeDropdownProps = {
   menuWidth?: number;
 };
 
-export const StyledPopover = styled(Popover)`
+export const StyledPopover = styled(Popover)<{
+  children?: React.ReactNode;
+}>`
   .${Classes.POPOVER_TARGET} {
     ${entityTooltipCSS}
   }

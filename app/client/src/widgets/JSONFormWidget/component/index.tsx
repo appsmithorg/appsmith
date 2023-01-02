@@ -72,7 +72,10 @@ const MessageStateWrapper = styled.div<{ $fixHeight: boolean }>`
   justify-content: center;
 `;
 
-const Message = styled(Text)<{ $fixHeight: boolean }>`
+const Message = styled(Text)<{
+  $fixHeight: boolean;
+  children?: React.ReactNode;
+}>`
   font-size: ${TEXT_SIZES.HEADING3};
   text-align: center;
   width: 100%;

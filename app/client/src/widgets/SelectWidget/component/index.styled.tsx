@@ -74,6 +74,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
   borderRadius: string;
   boxShadow?: string;
   accentColor?: string;
+  children?: React.ReactNode;
 }>`
   div {
     flex: 1 1 auto;

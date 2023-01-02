@@ -104,6 +104,7 @@ export const StyledText = styled(Text)<{
   textColor?: string;
   fontStyle?: string;
   fontSize?: TextSize;
+  children?: React.ReactNode;
 }>`
   height: ${(props) =>
     props.overflow === OverflowTypes.TRUNCATE

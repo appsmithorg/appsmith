@@ -180,7 +180,10 @@ const JsonWrapper = styled.div`
   }
 `;
 
-const StyledCollapse = styled(Collapse)<{ category: LOG_CATEGORY }>`
+const StyledCollapse = styled(Collapse)<{
+  category: LOG_CATEGORY;
+  children?: React.ReactNode;
+}>`
 margin-top:${(props) =>
   props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
     ? " -20px"

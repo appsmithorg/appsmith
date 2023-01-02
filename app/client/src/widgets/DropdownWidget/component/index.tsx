@@ -34,6 +34,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{
   isSelected: boolean;
   isValid: boolean;
   hasError?: boolean;
+  children?: React.ReactNode;
 }>`
   div {
     flex: 1 1 auto;
