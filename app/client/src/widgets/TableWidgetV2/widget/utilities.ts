@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import _, { isBoolean, isObject, uniq, without } from "lodash";
+import _, { isBoolean, isObject, pickBy, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import {
   CellAlignmentTypes,
@@ -206,7 +206,7 @@ export function getDefaultColumnProperties(
       : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
           id,
         )}"]))}}`,
-    sticky: "",
+    sticky: StickyType.NONE,
     validation: {},
   };
 
@@ -632,12 +632,17 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
     label: "Save / Discard",
     discardButtonVariant: ButtonVariantTypes.TERTIARY,
     discardButtonColor: Colors.DANGER_SOLID,
+    sticky: StickyType.RIGHT,
   };
-  const columnOrder = props.columnOrder || [];
+  const columnOrder = [...(props.columnOrder || [])];
   const editActionDynamicProperties = getEditActionColumnDynamicProperties(
     props.widgetName,
   );
 
+  const rightColumnIndex = columnOrder
+    .map((column) => props.primaryColumns[column])
+    .filter((col) => col.sticky !== StickyType.RIGHT).length;
+  columnOrder.splice(rightColumnIndex, 0, column.id);
   return [
     {
       propertyPath: `primaryColumns.${column.id}`,
@@ -648,7 +653,7 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
     },
     {
       propertyPath: `columnOrder`,
-      propertyValue: [...columnOrder, column.id],
+      propertyValue: columnOrder,
     },
     ...Object.entries(editActionDynamicProperties).map(([key, value]) => ({
       propertyPath: `primaryColumns.${column.id}.${key}`,

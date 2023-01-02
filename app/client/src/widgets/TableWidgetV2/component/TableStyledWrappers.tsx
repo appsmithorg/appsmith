@@ -62,7 +62,6 @@ export const TableWrapper = styled.div<{
     position: relative;
     width: ${(props) => props.width}px;
     overflow-x: auto;
-    ${hideScrollbar};
     ${scrollbarOnHoverCSS};
     .thumb-horizontal {
       height: 4px !important;
@@ -77,15 +76,16 @@ export const TableWrapper = styled.div<{
     display: table;
     width: 100%;
     ${hideScrollbar};
+    .thead,
+    .tbody {
+    }
     .tbody {
       height: ${(props) =>
         props.isHeaderVisible
           ? props.height - OFFSET_WITH_HEADER
-          : props.height - OFFSET_WITHOUT_HEADER}px !important;
+          : props.height - OFFSET_WITHOUT_HEADER}px;
       width: 100%;
-    }
-    .tbody.no-scroll {
-      overflow: visible !important;
+      ${hideScrollbar};
     }
     .tr {
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
@@ -221,7 +221,7 @@ export const TableWrapper = styled.div<{
     }
   }
   .draggable-header {
-    cursor: pointer;
+    cursor: grab;
     display: inline-block;
     width: 100%;
     height: 38px;
@@ -234,6 +234,9 @@ export const TableWrapper = styled.div<{
     opacity: 0.6;
 
     ${invisible};
+  }
+  .header-menu {
+    cursor: pointer;
   }
   .column-menu {
     cursor: pointer;

@@ -13,8 +13,8 @@ import _, {
   isEmpty,
   union,
   isObject,
-  findLastIndex,
   pickBy,
+  findIndex,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -304,7 +304,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       // Get the index of the first column that is frozen to right
-      const rightFrozenColumnIdx = findLastIndex(
+      const rightFrozenColumnIdx = findIndex(
         columns,
         (col) => col.sticky === StickyType.RIGHT,
       );
@@ -586,27 +586,38 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.widgetId,
     );
     if (localTableColumnOrder) {
-      const { columnOrder, leftOrder, rightOrder } = localTableColumnOrder;
-      const stickyLeftColumnPaths: Record<string, string> = {};
-      const stickyRightColumnPaths: Record<string, string> = {};
+      const {
+        columnOrder,
+        leftOrder,
+        originalColumnOrder,
+        rightOrder,
+      } = localTableColumnOrder;
+      if (!equal(originalColumnOrder, this.props.columnOrder)) {
+        super.updateWidgetProperty("columnOrder", this.props.columnOrder);
+        window.localStorage.removeItem("tableWidgetColumnOrder");
+      } else {
+        const stickyLeftColumnPaths: Record<string, string> = {};
+        const stickyRightColumnPaths: Record<string, string> = {};
 
-      leftOrder &&
-        leftOrder.forEach((colName: string) => {
-          stickyLeftColumnPaths[`primaryColumns.${colName}.sticky`] = "left";
-        });
+        leftOrder &&
+          leftOrder.forEach((colName: string) => {
+            stickyLeftColumnPaths[`primaryColumns.${colName}.sticky`] = "left";
+          });
 
-      rightOrder &&
-        rightOrder.forEach((colName: string) => {
-          stickyRightColumnPaths[`primaryColumns.${colName}.sticky`] = "right";
-        });
-      const propertiesToUpdate: BatchPropertyUpdatePayload = {
-        modify: {
-          ...stickyLeftColumnPaths,
-          ...stickyRightColumnPaths,
-          columnOrder,
-        },
-      };
-      super.batchUpdateWidgetProperty(propertiesToUpdate, false);
+        rightOrder &&
+          rightOrder.forEach((colName: string) => {
+            stickyRightColumnPaths[`primaryColumns.${colName}.sticky`] =
+              "right";
+          });
+        const propertiesToUpdate: BatchPropertyUpdatePayload = {
+          modify: {
+            ...stickyLeftColumnPaths,
+            ...stickyRightColumnPaths,
+            columnOrder,
+          },
+        };
+        super.batchUpdateWidgetProperty(propertiesToUpdate, false);
+      }
     }
   };
   componentDidMount() {
@@ -1010,9 +1021,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           const {
             columnOrder,
             leftOrder,
+            originalColumnOrder,
             rightOrder,
           } = parsedTableWidgetColumnOrder[widgetId];
           return {
+            originalColumnOrder,
             columnOrder,
             leftOrder,
             rightOrder,
@@ -1064,6 +1077,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         parsedTableWidgetColumnOrder = {
           ...parsedTableWidgetColumnOrder,
           [widgetId]: {
+            originalColumnOrder: this.props.columnOrder,
             columnOrder,
             leftOrder,
             rightOrder,
@@ -1077,6 +1091,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     } else {
       const tableWidgetColumnOrder = {
         [widgetId]: {
+          originalColumnOrder: this.props.columnOrder,
           columnOrder: newColumnOrder,
           leftOrder,
           rightOrder,

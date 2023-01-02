@@ -27,7 +27,6 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import { ScrollIndicator } from "design-system";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
@@ -35,7 +34,8 @@ import { renderHeaderCheckBoxCell } from "./cellComponents/SelectionCheckboxCell
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell, TableVariant } from "../constants";
 import { TableBody } from "./TableBody";
-
+import { FixedSizeList } from "react-window";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 interface TableProps {
   width: number;
   height: number;
@@ -171,6 +171,7 @@ export function Table(props: TableProps) {
     pageOptions,
     prepareRow,
     state,
+    totalColumnsWidth,
   } = useTable(
     {
       columns: columns,
@@ -263,6 +264,65 @@ export function Table(props: TableProps) {
     }
   }, [props.isAddRowInProgress]);
 
+  const HeaderComponent = ({ headerWidth }: { headerWidth?: number }) => {
+    return (
+      <div
+        className="thead"
+        onMouseLeave={props.enableDrag}
+        onMouseOver={props.disableDrag}
+      >
+        {headerGroups.map((headerGroup: any, index: number) => {
+          const headerRowProps = {
+            ...headerGroup.getHeaderGroupProps(),
+            style: { display: "flex", width: headerWidth },
+          };
+          return (
+            <div {...headerRowProps} className="tr header" key={index}>
+              {props.multiRowSelection &&
+                renderHeaderCheckBoxCell(
+                  handleAllRowSelectClick,
+                  rowSelectionState,
+                  props.accentColor,
+                  props.borderRadius,
+                )}
+              {headerGroup.headers.map((column: any, columnIndex: number) => {
+                return (
+                  <HeaderCell
+                    canFreezeColumn={props.canFreezeColumn}
+                    column={column}
+                    columnIndex={columnIndex}
+                    columnName={column.Header}
+                    editMode={props.editMode}
+                    handleColumnFreeze={props.handleColumnFreeze}
+                    isAscOrder={column.isAscOrder}
+                    isHidden={column.isHidden}
+                    isResizingColumn={isResizingColumn.current}
+                    isSortable={props.isSortable}
+                    key={columnIndex}
+                    sortTableColumn={props.sortTableColumn}
+                    width={column.width}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
+        {headerGroups.length === 0 &&
+          renderEmptyRows(
+            1,
+            props.columns,
+            props.width,
+            subPage,
+            props.multiRowSelection,
+            props.accentColor,
+            props.borderRadius,
+            {},
+            prepareRow,
+          )}
+      </div>
+    );
+  };
+
   return (
     <TableWrapper
       accentColor={props.accentColor}
@@ -345,77 +405,123 @@ export function Table(props: TableProps) {
         className={props.isLoading ? Classes.SKELETON : "tableWrap"}
         ref={tableWrapperRef}
       >
-        <Scrollbars
-          renderThumbHorizontal={ScrollbarHorizontalThumb}
-          renderTrackHorizontal={ScrollbarHorizontalTrack}
-          style={{
-            width: props.width,
-            height: isHeaderVisible ? props.height - 48 : props.height,
-          }}
-        >
-          <div {...getTableProps()} className="table column-freeze">
-            <div
-              className="thead"
-              onMouseLeave={props.enableDrag}
-              onMouseOver={props.disableDrag}
-            >
-              {headerGroups.map((headerGroup: any, index: number) => {
-                const headerRowProps = {
-                  ...headerGroup.getHeaderGroupProps(),
-                  style: { display: "flex" },
-                };
-                return (
-                  <div {...headerRowProps} className="tr header" key={index}>
-                    {props.multiRowSelection &&
-                      renderHeaderCheckBoxCell(
-                        handleAllRowSelectClick,
-                        rowSelectionState,
-                        props.accentColor,
-                        props.borderRadius,
-                      )}
-                    {headerGroup.headers.map(
-                      (column: any, columnIndex: number) => {
-                        return (
-                          <HeaderCell
-                            canFreezeColumn={props.canFreezeColumn}
-                            column={column}
-                            columnIndex={columnIndex}
-                            columnName={column.Header}
-                            editMode={props.editMode}
-                            handleColumnFreeze={props.handleColumnFreeze}
-                            isAscOrder={column.isAscOrder}
-                            isHidden={column.isHidden}
-                            isResizingColumn={isResizingColumn.current}
-                            isSortable={props.isSortable}
-                            key={columnIndex}
-                            sortTableColumn={props.sortTableColumn}
-                            width={column.width}
-                          />
-                        );
-                      },
-                    )}
-                  </div>
-                );
-              })}
-              {headerGroups.length === 0 &&
-                renderEmptyRows(
-                  1,
-                  props.columns,
-                  props.width,
-                  subPage,
-                  props.multiRowSelection,
-                  props.accentColor,
-                  props.borderRadius,
-                  {},
-                  prepareRow,
-                )}
-            </div>
+        <div {...getTableProps()} className="table column-freeze">
+          {!shouldUseVirtual ? (
+            // <Scrollbars
+            //   autoHide
+            //   renderThumbHorizontal={ScrollbarHorizontalThumb}
+            //   renderThumbVertical={({ props, style }) => (
+            //     <div
+            //       className="thumb-vertical"
+            //       {...props}
+            //       style={{
+            //         ...style,
+            //         backgroundColor: "#4b484880",
+            //         width: "4px",
+            //         position: "absolute",
+            //       }}
+            //     />
+            //   )}
+            //   renderTrackHorizontal={ScrollbarHorizontalTrack}
+            //   style={{
+            //     width: props.width,
+            //     height: isHeaderVisible ? props.height - 48 : props.height,
+            //   }}
+            // >
+            <>
+              <HeaderComponent />
+              <TableBody
+                accentColor={props.accentColor}
+                borderRadius={props.borderRadius}
+                columns={props.columns}
+                getTableBodyProps={getTableBodyProps}
+                height={props.height}
+                isAddRowInProgress={props.isAddRowInProgress}
+                multiRowSelection={!!props.multiRowSelection}
+                pageSize={props.pageSize}
+                prepareRow={prepareRow}
+                primaryColumnId={props.primaryColumnId}
+                ref={tableBodyRef}
+                rows={subPage}
+                selectTableRow={props.selectTableRow}
+                selectedRowIndex={props.selectedRowIndex}
+                selectedRowIndices={props.selectedRowIndices}
+                tableSizes={tableSizes}
+                useVirtual={shouldUseVirtual}
+                width={props.width - 6}
+              />
+            </>
+          ) : (
+            // <FixedSizeList
+            //   className="virtual-list"
+            //   height={
+            //     props.height -
+            //     tableSizes.TABLE_HEADER_HEIGHT -
+            //     2 * WIDGET_PADDING
+            //   }
+            // innerElementType={({ children, style, ...rest }: any) => (
+            //   <>
+            //     <HeaderComponent headerWidth={totalColumnsWidth} />
+            //     <div
+            //       className="tbody body"
+            //       style={{
+            //         height: props.height,
+            //         width: totalColumnsWidth + 6,
+            //       }}
+            //     >
+            //       <div {...getTableBodyProps()} {...rest} style={style}>
+            //         {children}
+            //       </div>
+            //     </div>
+            //   </>
+            // )}
+            //   itemCount={Math.max(subPage.length, props.pageSize)}
+            //   itemData={subPage}
+            //   itemSize={tableSizes.ROW_HEIGHT + tableSizes.ROW_VIRTUAL_OFFSET}
+            //   width={props.width}
+            // >
+            //   {({ data, index, style }) => (
+            //     <RowRenderer
+            //       accentColor={props.accentColor}
+            //       borderRadius={props.borderRadius}
+            //       columns={props.columns}
+            //       data={data}
+            //       index={index}
+            //       isAddRowInProgress={props.isAddRowInProgress}
+            //       multiRowSelection={!!props.multiRowSelection}
+            //       prepareRow={prepareRow}
+            //       primaryColumnId={props.primaryColumnId}
+            //       rows={subPage}
+            //       selectTableRow={props.selectTableRow}
+            //       selectedRowIndex={props.selectedRowIndex}
+            //       selectedRowIndices={props.selectedRowIndices}
+            //       style={style}
+            //       width={props.width}
+            //     />
+            //   )}
+            // </FixedSizeList>
             <TableBody
               accentColor={props.accentColor}
               borderRadius={props.borderRadius}
               columns={props.columns}
               getTableBodyProps={getTableBodyProps}
               height={props.height}
+              innerElementType={({ children, style, ...rest }: any) => (
+                <>
+                  <HeaderComponent headerWidth={totalColumnsWidth} />
+                  <div
+                    className="tbody body"
+                    style={{
+                      height: props.height,
+                      width: totalColumnsWidth + 6,
+                    }}
+                  >
+                    <div {...getTableBodyProps()} {...rest} style={style}>
+                      {children}
+                    </div>
+                  </div>
+                </>
+              )}
               isAddRowInProgress={props.isAddRowInProgress}
               multiRowSelection={!!props.multiRowSelection}
               pageSize={props.pageSize}
@@ -430,15 +536,9 @@ export function Table(props: TableProps) {
               useVirtual={shouldUseVirtual}
               width={props.width}
             />
-          </div>
-        </Scrollbars>
+          )}
+        </div>
       </div>
-      <ScrollIndicator
-        containerRef={tableBodyRef}
-        mode="LIGHT"
-        showScrollbarOnlyOnHover
-        top={props.editMode ? "70px" : "73px"}
-      />
     </TableWrapper>
   );
 }

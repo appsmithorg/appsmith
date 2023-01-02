@@ -227,7 +227,7 @@ export interface TableColumnMetaProps {
 export enum StickyType {
   LEFT = "left",
   RIGHT = "right",
-  NONE = "NONE",
+  NONE = "none",
 }
 export interface TableColumnProps {
   id: string;
