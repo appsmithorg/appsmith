@@ -1,6 +1,6 @@
 package com.appsmith.git.helpers;
 
-import com.appsmith.external.converters.GsonISOStringToInstantConverter;
+import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.FileInterface;
@@ -152,7 +152,7 @@ public class FileUtilsImpl implements FileInterface {
                             .registerTypeAdapter(Double.class,  new GsonDoubleToLongConverter())
                             .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedConverter())
                             .registerTypeAdapter(Map.class, new GsonUnorderedToOrderedConverter())
-                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
+                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
                             .disableHtmlEscaping()
                             .setPrettyPrinting()
                             .create();

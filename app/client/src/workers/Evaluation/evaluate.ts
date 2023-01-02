@@ -359,10 +359,11 @@ export async function evaluateAsync(
     try {
       result = await indirectEval(script);
       logs = userLogs.flushLogs();
-    } catch (error) {
-      const errorMessage = `UncaughtPromiseRejection: ${
-        (error as Error).message
-      }`;
+    } catch (e) {
+      const error = e as Error;
+      const errorMessage = error.name
+        ? `${error.name}: ${error.message}`
+        : `UncaughtPromiseRejection: ${error.message}`;
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
