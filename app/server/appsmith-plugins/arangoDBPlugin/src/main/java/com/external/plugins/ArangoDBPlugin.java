@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -112,10 +113,14 @@ public class ArangoDBPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setErrorInfo(error);
+                        if (error instanceof AppsmithPluginException) {
+                            result.setErrorInfo(error);
+                        } else {
+                            result.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.ARANGODB_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.ARANGODB_QUERY_EXECUTION_FAILED.getDescription(), error.getMessage()));
+                        }
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .flatMap(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
@@ -324,7 +329,8 @@ public class ArangoDBPlugin extends BasePlugin {
                                 AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                 "Appsmith server has failed to fetch list of collections from database. Please check " +
                                         "if the database credentials are valid and/or you have the required " +
-                                        "permissions."
+                                        "permissions.",
+                                e.getMessage()
                         )
                 );
             }

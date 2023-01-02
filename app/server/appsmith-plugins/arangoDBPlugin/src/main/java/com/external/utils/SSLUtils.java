@@ -44,7 +44,7 @@ public class SSLUtils {
                 break;
             default:
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.ARANGODB_QUERY_EXECUTION_FAILED,
                         "Appsmith server has found an unexpected SSL option: " + authType + ". Please reach " +
                                 "out to Appsmith customer support to resolve this."
                 );
@@ -70,14 +70,14 @@ public class SSLUtils {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Appsmith server encountered an error when getting ssl context. Please contact Appsmith " +
-                                    "customer support to resolve this."
+                                    "customer support to resolve this. Error: "+ e.getMessage()
                     );
                 }
 
                 break;
             default:
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.ARANGODB_QUERY_EXECUTION_FAILED,
                         "Appsmith server has found an unexpected CA certificate option: " + caCertificateType + ". " +
                         "Please reach out to Appsmith customer support to resolve this."
                 );

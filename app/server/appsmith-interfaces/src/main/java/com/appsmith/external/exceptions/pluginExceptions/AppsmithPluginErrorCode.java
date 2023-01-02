@@ -48,6 +48,9 @@ public enum AppsmithPluginErrorCode {
     //All Appsmith error codes for Amazon S3 plugin
     AMAZON_S3_QUERY_EXECUTION_FAILED("PE-AS3-5000", "S3 query execution failed"),
 
+    //All Appsmith error codes for ArangoDB plugin
+    ARANGODB_QUERY_EXECUTION_FAILED("PE-ARN-5000", "ArangoDB query execution failed"),
+
     //All Appsmith error codes for generic plugin errors
     JSON_PROCESSING_ERROR("PE-JSN-4000", "JSON processing error either at serializing or deserializing"),
     SMART_SUBSTITUTION_VALUE_MISSING("PE-SST-5000", "Missing required binding parameter's value"),
