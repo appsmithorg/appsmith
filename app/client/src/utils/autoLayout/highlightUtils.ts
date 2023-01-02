@@ -237,7 +237,7 @@ function generateVerticalHighlights(data: {
 }
 
 function generateHighlightsForSubWrapper(data: {
-  arr: any[];
+  arr: Widget[];
   childCount: number;
   layerIndex: number;
   alignment: FlexLayerAlignment;
@@ -278,7 +278,9 @@ function generateHighlightsForSubWrapper(data: {
         getTopRow(child, isMobile) * child.parentRowSpace +
         HORIZONTAL_HIGHLIGHT_MARGIN,
       width: DEFAULT_HIGHLIGHT_SIZE,
-      height,
+      height: isMobile
+        ? getWidgetHeight(child, isMobile) * child.parentRowSpace
+        : height,
       isVertical: true,
       canvasId,
     });
@@ -286,7 +288,8 @@ function generateHighlightsForSubWrapper(data: {
   }
 
   if (!avoidInitialHighlight) {
-    const lastChild: Widget = arr && arr.length ? arr[arr.length - 1] : null;
+    const lastChild: Widget | null =
+      arr && arr.length ? arr[arr.length - 1] : null;
     res.push({
       isNewLayer: false,
       index: count + childCount,
@@ -308,7 +311,10 @@ function generateHighlightsForSubWrapper(data: {
           : getTopRow(lastChild, isMobile) * lastChild?.parentRowSpace +
             HORIZONTAL_HIGHLIGHT_MARGIN,
       width: DEFAULT_HIGHLIGHT_SIZE,
-      height,
+      height:
+        isMobile && lastChild !== null
+          ? getWidgetHeight(lastChild, isMobile) * lastChild.parentRowSpace
+          : height,
       isVertical: true,
       canvasId,
     });
@@ -332,14 +338,16 @@ function getPositionForInitialHighlight(
   containerWidth: number,
   canvasId: string,
 ): number {
+  const endPosition =
+    containerWidth - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 6 : 0);
   if (alignment === FlexLayerAlignment.End) {
-    return containerWidth - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 6 : 0);
+    return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
     if (!highlights.length) return containerWidth / 2;
-    return posX;
+    return Math.min(posX, endPosition);
   } else {
     if (!highlights.length) return 2;
-    return posX;
+    return Math.min(posX, endPosition);
   }
 }
 
