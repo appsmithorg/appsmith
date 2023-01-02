@@ -103,7 +103,7 @@ export const textSetter = (
         );
       } catch (e) {
         showError();
-        throw e;
+        return currentValue;
       }
     }
   }
@@ -117,7 +117,7 @@ export const textSetter = (
     );
   } catch (e) {
     showError();
-    throw e;
+    return currentValue;
   }
 };
 
