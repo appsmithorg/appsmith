@@ -237,7 +237,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 resetToken.setTokenHash(passwordEncoder.encode(token));
                                 return resetToken;
                             });
-                }).flatMap(passwordResetTokenRepository::save)
+                })
+                .flatMap(passwordResetTokenRepository::save)
                 .flatMap(passwordResetToken -> {
                     log.debug("Password reset Token: {} for email: {}", token, passwordResetToken.getEmail());
 
@@ -302,7 +303,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         EmailTokenDTO emailTokenDTO;
         try {
             emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
-        } catch (IllegalStateException e) {
+        } catch (ArrayIndexOutOfBoundsException | IllegalStateException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
@@ -325,7 +326,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         EmailTokenDTO emailTokenDTO;
         try {
             emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
-        } catch (IllegalStateException e) {
+        } catch (ArrayIndexOutOfBoundsException | IllegalStateException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
@@ -499,11 +500,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 final UserSignupDTO userSignupDTO = new UserSignupDTO();
                                 userSignupDTO.setUser(savedUser);
 
-                                log.debug("Creating blank default workspace for user '{}'.", savedUser.getEmail());
                                 return workspaceService.createDefault(new Workspace(), savedUser)
                                         .map(workspace -> {
+                                            log.debug("Created blank default workspace for user '{}'.", savedUser.getEmail());
                                             userSignupDTO.setDefaultWorkspaceId(workspace.getId());
                                             return userSignupDTO;
+                                        })
+                                        .onErrorResume(e -> {
+                                            log.debug("Error creating default workspace for user '{}'.", savedUser.getEmail(), e);
+                                            return Mono.just(userSignupDTO);
                                         });
                             })
                             .flatMap(userSignupDTO -> findByEmail(userSignupDTO.getUser().getEmail()).map(user1 -> {
@@ -595,10 +600,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
 
-
     @Override
     public Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
-                                                                 Workspace workspace, User inviter, String role) {
+                                                                Workspace workspace, User inviter, String role) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 

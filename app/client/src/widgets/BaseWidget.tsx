@@ -45,7 +45,7 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { Stylesheet } from "entities/AppTheming";
 import { CSSProperties } from "styled-components";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
@@ -343,6 +343,8 @@ abstract class BaseWidget<
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         focused={this.props.focused}
+        isDisabled={this.props.isDisabled}
+        isVisible={this.props.isVisible}
         leftColumn={this.props.leftColumn}
         noContainerOffset={this.props.noContainerOffset}
         parentColumnSpace={this.props.parentColumnSpace}
@@ -364,16 +366,30 @@ abstract class BaseWidget<
   }
 
   addAutoHeightOverlay(content: ReactNode, style?: CSSProperties) {
-    const onBatchUpdate = (height: number, propertiesToUpdate?: string[]) => {
-      if (propertiesToUpdate === undefined) {
-        propertiesToUpdate = ["minDynamicHeight", "maxDynamicHeight"];
-      }
+    // required when the limits have to be updated
+    // simultaneosuly when they move together
+    // to maintain the undo/redo stack
+    const onBatchUpdate = ({
+      maxHeight,
+      minHeight,
+    }: {
+      maxHeight?: number;
+      minHeight?: number;
+    }) => {
       const modifyObj: Record<string, unknown> = {};
-      propertiesToUpdate.forEach((propertyName) => {
-        modifyObj[propertyName] = Math.floor(
-          height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+
+      if (maxHeight !== undefined) {
+        modifyObj["maxDynamicHeight"] = Math.floor(
+          maxHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         );
-      });
+      }
+
+      if (minHeight !== undefined) {
+        modifyObj["minDynamicHeight"] = Math.floor(
+          minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      }
+
       this.batchUpdateWidgetProperty({
         modify: modifyObj,
         postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
@@ -381,11 +397,9 @@ abstract class BaseWidget<
       AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
     };
 
-    const onMaxHeightSet = (height: number) =>
-      onBatchUpdate(height, ["maxDynamicHeight"]);
+    const onMaxHeightSet = (maxHeight: number) => onBatchUpdate({ maxHeight });
 
-    const onMinHeightSet = (height: number) =>
-      onBatchUpdate(height, ["minDynamicHeight"]);
+    const onMinHeightSet = (minHeight: number) => onBatchUpdate({ minHeight });
 
     return (
       <>

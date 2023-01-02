@@ -1,24 +1,27 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   CodeEditorContext,
+  CursorPosition,
+  CursorPositionOrigin,
   EvaluatedPopupState,
   PropertyPanelContext,
 } from "reducers/uiReducers/editorContextReducer";
 
-export const setFocusableCodeEditorField = (path: string | undefined) => {
+export const setFocusableInputField = (path: string | undefined) => {
   return {
-    type: ReduxActionTypes.SET_FOCUSABLE_CODE_EDITOR_FIELD,
+    type: ReduxActionTypes.SET_FOCUSABLE_INPUT_FIELD,
     payload: { path },
   };
 };
 
 export const setCodeEditorCursorAction = (
   path: string,
-  cursorPosition: { ch: number; line: number },
+  cursorPosition: Omit<CursorPosition, "origin">,
+  origin: CursorPositionOrigin = CursorPositionOrigin.LastFocus,
 ) => {
   return {
     type: ReduxActionTypes.SET_CODE_EDITOR_CURSOR,
-    payload: { cursorPosition, path },
+    payload: { cursorPosition: { ...cursorPosition, origin }, path },
   };
 };
 

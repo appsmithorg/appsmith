@@ -8,6 +8,12 @@ import {
   ButtonVariant,
 } from "components/constants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
+import {
+  ConfigureMenuItems,
+  MenuItem,
+  MenuItems,
+  MenuItemsSource,
+} from "widgets/MenuButtonWidget/constants";
 import { ColumnTypes } from "../constants";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
@@ -156,6 +162,9 @@ export interface MenuButtonCellProperties {
   menuColor?: string;
   menuButtoniconName?: IconName;
   onItemClicked?: (onClick: string | undefined) => void;
+  menuItemsSource: MenuItemsSource;
+  configureMenuItems: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
 }
 
 export interface URLCellProperties {
@@ -167,6 +176,7 @@ export interface SelectCellProperties {
   serverSideFiltering?: boolean;
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
+  selectOptions?: DropdownOption[];
 }
 
 export interface ImageCellProperties {
@@ -208,24 +218,6 @@ export interface CellLayoutProperties
     ImageCellProperties,
     DateCellProperties,
     BaseCellProperties {}
-
-export type MenuItems = Record<
-  string,
-  {
-    widgetId: string;
-    id: string;
-    index: number;
-    isVisible?: boolean;
-    isDisabled?: boolean;
-    label?: string;
-    backgroundColor?: string;
-    textColor?: string;
-    iconName?: IconName;
-    iconColor?: string;
-    iconAlign?: Alignment;
-    onClick?: string;
-  }
->;
 
 export interface TableColumnMetaProps {
   isHidden: boolean;
@@ -321,7 +313,7 @@ export interface EditActionColumnProperties {
   serverSideFiltering?: boolean;
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
-  selectOptions?: DropdownOption[];
+  selectOptions?: DropdownOption[] | DropdownOption[][];
 }
 
 export interface ColumnProperties
@@ -351,11 +343,18 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
+<<<<<<< HEAD
   inputFormat?: string;
   outputFormat?: string;
   maxDate?: string;
   minDate?: string;
   shortcuts?: boolean;
+=======
+  getVisibleItems?: () => Array<MenuItem>;
+  menuItemsSource?: MenuItemsSource;
+  configureMenuItems?: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
+>>>>>>> df876c70fd8ff61d68355623aaf1b6ad950c4655
 }
 
 export const ConditionFunctions: {

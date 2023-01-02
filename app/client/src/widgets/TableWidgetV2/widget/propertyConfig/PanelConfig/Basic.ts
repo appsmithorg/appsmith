@@ -4,8 +4,19 @@ import {
   ICON_NAMES,
   TableWidgetProps,
 } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType, updateIconAlignment } from "../../propertyUtils";
+import {
+  hideByColumnType,
+  hideByMenuItemsSource,
+  hideIfMenuItemsSourceDataIsFalsy,
+  updateIconAlignment,
+  updateMenuItemsSource,
+} from "../../propertyUtils";
 import { IconNames } from "@blueprintjs/icons";
+import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
+import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 
 export default {
   sectionName: "Basic",
@@ -71,6 +82,104 @@ export default {
       isTriggerProperty: false,
     },
     {
+      propertyName: "menuItemsSource",
+      helpText: "Sets the source for the menu items",
+      label: "Menu Items Source",
+      controlType: "ICON_TABS",
+      fullWidth: true,
+      defaultValue: MenuItemsSource.STATIC,
+      options: [
+        {
+          label: "Static",
+          value: MenuItemsSource.STATIC,
+        },
+        {
+          label: "Dynamic",
+          value: MenuItemsSource.DYNAMIC,
+        },
+      ],
+      isJSConvertible: false,
+      isBindProperty: false,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      updateHook: updateMenuItemsSource,
+      dependencies: [
+        "primaryColumns",
+        "columnOrder",
+        "sourceData",
+        "configureMenuItems",
+      ],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(
+          props,
+          propertyPath,
+          [ColumnTypes.MENU_BUTTON],
+          false,
+        );
+      },
+    },
+    {
+      helpText: "Takes in an array of items to display the menu items.",
+      propertyName: "sourceData",
+      label: "Source Data",
+      controlType: "TABLE_COMPUTE_VALUE",
+      placeholderText: "{{Query1.data}}",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          expected: {
+            type: "Array of values",
+            example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
+            autocompleteDataType: AutocompleteDataType.ARRAY,
+          },
+          fnString: sourceDataArrayValidation.toString(),
+        },
+      },
+      evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return (
+          hideByColumnType(
+            props,
+            propertyPath,
+            [ColumnTypes.MENU_BUTTON],
+            false,
+          ) ||
+          hideByMenuItemsSource(props, propertyPath, MenuItemsSource.STATIC)
+        );
+      },
+      dependencies: ["primaryColumns", "columnOrder", "menuItemsSource"],
+    },
+    {
+      helpText: "Configure how each menu item will appear.",
+      propertyName: "configureMenuItems",
+      controlType: "OPEN_CONFIG_PANEL",
+      buttonConfig: {
+        label: "Item Configuration",
+        icon: "settings-2-line",
+      },
+      label: "Configure Menu Items",
+      isBindProperty: false,
+      isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) =>
+        hideByColumnType(
+          props,
+          propertyPath,
+          [ColumnTypes.MENU_BUTTON],
+          false,
+        ) ||
+        hideIfMenuItemsSourceDataIsFalsy(props, propertyPath) ||
+        hideByMenuItemsSource(props, propertyPath, MenuItemsSource.STATIC),
+      dependencies: [
+        "primaryColumns",
+        "columnOrder",
+        "menuItemsSource",
+        "sourceData",
+      ],
+      panelConfig: configureMenuItemsConfig,
+    },
+    {
       helpText: "Menu items",
       propertyName: "menuItems",
       controlType: "MENU_ITEMS",
@@ -78,11 +187,14 @@ export default {
       isBindProperty: false,
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(
-          props,
-          propertyPath,
-          [ColumnTypes.MENU_BUTTON],
-          false,
+        return (
+          hideByColumnType(
+            props,
+            propertyPath,
+            [ColumnTypes.MENU_BUTTON],
+            false,
+          ) ||
+          hideByMenuItemsSource(props, propertyPath, MenuItemsSource.DYNAMIC)
         );
       },
       dependencies: ["primaryColumns", "columnOrder"],

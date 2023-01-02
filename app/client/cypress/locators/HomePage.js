@@ -56,6 +56,7 @@ export default {
   shareApp: ".t--application-share-btn",
   enablePublicAccess: ".t--share-public-toggle .slider",
   closeBtn: ".bp3-dialog-close-button",
+  editModeInviteModalCloseBtn: ".t--close-form-dialog",
   applicationName: ".t--application-name",
   applicationEditMenu: ".t--application-edit-menu",
   editingAppName: "bp3-editable-text-editing",
@@ -95,4 +96,5 @@ export default {
   optionsIcon: ".t--options-icon",
   reconnectDatasourceModal: ".reconnect-datasource-modal",
   importAppProgressWrapper: ".t-import-app-progress-wrapper",
+  backtoHome: ".t--back-to-home",
 };

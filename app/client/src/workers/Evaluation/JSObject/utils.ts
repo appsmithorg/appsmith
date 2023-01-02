@@ -6,17 +6,22 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
-import { isJSAction } from "workers/Evaluation/evaluationUtils";
-import { APP_MODE } from "../../../entities/App";
+import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
+import { select } from "redux-saga/effects";
+import { AppState } from "ce/reducers";
+import { JSAction } from "entities/JSCollection";
+import { getJSFunctionFromName } from "selectors/entitiesSelector";
+import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { APP_MODE } from "entities/App";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
   NOTE: For other entity below logic is maintained in DataTreeFactory, for JSObject we handle it inside evaluations
- *
- * @param parsedBody
- * @param jsCollection
- * @param unEvalTree
- * @returns
+ * 
+ * @param parsedBody 
+ * @param jsCollection 
+ * @param unEvalTree 
+ * @returns 
  */
 export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
@@ -74,7 +79,6 @@ export const updateJSCollectionInUnEvalTree = (
           arguments: action.arguments,
           isAsync: false,
           confirmBeforeExecute: false,
-          body: action.body,
         };
 
         const data = get(
@@ -245,4 +249,39 @@ export function isJSObjectFunction(
 export function getAppMode(dataTree: DataTree) {
   const appsmithObj = dataTree.appsmith as DataTreeAppsmith;
   return appsmithObj.mode as APP_MODE;
+}
+
+export function isPromise(value: any): value is Promise<unknown> {
+  return Boolean(value && typeof value.then === "function");
+}
+
+export function* sortJSExecutionDataByCollectionId(
+  data: Record<string, unknown>,
+) {
+  // Sorted data by collectionId
+  const sortedData: BatchedJSExecutionData = {};
+  for (const jsfuncFullName of Object.keys(data)) {
+    const jsAction: JSAction | undefined = yield select((state: AppState) =>
+      getJSFunctionFromName(state, jsfuncFullName),
+    );
+    if (jsAction && jsAction.collectionId) {
+      if (sortedData[jsAction.collectionId]) {
+        sortedData[jsAction.collectionId].push({
+          data: get(data, jsfuncFullName),
+          collectionId: jsAction.collectionId,
+          actionId: jsAction.id,
+        });
+      } else {
+        sortedData[jsAction.collectionId] = [
+          {
+            data: get(data, jsfuncFullName),
+            collectionId: jsAction.collectionId,
+            actionId: jsAction.id,
+          },
+        ];
+      }
+    }
+  }
+
+  return sortedData;
 }

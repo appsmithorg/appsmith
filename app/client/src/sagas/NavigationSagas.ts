@@ -1,13 +1,8 @@
-import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import { all, call, fork, put, select, takeEvery } from "redux-saga/effects";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import { FocusElementsConfig } from "navigation/FocusElements";
-import history from "utils/history";
 import {
   FocusEntity,
   FocusEntityInfo,
@@ -19,22 +14,44 @@ import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action } from "entities/Action";
 import { Plugin } from "api/PluginApi";
 import log from "loglevel";
-import FeatureFlags from "entities/FeatureFlags";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import { Location } from "history";
-import { AppsmithLocationState } from "utils/history";
+import history, {
+  AppsmithLocationState,
+  NavigationMethod,
+} from "utils/history";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "ce/constants/ReduxActionConstants";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
+import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
+import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 
 let previousPath: string;
 let previousHash: string | undefined;
+
+function* appBackgroundHandler() {
+  const currentTheme: BackgroundTheme = yield select(getCurrentThemeDetails);
+  changeAppBackground(currentTheme);
+}
 
 function* handleRouteChange(
   action: ReduxAction<{ location: Location<AppsmithLocationState> }>,
 ) {
   const { hash, pathname, state } = action.payload.location;
   try {
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    if (featureFlags.CONTEXT_SWITCHING) {
+    const isAnEditorPath = isEditorPath(pathname);
+
+    // handled only on edit mode
+    if (isAnEditorPath) {
+      yield call(logNavigationAnalytics, action.payload);
       yield call(contextSwitchingSaga, pathname, state, hash);
+      yield call(appBackgroundHandler);
+      const entityInfo = identifyEntityFromPath(pathname, hash);
+      yield fork(updateRecentEntitySaga, entityInfo);
     }
   } catch (e) {
     log.error("Error in focus change", e);
@@ -42,6 +59,29 @@ function* handleRouteChange(
     previousPath = pathname;
     previousHash = hash;
   }
+}
+
+function* logNavigationAnalytics(payload: {
+  location: Location<AppsmithLocationState>;
+}) {
+  const {
+    location: { hash, pathname, state },
+  } = payload;
+  const recentEntityIds: Array<string> = yield select(getRecentEntityIds);
+  const currentEntity = identifyEntityFromPath(pathname, hash);
+  const previousEntity = identifyEntityFromPath(previousPath, previousHash);
+  const isRecent = recentEntityIds.some(
+    (entityId) => entityId === currentEntity.id,
+  );
+  AnalyticsUtil.logEvent("ROUTE_CHANGE", {
+    toPath: pathname + hash,
+    fromPath: previousPath + previousHash || undefined,
+    navigationMethod: state?.invokedBy,
+    isRecent,
+    recentLength: recentEntityIds.length,
+    toType: currentEntity.entity,
+    fromType: previousEntity.entity,
+  });
 }
 
 function* handlePageChange(
@@ -61,9 +101,8 @@ function* handlePageChange(
     pageId,
   } = action.payload;
   try {
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     const fromPageId = identifyEntityFromPath(fromPath)?.pageId;
-    if (featureFlags.CONTEXT_SWITCHING && fromPageId && fromPageId !== pageId) {
+    if (fromPageId && fromPageId !== pageId) {
       yield call(storeStateOfPage, fromPageId, fromPath, fromParamString);
 
       yield call(setStateOfPage, pageId, currPath, currParamString);
@@ -234,7 +273,14 @@ function shouldSetState(
   currHash?: string,
   state?: AppsmithLocationState,
 ) {
-  if (state && state.directNavigation) return true;
+  if (
+    state &&
+    state.invokedBy &&
+    state.invokedBy === NavigationMethod.CommandClick
+  ) {
+    // If it is a command click navigation, we will set the state
+    return true;
+  }
   const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash).entity;
   const currFocusEntity = identifyEntityFromPath(currPath, currHash).entity;
 
@@ -272,7 +318,6 @@ function shouldStoreStateForCanvas(
     (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
   );
 }
-
 export default function* rootSaga() {
   yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
   yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);

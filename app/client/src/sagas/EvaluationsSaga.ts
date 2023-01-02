@@ -27,9 +27,12 @@ import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import {
   EvalError,
-  EVAL_WORKER_ACTIONS,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import {
+  EVAL_WORKER_ACTIONS,
+  MAIN_THREAD_ACTION,
+} from "workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
@@ -64,7 +67,7 @@ import {
 import {
   executeActionTriggers,
   TriggerMeta,
-} from "./ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Toaster, Variant } from "design-system";
 import {
@@ -88,7 +91,7 @@ import {
   UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -103,11 +106,14 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
-import { lintTreeSaga, lintWorker } from "./LintingSagas";
+import { lintWorker } from "./LintingSagas";
 import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
+import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
+import { MessageType, TMessage } from "utils/MessageUtil";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -121,10 +127,21 @@ const evalWorker = new GracefulWorkerService(
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
-function* evaluateTreeSaga(
+/**
+ * This saga is responsible for evaluating the data tree
+ * @param postEvalActions
+ * @param shouldReplay
+ * @param requiresLinting
+ * @param forceEvaluation - if true, will re-evaluate the entire tree
+ * @returns
+ * @example
+ * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
+ */
+export function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay = true,
   requiresLinting = false,
+  forceEvaluation = false,
 ) {
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
@@ -146,6 +163,7 @@ function* evaluateTreeSaga(
     shouldReplay,
     allActionValidationConfig,
     requiresLinting: isEditMode && requiresLinting,
+    forceEvaluation,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -270,8 +288,8 @@ export function* evaluateAndExecuteDynamicTrigger(
 ) {
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
-  const { isFinishedChannel } = yield call(
-    evalWorker.duplexRequest,
+  const response: unknown = yield call(
+    evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
     {
       unEvalTree,
@@ -283,122 +301,100 @@ export function* evaluateAndExecuteDynamicTrigger(
     },
   );
 
-  let keepAlive = true;
+  const { logs = [], errors = [], triggers = [] } = response as any;
+  yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
+  yield call(
+    storeLogs,
+    logs,
+    triggerMeta.source?.name || triggerMeta.triggerPropertyName || "",
+    eventType === EventType.ON_JS_FUNCTION_EXECUTE
+      ? ENTITY_TYPE.JSACTION
+      : ENTITY_TYPE.WIDGET,
+    triggerMeta.source?.id || "",
+  );
 
-  while (keepAlive) {
-    const { requestData } = yield take(isFinishedChannel);
-    log.debug({ requestData, eventType, triggerMeta, dynamicTrigger });
-
-    if (requestData.finished) {
-      keepAlive = false;
-
-      const { result } = requestData;
-      yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
-
-      // Check for any logs in the response and store them in the redux store
-      if (
-        !!result &&
-        result.hasOwnProperty("logs") &&
-        !!result.logs &&
-        result.logs.length
-      ) {
-        yield call(
-          storeLogs,
-          result.logs,
-          triggerMeta.source?.name || triggerMeta.triggerPropertyName || "",
-          eventType === EventType.ON_JS_FUNCTION_EXECUTE
-            ? ENTITY_TYPE.JSACTION
-            : ENTITY_TYPE.WIDGET,
-          triggerMeta.source?.id || "",
-        );
-      }
-
-      /* Handle errors during evaluation
-       * A finish event with errors means that the error was not caught by the user code.
-       * We raise an error telling the user that an uncaught error has occurred
-       * */
-      if (
-        !!result &&
-        result.hasOwnProperty("errors") &&
-        !!result.errors &&
-        result.errors.length
-      ) {
-        if (
-          result.errors[0].errorMessage !==
-          "UncaughtPromiseRejection: User cancelled action execution"
-        ) {
-          throw new UncaughtPromiseError(result.errors[0].errorMessage);
-        }
-      }
-
-      // It is possible to get a few triggers here if the user
-      // still uses the old way of action runs and not promises. For that we
-      // need to manually execute these triggers outside the promise flow
-      const { triggers } = result;
-      if (triggers && triggers.length) {
-        log.debug({ triggers });
-        yield all(
-          triggers.map((trigger: ActionDescription) =>
-            call(executeActionTriggers, trigger, eventType, triggerMeta),
-          ),
-        );
-      }
-      // Return value of a promise is returned
-      isFinishedChannel.close();
-      return result;
+  yield call(evalErrorHandler, errors);
+  if (errors.length) {
+    if (
+      errors[0].errorMessage !==
+      "UncaughtPromiseRejection: User cancelled action execution"
+    ) {
+      throw new UncaughtPromiseError(errors[0].errorMessage);
     }
-    yield call(evalErrorHandler, requestData.errors);
-    isFinishedChannel.close();
+  }
+
+  log.debug({ triggers });
+  yield all(
+    triggers.map((trigger: ActionDescription) =>
+      call(executeActionTriggers, trigger, eventType, triggerMeta),
+    ),
+  );
+
+  return response;
+}
+
+export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
+  while (true) {
+    const request: TMessage<any> = yield take(listenerChannel);
+    yield spawn(handleEvalWorkerMessage, request);
   }
 }
 
-export function* executeDynamicTriggerRequest(
-  mainThreadRequestChannel: Channel<any>,
-) {
-  while (true) {
-    const { mainThreadResponseChannel, requestData, requestId } = yield take(
-      mainThreadRequestChannel,
-    );
-    log.debug({ requestData });
-    if (requestData?.logs) {
-      const { eventType, triggerMeta } = requestData;
+export function* handleEvalWorkerMessage(message: TMessage<any>) {
+  const { body, messageType } = message;
+  const { data, method } = body;
+  switch (method) {
+    case MAIN_THREAD_ACTION.LINT_TREE: {
+      yield put({
+        type: ReduxActionTypes.LINT_TREE,
+        payload: {
+          pathsToLint: data.lintOrder,
+          unevalTree: data.unevalTree,
+        },
+      });
+      break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_LOGS: {
+      const { logs = [], triggerMeta, eventType } = data;
       yield call(
         storeLogs,
-        requestData.logs,
+        logs,
         triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
         eventType === EventType.ON_JS_FUNCTION_EXECUTE
           ? ENTITY_TYPE.JSACTION
           : ENTITY_TYPE.WIDGET,
         triggerMeta?.source?.id || "",
       );
+      break;
     }
-    if (requestData?.trigger) {
-      // if we have found a trigger, we need to execute it and respond back
-      log.debug({ trigger: requestData.trigger });
-      yield spawn(
-        executeTriggerRequestSaga,
-        requestId,
-        requestData,
-        requestData.eventType,
-        mainThreadResponseChannel,
-        requestData.triggerMeta,
+    case MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION: {
+      const sortedData: BatchedJSExecutionData = yield sortJSExecutionDataByCollectionId(
+        data.JSData as Record<string, unknown>,
       );
-    }
-    if (requestData.type === EVAL_WORKER_ACTIONS.LINT_TREE) {
-      yield spawn(lintTreeSaga, {
-        pathsToLint: requestData.lintOrder,
-        unevalTree: requestData.unevalTree,
+      yield put({
+        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+        payload: sortedData,
       });
+      break;
     }
-    if (requestData?.errors) {
-      yield call(evalErrorHandler, requestData.errors);
+    case MAIN_THREAD_ACTION.PROCESS_TRIGGER: {
+      const { eventType, trigger, triggerMeta } = data;
+      log.debug({ trigger: data.trigger });
+      const result: ResponsePayload = yield call(
+        executeTriggerRequestSaga,
+        trigger,
+        eventType,
+        triggerMeta,
+      );
+      if (messageType === MessageType.REQUEST)
+        yield call(evalWorker.respond, message.messageId, result);
+      break;
     }
   }
+  yield call(evalErrorHandler, data?.errors || []);
 }
-
 interface ResponsePayload {
   data: {
-    subRequestId: string;
     reason?: string;
     resolve?: unknown;
   };
@@ -411,17 +407,14 @@ interface ResponsePayload {
  * resolve or reject it with the data the execution has provided
  */
 function* executeTriggerRequestSaga(
-  requestId: string,
-  requestData: { trigger: ActionDescription; subRequestId: string },
+  trigger: ActionDescription,
   eventType: EventType,
-  responseFromExecutionChannel: Channel<unknown>,
   triggerMeta: TriggerMeta,
 ) {
   const responsePayload: ResponsePayload = {
     data: {
       resolve: undefined,
       reason: undefined,
-      subRequestId: requestData.subRequestId,
     },
     success: false,
     eventType,
@@ -429,7 +422,7 @@ function* executeTriggerRequestSaga(
   try {
     responsePayload.data.resolve = yield call(
       executeActionTriggers,
-      requestData.trigger,
+      trigger,
       eventType,
       triggerMeta,
     );
@@ -442,11 +435,7 @@ function* executeTriggerRequestSaga(
     responsePayload.data.reason = { message: error.message };
     responsePayload.success = false;
   }
-  responseFromExecutionChannel.put({
-    method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-    requestId: requestId,
-    ...responsePayload,
-  });
+  return responsePayload;
 }
 
 export function* clearEvalCache() {
@@ -497,17 +486,15 @@ export function* executeFunction(
       },
     );
 
-    const { logs } = response;
+    const { logs = [] } = response;
     // Check for any logs in the response and store them in the redux store
-    if (!!logs && logs.length > 0) {
-      yield call(
-        storeLogs,
-        logs,
-        collectionName + "." + action.name,
-        ENTITY_TYPE.JSACTION,
-        collectionId,
-      );
-    }
+    yield call(
+      storeLogs,
+      logs,
+      collectionName + "." + action.name,
+      ENTITY_TYPE.JSACTION,
+      collectionId,
+    );
   }
 
   const { errors, result } = response;
@@ -611,16 +598,16 @@ function getPostEvalActions(
   return postEvalActions;
 }
 
-function* evaluationChangeListenerSaga() {
+function* evaluationChangeListenerSaga(): any {
   // Explicitly shutdown old worker if present
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
-  const [{ mainThreadRequestChannel }] = yield all([
+  const [evalWorkerListenerChannel] = yield all([
     call(evalWorker.start),
     call(lintWorker.start),
   ]);
 
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
-  yield spawn(executeDynamicTriggerRequest, mainThreadRequestChannel);
+  yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction: {
@@ -654,7 +641,7 @@ export function* evaluateSnippetSaga(action: any) {
     let { expression } = action.payload;
     const { dataType, isTrigger } = action.payload;
     if (isTrigger) {
-      expression = `function() { ${expression} }`;
+      expression = `(function() { ${expression} })()`;
     }
     const workerResponse: {
       errors: any;
@@ -663,7 +650,6 @@ export function* evaluateSnippetSaga(action: any) {
     } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
       expression,
       dataType,
-      isTrigger,
     });
     const { errors, result, triggers } = workerResponse;
     if (triggers && triggers.length > 0) {
@@ -830,3 +816,5 @@ export default function* evaluationSagaListeners() {
     }
   }
 }
+
+export { evalWorker as EvalWorker };

@@ -1003,6 +1003,7 @@ describe("correctly migrate dsl", () => {
                           enableRotation: false,
                           borderRadius: "0px",
                           boxShadow: "none",
+                          dynamicHeight: "FIXED",
                         },
                         {
                           widgetName: "Text1",
@@ -1616,6 +1617,7 @@ describe("correctly migrate dsl", () => {
                           maxZoomLevel: 1,
                           enableDownload: false,
                           enableRotation: false,
+                          dynamicHeight: "FIXED",
                         },
                         {
                           widgetName: "Text1",
@@ -1685,6 +1687,7 @@ describe("correctly migrate dsl", () => {
                           isLoading: false,
                           fontSize: "PARAGRAPH",
                           textStyle: "HEADING",
+                          dynamicHeight: "FIXED",
                         },
                         {
                           widgetName: "Text2",
@@ -1754,6 +1757,7 @@ describe("correctly migrate dsl", () => {
                           isLoading: false,
                           fontSize: "PARAGRAPH",
                           textStyle: "BODY",
+                          dynamicHeight: "FIXED",
                         },
                       ],
                       key: "omhgz5cakp",
@@ -2229,6 +2233,7 @@ describe("correctly migrate dsl", () => {
                           enableRotation: false,
                           borderRadius: "0px",
                           boxShadow: "none",
+                          dynamicHeight: "FIXED",
                         },
                         {
                           widgetName: "Text1",
