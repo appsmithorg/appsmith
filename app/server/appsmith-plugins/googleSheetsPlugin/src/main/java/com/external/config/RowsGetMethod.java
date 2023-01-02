@@ -129,7 +129,7 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                     "Missing a valid response object.");
         }
 

@@ -69,10 +69,10 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
             this.getRowObjectFromBody(this.objectMapper.readTree(body));
         } catch (IllegalArgumentException e) {
             if (!StringUtils.hasLength(body)) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                throw new AppsmithPluginException(AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                         ErrorMessages.EMPTY_UPDATE_ROW_OBJECT_MESSAGE);
             }
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,e.getMessage());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
                     "Unable to parse request body. Expected a row object.");

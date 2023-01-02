@@ -112,7 +112,7 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                     "Missing a valid response object.");
         }
 
@@ -147,7 +147,7 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
     public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                     "Missing a valid response object.");
         }
 

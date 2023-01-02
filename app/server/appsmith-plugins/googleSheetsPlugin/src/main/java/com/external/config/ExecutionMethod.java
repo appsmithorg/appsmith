@@ -44,14 +44,14 @@ public interface ExecutionMethod {
                 UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
                 return uriBuilder.uri(uri);
             } catch (URISyntaxException | MalformedURLException e) {
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create URI"));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unable to create URI", e.getMessage()));
             }
         } else {
             try {
                 UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
                 return uriBuilder.uri(new URI(baseUri + path));
             } catch (URISyntaxException e) {
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create URI"));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unable to create URI", e.getMessage()));
             }
         }
     }
@@ -67,7 +67,7 @@ public interface ExecutionMethod {
     default JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
             throw Exceptions.propagate(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GSHEET_EMPTY_RESPONSE,
                     "Missing a valid response object."));
         }
         // By default, no transformation takes place

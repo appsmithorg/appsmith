@@ -247,12 +247,12 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
     private RowObject getRowObjectFromBody(JsonNode body) {
 
         if (body.isArray()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                     ErrorMessages.EXPECTED_ROW_OBJECT_MESSAGE);
         }
 
         if (body.isEmpty()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                     ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
         }
 

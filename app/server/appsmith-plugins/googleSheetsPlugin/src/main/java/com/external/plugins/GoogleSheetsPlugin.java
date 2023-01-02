@@ -139,7 +139,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
-            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode());
+            errorResult.setStatusCode(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED.getAppErrorCode());
             errorResult.setIsExecutionSuccess(false);
 
             // Check if method is defined
@@ -191,7 +191,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         headerInJsonString = objectMapper.writeValueAsString(headers);
                                     } catch (JsonProcessingException e) {
                                         throw Exceptions.propagate(
-                                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                                                new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED, e));
                                     }
 
                                     // Set headers in the result now

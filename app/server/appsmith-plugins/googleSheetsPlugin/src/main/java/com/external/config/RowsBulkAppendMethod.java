@@ -68,10 +68,10 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (IllegalArgumentException e) {
             if (!StringUtils.hasLength(methodConfig.getRowObjects())) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                throw new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                         ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE);
             }
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,e.getMessage());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
@@ -80,7 +80,7 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
 
         if (!bodyNode.isArray()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR, ErrorMessages.REQUEST_BODY_NOT_ARRAY);
+                    AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED, ErrorMessages.REQUEST_BODY_NOT_ARRAY);
         }
         return true;
     }

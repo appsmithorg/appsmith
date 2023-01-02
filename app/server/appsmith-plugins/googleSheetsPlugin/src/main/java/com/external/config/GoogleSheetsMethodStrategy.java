@@ -50,7 +50,7 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.ROWS_DELETE_ONE:
                 return new RowsDeleteMethod(objectMapper);
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown execution method type: " + type));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.GSHEET_MISSING_METHOD, "Unknown execution method type: " + type));
         }
     }
 
@@ -63,7 +63,7 @@ public class GoogleSheetsMethodStrategy {
             case MethodIdentifiers.TRIGGER_COLUMNS_SELECTOR:
                 return new GetStructureMethod(objectMapper);
             default:
-                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unknown trigger method type: " + triggerRequestDTO.getRequestType()));
+                throw Exceptions.propagate(new AppsmithPluginException(AppsmithPluginError.GSHEET_MISSING_METHOD, "Unknown trigger method type: " + triggerRequestDTO.getRequestType()));
         }
 
     }

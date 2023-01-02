@@ -99,7 +99,7 @@ public class MethodConfig {
         if (matcher.find()) {
             this.spreadsheetId = matcher.group(1);
         } else {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Cannot read spreadsheet URL.");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Cannot read spreadsheet URL.");
         }
     }
 

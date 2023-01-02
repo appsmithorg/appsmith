@@ -47,7 +47,7 @@ public class FileCreateMethod implements ExecutionMethod {
     public boolean validateExecutionMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetName() == null || methodConfig.getSpreadsheetName().isBlank()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     "Missing required field Spreadsheet Name");
         }
         return true;
@@ -72,7 +72,7 @@ public class FileCreateMethod implements ExecutionMethod {
 
                 if (!bodyNode.isArray()) {
                     throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR, "Request body was not an array.");
+                            AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED, "Request body was not an array.");
                 }
 
                 Sheet sheet = new Sheet();
@@ -140,7 +140,7 @@ public class FileCreateMethod implements ExecutionMethod {
 
             } catch (JsonProcessingException e) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.GSHEET_QUERY_EXECUTION_FAILED,
                         "Unable to parse request body. Expected a list of row objects.");
             }
         }

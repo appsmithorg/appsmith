@@ -101,7 +101,7 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
     @Override
     public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing a valid response object.");
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_EMPTY_RESPONSE, "Missing a valid response object.");
         }
 
         ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
@@ -191,7 +191,7 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
     @Override
     public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
         if (response == null) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing a valid response object.");
+            throw new AppsmithPluginException(AppsmithPluginError.GSHEET_EMPTY_RESPONSE, "Missing a valid response object.");
         }
 
         ArrayNode valueRanges = (ArrayNode) response.get("valueRanges");
