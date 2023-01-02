@@ -2,10 +2,11 @@ import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 
 export function addFn(
   ctx: typeof globalThis,
+  fnName: string,
   fn: (...args: any[]) => any,
   fnGuards: Array<(func: typeof fn) => void>,
 ) {
-  Object.defineProperty(ctx, fn.name, {
+  Object.defineProperty(ctx, fnName, {
     value: function(...args: any[]) {
       for (const guard of fnGuards) {
         guard(fn);
