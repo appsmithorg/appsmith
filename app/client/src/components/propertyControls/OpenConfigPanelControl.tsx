@@ -44,7 +44,7 @@ class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
       <Wrapper>
         <StyledPropertyPaneButtonWrapper>
           <OpenNextPannelButton
-            category={Category.tertiary}
+            category={Category.secondary}
             className={`t--${widgetName}-open-next-panel-button`}
             icon={icon}
             iconPosition="right"

@@ -40,7 +40,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
       .last()
       .find(`${datasource.createQuery}`)
       .click({ force: true });
-    
+
     //Step5.1: Click the editing field
     cy.get(".t--action-name-edit-field").click({ force: true });
 
