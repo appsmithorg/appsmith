@@ -14,6 +14,7 @@ import com.amazonaws.util.Base64;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
@@ -1188,7 +1189,7 @@ public class AmazonS3PluginTest {
                 .expectErrorSatisfies(error -> {
                     String expectedErrorMessage = "Your S3 endpoint URL seems to be incorrect for the selected S3 " +
                             "service provider. Please check your endpoint URL and the selected S3 service provider.";
-                    assertEquals(expectedErrorMessage, error.getMessage());
+                    assertEquals(expectedErrorMessage, ((AppsmithPluginException) error).getDownstreamErrorMessage());
                 })
                 .verify();
     }

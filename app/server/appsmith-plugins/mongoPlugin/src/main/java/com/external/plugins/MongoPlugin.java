@@ -466,7 +466,11 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        actionExecutionResult.setErrorInfo(new AppsmithPluginException(error, AppsmithPluginError.MONGODB_QUERY_EXECUTION_FAILED, error.getMessage()), mongoErrorUtils);
+                        if (error instanceof AppsmithPluginException) {
+                            actionExecutionResult.setErrorInfo(error, mongoErrorUtils);
+                        } else {
+                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(error, AppsmithPluginError.MONGODB_QUERY_EXECUTION_FAILED, error.getMessage()), mongoErrorUtils);
+                        }
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned to the server

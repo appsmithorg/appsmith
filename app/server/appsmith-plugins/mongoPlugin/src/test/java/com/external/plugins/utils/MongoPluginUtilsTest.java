@@ -16,7 +16,7 @@ public class MongoPluginUtilsTest {
                 AppsmithPluginException.class,
                 () -> MongoPluginUtils.getDatabaseName(new DatasourceConfiguration()));
 
-        assertEquals("Missing default database name.", exception.getMessage());
+        assertEquals("Missing default database name.", exception.getDownstreamErrorMessage());
 
     }
 

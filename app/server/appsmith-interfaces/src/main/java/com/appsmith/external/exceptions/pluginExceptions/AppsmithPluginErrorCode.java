@@ -22,7 +22,7 @@ public enum AppsmithPluginErrorCode {
     MYSQL_EMPTY_QUERY("PE-MYS-4000", "Query is null or empty"),
     MYSQL_IS_KEYWORD_NOT_ALLOWED_IN_PREPARED_STATEMENT("PE-MYS-4001", "Appsmith currently does not support the IS keyword with the prepared statement " +
             "setting turned ON. Please re-write your SQL query without the IS keyword or " +
-            "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab."),
+            "turn OFF (unsafe) the Use prepared statement knob from the settings tab."),
     MYSQL_INVALID_QUERY_SYNTAX("PE-MYS-4002", "Query is syntactically wrong"),
     MYSQL_MISSING_REQUIRED_PERMISSION("PE-MYS-4003", "Required permission is missing with the DB user"),
     MYSQL_QUERY_EXECUTION_FAILED("PE-MYS-5000", "MySQL query execution failed"),

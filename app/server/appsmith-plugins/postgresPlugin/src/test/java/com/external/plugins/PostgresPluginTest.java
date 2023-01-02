@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -1053,7 +1054,7 @@ public class PostgresPluginTest {
                      * - This error message indicates that the client was trying to establish an SSL connection but
                      *   could not because the testcontainer server does not have SSL enabled.
                      */
-                    assertTrue(error.getMessage().contains("The server does not support SSL"));
+                    assertTrue(((AppsmithPluginException) error).getDownstreamErrorMessage().contains("The server does not support SSL"));
                 });
     }
 
@@ -1408,7 +1409,7 @@ public class PostgresPluginTest {
                     assertNotNull(result);
 
                     String expectedBody = "ERROR: cannot execute UPDATE in a read-only transaction";
-                    assertEquals(expectedBody, result.getBody());
+                    assertEquals(expectedBody, result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }

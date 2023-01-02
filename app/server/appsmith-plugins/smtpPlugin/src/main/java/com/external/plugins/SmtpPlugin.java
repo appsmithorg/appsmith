@@ -204,12 +204,12 @@ public class SmtpPlugin extends BasePlugin {
             Set<String> invalids = new HashSet<>();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
+                        "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getDownstreamErrorMessage());
             } else {
                 Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
                 if (!StringUtils.hasText(endpoint.getHost())) {
                     invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
+                            "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getDownstreamErrorMessage());
                 }
             }
 

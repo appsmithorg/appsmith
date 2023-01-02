@@ -619,7 +619,7 @@ public class FirestorePluginTest {
                     assertEquals(
                             "Validation failed for field 'Service Account Credentials'. Please check the " +
                                     "value provided in the 'Service Account Credentials' field.",
-                            error.getMessage());
+                            ((AppsmithPluginException) error).getDownstreamErrorMessage());
 
                     // Check that the error does not get logged externally.
                     assertNotEquals(AppsmithErrorAction.LOG_EXTERNALLY, ((AppsmithPluginException) error).getError().getErrorAction());

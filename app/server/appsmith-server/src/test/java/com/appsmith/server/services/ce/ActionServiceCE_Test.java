@@ -938,8 +938,8 @@ public class ActionServiceCE_Test {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
-                    assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.PLUGIN_ERROR.getTitle());
+                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.STALE_CONNECTION_ERROR.getAppErrorCode());
+                    assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.STALE_CONNECTION_ERROR.getTitle());
                 })
                 .verifyComplete();
     }

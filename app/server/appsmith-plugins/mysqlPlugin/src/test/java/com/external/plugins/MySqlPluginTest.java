@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -541,12 +542,7 @@ public class MySqlPluginTest {
                 StepVerifier.create(executeMono)
                                 .verifyErrorSatisfies(error -> {
                                         assertTrue(error instanceof AppsmithPluginException);
-                                        String expectedMessage = "Appsmith currently does not support the IS keyword with the prepared "
-                                                        +
-                                                        "statement setting turned ON. Please re-write your SQL query without the IS keyword or "
-                                                        +
-                                                        "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab.";
-                                        assertTrue(expectedMessage.equals(error.getMessage()));
+                                        assertTrue(AppsmithPluginErrorCode.MYSQL_IS_KEYWORD_NOT_ALLOWED_IN_PREPARED_STATEMENT.getDescription().equals(error.getMessage()));
                                 });
         }
 

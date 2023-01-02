@@ -68,7 +68,7 @@ public class ActionExecutionResult {
     @ToString
     @Getter
     @Setter
-    class PluginErrorDetails {
+    public class PluginErrorDetails {
         String title;
         String errorType;
         String appsmithErrorCode;
