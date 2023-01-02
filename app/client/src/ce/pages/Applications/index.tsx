@@ -34,7 +34,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
-import ApplicationCard from "./ApplicationCard";
+import ApplicationCard from "../../../pages/Applications/ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
@@ -71,7 +71,7 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { loadingUserWorkspaces } from "./ApplicationLoaders";
+import { loadingUserWorkspaces } from "../../../pages/Applications/ApplicationLoaders";
 import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   deleteWorkspace,
@@ -82,7 +82,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
-import ImportApplicationModal from "./ImportApplicationModal";
+import ImportApplicationModal from "../../../pages/Applications/ImportApplicationModal";
 import {
   createMessage,
   INVITE_USERS_MESSAGE,
@@ -103,7 +103,7 @@ import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceMo
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
+import RepoLimitExceededErrorModal from "../../../pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
