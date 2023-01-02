@@ -183,7 +183,7 @@ export default function LeftPane() {
               <div>Audit logs</div>
             </StyledLink>
           </CategoryItem>
-          {features.USAGE && (
+          {features.USAGE_AND_BILLING && (
             <CategoryItem>
               <StyledLink
                 $active={category === "usage"}
