@@ -49,7 +49,7 @@ import { getCurrentUser } from "actions/authActions";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "@appsmith/pages/AdminSettings";
-import SignupSuccess from "pages/setup/SignupSuccess";
+import SignupSuccess from "@appsmith/pages/setup/SignupSuccess";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";

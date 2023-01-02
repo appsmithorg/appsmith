@@ -20,7 +20,7 @@ import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import Landing from "./Welcome";
+import Landing from "pages/setup/Welcome";
 import { error } from "loglevel";
 import { matchPath } from "react-router";
 import { Center } from "pages/setup/common";
