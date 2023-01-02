@@ -9,7 +9,7 @@ export function addFn(
   Object.defineProperty(ctx, fnName, {
     value: function(...args: any[]) {
       for (const guard of fnGuards) {
-        guard(fn);
+        guard(fn, fnName);
       }
       return fn(...args);
     },
@@ -19,9 +19,9 @@ export function addFn(
   });
 }
 
-export function isAsyncGuard(fn: (...args: any[]) => any) {
+export function isAsyncGuard(_: (...args: any[]) => any, fnName: string) {
   if (!self.ALLOW_ASYNC) {
     self.IS_ASYNC = true;
-    throw new ActionCalledInSyncFieldError(fn.name);
+    throw new ActionCalledInSyncFieldError(fnName);
   }
 }
