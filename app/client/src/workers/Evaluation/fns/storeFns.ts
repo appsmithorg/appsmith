@@ -5,7 +5,7 @@ import {
 } from "ce/entities/DataTree/actionTriggers";
 import set from "lodash/set";
 import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
-import { addFn, isAsyncGuard } from "./utils/fnGuard";
+import { addFn } from "./utils/fnGuard";
 import { TriggerCollector } from "./utils/TriggerCollector";
 
 export function initStoreFns(ctx: typeof globalThis) {
