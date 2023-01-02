@@ -343,18 +343,15 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
-<<<<<<< HEAD
   inputFormat?: string;
   outputFormat?: string;
   maxDate?: string;
   minDate?: string;
   shortcuts?: boolean;
-=======
   getVisibleItems?: () => Array<MenuItem>;
   menuItemsSource?: MenuItemsSource;
   configureMenuItems?: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
->>>>>>> df876c70fd8ff61d68355623aaf1b6ad950c4655
 }
 
 export const ConditionFunctions: {

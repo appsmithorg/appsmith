@@ -1,9 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { TableWidgetProps, ColumnTypes } from "widgets/TableWidgetV2/constants";
-import {
-  hideByColumnType,
-  showByColumnType,
-} from "widgets/TableWidgetV2/widget/propertyUtils";
+import { showByColumnType } from "widgets/TableWidgetV2/widget/propertyUtils";
 
 export default [
   {
