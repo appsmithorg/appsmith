@@ -167,7 +167,10 @@ function generateVerticalHighlights(data: {
     if (!widget) continue;
     count += 1;
     if (draggedWidgets.indexOf(child.id) > -1) continue;
-    maxHeight = Math.max(maxHeight, getWidgetHeight(widget, isMobile));
+    maxHeight = Math.max(
+      maxHeight,
+      getWidgetHeight(widget, isMobile) * widget.parentRowSpace,
+    );
     if (child.align === FlexLayerAlignment.End) {
       endChildren.push(widget);
       endColumns += getWidgetWidth(widget, isMobile);

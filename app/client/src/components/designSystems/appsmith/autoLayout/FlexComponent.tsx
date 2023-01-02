@@ -1,7 +1,6 @@
 import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import { AppState } from "ce/reducers";
 import {
   FlexVerticalAlignment,
   LayoutDirection,
@@ -15,7 +14,6 @@ import {
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
-import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
@@ -43,10 +41,7 @@ const FlexWidget = styled.div`
 export function FlexComponent(props: AutoLayoutProps) {
   const isMobile = useSelector(getIsMobile);
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isSelected = useSelector(isWidgetSelected(props.widgetId));
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
+
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(() => {
     clickToSelectWidget(props.widgetId);
@@ -78,7 +73,7 @@ export function FlexComponent(props: AutoLayoutProps) {
 
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
-      display: isSelected && isDragging ? "none" : "flex",
+      display: "flex",
       zIndex,
       width: `${Math.floor(props.componentWidth) - WIDGET_PADDING * 2}px`,
       height: isMobile
@@ -93,10 +88,8 @@ export function FlexComponent(props: AutoLayoutProps) {
       },
     };
   }, [
-    isDragging,
     isFillWidget,
     isMobile,
-    isSelected,
     props.componentWidth,
     props.componentHeight,
     props.flexVerticalAlignment,
