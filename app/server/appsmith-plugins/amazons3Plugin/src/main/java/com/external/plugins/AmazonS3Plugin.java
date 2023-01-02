@@ -19,6 +19,7 @@ import com.amazonaws.util.IOUtils;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
@@ -142,7 +143,7 @@ public class AmazonS3Plugin extends BasePlugin {
         ArrayList<String> getFilenamesFromObjectListing(ObjectListing objectListing) throws AppsmithPluginException {
             if (objectListing == null) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                         "Appsmith server has encountered an unexpected error when fetching file " +
                                 "content from AWS S3 server. Please reach out to Appsmith customer support to resolve this"
                 );
@@ -165,7 +166,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                                String prefix) throws AppsmithPluginException {
             if (connection == null) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                         "Appsmith server has encountered an unexpected error when establishing " +
                                 "connection with AWS S3 server. Please reach out to Appsmith customer support to resolve this."
                 );
@@ -177,7 +178,7 @@ public class AmazonS3Plugin extends BasePlugin {
                  *  execute function already.
                  */
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                         "Appsmith has encountered an unexpected error when getting bucket name. Please reach out to " +
                                 "Appsmith customer support to resolve this."
                 );
@@ -189,7 +190,7 @@ public class AmazonS3Plugin extends BasePlugin {
                  *  execute function already.
                  */
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                         "Appsmith has encountered an unexpected error when getting path prefix. Please reach out to " +
                                 "Appsmith customer support to resolve this."
                 );
@@ -246,7 +247,8 @@ public class AmazonS3Plugin extends BasePlugin {
             } catch (IOException e) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unable to parse content. Expected to receive an object with `data` and `type`"
+                        "Unable to parse content. Expected to receive an object with `data` and `type`",
+                        e.getMessage()
                 );
             }
             if (multipartFormDataDTO == null) {
@@ -275,7 +277,8 @@ public class AmazonS3Plugin extends BasePlugin {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "File content is not base64 encoded. File content needs to be base64 encoded when the " +
-                                    "'File Data Type: Base64/Text' field is selected 'Yes'."
+                                    "'File Data Type: Base64/Text' field is selected 'Yes'.",
+                            e.getMessage()
                     );
                 }
             } else {
@@ -288,7 +291,7 @@ public class AmazonS3Plugin extends BasePlugin {
             ArrayList<String> listOfUrls = getSignedUrls(connection, bucketName, listOfFiles, expiryDateTime);
             if (listOfUrls.size() != 1) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                         "Appsmith has encountered an unexpected error while fetching url from AmazonS3 after file " +
                                 "creation. Please reach out to Appsmith customer support to resolve this."
                 );
@@ -319,7 +322,8 @@ public class AmazonS3Plugin extends BasePlugin {
             } catch (IOException e) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Unable to parse content. Expected to receive an object with `data` and `type`"
+                        "Unable to parse content. Expected to receive an object with `data` and `type`",
+                        e.getMessage()
                 );
             }
 
@@ -346,7 +350,8 @@ public class AmazonS3Plugin extends BasePlugin {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 "File content is not base64 encoded. File content needs to be base64 encoded when the " +
-                                        "'File Data Type: Base64/Text' field is selected 'Yes'."
+                                        "'File Data Type: Base64/Text' field is selected 'Yes'.",
+                                e.getMessage()
                         );
                     }
                 } else {
@@ -357,8 +362,9 @@ public class AmazonS3Plugin extends BasePlugin {
                     uploadFileInS3(payload, connection, multipartFormDataDTO, bucketName, filePath);
                 } catch (InterruptedException e) {
                     throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "File upload interrupted."
+                            AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
+                            "File upload interrupted.",
+                            e.getMessage()
                     );
                 }
 
@@ -435,8 +441,6 @@ public class AmazonS3Plugin extends BasePlugin {
             } catch (AppsmithPluginException e) {
                 // Initializing object for error condition
                 ActionExecutionResult errorResult = new ActionExecutionResult();
-                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
-                errorResult.setIsExecutionSuccess(false);
                 errorResult.setErrorInfo(e);
                 return Mono.just(errorResult);
             }
@@ -571,7 +575,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                                 "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
                                                         "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. " +
                                                         "any non-negative integer. Please note that the maximum expiry " +
-                                                        "duration supported by Amazon S3 is 7 days i.e. 10080 minutes."
+                                                        "duration supported by Amazon S3 is 7 days i.e. 10080 minutes.",
+                                                e.getMessage()
                                         ));
                                     }
 
@@ -590,7 +595,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                             expiryDateTime);
                                     if (listOfFiles.size() != listOfSignedUrls.size()) {
                                         return Mono.error(new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_ERROR,
+                                                AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                                                 "Appsmith server has encountered an unexpected error when getting " +
                                                         "list of files from AWS S3 server. Please reach out to Appsmith customer " +
                                                         "support to resolve this."
@@ -670,7 +675,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                             "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
                                                     "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. " +
                                                     "any non-negative integer. Please note that the maximum expiry " +
-                                                    "duration supported by Amazon S3 is 7 days i.e. 10080 minutes."
+                                                    "duration supported by Amazon S3 is 7 days i.e. 10080 minutes.",
+                                            e.getMessage()
                                     ));
                                 }
 
@@ -802,7 +808,7 @@ public class AmazonS3Plugin extends BasePlugin {
                              */
                             default:
                                 return Mono.error(new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR,
+                                        AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                                         "It seems that the query has requested an unsupported action: " + query[0] +
                                                 ". Please reach out to Appsmith customer support to resolve this."
                                 ));
@@ -820,7 +826,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     // Transform AmazonS3Exception and AmazonServiceException to AppsmithPluginException
                     .onErrorResume(e -> {
                         if (e instanceof AmazonS3Exception || e instanceof AmazonServiceException) {
-                            return Mono.error(new AppsmithPluginException(e, AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.AMAZON_S3_QUERY_EXECUTION_FAILED.getDescription(), e.getMessage()));
                         }
                         return Mono.error(e);
                     })
@@ -830,7 +836,11 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setErrorInfo(e, amazonS3ErrorUtils);
+                        if (e instanceof AppsmithPluginException) {
+                            result.setErrorInfo(e, amazonS3ErrorUtils);
+                        } else {
+                            result.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.AMAZON_S3_QUERY_EXECUTION_FAILED.getDescription(), e.getMessage()), amazonS3ErrorUtils);
+                        }
                         return Mono.just(result);
 
                     })
@@ -854,7 +864,8 @@ public class AmazonS3Plugin extends BasePlugin {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Appsmith server failed to parse the list of files. Please provide the list of files in the " +
-                                "correct format e.g. [\"file1\", \"file2\"]."
+                                "correct format e.g. [\"file1\", \"file2\"].",
+                        e.getMessage()
                 );
             }
 
@@ -863,8 +874,9 @@ public class AmazonS3Plugin extends BasePlugin {
                 connection.deleteObjects(deleteObjectsRequest);
             } catch (SdkClientException e) {
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "One or more files could not be deleted. " + e.getMessage()
+                        AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
+                        "One or more files could not be deleted.",
+                        e.getMessage()
                 );
             }
         }
@@ -884,9 +896,10 @@ public class AmazonS3Plugin extends BasePlugin {
             } catch (ClassNotFoundException e) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                                 "Appsmith server has failed to load AWS S3 driver class. Please reach out to Appsmith " +
-                                        "customer support to resolve this."
+                                        "customer support to resolve this.",
+                                e.getMessage()
                         )
                 );
             }
@@ -900,9 +913,10 @@ public class AmazonS3Plugin extends BasePlugin {
 
                                 return Mono.error(
                                         new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_ERROR,
+                                                AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                                                 "Appsmith server has encountered an error when " +
-                                                        "connecting to your S3 server: " + e.getMessage()
+                                                        "connecting to your S3 server.",
+                                                e.getMessage()
                                         )
                                 );
                             }
@@ -1015,7 +1029,8 @@ public class AmazonS3Plugin extends BasePlugin {
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                     "Appsmith server has failed to fetch list of buckets from database. Please check if " +
-                                            "the database credentials are valid and/or you have the required permissions."
+                                            "the database credentials are valid and/or you have the required permissions.",
+                                    e.getMessage()
                             );
                         }
 

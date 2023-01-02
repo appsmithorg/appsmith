@@ -393,6 +393,16 @@ public enum AppsmithPluginError {
             "{0}",
             "{1}"
     ),
+    AMAZON_S3_QUERY_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.AMAZON_S3_QUERY_EXECUTION_FAILED.getCode(),
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
 
     ;
 
