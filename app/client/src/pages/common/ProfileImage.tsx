@@ -44,7 +44,9 @@ export default function ProfileImage(props: {
   const [hasErrorLoadingImage, setHasErrorLoadingImage] = useState(false);
 
   const shouldRenderImage = props.source && !hasErrorLoadingImage;
-  const backgroundColor = false ? "transparent" : initialsAndColorCode[1];
+  const backgroundColor = shouldRenderImage
+    ? "transparent"
+    : initialsAndColorCode[1];
 
   return (
     <Profile
