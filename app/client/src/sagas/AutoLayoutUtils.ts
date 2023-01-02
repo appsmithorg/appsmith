@@ -7,6 +7,7 @@ import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
@@ -267,7 +268,6 @@ export function alterLayoutForMobile(
 
   for (const child of children) {
     const widget = { ...widgets[child] };
-
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
       widget.mobileRightColumn = 64;
       widget.mobileLeftColumn = 0;
@@ -276,7 +276,7 @@ export function alterLayoutForMobile(
       widget.minWidth
     ) {
       const { minWidth, rightColumn } = widget;
-      const columnSpace = canvasWidth / 64;
+      const columnSpace = (canvasWidth - FLEXBOX_PADDING * 2) / 64;
       if (columnSpace * rightColumn < minWidth) {
         widget.mobileLeftColumn = 0;
         widget.mobileRightColumn = Math.min(
@@ -287,7 +287,6 @@ export function alterLayoutForMobile(
     }
     widget.mobileTopRow = widget.topRow;
     widget.mobileBottomRow = widget.bottomRow;
-    // TODO: Preet - update container row info if height changes on account of flex wrap.
     widgets = alterLayoutForMobile(
       widgets,
       child,

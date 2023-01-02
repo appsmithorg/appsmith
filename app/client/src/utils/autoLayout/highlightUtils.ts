@@ -5,7 +5,6 @@ import {
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
-  CONTAINER_GRID_PADDING,
   FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -193,6 +192,7 @@ function generateVerticalHighlights(data: {
         parentColumnSpace: columnSpace,
         parentRowSpace: widgets[canvasId].parentRowSpace,
         canvasWidth,
+        columnSpace,
         isMobile,
       }),
       ...generateHighlightsForSubWrapper({
@@ -206,6 +206,7 @@ function generateVerticalHighlights(data: {
         parentColumnSpace: columnSpace,
         parentRowSpace: widgets[canvasId].parentRowSpace,
         canvasWidth,
+        columnSpace,
         avoidInitialHighlight: startColumns > 25 || endColumns > 25,
         isMobile,
       }),
@@ -220,6 +221,7 @@ function generateVerticalHighlights(data: {
         parentColumnSpace: columnSpace,
         parentRowSpace: widgets[canvasId].parentRowSpace,
         canvasWidth,
+        columnSpace,
         isMobile,
       }),
     ],
@@ -238,6 +240,7 @@ function generateHighlightsForSubWrapper(data: {
   parentColumnSpace: number;
   parentRowSpace: number;
   canvasWidth: number;
+  columnSpace: number;
   avoidInitialHighlight?: boolean;
   isMobile: boolean;
 }): HighlightInfo[] {
@@ -248,6 +251,7 @@ function generateHighlightsForSubWrapper(data: {
     canvasId,
     canvasWidth,
     childCount,
+    columnSpace,
     isMobile,
     layerIndex,
     maxHeight,
@@ -294,6 +298,7 @@ function generateHighlightsForSubWrapper(data: {
           : 0,
         canvasWidth,
         canvasId,
+        columnSpace,
       ),
       posY:
         lastChild === null
@@ -327,9 +332,10 @@ function getPositionForInitialHighlight(
   posX: number,
   containerWidth: number,
   canvasId: string,
+  columnSpace: number,
 ): number {
   const endPosition =
-    containerWidth - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 4 : 0);
+    64 * columnSpace - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 4 : 0);
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
@@ -395,7 +401,7 @@ function generateHorizontalHighlights(
 }
 
 function getCanvasDimensions(
-  canvas: any,
+  canvas: Widget,
   widgets: CanvasWidgetsReduxState,
   mainCanvasWidth: number,
   isMobile: boolean,
@@ -407,7 +413,38 @@ function getCanvasDimensions(
     isMobile,
   );
 
-  let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+  const columnSpace: number = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
+
+  return { canvasWidth: canvasWidth, columnSpace };
+}
+
+function getCanvasWidth(
+  canvas: Widget,
+  widgets: CanvasWidgetsReduxState,
+  mainCanvasWidth: number,
+  isMobile: boolean,
+): number {
+  if (!mainCanvasWidth) return 0;
+  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID)
+    return mainCanvasWidth - getPadding(canvas);
+  let widget = canvas;
+  let columns = 0;
+  let width = 1;
+  let padding = 0;
+  while (widget.parentId) {
+    columns = getWidgetWidth(widget, isMobile);
+    padding += getPadding(widget);
+    width *= columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+    widget = widgets[widget.parentId];
+  }
+  const totalWidth = width * mainCanvasWidth;
+  if (widget.widgetId === MAIN_CONTAINER_WIDGET_ID)
+    padding += getPadding(widget);
+  return totalWidth - padding;
+}
+
+function getPadding(canvas: Widget): number {
+  let padding = 0;
   if (
     canvas.widgetId === MAIN_CONTAINER_WIDGET_ID ||
     canvas.type === "CONTAINER_WIDGET"
@@ -419,28 +456,7 @@ function getCanvasDimensions(
     // Widgets like ListWidget choose to have no container padding so will only have widget padding
     padding = WIDGET_PADDING * 2;
   }
-  const columnSpace: number =
-    (canvasWidth - padding) / GridDefaults.DEFAULT_GRID_COLUMNS;
-
-  return { canvasWidth: canvasWidth - padding, columnSpace };
-}
-
-function getCanvasWidth(
-  canvas: any,
-  widgets: CanvasWidgetsReduxState,
-  mainCanvasWidth: number,
-  isMobile: boolean,
-): number {
-  // TODO: @Preet - Update the logic to account for padding at each level.
-  if (!mainCanvasWidth) return 0;
-  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) return mainCanvasWidth;
-  let widget = canvas;
-  let columns = getWidgetWidth(widget, isMobile);
-  let width = columns / GridDefaults.DEFAULT_GRID_COLUMNS;
-  while (widget.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-    columns = getWidgetWidth(widget, isMobile);
-    width *= columns / GridDefaults.DEFAULT_GRID_COLUMNS;
-    widget = widgets[widget.parentId];
-  }
-  return width * mainCanvasWidth;
+  // Account for container border.
+  padding += canvas.type === "CONTAINER_WIDGET" ? 2 : 0;
+  return padding;
 }
