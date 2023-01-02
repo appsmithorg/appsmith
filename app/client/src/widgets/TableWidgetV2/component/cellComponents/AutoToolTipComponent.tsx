@@ -45,21 +45,32 @@ function useToolTip(
     const mouseEnterHandler = () => {
       const element = ref.current?.querySelector("div") as HTMLDivElement;
 
+      /*
+       * Using setTimeout to simulate hoverOpenDelay of the tooltip
+       * during initial render
+       */
       timeout = setTimeout(() => {
         if (element && element.offsetWidth < element.scrollWidth) {
           setRequiresTooltip(true);
         } else {
           setRequiresTooltip(false);
         }
-      }, TOOLTIP_OPEN_DELAY);
 
-      ref.current?.removeEventListener("mouseenter", mouseEnterHandler);
+        ref.current?.removeEventListener("mouseenter", mouseEnterHandler);
+        ref.current?.removeEventListener("mouseleave", mouseLeaveHandler);
+      }, TOOLTIP_OPEN_DELAY);
+    };
+
+    const mouseLeaveHandler = () => {
+      clearTimeout(timeout);
     };
 
     ref.current?.addEventListener("mouseenter", mouseEnterHandler);
+    ref.current?.addEventListener("mouseleave", mouseLeaveHandler);
 
     return () => {
       ref.current?.removeEventListener("mouseenter", mouseEnterHandler);
+      ref.current?.removeEventListener("mouseleave", mouseLeaveHandler);
       clearTimeout(timeout);
     };
   }, [children]);
