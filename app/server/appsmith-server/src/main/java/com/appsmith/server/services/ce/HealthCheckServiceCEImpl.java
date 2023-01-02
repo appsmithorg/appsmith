@@ -50,8 +50,9 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
     }
 
     private boolean isUp(Health health) {
-        if (health.getStatus().equals(Status.UP))
+        if (health.getStatus().equals(Status.UP)) {
             return Boolean.TRUE;
+        }
         return Boolean.FALSE;
     }
 }
