@@ -133,11 +133,7 @@ export function RoleAddEdit(props: RoleEditProps) {
         searchValue={searchValue}
         title={selected.name || ""}
       />
-      <RoleTabs
-        isLoading={isLoading}
-        searchValue={searchValue}
-        selected={selected}
-      />
+      <RoleTabs searchValue={searchValue} selected={selected} />
     </div>
   );
 }
