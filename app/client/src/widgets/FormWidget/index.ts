@@ -1,4 +1,8 @@
-import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
+import {
+  ButtonVariantTypes,
+  Positioning,
+  RecaptchaTypes,
+} from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
@@ -27,6 +31,7 @@ export const CONFIG = {
     widgetName: "Form",
     backgroundColor: Colors.WHITE,
     children: [],
+    positioning: Positioning.Fixed,
     blueprint: {
       view: [
         {
