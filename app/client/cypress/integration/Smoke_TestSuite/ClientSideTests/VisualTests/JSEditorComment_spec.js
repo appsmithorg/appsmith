@@ -34,6 +34,8 @@ describe("JSEditor Comment - Visual tests", () => {
     for (let i = 2; i < 5; i++) {
       agHelper.GetNClick(jsEditor._lineinJsEditor(i));
 
+      agHelper.Sleep(100);
+
       cy.get(jsEditor._lineinJsEditor(i)).type(
         agHelper.isMac ? "{meta} /" : "{ctrl} /",
       );
