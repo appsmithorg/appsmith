@@ -80,6 +80,16 @@ export class HomePage {
   private _deleteAppConfirm = '[data-cy="t--delete"]';
   private _wsAction = (action: string) =>
     "//span[text()='" + action + "']/ancestor::a";
+  private _homeTab = ".t--apps-tab";
+  private _templatesTab = ".t--templates-tab";
+
+  public SwitchToAppsTab() {
+    this.agHelper.GetNClick(this._homeTab);
+  }
+
+  public SwitchToTemplatesTab() {
+    this.agHelper.GetNClick(this._templatesTab);
+  }
 
   public CreateNewWorkspace(workspaceNewName: string) {
     let oldName = "";

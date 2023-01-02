@@ -122,6 +122,7 @@ import {
 } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -621,25 +622,40 @@ class CodeEditor extends Component<Props, State> {
           NAVIGATE_TO_ATTRIBUTE,
         );
         if (!navigationAttribute) return;
-        const entityToNavigate = navigationAttribute.value;
+        const entityToNavigate = navigationAttribute.value.split(".");
 
-        // focus out of the input
-        document.body.focus();
+        if (
+          document.activeElement &&
+          document.activeElement instanceof HTMLElement
+        ) {
+          document.activeElement.blur();
+        }
+
         this.setState(
           {
             isFocused: false,
           },
           () => {
-            const navigationData = this.props.entitiesForNavigation[
-              entityToNavigate
-            ];
-            history.push(navigationData.url, {
-              invokedBy: NavigationMethod.CommandClick,
-            });
+            if (entityToNavigate[0] in this.props.entitiesForNavigation) {
+              let navigationData = this.props.entitiesForNavigation[
+                entityToNavigate[0]
+              ];
+              for (let i = 1; i < entityToNavigate.length; i += 1) {
+                if (entityToNavigate[i] in navigationData.children) {
+                  navigationData = navigationData.children[entityToNavigate[i]];
+                }
+              }
 
-            // TODO fix the widget navigation issue to remove this
-            if (navigationData.type === ENTITY_TYPE.WIDGET) {
-              this.props.selectWidget(navigationData.id);
+              if (navigationData.url) {
+                history.push(navigationData.url, {
+                  invokedBy: NavigationMethod.CommandClick,
+                });
+
+                // TODO fix the widget navigation issue to remove this
+                if (navigationData.type === ENTITY_TYPE.WIDGET) {
+                  this.props.selectWidget(navigationData.id);
+                }
+              }
             }
           },
         );
@@ -692,15 +708,19 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
-    const { ch, line, sticky } = cm.getCursor();
     // Check if it is a user focus
-    if (
-      ch === 0 &&
-      line === 0 &&
-      sticky === null &&
-      this.props.editorLastCursorPosition
-    ) {
-      cm.setCursor(this.props.editorLastCursorPosition);
+    const { sticky } = cm.getCursor();
+    const isUserFocus = sticky !== null;
+    if (this.props.editorLastCursorPosition) {
+      if (
+        !isUserFocus ||
+        this.props.editorLastCursorPosition.origin ===
+          CursorPositionOrigin.Navigation
+      ) {
+        cm.setCursor(this.props.editorLastCursorPosition, undefined, {
+          scroll: true,
+        });
+      }
     }
 
     if (!cm.state.completionActive) {
@@ -1180,7 +1200,12 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     getEditorIdentifier(props),
   ),
-  entitiesForNavigation: getEntitiesForNavigation(state),
+  entitiesForNavigation: props.isJSObject
+    ? addThisReference(
+        getEntitiesForNavigation(state),
+        props.dataTreePath?.split(".")[0],
+      )
+    : getEntitiesForNavigation(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1196,3 +1221,16 @@ const mapDispatchToProps = (dispatch: any) => ({
 export default Sentry.withProfiler(
   connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
 );
+
+const addThisReference = (
+  navigationData: EntityNavigationData,
+  entityName?: string,
+) => {
+  if (entityName && entityName in navigationData) {
+    return {
+      ...navigationData,
+      this: navigationData[entityName],
+    };
+  }
+  return navigationData;
+};
