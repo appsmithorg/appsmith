@@ -28,6 +28,14 @@ if [[ $proxy_configured == 1 ]]; then
   proxy_args+=(-Djava.net.useSystemProxies=true -Dhttp.nonProxyHosts="${NO_PROXY/,/|}")
 fi
 
+# Wait until RTS started and listens on port 8091
+while ! curl --fail --silent localhost/rts-api/v1/health-check; do
+  echo 'Waiting for RTS to start ...'
+  sleep 1
+done
+echo 'RTS started.'
+
+
 # Ref -Dlog4j2.formatMsgNoLookups=true https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot
 exec java ${APPSMITH_JAVA_ARGS:-} ${APPSMITH_JAVA_HEAP_ARG:-} \
   -Dserver.port=8080 \
