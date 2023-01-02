@@ -101,7 +101,8 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
 type RenderChildrenOption = {
   componentWidth: number;
   parentColumnSpace: number;
-  selectedItemIndex?: number;
+  selectedItemIndex: number;
+  startIndex: number;
 };
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
@@ -523,10 +524,10 @@ class ListWidget extends BaseWidget<
       rowDataCache[key] = rowData;
     });
 
-    if (this.props.serverSidePagination && !isEmpty(rowDataCache)) {
+    if (!isEmpty(rowDataCache)) {
       this.rowDataCache = rowDataCache;
+      this.updateGeneratorCacheRowKeys(Object.keys(this.rowDataCache));
     }
-    this.updateGeneratorCacheRowKeys(Object.keys(this.rowDataCache));
   };
 
   updateGeneratorCacheRowKeys = (keys: string[]) => {
@@ -697,25 +698,6 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  getRowIndex = (viewIndex: number) => {
-    const startIndex = this.metaWidgetGenerator.getStartIndex();
-    return startIndex + viewIndex;
-  };
-
-  isRowSelected = (rowIndex: number) => {
-    const { selectedItemIndex } = this.props;
-    if (!selectedItemIndex) return false;
-
-    if (!this.props.serverSidePagination) return selectedItemIndex === rowIndex;
-
-    const rowIndexKey = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
-    const selectedIndexKey = this.metaWidgetGenerator.getPrimaryKey(
-      selectedItemIndex,
-    );
-
-    return rowIndexKey === selectedIndexKey;
-  };
-
   /**
    * Note: Do not use this.props inside the renderChildren method if the expectation is that
    * the renderChildren would re-render when the particular prop changes.
@@ -727,7 +709,12 @@ class ListWidget extends BaseWidget<
       metaWidgetChildrenStructure: ListWidgetProps["metaWidgetChildrenStructure"],
       options: RenderChildrenOption,
     ) => {
-      const { componentWidth, parentColumnSpace } = options;
+      const {
+        componentWidth,
+        parentColumnSpace,
+        selectedItemIndex,
+        startIndex,
+      } = options;
 
       const childWidgets = (metaWidgetChildrenStructure || []).map(
         (childWidgetStructure) => {
@@ -738,13 +725,13 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.children = child.children?.map((container, viewIndex) => {
-            const rowIndex = this.getRowIndex(viewIndex);
+            const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             return {
               ...container,
               focused,
-              selected: this.isRowSelected(rowIndex),
+              selected: selectedItemIndex === rowIndex,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation();
                 this.onRowClick(rowIndex);
@@ -771,7 +758,8 @@ class ListWidget extends BaseWidget<
           prevMetaChildrenStructure === nextMetaChildrenStructure &&
           prevOptions.componentWidth === nextOptions.componentWidth &&
           prevOptions.parentColumnSpace === nextOptions.parentColumnSpace &&
-          prevOptions.selectedItemIndex === nextOptions.selectedItemIndex
+          prevOptions.selectedItemIndex === nextOptions.selectedItemIndex &&
+          prevOptions.startIndex === nextOptions.startIndex
         );
       },
     },
@@ -873,8 +861,9 @@ class ListWidget extends BaseWidget<
       isLoading,
       parentColumnSpace,
       parentRowSpace,
-      selectedItemIndex,
+      selectedItemIndex = -1,
     } = this.props;
+    const startIndex = this.metaWidgetGenerator.getStartIndex();
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
 
     if (isLoading) {
@@ -927,6 +916,7 @@ class ListWidget extends BaseWidget<
             componentWidth,
             parentColumnSpace,
             selectedItemIndex,
+            startIndex,
           })}
         </MetaWidgetContextProvider>
         {this.renderPaginationUI()}
