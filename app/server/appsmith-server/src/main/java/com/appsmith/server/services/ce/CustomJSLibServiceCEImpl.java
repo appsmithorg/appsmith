@@ -34,50 +34,41 @@ import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCusto
 public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String> implements CustomJSLibServiceCE {
     ApplicationService applicationService;
 
-    FeatureFlagService featureFlagService;
     public CustomJSLibServiceCEImpl(Scheduler scheduler,
                                     Validator validator,
                                     MongoConverter mongoConverter,
                                     ReactiveMongoTemplate reactiveMongoTemplate,
                                     CustomJSLibRepository repository,
                                     ApplicationService applicationService,
-                                    AnalyticsService analyticsService,
-                                    FeatureFlagService featureFlagService) {
+                                    AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
 
         this.applicationService = applicationService;
-        this.featureFlagService = featureFlagService;
     }
 
     @Override
     public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib,
                                                String branchName, Boolean isForceInstall) {
-        return featureFlagService.check(FeatureFlagEnum.CUSTOM_JS_LIBRARY)
-                .flatMap(truth -> {
-                    if (!truth) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
+                .zipWith(persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
+                .map(tuple -> {
+                    /**
+                     * TODO: try to convert it into a single update op where reading of list is not required
+                     * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
+                     */
+                    Set<CustomJSLibApplicationDTO> jsLibDTOsInApplication = tuple.getT1();
+                    CustomJSLibApplicationDTO currentJSLibDTO = tuple.getT2();
+                    if (!jsLibDTOsInApplication.contains(currentJSLibDTO)) {
+                        jsLibDTOsInApplication.add(currentJSLibDTO);
                     }
-                    return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
-                            .zipWith(persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
-                            .map(tuple -> {
-                                /**
-                                 * TODO: try to convert it into a single update op where reading of list is not required
-                                 * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
-                                 */
-                                Set<CustomJSLibApplicationDTO> jsLibDTOsInApplication = tuple.getT1();
-                                CustomJSLibApplicationDTO currentJSLibDTO = tuple.getT2();
-                                if (!jsLibDTOsInApplication.contains(currentJSLibDTO)) {
-                                    jsLibDTOsInApplication.add(currentJSLibDTO);
-                                }
 
-                                return jsLibDTOsInApplication;
-                            })
-                            .flatMap(updatedJSLibDTOList -> {
-                                Map<String, Object> fieldNameValueMap = Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
-                                return applicationService.update(applicationId, fieldNameValueMap, branchName);
-                            })
-                            .map(updateResult -> updateResult.getModifiedCount() > 0);
-                });
+                    return jsLibDTOsInApplication;
+                })
+                .flatMap(updatedJSLibDTOList -> {
+                    Map<String, Object> fieldNameValueMap = Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
+                    return applicationService.update(applicationId, fieldNameValueMap, branchName);
+                })
+                .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
     @Override
@@ -107,40 +98,28 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                                                     @NotNull CustomJSLib jsLib, String branchName,
                                                     Boolean isForceRemove) {
 
-        return featureFlagService.check(FeatureFlagEnum.CUSTOM_JS_LIBRARY)
-                .flatMap(truth -> {
-                    if (!truth) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
-                    }
-                    return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
-                            .map(jsLibDTOSet -> {
-                                /**
-                                 * TODO: try to convert it into a single update op where reading of list is not required
-                                 * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
-                                 */
-                                CustomJSLibApplicationDTO currentJSLibDTO = getDTOFromCustomJSLib(jsLib);
-                                jsLibDTOSet.remove(currentJSLibDTO);
+        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
+                .map(jsLibDTOSet -> {
+                    /**
+                     * TODO: try to convert it into a single update op where reading of list is not required
+                     * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
+                     */
+                    CustomJSLibApplicationDTO currentJSLibDTO = getDTOFromCustomJSLib(jsLib);
+                    jsLibDTOSet.remove(currentJSLibDTO);
 
-                                return jsLibDTOSet;
-                            })
-                            .flatMap(updatedJSLibDTOList -> {
-                                Map<String, Object> fieldNameValueMap = Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
-                                return applicationService.update(applicationId, fieldNameValueMap, branchName);
-                            })
-                            .map(updateResult -> updateResult.getModifiedCount() > 0);
-                });
+                    return jsLibDTOSet;
+                })
+                .flatMap(updatedJSLibDTOList -> {
+                    Map<String, Object> fieldNameValueMap = Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
+                    return applicationService.update(applicationId, fieldNameValueMap, branchName);
+                })
+                .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
     @Override
     public Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId, String branchName,
                                                              Boolean isViewMode) {
-        return featureFlagService.check(FeatureFlagEnum.CUSTOM_JS_LIBRARY)
-                .flatMap(truth -> {
-                    if (!truth) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
-                    }
-                    return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode);
-                });
+        return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode);
     }
 
     @Override

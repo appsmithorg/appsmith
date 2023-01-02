@@ -16,7 +16,8 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
 
     public CustomJSLibServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter,
                                   ReactiveMongoTemplate reactiveMongoTemplate, CustomJSLibRepository repository,
-                                  ApplicationService applicationService, AnalyticsService analyticsService, FeatureFlagService featureFlagService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, applicationService, analyticsService, featureFlagService);
+                                  ApplicationService applicationService, AnalyticsService analyticsService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, applicationService,
+                analyticsService);
     }
 }
