@@ -2,6 +2,10 @@ name: On demand build and push Docker Image
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "branch to run"
+        required: true 
 
 jobs:
   buildClient:
@@ -24,6 +28,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
 
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
