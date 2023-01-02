@@ -12,8 +12,8 @@ export function addFn(
       }
       return fn(...args);
     },
-    configurable: false,
-    writable: false,
+    configurable: true,
+    writable: true,
     enumerable: false,
   });
 }
