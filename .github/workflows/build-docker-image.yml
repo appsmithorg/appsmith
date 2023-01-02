@@ -431,37 +431,29 @@ jobs:
           tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
           echo "Cleaning up the tar files"
           rm app/rts/dist/rts-dist.tar
-          
-      - name: Push to Docker Hub
-        uses: docker/build-push-action@v1
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          repository: gouthamappsmith/appsmith-ce
-          tags: ${{ github.sha }}          
-#       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-#       # first 11 characters. This can be used to build images for several branches
-#       - name: Get the version to tag the Docker image
-#         id: vars
-#         run: echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-#       - name: Set up Depot CLI
-#         uses: depot/setup-action@v1
-
-#       - name: Login to DockerHub
-#         uses: docker/login-action@v2
-#         with:
-#           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-#       - name: Build and push release image to Docker Hub
-#         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-#         uses: depot/build-push-action@v1
-#         with:
-#           context: .
-#           push: true
-#           platforms: linux/arm64,linux/amd64
-#           build-args: |
-#             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
-#           tags: |
-#             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
+      - name: Build and push release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
