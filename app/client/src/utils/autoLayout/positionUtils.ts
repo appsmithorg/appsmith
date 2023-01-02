@@ -88,7 +88,16 @@ export function updateWidgetPositions(
         allWidgets[parent.parentId].type,
       ) &&
       parentHeight <= height;
-
+    // console.log(
+    //   "#### update height",
+    //   parent.widgetName,
+    //   "parentHeight",
+    //   parent.parent,
+    //   "height",
+    //   height,
+    //   shouldUpdateHeight,
+    //   parent.parentId ? widgets[parent.parentId].widgetName : "no parent",
+    // );
     if (shouldUpdateHeight && parent.parentId)
       return updateWidgetPositions(widgets, parent.parentId, isMobile);
     return widgets;

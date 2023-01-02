@@ -6,6 +6,7 @@ import {
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   CONTAINER_GRID_PADDING,
+  FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
@@ -21,9 +22,6 @@ import {
 } from "./flexWidgetUtils";
 import { getTotalRowsOfAllChildren, Widget } from "./positionUtils";
 
-const HORIZONTAL_HIGHLIGHT_MARGIN = 4;
-// TODO: Preet - update logic to account for flex wrap on mobile.
-// For mobile use widget positions to place highlights.
 /**
  * @param allWidgets : CanvasWidgetsReduxState
  * @param canvasId : string
@@ -56,7 +54,7 @@ export function deriveHighlightsFromLayers(
     let childCount = 0;
     let layerIndex = 0;
     // TODO: remove offsetTop and use child positions after widget positioning on grid is solved.
-    let offsetTop = HORIZONTAL_HIGHLIGHT_MARGIN; // used to calculate distance of a highlight from parents's top.
+    let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
     for (const layer of layers) {
       /**
        * If the layer is empty, after discounting the dragged widgets,
@@ -266,10 +264,8 @@ function generateHighlightsForSubWrapper(data: {
       layerIndex,
       rowIndex: count,
       alignment,
-      posX: left * parentColumnSpace,
-      posY:
-        getTopRow(child, isMobile) * child.parentRowSpace +
-        HORIZONTAL_HIGHLIGHT_MARGIN,
+      posX: left * parentColumnSpace + FLEXBOX_PADDING / 2,
+      posY: getTopRow(child, isMobile) * child.parentRowSpace + FLEXBOX_PADDING,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height: isMobile
         ? getWidgetHeight(child, isMobile) * child.parentRowSpace
@@ -293,7 +289,8 @@ function generateHighlightsForSubWrapper(data: {
         res,
         alignment,
         arr && arr.length
-          ? getRightColumn(lastChild, isMobile) * parentColumnSpace
+          ? getRightColumn(lastChild, isMobile) * parentColumnSpace +
+              FLEXBOX_PADDING / 2
           : 0,
         canvasWidth,
         canvasId,
@@ -302,7 +299,7 @@ function generateHighlightsForSubWrapper(data: {
         lastChild === null
           ? offsetTop
           : getTopRow(lastChild, isMobile) * lastChild?.parentRowSpace +
-            HORIZONTAL_HIGHLIGHT_MARGIN,
+            FLEXBOX_PADDING,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height:
         isMobile && lastChild !== null
@@ -332,7 +329,7 @@ function getPositionForInitialHighlight(
   canvasId: string,
 ): number {
   const endPosition =
-    containerWidth - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 6 : 0);
+    containerWidth - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 4 : 0);
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
@@ -416,7 +413,7 @@ function getCanvasDimensions(
     canvas.type === "CONTAINER_WIDGET"
   ) {
     //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-    padding = CONTAINER_GRID_PADDING * 2;
+    padding = FLEXBOX_PADDING * 2;
   }
   if (canvas.noPad) {
     // Widgets like ListWidget choose to have no container padding so will only have widget padding

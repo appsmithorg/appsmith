@@ -14,6 +14,7 @@ import { getWidgets } from "sagas/selectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AutoLayoutLayer from "./AutoLayoutLayer";
+import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -34,6 +35,8 @@ export interface FlexLayer {
   children: LayerChild[];
   hasFillChild?: boolean;
 }
+
+export const DEFAULT_HIGHLIGHT_SIZE = 4;
 
 export const FlexContainer = styled.div<{
   useAutoLayout?: boolean;
@@ -61,10 +64,10 @@ export const FlexContainer = styled.div<{
     isMainContainer || isMobile ? "auto" : "hidden"};
 
   padding: ${({ leaveSpaceForWidgetName }) =>
-    leaveSpaceForWidgetName ? "4px 4px 22px 4px;" : "0px;"};
+    leaveSpaceForWidgetName
+      ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px 22px ${FLEXBOX_PADDING}px;`
+      : "0px;"};
 `;
-
-export const DEFAULT_HIGHLIGHT_SIZE = 4;
 
 function FlexBoxComponent(props: FlexBoxProps) {
   // TODO: set isMobile as a prop at the top level

@@ -492,14 +492,8 @@ export function ReflowResizable(props: ResizableProps) {
       props.enableHorizontalResize,
       props.enableVerticalResize,
       handle.handleDirection,
-    );
-    console.log(
-      "#### enable",
-      props.widgetId,
-      props.enableHorizontalResize,
-      props.enableVerticalResize,
-      handle.handleDirection,
-      disableDot,
+      props.isFlexChild,
+      props.responsiveBehavior,
     );
     return (
       <ResizableHandle
@@ -561,7 +555,7 @@ export function ReflowResizable(props: ResizableProps) {
           style={_props}
         >
           {props.children}
-          {(props.enableHorizontalResize || props.isFlexChild) && renderHandles}
+          {props.enableHorizontalResize && renderHandles}
         </ResizeWrapper>
       )}
     </Spring>

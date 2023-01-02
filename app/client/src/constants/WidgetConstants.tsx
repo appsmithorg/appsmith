@@ -187,3 +187,5 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   version: true,
   displayName: true,
 };
+
+export const FLEXBOX_PADDING = 4;

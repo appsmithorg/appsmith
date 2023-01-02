@@ -75,10 +75,8 @@ export function FlexComponent(props: AutoLayoutProps) {
     return {
       display: "flex",
       zIndex,
-      width: `${Math.floor(props.componentWidth) - WIDGET_PADDING * 2}px`,
-      height: isMobile
-        ? "auto"
-        : Math.floor(props.componentHeight) - WIDGET_PADDING * 2 + "px",
+      width: `${props.componentWidth - WIDGET_PADDING * 2}px`,
+      height: props.componentHeight - WIDGET_PADDING * 2 + "px",
       minHeight: "30px",
       margin: WIDGET_PADDING + "px",
       flexGrow: isFillWidget ? 1 : 0,

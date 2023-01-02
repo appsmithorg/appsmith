@@ -327,15 +327,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isVerticalResizeEnabled = useMemo(() => {
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
-  const isHorizontalResizeEnabled = useMemo(() => {
-    return (
-      isEnabled &&
-      !(
-        props.isFlexChild &&
-        props.responsiveBehavior === ResponsiveBehavior.Fill
-      )
-    );
-  }, [isEnabled, props.isFlexChild, props.responsiveBehavior]);
   const allowResize = !(
     NonResizableWidgets.includes(props.type) || isMultiSelected
   );
@@ -345,7 +336,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       direction={props.direction}
-      enableHorizontalResize={isHorizontalResizeEnabled}
+      enableHorizontalResize={isEnabled}
       enableVerticalResize={isVerticalResizeEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}

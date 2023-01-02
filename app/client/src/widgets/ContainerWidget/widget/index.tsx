@@ -2,6 +2,7 @@ import React from "react";
 
 import {
   CONTAINER_GRID_PADDING,
+  FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
@@ -167,7 +168,10 @@ export class ContainerWidget extends BaseWidget<
       this.props.type === "CONTAINER_WIDGET"
     ) {
       //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-      padding = CONTAINER_GRID_PADDING * 2;
+      padding =
+        this.props.positioning === Positioning.Vertical
+          ? FLEXBOX_PADDING * 2
+          : CONTAINER_GRID_PADDING * 2;
     }
     if (this.props.noPad) {
       // Widgets like ListWidget choose to have no container padding so will only have widget padding

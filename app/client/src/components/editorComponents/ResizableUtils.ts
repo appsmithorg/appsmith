@@ -2,6 +2,7 @@ import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import { ReflowDirection } from "reflow/reflowTypes";
+import { ResponsiveBehavior } from "components/constants";
 
 export type UIElementSize = { height: number; width: number };
 
@@ -89,6 +90,8 @@ export function isHandleResizeAllowed(
   horizontalEnabled: boolean,
   verticalEnabled: boolean,
   direction?: ReflowDirection,
+  isFlexChild?: boolean,
+  responsiveBehavior?: ResponsiveBehavior,
 ): boolean {
   if (direction === ReflowDirection.TOP || direction === ReflowDirection.BOTTOM)
     return verticalEnabled;
@@ -96,7 +99,9 @@ export function isHandleResizeAllowed(
     direction === ReflowDirection.LEFT ||
     direction === ReflowDirection.RIGHT
   ) {
-    return horizontalEnabled;
+    return isFlexChild && responsiveBehavior === ResponsiveBehavior.Fill
+      ? false
+      : horizontalEnabled;
   }
   return true;
 }
