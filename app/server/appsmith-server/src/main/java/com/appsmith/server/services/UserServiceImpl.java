@@ -169,22 +169,25 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     final String origin = tuple.getT1();
                     final TenantConfiguration tenantConfiguration = tuple.getT2().getTenantConfiguration();
                     String logoUrl = null;
-                    String primaryColor = null;
-                    String backgroundColor = null;
-                    String fontColor = null;
+                    String primaryColor = DEFAULT_PRIMARY_COLOR;
+                    String backgroundColor = DEFAULT_BACKGROUND_COLOR;
+                    String fontColor = DEFAULT_FONT_COLOR;
 
                     if (StringUtils.isNotEmpty(origin) && tenantConfiguration.isWhitelabelEnabled()) {
                         logoUrl = origin + tenantConfiguration.getBrandLogoUrl();
-                        primaryColor = tenantConfiguration.getBrandColors().getPrimary();
-                        backgroundColor = tenantConfiguration.getBrandColors().getBackground();
-                        fontColor = tenantConfiguration.getBrandColors().getFont();
+                        final TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
+                        if (brandColors != null) {
+                            primaryColor = StringUtils.defaultIfEmpty(brandColors.getPrimary(), primaryColor);
+                            backgroundColor = StringUtils.defaultIfEmpty(brandColors.getBackground(), backgroundColor);
+                            fontColor = StringUtils.defaultIfEmpty(brandColors.getFont(), fontColor);
+                        }
                     }
 
                     params.put("instanceName", StringUtils.defaultIfEmpty(commonConfig.getInstanceName(), "Appsmith"));
                     params.put("logoUrl", StringUtils.defaultIfEmpty(logoUrl, DEFAULT_APPSMITH_LOGO));
-                    params.put("brandPrimaryColor", StringUtils.defaultIfEmpty(primaryColor, DEFAULT_PRIMARY_COLOR));
-                    params.put("brandBackgroundColor", StringUtils.defaultIfEmpty(backgroundColor, DEFAULT_BACKGROUND_COLOR));
-                    params.put("brandFontColor", StringUtils.defaultIfEmpty(fontColor, DEFAULT_FONT_COLOR));
+                    params.put("brandPrimaryColor", primaryColor);
+                    params.put("brandBackgroundColor", backgroundColor);
+                    params.put("brandFontColor", fontColor);
                     return params;
                 });
     }
