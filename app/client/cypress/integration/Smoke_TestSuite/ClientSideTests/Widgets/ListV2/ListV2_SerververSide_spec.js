@@ -7,7 +7,6 @@ let ee = ObjectsRegistry.EntityExplorer,
   deployMode = ObjectsRegistry.DeployMode;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-const widgetSelectorByType = (name) => `.t--widget-${name}`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 describe("List widget V2 Serverside Pagination", () => {
@@ -71,15 +70,6 @@ describe("List widget V2 Serverside Pagination", () => {
   });
 
   it("3. SelectedItemView and TriggeredItemView", () => {
-    ee.SelectEntityByName("List1", "Widgets");
-    cy.get(commonlocators.PropertyPaneSearchInput).type("item spacing");
-    cy.testJsontext("itemspacing\\(px\\)", "12");
-    cy.dragAndDropToCanvas("textwidget", {
-      x: 50,
-      y: 50,
-    });
-    cy.RenameWidgetFromPropertyPane("textwidget", "Text3", "SelectedItemView");
-    cy.testJsontext("text", "{{List1.selectedItemView}}");
     cy.get(
       `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
     ).then(($el) => {
@@ -87,21 +77,11 @@ describe("List widget V2 Serverside Pagination", () => {
       cy.wrap(data).should("deep.equal", {});
     });
 
-    cy.dragAndDropToCanvas("textwidget", {
-      x: 350,
-      y: 50,
-    });
-    cy.RenameWidgetFromPropertyPane("textwidget", "Text3", "TriggeredItemView");
-    cy.testJsontext("text", "{{List1.triggeredItemView}}");
     cy.get(
       `${widgetSelector("TriggeredItemView")} ${commonlocators.bodyTextStyle}`,
     ).then(($el) => {
       const data = JSON.parse($el.text());
       cy.wrap(data).should("deep.equal", {});
-    });
-
-    cy.get(commonlocators.listPaginatePrevButton).click({
-      force: true,
     });
 
     // Select First Row
