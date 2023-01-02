@@ -356,7 +356,7 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
     }
   }
 
-  for (const [name] of platformFunctionEntries) {
+  for (const [name] of Object.values(ActionTriggerFunctionNames)) {
     asyncFunctionNameMap[name] = true;
   }
 
