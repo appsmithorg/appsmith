@@ -337,8 +337,8 @@ export const addPlatformFunctionsToEvalContext = (context: any) => {
     Object.defineProperty(context, funcName, {
       value: pusher.bind({}, fn),
       enumerable: false,
-      writable: false,
-      configurable: false,
+      writable: true,
+      configurable: true,
     });
   }
   initStoreFns(context);
