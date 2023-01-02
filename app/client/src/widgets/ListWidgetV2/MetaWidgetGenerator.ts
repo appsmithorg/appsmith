@@ -1,6 +1,6 @@
 import hash from "object-hash";
 import { klona } from "klona";
-import { difference, omit, set, get, isEmpty, isString } from "lodash";
+import { difference, omit, set, get, isEmpty, isString, isEqual } from "lodash";
 import {
   elementScroll,
   observeElementOffset,
@@ -127,6 +127,7 @@ enum MODIFICATION_TYPE {
   PAGE_NO_UPDATED = "PAGE_NO_UPDATED",
   REGENERATE_META_WIDGETS = "REGENERATE_META_WIDGETS",
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
+  GENERATE_CACHE_WIDGETS = "GENERATE_CACHE_WIDGETS",
 }
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
@@ -341,18 +342,18 @@ class MetaWidgetGenerator {
 
     const removedMetaWidgetIds = this.getRemovedMetaWidgetIds();
 
-    this.cachedRows.prev = new Set(this.cachedRows.curr);
-    const cachedTemplateMetaWidgets = this.getCachedTemplateMetaWidgets();
+    if (this.modificationsQueue.has(MODIFICATION_TYPE.GENERATE_CACHE_WIDGETS)) {
+      this.cachedRows.prev = new Set(this.cachedRows.curr);
+      const cachedTemplateMetaWidgets = this.getCachedTemplateMetaWidgets();
+      metaWidgets = { ...metaWidgets, ...cachedTemplateMetaWidgets };
+    }
 
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
     this.flushModificationQueue();
 
     return {
-      metaWidgets: {
-        ...cachedTemplateMetaWidgets,
-        ...metaWidgets,
-      },
+      metaWidgets,
       removedMetaWidgetIds,
     };
   };
@@ -1057,6 +1058,9 @@ class MetaWidgetGenerator {
 
     if (this.pageNo !== nextOptions.pageNo) {
       this.modificationsQueue.add(MODIFICATION_TYPE.PAGE_NO_UPDATED);
+    }
+    if (!isEqual(this.cachedRows.curr, this.cachedRows.prev)) {
+      this.modificationsQueue.add(MODIFICATION_TYPE.GENERATE_CACHE_WIDGETS);
     }
   };
 
