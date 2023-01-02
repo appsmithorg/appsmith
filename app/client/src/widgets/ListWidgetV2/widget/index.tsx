@@ -542,6 +542,37 @@ class ListWidget extends BaseWidget<
     }
   };
 
+  updateCacheKey = () => {
+    const { selectedItemIndex = -1, triggeredItemIndex = -1 } = this.props;
+    const cachedKeys: Record<string, number> = {};
+
+    if (selectedItemIndex === -1 && triggeredItemIndex === -1) return;
+
+    [selectedItemIndex, triggeredItemIndex].forEach((index) => {
+      if (index === -1) return;
+
+      if (Object.values(this.cachedKeys).includes(index)) {
+        const key = Object.keys(this.cachedKeys).find(
+          (key) => this.cachedKeys[key] === index,
+        );
+        if (key) cachedKeys[key] = index;
+        return;
+      }
+
+      const key = this.metaWidgetGenerator.getPrimaryKey(index);
+      cachedKeys[key] = index;
+    });
+
+    this.cachedKeys = cachedKeys;
+  };
+
+  shouldUpdateCacheKeys = (prevProps: ListWidgetProps) => {
+    return (
+      this.props.triggeredItemIndex !== prevProps.triggeredItemIndex ||
+      this.props.selectedItemIndex !== prevProps.selectedItemIndex
+    );
+  };
+
   handleRowCacheData = () => {
     this.setRowDataCache();
     this.updateRowDataCacheWidgetProp();
@@ -590,27 +621,7 @@ class ListWidget extends BaseWidget<
       this.resetSelectedItemViewIndex();
       return;
     }
-    this.addCacheKey(rowIndex);
     this.props.updateWidgetMetaProperty("selectedItemIndex", rowIndex);
-  };
-
-  addCacheKey = (rowIndex: number) => {
-    const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
-    this.cachedKeys = {
-      ...this.cachedKeys,
-      [key]: rowIndex,
-    };
-  };
-
-  updateCacheKey = () => {
-    const { selectedItemIndex = -1, triggeredItemIndex = -1 } = this.props;
-    this.cachedKeys = {};
-
-    if (selectedItemIndex === -1 || triggeredItemIndex === -1) return;
-
-    [selectedItemIndex, triggeredItemIndex].forEach((index) => {
-      this.addCacheKey(index);
-    });
   };
 
   updateSelectedItemView = (rowIndex: number) => {
@@ -633,13 +644,6 @@ class ListWidget extends BaseWidget<
       this.props.widgetId,
       "selectedItemView",
       selectedItemViewBinding,
-    );
-  };
-
-  shouldUpdateCacheKeys = (prevProps: ListWidgetProps) => {
-    return (
-      this.props.triggeredItemIndex !== prevProps.triggeredItemIndex ||
-      this.props.selectedItemIndex !== prevProps.selectedItemIndex
     );
   };
 
@@ -668,7 +672,6 @@ class ListWidget extends BaseWidget<
   };
 
   updateTriggeredItemViewIndex = (rowIndex: number) => {
-    this.addCacheKey(rowIndex);
     this.props.updateWidgetMetaProperty("triggeredItemIndex", rowIndex);
   };
 

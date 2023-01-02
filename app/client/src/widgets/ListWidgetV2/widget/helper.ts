@@ -25,15 +25,3 @@ export const extractTillNestedListWidget = (
 
   return extractedWidgets;
 };
-
-export const removeSingleInstanceFromArray = <T>(
-  arr: Array<T>,
-  instance: T,
-) => {
-  const index = arr.indexOf(instance);
-  if (index > -1) {
-    arr.splice(index, 1);
-  }
-
-  return arr;
-};
