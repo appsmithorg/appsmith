@@ -32,8 +32,8 @@ import {
   ApplicationPayload,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import PageWrapper from "pages/common/PageWrapper";
-import SubHeader from "pages/common/SubHeader";
+import PageWrapper from "@appsmith/pages/common/PageWrapper";
+import SubHeader from "@appsmith/pages/common/SubHeader";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
