@@ -141,7 +141,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current")
                 )
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**").permitAll()
+                .pathMatchers("/public/**", "/oauth2/**").permitAll()
                 .anyExchange()
                 .authenticated()
                 .and()
