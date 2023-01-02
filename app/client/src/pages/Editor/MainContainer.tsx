@@ -84,8 +84,8 @@ function MainContainer() {
       </Container>
       <BottomBar
         className={classNames({
-          "translate-y-full fixed bottom-0": isPreviewMode,
-          "translate-y-0 relative opacity-100": !isPreviewMode,
+          "translate-y-full bottom-0": isPreviewMode,
+          "translate-y-0 opacity-100": !isPreviewMode,
           "transition-all transform duration-400": true,
         })}
       />

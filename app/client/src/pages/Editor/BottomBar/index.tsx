@@ -12,6 +12,7 @@ const Container = styled.div`
   width: 100%;
   height: ${(props) => props.theme.bottomBarHeight};
   display: flex;
+  position: fixed;
   justify-content: space-between;
   background-color: ${(props) => props.theme.colors.editorBottomBar.background};
   z-index: ${Layers.bottomBar};
