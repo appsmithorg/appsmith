@@ -39,6 +39,7 @@ export function removeChildLayers(
 export function* wrapChildren(
   allWidgets: CanvasWidgetsReduxState,
   containerId: string,
+  isMobile?: boolean,
 ) {
   const widgets = { ...allWidgets };
   let canvas = getCanvas(widgets, containerId);
@@ -61,7 +62,11 @@ export function* wrapChildren(
   canvas = { ...canvas, flexLayers };
   widgets[canvas.widgetId] = canvas;
   // update size
-  const updatedWidgets = updateWidgetPositions(widgets, canvas.widgetId);
+  const updatedWidgets = updateWidgetPositions(
+    widgets,
+    canvas.widgetId,
+    isMobile,
+  );
   return updatedWidgets;
 }
 
@@ -69,6 +74,7 @@ export function* updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   parentId: string,
+  isMobile?: boolean,
 ) {
   const widgets = { ...allWidgets };
   let parent = widgets[parentId];
@@ -115,7 +121,7 @@ export function* updateFlexLayersOnDelete(
   widgets[parentId] = parent;
 
   if (layerIndex === -1) return widgets;
-  return updateWidgetPositions(widgets, parentId);
+  return updateWidgetPositions(widgets, parentId, isMobile);
 }
 // TODO: refactor these implementations
 export function updateFillChildStatus(

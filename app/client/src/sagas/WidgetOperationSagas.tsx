@@ -156,6 +156,7 @@ import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { getAllPaths } from "ce/workers/Evaluation/evaluationUtils";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getSlidingArenaName } from "constants/componentClassNameConstants";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -255,9 +256,11 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
         bottomRow: updatedCanvasBottomRow,
       };
     }
+    const isMobile: boolean = yield select(getIsMobile);
     const updatedWidgetsAfterResizing = updateWidgetPositions(
       movedWidgets,
       parentId,
+      isMobile,
     );
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());

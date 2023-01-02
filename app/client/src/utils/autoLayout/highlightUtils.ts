@@ -66,14 +66,6 @@ export function deriveHighlightsFromLayers(
         layer?.children?.filter(
           (child: LayerChild) => draggedWidgets.indexOf(child.id) === -1,
         ).length === 0;
-      // TODO: use getHeightOfFixedCanvas to measure the height of the layer.
-      const tallestChild = layer.children?.reduce((acc, child) => {
-        const widget = widgets[child.id];
-        return Math.max(
-          acc,
-          getWidgetHeight(widget, isMobile) * widget.parentRowSpace,
-        );
-      }, 0);
       const childrenRows = getTotalRowsOfAllChildren(
         widgets,
         layer.children?.map((child) => child.id) || [],
@@ -85,7 +77,6 @@ export function deriveHighlightsFromLayers(
         layer,
         childCount,
         layerIndex,
-        height: tallestChild,
         offsetTop,
         canvasWidth,
         canvasId,
@@ -143,7 +134,6 @@ function generateVerticalHighlights(data: {
   layer: FlexLayer;
   childCount: number;
   layerIndex: number;
-  height: number;
   offsetTop: number;
   canvasWidth: number;
   canvasId: string;
@@ -157,7 +147,6 @@ function generateVerticalHighlights(data: {
     childCount,
     columnSpace,
     draggedWidgets,
-    height,
     isMobile,
     layer,
     layerIndex,
@@ -172,12 +161,13 @@ function generateVerticalHighlights(data: {
     endChildren = [];
   let startColumns = 0,
     endColumns = 0;
-
+  let maxHeight = 0;
   for (const child of children) {
     const widget = widgets[child.id];
     if (!widget) continue;
     count += 1;
     if (draggedWidgets.indexOf(child.id) > -1) continue;
+    maxHeight = Math.max(maxHeight, getWidgetHeight(widget, isMobile));
     if (child.align === FlexLayerAlignment.End) {
       endChildren.push(widget);
       endColumns += getWidgetWidth(widget, isMobile);
@@ -196,7 +186,7 @@ function generateVerticalHighlights(data: {
         childCount,
         layerIndex,
         alignment: FlexLayerAlignment.Start,
-        height,
+        maxHeight,
         offsetTop,
         canvasId,
         parentColumnSpace: columnSpace,
@@ -209,7 +199,7 @@ function generateVerticalHighlights(data: {
         childCount: childCount + startChildren.length,
         layerIndex,
         alignment: FlexLayerAlignment.Center,
-        height,
+        maxHeight,
         offsetTop,
         canvasId,
         parentColumnSpace: columnSpace,
@@ -223,7 +213,7 @@ function generateVerticalHighlights(data: {
         childCount: childCount + startChildren.length + centerChildren.length,
         layerIndex,
         alignment: FlexLayerAlignment.End,
-        height,
+        maxHeight,
         offsetTop,
         canvasId,
         parentColumnSpace: columnSpace,
@@ -241,7 +231,7 @@ function generateHighlightsForSubWrapper(data: {
   childCount: number;
   layerIndex: number;
   alignment: FlexLayerAlignment;
-  height: number;
+  maxHeight: number;
   offsetTop: number;
   canvasId: string;
   parentColumnSpace: number;
@@ -257,9 +247,9 @@ function generateHighlightsForSubWrapper(data: {
     canvasId,
     canvasWidth,
     childCount,
-    height,
     isMobile,
     layerIndex,
+    maxHeight,
     offsetTop,
     parentColumnSpace,
   } = data;
@@ -280,7 +270,7 @@ function generateHighlightsForSubWrapper(data: {
       width: DEFAULT_HIGHLIGHT_SIZE,
       height: isMobile
         ? getWidgetHeight(child, isMobile) * child.parentRowSpace
-        : height,
+        : maxHeight,
       isVertical: true,
       canvasId,
     });
@@ -314,7 +304,7 @@ function generateHighlightsForSubWrapper(data: {
       height:
         isMobile && lastChild !== null
           ? getWidgetHeight(lastChild, isMobile) * lastChild.parentRowSpace
-          : height,
+          : maxHeight,
       isVertical: true,
       canvasId,
     });

@@ -21,6 +21,7 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { updateFlexChildColumns } from "sagas/AutoLayoutUtils";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function* addWidgetAndReorderSaga(
@@ -34,6 +35,7 @@ function* addWidgetAndReorderSaga(
   const start = performance.now();
   const { direction, dropPayload, newWidget, parentId } = actionPayload.payload;
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
+  const isMobile: boolean = yield select(getIsMobile);
   try {
     const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
       getUpdateDslAfterCreatingChild,
@@ -55,6 +57,7 @@ function* addWidgetAndReorderSaga(
         direction,
         layerIndex,
         rowIndex,
+        isMobile,
       },
     );
     let updatedWidgetsAfterResizing = updatedWidgetsOnMove;
@@ -97,6 +100,7 @@ function* autoLayoutReorderSaga(
 
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const isMobile: boolean = yield select(getIsMobile);
     if (!parentId || !movedWidgets || !movedWidgets.length) return;
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       reorderAutolayoutChildren,
@@ -110,6 +114,7 @@ function* autoLayoutReorderSaga(
         direction,
         layerIndex,
         rowIndex,
+        isMobile,
       },
     );
 
@@ -130,12 +135,14 @@ function* reorderAutolayoutChildren(params: {
   direction: LayoutDirection;
   layerIndex?: number;
   rowIndex: number;
+  isMobile?: boolean;
 }) {
   const {
     alignment,
     allWidgets,
     direction,
     index,
+    isMobile,
     isNewLayer,
     layerIndex,
     movedWidgets,
@@ -150,6 +157,7 @@ function* reorderAutolayoutChildren(params: {
     selectedWidgets,
     widgets,
     parentId,
+    isMobile,
   );
 
   // Update flexLayers for a vertical stack.
@@ -217,10 +225,10 @@ function* reorderAutolayoutChildren(params: {
       bottomRow: parentWidget.topRow + height,
     };
   }
-
   const widgetsAfterPositionUpdate = updateWidgetPositions(
     updatedWidgets,
     parentId,
+    isMobile,
   );
 
   return widgetsAfterPositionUpdate;
@@ -239,6 +247,7 @@ function updateRelationships(
   movedWidgets: string[],
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  isMobile = false,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   // Check if parent has changed
@@ -277,7 +286,7 @@ function updateRelationships(
   }
   if (prevParents.length) {
     for (const id of prevParents) {
-      const updatedWidgets = updateWidgetPositions(widgets, id);
+      const updatedWidgets = updateWidgetPositions(widgets, id, isMobile);
       return updatedWidgets;
     }
   }

@@ -24,6 +24,7 @@ import {
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getMainCanvasProps } from "selectors/editorSelectors";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   inGuidedTour,
   isExploringSelector,
@@ -94,11 +95,13 @@ function* deleteTabChildSaga(
         },
       };
       // Update flex layers of a canvas upon deletion of a widget.
+      const isMobile: boolean = yield select(getIsMobile);
       const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = yield call(
         updateFlexLayersOnDelete,
         parentUpdatedWidgets,
         widgetId,
         tabWidget.parentId,
+        isMobile,
       );
       yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
@@ -240,12 +243,14 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
+        const isMobile: boolean = yield select(getIsMobile);
         // Update flex layers of a canvas upon deletion of a widget.
         const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = yield call(
           updateFlexLayersOnDelete,
           finalWidgets,
           widgetId,
           parentId,
+          isMobile,
         );
         yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
@@ -315,12 +320,14 @@ function* deleteAllSelectedWidgetsSaga(
     const parentId = widgets[selectedWidgets[0]].parentId;
     let widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = finalWidgets;
     if (parentId) {
+      const isMobile: boolean = yield select(getIsMobile);
       for (const widgetId of selectedWidgets) {
         widgetsAfterUpdatingFlexLayers = yield call(
           updateFlexLayersOnDelete,
           widgetsAfterUpdatingFlexLayers,
           widgetId,
           parentId,
+          isMobile,
         );
       }
     }
