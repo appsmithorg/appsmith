@@ -1,13 +1,7 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.external.converters.HttpMethodConverter;
-import com.appsmith.external.converters.ISOStringToInstantConverter;
-import com.appsmith.external.models.DatasourceStructure;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jakarta.validation.Validation;
@@ -18,15 +12,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.gson.GsonBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -85,7 +76,10 @@ public class CommonConfig {
 
     @Bean
     public Scheduler scheduler() {
-        return Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, ELASTIC_THREAD_POOL_NAME);
+        return Schedulers.newBoundedElastic(
+                Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE,
+                Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE,
+                ELASTIC_THREAD_POOL_NAME);
     }
 
     @Bean
@@ -97,27 +91,13 @@ public class CommonConfig {
 
     @Bean
     public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return objectMapper;
-    }
-
-    @Bean
-    public GsonBuilderCustomizer typeAdapterRegistration() {
-        return builder -> {
-            builder.registerTypeAdapter(Instant.class, new ISOStringToInstantConverter());
-            builder.registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator());
-            builder.registerTypeAdapter(HttpMethod.class, new HttpMethodConverter());
-        };
+        return SerializationUtils.getDefaultObjectMapper();
     }
 
     @Bean
     public Gson gsonInstance() {
         GsonBuilder gsonBuilder = new GsonBuilder();
-        typeAdapterRegistration().customize(gsonBuilder);
+        SerializationUtils.typeAdapterRegistration().customize(gsonBuilder);
         return gsonBuilder.create();
     }
 

@@ -18,7 +18,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.repositories.EnvironmentVariableRepository;
 
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.util.List;
 
 @Slf4j

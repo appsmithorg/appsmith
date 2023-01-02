@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

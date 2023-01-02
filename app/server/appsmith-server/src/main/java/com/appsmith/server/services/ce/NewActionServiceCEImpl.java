@@ -24,9 +24,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
-import com.appsmith.external.models.ActionProvider;
-import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -44,9 +41,7 @@ import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.DateUtils;
-import com.appsmith.server.helpers.ElapsedTimeUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -70,13 +65,11 @@ import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
-import org.slf4j.MDC;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -87,7 +80,6 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -156,8 +148,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
 
-    private final ObservationRegistry observationRegistry;
-
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
                                   MongoConverter mongoConverter,
@@ -181,8 +171,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission,
                                   PagePermission pagePermission,
-                                  ActionPermission actionPermission,
-                                  ObservationRegistry observationRegistry) {
+                                  ActionPermission actionPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -205,7 +194,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
-        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -644,6 +632,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Sets the param value to "" if key is not empty and value is null for each param
+     *
      * @param params
      */
     protected void replaceNullWithQuotesForParamValues(List<Param> params) {
@@ -661,6 +650,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Fetches and caches action with permission.
+     *
      * @param actionId
      * @return actionMono
      */
@@ -673,6 +663,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Retrieves and caches validated actionDTO from actionMono.
+     *
      * @param actionMono
      * @param executeActionDTO
      * @param actionId
@@ -688,6 +679,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Fetches, validates and caches the datasource from actionDTO
+     *
      * @param actionDTOMono
      * @return datasourceMono
      */
@@ -695,7 +687,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return actionDTOMono
                 .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO,
-                                                                                    datasourcePermission.getExecutePermission()))
+                        datasourcePermission.getExecutePermission()))
                 .flatMap(datasource -> {
                     // For embedded datasource, validate the datasource for each execution
                     if (datasource.getId() == null) {
@@ -710,6 +702,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * fetches and caches plugin by pluginId after checking datasource for invalids(issues)
+     *
      * @param datasourceMono
      * @param actionId
      * @return pluginMono if datasource has no issues and plugin is find, else throws error
@@ -720,10 +713,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     Set<String> invalids = datasource.getInvalids();
                     if (!CollectionUtils.isEmpty(invalids)) {
                         log.error("Unable to execute actionId: {} because it's datasource is not valid. Cause: {}",
-                                  actionId, ArrayUtils.toString(invalids));
+                                actionId, ArrayUtils.toString(invalids));
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE,
-                                                                datasource.getName(),
-                                                                ArrayUtils.toString(invalids)));
+                                datasource.getName(),
+                                ArrayUtils.toString(invalids)));
                     }
                     return pluginService.findById(datasource.getPluginId());
                 })
@@ -733,10 +726,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Fetches and returns editorConfigLabelMap if datasourceId is present
+     *
      * @param datasourceMono
      * @return an Empty hashMap if datasource doesn't have id, else configLabelMap from plugin service
      */
-    protected Mono<Map> getEditorConfigLabelMap (Mono<Datasource> datasourceMono) {
+    protected Mono<Map> getEditorConfigLabelMap(Mono<Datasource> datasourceMono) {
 
         return datasourceMono
                 .flatMap(datasource -> {
@@ -749,7 +743,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     /**
-     *  Passes the payload to pluginExecutor post datasource validation and context retrieval
+     * Passes the payload to pluginExecutor post datasource validation and context retrieval
      * <p>
      * This method validates the datasource, retrieves context and subsequently passes the payload to pluginExecutor for
      * further execution of the request.
@@ -764,28 +758,28 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param environmentName
      * @return actionExecutionResultMono
      */
-    protected Mono<ActionExecutionResult> verifyDatasourceAndMakeRequest (ExecuteActionDTO executeActionDTO,
-                                                                          ActionDTO actionDTO,
-                                                                          Datasource datasource,
-                                                                          Plugin plugin,
-                                                                          PluginExecutor pluginExecutor,
-                                                                          String environmentName) {
+    protected Mono<ActionExecutionResult> verifyDatasourceAndMakeRequest(ExecuteActionDTO executeActionDTO,
+                                                                         ActionDTO actionDTO,
+                                                                         Datasource datasource,
+                                                                         Plugin plugin,
+                                                                         PluginExecutor pluginExecutor,
+                                                                         String environmentName) {
         // This method will be overridden in EE branch to make use of environmentName.
         Mono<Datasource> validatedDatasourceMono = getValidatedDatasourceForActionExecution(datasource, environmentName);
 
         Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
                 .flatMap(datasource1 -> getDatasourceContextFromValidatedDatasourceForActionExecution(datasource1,
-                                                                                                      plugin,
-                                                                                                      environmentName))
+                        plugin,
+                        environmentName))
                 // Now that we have the context (connection details), execute the action.
                 .flatMap(resourceContext -> validatedDatasourceMono
                         .flatMap(datasource1 -> {
                             final Instant requestedAt = Instant.now();
                             return ((Mono<ActionExecutionResult>) pluginExecutor.
                                     executeParameterized(resourceContext.getConnection(),
-                                                         executeActionDTO,
-                                                         datasource1.getDatasourceConfiguration(),
-                                                         actionDTO.getActionConfiguration()))
+                                            executeActionDTO,
+                                            datasource1.getDatasourceConfiguration(),
+                                            actionDTO.getActionConfiguration()))
                                     .map(actionExecutionResult -> {
                                         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
                                         if (actionExecutionRequest == null) {
@@ -796,22 +790,23 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                                         actionExecutionResult.setRequest(actionExecutionRequest);
                                         return actionExecutionResult;
-                            });
-                }));
+                                    });
+                        }));
 
-        return  executionMono.onErrorResume(StaleConnectionException.class, error -> {
-                log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                return deleteDatasourceContextForRetry(datasource, environmentName)
-                .then(executionMono);
+        return executionMono.onErrorResume(StaleConnectionException.class, error -> {
+            log.info("Looks like the connection is stale. Retrying with a fresh context.");
+            return deleteDatasourceContextForRetry(datasource, environmentName)
+                    .then(executionMono);
         });
     }
 
     /**
      * Validates the datasource for further execution
+     *
      * @param datasource
      * @return
      */
-    protected Mono<Datasource> getValidatedDatasourceForActionExecution (Datasource datasource, String environmentName) {
+    protected Mono<Datasource> getValidatedDatasourceForActionExecution(Datasource datasource, String environmentName) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
         return authenticationValidator.validateAuthentication(datasource).cache();
@@ -819,13 +814,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Provides datasource context for execution
+     *
      * @param validatedDatasource
      * @param plugin
      * @param environmentName
      * @return datasourceContextMono
      */
     protected Mono<DatasourceContext<?>> getDatasourceContextFromValidatedDatasourceForActionExecution
-            (Datasource validatedDatasource, Plugin plugin, String environmentName) {
+    (Datasource validatedDatasource, Plugin plugin, String environmentName) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
         if (plugin.isRemotePlugin()) {
@@ -837,6 +833,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Deletes the datasourceContext for the given datasource
+     *
      * @param datasource
      * @param environmentName
      * @return datasourceContextMono
@@ -854,14 +851,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return actionExecutionResultMono
                 .onErrorMap(TimeoutException.class, error ->
                         new AppsmithPluginException(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
-                                                    actionDTO.getName(),
-                                                    timeoutDuration))
+                                actionDTO.getName(),
+                                timeoutDuration))
                 .onErrorMap(StaleConnectionException.class, error ->
                         new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                                                    "Secondary stale connection error."))
+                                "Secondary stale connection error."))
                 .onErrorResume(e -> {
                     log.debug("{}: In the action execution error mode.",
-                              Thread.currentThread().getName(), e);
+                            Thread.currentThread().getName(), e);
                     ActionExecutionResult result = new ActionExecutionResult();
                     result.setBody(e.getMessage());
                     result.setIsExecutionSuccess(false);
@@ -889,6 +886,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Handles the execution logic, call to pluginExecutor with the payload post retrieval and validation of action, datasource, and plugin
+     *
      * @param executeActionDTO
      * @param actionMono
      * @param actionDTOMono
@@ -900,15 +898,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param environmentName
      * @return actionExecutionResultMono
      */
-    protected Mono<ActionExecutionResult> getActionExecutionResult( ExecuteActionDTO executeActionDTO,
-                                                                    Mono<NewAction> actionMono,
-                                                                    Mono<ActionDTO> actionDTOMono,
-                                                                    Mono<Datasource> datasourceMono,
-                                                                    Mono<Plugin> pluginMono,
-                                                                    Mono<PluginExecutor> pluginExecutorMono,
-                                                                    AtomicReference<String> actionName,
-                                                                    String actionId,
-                                                                    String environmentName) {
+    protected Mono<ActionExecutionResult> getActionExecutionResult(ExecuteActionDTO executeActionDTO,
+                                                                   Mono<NewAction> actionMono,
+                                                                   Mono<ActionDTO> actionDTOMono,
+                                                                   Mono<Datasource> datasourceMono,
+                                                                   Mono<Plugin> pluginMono,
+                                                                   Mono<PluginExecutor> pluginExecutorMono,
+                                                                   AtomicReference<String> actionName,
+                                                                   String actionId,
+                                                                   String environmentName) {
 
         Mono<Tuple5<ActionDTO, Datasource, PluginExecutor, Plugin, NewAction>> executeActionPublishersCache =
                 Mono.zip(actionDTOMono, datasourceMono, pluginExecutorMono, pluginMono, actionMono).cache();
@@ -932,26 +930,26 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     Mono<ActionExecutionResult> actionExecutionResultMono =
                             verifyDatasourceAndMakeRequest(executeActionDTO, actionDTO, datasource,
-                                                           plugin, pluginExecutor, environmentName)
+                                    plugin, pluginExecutor, environmentName)
                                     .timeout(Duration.ofMillis(timeoutDuration));
 
-                    return handleExecutionErrors(actionExecutionResultMono, actionDTO ,timeoutDuration ,actionId)
+                    return handleExecutionErrors(actionExecutionResultMono, actionDTO, timeoutDuration, actionId)
                             .elapsed()
                             // Now send the analytics event for this execution
                             .flatMap(tuple1 -> {
-                                        Long timeElapsed = tuple1.getT1();
-                                        ActionExecutionResult result = tuple1.getT2();
+                                Long timeElapsed = tuple1.getT1();
+                                ActionExecutionResult result = tuple1.getT2();
 
-                                        log.debug("{}: Action {} with id {} execution time : {} ms",
-                                                Thread.currentThread().getName(),
-                                                actionName.get(),
-                                                actionId,
-                                                timeElapsed
-                                        );
+                                log.debug("{}: Action {} with id {} execution time : {} ms",
+                                        Thread.currentThread().getName(),
+                                        actionName.get(),
+                                        actionId,
+                                        timeElapsed
+                                );
 
-                                        return sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasource,
-                                                                                   executeActionDTO, result, timeElapsed)
-                                                .then(Mono.just(result));
+                                return sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasource,
+                                        executeActionDTO, result, timeElapsed)
+                                        .then(Mono.just(result));
                             });
                 })
                 .onErrorResume(AppsmithException.class, error -> {
@@ -967,6 +965,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Fetches the required Mono (action, datasource, and plugin) and makes actionExecution call to plugin
+     *
      * @param executeActionDTO
      * @param environmentName
      * @return actionExecutionResult if query succeeds, error messages otherwise
@@ -991,14 +990,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         // 4. Execute the query
         Mono<ActionExecutionResult> actionExecutionResultMono = getActionExecutionResult(executeActionDTO,
-                                                                                         actionMono,
-                                                                                         actionDTOMono,
-                                                                                         datasourceMono,
-                                                                                         pluginMono,
-                                                                                         pluginExecutorMono,
-                                                                                         actionName,
-                                                                                         actionId,
-                                                                                         environmentName);
+                actionMono,
+                actionDTOMono,
+                datasourceMono,
+                pluginMono,
+                pluginExecutorMono,
+                actionName,
+                actionId,
+                environmentName);
 
         Mono<Map> editorConfigLabelMapMono = getEditorConfigLabelMap(datasourceMono);
 
@@ -1006,24 +1005,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .zipWith(editorConfigLabelMapMono, (result, labelMap) -> {
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
                         result.setRequest(null);
-                    } else if (result.getRequest() != null && result.getRequest().getRequestParams()!= null) {
+                    } else if (result.getRequest() != null && result.getRequest().getRequestParams() != null) {
                         transformRequestParams(result, labelMap);
                     }
                     return result;
                 })
-                .tag("test_this", "with_value")
-                .tap(Micrometer.observation(observationRegistry))
-                .timed()
-                .map(timedInput -> ElapsedTimeUtils.addElapsedTimeToContext(timedInput, ElapsedTimeUtils.EXECUTION_POST_REQUEST))
-                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()))
-                .tag("test_this_after", "with_value_after")
-                .tap(Micrometer.observation(observationRegistry))
-                .timed()
-                .map(timedInput -> ElapsedTimeUtils.addElapsedTimeToContext(timedInput, ElapsedTimeUtils.EXECUTION_WIDGET_SUGGESTION));
+                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
     /**
      * Creates the ExecuteActionDTO from Flux of ByteBuffers
+     *
      * @param partFlux
      * @return an executionDTO object with parameterMap
      */
@@ -1138,6 +1130,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Executes the action(queries) by creating executeActionDTO and sending it to the plugin for further execution
+     *
      * @param partFlux
      * @param branchName
      * @param environmentName
@@ -1147,8 +1140,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName, String environmentName) {
         return createExecuteActionDTO(partFlux)
                 .flatMap(executeActionDTO -> findByBranchNameAndDefaultActionId(branchName,
-                                                                                executeActionDTO.getActionId(),
-                                                                                actionPermission.getExecutePermission())
+                        executeActionDTO.getActionId(),
+                        actionPermission.getExecutePermission())
                         .map(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
                             return executeActionDTO;
@@ -1480,7 +1473,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return repository.findByPageId(pageId, permission)
                 .flatMap(this::sanitizeAction);
     }
-    
+
     @Override
     public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission) {
         return repository.findByPageId(pageId, permission)

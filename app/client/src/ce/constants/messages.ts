@@ -1050,6 +1050,7 @@ export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit Logs";
+export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
 
 // Audit logs Upgrade page begin
 export const INTRODUCING = (featureName: string) =>
@@ -1190,6 +1191,8 @@ export const ADMIN_BRANDING_COLOR_TOOLTIP_FONT = () =>
   `Used as text color for the buttons.`;
 export const ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED = () =>
   `Used as background color for disabled buttons.`;
+export const ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE = () =>
+  `I would like to enable Custom Branding for my workspace and am interested in Appsmith Business.`;
 
 // Guided tour
 // -- STEPS ---

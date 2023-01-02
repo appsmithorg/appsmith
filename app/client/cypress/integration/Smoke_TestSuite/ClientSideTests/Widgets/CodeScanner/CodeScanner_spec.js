@@ -119,7 +119,7 @@ describe("Code Scanner widget's functionality", () => {
 
       // Select scanner layout as CLICK_TO_SCAN
       cy.get(
-        `${commonlocators.codeScannerScannerLayout} .t--button-tab-CLICK_TO_SCAN`,
+        `${commonlocators.codeScannerScannerLayout} .t--button-group-CLICK_TO_SCAN`,
       )
         .last()
         .click({
