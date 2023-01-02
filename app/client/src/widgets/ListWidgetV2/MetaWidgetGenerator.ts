@@ -80,12 +80,18 @@ type GenerateMetaWidgetProps = {
   rowIndex: number;
   templateWidgetId: string;
   parentId: string;
+  options: {
+    keepMetaWidgetData: boolean;
+  };
 };
 
 type GenerateMetaWidgetChildrenProps = {
   rowIndex: number;
   parentId: string;
   templateWidget: FlattenedWidgetProps;
+  options: {
+    keepMetaWidgetData: boolean;
+  };
 };
 
 type GeneratedMetaWidget = {
@@ -316,6 +322,9 @@ class MetaWidgetGenerator {
             rowIndex,
             parentId: this.containerParentId,
             templateWidgetId: this.containerWidgetId,
+            options: {
+              keepMetaWidgetData: false,
+            },
           });
 
           metaWidgets = {
@@ -333,15 +342,55 @@ class MetaWidgetGenerator {
     const removedMetaWidgetIds = this.getRemovedMetaWidgetIds();
 
     this.cachedRows.prev = new Set(this.cachedRows.curr);
+    const cachedTemplateMetaWidgets = this.getCachedTemplateMetaWidgets();
 
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
     this.flushModificationQueue();
 
     return {
-      metaWidgets,
+      metaWidgets: {
+        ...cachedTemplateMetaWidgets,
+        ...metaWidgets,
+      },
       removedMetaWidgetIds,
     };
+  };
+
+  getCachedTemplateMetaWidgets = () => {
+    let cachedTemplateMetaWidgets: MetaWidgets = {};
+
+    this.cachedRows.curr.forEach((key) => {
+      const rowCache = this.getRowCache(key);
+      if (!rowCache) return;
+      const rowIndex = this.primaryKeys?.toString().includes(key)
+        ? rowCache[this.containerWidgetId].rowIndex
+        : rowCache[this.containerWidgetId].prevRowIndex ??
+          rowCache[this.containerWidgetId].rowIndex;
+      const isClonedRow = this.isClonedRow(rowIndex);
+      if (isClonedRow) return;
+
+      const {
+        childMetaWidgets,
+        metaWidget,
+      } = this.generateMetaWidgetRecursively({
+        rowIndex,
+        parentId: this.containerParentId,
+        templateWidgetId: this.containerWidgetId,
+        options: {
+          keepMetaWidgetData: true,
+        },
+      });
+
+      cachedTemplateMetaWidgets = {
+        ...childMetaWidgets,
+      };
+      if (metaWidget) {
+        cachedTemplateMetaWidgets[metaWidget.widgetId] = metaWidget;
+      }
+    });
+
+    return cachedTemplateMetaWidgets;
   };
 
   private generateMetaWidgetId = () =>
@@ -400,6 +449,7 @@ class MetaWidgetGenerator {
   };
 
   private generateMetaWidgetRecursively = ({
+    options,
     parentId,
     rowIndex,
     templateWidgetId,
@@ -412,7 +462,11 @@ class MetaWidgetGenerator {
     const key = this.getPrimaryKey(rowIndex);
 
     const metaWidget = klona(templateWidget) as MetaWidget;
-    const metaCacheProps = this.getRowTemplateCache(key, templateWidgetId);
+    const metaCacheProps = this.getRowTemplateCache(
+      key,
+      templateWidgetId,
+      options,
+    );
 
     if (!metaCacheProps) {
       return {
@@ -434,15 +488,19 @@ class MetaWidgetGenerator {
       rowIndex,
       templateWidget,
       parentId: metaWidgetId,
+      options,
     });
 
-    if (!this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key)) {
+    if (
+      !this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key) &&
+      !options.keepMetaWidgetData
+    ) {
       return { childMetaWidgets, metaWidgetName, metaWidgetId };
     }
 
     if (isMainContainerWidget) {
       this.updateContainerPosition(metaWidget, rowIndex);
-      this.updateContainerBindings(metaWidget, key);
+      this.updateContainerBindings(metaWidget, key, options);
       this.addDynamicPathsProperties(metaWidget, metaCacheProps, {
         excludedPaths: ["data"],
       });
@@ -478,6 +536,7 @@ class MetaWidgetGenerator {
   };
 
   private generateMetaWidgetChildren = ({
+    options,
     parentId,
     rowIndex,
     templateWidget,
@@ -494,6 +553,7 @@ class MetaWidgetGenerator {
         rowIndex,
         parentId,
         templateWidgetId: childWidgetId,
+        options,
       });
 
       metaWidgets = {
@@ -885,8 +945,14 @@ class MetaWidgetGenerator {
     });
   };
 
-  private updateContainerBindings = (metaWidget: MetaWidget, key: string) => {
-    const currentRowMetaWidgets = this.getCurrentRowMetaWidgets(key);
+  private updateContainerBindings = (
+    metaWidget: MetaWidget,
+    key: string,
+    options = {
+      keepMetaWidgetData: false,
+    },
+  ) => {
+    const currentRowMetaWidgets = this.getCurrentRowMetaWidgets(key, options);
     const dataBinding = this.getContainerBinding(currentRowMetaWidgets);
 
     metaWidget.data = `{{${dataBinding}}}`;
@@ -1166,13 +1232,20 @@ class MetaWidgetGenerator {
     return this.virtualizer?.getTotalSize?.();
   };
 
-  private getRowTemplateCache = (key: string, templateWidgetId: string) => {
+  private getRowTemplateCache = (
+    key: string,
+    templateWidgetId: string,
+    options = {
+      keepMetaWidgetData: false,
+    },
+  ) => {
     const templateCache = this.getRowCache(key)?.[templateWidgetId];
 
     if (
       templateCache &&
       this.renderMode === RenderModes.CANVAS &&
-      this.templateWidgetCandidates.has(templateCache.metaWidgetId)
+      this.templateWidgetCandidates.has(templateCache.metaWidgetId) &&
+      !options.keepMetaWidgetData
     ) {
       const { templateWidgetId, templateWidgetName, type } = templateCache;
       return {
@@ -1303,12 +1376,21 @@ class MetaWidgetGenerator {
     return this.metaIdToTemplateIdMap[metaWidgetId];
   };
 
-  private getCurrentRowMetaWidgets = (key: string) => {
+  private getCurrentRowMetaWidgets = (
+    key: string,
+    options = {
+      keepMetaWidgetData: false,
+    },
+  ) => {
     const templateWidgetIds = Object.keys(this.currTemplateWidgets || {});
 
     const metaWidgets: MetaWidgetCacheProps[] = [];
     templateWidgetIds.forEach((templateWidgetId) => {
-      const rowTemplateCache = this.getRowTemplateCache(key, templateWidgetId);
+      const rowTemplateCache = this.getRowTemplateCache(
+        key,
+        templateWidgetId,
+        options,
+      );
 
       if (rowTemplateCache) {
         metaWidgets.push(rowTemplateCache);
@@ -1367,8 +1449,9 @@ class MetaWidgetGenerator {
       return;
     }
     const key = this.getPrimaryKey(rowIndex);
-    return this.getRowTemplateCache(key, this.containerWidgetId)
-      ?.metaWidgetName;
+    return this.getRowTemplateCache(key, this.containerWidgetId, {
+      keepMetaWidgetData: true,
+    })?.metaWidgetName;
   };
 
   private resetCache = () => {
