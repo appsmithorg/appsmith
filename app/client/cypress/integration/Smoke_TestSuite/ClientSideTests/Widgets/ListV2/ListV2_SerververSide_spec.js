@@ -6,6 +6,10 @@ let ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   deployMode = ObjectsRegistry.DeployMode;
 
+const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
+const widgetSelectorByType = (name) => `.t--widget-${name}`;
+const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
+
 describe("List widget V2 Serverside Pagination", () => {
   before(() => {
     cy.addDsl(dsl);
@@ -62,5 +66,130 @@ describe("List widget V2 Serverside Pagination", () => {
       force: true,
     });
     cy.get(commonlocators.listPaginateActivePage).should("have.text", "2");
+
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("3. SelectedItemView and TriggeredItemView", () => {
+    ee.SelectEntityByName("List1", "Widgets");
+    cy.get(commonlocators.PropertyPaneSearchInput).type("item spacing");
+    cy.testJsontext("itemspacing\\(px\\)", "12");
+    cy.dragAndDropToCanvas("textwidget", {
+      x: 50,
+      y: 50,
+    });
+    cy.RenameWidgetFromPropertyPane("textwidget", "Text3", "SelectedItemView");
+    cy.testJsontext("text", "{{List1.selectedItemView}}");
+    cy.get(
+      `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {});
+    });
+
+    cy.dragAndDropToCanvas("textwidget", {
+      x: 350,
+      y: 50,
+    });
+    cy.RenameWidgetFromPropertyPane("textwidget", "Text3", "TriggeredItemView");
+    cy.testJsontext("text", "{{List1.triggeredItemView}}");
+    cy.get(
+      `${widgetSelector("TriggeredItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {});
+    });
+
+    cy.get(commonlocators.listPaginatePrevButton).click({
+      force: true,
+    });
+
+    // Select First Row
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+      .eq(0)
+      .click();
+    cy.wait(200);
+
+    cy.get(
+      `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
+
+    cy.get(
+      `${widgetSelector("TriggeredItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
+
+    // Change Page and Validate Data
+    cy.get(commonlocators.listPaginateNextButton).click({
+      force: true,
+    });
+
+    cy.get(
+      `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
+
+    cy.get(
+      `${widgetSelector("TriggeredItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
   });
 });
