@@ -536,7 +536,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     id: actionPayload.payload.id as any,
   };
 
-  if (!equal(initialValues, values)) {
+  if (!equal(initialValues, values) || datasource?.id === TEMP_DATASOURCE_ID) {
     delete payload.id;
   }
 
