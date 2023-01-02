@@ -49,7 +49,7 @@ export function initStoreFns(ctx: typeof globalThis) {
     return Promise.resolve({});
   }
 
-  addFn(ctx, "storeValue", storeValue, [isAsyncGuard]);
-  addFn(ctx, "removeValue", removeValue, [isAsyncGuard]);
-  addFn(ctx, "clearStore", clearStore, [isAsyncGuard]);
+  addFn(ctx, "storeValue", storeValue);
+  addFn(ctx, "removeValue", removeValue);
+  addFn(ctx, "clearStore", clearStore);
 }

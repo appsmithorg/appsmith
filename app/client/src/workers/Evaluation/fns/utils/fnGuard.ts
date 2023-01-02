@@ -4,7 +4,7 @@ export function addFn(
   ctx: typeof globalThis,
   fnName: string,
   fn: (...args: any[]) => any,
-  fnGuards: Array<(func: typeof fn) => void>,
+  fnGuards = [isAsyncGuard],
 ) {
   Object.defineProperty(ctx, fnName, {
     value: function(...args: any[]) {
