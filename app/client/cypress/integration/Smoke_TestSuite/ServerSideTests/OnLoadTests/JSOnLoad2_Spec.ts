@@ -40,7 +40,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       AssertJSOnPageLoad(
         "runWorldCountries",
         false,
-        "UncaughtPromiseRejection: getWorldCountries is not defined",
+        "ReferenceError: getWorldCountries is not defined",
       );
     });
   });
@@ -51,7 +51,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
-      "UncaughtPromiseRejection: getWorldCountries is not defined",
+      "ReferenceError: getWorldCountries is not defined",
     );
 
     homePage.NavigateToHome();
@@ -59,7 +59,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
-      "UncaughtPromiseRejection: getWorldCountries is not defined",
+      "ReferenceError: getWorldCountries is not defined",
     );
   });
 
@@ -244,7 +244,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   function AssertJSOnPageLoad(
     jsMethod: string,
     shouldCheckImport = false,
-    faliureMsg: string = "",
+    faliureMsg = "",
   ) {
     agHelper.AssertElementVisible(
       jsEditor._dialogBody("JSObject1." + jsMethod),
