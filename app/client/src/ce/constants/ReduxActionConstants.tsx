@@ -7,6 +7,7 @@ import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import {
+  AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
 } from "api/ApplicationApi";
@@ -499,6 +500,8 @@ export const ReduxActionTypes = {
   CURRENT_APPLICATION_NAME_UPDATE: "CURRENT_APPLICATION_NAME_UPDATE",
   CURRENT_APPLICATION_LAYOUT_UPDATE: "CURRENT_APPLICATION_LAYOUT_UPDATE",
   CURRENT_APPLICATION_ICON_UPDATE: "CURRENT_APPLICATION_ICON_UPDATE",
+  CURRENT_APPLICATION_EMBED_SETTING_UPDATE:
+    "CURRENT_APPLICATION_EMBED_SETTING_UPDATE",
   FORK_APPLICATION_INIT: "FORK_APPLICATION_INIT",
   FORK_APPLICATION_SUCCESS: "FORK_APPLICATION_SUCCESS",
   IMPORT_APPLICATION_INIT: "IMPORT_APPLICATION_INIT",
@@ -750,6 +753,10 @@ export const ReduxActionTypes = {
   SET_DATASOURCE_SAVE_ACTION_FLAG: "SET_DATASOURCE_SAVE_ACTION_FLAG",
   SET_DATASOURCE_SAVE_ACTION_FROM_POPUP_FLAG:
     "SET_DATASOURCE_SAVE_ACTION_FROM_POPUP_FLAG",
+  SET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET:
+    "SET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET",
+  RESET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET:
+    "RESET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -1054,6 +1061,7 @@ export interface ApplicationPayload {
   applicationVersion: ApplicationVersion;
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
+  embedSetting?: AppEmbedSetting;
 }
 
 export type WorkspaceDetails = {

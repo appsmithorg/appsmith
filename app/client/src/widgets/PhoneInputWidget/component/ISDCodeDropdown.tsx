@@ -246,6 +246,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
       className={`t--input-country-code-change isd-change-dropdown-trigger ${
         !props.allowDialCodeChange ? "country-type-trigger" : ""
       }`}
+      data-tabbable={false}
       disabled={props.disabled}
       tabIndex={0}
       type="button"

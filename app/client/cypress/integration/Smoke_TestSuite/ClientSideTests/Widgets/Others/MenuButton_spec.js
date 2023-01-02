@@ -23,7 +23,7 @@ describe("Menu Button Widget Functionality", () => {
     // Assert if the icon exists
     cy.get(`${formWidgetsPage.menuButtonWidget} .bp3-icon-add`).should("exist");
     // Change its icon alignment to right
-    cy.get(".t--property-control-position .t--button-tab-right")
+    cy.get(".t--property-control-position .t--button-group-right")
       .last()
       .click({ force: true });
     cy.wait(200);
@@ -110,7 +110,9 @@ describe("Menu Button Widget Functionality", () => {
     cy.moveToContentTab();
 
     // Select menu items source as Dynamic
-    cy.get(`${commonlocators.menuButtonMenuItemsSource} .t--button-tab-DYNAMIC`)
+    cy.get(
+      `${commonlocators.menuButtonMenuItemsSource} .t--button-group-DYNAMIC`,
+    )
       .last()
       .click({
         force: true,
