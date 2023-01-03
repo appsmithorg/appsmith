@@ -440,8 +440,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           repository: ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
           tags: ${{ steps.git_hash.outputs.git_hash }}
-
-   outputs:
+    outputs:
      imageHash: ${{ steps.git_hash.outputs.git_hash }}
 
   buildDeployPreview:
