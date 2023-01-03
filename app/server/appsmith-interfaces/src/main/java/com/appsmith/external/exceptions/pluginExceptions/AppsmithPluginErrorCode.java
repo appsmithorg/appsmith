@@ -57,6 +57,9 @@ public enum AppsmithPluginErrorCode {
     //All Appsmith error codes for ElasticSearch plugin
     ELASTICSEARCH_QUERY_EXECUTION_FAILED("PE-ELS-5000", "ElasticSearch query execution failed"),
 
+    //All Appsmith error codes for Firestore plugin
+    FIRESTORE_QUERY_EXECUTION_FAILED("PE-FRS-5000", "Firestore query execution failed"),
+
     //All Appsmith error codes for generic plugin errors
     JSON_PROCESSING_ERROR("PE-JSN-4000", "JSON processing error either at serializing or deserializing"),
     SMART_SUBSTITUTION_VALUE_MISSING("PE-SST-5000", "Missing required binding parameter's value"),

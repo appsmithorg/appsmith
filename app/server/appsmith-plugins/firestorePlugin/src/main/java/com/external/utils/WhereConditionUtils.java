@@ -27,7 +27,7 @@ public class WhereConditionUtils {
 
         if (query == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.FIRESTORE_QUERY_EXECUTION_FAILED,
                     "Appsmith server has found null query object when applying where conditional on Firestore " +
                             "query. Please contact Appsmith's customer support to resolve this."
             );
@@ -38,9 +38,10 @@ public class WhereConditionUtils {
             operator = StringUtils.isEmpty(operatorString) ? null : ConditionalOperator.valueOf(operatorString);
         } catch (IllegalArgumentException e) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.FIRESTORE_QUERY_EXECUTION_FAILED,
                     "Appsmith server has encountered an invalid operator for Firestore query's where conditional." +
-                            " Please contact Appsmith's customer support to resolve this."
+                            " Please contact Appsmith's customer support to resolve this.",
+                    e.getMessage()
             );
         }
 
@@ -107,7 +108,8 @@ public class WhereConditionUtils {
                 } catch (IOException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Unable to parse condition value as a JSON list."
+                            "Unable to parse condition value as a JSON list.",
+                            e.getMessage()
                     );
                 }
             case IN:
@@ -116,7 +118,8 @@ public class WhereConditionUtils {
                 } catch (IOException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            "Unable to parse condition value as a JSON list."
+                            "Unable to parse condition value as a JSON list.",
+                            e.getMessage()
                     );
                 }
                 // TODO: NOT_IN operator support is awaited in the next version of Firestore driver.
@@ -124,7 +127,7 @@ public class WhereConditionUtils {
                 //     return Mono.just(query.whereNotIn(fieldPath, value));
             default:
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.FIRESTORE_QUERY_EXECUTION_FAILED,
                         "Appsmith server has encountered an invalid operator for Firestore query's where conditional." +
                                 " Please contact Appsmith's customer support to resolve this."
                 );
