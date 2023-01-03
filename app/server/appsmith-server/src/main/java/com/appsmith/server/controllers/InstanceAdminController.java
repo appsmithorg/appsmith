@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
@@ -30,11 +31,13 @@ public class InstanceAdminController extends InstanceAdminControllerCE {
     }
 
     @PutMapping("/sso/saml")
-    public Mono<ResponseDTO<EnvChangesResponseDTO>> configureSaml(@RequestBody AuthenticationConfigurationDTO config,
-                                                                  ServerWebExchange exchange)
+    public Mono<ResponseDTO<EnvChangesResponseDTO>> configureSaml(
+            @RequestBody AuthenticationConfigurationDTO config,
+            @RequestHeader(name = "Origin") String origin
+        )
     {
         log.debug("Configuring SAML SSO {}", config);
-        return samlConfigurationService.configure(config, exchange)
+        return samlConfigurationService.configure(config, origin)
                 .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), res, null));
     }
 

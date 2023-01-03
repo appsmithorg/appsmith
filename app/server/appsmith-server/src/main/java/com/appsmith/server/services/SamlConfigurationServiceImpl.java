@@ -6,6 +6,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.KeycloakIntegrationService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -27,34 +28,23 @@ public class SamlConfigurationServiceImpl implements SamlConfigurationService {
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> configure(AuthenticationConfigurationDTO configuration, ServerWebExchange exchange) {
+    public Mono<EnvChangesResponseDTO> configure(AuthenticationConfigurationDTO configuration, String origin) {
 
         if (configuration.getIsEnabled() == null || !configuration.getIsEnabled()) {
             // Delete the realm to delete all existing configuration and then update the environment with SAML disabled.
             return keycloakIntegrationService.deleteRealm()
                     .then(
                             envManager.applyChanges(Map.of(
-                                            APPSMITH_SSO_SAML_ENABLED.toString(), "false",
-                                            APPSMITH_BASE_URL.toString(), ""
+                                            APPSMITH_SSO_SAML_ENABLED.toString(), "false"
                                     )
                             )
                     );
         }
 
-        String origin = exchange.getRequest().getHeaders().getOrigin();
-
-        if (origin == null || origin.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Origin header is missing"));
-        }
-
         // If a trailing "/" exists in the origin header, trim it
-        if (origin.endsWith("/")) {
-            origin = origin.substring(0, origin.length() - 1);
-        }
+        final String baseUrl = StringUtils.stripEnd(origin, "/");
 
         // New configuration for SAML is being configured for the tenant
-
-        String baseUrl = origin;
         return envManager.getAll()
                 .flatMap(envVarMap -> {
                     String samlEnabledString = envVarMap.get(APPSMITH_SSO_SAML_ENABLED);
