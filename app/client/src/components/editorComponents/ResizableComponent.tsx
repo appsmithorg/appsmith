@@ -327,9 +327,9 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isVerticalResizeEnabled = useMemo(() => {
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
-  const allowResize = !(
-    NonResizableWidgets.includes(props.type) || isMultiSelected
-  );
+  const allowResize: boolean =
+    !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
+    !props.isFlexChild;
   return (
     <Resizable
       allowResize={allowResize}
