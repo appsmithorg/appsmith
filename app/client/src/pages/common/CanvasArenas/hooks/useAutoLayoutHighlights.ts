@@ -62,8 +62,6 @@ export const useAutoLayoutHighlights = ({
   let lastActiveHighlight: HighlightInfo | undefined;
   let isFillWidget = false;
 
-  const isVerticalStack = direction === LayoutDirection.Vertical;
-
   /**
    * START AUTO LAYOUT OFFSET CALCULATION
    */
