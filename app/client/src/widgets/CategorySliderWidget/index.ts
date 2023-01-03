@@ -1,4 +1,4 @@
-import { LabelPosition } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 
 import IconSVG from "./icon.svg";
@@ -35,6 +35,7 @@ export const CONFIG = {
     labelWidth: 5,
     labelTextSize: "0.875rem",
     sliderSize: "m",
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
