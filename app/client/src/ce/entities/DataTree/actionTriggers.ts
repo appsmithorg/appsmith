@@ -56,8 +56,6 @@ interface ActionDescriptionInterface<T> {
   payload: T;
 }
 
-export type ActionDescription = ActionDescriptionInterface<unknown>;
-
 export type RunPluginActionDescription = ActionDescriptionInterface<{
   actionId: string;
   params?: Record<string, unknown>;
@@ -160,3 +158,5 @@ export type PostMessageDescription = ActionDescriptionInterface<{
   source: string;
   targetOrigin: string;
 }>;
+
+export type ActionDescription = ActionDescriptionInterface<unknown>;
