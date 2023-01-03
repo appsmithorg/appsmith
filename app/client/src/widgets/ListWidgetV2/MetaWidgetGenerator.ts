@@ -29,6 +29,7 @@ import {
   MetaWidgetCache,
   MetaWidgetCacheProps,
   MetaWidgets,
+  RowDataCache,
 } from "./widget";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -185,6 +186,7 @@ class MetaWidgetGenerator {
   private primaryKeys: GeneratorOptions["primaryKeys"];
   private primaryWidgetType: ConstructorProps["primaryWidgetType"];
   private renderMode: ConstructorProps["renderMode"];
+  private rowDataCache: RowDataCache;
   private scrollElement: GeneratorOptions["scrollElement"];
   private serverSidePagination: GeneratorOptions["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
@@ -219,6 +221,7 @@ class MetaWidgetGenerator {
     this.primaryWidgetType = props.primaryWidgetType;
     this.serverSidePagination = false;
     this.renderMode = props.renderMode;
+    this.rowDataCache = {};
     this.modificationsQueue = new Queue<MODIFICATION_TYPE>();
     this.scrollElement = null;
     this.setWidgetCache = props.setWidgetCache;
@@ -711,9 +714,9 @@ class MetaWidgetGenerator {
       : rowIndex;
     const dataBinding =
       this.serverSidePagination && this.cachedRows.curr.has(key)
-        ? `${this.widgetName}.rowDataCache["${key}"]`
-        : `${this.widgetName}.listData[${currentIndex}]`;
-    const currentItem = `{{${dataBinding}}}`;
+        ? this.rowDataCache[key]
+        : `{{${this.widgetName}.listData[${currentIndex}]}}`;
+    const currentItem = dataBinding;
     const currentRowCache = this.getRowCacheGroupByTemplateWidgetName(key);
     const metaContainers = this.getMetaContainers();
     const metaContainerName = metaContainers.names[0];
@@ -844,10 +847,10 @@ class MetaWidgetGenerator {
 
     const dataBinding =
       this.serverSidePagination && this.cachedRows.curr.has(key)
-        ? `${this.widgetName}.rowDataCache["${key}"]`
-        : `${this.widgetName}.listData[${metaWidgetName}.currentIndex]`;
+        ? this.rowDataCache[key]
+        : `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
 
-    metaWidget.currentItem = `{{${dataBinding}}}`;
+    metaWidget.currentItem = dataBinding;
     metaWidget.dynamicBindingPathList = [
       ...(metaWidget.dynamicBindingPathList || []),
       { key: "currentItem" },
@@ -1474,6 +1477,10 @@ class MetaWidgetGenerator {
       );
       this.virtualizer._willUpdate();
     }
+  };
+
+  updateRowDataCache = (data: RowDataCache) => {
+    this.rowDataCache = data;
   };
 
   private unmountVirtualizer = () => {
