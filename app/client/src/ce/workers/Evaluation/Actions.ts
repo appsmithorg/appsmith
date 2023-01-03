@@ -406,7 +406,7 @@ export const pusher = function(
   action: ActionDispatcherWithExecutionType,
   ...args: any[]
 ) {
-  const actionDescription: ActionDescriptionWithExecutionType = action(...args);
+  const actionDescription = action(...args);
   if (!self.ALLOW_ASYNC) {
     self.IS_ASYNC = true;
     const actionName = ActionTriggerFunctionNames[actionDescription.type];
