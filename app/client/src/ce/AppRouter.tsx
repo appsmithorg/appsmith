@@ -31,7 +31,7 @@ import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
-import LandingScreen from "../LandingScreen";
+import LandingScreen from "LandingScreen";
 import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
 import ErrorPage from "pages/common/ErrorPage";
