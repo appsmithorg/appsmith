@@ -154,7 +154,6 @@ export const useAutoLayoutHighlights = ({
   const highlightDropPosition = (
     e: any,
     moveDirection: ReflowDirection,
-    // acceleration: number,
   ): HighlightInfo | undefined => {
     if (!highlights)
       highlights = deriveHighlightsFromLayers(

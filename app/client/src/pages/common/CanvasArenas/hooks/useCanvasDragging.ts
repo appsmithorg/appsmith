@@ -263,6 +263,13 @@ export const useCanvasDragging = (
         leftColumn: 0,
         topRow: 0,
       };
+      let lastMousePositionDeltas: {
+        deltaX: number;
+        deltaY: number;
+      }[] = new Array(5).fill({
+        deltaX: 0,
+        deltaY: 0,
+      });
 
       const resetCanvasState = () => {
         throttledStopReflowing();
@@ -413,14 +420,48 @@ export const useCanvasDragging = (
 
         //   }
         // };
+        const addMousePositionDelta = (payload: {
+          deltaX: number;
+          deltaY: number;
+        }) => {
+          lastMousePositionDeltas = [
+            payload,
+            ...lastMousePositionDeltas.slice(0, 4),
+          ];
+        };
+        const getInterpolatedDelta = () => {
+          return lastMousePositionDeltas.reduce(
+            (prev, cur) => {
+              return {
+                deltaX: prev.deltaX + cur.deltaX,
+                deltaY: prev.deltaY + cur.deltaY,
+              };
+            },
+            {
+              deltaX: 0,
+              deltaY: 0,
+            },
+          );
+        };
         const getMouseMoveDirection = (event: any, minDelta = 0) => {
           if (lastMousePosition) {
-            const deltaX = lastMousePosition.x - event.clientX,
+            let deltaX = lastMousePosition.x - event.clientX,
               deltaY = lastMousePosition.y - event.clientY;
             lastMousePosition = {
               x: event.clientX,
               y: event.clientY,
             };
+            if (useAutoLayout) {
+              /**
+               * Use interpolated data over the last five frames to calculate delta values.
+               * This is needed to reduce sensitivity to mouse move direction.
+               * Involuntary flickers while releasing the mouse should not impact the overall direction.
+               */
+              addMousePositionDelta({ deltaX, deltaY });
+              const delta = getInterpolatedDelta();
+              deltaX = delta.deltaX;
+              deltaY = delta.deltaY;
+            }
             if (
               deltaX === 0 &&
               ["TOP", "BOTTOM"].includes(currentDirection.current)
@@ -607,9 +648,6 @@ export const useCanvasDragging = (
                 isCurrentDraggedCanvas &&
                 currentDirection.current !== ReflowDirection.UNSET
               ) {
-                // debounce(() => {
-                //   highlightDropPosition(e, currentDirection.current);
-                // }, 100)();
                 highlight = highlightDropPosition(e, currentDirection.current);
               }
               renderBlocks(highlight);
