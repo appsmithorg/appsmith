@@ -622,6 +622,13 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
 
+        # Setup Java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3

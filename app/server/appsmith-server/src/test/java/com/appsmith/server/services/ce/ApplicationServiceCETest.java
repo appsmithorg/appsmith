@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
@@ -46,6 +46,19 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
+import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -121,13 +134,13 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class ApplicationServiceTest {
+public class ApplicationServiceCETest {
 
     @Autowired
     ApplicationService applicationService;
 
     @Autowired
-    ApplicationPageService applicationPageService;
+    ApplicationPageServiceCE applicationPageService;
 
     @Autowired
     UserService userService;

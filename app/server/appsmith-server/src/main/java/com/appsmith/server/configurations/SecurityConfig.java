@@ -136,6 +136,7 @@ public class SecurityConfig {
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, PLUGIN_URL + "/remote/install"))
                 .access(apiKeyAuthenticationManager)
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/forgotPassword"),
