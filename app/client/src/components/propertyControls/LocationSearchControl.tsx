@@ -1,5 +1,6 @@
 import log from "loglevel";
 import React, { useState } from "react";
+import styled from "styled-components";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
 import { StyledInputGroup } from "./StyledControls";
@@ -9,14 +10,18 @@ import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 
 const { google } = getAppsmithConfigs();
 
+const MapStatusText = styled.span`
+  font-size: 14px;
+`;
+
 const renderMapStatus = (status: Status) => {
   switch (status) {
     case Status.LOADING:
-      return <span>Loading...</span>;
+      return <MapStatusText>Loading...</MapStatusText>;
     case Status.FAILURE:
-      return <span>Error in the component</span>;
+      return <MapStatusText>Error in the component</MapStatusText>;
     case Status.SUCCESS:
-      return <span>Component loaded....</span>;
+      return <MapStatusText>Component loaded....</MapStatusText>;
   }
 };
 class LocationSearchControl extends BaseControl<ControlProps> {
@@ -57,6 +62,8 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   };
 
   render() {
+    return renderMapStatus(Status.LOADING);
+
     return (
       <Wrapper
         apiKey={google.apiKey}

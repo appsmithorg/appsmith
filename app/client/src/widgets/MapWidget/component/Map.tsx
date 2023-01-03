@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import Clusterer from "./Clusterer";
 import SearchBox from "./SearchBox";
@@ -33,6 +33,7 @@ type MapProps = {
   | "borderRadius"
   | "boxShadow"
   | "clickedMarkerCentered"
+  | "enableDrag"
 >;
 
 const Map = (props: MapProps) => {
@@ -42,10 +43,13 @@ const Map = (props: MapProps) => {
     center,
     children,
     enableCreateMarker,
+    enableDrag,
     markers,
     saveMarker,
+    selectMarker,
+    updateCenter,
+    updateMarker,
     zoomLevel,
-    ...rest
   } = props;
   const [map, setMap] = useState<google.maps.Map>();
   const mapRef = useRef<HTMLDivElement>(null);
@@ -83,12 +87,17 @@ const Map = (props: MapProps) => {
    * @param e
    * @returns
    */
-  const onClickOnMap = (e: google.maps.MapMouseEvent) => {
-    if (!enableCreateMarker || !saveMarker) return;
+  const onClickOnMap = useCallback(
+    (e: google.maps.MapMouseEvent) => {
+      if (!enableCreateMarker || !saveMarker) return;
 
-    // create marker
-    saveMarker(Number(e.latLng?.lat()), Number(e.latLng?.lng()));
-  };
+      // only save marker when lag and long are available
+      if (e.latLng?.lat() && e.latLng?.lng()) {
+        saveMarker(Number(e.latLng.lat()), Number(e.latLng.lng()));
+      }
+    },
+    [enableCreateMarker, saveMarker],
+  );
 
   // NOTE: The event listeners require code to clear existing listeners
   // when a handler passed as a prop has been updated.
@@ -100,17 +109,23 @@ const Map = (props: MapProps) => {
 
       map.addListener("click", onClickOnMap);
     }
-  }, [map]);
+  }, [map, onClickOnMap]);
 
   return (
-    <Wrapper>
+    <Wrapper onMouseLeave={enableDrag}>
       <StyledMap
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         id="map"
         ref={mapRef}
       />
-      <Clusterer map={map} markers={markers} {...rest} />
+      <Clusterer
+        map={map}
+        markers={markers}
+        selectMarker={selectMarker}
+        updateCenter={updateCenter}
+        updateMarker={updateMarker}
+      />
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child as React.ReactElement<any>, {

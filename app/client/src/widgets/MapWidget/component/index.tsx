@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
 import Map from "./Map";
@@ -41,6 +42,15 @@ export interface MapComponentProps {
   boxShadow?: string;
 }
 
+const MapStatusText = styled.span`
+  font-size: 14px;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--wds-color-text-light);
+`;
 /**
  * This component will render the map based on the status of the google maps api.
  *
@@ -50,11 +60,11 @@ export interface MapComponentProps {
 const renderMapStatus = (status: Status) => {
   switch (status) {
     case Status.LOADING:
-      return <span>Loading...</span>;
+      return <MapStatusText>Loading...</MapStatusText>;
     case Status.FAILURE:
-      return <span>Error in the component</span>;
+      return <MapStatusText>Error in the component</MapStatusText>;
     case Status.SUCCESS:
-      return <span>Component loaded....</span>;
+      return <MapStatusText>Component loaded....</MapStatusText>;
   }
 };
 
