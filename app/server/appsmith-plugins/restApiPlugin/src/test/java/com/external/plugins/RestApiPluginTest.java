@@ -12,8 +12,8 @@ import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
+import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
@@ -26,7 +26,6 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
@@ -38,13 +37,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -473,6 +472,79 @@ public class RestApiPluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testHttpGetRequestRawBody() {
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("123");
+        param.setClientDataType(ClientDataType.STRING);
+        param.setPseudoBindingName("k0");
+
+        executeActionDTO.setParams(Collections.singletonList(param));
+        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
+        executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text","k0"));
+        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Input1.text"));
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("https://postman-echo.com/get");
+
+        final List<Property> headers = List.of(
+                new Property("content-type",MediaType.TEXT_PLAIN_VALUE));
+
+        final List<Property> queryParameters = List.of();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(headers);
+        actionConfiguration.setQueryParameters(queryParameters);
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+
+        actionConfiguration.setTimeoutInMillisecond("10000");
+
+        actionConfiguration.setPaginationType(PaginationType.NONE);
+
+        actionConfiguration.setEncodeParamsToggle(true);
+
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfiguration.setFormData(Collections.singletonMap("apiContentType", MediaType.TEXT_PLAIN_VALUE));
+
+        String[] requestBodyList = {"abc is equals to {{Input1.text}}","{ \"abc\": {{Input1.text}} }",""};
+
+        String[] finalRequestBodyList = {"abc is equals to \"123\"","{ \"abc\": \"123\" }",""};
+
+        for (int requestBodyIndex = 0; requestBodyIndex < requestBodyList.length; requestBodyIndex++) {
+
+            actionConfiguration.setBody(requestBodyList[requestBodyIndex]);
+            Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
+
+            int currentIndex = requestBodyIndex;
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertTrue(result.getIsExecutionSuccess());
+                        JsonNode body = (JsonNode) result.getBody();
+                        assertNotNull(body);
+                        JsonNode args = body.get("args");
+                        int index = 0;
+                        StringBuilder actualRequestBody = new StringBuilder();
+                        while (true) {
+                            if (!args.has(String.valueOf(index))) {
+                                break;
+                            }
+                            JsonNode ans = args.get(String.valueOf(index));
+                            index++;
+                            actualRequestBody.append(ans.asText());
+                        }
+                        assertEquals(finalRequestBodyList[currentIndex],actualRequestBody.toString());
+                        final ActionExecutionRequest request = result.getRequest();
+                        assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    })
+                    .verifyComplete();
+        }
     }
 
     @Test
