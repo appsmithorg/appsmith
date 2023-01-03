@@ -384,7 +384,7 @@ export async function evaluateAsync(
       logs = userLogs.flushLogs();
     } finally {
       setEvaluationEnd(true);
-
+      console.log({ auditLogs: auditLogs.getLogs() });
       auditLogs.close();
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus

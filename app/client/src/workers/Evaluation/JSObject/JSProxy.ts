@@ -16,12 +16,11 @@ export type JSFunctionProxy = (
 
 export const jsFunctionProxyHandler = (
   fullName: string,
-  funcExecutionStart: () => void,
+  funcExecutionStart: (fullName: string) => void,
   funcExecutionEnd: (data: JSExecutionData) => void,
 ) => ({
   apply: function(target: any, thisArg: unknown, argumentsList: any) {
-    funcExecutionStart();
-    auditLogs.saveLog({ actionName: fullName });
+    funcExecutionStart(fullName);
     let returnValue;
     try {
       returnValue = Reflect.apply(target, thisArg, argumentsList);
@@ -79,8 +78,9 @@ export class JSProxy {
   }
 
   // When a function is called, increase number of pending functions;
-  private functionExecutionStart() {
+  private functionExecutionStart(fullName) {
     this.pendingExecutionCount += 1;
+    auditLogs.saveLog({ actionName: fullName });
     this.postData();
   }
 
