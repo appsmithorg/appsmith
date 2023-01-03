@@ -2,6 +2,7 @@ import { isEmpty, set } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
 import { isPromise } from "./utils";
+import auditLogs from "../AuditLogs";
 
 export interface JSExecutionData {
   data: unknown;
@@ -20,6 +21,7 @@ export const jsFunctionProxyHandler = (
 ) => ({
   apply: function(target: any, thisArg: unknown, argumentsList: any) {
     funcExecutionStart();
+    auditLogs.saveLog({ actionName: fullName });
     let returnValue;
     try {
       returnValue = Reflect.apply(target, thisArg, argumentsList);
