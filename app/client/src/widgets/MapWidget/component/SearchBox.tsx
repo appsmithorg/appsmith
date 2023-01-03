@@ -30,13 +30,13 @@ const StyledInput = styled.input`
 `;
 
 const SearchBox = (props: SearchBoxProps) => {
-  const { isEnabled, map, updateCenter } = props;
+  const { isEnabled, updateCenter } = props;
   const searchBoxRef = useRef<HTMLInputElement>(null);
   const searchBoxObjRef = useRef<google.maps.places.SearchBox>();
 
   // initialize search box
   useEffect(() => {
-    if (!searchBoxRef.current || !map) return;
+    if (!searchBoxRef.current) return;
 
     searchBoxObjRef.current = new window.google.maps.places.SearchBox(
       searchBoxRef.current,
