@@ -26,6 +26,8 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +83,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final CloudServicesConfig cloudServicesConfig;
 
     private final ConfigService configService;
+    private final DatasourcePermission datasourcePermission;
+    private final PagePermission pagePermission;
 
     /**
      * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
@@ -94,7 +98,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     public Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
-        return datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+        return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap((datasource -> {
@@ -287,7 +291,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         Entity.PAGES + Entity.SLASH +
                         newPage.getId() + Entity.SLASH +
                         "edit" + Entity.SLASH +
-                        Entity.DATASOURCES + Entity.SLASH +
+                        Entity.DATASOURCE + Entity.SLASH +
                         datasourceId +
                         "?response_status=" + responseStatus +
                         "&view_mode=true")
@@ -305,7 +309,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Set datasource state to intermediate stage
         // Return the appsmithToken to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .findById(datasourceId, datasourcePermission.getEditPermission())
                 .cache();
 
         final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
@@ -314,7 +318,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                            newPageService.findById(pageId, AclPermission.READ_PAGES),
+                            newPageService.findById(pageId, pagePermission.getReadPermission()),
                             configService.getInstanceId(),
                             pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {
@@ -384,7 +388,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Update datasource as being authorized
         // Return control to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .findById(datasourceId, datasourcePermission.getEditPermission())
                 .cache();
 
         return datasourceMono

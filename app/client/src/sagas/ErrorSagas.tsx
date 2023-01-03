@@ -21,11 +21,13 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { put, takeLatest, call, select } from "redux-saga/effects";
 import {
   ERROR_401,
+  ERROR_403,
   ERROR_500,
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
+import store from "store";
 
 import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "api/ApiUtils";
@@ -52,12 +54,16 @@ export function* callAPI(apiCall: any, requestPayload: any) {
  *
  * @param code
  */
-const getErrorMessage = (code: number) => {
+const getErrorMessage = (code: number, resourceType = "") => {
   switch (code) {
     case 401:
       return createMessage(ERROR_401);
     case 500:
       return createMessage(ERROR_500);
+    case 403:
+      return createMessage(() =>
+        ERROR_403(resourceType, getCurrentUser(store.getState())?.email || ""),
+      );
     case 0:
       return createMessage(ERROR_0);
   }
@@ -89,7 +95,7 @@ export function* validateResponse(
     throw Error(getErrorMessage(0));
   }
   if (!response.responseMeta && response.status) {
-    throw Error(getErrorMessage(response.status));
+    throw Error(getErrorMessage(response.status, response.resourceType));
   }
   if (response.responseMeta.success) {
     return true;
@@ -268,6 +274,7 @@ export function* flushErrorsAndRedirectSaga(
   if (safeCrash) {
     yield put(flushErrors());
   }
+  if (!action.payload.url) return;
 
   history.push(action.payload.url);
 }

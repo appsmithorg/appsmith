@@ -1,6 +1,9 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set } from "lodash";
-import { isJSObject, isWidget } from "workers/evaluationUtils";
+import {
+  isJSObject,
+  isWidget,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { DependencyMap } from "./DynamicBindingUtils";
 import WidgetFactory from "./WidgetFactory";
 

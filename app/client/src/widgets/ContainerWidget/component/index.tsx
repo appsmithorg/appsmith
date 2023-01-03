@@ -4,7 +4,6 @@ import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
 import WidgetStyleContainer, {
   WidgetStyleContainerProps,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
@@ -72,13 +71,14 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
   return (
     <StyledContainerComponent
       {...props}
+      // Before you remove: generateClassName is used for bounding the resizables within this canvas
+      // getCanvasClassName is used to add a scrollable parent.
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)}`}
       containerStyle={containerStyle}
-      // Before you remove: generateClassName is used for bounding the resizables within this canvas
-      // getCanvasClassName is used to add a scrollable parent.
       ref={containerRef}
+      tabIndex={props.shouldScrollContents ? undefined : 0}
     >
       {props.children}
     </StyledContainerComponent>
@@ -86,7 +86,6 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
 }
 
 function ContainerComponent(props: ContainerComponentProps) {
-  useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);
   return props.widgetId === MAIN_CONTAINER_WIDGET_ID ? (
     <ContainerComponentWrapper {...props} />
   ) : (

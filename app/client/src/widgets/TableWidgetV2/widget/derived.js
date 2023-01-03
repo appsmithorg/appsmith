@@ -550,6 +550,54 @@ export default {
     return finalTableData;
   },
   //
+  getUpdatedRow: (props, moment, _) => {
+    let index = -1;
+    const parsedUpdatedRowIndex = parseInt(props.updatedRowIndex);
+
+    if (!_.isNaN(parsedUpdatedRowIndex)) {
+      index = parsedUpdatedRowIndex;
+    }
+
+    const rows = props.filteredTableData || props.processedTableData || [];
+    const primaryColumns = props.primaryColumns;
+    let updatedRow;
+
+    if (index > -1) {
+      const row = rows.find((row) => row.__originalIndex__ === index);
+      updatedRow = { ...row };
+    } else {
+      /*
+       *  If updatedRowIndex is not a valid index, updatedRow should
+       *  have proper row structure with empty string values
+       */
+      updatedRow = {};
+      if (rows && rows[0]) {
+        Object.keys(rows[0]).forEach((key) => {
+          updatedRow[key] = "";
+        });
+      }
+    }
+
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
+    return _.omit(updatedRow, keysToBeOmitted);
+  },
+  //
   getUpdatedRows: (props, moment, _) => {
     const primaryColumns = props.primaryColumns;
     const nonDataColumnTypes = [
@@ -653,8 +701,11 @@ export default {
   },
   //
   getEditableCellValidity: (props, moment, _) => {
-    if (!props.editableCell.column || !props.primaryColumns) {
-      return true;
+    if (
+      (!props.editableCell.column && !props.isAddRowInProgress) ||
+      !props.primaryColumns
+    ) {
+      return {};
     }
 
     const createRegex = (regex) => {
@@ -691,49 +742,96 @@ export default {
       return parsedRegex;
     };
 
-    const editedColumn = Object.values(props.primaryColumns).find(
-      (column) => column.alias === props.editableCell.column,
-    );
-    const value = props.editableCell.value;
+    let editableColumns = [];
+    const validatableColumns = ["text", "number"];
 
-    if (editedColumn && editedColumn.validation) {
-      const validation = editedColumn.validation;
+    if (props.isAddRowInProgress) {
+      Object.values(props.primaryColumns)
+        .filter(
+          (column) =>
+            column.isEditable && validatableColumns.includes(column.columnType),
+        )
+        .forEach((column) => {
+          editableColumns.push([column, props.newRow[column.alias]]);
+        });
+    } else {
+      const editedColumn = Object.values(props.primaryColumns).find(
+        (column) => column.alias === props.editableCell.column,
+      );
 
-      /* General validations */
-      if (!validation.isColumnEditableCellRequired && value === "") {
-        return true;
-      } else if (
-        (!_.isNil(validation.isColumnEditableCellValid) &&
-          !validation.isColumnEditableCellValid) ||
-        (validation.regex && !createRegex(validation.regex).test(value)) ||
-        (validation.isColumnEditableCellRequired && value === "")
-      ) {
-        return false;
-      }
-
-      /* Column type related validations */
-      switch (editedColumn.columnType) {
-        case "number":
-          if (
-            !_.isNil(validation.min) &&
-            validation.min !== "" &&
-            validation.min > value
-          ) {
-            return false;
-          }
-
-          if (
-            !_.isNil(validation.max) &&
-            validation.max !== "" &&
-            validation.max < value
-          ) {
-            return false;
-          }
-          break;
+      if (validatableColumns.includes(editedColumn.columnType)) {
+        editableColumns.push([editedColumn, props.editableCell.value]);
       }
     }
 
-    return true;
+    const validationMap = {};
+
+    editableColumns.forEach((validationObj) => {
+      const editedColumn = validationObj[0];
+      const value = validationObj[1];
+
+      if (editedColumn && editedColumn.validation) {
+        const validation = editedColumn.validation;
+
+        /* General validations */
+        if (
+          !validation.isColumnEditableCellRequired &&
+          (value === "" || _.isNil(value))
+        ) {
+          validationMap[editedColumn.alias] = true;
+          return;
+        } else if (
+          (!_.isNil(validation.isColumnEditableCellValid) &&
+            !validation.isColumnEditableCellValid) ||
+          (validation.regex && !createRegex(validation.regex).test(value)) ||
+          (validation.isColumnEditableCellRequired &&
+            (value === "" || _.isNil(value)))
+        ) {
+          validationMap[editedColumn.alias] = false;
+          return;
+        }
+
+        /* Column type related validations */
+        switch (editedColumn.columnType) {
+          case "number":
+            if (
+              !_.isNil(validation.min) &&
+              validation.min !== "" &&
+              validation.min > value
+            ) {
+              validationMap[editedColumn.alias] = false;
+              return;
+            }
+
+            if (
+              !_.isNil(validation.max) &&
+              validation.max !== "" &&
+              validation.max < value
+            ) {
+              validationMap[editedColumn.alias] = false;
+              return;
+            }
+            break;
+        }
+      }
+
+      validationMap[editedColumn.alias] = true;
+    });
+
+    return validationMap;
+  },
+  //
+  getTableHeaders: (props, moment, _) => {
+    const columns = props.primaryColumns
+      ? Object.values(props.primaryColumns)
+      : [];
+    return columns
+      .sort((a, b) => a.index - b.index)
+      .map((column) => ({
+        id: column?.id,
+        label: column?.label,
+        isVisible: column?.isVisible,
+      }));
   },
   //
 };

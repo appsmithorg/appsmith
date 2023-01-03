@@ -35,24 +35,6 @@ ff4j:
           - name: emailDomains
             value: appsmith.com
 
-    - uid: GIT
-      enable: true
-      description: Enable git for apps
-      flipstrategy:
-        class: org.ff4j.strategy.PonderationStrategy
-        param:
-          - name: weight
-            value: 1
-
-    - uid: GIT_IMPORT
-      enable: true
-      description: Enable git import for apps
-      flipstrategy:
-        class: org.ff4j.strategy.PonderationStrategy
-        param:
-          - name: weight
-            value: 1
-
     - uid: APP_TEMPLATE
       enable: true
       description: Allow users to browse application templates and import them
@@ -75,10 +57,10 @@ ff4j:
       enable: true
       description: Restoring old context while navigating across the app
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
+          - name: weight
+            value: 1
 
     - uid: DATASOURCE_ENVIRONMENTS
       enable: true
@@ -88,3 +70,31 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com,moolya.com
+
+    - uid: CUSTOM_JS_LIBRARY
+      enable: true
+      description: Ability to use custom JS libraries
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com,moolya.com
+
+    - uid: MULTIPLE_PANES
+      enable: true
+      description: Have multiple panes in the Appsmith IDE
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emails
+            value: multipanes@appsmith.com,ndx@appsmith.com
+    
+    # Put EE flags below this line, to avoid conflicts.
+    - uid: RBAC
+      enable: true
+      description: Enable access control settings
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com

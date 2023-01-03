@@ -1,4 +1,4 @@
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { FieldType, INPUT_TYPES } from "widgets/JSONFormWidget/constants";
 import {

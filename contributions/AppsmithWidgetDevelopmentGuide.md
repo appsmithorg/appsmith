@@ -353,7 +353,7 @@ Properties can be required to be validated when an Appsmith developer is allowed
     - `expected` (required for `ValidationTypes.FUNCTION`, [CodeEditorExpected](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/components/editorComponents/CodeEditor/index.tsx#L107)): A structure that describes the expected type, example and autocomplete data type.
         - `type`(required, string): The type of the property to be shown to the Appsmith developer
         - `example`(required, [ExpectedValueExample](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/utils/validation/common.ts#L16)): An example of the value expected for the property.
-        - `autocompleteDataType`(required, [AutocompleteDataType](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/utils/autocomplete/TernServer.ts#L64)): Describes how the auto-complete feature for this property should work.
+        - `autocompleteDataType`(required, [AutocompleteDataType](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/utils/autocomplete/CodemirrorTernService.ts#L64)): Describes how the auto-complete feature for this property should work.
     - `strict` (optional, boolean): If set to `true`, values in `ValidationTypes.TEXT`, will not be cast to a string before validating.
     - `ignoreCase` (optional, boolean): If set to `true`, keys will be matched while ignoring case in `allowedKeys` parameter of the `ValidationTypes.OBJECT`.
     - `ValidationTypes.FUNCTION` is meant to be used sparingly, and as an escape hatch when the other `ValidationTypes` do not fit the requirements of validation.

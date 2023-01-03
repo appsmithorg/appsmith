@@ -18,7 +18,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
 
   it("1. Create a PostgresDataSource", () => {
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });

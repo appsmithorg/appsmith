@@ -225,7 +225,14 @@ public class PluginUtils {
     }
 
     public static String getValueSafelyFromFormDataAsString(Map<String, Object> formData, String field) {
-        return String.valueOf(getValueSafelyFromFormData(formData, field));
+
+        Object output = getValueSafelyFromFormData(formData, field);
+
+        if (output == null) {
+            return null;
+        } else {
+            return String.valueOf(output);
+        }
     }
 
     public static void setDataValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {

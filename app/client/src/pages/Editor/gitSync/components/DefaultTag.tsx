@@ -12,7 +12,7 @@ const StyledButton = styled(Button)`
 export default function DefaultTag() {
   return (
     <StyledButton
-      category={Category.tertiary}
+      category={Category.secondary}
       data-testid="t--default-tag"
       disabled
       size={Size.xxs}

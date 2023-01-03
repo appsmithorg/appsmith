@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
@@ -16,7 +15,7 @@ import { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "../../../Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
@@ -28,6 +27,7 @@ import {
   Category,
   Dropdown,
   DropdownOption,
+  getTypographyByKey,
   IconName,
   IconSize,
   RenderDropdownOptionType,
@@ -105,7 +105,7 @@ const FormWrapper = styled.div`
 `;
 
 const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
-  ${(props) => getTypographyByKey(props, "btnLarge")};
+  ${getTypographyByKey("btnLarge")};
   color: ${Colors.DOVE_GRAY2};
   margin: 10px 0px;
 `;
@@ -122,7 +122,7 @@ const DescWrapper = styled.div`
 `;
 
 const Title = styled.p`
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   font-weight: 500;
   color: ${Colors.CODE_GRAY};
   font-size: 24px;
@@ -158,7 +158,7 @@ function GeneratePageSubmitBtn({
 }) {
   return showSubmitButton ? (
     <FormSubmitButton
-      category={Category.tertiary}
+      category={Category.secondary}
       data-cy="t--generate-page-form-submit"
       disabled={disabled}
       isLoading={isLoading}
@@ -672,7 +672,7 @@ function GeneratePageForm() {
         ) : null}
         {showEditDatasourceBtn && (
           <EditDatasourceButton
-            category={Category.tertiary}
+            category={Category.secondary}
             onClick={goToEditDatasource}
             size={Size.medium}
             text="Edit Datasource"

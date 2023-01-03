@@ -1,0 +1,426 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1224,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 2670,
+        "containerStyle": "none",
+        "snapRows": 121,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 69,
+        "minHeight": 1220,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "widgetName": "Text1",
+                "displayName": "Text",
+                "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+                "searchTags": [
+                    "typography",
+                    "paragraph",
+                    "label"
+                ],
+                "topRow": 17,
+                "bottomRow": 82,
+                "parentRowSpace": 10,
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "overflow": "NONE",
+                "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                "parentColumnSpace": 15.265625,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 5,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "truncateButtonColor"
+                    },
+                    {
+                        "key": "fontFamily"
+                    },
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "text"
+                    }
+                ],
+                "shouldTruncate": false,
+                "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                "text": "{{appsmith.store.text}}",
+                "key": "9ccwuxni06",
+                "isDeprecated": false,
+                "rightColumn": 57,
+                "textAlign": "LEFT",
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "l3kr1x82zd",
+                "isVisible": true,
+                "fontStyle": "BOLD",
+                "textColor": "#231F20",
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "originalTopRow": 17,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "maxDynamicHeight": 9000,
+                "originalBottomRow": 22,
+                "fontSize": "1rem",
+                "minDynamicHeight": 4
+            },
+            {
+                "widgetName": "Text3",
+                "displayName": "Text",
+                "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+                "searchTags": [
+                    "typography",
+                    "paragraph",
+                    "label"
+                ],
+                "topRow": 83,
+                "bottomRow": 165,
+                "parentRowSpace": 10,
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "overflow": "NONE",
+                "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                "parentColumnSpace": 15.265625,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 27,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "truncateButtonColor"
+                    },
+                    {
+                        "key": "fontFamily"
+                    },
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "text"
+                    }
+                ],
+                "shouldTruncate": false,
+                "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                "text": "{{appsmith.store.text}}",
+                "key": "9ccwuxni06",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "textAlign": "LEFT",
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "o3bwh27p3h",
+                "isVisible": true,
+                "fontStyle": "BOLD",
+                "textColor": "#231F20",
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "originalTopRow": 23,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "maxDynamicHeight": 9000,
+                "originalBottomRow": 28,
+                "fontSize": "1rem",
+                "minDynamicHeight": 4
+            },
+            {
+                "resetFormOnClick": false,
+                "boxShadow": "none",
+                "widgetName": "Button2",
+                "onClick": "{{storeValue('text', `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,`)}}",
+                "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "onClick"
+                    }
+                ],
+                "displayName": "Button",
+                "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
+                "searchTags": [
+                    "click",
+                    "submit"
+                ],
+                "topRow": 89,
+                "bottomRow": 93,
+                "parentRowSpace": 10,
+                "type": "BUTTON_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "parentColumnSpace": 15.265625,
+                "dynamicTriggerPathList": [
+                    {
+                        "key": "onClick"
+                    }
+                ],
+                "leftColumn": 5,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "buttonColor"
+                    },
+                    {
+                        "key": "borderRadius"
+                    }
+                ],
+                "text": "Small",
+                "isDisabled": false,
+                "key": "gpamqfjowi",
+                "isDeprecated": false,
+                "rightColumn": 21,
+                "isDefaultClickDisabled": true,
+                "widgetId": "pgpxxkqql0",
+                "isVisible": true,
+                "recaptchaType": "V3",
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "originalTopRow": 29,
+                "disabledWhenInvalid": false,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "originalBottomRow": 33,
+                "buttonVariant": "PRIMARY",
+                "placement": "CENTER"
+            },
+            {
+                "resetFormOnClick": false,
+                "boxShadow": "none",
+                "widgetName": "Button1",
+                "onClick": "{{storeValue('text', `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum`)}}",
+                "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "onClick"
+                    }
+                ],
+                "displayName": "Button",
+                "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
+                "searchTags": [
+                    "click",
+                    "submit"
+                ],
+                "topRow": 101,
+                "bottomRow": 105,
+                "parentRowSpace": 10,
+                "type": "BUTTON_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "parentColumnSpace": 15.265625,
+                "dynamicTriggerPathList": [
+                    {
+                        "key": "onClick"
+                    }
+                ],
+                "leftColumn": 4,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "buttonColor"
+                    },
+                    {
+                        "key": "borderRadius"
+                    }
+                ],
+                "text": "Medium",
+                "isDisabled": false,
+                "key": "gpamqfjowi",
+                "isDeprecated": false,
+                "rightColumn": 20,
+                "isDefaultClickDisabled": true,
+                "widgetId": "oh3y8w2j1p",
+                "isVisible": true,
+                "recaptchaType": "V3",
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "originalTopRow": 34,
+                "disabledWhenInvalid": false,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "originalBottomRow": 38,
+                "buttonVariant": "PRIMARY",
+                "placement": "CENTER"
+            },
+            {
+                "resetFormOnClick": false,
+                "boxShadow": "none",
+                "widgetName": "Button1Copy",
+                "onClick": "{{storeValue('text', `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\n\nWhy do we use it?\nIt is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).\n\n\nWhere does it come from?\nContrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.\n\nThe standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from \"de Finibus Bonorum et Malorum\" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.\n\nWhere can I get some?\nThere are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model senten`)}}",
+                "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "onClick"
+                    }
+                ],
+                "displayName": "Button",
+                "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
+                "searchTags": [
+                    "click",
+                    "submit"
+                ],
+                "topRow": 167,
+                "bottomRow": 171,
+                "parentRowSpace": 10,
+                "type": "BUTTON_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "parentColumnSpace": 15.265625,
+                "dynamicTriggerPathList": [
+                    {
+                        "key": "onClick"
+                    }
+                ],
+                "leftColumn": 28,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "buttonColor"
+                    },
+                    {
+                        "key": "borderRadius"
+                    }
+                ],
+                "text": "Large",
+                "isDisabled": false,
+                "key": "gpamqfjowi",
+                "isDeprecated": false,
+                "rightColumn": 44,
+                "isDefaultClickDisabled": true,
+                "widgetId": "ter388gte5",
+                "isVisible": true,
+                "recaptchaType": "V3",
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "originalTopRow": 39,
+                "disabledWhenInvalid": false,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "originalBottomRow": 43,
+                "buttonVariant": "PRIMARY",
+                "placement": "CENTER"
+            },
+            {
+                "widgetName": "Text2",
+                "displayName": "Text",
+                "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+                "searchTags": [
+                    "typography",
+                    "paragraph",
+                    "label"
+                ],
+                "topRow": 181,
+                "bottomRow": 251,
+                "parentRowSpace": 10,
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "overflow": "NONE",
+                "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                "parentColumnSpace": 15.265625,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 5,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "truncateButtonColor"
+                    },
+                    {
+                        "key": "fontFamily"
+                    },
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "text"
+                    }
+                ],
+                "shouldTruncate": false,
+                "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                "text": "{{appsmith.store.text}}",
+                "key": "9ccwuxni06",
+                "isDeprecated": false,
+                "rightColumn": 53,
+                "textAlign": "LEFT",
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "22trl91ovs",
+                "isVisible": true,
+                "fontStyle": "BOLD",
+                "textColor": "#231F20",
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "originalTopRow": 44,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "maxDynamicHeight": 9000,
+                "originalBottomRow": 49,
+                "fontSize": "1rem",
+                "minDynamicHeight": 4
+            },
+            {
+                "widgetName": "Text4",
+                "displayName": "Text",
+                "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+                "searchTags": [
+                    "typography",
+                    "paragraph",
+                    "label"
+                ],
+                "topRow": 187,
+                "bottomRow": 259,
+                "parentRowSpace": 10,
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "overflow": "NONE",
+                "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                "parentColumnSpace": 15.265625,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 16,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "truncateButtonColor"
+                    },
+                    {
+                        "key": "fontFamily"
+                    },
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "text"
+                    }
+                ],
+                "shouldTruncate": false,
+                "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                "text": "{{appsmith.store.text}}",
+                "key": "9ccwuxni06",
+                "isDeprecated": false,
+                "rightColumn": 60,
+                "textAlign": "LEFT",
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "wdz3pjzsi5",
+                "isVisible": true,
+                "fontStyle": "BOLD",
+                "textColor": "#231F20",
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "originalTopRow": 50,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "maxDynamicHeight": 9000,
+                "originalBottomRow": 55,
+                "fontSize": "1rem",
+                "minDynamicHeight": 4
+            }
+        ]
+    }
+}

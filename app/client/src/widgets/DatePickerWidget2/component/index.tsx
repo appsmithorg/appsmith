@@ -17,8 +17,10 @@ import {
 } from "@appsmith/constants/messages";
 import { LabelPosition } from "components/constants";
 import { parseDate } from "./utils";
-import { LabelWithTooltip, labelLayoutStyles } from "design-system";
 import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "widgets/components/LabelWithTooltip";
 
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
 
@@ -32,6 +34,20 @@ const StyledControlGroup = styled(ControlGroup)<{
 }>`
   ${labelLayoutStyles}
 
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+    ${({ labelPosition }) => {
+      if (labelPosition === LabelPosition.Left) {
+        return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+      }
+    }}
+
   &&& {
     .${Classes.INPUT} {
       color: var(--wds-color-text);
@@ -42,7 +58,7 @@ const StyledControlGroup = styled(ControlGroup)<{
       border-color: ${({ isValid }) =>
         !isValid
           ? `var(--wds-color-border-danger);`
-          : `var(--wds-color-border);`}
+          : `var(--wds-color-border);`};
       width: 100%;
       height: 100%;
       min-height: 32px;
@@ -73,17 +89,17 @@ const StyledControlGroup = styled(ControlGroup)<{
             isValid
               ? lightenColor(accentColor)
               : "var(--wds-color-border-danger-focus-light)"
-          } !important;`}
+          } !important;`};
       }
     }
 
     .${Classes.INPUT}:disabled {
       background: var(--wds-color-bg-disabled);
-      color: var(--wds-color-text-disabled)
+      color: var(--wds-color-text-disabled);
     }
 
     .${Classes.INPUT}:not(:disabled)::placeholder {
-      color:var(--wds-color-text-light);
+      color: var(--wds-color-text-light);
     }
 
     .${Classes.INPUT}::placeholder {
@@ -162,6 +178,7 @@ class DatePickerComponent extends React.Component<
       labelText,
       labelTextColor,
       labelTextSize,
+      labelTooltip,
       labelWidth,
     } = this.props;
     const now = moment();
@@ -295,9 +312,12 @@ class DatePickerComponent extends React.Component<
             className={`datepicker-label`}
             color={labelTextColor}
             compact={compactMode}
+            cyHelpTextClassName="datepicker-tooltip"
             disabled={isDisabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            helpText={labelTooltip}
+            isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
             text={labelText}
@@ -323,6 +343,8 @@ class DatePickerComponent extends React.Component<
               initialMonth={initialMonth}
               inputProps={{
                 inputRef: this.props.inputRef,
+                onFocus: () => this.props.onFocus?.(),
+                onBlur: () => this.props.onBlur?.(),
               }}
               maxDate={maxDate}
               minDate={minDate}
@@ -437,6 +459,7 @@ interface DatePickerComponentProps extends ComponentProps {
   timezone?: string;
   datePickerType: DatePickerType;
   isDisabled: boolean;
+  isDynamicHeightEnabled?: boolean;
   onDateSelected: (selectedDate: string) => void;
   isLoading: boolean;
   withoutPortal?: boolean;
@@ -448,6 +471,9 @@ interface DatePickerComponentProps extends ComponentProps {
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
+  labelTooltip?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 interface DatePickerComponentState {

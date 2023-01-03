@@ -10,7 +10,10 @@ import { Colors } from "constants/Colors";
 
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import {
+  CONNECT_TO_GIT_OPTION,
+  CURRENT_DEPLOY_PREVIEW_OPTION,
+} from "@appsmith/constants/messages";
 
 const DeployLinkDialog = styled.div`
   flex-direction: column;
@@ -71,10 +74,7 @@ type Props = {
 export const DeployLinkButton = withTheme((props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
-
   const isGitConnected = useSelector(getIsGitConnected);
-
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const onClose = () => {
     setIsOpen(false);
@@ -98,7 +98,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
       canEscapeKeyClose={false}
       content={
         <DeployLinkDialog>
-          {featureFlags.GIT && !isGitConnected && (
+          {!isGitConnected && (
             <DeployLink
               className="t--connect-to-git-btn"
               onClick={goToGitConnectionPopup}
@@ -106,7 +106,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
               <IconWrapper>
                 <GitBranchIcon />
               </IconWrapper>
-              <DeployUrl>Connect to Git Repository</DeployUrl>
+              <DeployUrl>{CONNECT_TO_GIT_OPTION()}</DeployUrl>
             </DeployLink>
           )}
 
@@ -122,7 +122,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
                 icon="share"
               />
             </IconWrapper>
-            <DeployUrl>Current deployed version</DeployUrl>
+            <DeployUrl>{CURRENT_DEPLOY_PREVIEW_OPTION()}</DeployUrl>
           </DeployLink>
         </DeployLinkDialog>
       }

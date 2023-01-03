@@ -1,4 +1,4 @@
-import { Completion } from "./TernServer";
+import { Completion } from "./CodemirrorTernService";
 
 export const getCompletionsForKeyword = (
   completion: Completion,

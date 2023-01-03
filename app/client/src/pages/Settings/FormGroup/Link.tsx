@@ -1,7 +1,7 @@
 import { Icon } from "@blueprintjs/core";
 import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -18,6 +18,7 @@ const LinkWrapper = styled.div`
 
 const StyledLink = styled.a`
   cursor: pointer;
+  text-transform: uppercase;
   &&,
   &:hover {
     color: ${(props) => props.theme.colors.settings.link};
@@ -69,7 +70,7 @@ export default function Link({ setting }: SettingComponentProps) {
           {createMessage(() => setting.label || "")}
         </LinkLabel>
         &nbsp;
-        <StyledText type={TextType.P1}>READ MORE</StyledText>
+        <StyledText type={TextType.P1}>{createMessage(LEARN_MORE)}</StyledText>
         &nbsp;
         <StyledIcon icon="arrow-right" iconSize={11} />
       </StyledLink>

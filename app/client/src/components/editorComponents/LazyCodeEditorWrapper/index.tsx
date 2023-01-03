@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import Editor from "components/editorComponents/CodeEditor";
 
@@ -9,7 +9,7 @@ import {
 } from "./index.layout";
 
 /**
- * Shimming request idle callback as it is not avaialble in Safari browser.
+ * Shimming request idle callback as it is not available in Safari browser.
  * If unavailable, then use a timeout to process callback on a separate thread.
  */
 (window as any).requestIdleCallback =
@@ -45,15 +45,29 @@ import {
  */
 function CodeEditor(props: any) {
   const [showEditor, setEditorVisibility] = useState<boolean>(false);
+  const [isFocused, setEditorFocused] = useState<boolean>(false);
   const [containsCode, setContainsCode] = useState<boolean>(false);
   const [containsObject, setContainsObject] = useState<boolean>(false);
   const [isPlaceholder, setIsPlaceholder] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
+  const wrapperRef = useRef<HTMLDivElement>(null);
   let handle: number;
   const handleFocus = (): void => {
     (window as any).cancelIdleCallback(handle);
+    setEditorFocused(true);
     setEditorVisibility(true);
   };
+
+  useEffect(() => {
+    if (showEditor && isFocused && wrapperRef.current) {
+      const editor = wrapperRef.current.querySelector(
+        ".CodeEditorTarget",
+      ) as HTMLElement | null;
+      if (editor) {
+        editor.focus();
+      }
+    }
+  }, [isFocused, showEditor, wrapperRef.current]);
 
   useEffect(() => {
     // Check if input value contains code
@@ -95,24 +109,30 @@ function CodeEditor(props: any) {
     }
     lazyLoadEditor();
     return () => handle && (window as any).cancelIdleCallback(handle);
-  }, []);
+  }, [isFocused]);
 
-  return showEditor ? (
-    <Editor {...props} />
-  ) : (
-    <LazyEditorWrapper>
-      <ContentWrapper containsCode={containsCode} isPlaceholder={isPlaceholder}>
-        <HighlighedCodeContainer
+  return (
+    <LazyEditorWrapper ref={wrapperRef}>
+      {showEditor ? (
+        <Editor {...props} />
+      ) : (
+        <ContentWrapper
           containsCode={containsCode}
-          containsObject={containsObject}
           isPlaceholder={isPlaceholder}
-          onFocus={handleFocus}
-          onMouseEnter={handleFocus}
-          tabIndex={0}
         >
-          <pre>{text}</pre>
-        </HighlighedCodeContainer>
-      </ContentWrapper>
+          <HighlighedCodeContainer
+            className={"LazyCodeEditor"}
+            containsCode={containsCode}
+            containsObject={containsObject}
+            isPlaceholder={isPlaceholder}
+            onFocus={handleFocus}
+            onMouseEnter={handleFocus}
+            tabIndex={0}
+          >
+            <pre>{text}</pre>
+          </HighlighedCodeContainer>
+        </ContentWrapper>
+      )}
     </LazyEditorWrapper>
   );
 }

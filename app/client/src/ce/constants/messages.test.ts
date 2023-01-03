@@ -464,7 +464,7 @@ describe("Audit logs messages", () => {
     const input = [INTRODUCING, EXCLUSIVE_TO_BUSINESS];
     const expected = [
       `Introducing XYZ`,
-      `The XYZ feature is exclusive to workspaces on the Enterprise Plan`,
+      `The XYZ feature is exclusive to workspaces on the Business Plan`,
     ];
     const actual = input.map((f) => createMessage(f, "XYZ"));
     expect(actual).toEqual(expected);

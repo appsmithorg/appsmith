@@ -28,6 +28,7 @@ describe("MySQL Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
+    ee.ExpandCollapseEntity("Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer(inputData.tableName),

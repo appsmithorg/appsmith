@@ -19,7 +19,7 @@ jobs:
             Workflow: `${{ github.workflow }}`.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
-            Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-63465d4789020c7ac296d08d?pr=${{ github.event.client_payload.pull_request.number }}&runId=${{ github.run_id }}_${{github.run_attempt}}>
+            Perf tests will be available at <https://app.appsmith.com/app/performance-infra-dashboard/pr-details-638dd7cd2913ba43778b915e?pr=${{ github.event.client_payload.pull_request.number }}&runId=${{ github.run_id }}_${{github.run_attempt}}>
   server-build:
     name: server-build
     uses: ./.github/workflows/server-build.yml

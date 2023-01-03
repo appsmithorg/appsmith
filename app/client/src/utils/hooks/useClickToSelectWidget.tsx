@@ -1,5 +1,5 @@
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { useWidgetSelection } from "./useWidgetSelection";
 import React, { ReactNode, useCallback } from "react";
@@ -41,15 +41,17 @@ export function ClickContentToOpenPropPane({
     e.stopPropagation();
   };
 
+  const styles = {
+    width: "100%",
+    height: "100%",
+  };
+
   return (
     <div
       onClick={stopEventPropagation}
       onClickCapture={clickToSelectWidget}
       onMouseOver={handleMouseOver}
-      style={{
-        width: "100%",
-        height: "100%",
-      }}
+      style={styles}
     >
       {children}
     </div>

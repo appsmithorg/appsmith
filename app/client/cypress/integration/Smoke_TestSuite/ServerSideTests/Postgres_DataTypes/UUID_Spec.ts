@@ -4,11 +4,11 @@ let dsName: any, query: string, imageNameToUpload: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,
-  apiPage = ObjectsRegistry.ApiPage;
+  apiPage = ObjectsRegistry.ApiPage,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("UUID Datatype tests", function() {
   before(() => {
@@ -23,7 +23,7 @@ describe("UUID Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeTheme("Earth");
+    appSettings.OpenPaneAndChangeTheme("Earth");
   });
 
   it("1. Creating supporting api's for generating random UUID's", () => {
@@ -201,7 +201,9 @@ describe("UUID Datatype tests", function() {
         agHelper.AssertContains("New V1 UUID available!");
 
         agHelper.ClickButton("Update");
-        agHelper.AssertElementAbsence(locator._specificToast("failed to execute")); //Assert that Insert did not fail
+        agHelper.AssertElementAbsence(
+          locator._specificToast("failed to execute"),
+        ); //Assert that Insert did not fail
         agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
         table.WaitUntilTableLoad();
         table.ReadTableRowColumnData(2, 0).then(($cellData) => {
@@ -232,7 +234,9 @@ describe("UUID Datatype tests", function() {
           agHelper.AssertContains("New GUID available!");
 
           agHelper.ClickButton("Update");
-          agHelper.AssertElementAbsence(locator._specificToast("failed to execute")); //Assert that Insert did not fail
+          agHelper.AssertElementAbsence(
+            locator._specificToast("failed to execute"),
+          ); //Assert that Insert did not fail
           agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
           table.WaitUntilTableLoad();
           table.ReadTableRowColumnData(2, 0).then(($cellData) => {
@@ -269,7 +273,7 @@ describe("UUID Datatype tests", function() {
       expect($cellData).to.eq("0");
     });
 
-    agHelper.Sleep(2000);// Above entensions settling time
+    agHelper.Sleep(2000); // Above entensions settling time
 
     //Validating generation of new uuid via the extension package
     query = `SELECT uuid_generate_v1() as v1, uuid_generate_v4() as v4, gen_random_uuid() as cryptov4, uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring) as form_uuid1, uuid_in(md5(random()::text || random()::text)::cstring) as form_uuid2;`;
@@ -348,8 +352,7 @@ describe("UUID Datatype tests", function() {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-      expect($cellData)
-        .not.to.eq("2"); //asserting 2nd record is deleted
+      expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });
   });
 

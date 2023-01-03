@@ -3,12 +3,16 @@ import styled from "styled-components";
 import { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { isAction, isWidget } from "workers/evaluationUtils";
+import {
+  isAction,
+  isWidget,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   Classes,
   Dropdown,
   DefaultDropDownValueNodeProps,
   DropdownOption,
+  getTypographyByKey,
   Icon,
   IconSize,
   Text,
@@ -26,7 +30,6 @@ import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { showDebugger } from "actions/debuggerActions";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -76,7 +79,7 @@ const SelectedNodeWrapper = styled.div<{
     props.hasError
       ? props.theme.colors.propertyPane.connections.error
       : props.theme.colors.propertyPane.connections.connectionsCount};
-  ${(props) => getTypographyByKey(props, "p3")}
+  ${getTypographyByKey("p3")}
   opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
 
   & > *:nth-child(2) {

@@ -1,9 +1,11 @@
 export class CommonLocators {
+  _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
   _runBtnSpinner = ".cs-spinner";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _emptyCanvasCta = "[data-cy='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
   _widgetName = (widgetName: string) =>
@@ -18,7 +20,7 @@ export class CommonLocators {
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
-  _textWidget = ".t--draggable-textwidget span";
+  _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -44,7 +46,7 @@ export class CommonLocators {
   _contextMenuSubItemDiv = (item: string) =>
     "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
-  _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
+  _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
   _crossBtn = "span.cancel-icon";
@@ -70,6 +72,10 @@ export class CommonLocators {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//button[contains(@class, 't--open-dropdown-Select-Action')]";
+    _selectPropPageDropdown = (ddName: string) =>
+    "//div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//button[contains(@class, 't--open-dropdown-Select-Page')]";
   _dropDownValue = (dropdownOption: string) =>
     ".single-select:contains('" + dropdownOption + "')";
   _selectOptionValue = (dropdownOption: string) =>
@@ -157,4 +163,10 @@ export class CommonLocators {
     dropdownOption +
     "']";
   _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
+  _omnibarDescription = "[data-cy='description']";
+  _previewModeToggle = ".t--switch-preview-mode-toggle";
+  _editModeToggle = ".t--switch-comment-mode-off";
+  _editorVariable = ".cm-variable";
+  _consoleString = ".cm-string";
+  _commentString = ".cm-comment";
 }

@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import { SearchInput, SearchVariant } from "design-system";
+import { getTypographyByKey, SearchInput, SearchVariant } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -29,7 +29,6 @@ import {
   getUserApplicationsWorkspacesList,
 } from "selectors/applicationSelectors";
 import { getAllApplications } from "actions/applicationActions";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
@@ -42,7 +41,6 @@ const PageWrapper = styled.div`
   margin-top: ${(props) => props.theme.homePage.header}px;
   display: flex;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
-  padding-left: 8vw;
 `;
 
 const SidebarWrapper = styled.div`
@@ -52,6 +50,8 @@ const SidebarWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[7]}px;
   padding-top: ${(props) => props.theme.spaces[11]}px;
   flex-direction: column;
+  box-shadow: 1px 0px 0px ${Colors.GALLERY_2};
+  position: fixed;
 `;
 
 const SecondaryWrapper = styled.div`
@@ -65,15 +65,14 @@ export const TemplateListWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   height: calc(100vh - ${(props) => props.theme.headerHeight});
-  overflow: auto;
-  padding-right: 8vw;
+  margin-left: ${(props) => props.theme.homePage.sidebar}px;
 `;
 
 export const ResultsCount = styled.div`
-  ${(props) => getTypographyByKey(props, "h1")}
+  ${getTypographyByKey("h1")}
   color: ${Colors.CODE_GRAY};
   margin-top: ${(props) => props.theme.spaces[5]}px;
-  margin-left: ${(props) => props.theme.spaces[12]}px;
+  margin-left: ${(props) => props.theme.spaces[12] - 8}px;
   padding-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 

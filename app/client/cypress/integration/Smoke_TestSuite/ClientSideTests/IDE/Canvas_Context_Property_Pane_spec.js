@@ -24,19 +24,20 @@ describe("Canvas context Property Pane", function() {
     agHelper.RefreshPage();
   });
 
-  it("Code Editor should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("1. Code Editor should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlSelector = ".t--property-control-label";
     verifyPropertyPaneContext(
       () => {
         cy.focusCodeInput(propertyControlSelector);
       },
       () => {
-        cy.assertCursorOnCodeInput(propertyControlSelector);
+        cy.assertSoftFocusOnCodeInput(propertyControlSelector);
       },
+      "Button1",
     );
   });
 
-  it("Action Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("2. Action Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlSelector =
       ".t--property-control-onclick .t--open-dropdown-Select-Action";
     verifyPropertyPaneContext(
@@ -46,10 +47,11 @@ describe("Canvas context Property Pane", function() {
       () => {
         cy.get(propertyControlSelector).should("be.focused");
       },
+      "Button1",
     );
   });
 
-  it("Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("3. Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlSelector = `.t--property-control-animateloading input[type="checkbox"]`;
     verifyPropertyPaneContext(
       () => {
@@ -58,10 +60,11 @@ describe("Canvas context Property Pane", function() {
       () => {
         cy.get(propertyControlSelector).should("be.focused");
       },
+      "Button1",
     );
   });
 
-  it("DropDown Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("4. DropDown Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
     const propertyControlVerifySelector =
       ".t--property-control-googlerecaptchaversion .ur--has-border";
@@ -75,10 +78,11 @@ describe("Canvas context Property Pane", function() {
       () => {
         cy.get(propertyControlVerifySelector).should("be.focused");
       },
+      "Button1",
     );
   });
 
-  it("Icon Button Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("5. Icon Button Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlClickSelector = `.t--property-control-borderradius div[aria-selected="true"]`;
     const propertyControlVerifySelector = `.t--property-control-borderradius div[role="tablist"]`;
     verifyPropertyPaneContext(
@@ -88,11 +92,12 @@ describe("Canvas context Property Pane", function() {
       () => {
         cy.get(propertyControlVerifySelector).should("be.focused");
       },
+      "Button1",
       true,
     );
   });
 
-  it("ColorPicker Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("6. ColorPicker Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlSelector = `.t--property-control-buttoncolor input[type="text"]`;
     verifyPropertyPaneContext(
       () => {
@@ -101,11 +106,12 @@ describe("Canvas context Property Pane", function() {
       () => {
         cy.get(propertyControlSelector).should("be.focused");
       },
+      "Button1",
       true,
     );
   });
 
-  it("Property Sections should retain state while switching between widgets, pages and Editor Panes", function() {
+  it("7. Property Sections should retain state while switching between widgets, pages and Editor Panes", function() {
     const propertySectionState = {
       basic: false,
       general: true,
@@ -120,10 +126,11 @@ describe("Canvas context Property Pane", function() {
       () => {
         verifyPropertyPaneSectionState(propertySectionState);
       },
+      "Button1",
     );
   });
 
-  it("Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", function() {
+  it("8. Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", function() {
     const propertySectionState = {
       general: true,
       icon: false,
@@ -141,7 +148,188 @@ describe("Canvas context Property Pane", function() {
       () => {
         verifyPropertyPaneSectionState(propertySectionState);
       },
+      "Button1",
     );
+  });
+
+  it("9. Layered PropertyPane - Code Editor should have focus while switching between widgets, pages and Editor Panes", function() {
+    const propertyControlSelector = ".t--property-control-computedvalue";
+    verifyPropertyPaneContext(
+      () => {
+        cy.editColumn("step");
+        cy.focusCodeInput(propertyControlSelector);
+      },
+      () => {
+        cy.assertSoftFocusOnCodeInput(propertyControlSelector);
+      },
+      "Table1",
+    );
+
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "Table1");
+  });
+
+  it("10. Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+    const propertyControlSelector = `.t--property-control-cellwrapping input[type="checkbox"]`;
+    verifyPropertyPaneContext(
+      () => {
+        cy.editColumn("step");
+        cy.get(propertyControlSelector).click({ force: true });
+      },
+      () => {
+        cy.get(propertyControlSelector).should("be.focused");
+      },
+      "Table1",
+    );
+
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "Table1");
+  });
+
+  it("11. Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes", function() {
+    const propertySectionState = {
+      data: false,
+      general: true,
+    };
+
+    verifyPropertyPaneContext(
+      () => {
+        cy.editColumn("step");
+        setPropertyPaneSectionState(propertySectionState);
+      },
+      () => {
+        cy.wait(500);
+        verifyPropertyPaneSectionState(propertySectionState);
+      },
+      "Table1",
+    );
+
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "Table1");
+  });
+
+  it("12. Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", function() {
+    const propertySectionState = {
+      textformatting: true,
+      color: false,
+    };
+
+    verifyPropertyPaneContext(
+      () => {
+        cy.editColumn("step");
+        cy.get(`.tab-title:contains("STYLE")`)
+          .eq(0)
+          .click();
+        setPropertyPaneSectionState(propertySectionState);
+      },
+      () => {
+        verifyPropertyPaneSectionState(propertySectionState);
+      },
+      "Table1",
+    );
+
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "Table1");
+  });
+
+  it("13. Multi Layered PropertyPane - Code Editor should have focus while switching between widgets, pages and Editor Panes", function() {
+    const propertyControlSelector = ".t--property-control-text";
+    verifyPropertyPaneContext(
+      () => {
+        cy.editColumn("status");
+        cy.editColumn("menuIteme63irwbvnd", false);
+        cy.focusCodeInput(propertyControlSelector);
+      },
+      () => {
+        cy.assertSoftFocusOnCodeInput(propertyControlSelector);
+      },
+      "Table1",
+    );
+
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "status");
+
+    cy.wait(500);
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "Table1");
+  });
+
+  it("14. Multi Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+    const propertyControlSelector = `.t--property-control-visible input[type="checkbox"]`;
+    verifyPropertyPaneContext(
+      () => {
+        cy.editColumn("status");
+        cy.editColumn("menuIteme63irwbvnd", false);
+        cy.get(propertyControlSelector).click({ force: true });
+      },
+      () => {
+        cy.get(propertyControlSelector).should("be.focused");
+      },
+      "Table1",
+    );
+
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "status");
+
+    cy.wait(500);
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "Table1");
+  });
+
+  it("15. Multi Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes", function() {
+    const propertySectionState = {
+      basic: false,
+      general: true,
+    };
+
+    verifyPropertyPaneContext(
+      () => {
+        cy.editColumn("status");
+        cy.editColumn("menuIteme63irwbvnd", false);
+        setPropertyPaneSectionState(propertySectionState);
+      },
+      () => {
+        cy.wait(500);
+        verifyPropertyPaneSectionState(propertySectionState);
+      },
+      "Table1",
+    );
+
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "status");
+
+    cy.wait(500);
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "Table1");
+  });
+
+  it("16. Multi Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", function() {
+    const propertySectionState = {
+      icon: true,
+      color: false,
+    };
+
+    verifyPropertyPaneContext(
+      () => {
+        cy.editColumn("status");
+        cy.editColumn("menuIteme63irwbvnd", false);
+        cy.get(`.tab-title:contains("STYLE")`)
+          .eq(0)
+          .click();
+        setPropertyPaneSectionState(propertySectionState);
+      },
+      () => {
+        verifyPropertyPaneSectionState(propertySectionState);
+      },
+      "Table1",
+    );
+
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "status");
+
+    cy.wait(500);
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-pane-title").should("contain", "Table1");
   });
 });
 
@@ -181,13 +369,14 @@ function verifyPropertyPaneSectionState(propertySectionState) {
 function verifyPropertyPaneContext(
   focusCallback,
   assertCallback,
+  widgetName,
   isStyleTab = false,
 ) {
   //select Button1 widget in page1
-  ee.SelectEntityByName("Button1", "Widgets");
+  ee.SelectEntityByName(widgetName, "Widgets");
 
   //verify the Button1 is selected in page1
-  cy.get(".t--property-pane-title").should("contain", "Button1");
+  cy.get(".t--property-pane-title").should("contain", widgetName);
 
   if (isStyleTab) {
     cy.get(`.tab-title:contains("STYLE")`)
@@ -203,7 +392,8 @@ function verifyPropertyPaneContext(
   cy.get(".t--property-pane-title").should("contain", "Camera1");
 
   //Switch back to Button1 widget
-  ee.SelectEntityByName("Button1", "Widgets");
+  ee.SelectEntityByName(widgetName, "Widgets");
+  cy.wait(500);
 
   //assert Callback
   assertCallback();

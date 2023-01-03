@@ -8,7 +8,6 @@ const {
 } = ObjectsRegistry;
 
 describe("Navigate To feature", () => {
-
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -29,9 +28,20 @@ describe("Navigate To feature", () => {
     cy.get(".t--open-dropdown-Select-Page").click();
     agHelper.AssertElementLength(".bp3-menu-item", 2);
     cy.get(locator._dropDownValue("Page2")).click();
+    cy.get("label")
+      .contains("Query Params")
+      .siblings()
+      .find(".CodeEditorTarget")
+      .then(($el) => cy.updateCodeInput($el, "{{{ test: '123' }}}"));
+    agHelper.ClickButton("Submit");
+    cy.url().should("include", "a=b");
+    cy.url().should("include", "test=123");
+    ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.get(".bp3-heading").contains("This page seems to be blank");
+    cy.url().should("include", "a=b");
+    cy.url().should("include", "test=123");
     deployMode.NavigateBacktoEditor();
   });
 

@@ -8,7 +8,10 @@ import Filters from "../Filters";
 import LoadingScreen from "./LoadingScreen";
 import { Template } from "api/TemplatesApi";
 import TemplateModalHeader from "./Header";
-import { createMessage, FETCHING_TEMPLATE_LIST } from "ce/constants/messages";
+import {
+  createMessage,
+  FETCHING_TEMPLATE_LIST,
+} from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   display: flex;

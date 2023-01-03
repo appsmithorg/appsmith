@@ -1,9 +1,21 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 const publish = require("../../../../locators/publishWidgetspage.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Fork a template to the current app", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
   it("1. Fork a template to the current app", () => {
+    cy.wait(5000);
     cy.get(template.startFromTemplateCard).click();
     cy.wait("@fetchTemplate").should(
       "have.nested.property",
@@ -13,8 +25,15 @@ describe("Fork a template to the current app", () => {
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]",
-    ).click();
+      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+    )
+      .scrollIntoView()
+      .click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(template.templateViewForkButton).length) {
+        cy.get(template.templateViewForkButton).click();
+      }
+    });
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -10,6 +10,7 @@ import {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import { UpdatePageResponse } from "api/PageApi";
 
 const initialState: EditorReduxState = {
   initialized: false,
@@ -45,7 +46,7 @@ const editorReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: EditorReduxState,
-    action: ReduxAction<{ id: string; name: string }>,
+    action: ReduxAction<UpdatePageResponse>,
   ) => {
     if (action.payload.id === state.currentPageId) {
       return { ...state, currentPageName: action.payload.name };

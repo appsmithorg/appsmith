@@ -54,3 +54,13 @@ Cypress.Commands.add("openAuthentication", () => {
   cy.get(adminSettings.authenticationTab).click();
   cy.url().should("contain", "/settings/authentication");
 });
+
+Cypress.Commands.add("waitForServerRestart", () => {
+  cy.get(adminSettings.restartNotice).should("be.visible");
+  // Wait for restart notice to not be visible with a timeout
+  // Cannot use cy.get as mentioned in https://github.com/NoriSte/cypress-wait-until/issues/75#issuecomment-572685623
+  cy.waitUntil(() => !Cypress.$(adminSettings.restartNotice).length, {
+    timeout: 120000,
+  });
+  cy.get(adminSettings.saveButton).should("be.visible");
+});

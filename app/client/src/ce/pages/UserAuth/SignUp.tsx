@@ -7,14 +7,9 @@ import {
   useHistory,
   useLocation,
   withRouter,
+  Link,
 } from "react-router-dom";
-import {
-  AuthCardHeader,
-  AuthCardNavLink,
-  SpacedSubmitForm,
-  FormActions,
-  SignUpLinkSection,
-} from "pages/UserAuth/StyledComponents";
+import { SpacedSubmitForm, FormActions } from "pages/UserAuth/StyledComponents";
 import {
   SIGNUP_PAGE_TITLE,
   SIGNUP_PAGE_EMAIL_INPUT_LABEL,
@@ -28,6 +23,7 @@ import {
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
   ALREADY_HAVE_AN_ACCOUNT,
   createMessage,
+  SIGNUP_PAGE_SUBTITLE,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
@@ -53,6 +49,7 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import { getIsSafeRedirectURL } from "utils/helpers";
+import Container from "pages/UserAuth/Container";
 
 declare global {
   interface Window {
@@ -151,21 +148,25 @@ export function SignUp(props: SignUpFormProps) {
     }
   };
 
+  const footerSection = (
+    <div className="px-2 py-4 text-base text-center border-b">
+      {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
+      <Link
+        className="t--sign-up ml-2 text-[color:var(--ads-color-brand)] hover:text-[color:var(--ads-color-brand)]"
+        to={AUTH_LOGIN_URL}
+      >
+        {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
+      </Link>
+    </div>
+  );
+
   return (
-    <>
+    <Container
+      footer={footerSection}
+      subtitle={createMessage(SIGNUP_PAGE_SUBTITLE)}
+      title={createMessage(SIGNUP_PAGE_TITLE)}
+    >
       {showError && <FormMessage intent="danger" message={errorMessage} />}
-      <AuthCardHeader>
-        <h1>{createMessage(SIGNUP_PAGE_TITLE)}</h1>
-      </AuthCardHeader>
-      <SignUpLinkSection>
-        {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
-        <AuthCardNavLink
-          style={{ marginLeft: props.theme.spaces[3] }}
-          to={AUTH_LOGIN_URL}
-        >
-          {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
-        </AuthCardNavLink>
-      </SignUpLinkSection>
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
@@ -220,7 +221,7 @@ export function SignUp(props: SignUpFormProps) {
           </FormActions>
         </SpacedSubmitForm>
       )}
-    </>
+    </Container>
   );
 }
 

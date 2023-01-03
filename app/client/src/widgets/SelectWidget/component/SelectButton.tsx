@@ -28,6 +28,7 @@ function SelectButton(props: SelectButtonProps) {
     tooltipText,
     value,
   } = props;
+
   return (
     <Button
       className="select-button"

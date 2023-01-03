@@ -2,6 +2,7 @@ const dsl = require("../../../../../fixtures/TreeSelectDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Single Select Widget Functionality", function() {
   before(() => {
@@ -132,6 +133,14 @@ describe("Single Select Widget Functionality", function() {
       "contain",
       "select option",
     );
+  });
+
+  it("9. Select tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("singleselecttreewidget");
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
+    // tooltip help icon shows
+    cy.get(".tree-select-tooltip").should("be.visible");
   });
 });
 afterEach(() => {

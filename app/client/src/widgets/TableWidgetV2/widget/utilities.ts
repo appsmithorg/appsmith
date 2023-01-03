@@ -16,7 +16,6 @@ import {
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
-import { AppTheme } from "entities/AppTheming";
 import { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -27,6 +26,8 @@ import {
 import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
+import { Stylesheet } from "entities/AppTheming";
+import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -234,12 +235,19 @@ export const getPropertyValue = (
   value: any,
   index: number,
   preserveCase = false,
+  isSourceData = false,
 ) => {
   if (value && isObject(value) && !Array.isArray(value)) {
     return value;
   }
   if (value && Array.isArray(value) && value[index]) {
-    return preserveCase
+    const getValueForSourceData = (value: any, index: number) => {
+      return Array.isArray(value[index]) ? value[index] : value;
+    };
+
+    return isSourceData
+      ? getValueForSourceData(value, index)
+      : preserveCase
       ? value[index].toString()
       : value[index].toString().toUpperCase();
   } else if (value) {
@@ -248,7 +256,7 @@ export const getPropertyValue = (
     return value;
   }
 };
-export const getBooleanPropertyValue = (value: any, index: number) => {
+export const getBooleanPropertyValue = (value: unknown, index: number) => {
   if (isBoolean(value)) {
     return value;
   }
@@ -256,6 +264,20 @@ export const getBooleanPropertyValue = (value: any, index: number) => {
     return value[index];
   }
   return !!value;
+};
+
+export const getArrayPropertyValue = (value: unknown, index: number) => {
+  if (Array.isArray(value) && value.length > 0) {
+    if (Array.isArray(value[0])) {
+      // value is array of arrays of label value
+      return value[index];
+    } else {
+      // value is array of label value
+      return value;
+    }
+  } else {
+    return value;
+  }
 };
 
 export const getCellProperties = (
@@ -293,6 +315,18 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
+      menuItemsSource: getPropertyValue(
+        columnProperties.menuItemsSource,
+        rowIndex,
+        true,
+      ),
+      sourceData: getPropertyValue(
+        columnProperties.sourceData,
+        rowIndex,
+        false,
+        true,
+      ),
+      configureMenuItems: columnProperties.configureMenuItems,
       buttonVariant: getPropertyValue(
         columnProperties.buttonVariant,
         rowIndex,
@@ -438,6 +472,10 @@ export const getCellProperties = (
         columnProperties.resetFilterTextOnClose,
         rowIndex,
       ),
+      selectOptions: getArrayPropertyValue(
+        columnProperties.selectOptions,
+        rowIndex,
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
@@ -513,7 +551,7 @@ export const getSelectedRowBgColor = (accentColor: string) => {
 export const getStylesheetValue = (
   props: TableWidgetProps,
   propertyPath: string,
-  widgetStylesheet?: AppTheme["stylesheet"][string],
+  widgetStylesheet?: Stylesheet,
 ) => {
   const propertyName = propertyPath.split(".").slice(-1)[0];
   const columnName = propertyPath.split(".").slice(-2)[0];
@@ -677,5 +715,24 @@ export const getColumnType = (
         : ColumnTypes.TEXT;
     default:
       return ColumnTypes.TEXT;
+  }
+};
+
+export const getSourceDataAndCaluclateKeysForEventAutoComplete = (
+  props: TableWidgetProps,
+): unknown => {
+  const { __evaluation__, primaryColumns } = props;
+  const primaryColumnKeys = primaryColumns ? Object.keys(primaryColumns) : [];
+  const columnName = primaryColumnKeys?.length ? primaryColumnKeys[0] : "";
+  const evaluatedColumns: any = __evaluation__?.evaluatedValues?.primaryColumns;
+
+  if (evaluatedColumns) {
+    const result = getKeysFromSourceDataForEventAutocomplete(
+      evaluatedColumns[columnName]?.sourceData || [],
+    );
+
+    return result;
+  } else {
+    return {};
   }
 };

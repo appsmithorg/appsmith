@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { pick, reduce } from "lodash";
 import {
   useTable,
@@ -13,7 +13,7 @@ import {
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
-import TableHeader from "./TableHeader";
+import TableHeader from "./header";
 import { Classes } from "@blueprintjs/core";
 import {
   ReactTableColumnProps,
@@ -21,6 +21,7 @@ import {
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
+  AddNewRowActions,
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
@@ -80,13 +81,21 @@ interface TableProps {
   delimiter: string;
   accentColor: string;
   borderRadius: string;
-  boxShadow?: string;
+  boxShadow: string;
   borderWidth?: number;
   borderColor?: string;
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
   variant?: TableVariant;
   primaryColumnId?: string;
+  isAddRowInProgress: boolean;
+  allowAddNewRow: boolean;
+  onAddNewRow: () => void;
+  onAddNewRowAction: (
+    type: AddNewRowActions,
+    onActionComplete: () => void,
+  ) => void;
+  disabledAddNewRowSave: boolean;
 }
 
 const defaultColumn = {
@@ -243,6 +252,12 @@ export function Table(props: TableProps) {
       (column) => !!column.columnProperties.allowCellWrapping,
     );
 
+  useEffect(() => {
+    if (props.isAddRowInProgress && tableBodyRef) {
+      tableBodyRef.current?.scrollTo({ top: 0 });
+    }
+  }, [props.isAddRowInProgress]);
+
   return (
     <TableWrapper
       accentColor={props.accentColor}
@@ -253,6 +268,7 @@ export function Table(props: TableProps) {
       boxShadow={props.boxShadow}
       height={props.height}
       id={`table${props.widgetId}`}
+      isAddRowInProgress={props.isAddRowInProgress}
       isHeaderVisible={isHeaderVisible}
       isResizingColumn={isResizingColumn.current}
       tableSizes={tableSizes}
@@ -283,18 +299,24 @@ export function Table(props: TableProps) {
             >
               <TableHeader
                 accentColor={props.accentColor}
+                allowAddNewRow={props.allowAddNewRow}
                 applyFilter={props.applyFilter}
                 borderRadius={props.borderRadius}
                 boxShadow={props.boxShadow}
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
+                disableAddNewRow={!!props.editableCell.column}
+                disabledAddNewRowSave={props.disabledAddNewRowSave}
                 filters={props.filters}
+                isAddRowInProgress={props.isAddRowInProgress}
                 isVisibleDownload={props.isVisibleDownload}
                 isVisibleFilters={props.isVisibleFilters}
                 isVisiblePagination={props.isVisiblePagination}
                 isVisibleSearch={props.isVisibleSearch}
                 nextPageClick={props.nextPageClick}
+                onAddNewRow={props.onAddNewRow}
+                onAddNewRowAction={props.onAddNewRowAction}
                 pageCount={pageCount}
                 pageNo={props.pageNo}
                 pageOptions={pageOptions}
@@ -387,6 +409,7 @@ export function Table(props: TableProps) {
               columns={props.columns}
               getTableBodyProps={getTableBodyProps}
               height={props.height}
+              isAddRowInProgress={props.isAddRowInProgress}
               multiRowSelection={!!props.multiRowSelection}
               pageSize={props.pageSize}
               prepareRow={prepareRow}

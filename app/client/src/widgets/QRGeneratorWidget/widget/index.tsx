@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 
 import { TextSize } from "constants/WidgetConstants";
-import { countOccurrences } from "workers/helpers";
+import { countOccurrences } from "workers/Evaluation/helpers";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -10,7 +10,7 @@ import { Color } from "constants/Colors";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { OverflowTypes } from "../constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";
@@ -267,7 +267,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "fontStyle",
             label: "Font Style",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",
@@ -590,7 +590,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "fontStyle",
             label: "Emphasis",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

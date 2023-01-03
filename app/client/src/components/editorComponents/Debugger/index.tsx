@@ -1,7 +1,6 @@
 import { Icon, IconSize } from "design-system";
 import React from "react";
-import { useDispatch } from "react-redux";
-import { useSelector } from "store";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "@appsmith/reducers";
@@ -11,14 +10,13 @@ import {
 } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getMessageCount,
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
 import { matchBuilderPath } from "constants/routes";
-import { TooltipComponent } from "design-system";
+import { getTypographyByKey, TooltipComponent } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 
 function Debugger() {
@@ -40,7 +38,7 @@ const TriggerContainer = styled.div<{
 
   .debugger-count {
     color: ${Colors.WHITE};
-    ${(props) => getTypographyByKey(props, "btnSmall")}
+    ${getTypographyByKey("btnSmall")}
     height: 16px;
     width: 16px;
     background-color: ${(props) =>

@@ -21,7 +21,7 @@ import {
   FILTER_SELECT_PAGES,
   PAGE,
   PAGES,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`

@@ -92,7 +92,7 @@ function ForkTemplate({
         />
         <ButtonsWrapper>
           <Button
-            category={Category.tertiary}
+            category={Category.secondary}
             disabled={isImportingTemplate}
             onClick={onClose}
             size={Size.large}

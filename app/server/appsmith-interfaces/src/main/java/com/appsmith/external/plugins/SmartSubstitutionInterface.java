@@ -3,6 +3,7 @@ package com.appsmith.external.plugins;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 
 import java.util.Arrays;
@@ -15,6 +16,7 @@ public interface SmartSubstitutionInterface {
     /**
      * !Warning! - This function changes the values of arraylist insertedParams which can then be returned
      * back to the caller with all the values that were finally put during substitution
+     *
      * @param input
      * @param mustacheValuesInOrder
      * @param evaluatedParams
@@ -24,7 +26,7 @@ public interface SmartSubstitutionInterface {
      * @throws AppsmithPluginException
      */
     default Object smartSubstitutionOfBindings(Object input,
-                                               List<String> mustacheValuesInOrder,
+                                               List<MustacheBindingToken> mustacheValuesInOrder,
                                                List<Param> evaluatedParams,
                                                List<Map.Entry<String, String>> insertedParams,
                                                Object... args) throws AppsmithPluginException {
@@ -32,7 +34,7 @@ public interface SmartSubstitutionInterface {
         if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
 
             for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
-                String key = mustacheValuesInOrder.get(i);
+                String key = mustacheValuesInOrder.get(i).getValue();
                 Optional<Param> matchingParam = evaluatedParams.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
 
                 // If the evaluated value of the mustache binding is present, set it in the prepared statement
@@ -75,7 +77,7 @@ public interface SmartSubstitutionInterface {
 
     static <T> T[] append(T[] arr, T lastElement) {
         final int N = arr.length;
-        arr = Arrays.copyOf(arr, N+1);
+        arr = Arrays.copyOf(arr, N + 1);
         arr[N] = lastElement;
         return arr;
     }

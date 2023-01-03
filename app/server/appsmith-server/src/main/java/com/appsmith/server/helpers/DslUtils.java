@@ -1,12 +1,12 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,10 +17,9 @@ import java.util.regex.Pattern;
 
 public class DslUtils {
 
-    public static Set<String> getMustacheValueSetFromSpecificDynamicBindingPath(JsonNode dsl, String fieldPath) {
+    public static Set<MustacheBindingToken> getMustacheValueSetFromSpecificDynamicBindingPath(JsonNode dsl, String fieldPath) {
 
         DslNodeWalkResponse dslWalkResponse = getDslWalkResponse(dsl, fieldPath);
-
 
         // Only extract mustache keys from leaf nodes
         if (dslWalkResponse != null && dslWalkResponse.isLeafNode) {
@@ -31,7 +30,7 @@ public class DslUtils {
             }
 
             // Stricter extraction of dynamic bindings
-            Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(((TextNode) dslWalkResponse.currentNode).asText());
+            Set<MustacheBindingToken> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(((TextNode) dslWalkResponse.currentNode).asText());
             return mustacheKeysFromFields;
         }
 
@@ -39,23 +38,29 @@ public class DslUtils {
         return new HashSet<>();
     }
 
-    public static JsonNode replaceValuesInSpecificDynamicBindingPath(JsonNode dsl, String fieldPath, Map<String, String> replacementMap) {
+    public static JsonNode replaceValuesInSpecificDynamicBindingPath(JsonNode dsl, String fieldPath, Map<MustacheBindingToken, String> replacementMap) {
         DslNodeWalkResponse dslWalkResponse = getDslWalkResponse(dsl, fieldPath);
 
         if (dslWalkResponse != null && dslWalkResponse.isLeafNode) {
-            final String oldValue = ((TextNode) dslWalkResponse.currentNode).asText();
+            final StringBuilder oldValue = new StringBuilder(((TextNode) dslWalkResponse.currentNode).asText());
 
-            final String newValue = StringUtils.replaceEach(
-                    oldValue,
-                    replacementMap.keySet().toArray(new String[0]),
-                    replacementMap.values().toArray(new String[0]));
+            for (MustacheBindingToken mustacheBindingToken : replacementMap.keySet()) {
+                String tokenValue = mustacheBindingToken.getValue();
+                int endIndex = mustacheBindingToken.getStartIndex() + tokenValue.length();
+                if (oldValue.length() >= endIndex && oldValue.subSequence(mustacheBindingToken.getStartIndex(), endIndex).equals(tokenValue)) {
+                    oldValue.replace(mustacheBindingToken.getStartIndex(), endIndex, replacementMap.get(mustacheBindingToken));
+                }
+            }
 
-            ((ObjectNode) dslWalkResponse.parentNode).set(dslWalkResponse.currentKey, new TextNode(newValue));
+            ((ObjectNode) dslWalkResponse.parentNode).set(dslWalkResponse.currentKey, new TextNode(oldValue.toString()));
         }
         return dsl;
     }
 
     private static DslNodeWalkResponse getDslWalkResponse(JsonNode dsl, String fieldPath) {
+        if (dsl == null) {
+            return null;
+        }
         String[] fields = fieldPath.split("[].\\[]");
         // For nested fields, the parent dsl to search in would shift by one level every iteration
         Object currentNode = dsl;

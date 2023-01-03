@@ -17,6 +17,7 @@ import lightmodeThumbnail from "assets/icons/gifs/lightmode_thumbnail.png";
 import darkmodeThumbnail from "assets/icons/gifs/darkmode_thumbnail.png";
 
 interface PaginationProps {
+  actionName: string;
   onTestClick: (test?: "PREV" | "NEXT") => void;
   paginationType: PaginationType;
   theme?: EditorTheme;
@@ -183,12 +184,13 @@ export default function Pagination(props: PaginationProps) {
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationPrev"
                     fill={!!true}
+                    focusElementName={`${props.actionName}.actionConfiguration.prev`}
                     height="100%"
                     name="actionConfiguration.prev"
                     theme={props.theme}
                   />
                   <Button
-                    category={Category.tertiary}
+                    category={Category.secondary}
                     className="t--apiFormPaginationPrevTest"
                     height="auto"
                     onClick={() => {
@@ -208,12 +210,13 @@ export default function Pagination(props: PaginationProps) {
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationNext"
                     fill={!!true}
+                    focusElementName={`${props.actionName}.actionConfiguration.next`}
                     height="100%"
                     name="actionConfiguration.next"
                     theme={props.theme}
                   />
                   <Button
-                    category={Category.tertiary}
+                    category={Category.secondary}
                     className="t--apiFormPaginationNextTest"
                     height="auto"
                     onClick={() => {

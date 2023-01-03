@@ -2,95 +2,80 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { EvaluatedPopupState } from "reducers/uiReducers/editorContextReducer";
-import { all, put, select, takeLatest } from "redux-saga/effects";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { generatePropertyKey } from "utils/editorContextUtils";
+import {
+  setPanelPropertySectionState,
+  setPanelSelectedPropertyTabIndex,
+  setWidgetPropertySectionState,
+  setWidgetSelectedPropertyTabIndex,
+} from "actions/editorContextActions";
+
+import { all, put, takeLatest } from "redux-saga/effects";
+import {
+  CodeEditorFocusState,
+  setCodeEditorCursorAction,
+  setFocusableInputField,
+} from "actions/editorContextActions";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 
 /**
  * This method appends the PageId along with the focusable propertyPath
  * @param action
  */
-function* generateKeyAndSetFocusablePropertyFieldSaga(
-  action: ReduxAction<{ path?: string }>,
-) {
-  const currentPageId: string = yield select(getCurrentPageId);
+function* setEditorFieldFocus(action: ReduxAction<CodeEditorFocusState>) {
+  const { cursorPosition, key } = action.payload;
 
-  const propertyFieldKey = generatePropertyKey(
-    action.payload.path,
-    currentPageId,
+  const entityInfo = identifyEntityFromPath(
+    window.location.pathname,
+    window.location.hash,
   );
+  const ignoredEntities = [FocusEntity.DATASOURCE, FocusEntity.PROPERTY_PANE];
 
-  if (propertyFieldKey) {
-    yield put({
-      type: ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD,
-      payload: {
-        path: propertyFieldKey,
-      },
-    });
+  if (key) {
+    if (!ignoredEntities.includes(entityInfo.entity)) {
+      yield put(setFocusableInputField(key));
+    }
+    yield put(setCodeEditorCursorAction(key, cursorPosition));
   }
 }
 
-/**
- * This method appends the PageId along with the focusable propertyPath
- * @param action
- */
-function* generateKeyAndSetFocusableEditor(
+function* setPropertySectionStateSaga(
   action: ReduxAction<{
-    key: string | undefined;
+    key: string;
+    isOpen: boolean;
+    panelPropertyPath?: string;
   }>,
 ) {
-  const currentPageId: string = yield select(getCurrentPageId);
+  const { isOpen, key, panelPropertyPath } = action.payload;
 
-  const { key } = action.payload;
-
-  const propertyFieldKey = generatePropertyKey(key, currentPageId);
-
-  if (propertyFieldKey) {
-    yield put({
-      type: ReduxActionTypes.SET_CODE_EDITOR_FOCUS,
-      payload: { key: propertyFieldKey },
-    });
+  if (panelPropertyPath) {
+    yield put(setPanelPropertySectionState(key, isOpen, panelPropertyPath));
+  } else {
+    yield put(setWidgetPropertySectionState(key, isOpen));
   }
 }
 
-/**
- * This method appends the PageId along with the focusable propertyPath
- * @param action
- */
-function* generateKeyAndSetEvalPopupState(
-  action: ReduxAction<{
-    key: string | undefined;
-    evalPopupState: EvaluatedPopupState;
-  }>,
+function* setSelectedPropertyTabIndexSaga(
+  action: ReduxAction<{ index: number; panelPropertyPath?: string }>,
 ) {
-  const currentPageId: string = yield select(getCurrentPageId);
+  const { index, panelPropertyPath } = action.payload;
 
-  const { evalPopupState, key } = action.payload;
-
-  const propertyFieldKey = generatePropertyKey(key, currentPageId);
-
-  if (propertyFieldKey) {
-    yield put({
-      type: ReduxActionTypes.SET_EVAL_POPUP_STATE,
-      payload: { key: propertyFieldKey, evalPopupState },
-    });
+  if (panelPropertyPath) {
+    yield put(setPanelSelectedPropertyTabIndex(index, panelPropertyPath));
+  } else {
+    yield put(setWidgetSelectedPropertyTabIndex(index));
   }
 }
 
 export default function* editorContextSagas() {
   yield all([
     takeLatest(
-      ReduxActionTypes.GENERATE_KEY_AND_SET_FOCUSABLE_PROPERTY_FIELD,
-      generateKeyAndSetFocusablePropertyFieldSaga,
+      ReduxActionTypes.SET_PROPERTY_SECTION_STATE,
+      setPropertySectionStateSaga,
     ),
     takeLatest(
-      ReduxActionTypes.GENERATE_KEY_AND_SET_CODE_EDITOR_LAST_FOCUS,
-      generateKeyAndSetFocusableEditor,
+      ReduxActionTypes.SET_SELECTED_PROPERTY_TAB_INDEX,
+      setSelectedPropertyTabIndexSaga,
     ),
-    takeLatest(
-      ReduxActionTypes.GENERATE_KEY_AND_SET_EVAL_POPUP_STATE,
-      generateKeyAndSetEvalPopupState,
-    ),
+    takeLatest(ReduxActionTypes.SET_EDITOR_FIELD_FOCUS, setEditorFieldFocus),
   ]);
 }

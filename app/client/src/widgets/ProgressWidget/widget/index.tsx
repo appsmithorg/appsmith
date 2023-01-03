@@ -7,6 +7,7 @@ import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
+import { Stylesheet } from "entities/AppTheming";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -75,7 +76,13 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { min: 1, max: 100, default: 1, natural: true },
+              params: {
+                min: 1,
+                max: 100,
+                default: 1,
+                natural: true,
+                passThroughOnZero: false,
+              },
             },
             hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
             dependencies: ["isIndeterminate"],
@@ -145,6 +152,13 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      fillColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

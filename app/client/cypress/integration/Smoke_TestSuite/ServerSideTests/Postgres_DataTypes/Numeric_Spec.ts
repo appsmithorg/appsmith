@@ -4,17 +4,17 @@ let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Numeric Datatype tests", function() {
   before(() => {
     cy.fixture("Datatypes/NumericDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeTheme("Moon");
+    appSettings.OpenPaneAndChangeTheme("Moon");
   });
 
   it("1. Create Postgress DS", function() {

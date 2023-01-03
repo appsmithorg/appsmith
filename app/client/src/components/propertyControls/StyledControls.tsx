@@ -126,6 +126,14 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
+
+  /*
+    We use this font family to show emoji flags
+    on windows devices
+  */
+  .left-icon-wrapper {
+    font-family: "Twemoji Country Flags";
+  }
 `;
 
 export const StyledMenu = styled(Menu)`
@@ -303,20 +311,6 @@ export const StyledPropertyPaneButton = styled(Button)`
   margin-left: auto;
   display: flex;
   justify-content: flex-end;
-  border: 1px solid ${Colors.GREY_8};
-
-  &,
-  &:active {
-    border: 1px solid ${Colors.GREY_8};
-    color: ${Colors.GREY_8};
-    background-color: transparent;
-  }
-
-  &:hover {
-    border: 1px solid ${Colors.GREY_8};
-    color: ${Colors.GREY_8};
-    background-color: ${Colors};
-  }
 
   &&& svg {
     width: 14px;
@@ -325,12 +319,6 @@ export const StyledPropertyPaneButton = styled(Button)`
       fill: ${Colors.GREY_8};
       stroke: ${Colors.GREY_8};
     }
-  }
-
-  &:disabled {
-    background-color: ${Colors.GREY_1};
-    color: var(--appsmith-color-black-400);
-    border-color: ${Colors.MERCURY};
   }
 `;
 

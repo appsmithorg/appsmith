@@ -8,7 +8,7 @@ import {
   WorkspaceRole,
   Workspace,
   WorkspaceUser,
-} from "constants/workspaceConstants";
+} from "@appsmith/constants/workspaceConstants";
 
 export const initialState: WorkspaceReduxState = {
   loadingStates: {

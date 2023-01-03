@@ -2,12 +2,12 @@ import { Template } from "api/TemplatesApi";
 import React from "react";
 import { useHistory, useParams } from "react-router";
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import DatasourceChip from "../DatasourceChip";
 import { Colors } from "constants/Colors";
 import {
   Button,
   FontWeight,
+  getTypographyByKey,
   IconPositions,
   Size,
   Text,
@@ -28,6 +28,8 @@ import WidgetInfo from "../WidgetInfo";
 import ForkTemplate from "../ForkTemplate";
 import { templateIdUrl } from "RouteBuilder";
 import { useQuery } from "pages/Editor/utils";
+import { useSelector } from "react-redux";
+import { getForkableWorkspaces } from "selectors/templatesSelectors";
 
 export const DescriptionWrapper = styled.div`
   display: flex;
@@ -63,7 +65,7 @@ export const StyledDatasourceChip = styled(DatasourceChip)`
     width: 25px;
   }
   span {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     color: ${Colors.EBONY_CLAY};
   }
 `;
@@ -94,6 +96,7 @@ function TemplateDescription(props: TemplateDescriptionProps) {
   }>();
   const history = useHistory();
   const query = useQuery();
+  const workspaceList = useSelector(getForkableWorkspaces);
 
   const onForkButtonTrigger = () => {
     history.replace(
@@ -114,7 +117,7 @@ function TemplateDescription(props: TemplateDescriptionProps) {
               {template.description}
             </Text>
           </div>
-          {!props.hideForkButton && (
+          {!props.hideForkButton && !!workspaceList.length && (
             <ForkTemplate
               onClose={onForkModalClose}
               showForkModal={!!query.get(SHOW_FORK_MODAL_PARAM)}

@@ -19,5 +19,5 @@ jobs:
       - uses: docker://agilepathway/pull-request-label-checker:latest
         with:
           # Needs to have a Test Plan Approved label if not part of any of the pods below
-          any_of: Test Plan Approved,App Viewers Pod,User Education Pod,New Developers Pod,Team Managers Pod,UI Builders Pod,Performance,Release Promotion,CI,Design System Pod,DevOps Pod
+          any_of: Test Plan Approved,App Viewers Pod,User Education Pod,New Developers Pod,Team Managers Pod,UI Builders Pod,Performance,Release Promotion,CI,Design System Pod,DevOps Pod,skip-testPlan
           repo_token: ${{ secrets.GITHUB_TOKEN }}

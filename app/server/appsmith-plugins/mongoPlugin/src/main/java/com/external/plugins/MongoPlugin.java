@@ -21,6 +21,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
@@ -224,7 +225,7 @@ public class MongoPlugin extends BasePlugin {
     @Extension
     public static class MongoPluginExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -577,7 +578,7 @@ public class MongoPlugin extends BasePlugin {
                                            List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {
 
             // First extract all the bindings in order
-            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(rawQuery);
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(rawQuery);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(rawQuery, mustacheKeysInOrder);
 

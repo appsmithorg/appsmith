@@ -62,7 +62,7 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         text={createMessage(() => "Save & Restart")}
       />
       <StyledClearButton
-        category={Category.tertiary}
+        category={Category.secondary}
         className="t--admin-settings-reset-button"
         disabled={Object.keys(settings).length == 0}
         onClick={onClear}

@@ -28,7 +28,7 @@ import { ApiResponse } from "api/ApiResponses";
 import { Toaster, Variant } from "design-system";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Workspace } from "constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 import { getAllApplications } from "actions/applicationActions";

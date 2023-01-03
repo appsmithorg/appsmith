@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useMemo, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import {
   Classes,
@@ -20,6 +20,10 @@ import ActionRightPane, {
 import { Colors } from "constants/Colors";
 import { sortedDatasourcesHandler } from "./helpers";
 import { datasourcesEditorIdURL } from "RouteBuilder";
+import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
+import { useDispatch, useSelector } from "react-redux";
+import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
+import isUndefined from "lodash/isUndefined";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -207,14 +211,21 @@ export const getDatasourceInfo = (datasource: any): string => {
   if (authType.length) info.push(authType);
   return info.join(" | ");
 };
-
 function ApiRightPane(props: any) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const dispatch = useDispatch();
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
   );
+  const selectedTab = useSelector(getApiRightPaneSelectedTab);
+
+  const setSelectedTab = useCallback((selectedIndex: number) => {
+    dispatch(setApiRightPaneSelectedTab(selectedIndex));
+  }, []);
+
   useEffect(() => {
-    if (!!props.hasResponse) setSelectedIndex(1);
+    // Switch to connections tab only initially after successfully run get stored value
+    // otherwise
+    if (!!props.hasResponse && isUndefined(selectedTab)) setSelectedTab(1);
   }, [props.hasResponse]);
 
   // array of datasources with the current action's datasource first, followed by the rest.
@@ -232,8 +243,8 @@ function ApiRightPane(props: any) {
       <TabbedViewContainer>
         <TabComponent
           cypressSelector={"api-right-pane"}
-          onSelect={setSelectedIndex}
-          selectedIndex={selectedIndex}
+          onSelect={setSelectedTab}
+          selectedIndex={isUndefined(selectedTab) ? 0 : selectedTab}
           tabs={[
             {
               key: "datasources",
@@ -241,7 +252,7 @@ function ApiRightPane(props: any) {
               panelComponent:
                 props.datasources && props.datasources.length > 0 ? (
                   <DataSourceListWrapper
-                    className={selectedIndex === 0 ? "show" : ""}
+                    className={selectedTab === 0 ? "show" : ""}
                   >
                     {(sortedDatasources || []).map((d: any, idx: number) => {
                       const dataSourceInfo: string = getDatasourceInfo(d);
@@ -313,7 +324,7 @@ function ApiRightPane(props: any) {
                 ),
             },
             {
-              key: "Connections",
+              key: "connections",
               title: "Connections",
               panelComponent: (
                 <SomeWrapper>

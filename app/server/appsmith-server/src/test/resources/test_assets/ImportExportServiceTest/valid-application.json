@@ -710,5 +710,6 @@
     "name": "Classic",
     "new": true,
     "isSystemTheme": true
-  }
+  },
+  "customJSLibList": []
 }

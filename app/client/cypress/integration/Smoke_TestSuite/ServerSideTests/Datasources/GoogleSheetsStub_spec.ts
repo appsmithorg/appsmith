@@ -12,8 +12,8 @@ describe("Google Sheets datasource test cases", function() {
       "Read, Edit and Create Files",
       "Read, Edit, Create and Delete Files",
     ]);
-    dataSources.DeleteDSDirectly();
-   });
+    dataSources.SaveDSFromDialog(false);
+  });
 
   function VerifyFunctionDropdown(scopeOptions: string[]) {
     agHelper.GetNClick(dataSources._gsScopeDropdown);

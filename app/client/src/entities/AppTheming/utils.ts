@@ -5,19 +5,18 @@ import {
   isDynamicValue,
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
-import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
+import WidgetFactory from "utils/WidgetFactory";
 import { parseSchemaItem } from "widgets/WidgetUtils";
+import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppTheme } from "entities/AppTheming";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 /**
  * get properties to update for reset
  */
 export const getPropertiesToUpdateForReset = (
   canvasWidgets: CanvasWidgetsReduxState,
-  themeStylesheet: AppTheme["stylesheet"],
 ) => {
   const propertiesToUpdate: UpdateWidgetPropertyPayload[] = [];
 
@@ -36,7 +35,9 @@ export const getPropertiesToUpdateForReset = (
   // in stylesheet
   Object.keys(canvasWidgets).map((widgetId) => {
     const widget = canvasWidgets[widgetId];
-    const stylesheetValue = themeStylesheet[widget.type];
+    const stylesheetValue = WidgetFactory.getWidgetStylesheetConfigMap(
+      widget.type,
+    );
     const modifications: any = {};
 
     if (stylesheetValue) {
@@ -82,18 +83,19 @@ export const getPropertiesToUpdateForReset = (
         Object.keys(widget.groupButtons).map((groupButtonName: string) => {
           const groupButton = widget.groupButtons[groupButtonName];
 
-          const childStylesheetValue = stylesheetValue.childStylesheet.button;
+          const childStylesheetValue = stylesheetValue?.childStylesheet?.button;
 
-          Object.keys(childStylesheetValue).map((childPropertyKey) => {
-            if (
-              childStylesheetValue[childPropertyKey] !==
-              groupButton[childPropertyKey]
-            ) {
-              modifications[
-                `groupButtons.${groupButtonName}.${childPropertyKey}`
-              ] = childStylesheetValue[childPropertyKey];
-            }
-          });
+          childStylesheetValue &&
+            Object.keys(childStylesheetValue).map((childPropertyKey) => {
+              if (
+                get(childStylesheetValue, childPropertyKey) !==
+                groupButton[childPropertyKey]
+              ) {
+                modifications[
+                  `groupButtons.${groupButtonName}.${childPropertyKey}`
+                ] = get(childStylesheetValue, childPropertyKey);
+              }
+            });
         });
       }
 
@@ -106,7 +108,8 @@ export const getPropertiesToUpdateForReset = (
               const fieldStylesheet = getFieldStylesheet(
                 widget.widgetName,
                 schemaItem.fieldType,
-                themeStylesheet[widget.type].childStylesheet as any,
+                (WidgetFactory.getWidgetStylesheetConfigMap(widget.type) || {})
+                  .childStylesheet as any,
               );
 
               Object.keys(fieldStylesheet).map((fieldPropertyKey) => {
@@ -126,26 +129,31 @@ export const getPropertiesToUpdateForReset = (
         }
 
         // reset submit button
-        ["submitButtonStyles", "resetButtonStyles"].map((buttonStyleKey) => {
-          Object.keys(stylesheetValue[buttonStyleKey]).map((propertyKey) => {
-            const buttonStylesheetValue =
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              stylesheetValue[buttonStyleKey][propertyKey];
+        (["submitButtonStyles", "resetButtonStyles"] as const).map(
+          (buttonStyleKey) => {
+            Object.keys(get(stylesheetValue, buttonStyleKey, {})).map(
+              (propertyKey) => {
+                const buttonStylesheetValue = get(
+                  stylesheetValue,
+                  `${buttonStyleKey}.${propertyKey}`,
+                ) as string;
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (
-              THEME_BINDING_REGEX.test(buttonStylesheetValue) &&
-              buttonStylesheetValue !== widget[buttonStyleKey][propertyKey] &&
-              buttonStylesheetValue !== widget[buttonStyleKey][propertyKey]
-            ) {
-              modifications[
-                `${buttonStyleKey}.${propertyKey}`
-              ] = buttonStylesheetValue;
-            }
-          });
-        });
+                if (
+                  buttonStylesheetValue &&
+                  typeof buttonStylesheetValue === "string" &&
+                  THEME_BINDING_REGEX.test(buttonStylesheetValue) &&
+                  buttonStylesheetValue !==
+                    widget[buttonStyleKey][propertyKey] &&
+                  buttonStylesheetValue !== widget[buttonStyleKey][propertyKey]
+                ) {
+                  modifications[
+                    `${buttonStyleKey}.${propertyKey}`
+                  ] = buttonStylesheetValue;
+                }
+              },
+            );
+          },
+        );
       }
 
       if (Object.keys(modifications).length > 0) {

@@ -1,6 +1,6 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
@@ -13,9 +13,7 @@ import styled from "styled-components";
 import { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-
-import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
-import { setDatsourceEditorMode } from "actions/datasourceActions";
+import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
 import {
   Button,
@@ -26,10 +24,7 @@ import {
   MenuItem,
 } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
-import {
-  getGenerateCRUDEnabledPluginMap,
-  getIsDeletingDatasource,
-} from "selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
@@ -42,8 +37,20 @@ import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   createMessage,
+  CONFIRM_CONTEXT_DELETING,
+  GENERATE_NEW_PAGE_BUTTON_TEXT,
+  RECONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
+import {
+  hasCreateDatasourceActionPermission,
+  hasDeleteDatasourcePermission,
+  hasManageDatasourcePermission,
+} from "@appsmith/utils/permissionHelpers";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -91,7 +98,7 @@ const DatasourceIconWrapper = styled.div`
   align-items: center;
 `;
 
-const GenerateTemplateButton = styled(Button)`
+const GenerateTemplateOrReconnect = styled(Button)`
   padding: 10px 10px;
   font-size: 12px;
 
@@ -199,9 +206,26 @@ function DatasourceCard(props: DatasourceCardProps) {
       action.config.datasource.id === datasource.id,
   ).length;
 
-  const isDeletingDatasource = useSelector(getIsDeletingDatasource);
+  const datasourcePermissions = datasource?.userPermissions || [];
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
+
+  const canEditDatasource = hasManageDatasourcePermission(
+    datasourcePermissions,
+  );
+
+  const canDeleteDatasource = hasDeleteDatasourcePermission(
+    datasourcePermissions,
+  );
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const isDeletingDatasource = !!datasource.isDeleting;
 
   useEffect(() => {
     if (confirmDelete && !isDeletingDatasource) {
@@ -223,18 +247,19 @@ function DatasourceCard(props: DatasourceCardProps) {
           datasourceId: datasource.id,
           params: {
             from: "datasources",
+            viewMode: "false",
             ...getQueryParams(),
           },
         }),
       );
     } else {
-      dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
       history.push(
         datasourcesEditorIdURL({
           pageId,
           datasourceId: datasource.id,
           params: {
             from: "datasources",
+            viewMode: "false",
             ...getQueryParams(),
           },
         }),
@@ -261,6 +286,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   };
 
   const deleteAction = () => {
+    if (isDeletingDatasource) return;
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasource.id }));
   };
@@ -295,22 +321,40 @@ function DatasourceCard(props: DatasourceCardProps) {
                 : "No query in this application is using this datasource"}
             </Queries>
           </div>
-          {datasource.isConfigured && (
-            <ButtonsWrapper className="action-wrapper">
-              {supportTemplateGeneration && (
-                <GenerateTemplateButton
-                  category={Category.tertiary}
-                  className="t--generate-template"
-                  disabled={!supportTemplateGeneration}
-                  onClick={routeToGeneratePage}
-                  text="GENERATE NEW PAGE"
+          <ButtonsWrapper className="action-wrapper">
+            {(!datasource.isConfigured || supportTemplateGeneration) &&
+              isDatasourceAuthorizedForQueryCreation(datasource, plugin) && (
+                <GenerateTemplateOrReconnect
+                  category={Category.secondary}
+                  className={
+                    datasource.isConfigured
+                      ? "t--generate-template"
+                      : "t--reconnect-btn"
+                  }
+                  onClick={
+                    datasource.isConfigured
+                      ? routeToGeneratePage
+                      : editDatasource
+                  }
+                  text={
+                    datasource.isConfigured
+                      ? createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)
+                      : createMessage(RECONNECT_BUTTON_TEXT)
+                  }
                 />
               )}
+            {datasource.isConfigured && (
               <NewActionButton
                 datasource={datasource}
+                disabled={
+                  !canCreateDatasourceActions ||
+                  !isDatasourceAuthorizedForQueryCreation(datasource, plugin)
+                }
                 eventFrom="active-datasources"
                 plugin={plugin}
               />
+            )}
+            {(canDeleteDatasource || canEditDatasource) && (
               <MenuWrapper
                 className="t--datasource-menu-option"
                 onClick={(e) => {
@@ -319,93 +363,52 @@ function DatasourceCard(props: DatasourceCardProps) {
               >
                 <MenuComponent
                   menuItemWrapperWidth="160px"
-                  onClose={() => setConfirmDelete(false)}
                   position={Position.BOTTOM_RIGHT}
                   target={
                     <MoreOptionsContainer>
                       <Icon
-                        fillColor={Colors.GREY_8}
+                        fillColor={
+                          datasource.isConfigured ? Colors.GREY_8 : Colors.GRAY2
+                        }
                         name="comment-context-menu"
                         size={IconSize.XXXL}
                       />
                     </MoreOptionsContainer>
                   }
                 >
-                  <MenuItem
-                    className="t--datasource-option-edit"
-                    icon="edit"
-                    onSelect={editDatasource}
-                    text="Edit"
-                  />
-                  <RedMenuItem
-                    className="t--datasource-option-delete"
-                    icon="delete"
-                    isLoading={isDeletingDatasource}
-                    onSelect={() => {
-                      confirmDelete ? deleteAction() : setConfirmDelete(true);
-                    }}
-                    text={
-                      confirmDelete
-                        ? createMessage(CONFIRM_CONTEXT_DELETE)
-                        : createMessage(CONTEXT_DELETE)
-                    }
-                  />
+                  {canEditDatasource && (
+                    <MenuItem
+                      className="t--datasource-option-edit"
+                      icon="edit"
+                      onSelect={editDatasource}
+                      text="Edit"
+                    />
+                  )}
+                  {canDeleteDatasource && (
+                    <RedMenuItem
+                      className="t--datasource-option-delete"
+                      icon="delete"
+                      isLoading={isDeletingDatasource}
+                      onSelect={() => {
+                        if (!isDeletingDatasource) {
+                          confirmDelete
+                            ? deleteAction()
+                            : setConfirmDelete(true);
+                        }
+                      }}
+                      text={
+                        isDeletingDatasource
+                          ? createMessage(CONFIRM_CONTEXT_DELETING)
+                          : confirmDelete
+                          ? createMessage(CONFIRM_CONTEXT_DELETE)
+                          : createMessage(CONTEXT_DELETE)
+                      }
+                    />
+                  )}
                 </MenuComponent>
               </MenuWrapper>
-            </ButtonsWrapper>
-          )}
-          {!datasource.isConfigured && (
-            <ButtonsWrapper className="action-wrapper">
-              <GenerateTemplateButton
-                category={Category.tertiary}
-                className="t--reconnect-btn"
-                onClick={editDatasource}
-                text="RECONNECT"
-              />
-
-              <MenuWrapper
-                className="t--datasource-menu-option"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                <MenuComponent
-                  menuItemWrapperWidth="160px"
-                  onClose={() => setConfirmDelete(false)}
-                  position={Position.BOTTOM_RIGHT}
-                  target={
-                    <MoreOptionsContainer>
-                      <Icon
-                        fillColor={Colors.GRAY2}
-                        name="comment-context-menu"
-                        size={IconSize.XXXL}
-                      />
-                    </MoreOptionsContainer>
-                  }
-                >
-                  <MenuItem
-                    className="t--datasource-option-edit"
-                    icon="edit"
-                    onSelect={editDatasource}
-                    text="Edit"
-                  />
-                  <RedMenuItem
-                    className="t--datasource-option-delete"
-                    icon="delete"
-                    isLoading={isDeletingDatasource}
-                    onSelect={() => {
-                      confirmDelete ? deleteAction() : setConfirmDelete(true);
-                    }}
-                    text={
-                      confirmDelete
-                        ? createMessage(CONFIRM_CONTEXT_DELETE)
-                        : createMessage(CONTEXT_DELETE)
-                    }
-                  />
-                </MenuComponent>
-              </MenuWrapper>
-            </ButtonsWrapper>
-          )}
+            )}
+          </ButtonsWrapper>
         </DatasourceCardHeader>
       </DatasourceCardMainBody>
       {!isNil(currentFormConfig) && (
@@ -416,7 +419,10 @@ function DatasourceCard(props: DatasourceCardProps) {
         >
           <CollapseComponent title="Show More" titleStyle={{ maxWidth: 120 }}>
             <DatasourceInfo>
-              {renderDatasourceSection(currentFormConfig[0], datasource)}
+              <RenderDatasourceInformation
+                config={currentFormConfig[0]}
+                datasource={datasource}
+              />
             </DatasourceInfo>
           </CollapseComponent>
         </CollapseComponentWrapper>
@@ -425,4 +431,4 @@ function DatasourceCard(props: DatasourceCardProps) {
   );
 }
 
-export default DatasourceCard;
+export default memo(DatasourceCard);

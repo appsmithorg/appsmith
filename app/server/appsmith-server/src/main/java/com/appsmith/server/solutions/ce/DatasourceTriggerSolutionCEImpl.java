@@ -14,6 +14,7 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,10 +42,11 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationValidator authenticationValidator;
     private final DatasourceContextService datasourceContextService;
+    private final DatasourcePermission datasourcePermission;
 
     public Mono<TriggerResultDTO> trigger(String datasourceId, TriggerRequestDTO triggerRequestDTO) {
 
-        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, READ_DATASOURCES)
+        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "datasourceId")))
                 .cache();
         final Mono<Plugin> pluginMono = datasourceMono

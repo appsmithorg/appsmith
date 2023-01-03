@@ -1,13 +1,13 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -15,6 +15,7 @@ import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-
 @Slf4j
 public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlImporterServiceCE {
 
@@ -58,19 +57,22 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
     private final ObjectMapper objectMapper;
+    private final PagePermission pagePermission;
 
     public CurlImporterServiceCEImpl(
             PluginService pluginService,
             LayoutActionService layoutActionService,
             NewPageService newPageService,
             ResponseUtils responseUtils,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            PagePermission pagePermission
     ) {
         this.pluginService = pluginService;
         this.layoutActionService = layoutActionService;
         this.newPageService = newPageService;
         this.responseUtils = responseUtils;
         this.objectMapper = objectMapper;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -90,7 +92,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             return Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND));
         }
 
-        Mono<NewPage> pageMono = newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES);
+        Mono<NewPage> pageMono = newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission());
 
         // Set the default values for datasource (plugin, name) and then create the action
         // with embedded datasource
@@ -110,7 +112,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     action1.setPageId(newPage.getId());
                     return Mono.just(action1);
                 })
-                .flatMap(layoutActionService::createSingleAction)
+                .flatMap(action2 -> layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
@@ -334,11 +336,14 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             boolean isStateProcessed = true;
 
             if (ARG_REQUEST.equals(state)) {
-                // The `token` is next to `--request`.
-                final HttpMethod method = HttpMethod.resolve(token.toUpperCase());
-                if (method == null) {
+                // HttpMethod now supports custom verbs as well,
+                // so we limit our check to non-ASCII characters as the HTTP 1.1 RFC states
+                // Ref: https://www.rfc-editor.org/rfc/rfc7231#section-8.1
+                if (token == null || !token.chars().allMatch(c -> c < 128)) {
                     throw new AppsmithException(AppsmithError.INVALID_CURL_METHOD, token);
                 }
+                // The `token` is next to `--request`.
+                final HttpMethod method = HttpMethod.valueOf(token.toUpperCase());
                 actionConfiguration.setHttpMethod(method);
 
             } else if (ARG_HEADER.equals(state)) {

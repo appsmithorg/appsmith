@@ -5,17 +5,17 @@ let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("MySQL Datatype tests", function() {
   before(() => {
     cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeTheme("Moon");
+    appSettings.OpenPaneAndChangeTheme("Moon");
   });
 
   it("1. Create Mysql DS", function() {
@@ -35,6 +35,7 @@ describe("MySQL Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
+    ee.ExpandCollapseEntity("Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer(inputData.tableName),
@@ -88,10 +89,10 @@ describe("MySQL Datatype tests", function() {
     inputData.result.forEach((res_array, i) => {
       res_array.forEach((value, j) => {
         table.ReadTableRowColumnData(j, i, 0).then(($cellData) => {
-          if(i === inputData.result.length-1){
-            let obj = JSON.parse($cellData)
+          if (i === inputData.result.length - 1) {
+            const obj = JSON.parse($cellData);
             expect(JSON.stringify(obj)).to.eq(JSON.stringify(value));
-          }else{
+          } else {
             expect($cellData).to.eq(value);
           }
         });
@@ -137,14 +138,11 @@ describe("MySQL Datatype tests", function() {
   it("9. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    [
-      "createTable",
-      "dropTable",
-      "insertRecord",
-      "selectRecords",
-    ].forEach((type) => {
-      ee.ActionContextMenuByEntityName(type, "Delete", "Are you sure?");
-    });
+    ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
+      (type) => {
+        ee.ActionContextMenuByEntityName(type, "Delete", "Are you sure?");
+      },
+    );
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");

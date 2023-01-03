@@ -4,7 +4,6 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
 import { AppState } from "@appsmith/reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
@@ -26,6 +25,7 @@ import MobileSideBar from "./MobileSidebar";
 import { Indices } from "constants/Layers";
 import { Icon, IconSize } from "design-system";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -33,7 +33,7 @@ const StyledPageHeader = styled(StyledHeader)<{
   showSeparator?: boolean;
   showingTabs: boolean;
 }>`
-  box-shadow: 0px 1px 0px ${Colors.GALLERY_2};
+  box-shadow: none;
   justify-content: normal;
   background: white;
   height: 48px;
@@ -41,21 +41,7 @@ const StyledPageHeader = styled(StyledHeader)<{
   position: fixed;
   top: 0;
   z-index: ${Indices.Layer9};
-  box-shadow: ${(props) => {
-    if (props.isMobile) {
-      return `0px 4px 4px rgba(0, 0, 0, 0.05)`;
-    }
-    if (props.hideShadow) {
-      // solid line
-      return `0px 1px 0px ${Colors.GALLERY_2}`;
-    } else {
-      return `0px 4px 4px rgba(0, 0, 0, 0.05)`;
-    }
-  }};
-  ${(props) =>
-    props.showingTabs &&
-    !props.isMobile &&
-    `box-shadow: 0px 1px 0px ${Colors.GALLERY_2};`}
+  box-shadow: 0px 1px 0px ${Colors.GALLERY_2};
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -104,7 +90,7 @@ const TabName = styled.div<{ isSelected: boolean }>`
   align-items: center;
   ${(props) =>
     props.isSelected &&
-    `border-bottom: 2px solid ${Colors.CRUSTA};
+    `border-bottom: 2px solid var(--ads-color-brand);
   color: ${Colors.COD_GRAY};`}
   cursor: pointer;
 `;
@@ -122,6 +108,7 @@ export function PageHeader(props: PageHeaderProps) {
   const queryParams = new URLSearchParams(location.search);
   const isMobile = useIsMobileDevice();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const tenantConfig = useSelector(getTenantConfig);
   let loginUrl = AUTH_LOGIN_URL;
   if (queryParams.has("redirectUrl")) {
     loginUrl += `?redirectUrl
@@ -165,15 +152,18 @@ export function PageHeader(props: PageHeaderProps) {
       showingTabs={showTabs}
     >
       <HeaderSection>
-        <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
-          <AppsmithLogo />
-        </Link>
+        {tenantConfig.brandLogoUrl && (
+          <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
+            <img alt="Logo" className="h-6" src={tenantConfig.brandLogoUrl} />
+          </Link>
+        )}
       </HeaderSection>
 
       <Tabs>
         {showTabs && !isMobile && (
           <>
             <TabName
+              className="t--apps-tab"
               isSelected={matchApplicationPath(location.pathname)}
               onClick={() => history.push(APPLICATIONS_URL)}
             >

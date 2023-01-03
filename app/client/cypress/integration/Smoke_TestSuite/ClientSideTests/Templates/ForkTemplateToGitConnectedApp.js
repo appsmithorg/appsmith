@@ -1,4 +1,5 @@
 import template from "../../../../locators/TemplatesLocators.json";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import widgetLocators from "../../../../locators/Widgets.json";
 let repoName;
@@ -7,6 +8,8 @@ const branchName = "test/template";
 const mainBranch = "master";
 const jsObject = "Utils";
 const homePage = require("../../../../locators/HomePage");
+
+let ee = ObjectsRegistry.EntityExplorer;
 
 describe("Fork a template to the current app", () => {
   before(() => {
@@ -35,8 +38,15 @@ describe("Fork a template to the current app", () => {
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]",
-    ).click();
+      "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]//span[contains(@class, 't--left-icon')]",
+    )
+      .scrollIntoView()
+      .click();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(template.templateViewForkButton).length) {
+        cy.get(template.templateViewForkButton).click();
+      }
+    });
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -50,8 +60,8 @@ describe("Fork a template to the current app", () => {
   });
   it("2. Bug #17262 On forking template to a child branch of git connected app is throwing Page not found error ", function() {
     cy.createGitBranch(branchName);
-    cy.CreatePage();
-    cy.get(template.startFromTemplateCard).click();
+    ee.AddNewPage();
+    ee.AddNewPage("add-page-from-template");
 
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");

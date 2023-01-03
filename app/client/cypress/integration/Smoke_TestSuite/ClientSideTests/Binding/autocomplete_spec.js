@@ -7,7 +7,13 @@ describe("Dynamic input autocomplete", () => {
     cy.addDsl(dsl);
   });
   it("opens autocomplete for bindings", () => {
+    cy.selectEntityByName("TestModal");
+    cy.wait(3000);
+    cy.selectEntityByName("Aditya");
     cy.openPropertyPane("buttonwidget");
+    cy.testJsontext("label", "", {
+      parseSpecialCharSequences: true,
+    });
     cy.get(dynamicInputLocators.input)
       .first()
       .click({ force: true })
@@ -24,22 +30,29 @@ describe("Dynamic input autocomplete", () => {
 
         // Tests if autocomplete will open
         cy.get(dynamicInputLocators.hints).should("exist");
-
         // Tests if data tree entities are sorted
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
           .should("have.text", "Button1.text");
 
+        cy.testJsontext("label", "", {
+          parseSpecialCharSequences: true,
+        });
         // Tests if "No suggestions" message will pop if you type any garbage
         cy.get(dynamicInputLocators.input)
           .first()
           .click({ force: true })
           .type("{uparrow}", { parseSpecialCharSequences: true })
           .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
-          .type("{{ garbage", {
-            parseSpecialCharSequences: true,
-          })
+          .type("{backspace}", { parseSpecialCharSequences: true })
+
           .then(() => {
+            cy.get(dynamicInputLocators.input)
+              .first()
+              .click({ force: true })
+              .type("{{garbage", {
+                parseSpecialCharSequences: true,
+              });
             cy.get(".CodeMirror-Tern-tooltip").should(
               "have.text",
               "No suggestions",
@@ -48,6 +61,24 @@ describe("Dynamic input autocomplete", () => {
       });
     cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
   });
+
+  it("test if action inside non event field throws error", () => {
+    cy.get(dynamicInputLocators.input)
+      .first()
+      .click({ force: true })
+      .type("{backspace}".repeat(12))
+      .type("{{storeValue()}}", { parseSpecialCharSequences: false });
+
+    cy.wait(1000);
+
+    cy.evaluateErrorMessage(
+      "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute framework actions. Please remove any direct/indirect references to {{actionName}} and try again.".replaceAll(
+        "{{actionName}}",
+        "storeValue()",
+      ),
+    );
+  });
+
   it("opens current value popup", () => {
     // Test on api pane
     cy.NavigateToAPI_Panel();

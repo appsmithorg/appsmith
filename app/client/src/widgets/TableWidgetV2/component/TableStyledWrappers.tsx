@@ -41,6 +41,7 @@ export const TableWrapper = styled.div<{
   borderWidth?: number;
   isResizingColumn?: boolean;
   variant?: TableVariant;
+  isAddRowInProgress: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -105,8 +106,17 @@ export const TableWrapper = styled.div<{
             `${lightenColor(accentColor, "0.9")}`} !important;
         }
       }
-      &:hover {
-        background: var(--wds-color-bg-hover) !important;
+
+      ${(props) => {
+        if (!props.isAddRowInProgress) {
+          return `&:hover {
+            background: var(--wds-color-bg-hover) !important;
+          }`;
+        }
+      }}
+      &.new-row {
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
     }
     .th,
@@ -116,14 +126,14 @@ export const TableWrapper = styled.div<{
         props.variant === TableVariantTypes.DEFAULT ||
         props.variant === undefined ||
         props.variant === TableVariantTypes.VARIANT3
-          ? `1px solid var(--wds-color-border-onaccent)`
-          : `1px solid transparent`};
+          ? "1px solid var(--wds-color-border-onaccent)"
+          : "none"};
       border-right: ${(props) =>
         props.variant === TableVariantTypes.DEFAULT ||
         props.variant === undefined ||
         props.isResizingColumn
-          ? `1px solid var(--wds-color-border-onaccent)`
-          : `1px solid transparent`};
+          ? "1px solid var(--wds-color-border-onaccent)"
+          : "none"};
       position: relative;
       font-size: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
       line-height: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
@@ -393,6 +403,7 @@ export const CellWrapper = styled.div<{
   textSize?: string;
   disablePadding?: boolean;
   imageSize?: ImageSize;
+  isCellDisabled?: boolean;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -415,12 +426,23 @@ export const CellWrapper = styled.div<{
     props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
   align-items: ${(props) =>
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
-  background: ${(props) => props.cellBackground};
+
+  background: ${(props) => {
+    if (props.isCellDisabled) {
+      return props.cellBackground
+        ? lightenColor(props.cellBackground)
+        : "var(--wds-color-bg-disabled)";
+    } else {
+      return props.cellBackground;
+    }
+  }};
 
   &:hover,
   .selected-row & {
     background: ${(props) =>
-      props.cellBackground ? darkenColor(props.cellBackground, 5) : ""};
+      props.cellBackground && !props.isCellDisabled
+        ? darkenColor(props.cellBackground, 5)
+        : ""};
   }
   font-size: ${(props) => props.textSize};
 

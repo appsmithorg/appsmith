@@ -21,9 +21,9 @@ export const CONFIG = {
     defaultOptionValue: "md",
     isVisible: true,
     isDisabled: false,
-    showMarksLabel: false,
+    showMarksLabel: true,
     rows: 8,
-    columns: 42,
+    columns: 40,
     widgetName: "CategorySlider",
     shouldScroll: false,
     shouldTruncate: false,
@@ -42,6 +42,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

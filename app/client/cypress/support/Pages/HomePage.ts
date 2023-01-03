@@ -25,13 +25,13 @@ export class HomePage {
     workspaceName +
     ") button:contains('Share')";
   private _email =
-    "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
+    Cypress.env("Edition") === 0
+      ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
+      : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
-  private _userRole = (role: string, workspaceName: string) =>
+  private _userRole = (role: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role +
-    " - " +
-    workspaceName +
     "']";
 
   private _manageUsers = ".manageUsers";
@@ -53,8 +53,7 @@ export class HomePage {
     "//td[text()='" +
     email +
     "']/following-sibling::td//span[contains(@class, 't--deleteUser')]";
-  private _userRoleDropDown = (role: string, WorkspaceName: string) =>
-    "//span[text()='" + role + " - " + WorkspaceName + "']";
+  private _userRoleDropDown = (role: string) => "//span[text()='" + role + "']";
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
@@ -63,7 +62,7 @@ export class HomePage {
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   private _leaveWorkspace = "//span[text()='Leave Workspace']";
-  private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']"
+  private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
@@ -81,9 +80,19 @@ export class HomePage {
   private _deleteAppConfirm = '[data-cy="t--delete"]';
   private _wsAction = (action: string) =>
     "//span[text()='" + action + "']/ancestor::a";
+  private _homeTab = ".t--apps-tab";
+  private _templatesTab = ".t--templates-tab";
+
+  public SwitchToAppsTab() {
+    this.agHelper.GetNClick(this._homeTab);
+  }
+
+  public SwitchToTemplatesTab() {
+    this.agHelper.GetNClick(this._templatesTab);
+  }
 
   public CreateNewWorkspace(workspaceNewName: string) {
-    let oldName: string = "";
+    let oldName = "";
     cy.xpath(this._visibleTextSpan("New Workspace"))
       .should("be.visible")
       .first()
@@ -146,13 +155,33 @@ export class HomePage {
       .first()
       .click({ force: true });
     this.agHelper.Sleep(500);
-    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
+    cy.xpath(this._userRole(role)).click({ force: true });
     this.agHelper.ClickButton("Invite");
     cy.wait("@mockPostInvite")
       .its("request.headers")
       .should("have.property", "origin", "Cypress");
     cy.contains(email, { matchCase: false });
     cy.contains(successMessage);
+  }
+
+  public InviteUserToWorkspaceErrorMessage(
+    workspaceName: string,
+    text: string,
+  ) {
+    const errorMessage =
+      Cypress.env("Edition") === 0
+        ? "Invalid email address(es) found"
+        : "Invalid email address(es) or group(s) found";
+    this.StubPostHeaderReq();
+    this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
+    this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
+    cy.xpath(this._email)
+      .click({ force: true })
+      .type(text);
+    this.agHelper.ClickButton("Invite");
+    cy.contains(text, { matchCase: false });
+    cy.contains(errorMessage, { matchCase: false });
+    cy.get(".bp3-dialog-close-button").click({ force: true });
   }
 
   public StubPostHeaderReq() {
@@ -179,7 +208,7 @@ export class HomePage {
   }
 
   //Maps to CreateAppForWorkspace in command.js
-  public CreateAppInWorkspace(workspaceName: string, appname: string = "") {
+  public CreateAppInWorkspace(workspaceName: string, appname = "") {
     cy.xpath(this._existingWorkspaceCreateNewApp(workspaceName))
       .scrollIntoView()
       .should("be.visible")
@@ -202,6 +231,10 @@ export class HomePage {
       }
     });
     cy.get(this._applicationName).type(appName + "{enter}");
+  }
+
+  public GetAppName() {
+    return this.agHelper.GetText(this._applicationName, "text");
   }
 
   //Maps to LogOut in command.js
@@ -313,12 +346,12 @@ export class HomePage {
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
     cy.log(workspaceName, email, currentRole);
-    cy.xpath(this._userRoleDropDown(currentRole, workspaceName))
+    cy.xpath(this._userRoleDropDown(currentRole))
       .first()
       .click({ force: true });
 
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
-    cy.xpath(this._visibleTextSpan(`${newRole} - ${workspaceName}`))
+    cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
       .click({ force: true });
     this.agHelper.Sleep();
@@ -335,11 +368,7 @@ export class HomePage {
     cy.xpath(this._uploadFile).attachFile(fixtureJson);
     this.agHelper.Sleep(3500);
   }
-  public InviteUserToWorkspaceFromApp(
-    workspaceName: string,
-    email: string,
-    role: string,
-  ) {
+  public InviteUserToWorkspaceFromApp(email: string, role: string) {
     const successMessage = "The user has been invited successfully";
     this.StubPostHeaderReq();
     cy.xpath(this._email)
@@ -349,7 +378,7 @@ export class HomePage {
       .first()
       .click({ force: true });
     this.agHelper.Sleep(500);
-    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
+    cy.xpath(this._userRole(role)).click({ force: true });
     this.agHelper.ClickButton("Invite");
     cy.wait("@mockPostInvite")
       .its("request.headers")
@@ -403,8 +432,8 @@ export class HomePage {
     cy.get(this._workspaceList(workspaceName))
       .scrollIntoView()
       .should("be.visible");
-      cy.get
-      (this._optionsIcon).first()
+    cy.get(this._optionsIcon)
+      .first()
       .click({ force: true });
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
@@ -413,7 +442,8 @@ export class HomePage {
       "response.body.responseMeta.status",
       200,
     );
-    this.agHelper.ValidateToastMessage("You have successfully left the workspace");
+    this.agHelper.ValidateToastMessage(
+      "You have successfully left the workspace",
+    );
   }
-  
 }

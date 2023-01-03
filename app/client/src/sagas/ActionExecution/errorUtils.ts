@@ -15,7 +15,7 @@ import { Types } from "utils/TypeHelpers";
 import {
   ActionTriggerFunctionNames,
   ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 /*
@@ -65,23 +65,27 @@ export const logActionExecutionError = (
   errorType?: PropertyEvaluationErrorType,
 ) => {
   if (triggerPropertyName) {
-    AppsmithConsole.addError({
-      id: `${source?.id}-${triggerPropertyName}`,
-      logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
-      text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
-      source: {
-        type: ENTITY_TYPE.WIDGET,
-        id: source?.id ?? "",
-        name: source?.name ?? "",
-        propertyPath: triggerPropertyName,
-      },
-      messages: [
-        {
-          type: errorType,
-          message: errorMessage,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: `${source?.id}-${triggerPropertyName}`,
+          logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
+          text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
+          source: {
+            type: ENTITY_TYPE.WIDGET,
+            id: source?.id ?? "",
+            name: source?.name ?? "",
+            propertyPath: triggerPropertyName,
+          },
+          messages: [
+            {
+              type: errorType,
+              message: errorMessage,
+            },
+          ],
         },
-      ],
-    });
+      },
+    ]);
   }
 
   Toaster.show({

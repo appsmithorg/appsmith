@@ -18,6 +18,7 @@ import { get } from "lodash";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
+import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -148,12 +149,14 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     (state: AppState) => state.ui.widgetDragResize.isResizing,
     (state: AppState) => state.ui.widgetDragResize.isDragging,
     getAppMode,
+    getIsAutoHeightWithLimitsChanging,
     (
       focusedWidgetId,
       isTableFilterPaneVisible,
       isResizing,
       isDragging,
       appMode,
+      isAutoHeightWithLimitsChanging,
     ) => {
       const isFocused = focusedWidgetId === widgetId;
 
@@ -162,7 +165,8 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
         isDragging ||
         appMode !== APP_MODE.EDIT ||
         !isFocused ||
-        isTableFilterPaneVisible
+        isTableFilterPaneVisible ||
+        isAutoHeightWithLimitsChanging
       );
     },
   );

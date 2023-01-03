@@ -23,9 +23,13 @@ public class ApplicationFetcherImpl extends ApplicationFetcherCEImpl implements 
                                   ReleaseNotesService releaseNotesService,
                                   ResponseUtils responseUtils,
                                   NewPageService newPageService,
-                                  UserWorkspaceService userWorkspaceService) {
+                                  UserWorkspaceService userWorkspaceService,
+                                  WorkspacePermission workspacePermission,
+                                  ApplicationPermission applicationPermission,
+                                  PagePermission pagePermission) {
 
         super(sessionUserService, userService, userDataService, workspaceService, applicationRepository,
-                releaseNotesService, responseUtils, newPageService, userWorkspaceService);
+                releaseNotesService, responseUtils, newPageService, userWorkspaceService, workspacePermission,
+                applicationPermission, pagePermission);
     }
 }

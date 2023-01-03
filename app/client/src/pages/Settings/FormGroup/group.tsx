@@ -11,9 +11,10 @@ import Text from "./Text";
 import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import {
   createMessage,
+  LEARN_MORE,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { CalloutV2 } from "design-system";
@@ -24,7 +25,9 @@ import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import Checkbox from "./Checkbox";
+import Radio from "./Radio";
 import { useDispatch } from "react-redux";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 type GroupProps = {
   name?: string;
@@ -58,28 +61,28 @@ const GroupBody = styled.div`
       margin-top: 0px;
     }
   }
-  & .tag-input {
-    .t--admin-settings-tag-input {
-      > div {
-        margin: 0;
-        .${Classes.TAG_INPUT}, .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-          border: 1.2px solid var(--appsmith-color-black-250);
-          box-shadow: none;
-          .bp3-tag {
-            background: var(--appsmith-color-black-50);
-            color: ${Colors.BLACK};
-            svg:hover {
-              cursor: pointer;
-              path {
-                fill: currentColor;
-              }
-            }
-          }
-        }
-        .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-          border: 1.2px solid var(--appsmith-input-focus-border-color);
-        }
+  &&&& {
+    // TagInput in design system has a right margin
+    .tag-input > div {
+      margin: 0;
+    }
+
+    .tag-input .${Classes.TAG_INPUT} {
+      box-shadow: none;
+    }
+
+    .tag-input .${Classes.TAG} {
+      color: ${Colors.GRAY_700};
+      background-color: ${Colors.GRAY_200};
+      ${(props) => getTypographyByKey(props, "h5")}
+      // Cursor on close icon need to be a pointer
+      svg:hover {
+        cursor: pointer;
       }
+    }
+
+    .tag-input .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
+      border: 1.2px solid var(--appsmith-color-black-900);
     }
   }
 `;
@@ -110,6 +113,16 @@ export default function Group({
               return null;
             }
             switch (setting.controlType) {
+              case SettingTypes.RADIO:
+                return (
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-group-radio"
+                    key={setting.name || setting.id}
+                  >
+                    <Radio setting={setting} />
+                  </div>
+                );
               case SettingTypes.TEXTINPUT:
                 return (
                   <div
@@ -152,7 +165,7 @@ export default function Group({
                   >
                     {setting.action ? (
                       <CalloutV2
-                        actionLabel="READ MORE"
+                        actionLabel={createMessage(LEARN_MORE)}
                         desc={createMessage(() => setting.label || "")}
                         onClick={
                           ((() => {
@@ -165,7 +178,7 @@ export default function Group({
                       />
                     ) : (
                       <CalloutV2
-                        actionLabel="READ MORE"
+                        actionLabel={createMessage(LEARN_MORE)}
                         desc={createMessage(() => setting.label || "")}
                         type={setting.calloutType || "Notify"}
                         url={setting.url}

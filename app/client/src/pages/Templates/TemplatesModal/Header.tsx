@@ -1,4 +1,7 @@
-import { createMessage, TEMPLATES_BACK_BUTTON } from "ce/constants/messages";
+import {
+  createMessage,
+  TEMPLATES_BACK_BUTTON,
+} from "@appsmith/constants/messages";
 import { Icon, IconSize, Text, TextType } from "design-system";
 import React from "react";
 import styled from "styled-components";

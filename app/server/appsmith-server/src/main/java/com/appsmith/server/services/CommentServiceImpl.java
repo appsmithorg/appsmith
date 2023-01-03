@@ -7,14 +7,16 @@ import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.services.ce.CommentServiceCEImpl;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EmailEventHandler;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 @Slf4j
 @Service
@@ -37,12 +39,14 @@ public class CommentServiceImpl extends CommentServiceCEImpl implements CommentS
                               EmailEventHandler emailEventHandler,
                               UserDataRepository userDataRepository,
                               SequenceService sequenceService,
-                              ResponseUtils responseUtils) {
+                              ResponseUtils responseUtils,
+                              ApplicationPermission applicationPermission,
+                              PagePermission pagePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 threadRepository, userService, sessionUserService, applicationService, newPageService,
                 notificationService, policyGenerator, policyUtils, emailEventHandler, userDataRepository,
-                sequenceService, responseUtils);
+                sequenceService, responseUtils, applicationPermission, pagePermission);
 
     }
 }

@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import history from "utils/history";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import { Button, Size, TooltipComponent as Tooltip } from "design-system";
+import {
+  Button,
+  getTypographyByKey,
+  Size,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
@@ -14,6 +18,8 @@ import {
 } from "@appsmith/constants/messages";
 import { templateIdUrl } from "RouteBuilder";
 import { Position } from "@blueprintjs/core";
+import { getForkableWorkspaces } from "selectors/templatesSelectors";
+import { useSelector } from "react-redux";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -48,11 +54,11 @@ const TemplateContent = styled.div`
   flex: 1;
 
   .title {
-    ${(props) => getTypographyByKey(props, "h1")}
+    ${getTypographyByKey("h1")}
     color: ${Colors.EBONY_CLAY};
   }
   .categories {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     font-weight: normal;
     color: var(--appsmith-color-black-800);
     margin-top: ${(props) => props.theme.spaces[1]}px;
@@ -60,7 +66,7 @@ const TemplateContent = styled.div`
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
     color: var(--appsmith-color-black-700);
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${getTypographyByKey("p1")}
   }
 `;
 
@@ -125,6 +131,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
     title,
   } = props.template;
   const [showForkModal, setShowForkModal] = useState(false);
+  const workspaceList = useSelector(getForkableWorkspaces);
   const onClick = () => {
     if (props.onClick) {
       props.onClick(id);
@@ -172,26 +179,29 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               );
             })}
           </TemplateDatasources>
-          <div onClick={onForkButtonTrigger}>
-            <ForkTemplateDialog
-              onClose={onForkModalClose}
-              showForkModal={showForkModal}
-              templateId={id}
-            >
-              <Tooltip
-                content={createMessage(FORK_THIS_TEMPLATE)}
-                minimal
-                position={Position.BOTTOM}
+          {!!workspaceList.length && (
+            <div onClick={onForkButtonTrigger}>
+              <ForkTemplateDialog
+                onClose={onForkModalClose}
+                showForkModal={showForkModal}
+                templateId={id}
               >
-                <StyledButton
-                  className="t--fork-template fork-button"
-                  icon="plus"
-                  size={Size.medium}
-                  tag="button"
-                />
-              </Tooltip>
-            </ForkTemplateDialog>
-          </div>
+                <Tooltip
+                  content={createMessage(FORK_THIS_TEMPLATE)}
+                  minimal
+                  position={Position.BOTTOM}
+                >
+                  <StyledButton
+                    className="t--fork-template fork-button"
+                    icon="plus"
+                    onClick={onForkButtonTrigger}
+                    size={Size.medium}
+                    tag="button"
+                  />
+                </Tooltip>
+              </ForkTemplateDialog>
+            </div>
+          )}
         </TemplateContentFooter>
       </TemplateContent>
     </TemplateWrapper>

@@ -12,6 +12,20 @@ function createEle() {
 }
 
 const scrollW = 6;
+const reponsePaneHeight = 307;
+
+const tableData = [
+  { "": "Jan 1 1970 10:15AM" },
+  { "": "Jan 2 1970 10:15AM" },
+  { "": "Jan 3 1970 10:15AM" },
+  { "": "Jan 4 1970 10:15AM" },
+  { "": "Jan 5 1970 10:15AM" },
+  { "": "Jan 1 1970 10:15AM" },
+  { "": "Jan 2 1970 10:15AM" },
+  { "": "Jan 3 1970 10:15AM" },
+  { "": "Jan 4 1970 10:15AM" },
+  { "": "Jan 5 1970 10:15AM" },
+];
 
 describe("Query Editor Table", () => {
   it("it should render table with missing key", () => {
@@ -42,5 +56,11 @@ describe("Query Editor Table", () => {
 
     const scrollWidth = getScrollBarWidth(ele, scrollW);
     expect(scrollWidth).toBeGreaterThan(0);
+  });
+
+  it("17653: Scroll bar in table doesnt appear", () => {
+    render(<Table data={tableData} tableBodyHeight={reponsePaneHeight} />);
+    const tbodyEle = document.querySelectorAll(".tbody > div");
+    expect(tbodyEle[0]).toHaveStyle("height: 171px");
   });
 });

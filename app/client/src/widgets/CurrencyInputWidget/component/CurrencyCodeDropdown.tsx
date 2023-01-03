@@ -7,6 +7,16 @@ import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
 import { lightenColor } from "widgets/WidgetUtils";
 
+const StyledDropdown = styled(Dropdown)`
+  /*
+    We use this font family to show emoji flags
+    on windows devices
+  */
+  .left-icon-wrapper {
+    font-family: "Twemoji Country Flags";
+  }
+`;
+
 const DropdownTriggerIconWrapper = styled.button`
   display: flex;
   align-items: center;
@@ -215,6 +225,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   const dropdownTrigger = (
     <DropdownTriggerIconWrapper
       className="t--input-currency-change currency-change-dropdown-trigger"
+      data-tabbable={false}
       disabled={props.isDisabled}
       tabIndex={0}
       type="button"
@@ -232,7 +243,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
 
   return (
     <>
-      <Dropdown
+      <StyledDropdown
         closeOnSpace={false}
         containerClassName="currency-type-filter"
         dropdownHeight="139px"

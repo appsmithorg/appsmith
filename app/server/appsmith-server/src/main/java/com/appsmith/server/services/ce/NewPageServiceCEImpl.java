@@ -20,6 +20,8 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -33,20 +35,18 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
 
 
@@ -56,6 +56,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     private final ApplicationService applicationService;
     private final UserDataService userDataService;
     private final ResponseUtils responseUtils;
+    private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     @Autowired
     public NewPageServiceCEImpl(Scheduler scheduler,
@@ -66,11 +68,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                                 AnalyticsService analyticsService,
                                 ApplicationService applicationService,
                                 UserDataService userDataService,
-                                ResponseUtils responseUtils) {
+                                ResponseUtils responseUtils,
+                                ApplicationPermission applicationPermission,
+                                PagePermission pagePermission) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
         this.responseUtils = responseUtils;
+        this.applicationPermission = applicationPermission;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -120,6 +126,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
+        return repository.findById(pageId, aclPermission);
+    }
+
+    @Override
     public Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, permission)
                 .flatMap(page -> getPageByViewMode(page, view));
@@ -127,14 +138,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultPageId(branchName, id, READ_PAGES)
+        return this.findByBranchNameAndDefaultPageId(branchName, id, pagePermission.getReadPermission())
                 .map(responseUtils::updateNewPageWithDefaultResources);
     }
 
     @Override
     public Mono<PageDTO> saveUnpublishedPage(PageDTO page) {
 
-        return findById(page.getId(), MANAGE_PAGES)
+        return findById(page.getId(), pagePermission.getEditPermission())
                 .flatMap(newPage -> {
                     newPage.setUnpublishedPage(page);
                     // gitSyncId will be used to sync resource across instances
@@ -210,7 +221,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed) {
-        Mono<Application> applicationMono = applicationService.findById(applicationId, READ_APPLICATIONS)
+
+        AclPermission permission;
+        if (view) {
+            permission = applicationPermission.getReadPermission();
+        } else {
+            permission = applicationPermission.getEditPermission();
+        }
+
+        Mono<Application> applicationMono = applicationService.findById(applicationId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 // Throw a 404 error if the application has never been published
                 .flatMap(application -> {
@@ -225,6 +244,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     return Mono.just(application);
                 })
                 .flatMap(application -> {
+                    log.debug("Fetched application data for id: {}", applicationId);
                     if (markApplicationAsRecentlyAccessed) {
                         // add this application and workspace id to the recently used list in UserData
                         return userDataService.updateLastUsedAppAndWorkspaceList(application)
@@ -263,13 +283,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return pages.stream().map(page -> page.getId()).collect(Collectors.toList());
                 })
-                .flatMapMany(pageIds -> repository.findAllByIds(pageIds, READ_PAGES))
+                .flatMapMany(pageIds -> repository.findAllPageDTOsByIds(pageIds, pagePermission.getReadPermission()))
                 .collectList()
                 .flatMap(pagesFromDb -> Mono.zip(
                         Mono.just(pagesFromDb),
                         defaultPageIdMono,
                         applicationMono
-                )).flatMap(tuple -> {
+                ))
+                .flatMap(tuple -> {
+                    log.debug("Retrieved Page DTOs from DB ...");
                     List<NewPage> pagesFromDb = tuple.getT1();
                     String defaultPageId = tuple.getT2();
 
@@ -334,9 +356,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
         return Mono.zip(applicationMono, pagesListMono)
                 .map(tuple -> {
+                    log.debug("Populating applicationPagesDTO ...");
                     Application application = tuple.getT1();
                     application.setPages(null);
                     application.setPublishedPages(null);
+                    application.setViewMode(view);
                     List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
                     ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
                     applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
@@ -350,15 +374,35 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                                                                                           String branchName,
                                                                                           Boolean view,
                                                                                           boolean markApplicationAsRecentlyAccessed) {
+        AclPermission permission;
+        if (view) {
+            permission = applicationPermission.getReadPermission();
+        } else {
+            permission = applicationPermission.getEditPermission();
+        }
 
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
-                .flatMap(childApplicationId -> findApplicationPagesByApplicationIdViewMode(childApplicationId, view, markApplicationAsRecentlyAccessed))
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, permission)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                        FieldName.APPLICATION, defaultApplicationId)))
+                .flatMap(childApplicationId ->
+                        findApplicationPagesByApplicationIdViewMode(childApplicationId, view, markApplicationAsRecentlyAccessed)
+                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.APPLICATION, childApplicationId)))
+                )
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
 
     @Override
     public Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view) {
-        Mono<Application> applicationMono = applicationService.findByName(applicationName, READ_APPLICATIONS)
+
+        AclPermission permission;
+        if (view) {
+            permission = applicationPermission.getReadPermission();
+        } else {
+            permission = applicationPermission.getEditPermission();
+        }
+
+        Mono<Application> applicationMono = applicationService.findByName(applicationName, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
                 .cache();
 
@@ -386,7 +430,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             pages = application.getPages();
         }
 
-        return findByApplicationId(application.getId(), READ_PAGES, viewMode)
+        return findByApplicationId(application.getId(), pagePermission.getReadPermission(), viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application id", application.getId())))
                 .map(page -> {
                     PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
@@ -409,6 +453,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission) {
+        return repository.findByApplicationId(applicationId, permission);
+    }
+
+    @Override
+    public Flux<NewPage> findNewPagesByApplicationId(String applicationId, Optional<AclPermission> permission) {
         return repository.findByApplicationId(applicationId, permission);
     }
 
@@ -440,7 +489,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> updatePage(String pageId, PageDTO page) {
-        return repository.findById(pageId, MANAGE_PAGES)
+        return repository.findById(pageId, pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(dbPage -> {
                     copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
@@ -455,7 +504,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
-        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(newPage -> updatePage(newPage.getId(), page))
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
@@ -475,8 +524,17 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    public Mono<NewPage> archiveWithoutPermissionById(String id) {
+        return archiveByIdEx(id, Optional.empty());
+    }
+
+    @Override
     public Mono<NewPage> archiveById(String id) {
-        Mono<NewPage> pageMono = this.findById(id, MANAGE_PAGES)
+        return archiveByIdEx(id, Optional.of(pagePermission.getDeletePermission()));
+    }
+
+    public Mono<NewPage> archiveByIdEx(String id, Optional<AclPermission> permission) {
+        Mono<NewPage> pageMono = this.findById(id, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .cache();
 
@@ -537,15 +595,19 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository.findById(defaultPageId, READ_PAGES);
+            getPageMono = repository.findById(
+                    defaultPageId,
+                    List.of(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES),
+                    pagePermission.getReadPermission());
         } else {
-            getPageMono = repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, READ_PAGES);
+            getPageMono = repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission());
         }
         return getPageMono
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
                 )
                 .map(newPage -> {
+                    log.debug("Retrieved possible application ids for page, picking the appropriate one now");
                     if (newPage.getDefaultResources() != null) {
                         return newPage.getDefaultResources().getApplicationId();
                     } else {
@@ -556,6 +618,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
+    }
+
+    @Override
+    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
         return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
     }
 

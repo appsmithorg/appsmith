@@ -18,9 +18,17 @@ import styled, { useTheme } from "styled-components";
 import {
   Button,
   Category,
+  getTypographyByKey,
+  Icon,
+  IconSize,
   LabelContainer,
+  ScrollIndicator,
   Size,
+  Text,
   TextInput,
+  TextType,
+  TooltipComponent as Tooltip,
+  Variant,
 } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
@@ -37,11 +45,12 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
 import {
+  clearCommitErrorState,
   clearCommitSuccessfulState,
   commitToRepoInit,
   discardChanges,
@@ -53,15 +62,6 @@ import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
 import GitChangesList from "../components/GitChangesList";
-import {
-  Icon,
-  IconSize,
-  ScrollIndicator,
-  Text,
-  TextType,
-  TooltipComponent as Tooltip,
-  Variant,
-} from "design-system";
 import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";
 import ConflictInfo from "../components/ConflictInfo";
@@ -78,6 +78,7 @@ import { Space, Title } from "../components/StyledComponents";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import PushFailedWarning from "../components/PushFailedWarning";
 
 const Section = styled.div`
   margin-top: 0;
@@ -90,7 +91,7 @@ const Row = styled.div`
 `;
 
 const SectionTitle = styled.div`
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   color: ${Colors.CHARCOAL};
   display: inline-flex;
 
@@ -313,6 +314,11 @@ function Deploy() {
     !isFetchingGitStatus &&
     ((pullRequired && !isConflicting) ||
       (gitStatus?.behindCount > 0 && gitStatus?.isClean));
+
+  function handleCommitAndPushErrorClose() {
+    dispatch(clearCommitErrorState());
+  }
+
   return (
     <Container data-testid={"t--deploy-tab-container"} ref={scrollWrapperRef}>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
@@ -445,6 +451,13 @@ function Deploy() {
             learnMoreLink={gitConflictDocumentUrl}
           />
         )}
+        {commitAndPushError && (
+          <PushFailedWarning
+            closeHandler={handleCommitAndPushErrorClose}
+            error={commitAndPushError}
+          />
+        )}
+
         {isCommitting && !isDiscarding && (
           <StatusbarWrapper>
             <Statusbar

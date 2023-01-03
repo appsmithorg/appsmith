@@ -3,7 +3,7 @@ package com.appsmith.server.dtos;
 import com.appsmith.server.domains.ApplicationMode;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 public class CommentThreadFilterDTO {

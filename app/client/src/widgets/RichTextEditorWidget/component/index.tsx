@@ -7,9 +7,11 @@ import { TextSize } from "constants/WidgetConstants";
 
 // @ts-expect-error: loader types not available
 import cssVariables from "!!raw-loader!theme/wds.css";
-
-import { LabelWithTooltip, labelLayoutStyles } from "design-system";
 import { isMacOs } from "utils/AppsmithUtils";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "widgets/components/LabelWithTooltip";
 
 const StyledRTEditor = styled.div<{
   borderRadius: string;
@@ -18,6 +20,7 @@ const StyledRTEditor = styled.div<{
   labelPosition?: LabelPosition;
   isValid?: boolean;
   isDisabled?: boolean;
+  isDynamicHeightEnabled?: boolean;
 }>`
   && {
     width: 100%;
@@ -206,17 +209,25 @@ const StyledRTEditor = styled.div<{
   }
 
   ${labelLayoutStyles}
+
+  & .${LABEL_CONTAINER_CLASS} {
+    align-self: center;
+  }
 `;
 
 export const RichTextEditorInputWrapper = styled.div<{
   isValid?: boolean;
   borderRadius: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   display: flex;
   width: 100%;
   min-width: 0;
   height: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto; min-height: 192px; }" : ""};
 `;
 
 export interface RichtextEditorComponentProps {
@@ -227,6 +238,7 @@ export interface RichtextEditorComponentProps {
   isDisabled: boolean;
   isVisible?: boolean;
   compactMode: boolean;
+  isDynamicHeightEnabled: boolean;
   isToolbarHidden: boolean;
   borderRadius: string;
   boxShadow?: string;
@@ -236,21 +248,24 @@ export interface RichtextEditorComponentProps {
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
+  labelTooltip?: string;
   labelStyle?: string;
   isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
 
-export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
+function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
     isDisabled,
+    isDynamicHeightEnabled,
     labelAlignment,
     labelPosition,
     labelStyle,
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
   } = props;
 
@@ -258,7 +273,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const initialRender = useRef(true);
 
   const toolbarConfig =
-    "insertfile undo redo | formatselect | bold italic backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' |help";
+    "insertfile undo redo | formatselect | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | emoticons' |help";
 
   const handleEditorChange = useCallback(
     (newValue: string, editor: any) => {
@@ -299,6 +314,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       compactMode={compactMode}
       data-testid="rte-container"
       isDisabled={props.isDisabled}
+      isDynamicHeightEnabled={isDynamicHeightEnabled}
       isValid={props.isValid}
       labelPosition={labelPosition}
     >
@@ -311,6 +327,8 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           disabled={isDisabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           position={labelPosition}
           text={labelText}
           width={labelWidth}
@@ -318,13 +336,14 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       )}
       <RichTextEditorInputWrapper
         borderRadius={props.borderRadius}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         isValid={props.isValid}
       >
         <Editor
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
           init={{
-            height: "100%",
+            height: isDynamicHeightEnabled ? "auto" : "100%",
             menubar: false,
             toolbar_mode: "sliding",
             forced_root_block: "p",
@@ -332,13 +351,13 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             resize: false,
             browser_spellcheck: true,
             content_style: `${cssVariables}
-            * {
-              color: ${
+              ${
                 props.isDisabled
-                  ? "var(--wds-color-text-disabled)"
-                  : "var(--wds-color-text)"
-              };
-            }`,
+                  ? `* {
+                  color: var(--wds-color-text-disabled)
+                }`
+                  : ""
+              }`,
             plugins: [
               "advlist autolink lists link image charmap print preview anchor",
               "searchreplace visualblocks code fullscreen",

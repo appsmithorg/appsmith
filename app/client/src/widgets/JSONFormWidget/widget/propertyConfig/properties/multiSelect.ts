@@ -10,7 +10,7 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { JSONFormWidgetProps } from "../..";
 
 export function defaultOptionValueValidation(

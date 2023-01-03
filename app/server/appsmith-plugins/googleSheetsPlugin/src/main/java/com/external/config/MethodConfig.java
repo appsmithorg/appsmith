@@ -70,8 +70,9 @@ public class MethodConfig {
         this.sheetName = getTrimmedStringDataValueSafelyFromFormData(formData, SHEET_NAME);
         this.rowObjects = getTrimmedStringDataValueSafelyFromFormData(formData, FieldName.ROW_OBJECTS);
 
-        if (validDataConfigurationPresentInFormData(formData, FieldName.WHERE, new TypeReference<Map<String, Object>>() {
-        })) {
+        if (validDataConfigurationPresentInFormData(formData, FieldName.WHERE,
+                new TypeReference<Map<String, Object>>() {
+                })) {
             Map<String, Object> whereForm = getDataValueSafelyFromFormData(
                     formData,
                     FieldName.WHERE,
@@ -108,9 +109,6 @@ public class MethodConfig {
             case 3:
             case 2:
                 this.tableHeaderIndex = getValueSafelyFromFormDataAsString(parameters, TABLE_HEADER_INDEX);
-                if (!StringUtils.hasLength(this.tableHeaderIndex)) {
-                    this.tableHeaderIndex = "1";
-                }
                 this.sheetName = getValueSafelyFromFormDataAsString(parameters, SHEET_NAME);
             case 1:
                 this.spreadsheetUrl = getValueSafelyFromFormDataAsString(parameters, SHEET_URL);

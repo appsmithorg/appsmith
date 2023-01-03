@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.domains.User;
@@ -18,4 +19,5 @@ public interface UserWorkspaceServiceCE {
     Mono<List<WorkspaceMemberInfoDTO>> getWorkspaceMembers(String workspaceId);
 
     Mono<Map<String, List<WorkspaceMemberInfoDTO>>> getWorkspaceMembers(Set<String> workspaceIds);
+    Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup);
 }

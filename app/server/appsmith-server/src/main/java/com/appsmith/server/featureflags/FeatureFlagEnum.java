@@ -27,10 +27,12 @@ public enum FeatureFlagEnum {
     JS_EDITOR,
     LINTING,
     MULTIPLAYER,
-    GIT,
-    GIT_IMPORT,
     APP_TEMPLATE,
     TEMPLATES_PHASE_2,
     CONTEXT_SWITCHING,
-    DATASOURCE_ENVIRONMENTS
+    DATASOURCE_ENVIRONMENTS,
+    CUSTOM_JS_LIBRARY,
+
+    // Put EE flags below this line, to avoid conflicts.
+    RBAC,
 }

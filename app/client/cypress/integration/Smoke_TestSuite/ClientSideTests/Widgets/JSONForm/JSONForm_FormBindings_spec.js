@@ -239,15 +239,15 @@ describe("JSON Form Widget Form Bindings", () => {
       .wait(500);
 
     // migrant.visible -> false
-    cy.openFieldConfiguration("migrant");
+    cy.openFieldConfiguration("migrant", false);
     cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
     cy.get(backBtn)
       .click({ force: true })
       .wait(500);
 
     // address.street.required -> true
-    cy.openFieldConfiguration("address");
-    cy.openFieldConfiguration("street");
+    cy.openFieldConfiguration("address", false);
+    cy.openFieldConfiguration("street", false);
     cy.togglebar(`${propertyControlPrefix}-required input`);
     cy.get(backBtn)
       .click({ force: true })
@@ -259,13 +259,13 @@ describe("JSON Form Widget Form Bindings", () => {
     // education.college.required -> true
     // education.year.visible -> false
     cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("college");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("college", false);
     cy.togglebar(`${propertyControlPrefix}-required input`);
     cy.get(backBtn)
       .click({ force: true })
       .wait(500);
-    cy.openFieldConfiguration("year");
+    cy.openFieldConfiguration("year", false);
     cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
     cy.get(backBtn)
       .click({ force: true })
@@ -373,9 +373,9 @@ describe("JSON Form Widget Form Bindings", () => {
       .wait(500);
 
     // Change accessor education -> college to education -> graduatingCollege
-    cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("college");
+    cy.openFieldConfiguration("education", false);
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("college", false);
     cy.testJsontext("propertyname", "graduatingCollege");
 
     cy.wait(5000);
@@ -411,8 +411,8 @@ describe("JSON Form Widget Form Bindings", () => {
 
     // Change accessor education -> college to education -> graduatingCollege
     cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("college");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("college", false);
     cy.testJsontext("propertyname", "graduatingCollege");
 
     cy.wait(5000);

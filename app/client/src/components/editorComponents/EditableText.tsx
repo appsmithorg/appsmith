@@ -32,11 +32,18 @@ type EditableTextProps = {
   errorTooltipClass?: string;
   maxLength?: number;
   underline?: boolean;
+  disabled?: boolean;
+  multiline?: boolean;
+  maxLines?: number;
+  minLines?: number;
+  customErrorTooltip?: string;
+  useFullWidth?: boolean;
 };
 
 const EditableTextWrapper = styled.div<{
   isEditing: boolean;
   minimal: boolean;
+  useFullWidth: boolean;
 }>`
   && {
     display: flex;
@@ -66,6 +73,14 @@ const EditableTextWrapper = styled.div<{
       width: 100%;
     }
   }
+
+  ${({ useFullWidth }) =>
+    useFullWidth &&
+    `
+    > div {
+    width: 100%;
+    }
+  `}
 `;
 
 // using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
@@ -102,7 +117,9 @@ export function EditableText(props: EditableTextProps) {
   const {
     beforeUnmount,
     className,
+    customErrorTooltip = "",
     defaultValue,
+    disabled,
     editInteractionKind,
     errorTooltipClass,
     forceDefault,
@@ -110,11 +127,16 @@ export function EditableText(props: EditableTextProps) {
     isEditingDefault,
     isInvalid,
     maxLength,
+    maxLines,
     minimal,
+    minLines,
+    multiline,
     onBlur,
     onTextChanged,
     placeholder,
+    underline,
     updating,
+    useFullWidth,
     valueTransform,
   } = props;
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
@@ -161,7 +183,7 @@ export function EditableText(props: EditableTextProps) {
         setIsEditing(false);
       } else {
         Toaster.show({
-          text: "Invalid name",
+          text: customErrorTooltip || "Invalid name",
           variant: Variant.danger,
         });
       }
@@ -182,6 +204,13 @@ export function EditableText(props: EditableTextProps) {
 
   const errorMessage = isInvalid && isInvalid(value);
   const error = errorMessage ? errorMessage : undefined;
+  const showEditIcon = !(
+    disabled ||
+    minimal ||
+    hideEditIcon ||
+    updating ||
+    isEditing
+  );
   return (
     <EditableTextWrapper
       isEditing={isEditing}
@@ -192,6 +221,7 @@ export function EditableText(props: EditableTextProps) {
       onDoubleClick={
         editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
       }
+      useFullWidth={useFullWidth && isEditing ? true : false}
     >
       <ErrorTooltip
         customClass={errorTooltipClass}
@@ -201,13 +231,16 @@ export function EditableText(props: EditableTextProps) {
         <TextContainer
           isValid={!error}
           minimal={!!minimal}
-          underline={props.underline}
+          underline={underline}
         >
           <BlueprintEditableText
             className={className}
-            disabled={!isEditing}
+            disabled={disabled || !isEditing}
             isEditing={isEditing}
             maxLength={maxLength}
+            maxLines={maxLines}
+            minLines={minLines}
+            multiline={multiline}
             onCancel={onBlur}
             onChange={onInputchange}
             onConfirm={onChange}
@@ -215,7 +248,7 @@ export function EditableText(props: EditableTextProps) {
             selectAllOnFocus
             value={value}
           />
-          {!minimal && !hideEditIcon && !updating && !isEditing && (
+          {showEditIcon && (
             <Icon
               className="t--action-name-edit-icon"
               fillColor="#939090"

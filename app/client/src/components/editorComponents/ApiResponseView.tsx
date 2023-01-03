@@ -219,6 +219,7 @@ type Props = ReduxStateProps &
   RouteComponentProps<APIEditorRouteParams> & {
     theme?: EditorTheme;
     apiName: string;
+    disabled?: boolean;
     onRunClick: () => void;
     responseDataTypes: { key: string; title: string }[];
     responseDisplayFormat: { title: string; value: string };
@@ -305,6 +306,7 @@ export const handleCancelActionExecution = () => {
 
 function ApiResponseView(props: Props) {
   const {
+    disabled,
     match: {
       params: { apiId },
     },
@@ -387,6 +389,11 @@ function ApiResponseView(props: Props) {
 
   const selectedResponseTab = useSelector(getApiPaneResponseSelectedTab);
   const updateSelectedResponseTab = useCallback((tabKey: string) => {
+    if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "API_PANE",
+      });
+    }
     dispatch(setApiPaneResponseSelectedTab(tabKey));
   }, []);
 
@@ -445,6 +452,7 @@ function ApiResponseView(props: Props) {
                 <Text type={TextType.P1}>
                   {EMPTY_RESPONSE_FIRST_HALF()}
                   <InlineButton
+                    disabled={disabled}
                     isLoading={isRunning}
                     onClick={onRunClick}
                     size={Size.medium}
@@ -524,7 +532,7 @@ function ApiResponseView(props: Props) {
                 folding
                 height={"100%"}
                 input={{
-                  value: response?.body
+                  value: !isEmpty(responseHeaders)
                     ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
@@ -573,7 +581,7 @@ function ApiResponseView(props: Props) {
                 {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
               </Text>
               <CancelRequestButton
-                category={Category.tertiary}
+                category={Category.secondary}
                 className={`t--cancel-action-button`}
                 onClick={() => {
                   handleCancelActionExecution();

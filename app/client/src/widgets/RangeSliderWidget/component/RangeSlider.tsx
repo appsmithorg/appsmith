@@ -64,6 +64,9 @@ export interface RangeSliderComponentProps
   /** If true label will be not be hidden when user stops dragging */
   tooltipAlwaysOn: boolean;
 
+  /** helpText for the label tooltip */
+  labelTooltip?: string;
+
   /** Disables slider */
   disabled?: boolean;
 
@@ -106,6 +109,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
     loading,
     marks,
@@ -314,6 +318,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           loading={loading}
           position={labelPosition}
           text={labelText}

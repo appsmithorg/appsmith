@@ -19,9 +19,9 @@ export const StyledDiv = styled.div`
 `;
 
 export const StyledControlGroup = styled(ControlGroup)<{
-  compactMode: boolean;
-  labelPosition?: LabelPosition;
-  isDisabled?: boolean;
+  $compactMode: boolean;
+  $labelPosition?: LabelPosition;
+  $isDisabled?: boolean;
 }>`
   &&& > {
     span {
@@ -38,12 +38,12 @@ export const StyledControlGroup = styled(ControlGroup)<{
           fill: var(--wds-color-icon);
 
           path {
-            fill: ${({ isDisabled }) =>
-              isDisabled
+            fill: ${({ $isDisabled }) =>
+              $isDisabled
                 ? "var(--wds-color-icon-disabled)"
                 : "var(--wds-color-icon)"};
-            stroke: ${({ isDisabled }) =>
-              isDisabled
+            stroke: ${({ $isDisabled }) =>
+              $isDisabled
                 ? "var(--wds-color-icon-disabled)"
                 : "var(--wds-color-icon)"} !important;
           }
@@ -58,8 +58,8 @@ export const StyledControlGroup = styled(ControlGroup)<{
           height: 20px;
 
           path {
-            fill: ${({ isDisabled }) =>
-              isDisabled
+            fill: ${({ $isDisabled }) =>
+              $isDisabled
                 ? "var(--wds-color-icon-disabled)"
                 : "var(--wds-color-icon)"};
           }
@@ -217,6 +217,21 @@ export const DropdownContainer = styled.div<{
 }>`
   ${BlueprintCSSTransform}
   ${labelLayoutStyles}
+
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+    ${({ labelPosition }) => {
+      if (labelPosition === LabelPosition.Left) {
+        return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+      }
+    }}
+
   & .${LABEL_CONTAINER_CLASS} {
     label {
       ${({ labelPosition }) => {

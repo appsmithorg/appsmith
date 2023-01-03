@@ -5,7 +5,7 @@ import {
   Completion,
   createCompletionHeader,
   DataTreeDefEntityInformation,
-} from "./TernServer";
+} from "./CodemirrorTernService";
 
 interface AutocompleteRule {
   computeScore(completion: Completion): number;

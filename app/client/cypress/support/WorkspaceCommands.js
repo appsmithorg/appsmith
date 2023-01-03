@@ -140,7 +140,7 @@ Cypress.Commands.add("shareAndPublic", (email, role) => {
   cy.enablePublicAccess();
 });
 
-Cypress.Commands.add("enablePublicAccess", () => {
+Cypress.Commands.add("enablePublicAccess", (editMode = false) => {
   cy.get(homePage.enablePublicAccess)
     .first()
     .click({ force: true });
@@ -150,7 +150,10 @@ Cypress.Commands.add("enablePublicAccess", () => {
     200,
   );
   cy.wait(10000);
-  cy.get(homePage.closeBtn)
+  const closeButtonLocator = editMode
+    ? homePage.editModeInviteModalCloseBtn
+    : homePage.closeBtn;
+  cy.get(closeButtonLocator)
     .first()
     .click({ force: true });
 });
@@ -296,6 +299,11 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   //cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   //cy.reload();
+
+  cy.get("#loading").should("not.exist");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(

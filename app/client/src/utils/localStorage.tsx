@@ -7,6 +7,10 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 
+export const LOCAL_STORAGE_KEYS = {
+  CANVAS_CARDS_STATE: "CANVAS_CARDS_STATE",
+};
+
 class LocalStorageNotSupportedError extends Error {
   name: string;
   constructor() {

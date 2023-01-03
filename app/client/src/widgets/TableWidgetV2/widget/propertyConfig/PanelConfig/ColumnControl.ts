@@ -15,7 +15,7 @@ import {
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
@@ -177,7 +177,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -195,7 +195,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -231,7 +231,7 @@ export default {
         updateInlineEditingOptionDropdownVisibilityHook,
       ]),
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -253,7 +253,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -276,7 +276,7 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.BOOLEAN,
         },
@@ -384,7 +384,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -512,7 +512,7 @@ export default {
       dependencies: ["primaryColumns", "columnType"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {

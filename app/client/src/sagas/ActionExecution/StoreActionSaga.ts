@@ -7,7 +7,10 @@ import {
 } from "actions/pageActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "selectors/entitiesSelector";
-import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
+import {
+  RemoveValueActionDescription,
+  StoreValueActionDescription,
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
@@ -56,4 +59,36 @@ export default function* storeValueLocally(
       break;
     }
   }
+}
+
+export function* removeLocalValue(
+  action: RemoveValueActionDescription["payload"],
+) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const branch: string | undefined = yield select(getCurrentGitBranch);
+  const appStoreName = getAppStoreName(applicationId, branch);
+  const existingStore = localStorage.getItem(appStoreName) || "{}";
+  const parsedStore = JSON.parse(existingStore);
+  delete parsedStore[action.key];
+  const storeString = JSON.stringify(parsedStore);
+  localStorage.setItem(appStoreName, storeString);
+  yield put(updateAppPersistentStore(parsedStore));
+  const existingTransientStore: AppStoreState = yield select(getAppStoreData);
+  delete existingTransientStore.transient?.[action.key];
+  yield put(updateAppTransientStore(existingTransientStore.transient));
+  AppsmithConsole.info({
+    text: `remove('${action.key}')`,
+  });
+}
+
+export function* clearLocalStore() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const branch: string | undefined = yield select(getCurrentGitBranch);
+  const appStoreName = getAppStoreName(applicationId, branch);
+  localStorage.setItem(appStoreName, "{}");
+  yield put(updateAppPersistentStore({}));
+  yield put(updateAppTransientStore({}));
+  AppsmithConsole.info({
+    text: `clear()`,
+  });
 }

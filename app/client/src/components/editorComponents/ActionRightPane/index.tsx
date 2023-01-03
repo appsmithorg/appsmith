@@ -5,6 +5,7 @@ import {
   Button,
   Category,
   Classes,
+  getTypographyByKey,
   Icon,
   IconSize,
   Size,
@@ -14,7 +15,6 @@ import {
 } from "design-system";
 import { useState } from "react";
 import history from "utils/history";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import { ReactNode } from "react";
@@ -39,8 +39,10 @@ import { Colors } from "constants/Colors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -60,7 +62,7 @@ const SideBar = styled.div`
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
     .connection-type {
-      ${(props) => getTypographyByKey(props, "p1")}
+      ${getTypographyByKey("p1")}
     }
   }
 
@@ -69,7 +71,7 @@ const SideBar = styled.div`
   }
 
   .description {
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${getTypographyByKey("p1")}
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
     padding-bottom: ${(props) => props.theme.spaces[7]}px;
   }
@@ -107,7 +109,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
 
   & > .icon-text:first-child {
     color: ${(props) => props.theme.colors.actionSidePane.collapsibleIcon};
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     cursor: pointer;
     .${Classes.ICON} {
       ${(props) => !props.isOpen && `transform: rotate(-90deg);`}
@@ -120,7 +122,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
 `;
 
 const SnipingWrapper = styled.div`
-  ${(props) => getTypographyByKey(props, "p1")}
+  ${getTypographyByKey("p1")}
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
   img {
@@ -250,8 +252,12 @@ function ActionSidebar({
   }, [pageId]);
   const hasWidgets = Object.keys(widgets).length > 1;
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canEditPage = hasManagePagePermission(pagePermissions);
+
   const showSuggestedWidgets =
-    hasResponse && suggestedWidgets && !!suggestedWidgets.length;
+    canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
 
   if (!hasConnections && !showSuggestedWidgets && !showSnipingMode) {
@@ -276,12 +282,12 @@ function ActionSidebar({
           entityDependencies={entityDependencies}
         />
       )}
-      {hasResponse && Object.keys(widgets).length > 1 && (
+      {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
         <Collapsible label="Connect Widget">
           {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               className={"t--select-in-canvas"}
               onClick={handleBindData}
               size={Size.medium}

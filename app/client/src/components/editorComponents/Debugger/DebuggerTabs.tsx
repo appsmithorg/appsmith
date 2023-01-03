@@ -7,6 +7,7 @@ import {
   setCanvasDebuggerSelectedTab,
   showDebugger,
 } from "actions/debuggerActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import EntityDeps from "./EntityDependecies";
@@ -72,6 +73,11 @@ function DebuggerTabs() {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const selectedTab = useSelector(getSelectedCanvasDebuggerTab);
   const setSelectedTab = (tabKey: string) => {
+    if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "WIDGET_EDITOR",
+      });
+    }
     dispatch(setCanvasDebuggerSelectedTab(tabKey));
   };
   const onClose = () => dispatch(showDebugger(false));

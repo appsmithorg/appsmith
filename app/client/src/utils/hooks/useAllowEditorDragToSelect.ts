@@ -1,9 +1,9 @@
 import { AppState } from "@appsmith/reducers";
 import {
-  previewModeSelector,
   snipingModeSelector,
+  previewModeSelector,
 } from "selectors/editorSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 
 export const useAllowEditorDragToSelect = () => {
   // This state tells us whether a `ResizableComponent` is resizing

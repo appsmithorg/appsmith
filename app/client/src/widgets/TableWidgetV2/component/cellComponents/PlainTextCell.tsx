@@ -1,4 +1,11 @@
-import React, { memo, useMemo, useRef } from "react";
+import React, {
+  memo,
+  RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { isNumber, isNil } from "lodash";
 
 import {
@@ -16,6 +23,7 @@ import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
 import { BasicCell } from "./BasicCell";
 import { InlineCellEditor } from "./InlineCellEditor";
 import styled from "styled-components";
+import fastdom from "fastdom";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;
@@ -27,7 +35,6 @@ const Container = styled.div<{
   display: flex;
   align-items: ${(props) =>
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
-  background: ${(props) => props.cellBackground};
 `;
 
 export type RenderDefaultPropsType = BaseCellComponentProps & {
@@ -37,7 +44,11 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   tableWidth: number;
   isCellEditable: boolean;
   isCellEditMode?: boolean;
-  onCellTextChange: (value: EditableCell["value"], inputValue: string) => void;
+  onCellTextChange: (
+    value: EditableCell["value"],
+    inputValue: string,
+    alias: string,
+  ) => void;
   toggleCellEditMode: (
     enable: boolean,
     rowIndex: number,
@@ -52,6 +63,8 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   isEditableCellValid: boolean;
   validationErrorMessage: string;
   widgetId: string;
+  disabledEditIconMessage: string;
+  isNewRow: boolean;
 };
 
 type editPropertyType = {
@@ -78,6 +91,13 @@ export function getCellText(
   return text;
 }
 
+function getContentHeight(ref: RefObject<HTMLDivElement>) {
+  return (
+    !!ref.current?.offsetHeight &&
+    ref.current?.offsetHeight / CELL_WRAPPER_LINE_HEIGHT > 1
+  );
+}
+
 function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
   const {
     accentColor,
@@ -87,15 +107,18 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     columnType,
     compactMode,
     disabledEditIcon,
+    disabledEditIconMessage,
     displayText,
     fontStyle,
     hasUnsavedChanges,
     horizontalAlignment,
+    isCellDisabled,
     isCellEditable,
     isCellEditMode,
     isCellVisible,
     isEditableCellValid,
     isHidden,
+    isNewRow,
     onCellTextChange,
     onSubmitString,
     rowIndex,
@@ -112,7 +135,8 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
 
   const editEvents = useMemo(
     () => ({
-      onChange: onCellTextChange,
+      onChange: (value: EditableCell["value"], inputValue: string) =>
+        onCellTextChange(value, inputValue, alias),
       onDiscard: () =>
         toggleCellEditMode(
           false,
@@ -149,19 +173,22 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
 
   let editor;
 
-  if (isCellEditMode) {
-    /*
-     * TODO(Balaji): remove synchronously accessing offsetHeight, which leads
-     * to layout thrashing
-     */
-    const isMultiline =
-      !!contentRef.current?.offsetHeight &&
-      contentRef.current?.offsetHeight / CELL_WRAPPER_LINE_HEIGHT > 1;
+  const [isMultiline, setIsMultiline] = useState(false);
 
+  useEffect(() => {
+    if (isCellEditMode) {
+      fastdom.measure(() => {
+        setIsMultiline(getContentHeight(contentRef));
+      });
+    }
+  }, [value, isCellEditMode]);
+
+  if (isCellEditMode) {
     editor = (
       <InlineCellEditor
         accentColor={accentColor}
         allowCellWrapping={allowCellWrapping}
+        autoFocus={!isNewRow}
         compactMode={compactMode}
         inputType={
           columnType === ColumnTypes.NUMBER
@@ -173,6 +200,7 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
         onChange={editEvents.onChange}
         onDiscard={editEvents.onDiscard}
         onSave={editEvents.onSave}
+        paddedInput={isNewRow}
         textSize={textSize}
         validationErrorMessage={validationErrorMessage}
         value={value}
@@ -196,9 +224,11 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
         columnType={columnType}
         compactMode={compactMode}
         disabledEditIcon={disabledEditIcon}
+        disabledEditIconMessage={disabledEditIconMessage}
         fontStyle={fontStyle}
         hasUnsavedChanges={hasUnsavedChanges}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellEditMode={isCellEditMode}
         isCellEditable={isCellEditable}
         isCellVisible={isCellVisible}

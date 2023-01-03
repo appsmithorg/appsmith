@@ -30,12 +30,17 @@ import { DEFAULT_CREATE_API_CONFIG } from "constants/ApiEditorConstants/ApiEdito
 import { DEFAULT_CREATE_GRAPHQL_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
-import { autofill, change, initialize } from "redux-form";
+import { initialize, autofill, change, reset } from "redux-form";
 import { Property } from "api/ActionAPI";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { getAction, getActions, getPlugin } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getActions,
+  getDatasourceActionRouteInfo,
+  getPlugin,
+} from "selectors/entitiesSelector";
 import {
   ActionData,
   ActionDataState,
@@ -44,7 +49,6 @@ import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
-import { Datasource } from "entities/Datasource";
 import {
   Action,
   ApiAction,
@@ -78,6 +82,12 @@ import {
   integrationEditorURL,
 } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { validateResponse } from "./ErrorSagas";
+import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
+import {
+  CreateDatasourceSuccessAction,
+  removeTempDatasource,
+} from "actions/datasourceActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -442,71 +452,89 @@ export function* updateFormFields(
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { field, form } = actionPayload.meta;
-  if (form !== API_EDITOR_FORM_NAME) return;
-  if (field === "dynamicBindingPathList" || field === "name") return;
-  const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  if (!values.id) return;
-  const contentTypeHeaderIndex = values.actionConfiguration.headers.findIndex(
-    (header: { key: string; value: string }) =>
-      header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
-  );
-  if (
-    actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
-    actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
-  ) {
-    const value = get(values, field);
-    yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: field,
-        value,
-      }),
-    );
-  } else {
-    yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: field,
-        value: actionPayload.payload,
-      }),
-    );
-    // when user types a content type value, update actionConfiguration.formData.apiContent type as well.
-    // we don't do this initally because we want to specifically catch user editing the content-type value
-    if (
-      field === `actionConfiguration.headers[${contentTypeHeaderIndex}].value`
-    ) {
-      yield put(
-        change(
-          API_EDITOR_FORM_NAME,
-          "actionConfiguration.formData.apiContentType",
-          actionPayload.payload,
-        ),
-      );
-      const apiId = get(values, "id");
-      // when the user specifically sets a new content type value, we check if the input value is a supported post body type and switch to it
-      // if it does not we set the default to Raw mode.
-      yield call(setHeaderFormat, apiId, actionPayload.payload);
+  try {
+    const { field, form } = actionPayload.meta;
+    if (form !== API_EDITOR_FORM_NAME) return;
+    if (field === "dynamicBindingPathList" || field === "name") return;
+    const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
+    if (!values.id) return;
+    if (!hasManageActionPermission(values.userPermissions)) {
+      yield validateResponse({
+        status: 403,
+        resourceType: values?.pluginType,
+        resourceId: values.id,
+      });
     }
+
+    const contentTypeHeaderIndex = values.actionConfiguration.headers.findIndex(
+      (header: { key: string; value: string }) =>
+        header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+    );
+    if (
+      actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
+      actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
+    ) {
+      const value = get(values, field);
+      yield put(
+        setActionProperty({
+          actionId: values.id,
+          propertyName: field,
+          value,
+        }),
+      );
+    } else {
+      yield put(
+        setActionProperty({
+          actionId: values.id,
+          propertyName: field,
+          value: actionPayload.payload,
+        }),
+      );
+      // when user types a content type value, update actionConfiguration.formData.apiContent type as well.
+      // we don't do this initally because we want to specifically catch user editing the content-type value
+      if (
+        field === `actionConfiguration.headers[${contentTypeHeaderIndex}].value`
+      ) {
+        yield put(
+          change(
+            API_EDITOR_FORM_NAME,
+            "actionConfiguration.formData.apiContentType",
+            actionPayload.payload,
+          ),
+        );
+        const apiId = get(values, "id");
+        // when the user specifically sets a new content type value, we check if the input value is a supported post body type and switch to it
+        // if it does not we set the default to Raw mode.
+        yield call(setHeaderFormat, apiId, actionPayload.payload);
+      }
+    }
+    yield all([
+      call(syncApiParamsSaga, actionPayload, values.id),
+      call(updateFormFields, actionPayload),
+    ]);
+
+    // We need to refetch form values here since syncApuParams saga and updateFormFields directly update reform form values.
+    const { values: formValuesPostProcess } = yield select(
+      getFormData,
+      API_EDITOR_FORM_NAME,
+    );
+
+    yield put(
+      updateReplayEntity(
+        formValuesPostProcess.id,
+        formValuesPostProcess,
+        ENTITY_TYPE.ACTION,
+      ),
+    );
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+    yield put(reset(API_EDITOR_FORM_NAME));
   }
-  yield all([
-    call(syncApiParamsSaga, actionPayload, values.id),
-    call(updateFormFields, actionPayload),
-  ]);
-
-  // We need to refetch form values here since syncApuParams saga and updateFormFields directly update reform form values.
-  const { values: formValuesPostProcess } = yield select(
-    getFormData,
-    API_EDITOR_FORM_NAME,
-  );
-
-  yield put(
-    updateReplayEntity(
-      formValuesPostProcess.id,
-      formValuesPostProcess,
-      ENTITY_TYPE.ACTION,
-    ),
-  );
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
@@ -530,7 +558,9 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   }
 }
 
-function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
+function* handleDatasourceCreatedSaga(
+  actionPayload: CreateDatasourceSuccessAction,
+) {
   const plugin: Plugin | undefined = yield select(
     getPlugin,
     actionPayload.payload.pluginId,
@@ -539,16 +569,61 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   // Only look at API plugins
   if (plugin && plugin.type !== PluginType.API) return;
 
-  history.push(
-    datasourcesEditorIdURL({
-      pageId,
-      datasourceId: actionPayload.payload.id,
-      params: {
-        from: "datasources",
-        ...getQueryParams(),
-      },
-    }),
-  );
+  const actionRouteInfo: Partial<{
+    apiId: string;
+    datasourceId: string;
+    pageId: string;
+    applicationId: string;
+  }> = yield select(getDatasourceActionRouteInfo);
+
+  // This will ensure that API if saved as datasource, will get attached with datasource
+  // once the datasource is saved
+  if (!!actionRouteInfo.apiId) {
+    yield put(
+      setActionProperty({
+        actionId: actionRouteInfo.apiId,
+        propertyName: "datasource",
+        value: actionPayload.payload,
+      }),
+    );
+
+    // we need to wait for action to be updated with respective datasource,
+    // before redirecting back to action page, hence added take operator to
+    // wait for update action to be complete.
+    yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
+
+    yield put({
+      type: ReduxActionTypes.STORE_AS_DATASOURCE_COMPLETE,
+    });
+
+    // temp datasource data is deleted here, because we need temp data before
+    // redirecting to api page, otherwise it will lead to invalid url page
+    yield put(removeTempDatasource());
+  }
+
+  const { redirect } = actionPayload;
+
+  // redirect back to api page
+  if (actionRouteInfo && redirect) {
+    history.push(
+      apiEditorIdURL({
+        pageId: actionRouteInfo?.pageId ?? "",
+        apiId: actionRouteInfo.apiId ?? "",
+      }),
+    );
+  } else {
+    history.push(
+      datasourcesEditorIdURL({
+        pageId,
+        datasourceId: actionPayload.payload.id,
+        params: {
+          from: "datasources",
+          ...getQueryParams(),
+          pluginId: plugin?.id,
+        },
+      }),
+    );
+  }
 }
 
 /**

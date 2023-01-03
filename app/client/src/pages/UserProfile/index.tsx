@@ -8,8 +8,6 @@ import { Colors } from "constants/Colors";
 import GitConfig from "./GitConfig";
 import { useLocation } from "react-router";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
-import { useSelector } from "react-redux";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const ProfileWrapper = styled.div`
   width: ${(props) => props.theme.pageContentWidth}px;
@@ -33,7 +31,6 @@ const LinkToApplications = styled.div`
 
 function UserProfile() {
   const location = useLocation();
-  const featureFlags = useSelector(selectFeatureFlags);
 
   let initialTabIndex = 0;
   const tabs: TabProp[] = [
@@ -45,16 +42,14 @@ function UserProfile() {
     },
   ];
 
-  if (featureFlags.GIT) {
-    tabs.push({
-      key: "gitConfig",
-      title: "Git user config",
-      panelComponent: <GitConfig />,
-      icon: "git-branch",
-    });
-    if (location.pathname === GIT_PROFILE_ROUTE) {
-      initialTabIndex = 1;
-    }
+  tabs.push({
+    key: "gitConfig",
+    title: "Git user config",
+    panelComponent: <GitConfig />,
+    icon: "git-branch",
+  });
+  if (location.pathname === GIT_PROFILE_ROUTE) {
+    initialTabIndex = 1;
   }
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(initialTabIndex);

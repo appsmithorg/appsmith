@@ -13,6 +13,8 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
@@ -139,7 +141,7 @@ public class MySqlPlugin extends BasePlugin {
     public static class MySqlPluginExecutor implements PluginExecutor<ConnectionPool>, SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -209,7 +211,7 @@ public class MySqlPlugin extends BasePlugin {
 
             //This has to be executed as Prepared Statement
             // First extract all the bindings in order
-            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             // Set the query with bindings extracted and replaced with '?' back in config
@@ -220,7 +222,7 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> executeCommon(ConnectionPool connectionPool,
                                                          ActionConfiguration actionConfiguration,
                                                          Boolean preparedStatement,
-                                                         List<String> mustacheValuesInOrder,
+                                                         List<MustacheBindingToken> mustacheValuesInOrder,
                                                          ExecuteActionDTO executeActionDTO,
                                                          Map<String, Object> requestData) {
 
@@ -282,7 +284,7 @@ public class MySqlPlugin extends BasePlugin {
                                                         rowsList.add(getRow(row, meta));
 
                                                         if (columnsList.isEmpty()) {
-                                                            columnsList.addAll(meta.getColumnNames());
+                                                            meta.getColumnMetadatas().stream().forEach(columnMetadata -> columnsList.add(columnMetadata.getName()));
                                                         }
 
                                                         return result;
@@ -354,7 +356,7 @@ public class MySqlPlugin extends BasePlugin {
         private Flux<Result> createAndExecuteQueryFromConnection(String query,
                                                                  Connection connection,
                                                                  Boolean preparedStatement,
-                                                                 List<String> mustacheValuesInOrder,
+                                                                 List<MustacheBindingToken> mustacheValuesInOrder,
                                                                  ExecuteActionDTO executeActionDTO,
                                                                  Map<String, Object> requestData,
                                                                  Map psParams) {

@@ -168,7 +168,7 @@ export function startValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be greater than min value"],
+      messages: ["This value must be greater than or equal to the min value"],
     };
   }
 
@@ -216,7 +216,7 @@ export function endValueValidation(
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be less than max value"],
+      messages: ["This value must be less than or equal to the max value"],
     };
   }
 

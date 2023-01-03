@@ -51,6 +51,9 @@ export interface SliderComponentProps
   /** If true label will be not be hidden when user stops dragging */
   tooltipAlwaysOn: boolean;
 
+  /** helpText for the label tooltip */
+  labelTooltip?: string;
+
   /** Disables slider */
   disabled?: boolean;
 
@@ -95,6 +98,7 @@ const SliderComponent = (props: SliderComponentProps) => {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
     loading,
     marks,
@@ -207,6 +211,7 @@ const SliderComponent = (props: SliderComponentProps) => {
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           loading={loading}
           position={labelPosition}
           text={labelText}
