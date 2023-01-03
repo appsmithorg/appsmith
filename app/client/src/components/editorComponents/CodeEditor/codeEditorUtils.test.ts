@@ -36,13 +36,8 @@ describe("Bug 18709: remove new line code if required", () => {
   it("dont remove new lines in case of header/param values", () => {
     const input = `{{\nInput1.text\n}}`;
     const output = "{{\nInput1.text\n}}";
-    const preserveNewLineChars = true;
     expect(
-      removeNewLineCharsIfRequired(
-        input,
-        EditorSize.COMPACT,
-        preserveNewLineChars,
-      ),
+      removeNewLineCharsIfRequired(input, EditorSize.COMPACT_RETAIN_FORMATTING),
     ).toEqual(output);
   });
 

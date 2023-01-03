@@ -8,6 +8,7 @@ import FIELD_VALUES from "constants/FieldExpectedValue";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
 import {
   CodeEditorBorder,
+  EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Case, Classes, Icon, IconSize, Text, TextType } from "design-system";
@@ -189,7 +190,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         hoverInteraction
                         name={`${field}.key`}
                         placeholder={`Key ${index + 1}`}
-                        preserveNewLineChars
+                        size={EditorSize.COMPACT_RETAIN_FORMATTING}
                         theme={props.theme}
                       />
 
@@ -214,7 +215,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       hoverInteraction
                       name={`${field}.key`}
                       placeholder={`Key ${index + 1}`}
-                      preserveNewLineChars
+                      size={EditorSize.COMPACT_RETAIN_FORMATTING}
                       theme={props.theme}
                     />
                   )}
@@ -230,7 +231,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       hoverInteraction
                       name={`${field}.value`}
                       placeholder={`Value ${index + 1}`}
-                      preserveNewLineChars
+                      size={EditorSize.COMPACT_RETAIN_FORMATTING}
                       theme={props.theme}
                     />
                   </Flex>
@@ -259,11 +260,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           ? `${props.actionConfig[index].type} (Optional)`
                           : `(Optional)`
                       }
-                      preserveNewLineChars
                       showLightningMenu={
                         props.actionConfig[index].editable ||
                         props.actionConfig[index].editable === undefined
                       }
+                      size={EditorSize.COMPACT_RETAIN_FORMATTING}
                       theme={props.theme}
                       {...otherProps}
                       border={CodeEditorBorder.ALL_SIDE}
@@ -311,7 +312,6 @@ type Props = {
   theme?: EditorTheme;
   hasType?: boolean;
   removeTopPadding?: boolean;
-  preserveNewLineChars?: boolean;
 };
 
 function KeyValueFieldArray(props: Props) {

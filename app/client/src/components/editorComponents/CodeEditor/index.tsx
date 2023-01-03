@@ -260,7 +260,10 @@ class CodeEditor extends Component<Props, State> {
         addModeClass: true,
         matchBrackets: false,
         scrollbarStyle:
-          this.props.size !== EditorSize.COMPACT ? "native" : "null",
+          this.props.size === EditorSize.COMPACT ||
+          this.props.size === EditorSize.COMPACT_RETAIN_FORMATTING
+            ? "null"
+            : "native",
         placeholder: this.props.placeholder,
         lint: {
           getAnnotations: (_: string, callback: UpdateLintingCallback) => {
@@ -324,11 +327,7 @@ class CodeEditor extends Component<Props, State> {
 
       // Set value of the editor
       const inputValue = getInputValue(this.props.input.value) || "";
-      options.value = removeNewLineCharsIfRequired(
-        inputValue,
-        this.props.size,
-        this.props.preserveNewLineChars,
-      );
+      options.value = removeNewLineCharsIfRequired(inputValue, this.props.size);
 
       // @ts-expect-error: Types are not available
       options.finishInit = function(

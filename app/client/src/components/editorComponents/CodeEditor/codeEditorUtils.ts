@@ -109,16 +109,14 @@ export const removeEventFromHighlightedElement = (
   @params:
     inputVal: value that needs to be transformed
     editorSize: size of code editor
-    preserveNewLineChars: flag indicating whether to remove new lines or not
-  @returns transformed string with or without new line chars based on flag and editor size
+  @returns transformed string with or without new line chars based on editor size
 */
 export const removeNewLineCharsIfRequired = (
   inputVal: string,
   editorSize: EditorSize,
-  preserveNewLineChars = false,
 ) => {
   let resultVal;
-  if (editorSize === EditorSize.COMPACT && !preserveNewLineChars) {
+  if (editorSize === EditorSize.COMPACT) {
     resultVal = removeNewLineChars(inputVal);
   } else {
     resultVal = inputVal;
