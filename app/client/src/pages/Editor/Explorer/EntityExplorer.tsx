@@ -9,7 +9,7 @@ import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
 import { NonIdealState, Classes } from "@blueprintjs/core";
-import JSDependencies from "./JSDependencies";
+import JSDependencies from "./Libraries";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";

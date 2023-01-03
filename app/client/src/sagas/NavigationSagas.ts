@@ -28,6 +28,7 @@ import {
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
+import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 
 let previousPath: string;
 let previousHash: string | undefined;
@@ -42,11 +43,16 @@ function* handleRouteChange(
 ) {
   const { hash, pathname, state } = action.payload.location;
   try {
-    yield call(logNavigationAnalytics, action.payload);
-    yield call(contextSwitchingSaga, pathname, state, hash);
-    yield call(appBackgroundHandler);
-    const entityInfo = identifyEntityFromPath(pathname, hash);
-    yield fork(updateRecentEntitySaga, entityInfo);
+    const isAnEditorPath = isEditorPath(pathname);
+
+    // handled only on edit mode
+    if (isAnEditorPath) {
+      yield call(logNavigationAnalytics, action.payload);
+      yield call(contextSwitchingSaga, pathname, state, hash);
+      yield call(appBackgroundHandler);
+      const entityInfo = identifyEntityFromPath(pathname, hash);
+      yield fork(updateRecentEntitySaga, entityInfo);
+    }
   } catch (e) {
     log.error("Error in focus change", e);
   } finally {

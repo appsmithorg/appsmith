@@ -4,17 +4,18 @@ import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import evaluateSync, { isFunctionAsync } from "workers/Evaluation/evaluate";
+import evaluateSync from "workers/Evaluation/evaluate";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
+import { functionDeterminer } from "../functionDeterminer";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -28,9 +29,9 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   localUnEvalTree: DataTree,
 ) => {
   if (!isEmpty(jsUpdates)) {
-    Object.keys(jsUpdates).forEach((jsEntity) => {
-      const entity = localUnEvalTree[jsEntity];
-      const parsedBody = jsUpdates[jsEntity].parsedBody;
+    Object.keys(jsUpdates).forEach((jsEntityName) => {
+      const entity = localUnEvalTree[jsEntityName];
+      const parsedBody = jsUpdates[jsEntityName].parsedBody;
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
@@ -44,6 +45,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
           localUnEvalTree = removeFunctionsAndVariableJSCollection(
             localUnEvalTree,
             entity,
+            jsEntityName,
           );
         }
       }
@@ -172,7 +174,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       type: EvalErrorTypes.PARSE_JS_ERROR,
       context: {
         entity: entity,
-        propertyPath: entity.name + ".body",
+        propertyPath: entityName + ".body",
       },
       message: "Start object with export default",
     };
@@ -195,9 +197,7 @@ export function parseJSActions(
       );
       const entity = unEvalDataTree[entityName];
 
-      if (!isJSAction(entity)) {
-        return false;
-      }
+      if (!isJSAction(entity)) return false;
 
       if (diff.event === DataTreeDiffEvent.DELETE) {
         // when JSObject is deleted, we remove it from currentJSCollectionState & resolvedFunctions
@@ -246,16 +246,19 @@ export function parseJSActions(
     });
   }
 
+  functionDeterminer.setupEval(
+    unEvalDataTree,
+    dataTreeEvalRef.resolvedFunctions,
+  );
+
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
     if (!parsedBody) return;
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
-        isAsync: isFunctionAsync(
+        isAsync: functionDeterminer.isFunctionAsync(
           action.parsedFunction,
-          unEvalDataTree,
-          dataTreeEvalRef.resolvedFunctions,
           dataTreeEvalRef.logs,
         ),
         // parsedFunction - used only to determine if function is async
@@ -263,15 +266,18 @@ export function parseJSActions(
       } as ParsedJSSubAction;
     });
   });
+
+  functionDeterminer.setOffEval();
+
   return { jsUpdates };
 }
 
 export function getJSEntities(dataTree: DataTree) {
   const jsCollections: Record<string, DataTreeJSAction> = {};
-  Object.keys(dataTree).forEach((key: string) => {
-    const entity = dataTree[key];
+  Object.keys(dataTree).forEach((entityName: string) => {
+    const entity = dataTree[entityName];
     if (isJSAction(entity)) {
-      jsCollections[entity.name] = entity;
+      jsCollections[entityName] = entity;
     }
   });
   return jsCollections;

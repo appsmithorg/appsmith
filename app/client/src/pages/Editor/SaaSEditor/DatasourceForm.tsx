@@ -59,7 +59,11 @@ import {
   toggleSaveActionFromPopupFlag,
 } from "actions/datasourceActions";
 import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
-import { GSHEET_AUTHORIZATION_ERROR } from "ce/constants/messages";
+import {
+  GSHEET_AUTHORIZATION_ERROR,
+  createMessage,
+  SAVE_AND_AUTHORIZE_BUTTON_TEXT,
+} from "ce/constants/messages";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -386,6 +390,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           onClose={this.closeDialog}
           onDiscard={this.onDiscard}
           onSave={this.onSave}
+          saveButtonText={createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)}
         />
       </>
     );

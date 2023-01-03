@@ -8,7 +8,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import {
   ActionTriggerType,
   ResetWidgetDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import {
   ActionValidationError,
   TriggerFailureError,
@@ -18,7 +18,7 @@ import { FlattenedWidgetProps } from "widgets/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "workers/Evaluation/evaluationUtils";
+import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export default function* resetWidgetActionSaga(
   payload: ResetWidgetDescription["payload"],

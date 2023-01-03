@@ -7,7 +7,7 @@ import AppsmithConsole, { ErrorObject } from "utils/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 
 // We currently only log lint errors in JSObjects
 export function* logLatestLintPropertyErrors({

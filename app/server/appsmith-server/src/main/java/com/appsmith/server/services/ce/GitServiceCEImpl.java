@@ -9,6 +9,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.service.GitExecutorImpl;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
@@ -24,6 +25,7 @@ import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -51,6 +53,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -134,6 +137,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final WorkspaceService workspaceService;
 
     @Override
     public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata) {
@@ -367,9 +371,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         updateProfiles.put(DEFAULT, gitProfile);
                                     }
 
-                                    UserData update = new UserData();
-                                    update.setGitProfiles(updateProfiles);
-                                    return userDataService.update(userData.getUserId(), update);
+                                    userData.setGitProfiles(updateProfiles);
+                                    return userDataService.updateForCurrentUser(userData);
                                 });
                     }
                     return Mono.just(userData);
@@ -1044,14 +1047,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                         // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
                         // will be deleted
                         Flux.fromIterable(application.getPages())
-                                .flatMap(page -> newPageService.findById(page.getId(), pagePermission.getEditPermission()))
+                                .flatMap(page -> newPageService.findById(page.getId(), Optional.empty()))
                                 .map(newPage -> {
                                     newPage.setDefaultResources(null);
                                     return createDefaultIdsOrUpdateWithGivenResourceIds(newPage, null);
                                 })
                                 .collectList()
                                 .flatMapMany(newPageService::saveAll)
-                                .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), actionPermission.getEditPermission())
+                                .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), Optional.empty())
                                         .map(newAction -> {
                                             newAction.setDefaultResources(null);
                                             if (newAction.getUnpublishedAction() != null) {
@@ -1831,9 +1834,12 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid workspace id"));
         }
 
+        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, AclPermission.WORKSPACE_CREATE_APPLICATION)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
+
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
         Mono<Boolean> isPrivateRepoMono = GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl())).cache();
-        Mono<ApplicationImportDTO> importedApplicationMono = getSSHKeyForCurrentUser()
+        Mono<ApplicationImportDTO> importedApplicationMono = workspaceMono.then(getSSHKeyForCurrentUser())
                 .zipWith(isPrivateRepoMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")))

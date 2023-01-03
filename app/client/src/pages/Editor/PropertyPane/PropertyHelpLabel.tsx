@@ -3,6 +3,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import React from "react";
 
 type Props = {
+  className?: string;
   tooltip?: string;
   label: string;
   theme?: EditorTheme;
@@ -31,6 +32,7 @@ function PropertyHelpLabel(props: Props) {
       disabled={!toolTipDefined}
       hoverOpenDelay={200}
       openOnTargetFocus={false}
+      popoverClassName={props.className}
       position="top"
     >
       <div

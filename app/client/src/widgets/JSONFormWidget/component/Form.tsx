@@ -228,6 +228,8 @@ function Form<TValues = any>(
          * race condition in ReactHookForm.
          */
         setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           reset(convertedFormData, RESET_OPTIONS);
         }, 0);
       }

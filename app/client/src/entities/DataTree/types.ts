@@ -6,7 +6,7 @@ import {
   ActionDescription,
   ClearPluginActionDescription,
   RunPluginActionDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { Variable } from "entities/JSCollection";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 
