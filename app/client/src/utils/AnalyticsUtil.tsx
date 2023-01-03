@@ -480,11 +480,11 @@ class AnalyticsUtil {
   static getAnonymousId() {
     const windowDoc: any = window;
     const { segment } = getAppsmithConfigs();
-    return (
-      windowDoc.analytics?.user?.().anonymousId() ||
-      (segment.enabled &&
-        localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', ""))
-    );
+    if (windowDoc.analytics && windowDoc.analytics.user) {
+      return windowDoc.analytics.user().anonymousId();
+    } else if (segment.enabled) {
+      return localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', "");
+    }
   }
 
   static reset() {
