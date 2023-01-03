@@ -8,6 +8,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.helpers.ExchangeUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.ConfigService;
@@ -20,7 +21,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -156,12 +156,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         final String finalUserId = userId;
 
         return Mono.zip(
-                        Mono.deferContextual(Mono::just)
-                                .map(contextView -> ObjectUtils.defaultIfNull(
-                                        contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst("X-User-Id"),
-                                        FieldName.ANONYMOUS_USER
-                                ))
-                                .defaultIfEmpty(FieldName.ANONYMOUS_USER),
+                        ExchangeUtils.getAnonymousUserIdFromCurrentRequest(),
                         configService.getInstanceId()
                                 .defaultIfEmpty("unknown-instance-id")
                 ).map(tuple -> {
@@ -207,7 +202,15 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 .switchIfEmpty(Mono.just(anonymousUser));
 
         return userMono
-                .flatMap(user -> {
+                .flatMap(user -> Mono.zip(
+                        user.isAnonymous()
+                                ? ExchangeUtils.getAnonymousUserIdFromCurrentRequest()
+                                : Mono.just(user.getUsername()),
+                        Mono.just(user)
+                ))
+                .flatMap(tuple -> {
+                    final String id = tuple.getT1();
+                    final User user = tuple.getT2();
 
                     // In case the user is anonymous, don't raise an event, unless it's a signup, logout, page view or action execution event.
                     boolean isEventUserSignUpOrLogout = object instanceof User && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.LOGOUT);
@@ -221,7 +224,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     final String username = (object instanceof User ? (User) object : user).getUsername();
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", username);
+                    analyticsProperties.put("id", id);
                     analyticsProperties.put("oid", object.getId());
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);

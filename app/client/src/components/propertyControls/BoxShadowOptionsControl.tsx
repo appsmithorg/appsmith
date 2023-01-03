@@ -18,24 +18,18 @@ export interface BoxShadowOptionsControlProps extends ControlProps {
 const options = Object.keys(boxShadowOptions).map((optionKey) => ({
   icon: (
     <TooltipComponent
-      content={
-        <div>
-          <div>{optionKey}</div>
-        </div>
-      }
+      content={optionKey}
       key={optionKey}
       openOnTargetFocus={false}
     >
-      <button tabIndex={-1}>
-        <div
-          className="flex items-center justify-center w-5 h-5 bg-white"
-          style={{ boxShadow: boxShadowOptions[optionKey] }}
-        >
-          {boxShadowOptions[optionKey] === "none" && (
-            <CloseLineIcon className="text-gray-700" />
-          )}
-        </div>
-      </button>
+      <div
+        className="flex items-center justify-center w-5 h-5 bg-white"
+        style={{ boxShadow: boxShadowOptions[optionKey] }}
+      >
+        {boxShadowOptions[optionKey] === "none" && (
+          <CloseLineIcon className="text-gray-700" />
+        )}
+      </div>
     </TooltipComponent>
   ),
   value: boxShadowOptions[optionKey],

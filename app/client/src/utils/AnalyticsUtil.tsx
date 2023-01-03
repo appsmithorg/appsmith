@@ -271,6 +271,7 @@ export type EventName =
   | "ENTITY_EXPLORER_ADD_PAGE_CLICK"
   | "CANVAS_BLANK_PAGE_CTA_CLICK"
   | AUDIT_LOGS_EVENT_NAMES
+  | GAC_EVENT_NAMES
   | "BRANDING_UPGRADE_CLICK"
   | "BRANDING_PROPERTY_UPDATE"
   | "BRANDING_SUBMIT_CLICK"
@@ -293,6 +294,14 @@ export type AUDIT_LOGS_EVENT_NAMES =
   | "AUDIT_LOGS_COLLAPSIBLE_ROW_OPENED"
   | "AUDIT_LOGS_COLLAPSIBLE_ROW_CLOSED";
 
+export type GAC_EVENT_NAMES =
+  | "GAC_USER_CLICK"
+  | "GAC_USER_ROLE_UPDATE"
+  | "GAC_USER_GROUP_UPDATE"
+  | "GAC_GROUP_ROLE_UPDATE"
+  | "GAC_INVITE_USER_CLICK"
+  | "GAC_ADD_USER_CLICK";
+
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
@@ -307,10 +316,6 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
-  static anonymousId?: string;
-
-  static tempUserId?: string;
-  static isAnonymousUser = false;
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -472,45 +477,14 @@ class AnalyticsUtil {
     }
   }
 
-  static initAnonymousUser() {
-    AnalyticsUtil.isAnonymousUser = true;
+  static getAnonymousId() {
     const windowDoc: any = window;
-    windowDoc.analytics &&
-      windowDoc.analytics.ready(() => {
-        windowDoc.analytics.register({
-          name: "Cookie Compatibility",
-          version: "0.1.0",
-          type: "utility",
-          load: (_ctx: any, ajs: any) => {
-            const user = ajs.user();
-            user.anonymousId(user.anonymousId());
-            user.id(user.id());
-
-            AnalyticsUtil.tempUserId = user.id();
-            AnalyticsUtil.anonymousId = user.anonymousId();
-
-            console.log(
-              "------------------ mix anonymous user init ------------------",
-            );
-            console.log("mix - user INIT", user.id(), user.anonymousId());
-            console.log(
-              "------------------ mix anonymous user init ------------------",
-            );
-          },
-          isLoaded: () => true,
-        });
-      });
-  }
-
-  static getAnonymousUserId() {
-    console.log(
-      "mix - get anonymousId",
-      AnalyticsUtil.isAnonymousUser,
-      AnalyticsUtil.tempUserId,
-      AnalyticsUtil.anonymousId,
-      (window as any).analytics,
+    const { segment } = getAppsmithConfigs();
+    return (
+      windowDoc.analytics?.user?.().anonymousId() ||
+      (segment.enabled &&
+        localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', ""))
     );
-    return AnalyticsUtil.anonymousId;
   }
 
   static reset() {

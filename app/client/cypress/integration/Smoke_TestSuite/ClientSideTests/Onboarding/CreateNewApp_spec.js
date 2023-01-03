@@ -2,6 +2,8 @@ const explorerLocators = require("../../../../locators/explorerlocators.json");
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const homePage = require("../../../../locators/HomePage");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let datasources = ObjectsRegistry.DataSources;
 
 describe("Creating new app after discontinuing guided tour should not start the same", function() {
   it("Creating new app after discontinuing guided tour should not start the same", function() {
@@ -10,6 +12,7 @@ describe("Creating new app after discontinuing guided tour should not start the 
     cy.get(commonlocators.homeIcon)
       .click({ force: true })
       .wait(8000); //for page to settle!
+    datasources.CloseReconnectDataSourceModal() // Check if reconnect data source modal is visible and close it
     cy.get(guidedTourLocators.welcomeTour)
       .click()
       .wait(2000);

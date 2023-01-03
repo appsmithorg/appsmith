@@ -17,7 +17,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: {
       sectionIndex: 1,
-      defaultValue: DynamicHeight.FIXED,
+      defaultValue: DynamicHeight.AUTO_HEIGHT,
       active: true,
     },
   },
@@ -31,7 +31,7 @@ export const CONFIG = {
     columns: 25,
     disabledWhenInvalid: true,
     fixedFooter: true,
-    rows: 50,
+    rows: 41,
     schema: {},
     scrollContents: true,
     showReset: true,

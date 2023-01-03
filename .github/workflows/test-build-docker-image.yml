@@ -399,6 +399,16 @@ jobs:
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
+  perf-test:
+    needs: [buildClient, buildServer, buildRts]
+    # Only run if the build step is successful
+    if: success()
+    name: perf-test
+    uses: ./.github/workflows/perf-test.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.client_payload.pull_request.number }}
+
   fat-container-test:
     needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
@@ -467,11 +477,11 @@ jobs:
         run: |
           run_result_env=$(cat ~/run_result)
           echo "run_result=$run_result_env" >> $GITHUB_OUTPUT
-          
+
       - name: Dump steps context
         env:
           STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"    
+        run: echo "$STEPS_CONTEXT"
 
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
@@ -902,7 +912,7 @@ jobs:
       - name: Dump steps context
         env:
           STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"    
+        run: echo "$STEPS_CONTEXT"
 
       # In case this is second attempt try restoring failed tests
       - name: Restore the previous failed combine result
@@ -1294,7 +1304,7 @@ jobs:
       - name: "combine all specs"
         if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
-      
+
       # In case for any fat-container job failure, create combined failed spec
       - name: "combine all specs for fat"
         if: needs.fat-container-test.result != 'success'

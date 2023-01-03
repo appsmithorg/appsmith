@@ -40,6 +40,9 @@ import {
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;
@@ -327,7 +330,9 @@ export default function MemberSettings(props: PageProps) {
 
   const columns = [
     {
-      Header: createMessage(() => MEMBERS_TAB_TITLE(filteredData?.length)),
+      Header: createMessage(() =>
+        MEMBERS_TAB_TITLE(filteredData?.length, cloudHosting),
+      ),
       accessor: "users",
       Cell: function UserCell(props: any) {
         const member = props.cell.row.original;

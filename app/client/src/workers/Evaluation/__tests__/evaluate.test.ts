@@ -1,7 +1,4 @@
-import evaluate, {
-  evaluateAsync,
-  isFunctionAsync,
-} from "workers/Evaluation/evaluate";
+import evaluate, { evaluateAsync } from "workers/Evaluation/evaluate";
 import {
   DataTree,
   DataTreeWidget,
@@ -9,6 +6,8 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { functionDeterminer } from "../functionDeterminer";
 
 describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
@@ -251,7 +250,11 @@ describe("isFunctionAsync", () => {
       if (typeof testFunc === "string") {
         testFunc = eval(testFunc);
       }
-      const actual = isFunctionAsync(testFunc, {}, {});
+
+      functionDeterminer.setupEval({}, {});
+      addPlatformFunctionsToEvalContext(self);
+
+      const actual = functionDeterminer.isFunctionAsync(testFunc);
       expect(actual).toBe(testCase.expected);
     }
   });

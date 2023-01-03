@@ -23,20 +23,14 @@ export interface BorderRadiusOptionsControlProps extends ControlProps {
 const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
   icon: (
     <TooltipComponent
-      content={
-        <div>
-          <div>{optionKey}</div>
-        </div>
-      }
+      content={optionKey}
       key={optionKey}
       openOnTargetFocus={false}
     >
-      <button tabIndex={-1}>
-        <div
-          className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
-          style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
-        />
-      </button>
+      <div
+        className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
+        style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
+      />
     </TooltipComponent>
   ),
   value: borderRadiusOptions[optionKey],

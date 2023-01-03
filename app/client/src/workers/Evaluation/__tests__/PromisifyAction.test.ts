@@ -1,6 +1,7 @@
-import { createGlobalData } from "workers/Evaluation/evaluate";
+import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import _ from "lodash";
 import { MessageType } from "utils/MessageUtil";
+import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
 jest.mock("../handlers/evalTree", () => {
   return {
     dataTreeEvaluator: {
@@ -13,12 +14,14 @@ jest.mock("../handlers/evalTree", () => {
 describe("promise execution", () => {
   const postMessageMock = jest.fn();
   const requestId = _.uniqueId("TEST_REQUEST");
-  const dataTreeWithFunctions = createGlobalData({
+  const evalContext = createEvaluationContext({
     dataTree: {},
     resolvedFunctions: {},
     isTriggerBased: true,
-    context: { requestId },
+    context: {},
   });
+
+  addPlatformFunctionsToEvalContext(evalContext);
 
   const requestMessageCreator = (type: string, body: unknown) => ({
     messageId: expect.stringContaining(`${type}_`),
@@ -37,12 +40,12 @@ describe("promise execution", () => {
   it("throws when allow async is not enabled", () => {
     self.ALLOW_ASYNC = false;
     self.IS_ASYNC = false;
-    expect(dataTreeWithFunctions.showAlert).toThrowError();
+    expect(evalContext.showAlert).toThrowError();
     expect(self.IS_ASYNC).toBe(true);
     expect(postMessageMock).not.toHaveBeenCalled();
   });
   it("sends an event from the worker", () => {
-    dataTreeWithFunctions.showAlert("test alert", "info");
+    evalContext.showAlert("test alert", "info");
     expect(postMessageMock).toBeCalledWith(
       requestMessageCreator("SHOW_ALERT", {
         data: {
@@ -60,12 +63,8 @@ describe("promise execution", () => {
   });
   it("returns a promise that resolves", async () => {
     postMessageMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
+    const returnedPromise = evalContext.showAlert("test alert", "info");
     const requestArgs = postMessageMock.mock.calls[0][0];
-    console.log(requestArgs);
     const messageId = requestArgs.messageId;
 
     self.dispatchEvent(
@@ -91,10 +90,7 @@ describe("promise execution", () => {
 
   it("returns a promise that rejects", async () => {
     postMessageMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
+    const returnedPromise = evalContext.showAlert("test alert", "info");
     const requestArgs = postMessageMock.mock.calls[0][0];
     self.dispatchEvent(
       new MessageEvent("message", {
@@ -113,10 +109,7 @@ describe("promise execution", () => {
   });
   it("does not process till right event is triggered", async () => {
     postMessageMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
+    const returnedPromise = evalContext.showAlert("test alert", "info");
 
     const requestArgs = postMessageMock.mock.calls[0][0];
     const correctId = requestArgs.messageId;
@@ -161,10 +154,7 @@ describe("promise execution", () => {
   });
   it("same subRequestId is not accepted again", async () => {
     postMessageMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
+    const returnedPromise = evalContext.showAlert("test alert", "info");
 
     const requestArgs = postMessageMock.mock.calls[0][0];
     const messageId = requestArgs.messageId;
