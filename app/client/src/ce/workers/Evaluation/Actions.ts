@@ -339,14 +339,11 @@ export const addDataTreeToContext = (args: {
       if (!funcCreator.qualifier(entity)) continue;
       const func = funcCreator.func(entity);
       const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
-      const entityFunc = frameworkFunctionWrapper.addProxy(
-        pusher.bind(
-          {
-            EVENT_TYPE: eventType,
-          },
-          func,
-        ),
-        fullPath,
+      const entityFunc = pusher.bind(
+        {
+          EVENT_TYPE: eventType,
+        },
+        func,
       );
       set(entityFunctionCollection, fullPath, entityFunc);
     }
