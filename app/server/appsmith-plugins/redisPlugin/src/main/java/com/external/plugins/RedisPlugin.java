@@ -91,7 +91,7 @@ public class RedisPlugin extends BasePlugin {
                             command = Protocol.Command.valueOf((String) cmdAndArgs.get(CMD_KEY));
                         } catch (IllegalArgumentException exc) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    String.format("Not a valid Redis command: %s", cmdAndArgs.get(CMD_KEY))));
+                                    String.format("Not a valid Redis command: %s", cmdAndArgs.get(CMD_KEY)), exc.getMessage()));
                         }
 
                         Object commandOutput;
@@ -117,7 +117,7 @@ public class RedisPlugin extends BasePlugin {
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
