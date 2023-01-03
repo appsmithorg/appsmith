@@ -126,7 +126,7 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
     public void refreshReleaseNotes() {
         cacheExpiryTime = null;  // Bust the release notes cache to force fetching again.
         getReleaseNodes()
-                .subscribeOn(Schedulers.elastic())
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
 

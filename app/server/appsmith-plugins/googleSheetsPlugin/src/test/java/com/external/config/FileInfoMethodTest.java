@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -18,9 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FileInfoMethodTest {
 
+    ObjectMapper objectMapper;
+
+    @BeforeEach
+    public void setUp() {
+        this.objectMapper = new ObjectMapper();
+    }
+
     @Test
     public void testTransformExecutionResponse_missingJSON_throwsException() {
-        ObjectMapper objectMapper = new ObjectMapper();
 
         FileInfoMethod fileInfoMethod = new FileInfoMethod(objectMapper);
         assertThrows(AppsmithPluginException.class, () -> {
@@ -30,7 +37,6 @@ public class FileInfoMethodTest {
 
     @Test
     public void testTransformExecutionResponse_missingSheets_returnsEmpty() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"key1\":\"value1\",\"key2\":\"value2\"}";
 
@@ -51,7 +57,6 @@ public class FileInfoMethodTest {
 
     @Test
     public void testTransformExecutionResponse_emptySheets_returnsEmpty() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"key1\":\"value1\",\"key2\":\"value2\"}";
 
@@ -71,7 +76,6 @@ public class FileInfoMethodTest {
 
     @Test
     public void testTransformExecutionResponse_validSheets_toListOfSheets() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"key1\":\"value1\",\"key2\":\"value2\"}";
         final String sheetMetadataString = "{\"sheetId\":\"1\", \"title\":\"test\", \"sheetType\":\"GRID\", \"index\":0}";
@@ -94,7 +98,6 @@ public class FileInfoMethodTest {
 
     @Test
     public void testTransformTriggerResponse_withoutSheets_returnsEmpty() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"sheets\":[]}";
 
@@ -113,7 +116,6 @@ public class FileInfoMethodTest {
 
     @Test
     public void testTransformTriggerResponse_withSheets_returnsDropdownOptions() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
 
         final String jsonString = "{\"sheets\":[{\"properties\": {\"title\": \"testSheetName\"}}]}";
 
