@@ -543,7 +543,7 @@ public class MySqlPlugin extends BasePlugin {
 
             ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
             ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions)
-                    .option(ConnectionFactoryOptions.DRIVER, "mariadb")
+                    .option(ConnectionFactoryOptions.DRIVER, MariadbConnectionFactoryProvider.MARIADB_DRIVER)
                     .option(MariadbConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
                     .option(ConnectionFactoryOptions.USER, authentication.getUsername())
                     .option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
