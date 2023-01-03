@@ -91,7 +91,6 @@ import {
   UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -114,6 +113,7 @@ import {
 import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import { MessageType, TMessage } from "utils/MessageUtil";
+import { ActionDescription } from "ce/entities/DataTree/actionTriggers";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(

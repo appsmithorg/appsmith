@@ -2,7 +2,7 @@
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import _, { set } from "lodash";
 import {
-  ActionDescription,
+  ActionDescriptionInterface,
   ActionTriggerFunctionNames,
   ActionTriggerType,
 } from "@appsmith/entities/DataTree/actionTriggers";
@@ -23,7 +23,7 @@ declare global {
   interface Window {
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
-    TRIGGER_COLLECTOR: ActionDescription[];
+    TRIGGER_COLLECTOR: ActionDescriptionInterface<unknown>[];
   }
 }
 
@@ -32,7 +32,9 @@ enum ExecutionType {
   TRIGGER = "TRIGGER",
 }
 
-type ActionDescriptionWithExecutionType = ActionDescription & {
+type ActionDescriptionWithExecutionType = ActionDescriptionInterface<
+  unknown
+> & {
   executionType: ExecutionType;
 };
 
@@ -417,7 +419,7 @@ export const pusher = function(
   const actionPayload = {
     type,
     payload,
-  } as ActionDescription;
+  } as ActionDescriptionInterface<unknown>;
 
   if (executionType && executionType === ExecutionType.TRIGGER) {
     self.TRIGGER_COLLECTOR.push(actionPayload);

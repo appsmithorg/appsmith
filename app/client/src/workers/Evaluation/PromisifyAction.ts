@@ -8,12 +8,12 @@ const ctx: Worker = self as any;
  *
  * needs a REQUEST_ID to be passed in to know which request is going on right now
  */
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "./evalWorkerActions";
+import { ActionDescription } from "ce/entities/DataTree/actionTriggers";
 
 export const promisifyAction = (
   actionDescription: ActionDescription,
