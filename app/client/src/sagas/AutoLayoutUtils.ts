@@ -199,9 +199,7 @@ export function updateFlexChildColumns(
   );
   if (!fillChildren.length) return widgets;
 
-  const columnsPerFillChild = Math.floor(
-    (64 - hugChildrenColumns) / fillChildren.length,
-  );
+  const columnsPerFillChild = (64 - hugChildrenColumns) / fillChildren.length;
 
   for (const child of fillChildren) {
     widgets[child.widgetId] = {
@@ -279,10 +277,7 @@ export function alterLayoutForMobile(
       const columnSpace = (canvasWidth - FLEXBOX_PADDING * 2) / 64;
       if (columnSpace * rightColumn < minWidth) {
         widget.mobileLeftColumn = 0;
-        widget.mobileRightColumn = Math.min(
-          Math.floor(minWidth / columnSpace),
-          64,
-        );
+        widget.mobileRightColumn = Math.min(minWidth / columnSpace, 64);
       }
     }
     widget.mobileTopRow = widget.topRow;
