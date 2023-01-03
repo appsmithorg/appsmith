@@ -34,10 +34,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import jakarta.validation.Validator;
 
 @Slf4j
 @Service

@@ -17,9 +17,12 @@ COPY ./app/keycloak-docker-config/launch.sh /tmp/keycloak/launch.sh
 RUN apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl cron certbot nginx gnupg netcat openssh-client \
-    software-properties-common gettext openjdk-11-jdk \
+    supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
+    software-properties-common gettext \
     python3-pip python-setuptools git ca-certificates-java \
+  && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
+  && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
+  && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && apt-get remove --yes git python3-pip
 

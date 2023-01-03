@@ -23,10 +23,10 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -61,21 +61,21 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class DatabaseChangelogEE {
 
     @ChangeSet(order = "001", id = "add-tenant-admin-permissions-instance-admin-ee", author = "")
-    public void addTenantAdminPermissionsToInstanceAdmin(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addTenantAdminPermissionsToInstanceAdmin(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
-        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query instanceConfigurationQuery = new Query();
         instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
-        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+        Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
 
         Query permissionGroupQuery = new Query();
         permissionGroupQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
 
-        PermissionGroup instanceAdminPGBeforeChanges = mongockTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
+        PermissionGroup instanceAdminPGBeforeChanges = mongoTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
 
         // Give read permission to instanceAdminPg to all the users who have been assigned this permission group
         Map<String, Policy> readPermissionGroupPolicyMap = Map.of(
@@ -99,58 +99,58 @@ public class DatabaseChangelogEE {
         HashSet<Permission> permissions = new HashSet<>(instanceAdminPG.getPermissions());
         permissions.addAll(tenantPermissions);
         instanceAdminPG.setPermissions(permissions);
-        mongockTemplate.save(instanceAdminPG);
+        mongoTemplate.save(instanceAdminPG);
 
         Map<String, Policy> tenantPolicy = policyUtils.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
         Tenant updatedTenant = policyUtils.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
-        mongockTemplate.save(updatedTenant);
+        mongoTemplate.save(updatedTenant);
     }
 
     @ChangeSet(order = "002", id = "add-index-user-groups", author = "")
-    public void addIndexOnUserGroupCollection(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addIndexOnUserGroupCollection(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
         Index tenantIdIndex = makeIndex("tenantId");
-        ensureIndexes(mongockTemplate, UserGroup.class, tenantIdIndex);
+        ensureIndexes(mongoTemplate, UserGroup.class, tenantIdIndex);
     }
 
     @ChangeSet(order = "003", id = "add-index-for-audit-logs", author = "")
-    public void addIndexOnAuditLogsCollection(MongockTemplate mongockTemplate) {
+    public void addIndexOnAuditLogsCollection(MongoTemplate mongoTemplate) {
         Index userEmailIndex = makeIndex("user.email");
-        ensureIndexes(mongockTemplate, AuditLog.class, userEmailIndex);
+        ensureIndexes(mongoTemplate, AuditLog.class, userEmailIndex);
 
         Index resourceIdIndex = makeIndex("resource.id");
-        ensureIndexes(mongockTemplate, AuditLog.class, resourceIdIndex);
+        ensureIndexes(mongoTemplate, AuditLog.class, resourceIdIndex);
 
         Index resourceTypeIndex = makeIndex("resource.type");
-        ensureIndexes(mongockTemplate, AuditLog.class, resourceTypeIndex);
+        ensureIndexes(mongoTemplate, AuditLog.class, resourceTypeIndex);
 
         Index createdTimeIndex = makeIndex("timestamp");
-        ensureIndexes(mongockTemplate, AuditLog.class, createdTimeIndex);
+        ensureIndexes(mongoTemplate, AuditLog.class, createdTimeIndex);
 
         Index eventIndex = makeIndex("event");
-        ensureIndexes(mongockTemplate, AuditLog.class, eventIndex);
+        ensureIndexes(mongoTemplate, AuditLog.class, eventIndex);
 
         Index userEmailEventCompoundIndex = makeIndex("event", "user.email", "timestamp").named("userEmail_event_compound_index");
-        ensureIndexes(mongockTemplate, AuditLog.class, userEmailEventCompoundIndex);
+        ensureIndexes(mongoTemplate, AuditLog.class, userEmailEventCompoundIndex);
     }
 
     @ChangeSet(order = "004", id = "add-brand-tenant-configuration", author = "")
-    public void addBrandTenantConfiguration(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addBrandTenantConfiguration(MongoTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
-        Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
         tenantConfiguration.setWhiteLabelLogo("https://assets.appsmith.com/appsmith-logo-full.png");
         tenantConfiguration.setWhiteLabelEnable("false");
         tenantConfiguration.setWhiteLabelFavicon("https://assets.appsmith.com/appsmith-favicon-orange.ico");
         defaultTenant.setTenantConfiguration(tenantConfiguration);
-        mongockTemplate.save(defaultTenant);
+        mongoTemplate.save(defaultTenant);
     }
 
     @ChangeSet(order = "005", id = "add-read-pg-to-instance-admins", author = "")
-    public void addReadPermissionGroupForInstanceAdmin(MongockTemplate mongockTemplate) {
+    public void addReadPermissionGroupForInstanceAdmin(MongoTemplate mongoTemplate) {
         Query instanceConfigurationQuery = new Query();
         instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
-        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+        Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         // Get the default Instance Admin permission group Id from the DB
         String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
@@ -162,16 +162,16 @@ public class DatabaseChangelogEE {
                 .build();
         Query query = new Query(where("policies.permission").ne(READ_PERMISSION_GROUPS));
         Update update = new Update().addToSet("policies", policy);
-        mongockTemplate.updateMulti(query, update, PermissionGroup.class);
+        mongoTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 
     @ChangeSet(order = "006", id = "introduce-missing-permissions", author = "")
-    public void addMissingPermissionsToExistingObjects(MongockTemplate mongockTemplate) {
+    public void addMissingPermissionsToExistingObjects(MongoTemplate mongoTemplate) {
 
         // Find al the administrator permission groups and give make public to the default workspace
         Query adminPermissionGroupQuery = new Query().addCriteria(where("name").regex("^Administrator - .*"));
         adminPermissionGroupQuery.fields().include("_id", "defaultWorkspaceId");
-        List<PermissionGroup> permissionGroups = mongockTemplate.find(adminPermissionGroupQuery, PermissionGroup.class);
+        List<PermissionGroup> permissionGroups = mongoTemplate.find(adminPermissionGroupQuery, PermissionGroup.class);
 
         permissionGroups.forEach(permissionGroup -> {
             String defaultWorkspaceId = permissionGroup.getDefaultWorkspaceId();
@@ -183,13 +183,13 @@ public class DatabaseChangelogEE {
                         .build();
                 Query workspaceQuery = new Query().addCriteria(where("id").is(defaultWorkspaceId));
 
-                mongockTemplate.updateFirst(workspaceQuery, new Update().addToSet("policies", makePublicPolicy), Workspace.class);
+                mongoTemplate.updateFirst(workspaceQuery, new Update().addToSet("policies", makePublicPolicy), Workspace.class);
             }
         });
     }
 
     @ChangeSet(order = "007", id = "remove-internal-permission-group-read-permission", author = "")
-    public void removeReadPermissionForInternalPermissionGroups(MongockTemplate mongockTemplate) {
+    public void removeReadPermissionForInternalPermissionGroups(MongoTemplate mongoTemplate) {
         Criteria userManagementPgCriteria = where("name").regex(" User Management$");
         Criteria publicPermissionGroupPgCriteria = where("name").is(PUBLIC_PERMISSION_GROUP);
 
@@ -201,11 +201,11 @@ public class DatabaseChangelogEE {
 
         Update update = new Update().set("policies.$.permissionGroups", Set.of());
 
-        mongockTemplate.updateMulti(query, update, PermissionGroup.class);
+        mongoTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 
     @ChangeSet(order = "008", id = "add-index-for-environment", author = "")
-    public void addInitialIndexforEnvironmentAndEnvironmentVariable(MongockTemplate mongoTemplate) {
+    public void addInitialIndexforEnvironmentAndEnvironmentVariable(MongoTemplate mongoTemplate) {
         Index environmentUniqueness = makeIndex("name", "workspaceId", "deletedAt").unique()
                 .named("environment_compound_index");
 
@@ -214,16 +214,16 @@ public class DatabaseChangelogEE {
         ensureIndexes(mongoTemplate, Environment.class, createdAt, environmentUniqueness);
         ensureIndexes(mongoTemplate, EnvironmentVariable.class, createdAt);
     }
-    
+
     @ChangeSet(order = "009", id = "remove-default-logo-urls", author = "")
-    public void removeDefaultLogoURLs(MongockTemplate mongockTemplate) {
-        mongockTemplate.updateMulti(
+    public void removeDefaultLogoURLs(MongoTemplate mongoTemplate) {
+        mongoTemplate.updateMulti(
                 new Query(where("tenantConfiguration.whiteLabelLogo").is("https://assets.appsmith.com/appsmith-logo-full.png")),
                 new Update().unset("tenantConfiguration.whiteLabelLogo"),
                 Tenant.class
         );
 
-        mongockTemplate.updateMulti(
+        mongoTemplate.updateMulti(
                 new Query(where("tenantConfiguration.whiteLabelFavicon").is("https://assets.appsmith.com/appsmith-favicon-orange.ico")),
                 new Update().unset("tenantConfiguration.whiteLabelFavicon"),
                 Tenant.class
@@ -231,10 +231,10 @@ public class DatabaseChangelogEE {
     }
 
     @ChangeSet(order = "010", id = "create-default-role-for-all-users", author = "")
-    public void createDefaultRoleForAllUsers(MongockTemplate mongockTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public void createDefaultRoleForAllUsers(MongoTemplate mongoTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
         Query instanceConfigurationQuery = new Query();
         instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
-        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+        Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         // Get the default Instance Admin permission group Id from the DB
         String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
@@ -242,7 +242,7 @@ public class DatabaseChangelogEE {
         Query defaultRoleForUserConfig = new Query();
         defaultRoleForUserConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.DEFAULT_USER_PERMISSION_GROUP));
 
-        Config defaultRoleConfig = mongockTemplate.findOne(defaultRoleForUserConfig, Config.class);
+        Config defaultRoleConfig = mongoTemplate.findOne(defaultRoleForUserConfig, Config.class);
 
         if (defaultRoleConfig != null) {
             return;
@@ -250,7 +250,7 @@ public class DatabaseChangelogEE {
 
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
-        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+        Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         PermissionGroup defaultRoleForUser = new PermissionGroup();
         defaultRoleForUser.setName(FieldName.DEFAULT_USER_PERMISSION_GROUP);
@@ -272,13 +272,13 @@ public class DatabaseChangelogEE {
                 .addCriteria(where(fieldName(QUser.user.email)).ne(FieldName.ANONYMOUS_USER))
                 .addCriteria(where(fieldName(QUser.user.deletedAt)).is(null));
         userQuery.fields().include("_id", "email");
-        List<User> users = mongockTemplate.find(userQuery, User.class);
+        List<User> users = mongoTemplate.find(userQuery, User.class);
 
         Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
 
         // Give access to all existing users to the permission group.
         defaultRoleForUser.setAssignedToUserIds(userIds);
-        PermissionGroup savedPermissionGroup = mongockTemplate.save(defaultRoleForUser);
+        PermissionGroup savedPermissionGroup = mongoTemplate.save(defaultRoleForUser);
         String savedPermissionGroupId = savedPermissionGroup.getId();
 
         // Now give access to create workspaces in the tenant
@@ -286,7 +286,7 @@ public class DatabaseChangelogEE {
                 .findFirst()
                 .ifPresent(policy -> {
                     policy.getPermissionGroups().add(savedPermissionGroupId);
-                    mongockTemplate.save(tenant);
+                    mongoTemplate.save(tenant);
                 });
 
         // Now store the default role id in the config collection
@@ -295,20 +295,20 @@ public class DatabaseChangelogEE {
 
         defaultRoleConfig.setConfig(new JSONObject(Map.of(DEFAULT_PERMISSION_GROUP, savedPermissionGroupId)));
 
-        mongockTemplate.save(defaultRoleConfig);
+        mongoTemplate.save(defaultRoleConfig);
 
         // evict the cache entry for all the impacted users
-        evictPermissionCacheForUsers(userIds, mongockTemplate, cacheableRepositoryHelper);
+        evictPermissionCacheForUsers(userIds, mongoTemplate, cacheableRepositoryHelper);
     }
 
     @ChangeSet(order = "011", id = "set-create-datasource-action-permission", author = "")
-    public void setCreateDatasourceActionPermissions(MongockTemplate mongockTemplate) {
+    public void setCreateDatasourceActionPermissions(MongoTemplate mongoTemplate) {
         Query datasourceQuery = new Query();
         Criteria manageDatasourcePermissionCriteria = Criteria.where("policies.permission").is(MANAGE_DATASOURCES.getValue());
         Criteria notCreateDatasourceActionsPermissionCriteria = Criteria.where("policies.permission").ne(CREATE_DATASOURCE_ACTIONS.getValue());
         datasourceQuery.fields().include(fieldName(QDatasource.datasource.id), fieldName(QDatasource.datasource.policies));
         datasourceQuery.addCriteria(manageDatasourcePermissionCriteria.andOperator(notCreateDatasourceActionsPermissionCriteria));
-        List<Datasource> datasourceList = mongockTemplate.find(datasourceQuery, Datasource.class);
+        List<Datasource> datasourceList = mongoTemplate.find(datasourceQuery, Datasource.class);
 
         datasourceList.forEach(datasource -> {
             Set<Policy> currentPolicies = datasource.getPolicies();
@@ -322,7 +322,7 @@ public class DatabaseChangelogEE {
                         .build());
                 Query datasourceUpdatePolicyQuery = new Query().addCriteria(Criteria.where("id").is(datasource.getId()));
                 Update updatePolicy = new Update().set("policies", currentPolicies);
-                mongockTemplate.updateFirst(datasourceUpdatePolicyQuery, updatePolicy, Datasource.class);
+                mongoTemplate.updateFirst(datasourceUpdatePolicyQuery, updatePolicy, Datasource.class);
             }
         });
     }

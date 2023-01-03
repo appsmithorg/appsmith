@@ -10,12 +10,13 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -27,7 +28,7 @@ public class GitServiceImplTest {
     @Autowired
     GitService gitService;
 
-    @MockBean
+    @SpyBean
     CommonConfig commonConfig;
 
     @MockBean
@@ -58,7 +59,7 @@ public class GitServiceImplTest {
     }
 
     @Test
-    public void isRepoLimitReached_AppsmithCLoudRunningEEImage_hasLimitOnRepoCount() {
+    public void isRepoLimitReached_AppsmithCloudRunningEEImage_hasLimitOnRepoCount() {
         Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
 
         // False because there are no git connected apps

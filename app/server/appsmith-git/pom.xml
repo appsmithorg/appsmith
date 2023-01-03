@@ -17,11 +17,6 @@
     <name>appsmith-git</name>
     <description>This is the git server to handle all the git operations</description>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
-    </properties>
-
     <repositories>
         <repository>
             <id>jgit-repository</id>
@@ -54,14 +49,16 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.junit.ssh</artifactId>
-            <version>5.13.0.202109080827-r</version>
+            <version>6.4.0.202211300538-r</version>
+            <scope>test</scope>
         </dependency>
+
 
 
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
-            <version>3.2.11.RELEASE</version>
+            <version>${reactor-test.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -109,6 +109,7 @@ public enum AppsmithError {
     PLUGIN_RUN_FAILED(500, 5003, "Plugin execution failed with error {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint",
             AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR, null),
+    HEALTHCHECK_TIMEOUT(408, 4080, "{0} connection timed out.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR, null),
     PLUGIN_LOAD_FORM_JSON_FAIL(500, 5004, "[{0}] Unable to load datasource form configuration. Details: {1}.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     PLUGIN_LOAD_TEMPLATES_FAIL(500, 5005, "Unable to load datasource templates. Details: {0}.",

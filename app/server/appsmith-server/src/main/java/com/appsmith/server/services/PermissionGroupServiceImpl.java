@@ -37,7 +37,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -369,7 +370,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         List<String> userGroupIds = userGroups.stream().map(UserGroup::getId).collect(Collectors.toList());
         permissionGroup.getAssignedToGroupIds().addAll(userGroupIds);
         Mono<PermissionGroup> permissionGroupUpdateMono = repository
-                .updateById(permissionGroup.getId(), permissionGroup, AclPermission.ASSIGN_PERMISSION_GROUPS)
+                .updateById(permissionGroup.getId(), permissionGroup, ASSIGN_PERMISSION_GROUPS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
 
         return Mono.zip(
