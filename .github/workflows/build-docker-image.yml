@@ -382,10 +382,6 @@ jobs:
   pushImage:
     needs: [buildClient, buildServer, buildRts]
     runs-on: ubuntu-latest
-    # Set permissions since we're using OIDC token authentication between Depot and GitHub
-    permissions:
-      contents: read
-      id-token: write
 
     if: (success() && github.ref == 'refs/heads/master') ||
       ( always() &&
@@ -404,18 +400,14 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
-        if: github.event_name == 'pull_request_review'
+        if: github.event_name == 'pull_request_review' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.inputs.branch }}
 
-      # Timestamp will be used to create cache key
+      # get Git-hash will be used to create cache key
       - id: git_hash
-        run: echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT        
-
-      - name: Checkout the head commit of the branch
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v3
+        run: echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT         
 
       - name: Download the react build artifact
         uses: actions/download-artifact@v3
@@ -449,6 +441,8 @@ jobs:
           repository: ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
           tags: ${{ steps.git_hash.outputs.git_hash }}
 
+   outputs:
+     imageHash: ${{ steps.git_hash.outputs.git_hash }}
 
   buildDeployPreview:
     needs: [pushImage]
@@ -474,7 +468,7 @@ jobs:
     steps:
       # Checkout the appsmith-ce
       - name: Checkout appsmith
-        if: github.event_name == 'pull_request_review'
+        if: github.event_name == 'pull_request_review' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v3
         with:
           ref: "release"
@@ -483,6 +477,7 @@ jobs:
 
       - name: Install relevant packages
         run: |
+          cd deploy/helm
           ls -alth
           which aws
           sudo apt update -q && sudo apt install -y curl unzip less jq 
@@ -496,7 +491,7 @@ jobs:
           AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: echo "environment variables set"
+        run: echo "environment variables set" ${{ needs.pushImage.outputs.imageHash }}
 
       - name: Deploy helm
         run: |
@@ -533,4 +528,4 @@ jobs:
           kubectl get pods
 
           echo "Dry run of appsmith helm chart"
-          helm dep build; helm upgrade -i appsmith . -f values-$PARAM_ENV.yaml --dry-run
+          helm dep build; helm upgrade -i appsmith . --dry-run
