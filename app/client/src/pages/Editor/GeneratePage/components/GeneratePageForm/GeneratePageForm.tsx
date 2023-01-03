@@ -21,7 +21,7 @@ import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
-import { getQueryStringfromObject } from "RouteBuilder";
+import { getQueryStringFromObject } from "RouteBuilder";
 import {
   Button,
   Category,
@@ -478,7 +478,7 @@ function GeneratePageForm() {
         delete queryParams.datasourceId;
         delete queryParams.new_page;
         const redirectURL =
-          window.location.pathname + getQueryStringfromObject(queryParams);
+          window.location.pathname + getQueryStringFromObject(queryParams);
         history.replace(redirectURL);
       }
     }

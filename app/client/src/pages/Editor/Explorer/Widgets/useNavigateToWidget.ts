@@ -10,9 +10,11 @@ import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import store from "store";
 import { NavigationMethod } from "utils/history";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
+  const currentPageId = useSelector(getCurrentPageId);
 
   const dispatch = useDispatch();
   const {
@@ -21,7 +23,9 @@ export const useNavigateToWidget = () => {
   } = useWidgetSelection();
   const guidedTourEnabled = useSelector(inGuidedTour);
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
-    navigateToCanvas(pageId);
+    if (pageId !== currentPageId) {
+      navigateToCanvas(pageId);
+    }
     flashElementsById(widgetId);
     selectWidget(widgetId, true);
   };
@@ -33,7 +37,9 @@ export const useNavigateToWidget = () => {
     navigationMethod?: NavigationMethod,
   ) => {
     selectWidget(widgetId, false);
-    navigateToCanvas(pageId, widgetId, navigationMethod);
+    if (pageId !== currentPageId) {
+      navigateToCanvas(pageId, widgetId, navigationMethod);
+    }
     quickScrollToWidget(widgetId);
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here

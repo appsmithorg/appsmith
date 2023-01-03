@@ -107,7 +107,7 @@ import { GenerateTemplatePageRequest } from "api/PageApi";
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import {
-  selectMultipleWidgetsAction,
+  selectMultipleWidgetsInitAction,
   selectWidgetInitAction,
 } from "actions/widgetSelectionActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -281,6 +281,7 @@ export function* handleFetchedPage({
     }
   }
 }
+
 const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
   pageResponse.data.lastUpdatedTime;
 
@@ -751,7 +752,7 @@ export function* clonePageSaga(
 
       yield put(fetchActionsForPage(response.data.id));
       yield put(fetchJSCollectionsForPage(response.data.id));
-      yield put(selectMultipleWidgetsAction([]));
+      yield put(selectMultipleWidgetsInitAction([]));
 
       // TODO: Update URL params here.
 

@@ -90,10 +90,3 @@ export const shiftSelectWidgetsEntityExplorerInitAction = (
   type: ReduxActionTypes.SHIFT_SELECT_WIDGET_INIT,
   payload: { widgetId, siblingWidgets },
 });
-
-export const appendSelectedWidgetToUrl = (selectedWidgets: string[]) => {
-  return {
-    type: ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
-    payload: { selectedWidgets },
-  };
-};

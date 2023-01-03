@@ -1,8 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-
 import {
-  getIsFetchingPage,
   getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
@@ -12,7 +10,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CanvasContainer from "./CanvasContainer";
-import { quickScrollToWidget } from "utils/helpers";
 import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
@@ -33,12 +30,11 @@ import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
-  const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
+  const { deselectAll, focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   useEffect(() => {
@@ -56,20 +52,6 @@ function WidgetsEditor() {
       });
     }
   }, [currentPageName, currentPageId]);
-
-  // navigate to widget
-  useEffect(() => {
-    if (
-      !isFetchingPage &&
-      window.location.hash.length > 0 &&
-      !guidedTourEnabled
-    ) {
-      const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash);
-      if (document.getElementById(widgetIdFromURLHash))
-        selectWidget(widgetIdFromURLHash);
-    }
-  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();

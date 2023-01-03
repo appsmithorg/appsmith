@@ -29,6 +29,10 @@ import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
+import {
+  selectMultipleWidgetsAction,
+  selectWidgetAction,
+} from "actions/widgetSelectionActions";
 
 let previousPath: string;
 let previousHash: string | undefined;
@@ -48,6 +52,7 @@ function* handleRouteChange(
     // handled only on edit mode
     if (isAnEditorPath) {
       yield call(logNavigationAnalytics, action.payload);
+      yield call(selectWidgetsBasedOnUrl, action.payload.location);
       yield call(contextSwitchingSaga, pathname, state, hash);
       yield call(appBackgroundHandler);
       const entityInfo = identifyEntityFromPath(pathname, hash);
@@ -318,6 +323,27 @@ function shouldStoreStateForCanvas(
     (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
   );
 }
+
+function* selectWidgetsBasedOnUrl(url: Location<AppsmithLocationState>) {
+  const { hash, pathname } = url;
+  const entity = identifyEntityFromPath(pathname, hash).entity;
+  if ([FocusEntity.PROPERTY_PANE, FocusEntity.CANVAS].includes(entity)) {
+    if (!hash) {
+      yield put(selectMultipleWidgetsAction([]));
+      return;
+    }
+    const widgetsInURL = hash.slice(1).split(",");
+    const isMulti = widgetsInURL.length > 1;
+    if (isMulti) {
+      yield put(selectMultipleWidgetsAction(widgetsInURL));
+    } else {
+      yield put(selectWidgetAction(widgetsInURL[0], false));
+    }
+  } else {
+    yield put(selectMultipleWidgetsAction([]));
+  }
+}
+
 export default function* rootSaga() {
   yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
   yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);

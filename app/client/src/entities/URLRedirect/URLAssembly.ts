@@ -11,7 +11,7 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { generatePath } from "react-router";
-import { getQueryStringfromObject, URLBuilderParams } from "RouteBuilder";
+import { getQueryStringFromObject, URLBuilderParams } from "RouteBuilder";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 
 enum URL_TYPE {
@@ -159,9 +159,7 @@ export class URLBuilder {
 
     const formattedParams = this.getFormattedParams(pageId);
 
-    const basePath = generatePath(urlPattern, formattedParams);
-
-    return basePath;
+    return generatePath(urlPattern, formattedParams);
   }
 
   getCustomSlugPathPreview(pageId: string, customSlug: string) {
@@ -216,7 +214,7 @@ export class URLBuilder {
 
     const modifiedQueryParams = { ...queryParamsToPersist, ...params };
 
-    const queryString = getQueryStringfromObject(modifiedQueryParams);
+    const queryString = getQueryStringFromObject(modifiedQueryParams);
 
     const suffixPath = suffix ? `/${suffix}` : "";
 

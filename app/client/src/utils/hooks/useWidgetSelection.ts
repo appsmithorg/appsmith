@@ -1,7 +1,7 @@
 import { useDispatch } from "react-redux";
 import { focusWidget } from "actions/widgetActions";
 import {
-  selectMultipleWidgetsAction,
+  selectMultipleWidgetsInitAction,
   selectWidgetInitAction,
   shiftSelectWidgetsEntityExplorerInitAction,
 } from "actions/widgetSelectionActions";
@@ -29,8 +29,9 @@ export const useWidgetSelection = () => {
       (widgetId?: string) => dispatch(focusWidget(widgetId)),
       [dispatch],
     ),
-    deselectAll: useCallback(() => dispatch(selectMultipleWidgetsAction([])), [
-      dispatch,
-    ]),
+    deselectAll: useCallback(
+      () => dispatch(selectMultipleWidgetsInitAction([])),
+      [dispatch],
+    ),
   };
 };
