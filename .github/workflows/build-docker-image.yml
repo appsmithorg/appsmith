@@ -495,15 +495,15 @@ jobs:
           mkdir ~/.aws; touch ~/.aws/config
 
           echo "[default]
-          aws_access_key_id = $AWS_ACCESS_KEY_ID
-          aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
+          aws_access_key_id = env.AWS_ACCESS_KEY_ID
+          aws_secret_access_key = env.AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
 
           cat ~/.aws/credentials
-          echo "AWS ROLE--------->" $AWS_ROLE_ARN
+          echo "AWS ROLE--------->" env.AWS_ROLE_ARN
           
           echo "[default]
           [profile eksadmin]
-          role_arn= $AWS_ROLE_ARN
+          role_arn= env.AWS_ROLE_ARN
           output = json
           region=ap-south-1
           source_profile = default" > ~/.aws/config
@@ -515,7 +515,7 @@ jobs:
           echo "Region: $region"
           echo "Cluster name: $cluster_name"
 
-          sts_output=$(aws sts assume-role --role-arn $AWS_ROLE_ARN --role-session-name eksadminsession)
+          sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name eksadminsession)
           export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
           export AWS_SECRET_ACCESS_KEY=$(echo $sts_output | jq -r '.Credentials''.SecretAccessKey');\
           export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken');
