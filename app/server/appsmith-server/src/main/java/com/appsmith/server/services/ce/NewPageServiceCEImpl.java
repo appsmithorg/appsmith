@@ -35,7 +35,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -595,7 +595,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository.findRootApplicationIdById(defaultPageId, pagePermission.getReadPermission());
+            getPageMono = repository.findById(
+                    defaultPageId,
+                    List.of(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES),
+                    pagePermission.getReadPermission());
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission());
         }
