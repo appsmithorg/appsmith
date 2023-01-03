@@ -126,8 +126,8 @@ public class MockDataServiceTest {
                 .assertNext(mockDataSets -> {
                     assertThat(mockDataSets.getMockdbs()).hasSize(2);
                     assertThat(mockDataSets.getMockdbs())
-                            .anyMatch(data -> data.getName().equals("Movies") && data.getPackageName().equals("mongo-plugin"))
-                            .anyMatch(data -> data.getName().equals("Users") && data.getPackageName().equals("postgres-plugin"));
+                            .anyMatch(data -> data.getName().equals("movies") && data.getPackageName().equals("mongo-plugin"))
+                            .anyMatch(data -> data.getName().equals("users") && data.getPackageName().equals("postgres-plugin"));
                 })
                 .verifyComplete();
     }
