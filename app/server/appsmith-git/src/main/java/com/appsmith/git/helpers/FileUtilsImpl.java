@@ -575,14 +575,8 @@ public class FileUtilsImpl implements FileInterface {
         }
         applicationGitReference.setMetadata(metadata);
 
-        Map<String, Object> jsLibrariesMap = new HashMap<>();
         Path jsLibDirectory = baseRepoPath.resolve(JS_LIB_DIRECTORY);
-        File directory = jsLibDirectory.toFile();
-        if (directory.isDirectory()) {
-            for (File jsLib : directory.listFiles()) {
-                jsLibrariesMap.put(jsLib.getName(), readFile(jsLib.toPath(), gson));
-            }
-        }
+        Map<String, Object> jsLibrariesMap = readFiles(jsLibDirectory, gson, "");
         applicationGitReference.setJsLibraries(jsLibrariesMap);
 
         return applicationGitReference;
