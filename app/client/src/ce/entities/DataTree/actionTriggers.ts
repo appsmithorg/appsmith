@@ -1,30 +1,7 @@
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { TypeOptions } from "react-toastify";
 
-// export type ActionTriggerKeys =
-//   | "CLEAR_INTERVAL"
-// | "CLEAR_PLUGIN_ACTION"
-// | "CLOSE_MODAL"
-// | "COPY_TO_CLIPBOARD"
-// | "DOWNLOAD"
-// | "NAVIGATE_TO"
-// | "RESET_WIDGET_META_RECURSIVE_BY_NAME"
-// | "RUN_PLUGIN_ACTION"
-// | "SET_INTERVAL"
-// | "SHOW_ALERT"
-// | "SHOW_MODAL_BY_NAME"
-// | "STORE_VALUE"
-// | "REMOVE_VALUE"
-// | "CLEAR_STORE"
-// | "GET_CURRENT_LOCATION"
-// | "WATCH_CURRENT_LOCATION"
-// | "STOP_WATCHING_CURRENT_LOCATION"
-// | "CONFIRMATION_MODAL"
-// | "POST_MESSAGE"
-// | "SET_TIMEOUT"
-// | "CLEAR_TIMEOUT";
-
-export const ActionTriggerType = {
+const ActionTriggerType = {
   RUN_PLUGIN_ACTION: "RUN_PLUGIN_ACTION",
   CLEAR_PLUGIN_ACTION: "CLEAR_PLUGIN_ACTION",
   NAVIGATE_TO: "NAVIGATE_TO",
@@ -47,47 +24,6 @@ export const ActionTriggerType = {
   SET_TIMEOUT: "SET_TIMEOUT",
   CLEAR_TIMEOUT: "CLEAR_TIMEOUT",
 };
-
-// export enum ActionTriggerType {
-//   RUN_PLUGIN_ACTION = "RUN_PLUGIN_ACTION",
-//   CLEAR_PLUGIN_ACTION = "CLEAR_PLUGIN_ACTION",
-//   NAVIGATE_TO = "NAVIGATE_TO",
-//   SHOW_ALERT = "SHOW_ALERT",
-//   SHOW_MODAL_BY_NAME = "SHOW_MODAL_BY_NAME",
-//   CLOSE_MODAL = "CLOSE_MODAL",
-//   STORE_VALUE = "STORE_VALUE",
-//   REMOVE_VALUE = "REMOVE_VALUE",
-//   CLEAR_STORE = "CLEAR_STORE",
-//   DOWNLOAD = "DOWNLOAD",
-//   COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD",
-//   RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
-//   SET_INTERVAL = "SET_INTERVAL",
-//   CLEAR_INTERVAL = "CLEAR_INTERVAL",
-//   GET_CURRENT_LOCATION = "GET_CURRENT_LOCATION",
-//   WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
-//   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
-//   CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
-//   POST_MESSAGE = "POST_MESSAGE",
-//   SET_TIMEOUT = "SET_TIMEOUT",
-//   CLEAR_TIMEOUT = "CLEAR_TIMEOUT",
-// }
-
-// type Types12 = {
-//   [ActionTriggerType.RUN_PLUGIN_ACTION]: {
-//     actionId: string;
-//     params?: Record<string, unknown>;
-//     onSuccess?: string;
-//     onError?: string;
-//   };
-//   [ActionTriggerType.RUN_PLUGIN_ACTION]: {
-//     actionId: string;
-//     params?: Record<string, unknown>;
-//     onSuccess?: string;
-//     onError?: string;
-//   };
-// };
-
-// export type PayloadTypes = {};
 
 export type ActionTriggerKeys = keyof typeof ActionTriggerType;
 
@@ -116,7 +52,7 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerKeys, string> = {
 };
 
 interface ActionDescriptionInterface<T> {
-  type: keyof typeof ActionTriggerType;
+  type: ActionTriggerKeys;
   payload: T;
 }
 
