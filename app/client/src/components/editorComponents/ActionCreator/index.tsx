@@ -37,7 +37,6 @@ import { JSAction, Variable } from "entities/JSCollection";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { isValidURL } from "utils/URLUtils";
 import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
 import {
   NAVIGATE_TO_TAB_OPTIONS,
@@ -99,7 +98,7 @@ function getFieldFromValue(
         getParentValue as (changeValue: string) => string,
         value,
         activeTabNavigateTo,
-        dataTree as DataTree,
+        dataTree as DataTreeForActionCreator,
       );
     }
 
@@ -129,7 +128,7 @@ function getActionEntityFields(
   getParentValue: (changeValue: string) => string,
   value: string,
   activeTabNavigateTo: SwitchType,
-  dataTree: DataTree,
+  dataTree: DataTreeForActionCreator,
 ) {
   fields.push({
     field: FieldType.ACTION_SELECTOR_FIELD,
@@ -546,7 +545,7 @@ const ActionCreator = React.forwardRef(
       props.value,
       activeTabNavigateTo,
       undefined,
-      dataTree,
+      dataTree as DataTreeForActionCreator,
     );
 
     return (
@@ -561,17 +560,9 @@ const ActionCreator = React.forwardRef(
           modalDropdownList={modalDropdownList}
           navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
           onValueChange={props.onValueChange}
-<<<<<<< HEAD
           pageDropdownOptions={pageDropdownOptions}
-=======
-          pageDropdownOptions={props.pageDropdownOptions}
-<<<<<<< HEAD
-          queriesAndJsObjectsOption={queriesAndJsObjectsOption}
->>>>>>> 3eaddbdfa4 (Rename integrationOptionTree -> queriesAndJsObjectsOption)
-=======
->>>>>>> d9293dd1c8 (Code review changes)
           value={props.value}
-          widgetOptionTree={widgetOptionTree}
+          widgetOptionTree={widgetOptionTree as TreeDropdownOption[]}
         />
       </TreeStructure>
     );
