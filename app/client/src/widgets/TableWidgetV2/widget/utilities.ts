@@ -482,12 +482,15 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      maxDate: getPropertyValue(columnProperties.maxDate, rowIndex, true),
-      minDate: getPropertyValue(columnProperties.minDate, rowIndex, true),
       shortcuts: getBooleanPropertyValue(columnProperties.shortcuts, rowIndex),
       selectOptions: getArrayPropertyValue(
         columnProperties.selectOptions,
         rowIndex,
+      ),
+      timePrecision: getPropertyValue(
+        columnProperties.timePrecision,
+        rowIndex,
+        true,
       ),
     } as CellLayoutProperties;
   }

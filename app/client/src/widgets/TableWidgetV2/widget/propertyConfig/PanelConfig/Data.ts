@@ -437,8 +437,8 @@ export default {
       label: "First Day Of Week",
       helpText: "Defines the first day of the week for calendar",
       controlType: "INPUT_TEXT",
-      defaultValue: "0",
-      inputType: "INTEGER",
+      defaultValue: 0,
+      inputType: "NUMBER",
       isBindProperty: true,
       isTriggerProperty: false,
       dependencies: ["primaryColumns", "columnType"],
@@ -449,7 +449,7 @@ export default {
           expected: {
             type:
               "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
-            example: "0",
+            example: 0,
             autocompleteDataType: AutocompleteDataType.STRING,
           },
         },

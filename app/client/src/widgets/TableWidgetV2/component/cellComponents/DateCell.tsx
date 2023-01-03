@@ -48,6 +48,11 @@ type DateComponentProps = RenderDefaultPropsType &
     onDateSelectedString: string;
     firstDayOfWeek?: number;
     isRequired: boolean;
+    updateNewRowValues: (
+      alias: string,
+      value: unknown,
+      parsedValue: unknown,
+    ) => void;
   };
 
 const COMPONENT_DEFAULT_VALUES = {
@@ -189,6 +194,7 @@ export const DateCell = (props: DateComponentProps) => {
     isCellEditMode,
     isCellVisible,
     isHidden,
+    isNewRow,
     isRequired,
     maxDate,
     minDate,
@@ -205,6 +211,7 @@ export const DateCell = (props: DateComponentProps) => {
     textSize,
     timePrecision,
     toggleCellEditMode,
+    updateNewRowValues,
     validationErrorMessage,
     verticalAlignment,
     widgetId,
@@ -215,12 +222,14 @@ export const DateCell = (props: DateComponentProps) => {
   const [showRequiredError, setShowRequiredError] = useState(false);
   const value = props.value;
 
-  // const wrapperRef = useRef<HTMLDivElement>(null);
-  // const inputRef = useRef<HTMLInputElement>(null);
-
   const editEvents = useMemo(
     () => ({
-      onChange: (date: string) => onCellTextChange(date, date, alias),
+      onSave: (
+        rowIndex: number,
+        alias: string,
+        formattedDate: string,
+        onSubmitString?: string,
+      ) => onDateSave(rowIndex, alias, formattedDate, onSubmitString),
       onDiscard: () =>
         toggleCellEditMode(
           false,
@@ -270,11 +279,13 @@ export const DateCell = (props: DateComponentProps) => {
     setShowRequiredError(false);
     const formattedDate = date ? moment(date).format(inputFormat) : "";
     onDateSelection(rowIndex, onDateSelectedString);
-    onDateSave(rowIndex, alias, formattedDate, onSubmitString);
+    editEvents.onSave(rowIndex, alias, formattedDate, onSubmitString);
   };
 
   const onDateCellEdit = () => {
-    setHasFocus(true);
+    if (!isNewRow) {
+      setHasFocus(true);
+    }
     if (isRequired && !value) {
       setIsValid(false);
       setShowRequiredError(true);
@@ -283,6 +294,9 @@ export const DateCell = (props: DateComponentProps) => {
   };
 
   const onPopoverClosed = () => {
+    if (isNewRow) {
+      return;
+    }
     setHasFocus(false);
     setIsValid(true);
     editEvents.onDiscard();
@@ -326,14 +340,18 @@ export const DateCell = (props: DateComponentProps) => {
             dateFormat={outputFormat}
             datePickerType="DATE_PICKER"
             firstDayOfWeek={firstDayOfWeek}
-            isDisabled
+            isDisabled={!isNewRow}
             isLoading={false}
-            isPopoverOpen
+            isPopoverOpen={isNewRow ? undefined : true}
             labelText=""
             maxDate={maxDate || COMPONENT_DEFAULT_VALUES.maxDate}
             minDate={minDate || COMPONENT_DEFAULT_VALUES.minDate}
             onDateOutOfRange={onDateOutOfRange}
-            onDateSelected={onDateSelected}
+            onDateSelected={
+              isNewRow
+                ? (date) => updateNewRowValues(alias, date, date)
+                : onDateSelected
+            }
             onPopoverClosed={onPopoverClosed}
             selectedDate={valueInISOFormat}
             shortcuts={shortcuts}

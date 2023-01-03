@@ -186,8 +186,6 @@ export interface ImageCellProperties {
 export interface DateCellProperties {
   inputFormat: string;
   outputFormat: string;
-  maxDate: string;
-  minDate: string;
   shortcuts: boolean;
   timePrecision?: TimePrecision;
 }
@@ -275,6 +273,8 @@ export interface ColumnStyleProperties {
 export interface DateColumnProperties {
   outputFormat?: string;
   inputFormat?: string;
+  shortcuts?: boolean;
+  timePrecision?: TimePrecision;
 }
 
 export interface ColumnEditabilityProperties {
@@ -343,11 +343,6 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
-  inputFormat?: string;
-  outputFormat?: string;
-  maxDate?: string;
-  minDate?: string;
-  shortcuts?: boolean;
   getVisibleItems?: () => Array<MenuItem>;
   menuItemsSource?: MenuItemsSource;
   configureMenuItems?: ConfigureMenuItems;

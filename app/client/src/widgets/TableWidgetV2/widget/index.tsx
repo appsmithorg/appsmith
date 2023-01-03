@@ -89,6 +89,7 @@ import { CellWrapper } from "../component/TableStyledWrappers";
 import { Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
 import { MenuItem, MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1884,12 +1885,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onSubmitString={props.cell.column.columnProperties.onSubmit}
             outputFormat={cellProperties.outputFormat}
             rowIndex={rowIndex}
-            shortcuts={props.cell.column.columnProperties.shortcuts}
+            shortcuts={cellProperties.shortcuts}
             tableWidth={this.getComponentDimensions().componentWidth}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
-            timePrecision={props.cell.column.columnProperties.timePrecision}
+            timePrecision={cellProperties.timePrecision || TimePrecision.NONE}
             toggleCellEditMode={this.toggleCellEditMode}
+            updateNewRowValues={this.updateNewRowValues}
             validationErrorMessage="This field is required"
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
@@ -2049,7 +2051,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   onDateSave = (
     rowIndex: number,
     alias: string,
-    value: string | number,
+    value: string,
     onSubmit?: string,
   ) => {
     if (this.isColumnCellValid(alias)) {
