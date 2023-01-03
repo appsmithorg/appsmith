@@ -131,7 +131,7 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class ApplicationServiceTest {
+public class ApplicationServiceCETest {
 
     @Autowired
     ApplicationService applicationService;
