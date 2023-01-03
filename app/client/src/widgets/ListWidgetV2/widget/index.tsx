@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { isEmpty, floor, isEqual } from "lodash";
+import { isEmpty, floor } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -215,6 +215,9 @@ class ListWidget extends BaseWidget<
       }
     }
 
+    if (this.props.serverSidePagination) {
+      this.updateRowCacheWithNewData();
+    }
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
       const maxPageNo = Math.max(
         Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
@@ -536,7 +539,7 @@ class ListWidget extends BaseWidget<
 
   updateRowDataCacheWidgetProp = () => {
     if (
-      !isEqual(this.rowDataCache, this.props.rowDataCache) &&
+      !equal(this.rowDataCache, this.props.rowDataCache) &&
       this.props.serverSidePagination
     ) {
       super.updateWidgetProperty("rowDataCache", this.rowDataCache);
@@ -576,6 +579,22 @@ class ListWidget extends BaseWidget<
 
   handleRowCacheData = () => {
     this.setRowDataCache();
+    this.updateRowDataCacheWidgetProp();
+  };
+
+  updateRowCacheWithNewData = () => {
+    Object.keys(this.cachedKeys).forEach((key) => {
+      if (this.props.primaryKeys?.toString().includes(key)) {
+        const rowIndex = this.cachedKeys[key];
+        const startIndex = this.metaWidgetGenerator.getStartIndex();
+        const viewIndex = rowIndex - startIndex;
+
+        this.rowDataCache = {
+          ...this.rowDataCache,
+          [key]: this.props.listData?.[viewIndex] ?? this.rowDataCache[key],
+        };
+      }
+    });
     this.updateRowDataCacheWidgetProp();
   };
 

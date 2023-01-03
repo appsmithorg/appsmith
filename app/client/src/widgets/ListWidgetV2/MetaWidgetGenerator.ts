@@ -1,6 +1,6 @@
 import hash from "object-hash";
 import { klona } from "klona";
-import { difference, omit, set, get, isEmpty, isString, isEqual } from "lodash";
+import { difference, omit, set, get, isEmpty, isString } from "lodash";
 import {
   elementScroll,
   observeElementOffset,
@@ -8,6 +8,7 @@ import {
   Virtualizer,
   VirtualizerOptions,
 } from "@tanstack/virtual-core";
+import isEqual from "fast-deep-equal/es6";
 
 import Queue from "./Queue";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
@@ -344,7 +345,9 @@ class MetaWidgetGenerator {
 
     if (this.modificationsQueue.has(MODIFICATION_TYPE.GENERATE_CACHE_WIDGETS)) {
       this.cachedRows.prev = new Set(this.cachedRows.curr);
+
       const cachedTemplateMetaWidgets = this.getCachedTemplateMetaWidgets();
+
       metaWidgets = { ...metaWidgets, ...cachedTemplateMetaWidgets };
     }
 
