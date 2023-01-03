@@ -383,7 +383,7 @@ function getWrappedAlignmentInfo(
   let index = 0;
   let total = 0;
   for (const each of arr) {
-    if (total + each.columns >= GridDefaults.DEFAULT_GRID_COLUMNS) {
+    if (total + each.columns > GridDefaults.DEFAULT_GRID_COLUMNS) {
       let x = index;
       if (!res[resIndex].length) {
         res[resIndex].push(each);
