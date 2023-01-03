@@ -10,7 +10,7 @@ import {
   ButtonGroupOption,
   ButtonGroup,
 } from "design-system";
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplication,
@@ -38,6 +38,7 @@ import {
 import { ReactComponent as NavOrientationTopIcon } from "assets/icons/settings/nav-orientation-top.svg";
 import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/nav-orientation-side.svg";
 import { ReactComponent as NavPositionStickyIcon } from "assets/icons/settings/nav-position-sticky.svg";
+import { ReactComponent as NavPositionStaticIcon } from "assets/icons/settings/nav-position-static.svg";
 import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
 import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
 import {
@@ -47,6 +48,7 @@ import {
   StringsFromPublishedNavigationSetting,
 } from "constants/AppConstants";
 import _ from "lodash";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 const StyledLink = styled.a`
   position: relative;
@@ -82,31 +84,25 @@ const ButtonGroupSetting = ({
   options,
   publishedNavigationSetting,
 }: ButtonGroupSettingProps) => {
-  const value: string[] = [];
-
-  if (
-    publishedNavigationSetting[
+  const currentValue =
+    publishedNavigationSetting?.[
       keyName as keyof StringsFromPublishedNavigationSetting
-    ]
-  ) {
-    value.push(
-      publishedNavigationSetting[
-        keyName as keyof StringsFromPublishedNavigationSetting
-      ],
-    );
-  }
+    ] || "";
+  const [selectedValue, setSelectedValue] = useState<string[]>([currentValue]);
+
+  const onChange = (value: string) => {
+    setSelectedValue([value]);
+  };
 
   return (
     <div className="pt-4">
       <Text type={TextType.P1}>{heading}</Text>
-      <div className="pt-1 pb-4">
+      <div className="pt-1">
         <ButtonGroup
           fullWidth
           options={options}
-          selectButton={(value, isUpdatedViaKeyboard = false) => {
-            return;
-          }}
-          values={value}
+          selectButton={onChange}
+          values={selectedValue}
         />
       </div>
     </div>
@@ -114,14 +110,17 @@ const ButtonGroupSetting = ({
 };
 
 const ColorStyleIcon = (props: { style: NavigationSettingsColorStyle }) => {
-  let backgroundColor = "#fff";
+  const selectedTheme = useSelector(getSelectedAppTheme);
+
+  let backgroundColor = Colors.WHITE;
 
   if (props.style === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
-    backgroundColor = "#fff";
+    backgroundColor =
+      selectedTheme?.properties?.colors?.primaryColor || Colors.WHITE;
   } else if (props.style === NAVIGATION_SETTINGS.COLOR_STYLE.DARK) {
-    backgroundColor = "#fff";
+    backgroundColor = Colors.GREY_900;
   } else if (props.style === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-    backgroundColor = "#fff";
+    backgroundColor = Colors.WHITE;
   }
 
   return (
@@ -132,6 +131,7 @@ const ColorStyleIcon = (props: { style: NavigationSettingsColorStyle }) => {
         width: 14,
         borderRadius: "100%",
         marginRight: 4,
+        border: `1px solid ${Colors.GREY_200}`,
       }}
     />
   );
@@ -147,7 +147,7 @@ function NavigationSettings() {
   const publishedNavigationSetting: PublishedNavigationSetting = {
     showNavbar: true,
     orientation: "top",
-    navStyle: "stacked",
+    style: "stacked",
     position: "static",
     itemStyle: "textIcon",
     colorStyle: "light",
@@ -157,8 +157,8 @@ function NavigationSettings() {
   };
 
   return (
-    <div>
-      <div className="py-4 px-4">
+    <div className="px-4">
+      <div className="pt-4">
         <div className="flex justify-between content-center">
           <StyledPropertyHelpLabel
             label={createMessage(APP_NAVIGATION_SETTING.showNavbarLabel)}
@@ -229,7 +229,7 @@ function NavigationSettings() {
           {
             label: _.capitalize(NAVIGATION_SETTINGS.POSITION.STATIC),
             value: NAVIGATION_SETTINGS.POSITION.STATIC,
-            icon: "close",
+            icon: <NavPositionStaticIcon />,
           },
           {
             label: _.capitalize(NAVIGATION_SETTINGS.POSITION.STICKY),
@@ -245,7 +245,7 @@ function NavigationSettings() {
         keyName="itemStyle"
         options={[
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON),
+            label: "Text + Icon",
             value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
           },
           {

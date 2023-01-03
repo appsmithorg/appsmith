@@ -96,7 +96,7 @@ export type NavigationSettingsShowShareApp = boolean;
 export type PublishedNavigationSetting = {
   showNavbar: NavigationSettingsShowNavbar;
   orientation: NavigationSettingsOrientation;
-  navStyle: NavigationSettingsStyle;
+  style: NavigationSettingsStyle;
   position: NavigationSettingsPosition;
   itemStyle: NavigationSettingsItemStyle;
   colorStyle: NavigationSettingsColorStyle;
