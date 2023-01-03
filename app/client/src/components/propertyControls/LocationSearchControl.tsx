@@ -62,8 +62,6 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    return renderMapStatus(Status.LOADING);
-
     return (
       <Wrapper
         apiKey={google.apiKey}
