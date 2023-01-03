@@ -495,15 +495,15 @@ jobs:
           mkdir ~/.aws; touch ~/.aws/config
 
           echo "[default]
-          aws_access_key_id = env.AWS_ACCESS_KEY_ID
-          aws_secret_access_key = env.AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
+          aws_access_key_id = ${{ env.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key = ${{ env.AWS_SECRET_ACCESS_KEY }}" > ~/.aws/credentials
 
           cat ~/.aws/credentials
-          echo "AWS ROLE--------->" env.AWS_ROLE_ARN
+          echo "AWS ROLE--------->" ${{ env.AWS_ROLE_ARN }}
           
           echo "[default]
           [profile eksadmin]
-          role_arn= env.AWS_ROLE_ARN
+          role_arn= ${{ env.AWS_ROLE_ARN }}
           output = json
           region=ap-south-1
           source_profile = default" > ~/.aws/config
