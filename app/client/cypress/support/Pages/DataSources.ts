@@ -142,6 +142,17 @@ export class DataSources {
     this.agHelper.AssertElementAbsence(this._editButton);
   }
 
+  public GeneratePageWithMockDB() {
+    this.ee.AddNewPage("generate-page");
+    this.agHelper.GetNClick(this._selectDatasourceDropdown);
+    this.agHelper.GetNClick(this.locator._dropdownText, 0);
+    this.agHelper.GetNClick(this._mockDB("Users"));
+    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.GetNClick(this.locator._dropdownText, 0);
+    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+  }
+
   public StartDataSourceRoutes() {
     cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
     cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
