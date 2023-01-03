@@ -126,6 +126,11 @@ interface VerticalHighlightsPayload {
   highlights: HighlightInfo[];
 }
 
+/**
+ * Derive highlight information for all widgets within a layer.
+ * - Breakdown each layer into component alignments.
+ * - generate highlight information for each alignment.
+ */
 function generateVerticalHighlights(data: {
   widgets: CanvasWidgetsReduxState;
   layer: FlexLayer;
@@ -181,7 +186,7 @@ function generateVerticalHighlights(data: {
 
   return {
     highlights: [
-      ...generateHighlightsForSubWrapper({
+      ...generateHighlightsForAlignment({
         arr: startChildren,
         childCount,
         layerIndex,
@@ -195,7 +200,7 @@ function generateVerticalHighlights(data: {
         columnSpace,
         isMobile,
       }),
-      ...generateHighlightsForSubWrapper({
+      ...generateHighlightsForAlignment({
         arr: centerChildren,
         childCount: childCount + startChildren.length,
         layerIndex,
@@ -210,7 +215,7 @@ function generateVerticalHighlights(data: {
         avoidInitialHighlight: startColumns > 25 || endColumns > 25,
         isMobile,
       }),
-      ...generateHighlightsForSubWrapper({
+      ...generateHighlightsForAlignment({
         arr: endChildren,
         childCount: childCount + startChildren.length + centerChildren.length,
         layerIndex,
@@ -229,7 +234,14 @@ function generateVerticalHighlights(data: {
   };
 }
 
-function generateHighlightsForSubWrapper(data: {
+/**
+ * Generate highlight information for a single alignment within a layer.
+ * - For each widget in the alignment
+ *   - generate a highlight to mark the the start position of the widget.
+ * - Add another highlight at the end position of the last widget in the alignment.
+ * - If the alignment has no children, then add an initial highlight to mark the start of the alignment.
+ */
+function generateHighlightsForAlignment(data: {
   arr: Widget[];
   childCount: number;
   layerIndex: number;

@@ -12,7 +12,7 @@ import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
-interface XYCord {
+interface Point {
   x: number;
   y: number;
 }
@@ -63,36 +63,10 @@ export const useAutoLayoutHighlights = ({
   let isFillWidget = false;
 
   const isVerticalStack = direction === LayoutDirection.Vertical;
-  let containerDimensions: {
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
-    width: number;
-    height: number;
-  };
 
   /**
    * START AUTO LAYOUT OFFSET CALCULATION
    */
-
-  // Fetch and update the dimensions of the containing canvas.
-  const updateContainerDimensions = (): boolean => {
-    const container = document.querySelector(`.appsmith_widget_${canvasId}`);
-    const containerRect:
-      | DOMRect
-      | undefined = container?.getBoundingClientRect();
-    if (!container || !containerRect) return false;
-    containerDimensions = {
-      top: containerRect?.top || 0,
-      bottom: containerRect?.bottom - containerDimensions?.top || 0,
-      left: containerRect?.left || 0,
-      right: containerRect?.right - containerRect?.left || 0,
-      width: containerRect?.width,
-      height: containerRect?.height,
-    };
-    return true;
-  };
 
   const cleanUpTempStyles = () => {
     // reset state
@@ -127,12 +101,6 @@ export const useAutoLayoutHighlights = ({
     cleanUpTempStyles();
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
-      /**
-       * update dimensions of the current canvas
-       * and break out of the function if returned value is false.
-       * That implies the container is null.
-       */
-      if (!updateContainerDimensions()) return [];
       isFillWidget = checkForFillWidget();
       highlights = deriveHighlightsFromLayers(
         allWidgets,
@@ -151,29 +119,21 @@ export const useAutoLayoutHighlights = ({
    * END AUTO LAYOUT OFFSET CALCULATION
    */
 
+  /**
+   * Highlight a drop position based on mouse position and move direction.
+   * @param e | MouseMoveEvent
+   * @param moveDirection | ReflowDirection
+   * @returns HighlightInfo | undefined
+   */
   const highlightDropPosition = (
     e: any,
     moveDirection: ReflowDirection,
   ): HighlightInfo | undefined => {
-    if (!highlights)
-      highlights = deriveHighlightsFromLayers(
-        allWidgets,
-        canvasId,
-        canvasWidth,
-        blocksToDraw.map((block) => block?.widgetId),
-        isFillWidget,
-        isMobile,
-      );
-    // console.log("#### highlights", highlights);
-    if (!highlights) return;
-    // updateHighlights(moveDirection);
-
     const highlight: HighlightInfo | undefined = getHighlightPayload(
       e,
       moveDirection,
     );
-
-    // updateSelection(highlight);
+    if (!highlight) return;
     // console.log("#### selection", highlight);
     lastActiveHighlight = highlight;
     return highlight;
@@ -182,9 +142,9 @@ export const useAutoLayoutHighlights = ({
   const getHighlightPayload = (
     e: any,
     moveDirection?: ReflowDirection,
-    val?: XYCord,
+    val?: Point,
   ): HighlightInfo | undefined => {
-    let base: HighlightInfo[] = [];
+    let base: HighlightInfo[] = []; // all highlight for the current canvas.
     if (!highlights || !highlights.length)
       highlights = deriveHighlightsFromLayers(
         allWidgets,
@@ -195,8 +155,8 @@ export const useAutoLayoutHighlights = ({
         isMobile,
       );
     base = highlights;
-
-    const pos: XYCord = {
+    // Current mouse coordinates.
+    const pos: Point = {
       x: e?.offsetX || val?.x,
       y: e?.offsetY || val?.y,
     };
@@ -204,30 +164,23 @@ export const useAutoLayoutHighlights = ({
     let filteredHighlights: HighlightInfo[] = [];
     filteredHighlights = getViableDropPositions(base, pos, moveDirection);
     if (!filteredHighlights || !filteredHighlights?.length) return;
+    // Sort filtered highlights in ascending order of distance from mouse position.
     const arr = [...filteredHighlights]?.sort((a, b) => {
       return (
-        calculateDistance(
-          a,
-          pos,
-          moveDirection,
-          a.isNewLayer && isVerticalStack,
-        ) -
-        calculateDistance(
-          b,
-          pos,
-          moveDirection,
-          a.isNewLayer && isVerticalStack,
-        )
+        calculateDistance(a, pos, moveDirection) -
+        calculateDistance(b, pos, moveDirection)
       );
     });
 
     // console.log("#### arr", arr, base, moveDirection);
+
+    // Return the closest highlight.
     return arr[0];
   };
 
   function getViableDropPositions(
     arr: HighlightInfo[],
-    pos: XYCord,
+    pos: Point,
     moveDirection?: ReflowDirection,
   ): HighlightInfo[] {
     if (!moveDirection || !arr) return arr || [];
@@ -242,7 +195,7 @@ export const useAutoLayoutHighlights = ({
 
   function getVerticalStackDropPositions(
     arr: HighlightInfo[],
-    pos: XYCord,
+    pos: Point,
     isVerticalDrag: boolean,
   ): HighlightInfo[] {
     // For vertical stacks, filter out the highlights based on drag direction and y position.
@@ -266,9 +219,11 @@ export const useAutoLayoutHighlights = ({
         );
       },
     );
-    // console.log("#### pos", arr, filteredHighlights, isVerticalDrag);
-    // For horizontal drag, if no vertical highlight exists in the same x plane,
-    // return the horizontal highlights for the last layer.
+    /**
+     * For horizontal drag, if no vertical highlight exists in the same x plane,
+     * return the horizontal highlights for the last layer.
+     * In case of a dragged Fill widget, only return the Start alignment as it will span the entire width.
+     */
     if (!isVerticalDrag && !filteredHighlights.length)
       filteredHighlights = arr
         .slice(arr.length - 3)
@@ -283,7 +238,7 @@ export const useAutoLayoutHighlights = ({
 
   function getHorizontalStackDropPositions(
     arr: HighlightInfo[],
-    pos: XYCord,
+    pos: Point,
   ): HighlightInfo[] {
     // For horizontal stack, return the highlights that lie in the same x plane.
     let filteredHighlights = arr.filter(
@@ -295,37 +250,56 @@ export const useAutoLayoutHighlights = ({
     return filteredHighlights;
   }
 
-  const calculateDistance = (
+  /**
+   * Calculate distance between the mouse position and the closest point on the highlight.
+   *
+   * @param a | HighlightInfo : current highlight.
+   * @param b | Point : current mouse position.
+   * @param moveDirection | ReflowDirection : current drag direction.
+   * @returns number
+   */
+  function calculateDistance(
     a: HighlightInfo,
-    b: XYCord,
+    b: Point,
     moveDirection?: ReflowDirection,
-    usePerpendicularDistance?: boolean,
-  ): number => {
+  ): number {
+    let distX = 0,
+      distY = 0;
+    if (a.isVertical) {
+      distX = b.x - a.posX;
+      if (b.y < a.posY) {
+        distY = b.y - a.posY;
+      } else if (b.y > a.posY + a.height) {
+        distY = b.y - (a.posY + a.height);
+      } else {
+        distY = 0;
+      }
+    } else {
+      distY = b.y - a.posY;
+      if (b.x < a.posX) {
+        distX = b.x - a.posX;
+      } else if (b.x > a.posX + a.width) {
+        distX = b.x - (a.posX + a.width);
+      } else {
+        distX = 0;
+      }
+    }
+
     /**
-     * Calculate perpendicular distance of a point from a line.
-     * If moving vertically, x is fixed (x = 0) and vice versa.
+     * Emphasize move direction over actual distance.
+     *
+     * If the point is close to a highlight. However, it is moving in the opposite direction,
+     * then increase the appropriate distance to ensure that this highlight is discounted.
      */
-    const isVerticalDrag =
-      moveDirection &&
-      [ReflowDirection.TOP, ReflowDirection.BOTTOM].includes(moveDirection);
-
-    let distX: number =
-      a.isVertical && isVerticalDrag
-        ? usePerpendicularDistance
-          ? (a.posX + a.width) / 2 - b.x
-          : 0
-        : a.posX - b.x;
-    let distY: number = !a.isVertical && !isVerticalDrag ? 0 : a.posY - b.y;
-
-    if (moveDirection === ReflowDirection.LEFT && distX > 20) distX += 2000;
-    if (moveDirection === ReflowDirection.RIGHT && distX < -20) distX -= 2000;
-    if (moveDirection === ReflowDirection.TOP && distY > 20) distY += 2000;
-    if (moveDirection === ReflowDirection.BOTTOM && distY < -20) distY -= 2000;
+    if (moveDirection === ReflowDirection.RIGHT && distX > 20) distX += 2000;
+    if (moveDirection === ReflowDirection.LEFT && distX < -20) distX -= 2000;
+    if (moveDirection === ReflowDirection.BOTTOM && distY > 20) distY += 2000;
+    if (moveDirection === ReflowDirection.TOP && distY < -20) distY -= 2000;
 
     return Math.abs(Math.sqrt(distX * distX + distY * distY));
-  };
+  }
 
-  const getDropInfo = (val: XYCord): HighlightInfo | undefined => {
+  const getDropInfo = (val: Point): HighlightInfo | undefined => {
     if (lastActiveHighlight) return lastActiveHighlight;
 
     const payload: HighlightInfo | undefined = getHighlightPayload(
