@@ -5,6 +5,7 @@ describe("Embed settings options", function() {
   const {
     AggregateHelper: agHelper,
     DeployMode: deployMode,
+    EmbedSettings: embedSettings,
     EntityExplorer: ee,
     HomePage: homePage,
   } = ObjectsRegistry;
@@ -24,12 +25,26 @@ describe("Embed settings options", function() {
     );
   };
 
+  function ValidateEditModeSetting(setting) {
+    deployMode.NavigateBacktoEditor();
+    embedSettings.OpenEmbedSettings();
+    agHelper.GetNAssertElementText(
+      embedSettings.locators._frameAncestorsSetting,
+      setting,
+    );
+  }
+
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
     deployMode.DeployApp();
     cy.get("[data-cy='viewmode-share']").click();
-    cy.get(".t--deployed-url input")
-      .invoke("attr", "value")
+    cy.get("[data-cy='copy-application-url']")
+      .last()
+      .click();
+    agHelper.GiveChromeCopyPermission();
+    cy.window()
+      .its("navigator.clipboard")
+      .invoke("readText")
       .as("embeddedAppUrl");
     cy.enablePublicAccess();
     cy.get(".t--back-to-home").click();
@@ -41,14 +56,19 @@ describe("Embed settings options", function() {
     // cy.testJsontext("url", this.embeddedAppUrl);
     deployMode.DeployApp();
     cy.get("[data-cy='viewmode-share']").click();
-    cy.get(".t--deployed-url input")
-      .invoke("attr", "value")
+    cy.get("[data-cy='copy-application-url']")
+      .last()
+      .click();
+    cy.window()
+      .its("navigator.clipboard")
+      .invoke("readText")
       .as("deployUrl");
     cy.enablePublicAccess();
     cy.wait(6000);
     getIframeBody()
       .contains("Submit")
       .should("exist");
+    deployMode.NavigateBacktoEditor();
   });
 
   beforeEach(() => {
@@ -62,7 +82,7 @@ describe("Embed settings options", function() {
   describe("Wrapper to get access to the alias in all tests", () => {
     it("1. Allow embedding everywhere", function() {
       cy.log(this.deployUrl);
-      cy.get(".t--back-to-home").click();
+      homePage.NavigateToHome();
       cy.get(".admin-settings-menu-option").click();
       cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(
         () => {
@@ -85,11 +105,12 @@ describe("Embed settings options", function() {
       getIframeBody()
         .contains("Submit")
         .should("exist");
+      ValidateEditModeSetting(embedSettings.locators._allowAllText);
     });
 
     it("2. Limit embedding", function() {
       cy.log(this.deployUrl);
-      cy.get(".t--back-to-home").click();
+      homePage.NavigateToHome();
       cy.get(".admin-settings-menu-option").click();
       cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(
         () => {
@@ -114,10 +135,12 @@ describe("Embed settings options", function() {
       getIframeBody()
         .contains("Submit")
         .should("exist");
+
+      ValidateEditModeSetting(embedSettings.locators._restrictedText);
     });
     it("3. Disable everywhere", function() {
       cy.log(this.deployUrl);
-      cy.get(".t--back-to-home").click();
+      homePage.NavigateToHome();
       cy.get(".admin-settings-menu-option").click();
       cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(
         () => {
@@ -140,6 +163,8 @@ describe("Embed settings options", function() {
       getIframeBody()
         .contains("Submit")
         .should("not.exist");
+
+      ValidateEditModeSetting(embedSettings.locators._disabledText);
     });
   });
 });

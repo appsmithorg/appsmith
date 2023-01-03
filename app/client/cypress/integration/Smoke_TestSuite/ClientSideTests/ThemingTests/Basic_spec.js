@@ -8,6 +8,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const ee = ObjectsRegistry.EntityExplorer,
   appSettings = ObjectsRegistry.AppSettings;
 
+const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
+
 describe("App Theming funtionality", function() {
   before(() => {
     cy.addDsl(dsl);
@@ -62,9 +64,10 @@ describe("App Theming funtionality", function() {
     cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
     appSettings.ClosePane();
 
-    // drop a button widget and click on body
+    // drop a button & container widget and click on body
     cy.get(explorer.widgetSwitchId).click();
-    cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 }); //iconbuttonwidget
+    cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
+    cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();
     cy.get("canvas")
       .first(0)
@@ -87,7 +90,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true });
 
     // check if border radius is changed on button
-    cy.get(`${commonlocators.themeAppBorderRadiusBtn} > div`)
+    cy.get(commonlocators.themeAppBorderRadiusBtn)
       .eq(1)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -143,18 +146,18 @@ describe("App Theming funtionality", function() {
         );
       });
 
-    //Change the shadow //Commenting below since expanded by default
-    //cy.contains("Shadow").click({ force: true });
-    cy.contains("App Box Shadow")
-      .siblings("div")
-      .children("span")
-      .last()
-      .then(($elem) => {
-        cy.get($elem).click({ force: true });
-        cy.get(widgetsPage.widgetBtn).should(
+    // Change the shadow
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .click({ force: true });
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .invoke("css", "box-shadow")
+      .then((boxShadow) => {
+        cy.get(containerShadowElement).should(
           "have.css",
           "box-shadow",
-          $elem.css("box-shadow"),
+          boxShadow,
         );
       });
 
@@ -286,8 +289,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(28)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(23)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(commonlocators.canvas).should(
@@ -306,7 +309,7 @@ describe("App Theming funtionality", function() {
     cy.get(commonlocators.themeAppBorderRadiusBtn)
       .eq(2)
       .click({ force: true });
-    cy.get(`${commonlocators.themeAppBorderRadiusBtn} > div`)
+    cy.get(`${commonlocators.themeAppBorderRadiusBtn}`)
       .eq(2)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -325,22 +328,17 @@ describe("App Theming funtionality", function() {
     //#endregion
 
     //#region Change the shadow & verify widgets
-    //cy.contains("Shadow").click({ force: true });
-    cy.contains("App Box Shadow")
-      .siblings("div")
-      .children("span")
-      .first()
-      .then(($elem) => {
-        cy.get($elem).click({ force: true });
-        cy.get(widgetsPage.iconWidgetBtn).should(
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .click({ force: true });
+    cy.get(commonlocators.themeAppBoxShadowBtn)
+      .eq(3)
+      .invoke("css", "box-shadow")
+      .then((boxShadow) => {
+        cy.get(containerShadowElement).should(
           "have.css",
           "box-shadow",
-          $elem.css("box-shadow"),
-        );
-        cy.get(widgetsPage.widgetBtn).should(
-          "have.css",
-          "box-shadow",
-          $elem.css("box-shadow"),
+          boxShadow,
         );
       });
 
@@ -797,8 +795,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(40)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(33)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(widgetsPage.widgetBtn)
@@ -821,8 +819,8 @@ describe("App Theming funtionality", function() {
 
     //Change Border & verify
 
-    cy.get(".t--button-tab-0px").click();
-    cy.get(".t--button-tab-0px")
+    cy.get(".t--button-group-0px").click();
+    cy.get(".t--button-group-0px")
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -844,8 +842,8 @@ describe("App Theming funtionality", function() {
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-tab-0.10px").click();
-    cy.get(".t--button-tab-0.10px div")
+    cy.get(".t--button-group-0.10px").click();
+    cy.get(".t--button-group-0.10px div")
       .eq(0)
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
@@ -1029,8 +1027,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(22)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(13)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(widgetsPage.widgetBtn)
@@ -1053,10 +1051,10 @@ describe("App Theming funtionality", function() {
 
     //Change Border & verify
 
-    cy.get(".t--button-tab-0\\.375rem")
+    cy.get(".t--button-group-0\\.375rem")
       .click()
       .wait(500);
-    cy.get(".t--button-tab-0\\.375rem div")
+    cy.get(".t--button-group-0\\.375rem div")
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -1078,10 +1076,10 @@ describe("App Theming funtionality", function() {
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-tab-0.1px")
+    cy.get(".t--button-group-0.1px")
       .click()
       .wait(500);
-    cy.get(".t--button-tab-0.1px div")
+    cy.get(".t--button-group-0.1px div")
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
         cy.get(widgetsPage.widgetBtn)

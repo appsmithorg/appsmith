@@ -21,12 +21,10 @@ describe("Dynamic Height Width validation", function() {
       .then((lheight) => {
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.openPropertyPaneWithIndex("textwidget", 0);
-        cy.get(commonlocators.generalSectionHeight).should("be.visible");
-        cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
+        cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.testCodeMirror(textMsg);
         cy.openPropertyPaneWithIndex("textwidget", 1);
-        cy.get(commonlocators.generalSectionHeight).should("be.visible");
-        cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
+        cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.testCodeMirror(textMsg);
         cy.get(".t--widget-listwidget")
           .invoke("css", "height")

@@ -13,7 +13,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 
 const DeployLinkDialog = styled.div`
   flex-direction: column;

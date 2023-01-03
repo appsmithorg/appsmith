@@ -4,7 +4,7 @@ import TreeDropdown, {
   TreeDropdownOption,
 } from "pages/Editor/Explorer/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { AppState } from "@appsmith/reducers";

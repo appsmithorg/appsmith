@@ -11,7 +11,10 @@ import {
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { getWidgetOptionsTree } from "sagas/selectors";
+import {
+  getDataTreeForActionCreator,
+  getWidgetOptionsTree,
+} from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -19,22 +22,21 @@ import {
 import {
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
+  getPageListAsOptions,
 } from "selectors/entitiesSelector";
 import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import FieldGroup from "./FieldGroup";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { JSAction, Variable } from "entities/JSCollection";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { connect } from "react-redux";
 import { ACTION_TRIGGER_REGEX } from "./regex";
 import {
   NAVIGATE_TO_TAB_OPTIONS,
@@ -42,15 +44,20 @@ import {
   FieldType,
   AppsmithFunctionsWithFields,
 } from "./constants";
-import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import { isValueValidURL } from "./utils";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   getFuncExpressionAtPosition,
   getFunction,
   replaceActionInQuery,
 } from "@shared/ast";
+import {
+  SwitchType,
+  ActionCreatorProps,
+  GenericFunction,
+  DataTreeForActionCreator,
+} from "./types";
+import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
 
 const actionList: {
   label: string;
@@ -66,7 +73,7 @@ function getFieldFromValue(
   value: string | undefined,
   activeTabNavigateTo: SwitchType,
   getParentValue?: (changeValue: string) => string,
-  dataTree?: DataTree,
+  dataTree?: DataTreeForActionCreator,
 ): any[] {
   const fields: any[] = [];
 
@@ -97,7 +104,7 @@ function getFieldFromValue(
         getParentValue as (changeValue: string) => string,
         value,
         activeTabNavigateTo,
-        dataTree as DataTree,
+        dataTree as DataTreeForActionCreator,
       );
     }
 
@@ -140,13 +147,14 @@ function getActionEntityFields(
   getParentValue: (changeValue: string) => string,
   value: string,
   activeTabNavigateTo: SwitchType,
-  dataTree: DataTree,
+  dataTree: DataTreeForActionCreator,
 ) {
   fields.push({
     field: FieldType.ACTION_SELECTOR_FIELD,
     getParentValue,
     value,
   });
+
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getDynamicBindings(value).jsSnippets[0];
@@ -182,7 +190,6 @@ function getActionEntityFields(
   );
   errorFields[0].label = "onError";
   fields.push(errorFields);
-
   return fields;
 }
 
@@ -213,6 +220,7 @@ function getJsFunctionExecutionFields(
       value,
       args: argsProps ? argsProps : [],
     });
+
     if (argsProps && argsProps.length > 0) {
       for (const index of argsProps) {
         fields.push({
@@ -544,15 +552,16 @@ const ActionCreator = React.forwardRef(
     const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
       NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
     );
-    const dataTree = useSelector(getDataTree);
+    const dataTree = useSelector(getDataTreeForActionCreator);
     const integrationOptions = useApisQueriesAndJsActionOptions();
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
+    const pageDropdownOptions = useSelector(getPageListAsOptions);
     const fields = getFieldFromValue(
       props.value,
       activeTabNavigateTo,
       undefined,
-      dataTree,
+      dataTree as DataTreeForActionCreator,
     );
 
     return (
@@ -567,25 +576,15 @@ const ActionCreator = React.forwardRef(
           modalDropdownList={modalDropdownList}
           navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
           onValueChange={props.onValueChange}
-          pageDropdownOptions={props.pageDropdownOptions}
+          pageDropdownOptions={pageDropdownOptions}
           value={props.value}
-          widgetOptionTree={widgetOptionTree}
+          widgetOptionTree={widgetOptionTree as TreeDropdownOption[]}
         />
       </TreeStructure>
     );
   },
 );
 
-const getPageListAsOptions = (state: AppState) => {
-  return state.entities.pageList.pages.map((page) => ({
-    label: page.pageName,
-    id: page.pageId,
-    value: `'${page.pageName}'`,
-  }));
-};
+ActionCreator.displayName = "ActionCreator";
 
-const mapStateToProps = (state: AppState) => ({
-  pageDropdownOptions: getPageListAsOptions(state),
-});
-
-export default connect(mapStateToProps)(ActionCreator);
+export default ActionCreator;

@@ -13,7 +13,7 @@ import { get, set, isNil, has, uniq } from "lodash";
 import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
-import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
+import { isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
@@ -412,7 +412,6 @@ export const isNameValid = (
     has(DATA_TREE_KEYWORDS, name) ||
     has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
     has(APPSMITH_GLOBAL_FUNCTIONS, name) ||
-    has(extraLibrariesNames, name) ||
     has(invalidNames, name)
   );
 };

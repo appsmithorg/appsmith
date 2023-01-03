@@ -1,4 +1,5 @@
 import { SwitcherProps, TreeDropdownOption } from "design-system";
+import { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
 import React from "react";
 import { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 
@@ -56,7 +57,6 @@ export type ActionCreatorProps = {
   value: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
-  pageDropdownOptions: TreeDropdownOption[];
 };
 
 export type Field = {
@@ -105,6 +105,13 @@ export type AppsmithFunctionConfigValues = {
 
 export type AppsmithFunctionConfigType = {
   [key: string]: AppsmithFunctionConfigValues;
+};
+
+export type DataTreeForActionCreator = {
+  [key: string]: {
+    ENTITY_TYPE?: ENTITY_TYPE;
+    meta?: Record<string, MetaArgs>;
+  };
 };
 
 export type FieldGroupValueType = {

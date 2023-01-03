@@ -71,7 +71,7 @@ describe("Switch column type funtionality test", () => {
       .contains("STYLE")
       .click({ force: true });
     // Check horizontal alignment
-    cy.get(".t--property-control-horizontalalignment .t--button-tab-CENTER")
+    cy.get(".t--property-control-horizontalalignment .t--button-group-CENTER")
       .first()
       .click();
 
@@ -80,7 +80,7 @@ describe("Switch column type funtionality test", () => {
     });
 
     // Check vertical alignment
-    cy.get(".t--property-control-verticalalignment .t--button-tab-BOTTOM")
+    cy.get(".t--property-control-verticalalignment .t--button-group-BOTTOM")
       .first()
       .click();
 

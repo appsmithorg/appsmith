@@ -24,7 +24,8 @@ export class DataSources {
     "input[name='datasourceConfiguration.authentication.databaseName']";
   private _username =
     "input[name='datasourceConfiguration.authentication.username']";
-  private _sectionAuthentication = "[data-cy=section-Authentication]";
+  private _sectionAuthentication =
+    "[data-cy=section-Authentication] .t--collapse-section-container";
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
@@ -32,6 +33,8 @@ export class DataSources {
   private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   private _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
+  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
+  _closeDataSourceModal = ".t--reconnect-close-btn";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
@@ -112,6 +115,24 @@ export class DataSources {
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
+  _editDatasourceFromActiveTab = (dsName: string) =>
+    ".t--datasource-name:contains('" + dsName + "')";
+  private _urlInputControl = "input[name='url']";
+
+  // Authenticated API locators
+  private _authType = "[data-cy=authType]";
+  private _oauth2 = ".t--dropdown-option:contains('OAuth 2.0')";
+  private _accessTokenUrl = "[data-cy='authentication.accessTokenUrl'] input";
+  private _clientID = "[data-cy='authentication.clientId'] input";
+  private _clientSecret = "[data-cy='authentication.clientSecret'] input";
+  private _authorizationCode =
+    ".t--dropdown-option:contains('Authorization Code')";
+  private _grantType = "[data-cy='authentication.grantType']";
+  private _authorizationURL =
+    "[data-cy='authentication.authorizationUrl'] input";
+
+  public _datasourceModalSave = ".t--datasource-modal-save";
+  public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
 
   public AssertViewMode() {
     this.agHelper.AssertElementExist(this._editButton);
@@ -386,7 +407,7 @@ export class DataSources {
     this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
   }
 
-  public updateDatasource() {
+  public UpdateDatasource() {
     this.agHelper.GetNClick(this._saveDs);
     // this.agHelper.ValidateNetworkStatus("@updateDatasource", 200);
     this.agHelper.AssertContains("datasource updated");
@@ -423,7 +444,7 @@ export class DataSources {
       .scrollIntoView()
       .should("be.visible")
       .click();
-    this.agHelper.Sleep(2000); //for the Datasource page to open
+    this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
@@ -511,6 +532,14 @@ export class DataSources {
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     cy.get(this._saveDs).click();
+  }
+
+  public CloseReconnectDataSourceModal() {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this._reconnectDataSourceModal).length) {
+        this.agHelper.GetNClick(this._closeDataSourceModal);
+      }
+    });
   }
 
   RunQuery(
@@ -740,10 +769,14 @@ export class DataSources {
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(dataSourceName : string, schema: string, isUpdate = false) {
+  public verifySchema(
+    dataSourceName: string,
+    schema: string,
+    isUpdate = false,
+  ) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
-      this.updateDatasource();
+      this.UpdateDatasource();
     } else {
       this.SaveDatasource();
     }
@@ -755,6 +788,8 @@ export class DataSources {
 
   public SaveDSFromDialog(save = true) {
     this.agHelper.GoBack();
+    this.agHelper.AssertElementVisible(this._datasourceModalDoNotSave);
+    this.agHelper.AssertElementVisible(this._datasourceModalSave);
     if (save) {
       this.agHelper.GetNClick(
         this.locator._visibleTextSpan("SAVE"),
@@ -771,5 +806,42 @@ export class DataSources {
         false,
         0,
       );
+  }
+
+  public getDSEntity(dSName: string) {
+    return `[data-guided-tour-id="explorer-entity-${dSName}"]`;
+  }
+
+  public FillAuthAPIUrl() {
+    const URL = datasourceFormData["authenticatedApiUrl"];
+    this.agHelper.TypeText(this._urlInputControl, URL);
+  }
+
+  public AddOAuth2AuthorizationCodeDetails(
+    accessTokenUrl: string,
+    clientId: string,
+    clientSecret: string,
+    authURL: string,
+  ) {
+    this.agHelper.GetNClick(this._authType);
+    this.agHelper.GetNClick(this._oauth2);
+    this.agHelper.GetNClick(this._grantType);
+    this.agHelper.GetNClick(this._authorizationCode);
+    this.agHelper.TypeText(this._accessTokenUrl, accessTokenUrl);
+    this.agHelper.TypeText(this._clientID, clientId);
+    this.agHelper.TypeText(this._clientSecret, clientSecret);
+    this.agHelper.TypeText(this._authorizationURL, authURL);
+  }
+
+  public EditDSFromActiveTab(dsName: string) {
+    this.agHelper.GetNClick(this._editDatasourceFromActiveTab(dsName));
+  }
+
+  public FillMongoDatasourceFormWithURI(uri: string) {
+    this.ValidateNSelectDropdown("Use Mongo Connection String URI", "", "Yes");
+    this.agHelper.TypeText(
+      this.locator._inputFieldByName("Connection String URI") + "//input",
+      uri,
+    );
   }
 }

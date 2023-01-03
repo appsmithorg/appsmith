@@ -132,7 +132,7 @@ public class DatasourceContextServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTOTest");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -166,7 +166,7 @@ public class DatasourceContextServiceTest {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertEquals(password, authentication.getPassword());
                     DBAuth encryptedAuthentication = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
-                    assertEquals(encryptionService.encryptString(password), encryptedAuthentication.getPassword());
+                    assertEquals(password, encryptionService.decryptString(encryptedAuthentication.getPassword()));
                 })
                 .verifyComplete();
     }
@@ -181,7 +181,7 @@ public class DatasourceContextServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTONullPassword");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
@@ -267,7 +267,7 @@ public class DatasourceContextServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("testDatasourceCreate_withUpdatableConnection_recreatesConnectionAlways");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         String workspaceId = workspace.getId();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");

@@ -1,13 +1,13 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -29,6 +29,8 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,7 +61,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import javax.validation.Validator;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -132,6 +133,8 @@ public class NewActionServiceCEImplTest {
     PagePermission pagePermission;
     @MockBean
     ActionPermission actionPermission;
+    @MockBean
+    ObservationRegistry observationRegistry;
 
     private BodyExtractor.Context context;
 
@@ -169,7 +172,7 @@ public class NewActionServiceCEImplTest {
     public void createContext() {
         final List<HttpMessageReader<?>> messageReaders = new ArrayList<>();
         messageReaders.add(new DecoderHttpMessageReader<>(new ByteBufferDecoder()));
-        messageReaders.add(new DecoderHttpMessageReader<>(StringDecoder.allMimeTypes(true)));
+        messageReaders.add(new DecoderHttpMessageReader<>(StringDecoder.allMimeTypes()));
         messageReaders.add(new DecoderHttpMessageReader<>(new Jaxb2XmlDecoder()));
         messageReaders.add(new DecoderHttpMessageReader<>(new Jackson2JsonDecoder()));
         messageReaders.add(new FormHttpMessageReader());
@@ -198,7 +201,7 @@ public class NewActionServiceCEImplTest {
 
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
-        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(Flux.empty(), null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(Flux.empty(), null, null);
 
         StepVerifier
                 .create(actionExecutionResultMono)
@@ -219,7 +222,7 @@ public class NewActionServiceCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null, null);
 
         StepVerifier
                 .create(actionExecutionResultMono)
@@ -240,7 +243,7 @@ public class NewActionServiceCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = newActionService.executeAction(partsFlux, null, null);
 
         StepVerifier
                 .create(actionExecutionResultMono)
@@ -330,7 +333,7 @@ public class NewActionServiceCEImplTest {
 
         NewActionServiceCE newActionServiceSpy = spy(newActionService);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -339,7 +342,7 @@ public class NewActionServiceCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
-        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
 
 
@@ -380,7 +383,7 @@ public class NewActionServiceCEImplTest {
 
         NewActionServiceCE newActionServiceSpy = spy(newActionService);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null);
+        Mono<ActionExecutionResult> actionExecutionResultMono = newActionServiceSpy.executeAction(partsFlux, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -389,7 +392,7 @@ public class NewActionServiceCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
-        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
 
 

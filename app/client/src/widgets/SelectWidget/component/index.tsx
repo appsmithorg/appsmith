@@ -339,6 +339,7 @@ class SelectComponent extends React.Component<
             className={`select-label`}
             color={labelTextColor}
             compact={compactMode}
+            cyHelpTextClassName="select-tooltip"
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}

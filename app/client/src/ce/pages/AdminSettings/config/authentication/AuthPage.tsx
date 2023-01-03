@@ -21,7 +21,7 @@ import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding-top: 40px;
+  padding: 40px 0 0 24px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
 `;
@@ -212,7 +212,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                 </MethodDetailsWrapper>
                 <StyledAuthButton
                   category={
-                    method.isConnected ? Category.primary : Category.tertiary
+                    method.isConnected ? Category.primary : Category.secondary
                   }
                   className={`t--settings-sub-category-${
                     method.needsUpgrade

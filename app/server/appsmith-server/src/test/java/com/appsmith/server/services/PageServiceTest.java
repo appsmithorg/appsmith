@@ -138,7 +138,7 @@ public class PageServiceTest {
             Workspace toCreate = new Workspace();
             toCreate.setName("PageServiceTest");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
     }
@@ -564,7 +564,7 @@ public class PageServiceTest {
 
         final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
 
-        layoutActionService.createSingleAction(action).block();
+        layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         // Save actionCollection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
@@ -747,7 +747,7 @@ public class PageServiceTest {
 
         action.setPageId(page.getId());
 
-        layoutActionService.createSingleAction(action).block();
+        layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
 

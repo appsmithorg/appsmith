@@ -114,3 +114,7 @@ div.bp3-popover-arrow {
 .bp3-overlay-backdrop {
   background-color: rgba(16, 22, 26, 0.7) !important;
 }
+
+.bp3-overlay-zindex {
+  z-index: 20 !important;
+}

@@ -813,9 +813,6 @@
                 "parentId": "9iszxoqodt",
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "disabledWidgetFeatures": [
-                  "dynamicHeight"
-                ],
                 "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                 "maxDynamicHeight": 9000.0,
                 "minDynamicHeight": 10.0

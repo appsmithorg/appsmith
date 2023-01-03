@@ -28,6 +28,7 @@ export function useSearchText(initialVal: string) {
 export function evaluateHiddenProperty(
   config: readonly PropertyPaneConfig[],
   widgetProps: any,
+  shouldHidePropertyFn?: (propertyName: string) => boolean | undefined,
 ) {
   const finalConfig: PropertyPaneConfig[] = [];
   for (const conf of config) {
@@ -44,6 +45,7 @@ export function evaluateHiddenProperty(
         const children = evaluateHiddenProperty(
           sectionConfig.children,
           widgetProps,
+          shouldHidePropertyFn,
         );
         if (children.length > 0) {
           finalConfig.push({
@@ -55,8 +57,10 @@ export function evaluateHiddenProperty(
       }
     } else if (controlConfig.controlType) {
       const isControlHidden =
-        controlConfig.hidden &&
-        controlConfig.hidden(widgetProps, controlConfig.propertyName);
+        (controlConfig.hidden &&
+          controlConfig.hidden(widgetProps, controlConfig.propertyName)) ||
+        (shouldHidePropertyFn &&
+          shouldHidePropertyFn(controlConfig.propertyName));
       if (!isControlHidden) {
         finalConfig.push(conf);
       }

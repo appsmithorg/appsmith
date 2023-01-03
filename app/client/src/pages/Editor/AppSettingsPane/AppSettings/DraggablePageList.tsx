@@ -1,5 +1,5 @@
 import { setPageOrder } from "actions/pageActions";
-import { Page } from "ce/constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import classNames from "classnames";
 import { Colors } from "constants/Colors";
 import { ControlIcons, DraggableList } from "design-system";

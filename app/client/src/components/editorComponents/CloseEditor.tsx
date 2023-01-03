@@ -22,6 +22,7 @@ const IconContainer = styled.div`
   //width: 100%;
   height: 30px;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   cursor: pointer;
   padding-left: 16px;

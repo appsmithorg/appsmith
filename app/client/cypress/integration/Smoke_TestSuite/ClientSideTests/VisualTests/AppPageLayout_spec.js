@@ -7,7 +7,7 @@ describe("Visual regression tests", () => {
   //      command: "npx cypress run --spec cypress/integration/Smoke_TestSuite/ClientSideTests/LayoutValidation/AppPageLayout_spec.js  --browser chrome"
   //  3. New screenshot will be generated in the snapshot folder.
 
-  it.skip("Layout validation for app page in edit mode", () => {
+  it("Layout validation for app page in edit mode", () => {
     cy.visit("/applications");
     cy.wait(3000);
     cy.get(".t--applications-container .createnew").should("be.visible");
@@ -19,28 +19,28 @@ describe("Visual regression tests", () => {
     cy.get("#root").matchImageSnapshot("apppage");
   });
 
-  it.skip("Layout validation for Quick page wizard", () => {
+  it("Layout validation for Quick page wizard", () => {
     cy.get("[data-cy='generate-app']").click();
     cy.wait(2000);
     // taking screenshot of generate crud page
     cy.get("#root").matchImageSnapshot("quickPageWizard");
   });
 
-  it.skip("Layout Validation for App builder Page", () => {
+  it("Layout Validation for App builder Page", () => {
     cy.get(".bp3-icon-chevron-left").click();
     cy.wait(2000);
     // taking screenshot of app builder page
     cy.get("#root").matchImageSnapshot("emptyAppBuilder");
   });
 
-  it.skip("Layout Validation for Empty deployed app", () => {
+  it("Layout Validation for Empty deployed app", () => {
     cy.PublishtheApp();
     cy.wait(3000);
     // taking screenshot of empty deployed app
     cy.get("#root").matchImageSnapshot("EmptyApp");
   });
 
-  it.skip("Layout Validation for profile page", () => {
+  it("Layout Validation for profile page", () => {
     cy.get(".t--profile-menu-icon").click();
     cy.get(".t--edit-profile").click();
     cy.wait(2000);
@@ -48,13 +48,12 @@ describe("Visual regression tests", () => {
     cy.get("#root").matchImageSnapshot("Profile");
   });
 
-  it.skip("Layout validation for login page", () => {
+  it("Layout validation for login page", () => {
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
     cy.wait(500);
     // validating all the fields on login page
-    cy.get(homePage.headerAppSmithLogo).should("be.visible");
-    cy.xpath("//h1").should("have.text", "Sign in to your account");
+    cy.xpath("//h1").should("have.text", "Sign in");
     cy.get(".bp3-label")
       .first()
       .should("have.text", "Email ");

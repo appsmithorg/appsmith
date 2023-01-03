@@ -150,6 +150,8 @@ public enum AppsmithError {
     ENV_FILE_NOT_FOUND(500, 5019, "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
     PUBLIC_APP_NO_PERMISSION_GROUP(500, 5020, "Invalid state. Public application does not have the required roles set for public access. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     RTS_SERVER_ERROR(500, 5021, "RTS server error while processing request: {0}", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    SCHEMA_MISMATCH_ERROR(500, 5022, "Looks like you skipped some required update(s), please go back to the mandatory upgrade path {0}, or refer to ''https://docs.appsmith.com/'' for more info", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    SCHEMA_VERSION_NOT_FOUND_ERROR(500, 5023, "Could not find mandatory instance schema version config. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null)
     ;
 
     private final Integer httpErrorCode;

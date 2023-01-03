@@ -116,6 +116,6 @@ public class ItemServiceCEImpl implements ItemServiceCE {
                     action.setPluginType(plugin.getType());
                     return action;
                 })
-                .flatMap(layoutActionService::createSingleAction);
+                .flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
     }
 }

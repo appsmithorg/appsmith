@@ -49,6 +49,7 @@ import {
   getSSHKeyPairSuccess,
   GetSSHKeyResponseData,
   gitPullSuccess,
+  importAppViaGitStatusReset,
   importAppViaGitSuccess,
   mergeBranchSuccess,
   setIsDisconnectGitModalOpen,
@@ -57,7 +58,6 @@ import {
   setShowRepoLimitErrorModal,
   switchGitBranchInit,
   updateLocalGitConfigSuccess,
-  importAppViaGitStatusReset,
 } from "actions/gitSyncActions";
 
 import { showReconnectDatasourceModal } from "actions/applicationActions";
@@ -146,6 +146,14 @@ function* commitToGitRepoSaga(
         });
       }
       yield put(fetchGitStatusInit());
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
+        payload: {
+          error: response?.responseMeta?.error,
+          show: true,
+        },
+      });
     }
   } catch (error) {
     const isRepoLimitReachedError: boolean = yield call(
@@ -159,9 +167,13 @@ function* commitToGitRepoSaga(
         type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
         payload: {
           error: response?.responseMeta?.error,
-          show: false,
+          show: true,
         },
       });
+      yield put({
+        type: ReduxActionTypes.FETCH_GIT_STATUS_INIT,
+      });
+      // yield call(fetchGitStatusSaga);
     } else {
       throw error;
     }
@@ -871,9 +883,17 @@ function* discardChanges() {
       localStorage.setItem("GIT_DISCARD_CHANGES", "success");
       const branch = response.data.gitApplicationMetadata.branchName;
       window.open(builderURL({ pageId, branch }), "_self");
+    } else {
+      yield put(
+        discardChangesFailure({
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        }),
+      );
+      localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
     }
   } catch (error) {
-    yield put(discardChangesFailure({ error }));
+    yield put(discardChangesFailure({ error, show: true }));
     localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
   }
 }

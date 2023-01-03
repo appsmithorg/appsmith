@@ -246,10 +246,10 @@ describe("RichTextEditor Widget Functionality", function() {
 
     // Changing the input type to markdown and again testing the cursor position
     cy.openPropertyPane("richtexteditorwidget");
-    cy.get(".t--button-tab-markdown").click({ force: true });
+    cy.get(".t--button-group-markdown").click({ force: true });
     setRTEContent(testString);
     testCursorPoistion(testStringLen, tinyMceId);
-    cy.get(".t--button-tab-html").click({ force: true });
+    cy.get(".t--button-group-html").click({ force: true });
   });
 
   it("13. Check if different font size texts are supported inside the RTE widget", function() {

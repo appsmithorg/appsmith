@@ -13,7 +13,7 @@ import {
   isAction,
   isJSAction,
   isWidget,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   EvalError,
   EvalErrorTypes,
@@ -98,7 +98,7 @@ function logLatestEvalPropertyErrors(
       }
 
       const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
-      const nameField = isWidget(entity) ? entity.widgetName : entity.name;
+      const nameField = isWidget(entity) ? entity.widgetName : entityName;
       const entityType = isWidget(entity)
         ? ENTITY_TYPE.WIDGET
         : isAction(entity)

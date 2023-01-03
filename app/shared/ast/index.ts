@@ -22,7 +22,7 @@ import {
 import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 
 // JSObjects
-import { parseJSObjectWithAST, JsObjectProperty } from "./src/jsObject";
+import { parseJSObjectWithAST } from "./src/jsObject";
 
 // action creator
 import {
@@ -44,7 +44,6 @@ export type {
   PropertyNode,
   MemberExpressionData,
   IdentifierInfo,
-  JsObjectProperty,
 };
 
 export {

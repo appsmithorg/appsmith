@@ -45,6 +45,8 @@ public interface ApplicationPageServiceCE {
 
     Mono<PageDTO> deleteUnpublishedPage(String id);
 
+    Mono<PageDTO> deleteWithoutPermissionUnpublishedPage(String id);
+
     Mono<Application> publish(String applicationId, boolean isPublishedManually);
 
     Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually);

@@ -83,14 +83,14 @@ function ApiAuthentication(props: Props): JSX.Element {
   const datasourceId = get(datasource, "id");
 
   const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+    (state: AppState) => getCurrentAppWorkspace(state)?.userPermissions ?? [],
   );
 
   const canCreateDatasource = hasCreateDatasourcePermission(
     userWorkspacePermissions,
   );
 
-  const datasourcePermissions = datasource.userPermissions || [];
+  const datasourcePermissions = datasource?.userPermissions || [];
 
   const canManageDatasource = hasManageDatasourcePermission(
     datasourcePermissions,

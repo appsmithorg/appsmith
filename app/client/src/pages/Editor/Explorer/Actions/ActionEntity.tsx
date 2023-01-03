@@ -1,8 +1,8 @@
-import React, { useCallback, memo, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { saveActionName } from "actions/pluginActionActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -51,7 +51,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
       url,
     });
-    url && history.push(url);
+    url && history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
       type: "QUERIES/APIs",
       fromUrl: location.pathname,

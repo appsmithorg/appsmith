@@ -39,8 +39,8 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import {
-  getAllWidgetsMap,
   getCanvasWidgetsWithParentId,
+  getParentModalId,
 } from "selectors/entitiesSelector";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
@@ -413,16 +413,15 @@ function* openOrCloseModalSaga(
     yield put(showModal(action.payload.widgetId));
     return;
   }
-  const widgetMap: Record<string, FlattenedWidgetProps> = yield select(
-    getAllWidgetsMap,
-  );
 
+  const widgetMap: CanvasWidgetsReduxState = yield select(getWidgets);
   const widget = widgetMap[action.payload.widgetId];
 
-  if (widget.parentId) {
-    const widgetInModal = modalWidgetIds.includes(widget.parentModalId);
+  if (widget && widget.parentId) {
+    const parentModalId = getParentModalId(widget, widgetMap);
+    const widgetInModal = modalWidgetIds.includes(parentModalId);
     if (widgetInModal) {
-      yield put(showModal(widget.parentModalId));
+      yield put(showModal(parentModalId));
       return;
     }
   }

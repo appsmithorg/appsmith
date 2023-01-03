@@ -7,7 +7,7 @@ import {
   copyJSCollectionRequest,
   deleteJSCollection,
 } from "actions/jsActionActions";
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import noop from "lodash/noop";
 import { getJSEntityName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";

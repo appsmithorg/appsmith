@@ -35,20 +35,20 @@ describe("Table widget - Select column type functionality", () => {
     cy.updateCodeInput(
       ".t--property-control-options",
       `
-      {{[
+      [
         {
-          label: "#1",
-          value: "#1"
+          "label": "#1",
+          "value": "#1"
         },
         {
-          label: "#2",
-          value: "#2"
+          "label": "#2",
+          "value": "#2"
         },
         {
-          label: "#3",
-          value: "#3"
+          "label": "#3",
+          "value": "#3"
         }
-      ]}}
+      ]
     `,
     );
     cy.editTableSelectCell(0, 0);
@@ -79,12 +79,12 @@ describe("Table widget - Select column type functionality", () => {
     cy.updateCodeInput(
       ".t--property-control-options",
       `
-      {{[
+      [
         {
-          label: "test",
-          value: "test"
-        },
-      ]}}
+          "label": "test",
+          "value": "test"
+        }
+      ]
     `,
     );
     cy.wait(500);
@@ -178,9 +178,47 @@ describe("Table widget - Select column type functionality", () => {
     cy.readTableV2data(0, 0).then((val) => {
       expect(val).to.equal("#3");
     });
+    cy.discardTableRow(4, 0);
   });
 
-  it("7. should check that server side filering is working", () => {
+  it("7. should check that currentRow is accessible in the select options", () => {
+    cy.updateCodeInput(
+      ".t--property-control-options",
+      `
+      {{[
+        {
+          label: currentRow.step,
+          value: currentRow.step
+        }
+      ]}}
+    `,
+    );
+    cy.editTableSelectCell(0, 0);
+    cy.get(".menu-item-text")
+      .contains("#1")
+      .should("exist");
+    cy.get(".menu-item-text")
+      .contains("#2")
+      .should("not.exist");
+
+    cy.editTableSelectCell(0, 1);
+    cy.get(".menu-item-text")
+      .contains("#2")
+      .should("exist");
+    cy.get(".menu-item-text")
+      .contains("#1")
+      .should("not.exist");
+
+    cy.editTableSelectCell(0, 2);
+    cy.get(".menu-item-text")
+      .contains("#3")
+      .should("exist");
+    cy.get(".menu-item-text")
+      .contains("#1")
+      .should("not.exist");
+  });
+
+  it("8. should check that server side filering is working", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dataSources.CreateNewQueryInDS(

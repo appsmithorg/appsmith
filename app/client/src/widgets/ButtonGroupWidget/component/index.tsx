@@ -182,7 +182,8 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   padding: 0px 10px;
 
   &:hover,
-  &:active {
+  &:active,
+  &:focus {
     ${buttonHoverActiveStyles}
   }
 
@@ -268,7 +269,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
     backgroundColor
       ? `
       background-color: ${backgroundColor} !important;
-      &:hover {
+      &:hover, &:focus {
         background-color: ${darkenHover(backgroundColor)} !important;
       }
       &:active {
@@ -277,7 +278,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   `
       : `
     background: none !important
-      &:hover {
+      &:hover, &:focus {
         background-color: ${tinycolor(
           theme.colors.button.primary.primary.textColor,
         )
@@ -347,25 +348,22 @@ function PopoverContent(props: PopoverContentProps) {
       onClick,
       textColor,
     } = menuItem;
-    if (iconAlign === Alignment.RIGHT) {
-      return (
-        <BaseMenuItem
-          backgroundColor={backgroundColor}
-          disabled={isDisabled}
-          key={id}
-          labelElement={<Icon color={iconColor} icon={iconName} />}
-          onClick={() => onItemClicked(onClick, buttonId)}
-          text={label}
-          textColor={textColor}
-        />
-      );
-    }
+
     return (
       <BaseMenuItem
         backgroundColor={backgroundColor}
         disabled={isDisabled}
-        icon={<Icon color={iconColor} icon={iconName} />}
+        icon={
+          iconAlign !== Alignment.RIGHT && iconName ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : null
+        }
         key={id}
+        labelElement={
+          iconAlign === Alignment.RIGHT && iconName ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : null
+        }
         onClick={() => onItemClicked(onClick, buttonId)}
         text={label}
         textColor={textColor}

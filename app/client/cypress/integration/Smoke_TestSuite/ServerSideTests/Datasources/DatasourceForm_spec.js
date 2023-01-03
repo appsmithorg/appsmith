@@ -11,7 +11,7 @@ describe("Datasource form related tests", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Check whether the delete button has the right color", function() {
+  it("1. Check whether the number of key value pairs is equal to number of delete buttons", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI(); //Not giving name to enable for cypress re-attempt
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
@@ -27,7 +27,11 @@ describe("Datasource form related tests", function() {
     cy.get(".t--add-field")
       .first()
       .click();
-    cy.get(".t--delete-field").should("attr", "color", "#A3B3BF");
+
+    // Two array pairs for headers key,value should have 2 delete buttons as per new uqi designs, so the first header can also be deleted : Bug #14804
+    cy.get(".t--headers-array .t--delete-field")
+      .children()
+      .should("have.length", 2);
   });
 
   it("2. Check if save button is disabled", function() {

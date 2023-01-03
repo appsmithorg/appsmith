@@ -31,6 +31,7 @@ public enum FeatureFlagEnum {
     TEMPLATES_PHASE_2,
     CONTEXT_SWITCHING,
     DATASOURCE_ENVIRONMENTS,
+    CUSTOM_JS_LIBRARY,
 
     // Put EE flags below this line, to avoid conflicts.
     RBAC,

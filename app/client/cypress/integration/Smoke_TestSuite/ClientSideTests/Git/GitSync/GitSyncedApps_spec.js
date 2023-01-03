@@ -458,6 +458,7 @@ describe("Git sync apps", function() {
     cy.get(`.t--entity-item:contains(Child_Page Copy)`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
+    cy.wait(2000);
     cy.selectAction("Hide");
 
     cy.get(`.t--entity-item:contains(Child_Page)`)

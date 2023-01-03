@@ -1,7 +1,11 @@
 import { builderURL } from "RouteBuilder";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 
-export const navigateToCanvas = (pageId: string, widgetId?: string) => {
+export const navigateToCanvas = (
+  pageId: string,
+  widgetId?: string,
+  invokedBy?: NavigationMethod,
+) => {
   const currentPath = window.location.pathname;
   const canvasEditorURL = `${builderURL({
     pageId,
@@ -9,6 +13,6 @@ export const navigateToCanvas = (pageId: string, widgetId?: string) => {
     persistExistingParams: true,
   })}`;
   if (currentPath !== canvasEditorURL) {
-    history.push(canvasEditorURL);
+    history.push(canvasEditorURL, { invokedBy });
   }
 };

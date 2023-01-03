@@ -4,7 +4,7 @@ import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import classNames from "classnames";
 import {
   AppIconName,

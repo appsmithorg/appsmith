@@ -7,7 +7,7 @@ import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
-import { renderDatasourceSection } from "./DatasourceSection";
+import RenderDatasourceInformation from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
 
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
@@ -31,14 +31,18 @@ const Header = styled.div`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-top: 1px solid #d0d7dd;
   border-bottom: 1px solid #d0d7dd;
   padding-top: 24px;
   padding-bottom: 24px;
-  margin-top: 18px;
 `;
 
-function Connected() {
+function Connected({
+  errorComponent,
+  showDatasourceSavedText = true,
+}: {
+  errorComponent?: JSX.Element | null;
+  showDatasourceSavedText?: boolean;
+}) {
   const params = useParams<{ datasourceId: string }>();
 
   const datasource = useSelector((state: AppState) =>
@@ -67,28 +71,34 @@ function Connected() {
 
   return (
     <Wrapper>
-      <Header>
-        <ConnectedText>
-          <HeaderIcons.SAVE_SUCCESS
-            color={Colors.GREEN}
-            height={30}
-            width={30}
+      {showDatasourceSavedText && (
+        <Header>
+          <ConnectedText>
+            <HeaderIcons.SAVE_SUCCESS
+              color={Colors.GREEN}
+              height={30}
+              width={30}
+            />
+            <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
+          </ConnectedText>
+          <NewActionButton
+            datasource={datasource}
+            disabled={!canCreateDatasourceActions}
+            eventFrom="datasource-pane"
+            plugin={plugin}
           />
-
-          <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
-        </ConnectedText>
-
-        <NewActionButton
-          datasource={datasource}
-          disabled={!canCreateDatasourceActions}
-          eventFrom="datasource-pane"
-          plugin={plugin}
-        />
-      </Header>
-      <div style={{ marginTop: "30px" }}>
-        {!isNil(currentFormConfig) && !isNil(datasource)
-          ? renderDatasourceSection(currentFormConfig[0], datasource)
-          : undefined}
+        </Header>
+      )}
+      {errorComponent}
+      <div style={{ marginTop: showDatasourceSavedText ? "30px" : "" }}>
+        {!isNil(currentFormConfig) && !isNil(datasource) ? (
+          <RenderDatasourceInformation
+            config={currentFormConfig[0]}
+            datasource={datasource}
+          />
+        ) : (
+          undefined
+        )}
       </div>
     </Wrapper>
   );
