@@ -8,7 +8,7 @@ import {
   Severity,
   SourceEntity,
 } from "entities/AppsmithConsole";
-import React, { useState } from "react";
+import React, { useState, PropsWithChildren } from "react";
 import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
@@ -180,10 +180,11 @@ const JsonWrapper = styled.div`
   }
 `;
 
-const StyledCollapse = styled(Collapse)<{
+type StyledCollapseProps = PropsWithChildren<{
   category: LOG_CATEGORY;
-  children?: React.ReactNode;
-}>`
+}>;
+
+const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
 margin-top:${(props) =>
   props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
     ? " -20px"

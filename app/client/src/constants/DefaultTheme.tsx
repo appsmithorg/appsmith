@@ -3006,7 +3006,3 @@ export const theme: Theme = {
     linkBg: lightShades[2],
   },
 };
-
-// export { css, createGlobalStyle, keyframes, ThemeProvider };
-
-// export default styled;

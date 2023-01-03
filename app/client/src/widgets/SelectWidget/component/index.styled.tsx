@@ -1,3 +1,4 @@
+import { PropsWithChildren } from "react";
 import { Classes, ControlGroup } from "@blueprintjs/core";
 import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
@@ -66,16 +67,19 @@ export const StyledControlGroup = styled(ControlGroup)<{
   }
 `;
 
-const SingleDropDown = Select.ofType<DropdownOption>();
-export const StyledSingleDropDown = styled(SingleDropDown)<{
+type StyledSingleDropDownProps = PropsWithChildren<{
   value: string;
   isValid: boolean;
   hasError?: boolean;
   borderRadius: string;
   boxShadow?: string;
   accentColor?: string;
-  children?: React.ReactNode;
-}>`
+}>;
+
+const SingleDropDown = Select.ofType<DropdownOption>();
+export const StyledSingleDropDown = styled(SingleDropDown)<
+  StyledSingleDropDownProps
+>`
   div {
     flex: 1 1 auto;
   }

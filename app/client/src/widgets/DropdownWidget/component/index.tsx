@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import {
@@ -29,13 +29,14 @@ const FUSE_OPTIONS = {
   keys: ["label", "value"],
 };
 
-const SingleDropDown = Select.ofType<DropdownOption>();
-const StyledSingleDropDown = styled(SingleDropDown)<{
+type StyledSingleDropDownProps = PropsWithChildren<{
   isSelected: boolean;
   isValid: boolean;
   hasError?: boolean;
-  children?: React.ReactNode;
-}>`
+}>;
+
+const SingleDropDown = Select.ofType<DropdownOption>();
+const StyledSingleDropDown = styled(SingleDropDown)<StyledSingleDropDownProps>`
   div {
     flex: 1 1 auto;
   }
