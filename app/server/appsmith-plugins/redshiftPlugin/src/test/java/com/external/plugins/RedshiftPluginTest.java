@@ -569,7 +569,7 @@ public class RedshiftPluginTest {
                     );
 
                     /*
-                     * - Check if all of the duplicate column names are reported.
+                     * - Check if all the duplicate column names are reported.
                      */
                     Set<String> expectedColumnNames = Stream.of("id", "username")
                             .collect(Collectors.toCollection(HashSet::new));

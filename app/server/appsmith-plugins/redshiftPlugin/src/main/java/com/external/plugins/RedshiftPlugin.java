@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -126,7 +127,7 @@ public class RedshiftPlugin extends BasePlugin {
             if (resultSet == null) {
                 log.debug("Redshift plugin: getRow: driver failed to fetch result: resultSet is null.");
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.REDSHIFT_QUERY_EXECUTION_FAILED,
                         "redshift driver failed to fetch result: resultSet is null."
                 );
             }
@@ -146,7 +147,7 @@ public class RedshiftPlugin extends BasePlugin {
                         "happen as the Redshift JDBC driver does a null check before passing this object. This means " +
                         "that something has gone wrong while processing the query result.");
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.REDSHIFT_QUERY_EXECUTION_FAILED,
                         "metaData is null. Ideally this is never supposed to happen as the Redshift JDBC driver " +
                                 "does a null check before passing this object. This means that something has gone wrong " +
                                 "while processing the query result"
@@ -304,7 +305,7 @@ public class RedshiftPlugin extends BasePlugin {
                     .map(obj -> (ActionExecutionResult) obj)
                     .onErrorMap(e -> {
                         if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
-                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                            return new AppsmithPluginException(AppsmithPluginError.REDSHIFT_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.REDSHIFT_QUERY_EXECUTION_FAILED.getDescription(), e.getMessage());
                         }
 
                         return e;
@@ -316,10 +317,14 @@ public class RedshiftPlugin extends BasePlugin {
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
-                        result.setErrorInfo(error);
+                        if (error instanceof AppsmithPluginException) {
+                            result.setErrorInfo(error);
+                        } else {
+                            result.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.REDSHIFT_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.REDSHIFT_QUERY_EXECUTION_FAILED.getDescription(), error.getMessage()));
+                        }
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
@@ -364,8 +369,8 @@ public class RedshiftPlugin extends BasePlugin {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading " +
-                        "Redshift JDBC Driver class."));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.REDSHIFT_QUERY_EXECUTION_FAILED, "Error loading " +
+                        "Redshift JDBC Driver class.", e.getMessage()));
             }
 
             return Mono
@@ -655,7 +660,7 @@ public class RedshiftPlugin extends BasePlugin {
                             return e;
                         }
 
-                        return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                        return new AppsmithPluginException(AppsmithPluginError.REDSHIFT_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.REDSHIFT_QUERY_EXECUTION_FAILED.getDescription(), e.getMessage());
                     })
                     .subscribeOn(scheduler);
         }

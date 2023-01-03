@@ -443,6 +443,16 @@ public enum AppsmithPluginError {
             "{1}",
             "{2}"
     ),
+    REDSHIFT_QUERY_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.REDSHIFT_QUERY_EXECUTION_FAILED.getCode(),
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
 
     ;
 
