@@ -221,7 +221,7 @@ export const isValueValidURL = (value: string) => {
 export const showError = () => {
   Toaster.show({
     text:
-      "This is invalid JS which cannot be parsed. Please enter valid Javascript in the field and try again!",
+      "The resulting value from the field is invalid Javascript and cannot be parsed. Please enter a valid value and try again!",
     variant: Variant.danger,
   });
 };
