@@ -99,9 +99,9 @@ export function deriveHighlightsFromLayers(
         );
 
         highlights.push(...payload.highlights);
-        offsetTop += childrenRows * 10 || 0;
         layerIndex += 1;
       }
+      offsetTop += childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT || 0;
       childCount += payload.childCount;
     }
     // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
