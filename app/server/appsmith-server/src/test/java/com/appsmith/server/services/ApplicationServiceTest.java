@@ -44,6 +44,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ce.ApplicationPageServiceCE;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -124,7 +125,7 @@ public class ApplicationServiceTest {
     ApplicationService applicationService;
 
     @Autowired
-    ApplicationPageService applicationPageService;
+    ApplicationPageServiceCE applicationPageService;
 
     @Autowired
     UserService userService;
