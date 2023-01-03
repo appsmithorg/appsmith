@@ -24,7 +24,7 @@ export default function BottomBar(props: { className?: string }) {
   return (
     <Container className={props.className ?? ""}>
       <QuickGitActions />
-      <div className="flex justify-between items-center gap-4">
+      <div className="flex justify-between items-center gap-1">
         <ManualUpgrades showTooltip>
           <Icon
             className="t--upgrade"

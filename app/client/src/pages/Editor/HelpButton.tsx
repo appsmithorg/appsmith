@@ -18,6 +18,7 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";
 import { useState } from "react";
+import { BottomBarCTAStyles } from "./BottomBar/styles";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
@@ -30,6 +31,7 @@ const StyledTrigger = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  ${BottomBarCTAStyles}
 `;
 
 type TriggerProps = {
@@ -51,7 +53,7 @@ const Trigger = withTheme(({ theme, tooltipsDisabled }: TriggerProps) => (
       <Icon
         fillColor={theme.colors.globalSearch.helpIcon}
         name="help"
-        size={IconSize.LARGE}
+        size={IconSize.XXXL}
       />
     </StyledTrigger>
   </TooltipComponent>
