@@ -9,6 +9,7 @@ import {
   Icon,
   ButtonGroupOption,
   ButtonGroup,
+  Dropdown,
 } from "design-system";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -137,6 +138,61 @@ const ColorStyleIcon = (props: { style: NavigationSettingsColorStyle }) => {
   );
 };
 
+const LogoConfiguration = (props: {
+  publishedNavigationSetting: PublishedNavigationSetting;
+}) => {
+  const publishedNavigationSetting: PublishedNavigationSetting =
+    props.publishedNavigationSetting;
+  const options = [
+    {
+      label: _.startCase(
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+      ),
+      value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+    },
+    {
+      label: _.startCase(NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY),
+      value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
+    },
+    {
+      label: _.startCase(
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
+      ),
+      value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
+    },
+    {
+      label: _.startCase(
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE,
+      ),
+      value:
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE,
+    },
+  ];
+  const selectedLogoConfiguration = options.find(
+    (item) => item.value === publishedNavigationSetting?.logoConfiguration,
+  );
+
+  return (
+    <div className="pt-4">
+      <StyledPropertyHelpLabel
+        label={createMessage(APP_NAVIGATION_SETTING.showNavbarLabel)}
+        lineHeight="1.17"
+        maxWidth="270px"
+      />
+      <Dropdown
+        className="navigation-settings-logo-configurations-dropdown"
+        onSelect={(value: string) => {
+          return value;
+        }}
+        options={options}
+        selected={selectedLogoConfiguration}
+        showLabelOnly
+        width="100%"
+      />
+    </div>
+  );
+};
+
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const dispatch = useDispatch();
@@ -151,7 +207,7 @@ function NavigationSettings() {
     position: "static",
     itemStyle: "textIcon",
     colorStyle: "light",
-    logoConfiguration: "logoApplicationTitle",
+    logoConfiguration: "logoAndApplicationTitle",
     showSignIn: true,
     showShareApp: true,
   };
@@ -191,12 +247,12 @@ function NavigationSettings() {
         keyName="orientation"
         options={[
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.ORIENTATION.TOP),
+            label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.TOP),
             value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
             icon: <NavOrientationTopIcon />,
           },
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.ORIENTATION.SIDE),
+            label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.SIDE),
             value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
             icon: <NavOrientationSideIcon />,
           },
@@ -209,12 +265,12 @@ function NavigationSettings() {
         keyName="style"
         options={[
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.STYLE.STACKED),
+            label: _.startCase(NAVIGATION_SETTINGS.STYLE.STACKED),
             value: NAVIGATION_SETTINGS.STYLE.STACKED,
             icon: <NavStyleStackedIcon />,
           },
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.STYLE.INLINE),
+            label: _.startCase(NAVIGATION_SETTINGS.STYLE.INLINE),
             value: NAVIGATION_SETTINGS.STYLE.INLINE,
             icon: <NavStyleInlineIcon />,
           },
@@ -227,12 +283,12 @@ function NavigationSettings() {
         keyName="position"
         options={[
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.POSITION.STATIC),
+            label: _.startCase(NAVIGATION_SETTINGS.POSITION.STATIC),
             value: NAVIGATION_SETTINGS.POSITION.STATIC,
             icon: <NavPositionStaticIcon />,
           },
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.POSITION.STICKY),
+            label: _.startCase(NAVIGATION_SETTINGS.POSITION.STICKY),
             value: NAVIGATION_SETTINGS.POSITION.STICKY,
             icon: <NavPositionStickyIcon />,
           },
@@ -245,15 +301,15 @@ function NavigationSettings() {
         keyName="itemStyle"
         options={[
           {
-            label: "Text + Icon",
+            label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON),
             value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
           },
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT),
+            label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT),
             value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT,
           },
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.ITEM_STYLE.ICON),
+            label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.ICON),
             value: NAVIGATION_SETTINGS.ITEM_STYLE.ICON,
           },
         ]}
@@ -265,27 +321,31 @@ function NavigationSettings() {
         keyName="colorStyle"
         options={[
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT),
+            label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT),
             value: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
             icon: (
               <ColorStyleIcon style={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT} />
             ),
           },
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.COLOR_STYLE.SOLID),
+            label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.SOLID),
             value: NAVIGATION_SETTINGS.COLOR_STYLE.SOLID,
             icon: (
               <ColorStyleIcon style={NAVIGATION_SETTINGS.COLOR_STYLE.SOLID} />
             ),
           },
           {
-            label: _.capitalize(NAVIGATION_SETTINGS.COLOR_STYLE.DARK),
+            label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.DARK),
             value: NAVIGATION_SETTINGS.COLOR_STYLE.DARK,
             icon: (
               <ColorStyleIcon style={NAVIGATION_SETTINGS.COLOR_STYLE.DARK} />
             ),
           },
         ]}
+        publishedNavigationSetting={publishedNavigationSetting}
+      />
+
+      <LogoConfiguration
         publishedNavigationSetting={publishedNavigationSetting}
       />
     </div>
