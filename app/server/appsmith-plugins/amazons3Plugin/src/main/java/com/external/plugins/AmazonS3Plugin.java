@@ -826,7 +826,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     // Transform AmazonS3Exception and AmazonServiceException to AppsmithPluginException
                     .onErrorResume(e -> {
                         if (e instanceof AmazonS3Exception || e instanceof AmazonServiceException) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.AMAZON_S3_QUERY_EXECUTION_FAILED.getDescription(), e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(e, AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.AMAZON_S3_QUERY_EXECUTION_FAILED.getDescription(), e.getMessage()));
                         }
                         return Mono.error(e);
                     })

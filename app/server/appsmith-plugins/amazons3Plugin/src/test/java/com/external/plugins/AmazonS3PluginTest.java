@@ -360,10 +360,10 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    String message = (String) result.getBody();
+                    String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -401,10 +401,10 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    String message = (String) result.getBody();
+                    String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -447,10 +447,10 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    String message = (String) result.getBody();
+                    String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -587,10 +587,10 @@ public class AmazonS3PluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    String message = (String) result.getBody();
+                    String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(AppsmithPluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
