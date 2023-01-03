@@ -474,9 +474,15 @@ jobs:
           repository: appsmithorg/appsmith
           fetch-depth: 0
 
+      - name: Set Helm env variables
+        env:
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: echo "environment variables set" ${{ needs.pushImage.outputs.imageHash }}
+
       - name: Install relevant packages
         run: |
-          cd deploy/helm
           ls -alth
           which aws
           sudo apt update -q && sudo apt install -y curl unzip less jq 
@@ -484,13 +490,6 @@ jobs:
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
           chmod 700 get_helm.sh; ./get_helm.sh
-
-      - name: Set Helm env variables
-        env:
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: echo "environment variables set" ${{ needs.pushImage.outputs.imageHash }}
 
       - name: Deploy helm
         run: |
@@ -526,5 +525,8 @@ jobs:
           echo "Getting the pods"
           kubectl get pods
 
+          echo "Add appsmith-ce to helm repo"
+          AWS_REGION=ap-south-1 helm repo add appsmith s3://helm.appsmith.com
+
           echo "Dry run of appsmith helm chart"
-          helm dep build; helm upgrade -i appsmith . --dry-run
+          helm install appsmith/appsmith --generate-name -n goutham --create-namespace --version 2.0.0 --dry-run
