@@ -5,7 +5,7 @@ on:
     inputs:
       branch:
         description: "branch to run"
-        required: true 
+        required: true
 
 jobs:
   buildClient:
@@ -407,7 +407,11 @@ jobs:
         if: github.event_name == 'pull_request_review'
         uses: actions/checkout@v3
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+          ref: ${{ github.event.inputs.branch }}
+
+      # Timestamp will be used to create cache key
+      - id: git_hash
+        run: echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT        
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
@@ -443,30 +447,89 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           repository: ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
-          tags: ${{ github.sha }}          
-#       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-#       # first 11 characters. This can be used to build images for several branches
-#       - name: Get the version to tag the Docker image
-#         id: vars
-#         run: echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
+          tags: ${{ steps.git_hash.outputs.git_hash }}
 
-#       - name: Set up Depot CLI
-#         uses: depot/setup-action@v1
 
-#       - name: Login to DockerHub
-#         uses: docker/login-action@v2
-#         with:
-#           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  buildDeployPreview:
+    needs: [pushImage]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: deploy/helm/
 
-#       - name: Build and push release image to Docker Hub
-#         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-#         uses: depot/build-push-action@v1
-#         with:
-#           context: .
-#           push: true
-#           platforms: linux/arm64,linux/amd64
-#           build-args: |
-#             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
-#           tags: |
-#             ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
+    if: (success() && github.ref == 'refs/heads/master') ||
+      ( always() &&
+      (
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (
+      github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+      )
+      ) &&
+      github.ref == 'refs/heads/release'
+      )
+
+    steps:
+      # Checkout the appsmith-ce
+      - name: Checkout appsmith
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v3
+        with:
+          ref: "release"
+          repository: appsmithorg/appsmith
+          fetch-depth: 0
+
+      - name: Install relevant packages
+        run: |
+          ls -alth
+          which aws
+          sudo apt update -q && sudo apt install -y curl unzip less jq 
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl && \
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
+          chmod 700 get_helm.sh; ./get_helm.sh
+
+      - name: Set Helm env variables
+        env:
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Deploy helm
+        run: |
+          mkdir ~/.aws; touch ~/.aws/config
+
+          echo "[default]
+          aws_access_key_id = $AWS_ACCESS_KEY_ID
+          aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
+
+          echo "[default]
+          [profile eksadmin]
+          role_arn= $AWS_ROLE_ARN
+          output = json
+          region=ap-south-1
+          source_profile = default" > ~/.aws/config
+
+          export region=ap-south-1
+          export cluster_name=uat-cluster
+
+          echo "Region: $region"
+          echo "Cluster name: $cluster_name"
+
+          sts_output=$(aws sts assume-role --role-arn $AWS_ROLE_ARN --role-session-name eksadminsession)
+          export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
+          export AWS_SECRET_ACCESS_KEY=$(echo $sts_output | jq -r '.Credentials''.SecretAccessKey');\
+          export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken');
+
+          aws eks update-kubeconfig --region $region --name $cluster_name --profile eksadmin
+
+          echo "Set the default namespace"
+          kubectl config set-context --current --namespace=default
+
+          echo "Getting the pods"
+          kubectl get pods
+
+          echo "Dry run of appsmith helm chart"
+          helm dep build; helm upgrade -i appsmith . -f values-$PARAM_ENV.yaml --dry-run
