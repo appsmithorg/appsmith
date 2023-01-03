@@ -4,8 +4,9 @@ const frameworkFunctionProxyHandler = (
   fullName: string,
   funcExecutionStart: (fullName: string) => void,
 ) => ({
-  apply: function() {
+  apply: function(target: any, thisArg: unknown, argumentsList: any) {
     funcExecutionStart(fullName);
+    return Reflect.apply(target, thisArg, argumentsList);
   },
 });
 
