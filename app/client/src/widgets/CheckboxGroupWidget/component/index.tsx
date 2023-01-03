@@ -4,7 +4,6 @@ import { Alignment } from "@blueprintjs/core";
 
 import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
-import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
@@ -48,7 +47,6 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   width: 100%;
   flex-grow: 1;
   height: 100%;
-  
   border: 1px solid transparent;
 
   .${Classes.CONTROL} {
@@ -176,6 +174,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     optionAlignment,
     options,
     selectedValues,
+    widgetId,
   } = props;
 
   const selectAllChecked = selectedValues.length === options.length;
@@ -236,7 +235,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
         )}
         {options &&
           options.length > 0 &&
-          [...options].map((option: OptionProps) => (
+          [...options].map((option: OptionProps, index: number) => (
             <StyledCheckbox
               accentColor={accentColor}
               borderRadius={borderRadius}
@@ -244,7 +243,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
               disabled={isDisabled}
               hasError={!isValid}
               inline={isInline}
-              key={generateReactKey()}
+              key={`${widgetId}-checkbox-${index}`}
               labelElement={
                 <CheckboxLabel
                   alignment={AlignWidgetTypes.LEFT}

@@ -19,10 +19,6 @@ export const updateMenuItemsSource = (
         propertyPath: "sourceData",
         propertyValue: [],
       });
-      propertiesToUpdate.push({
-        propertyPath: "sourceDataKeys",
-        propertyValue: [],
-      });
     }
 
     if (!props.configureMenuItems) {
