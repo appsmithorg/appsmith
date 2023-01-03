@@ -457,7 +457,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host 169.254.169.254 is not allowed", result.getBody());
+                    assertEquals("Error performing request: Host 169.254.169.254 is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }
@@ -482,7 +482,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host 169.254.169.254.nip.io is not allowed", result.getBody());
+                    assertEquals("Error performing request: Host 169.254.169.254.nip.io is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }
@@ -514,7 +514,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host 169.254.169.254.nip.io is not allowed", result.getBody());
+                    assertEquals("Error performing request: Host 169.254.169.254.nip.io is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }
@@ -539,7 +539,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host metadata.google.internal is not allowed", result.getBody());
+                    assertEquals("Error performing request: Host metadata.google.internal is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }
@@ -571,7 +571,7 @@ public class ElasticSearchPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertEquals("Error performing request: Host metadata.google.internal is not allowed", result.getBody());
+                    assertEquals("Error performing request: Host metadata.google.internal is not allowed", result.getPluginErrorDetails().getDownstreamErrorMessage());
                 })
                 .verifyComplete();
     }

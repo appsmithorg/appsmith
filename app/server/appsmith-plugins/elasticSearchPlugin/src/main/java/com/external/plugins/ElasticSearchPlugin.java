@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -137,7 +138,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                         } catch (IOException e) {
                             final String message = "Error performing request: " + e.getMessage();
                             log.warn(message, e);
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message));
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.ELASTICSEARCH_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.ELASTICSEARCH_QUERY_EXECUTION_FAILED.getDescription(), message));
                         }
 
                         result.setIsExecutionSuccess(true);
