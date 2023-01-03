@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -214,7 +215,7 @@ public class DynamoPlugin extends BasePlugin {
                         } catch (IOException e) {
                             final String message = "Error parsing the JSON body: " + e.getMessage();
                             log.warn(message, e);
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Error parsing the JSON body", e.getMessage());
                         }
                         requestData.put("parameters", parameters);
 
@@ -223,8 +224,9 @@ public class DynamoPlugin extends BasePlugin {
                             requestClass = Class.forName("software.amazon.awssdk.services.dynamodb.model." + action + "Request");
                         } catch (ClassNotFoundException e) {
                             throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    "Unknown action: `" + action + "`. Note that action names are case-sensitive."
+                                    AppsmithPluginError.DYNAMODB_QUERY_EXECUTION_FAILED,
+                                    "Unknown action: `" + action + "`. Note that action names are case-sensitive.",
+                                    e.getMessage()
                             );
                         }
 
@@ -243,7 +245,7 @@ public class DynamoPlugin extends BasePlugin {
                                  NoSuchMethodException | ClassNotFoundException e) {
                             final String message = "Error executing the DynamoDB Action: " + (e.getCause() == null ? e : e.getCause()).getMessage();
                             log.warn(message, e);
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, message);
+                            throw new AppsmithPluginException(AppsmithPluginError.DYNAMODB_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.DYNAMODB_QUERY_EXECUTION_FAILED.getDescription(), e.getMessage());
                         }
 
                         result.setIsExecutionSuccess(true);
@@ -256,7 +258,7 @@ public class DynamoPlugin extends BasePlugin {
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setProperties(requestData);
@@ -473,7 +475,7 @@ public class DynamoPlugin extends BasePlugin {
 
                 } else {
                     throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
+                            AppsmithPluginError.DYNAMODB_QUERY_EXECUTION_FAILED,
                             "Unknown value type while deserializing:" + value.getClass().getName()
                     );
 
@@ -507,7 +509,7 @@ public class DynamoPlugin extends BasePlugin {
         }
 
         throw new AppsmithPluginException(
-                AppsmithPluginError.PLUGIN_ERROR,
+                AppsmithPluginError.DYNAMODB_QUERY_EXECUTION_FAILED,
                 "Unknown type to convert to SDK style " + type.getTypeName()
         );
     }
