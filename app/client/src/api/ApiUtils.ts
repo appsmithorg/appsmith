@@ -41,6 +41,7 @@ const is404orAuthPath = () => {
 // this will be used to calculate the time taken for an action
 // execution request
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
+  config.headers = config.headers ?? {};
   const branch =
     getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
   if (branch && config.headers) {
@@ -50,11 +51,9 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
 
-  if (config.headers) {
-    const anonymousId = AnalyticsUtil.getAnonymousId();
-    anonymousId &&
-      (config.headers["x-anonymous-user-id"] = AnalyticsUtil.getAnonymousId());
-  }
+  const anonymousId = AnalyticsUtil.getAnonymousId();
+  anonymousId &&
+    (config.headers["x-anonymous-user-id"] = AnalyticsUtil.getAnonymousId());
 
   return { ...config, timer: performance.now() };
 };
