@@ -579,8 +579,6 @@ public class FileUtilsImpl implements FileInterface {
         Path jsLibDirectory = baseRepoPath.resolve(JS_LIB_DIRECTORY);
         File directory = jsLibDirectory.toFile();
         if (directory.isDirectory()) {
-            // Loop through all the directories and nested directories inside the pages directory to extract
-            // pages, actions and actionCollections from the JSON files
             for (File jsLib : directory.listFiles()) {
                 jsLibrariesMap.put(jsLib.getName(), readFile(jsLib.toPath(), gson));
             }
