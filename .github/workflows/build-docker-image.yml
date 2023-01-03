@@ -498,13 +498,17 @@ jobs:
           aws_access_key_id = $AWS_ACCESS_KEY_ID
           aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" > ~/.aws/credentials
 
+          cat ~/.aws/credentials
+          echo "AWS ROLE--------->" $AWS_ROLE_ARN
+          
           echo "[default]
           [profile eksadmin]
           role_arn= $AWS_ROLE_ARN
           output = json
           region=ap-south-1
           source_profile = default" > ~/.aws/config
-
+          echo "config-----------"
+          cat ~/.aws/config
           export region=ap-south-1
           export cluster_name=uat-cluster
 
