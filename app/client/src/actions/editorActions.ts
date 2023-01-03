@@ -6,6 +6,17 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
  * @param payload
  * @returns
  */
+export const setPreviewModeInitAction = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_PREVIEW_MODE_INIT,
+  payload,
+});
+
+/**
+ * action that sets preview mode
+ *
+ * @param payload
+ * @returns
+ */
 
 export const setPreviewModeAction = (payload: boolean) => ({
   type: ReduxActionTypes.SET_PREVIEW_MODE,

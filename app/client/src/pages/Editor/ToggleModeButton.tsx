@@ -13,13 +13,11 @@ import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 
 import { getAppMode } from "selectors/applicationSelectors";
-import { setPreviewModeAction } from "actions/editorActions";
+import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
 import { isExploringSelector } from "selectors/onboardingSelectors";
 import { Colors } from "constants/Colors";
-import { useLocation } from "react-router";
-import { matchBuilderPath } from "constants/routes";
 
 const StyledButton = styled(Button)<{ active: boolean }>`
   ${(props) =>
@@ -42,17 +40,15 @@ function ToggleModeButton() {
   const isExploring = useSelector(isExploringSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const appMode = useSelector(getAppMode);
-  const { pathname } = useLocation();
-  const onCanvas = matchBuilderPath(pathname);
 
   const mode = useSelector((state: AppState) => state.entities.app.mode);
   const isViewMode = mode === APP_MODE.PUBLISHED;
 
   const onClickPreviewModeButton = useCallback(() => {
-    dispatch(setPreviewModeAction(!isPreviewMode));
-  }, [dispatch, setPreviewModeAction, isPreviewMode]);
+    dispatch(setPreviewModeInitAction(!isPreviewMode));
+  }, [dispatch, setPreviewModeInitAction, isPreviewMode]);
 
-  if (isExploring || isViewMode || !onCanvas) return null;
+  if (isExploring || isViewMode) return null;
 
   return (
     <TooltipComponent

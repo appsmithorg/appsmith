@@ -56,6 +56,7 @@ import {
   all,
   call,
   debounce,
+  delay,
   put,
   select,
   takeEvery,
@@ -129,6 +130,7 @@ import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "selectors/entitiesSelector";
+import { setPreviewModeAction } from "actions/editorActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -1159,6 +1161,23 @@ function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
   );
 }
 
+function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
+  const currentPageId: string = yield select(getCurrentPageId);
+  if (action.payload) {
+    history.push(
+      builderURL({
+        pageId: currentPageId,
+      }),
+    );
+  } else {
+    history.goBack();
+  }
+  // simulating requestAnimationFrame for a smoother transition
+  // without this the property pane is shown for a moment and then shows the api/query etc UI
+  yield delay(0);
+  yield put(setPreviewModeAction(action.payload));
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -1188,5 +1207,6 @@ export default function* pageSagas() {
       ReduxActionTypes.DELETE_CANVAS_CARDS_STATE,
       deleteCanvasCardsStateSaga,
     ),
+    takeEvery(ReduxActionTypes.SET_PREVIEW_MODE_INIT, setPreviewModeInitSaga),
   ]);
 }
