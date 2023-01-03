@@ -105,5 +105,5 @@ ff4j:
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com
+          - name: emails
+            value: demo@appsmith.com
