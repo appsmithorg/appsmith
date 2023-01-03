@@ -62,9 +62,9 @@ public class RowsBulkUpdateMethodTest {
                 pluginExecutor.executeParameterized(null,new ExecuteActionDTO(),datasourceConfiguration,actionConfiguration);
             });
 
-            String actualMessage = appsmithPluginException.getMessage();
+            String actualMessage = appsmithPluginException.getDownstreamErrorMessage();
 
-            assertEquals(actualMessage,expectedErrorMessageArray[i]);
+            assertEquals(expectedErrorMessageArray[i], actualMessage);
         }
     }
 
