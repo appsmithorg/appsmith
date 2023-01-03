@@ -219,7 +219,7 @@ const mySqlData = {
     ["a", "abcdefghijklmnopqrst", "12345678912345", "true", "null"],
     ["a", "abcdefghij", "012345", "false", "NulL"],
     ["a", "b", "c"],
-    ["0", "1"],
+    [false, true],
     [{"abc": "123"}, {}, [1, 2, 3, 4], [], ["a",true,0,12.34]],
   ],
   query: {
