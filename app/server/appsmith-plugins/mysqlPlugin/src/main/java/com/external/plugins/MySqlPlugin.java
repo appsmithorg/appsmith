@@ -405,7 +405,7 @@ public class MySqlPlugin extends BasePlugin {
             switch (appsmithType.type()) {
                 case NULL:
                     try {
-                        connectionStatement.bindNull((index - 1), Object.class);
+                        connectionStatement.bindNull((index - 1), String.class);
                     } catch (UnsupportedOperationException e) {
                         // Do nothing. Move on
                     }
