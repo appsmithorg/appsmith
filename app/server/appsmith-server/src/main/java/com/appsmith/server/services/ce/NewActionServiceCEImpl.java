@@ -1129,7 +1129,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     // In case there are parameters that did not receive a value in the multipart request,
                     // initialize these bindings with empty strings
-                    if(dto.getParameterMap() != null) {
+                    if (dto.getParameterMap() != null) {
                         dto.getParameterMap()
                                 .keySet()
                                 .stream()
