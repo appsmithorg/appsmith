@@ -469,20 +469,10 @@ jobs:
         if: github.event_name == 'pull_request_review' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v3
         with:
-          ref: "release"
-          repository: appsmithorg/appsmith
           fetch-depth: 0
-
-      - name: Set Helm env variables
-        env:
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: echo "environment variables set" bae4f92
 
       - name: Install relevant packages
         run: |
-          ls -alth
           which aws
           sudo apt update -q && sudo apt install -y curl unzip less jq 
           curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.23.6/bin/linux/amd64/kubectl && \
@@ -490,53 +480,11 @@ jobs:
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
           chmod 700 get_helm.sh; ./get_helm.sh
 
-      - name: Deploy helm
-        run: |
-          mkdir ~/.aws; touch ~/.aws/config
-
-          echo "[default]
-          aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}" > ~/.aws/credentials
-
-          cat ~/.aws/credentials
-          echo "AWS ROLE--------->" ${{ secrets.AWS_ROLE_ARN }}
-          
-          echo "[default]
-          [profile eksadmin]
-          role_arn= ${{ secrets.AWS_ROLE_ARN }}
-          output = json
-          region=ap-south-1
-          source_profile = default" > ~/.aws/config
-          echo "config-----------"
-          cat ~/.aws/config
-          export region=ap-south-1
-          export cluster_name=uat-cluster
-
-          echo "Region: $region"
-          echo "Cluster name: $cluster_name"
-
-          sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name eksadminsession)
-          export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
-          export AWS_SECRET_ACCESS_KEY=$(echo $sts_output | jq -r '.Credentials''.SecretAccessKey');\
-          export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken');
-
-          aws eks update-kubeconfig --region $region --name $cluster_name --profile eksadmin
-
-          echo "Set the default namespace"
-          kubectl config set-context --current --namespace=default
-
-          echo "Getting the pods"
-          kubectl get pods
-
-          echo "Delete previously created namespace"
-          kubectl delete ns bae4f92 || echo "true"
-
-          echo "Add appsmith-ce to helm repo"
-          AWS_REGION=ap-south-1 helm repo add appsmith s3://helm.appsmith.com
-
-          echo "Dry run of appsmith helm chart"
-          helm install appsmith/appsmith --generate-name -n bae4f92 \
-          --create-namespace --set image.repository=${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:bae4f92 \
-          --set redis.enabled=false --set mongo.enabled=false --set ingress.enabled=true \
-          --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=${{ secrets.AWS_RELEASE_CERT }}," \
-          " ingress.hosts[0].host=bae4f92.appsmith.com, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" --dry-run
+      - name: Set Helm env variables
+        env:
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          IMAGE_HASH: ${{ steps.git_hash.outputs.git_hash }}
+          AWS_RELEASE_CERT: ${{ secrets.AWS_RELEASE_CERT }}
+        run: /bin/bash ./scripts/deploy_preview.sh
