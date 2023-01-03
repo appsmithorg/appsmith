@@ -1129,15 +1129,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     // In case there are parameters that did not receive a value in the multipart request,
                     // initialize these bindings with empty strings
-                    dto.getParameterMap()
-                            .keySet()
-                            .stream()
-                            .forEach(parameter -> {
-                                if (!visitedBindings.contains(parameter)) {
-                                    Param newParam = new Param(parameter, "");
-                                    params.add(newParam);
-                                }
-                            });
+                    if(dto.getParameterMap() != null) {
+                        dto.getParameterMap()
+                                .keySet()
+                                .stream()
+                                .forEach(parameter -> {
+                                    if (!visitedBindings.contains(parameter)) {
+                                        Param newParam = new Param(parameter, "");
+                                        params.add(newParam);
+                                    }
+                                });
+                    }
                     dto.setParams(params);
                     return Mono.just(dto);
                 });
