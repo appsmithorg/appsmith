@@ -26,7 +26,7 @@ public class GetStructureMethodTest {
             JsonNode result = getStructureMethod.transformExecutionResponse(null, new MethodConfig(Map.of()).toBuilder().tableHeaderIndex("1").build());
             assertFalse(result == null);
         } catch (AppsmithPluginException e) {
-            assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getMessage()));
+            assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getDownstreamErrorMessage()));
         }
     }
 

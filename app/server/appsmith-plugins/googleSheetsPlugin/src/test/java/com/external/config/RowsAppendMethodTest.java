@@ -60,9 +60,9 @@ public class RowsAppendMethodTest {
                 pluginExecutor.executeParameterized(null,new ExecuteActionDTO(),datasourceConfiguration,actionConfiguration);
             });
 
-            String actualMessage = appsmithPluginException.getMessage();
+            String actualMessage = appsmithPluginException.getDownstreamErrorMessage() == null ? appsmithPluginException.getMessage() : appsmithPluginException.getDownstreamErrorMessage();
 
-            assertEquals(actualMessage,ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
+            assertEquals(ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE, actualMessage);
         }
     }
 

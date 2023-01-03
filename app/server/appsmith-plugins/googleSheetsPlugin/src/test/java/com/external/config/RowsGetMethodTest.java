@@ -23,7 +23,7 @@ public class RowsGetMethodTest {
         try {
             rowsGetMethod.transformExecutionResponse(null, null);
         } catch (AppsmithPluginException e) {
-            assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getMessage()));
+            assertTrue("Missing a valid response object.".equalsIgnoreCase(e.getDownstreamErrorMessage()));
         }
     }
 
