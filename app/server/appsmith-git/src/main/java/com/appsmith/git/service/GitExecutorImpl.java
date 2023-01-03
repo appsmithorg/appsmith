@@ -508,6 +508,7 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setModifiedQueries(modifiedQueries);
                 response.setModifiedJSObjects(modifiedJSObjects);
                 response.setModifiedDatasources(modifiedDatasources);
+                response.setModifiedJSLibs(modifiedJSLibs);
 
                 BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
                 if (trackingStatus != null) {
