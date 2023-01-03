@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
@@ -124,7 +125,7 @@ public class SmtpPlugin extends BasePlugin {
                         Base64.Decoder decoder = Base64.getDecoder();
                         String attachmentStr = String.valueOf(attachment.getData());
                         if (!attachmentStr.contains(BASE64_DELIMITER)) {
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.SMTP_QUERY_EXECUTION_FAILED,
                                     "Attachment " + attachment.getName() + " contains invalid data. Unable to send email."));
                         }
                         byte[] bytes = decoder.decode(attachmentStr.split(BASE64_DELIMITER)[1]);
@@ -149,11 +150,13 @@ public class SmtpPlugin extends BasePlugin {
 
                 log.debug("Sent the email successfully");
             } catch (MessagingException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.SMTP_QUERY_EXECUTION_FAILED,
+                        AppsmithPluginErrorCode.SMTP_QUERY_EXECUTION_FAILED.getDescription(),
                         "Unable to send email because of error: " + e.getMessage()));
             } catch (IOException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to parse the email body/attachments because it was an invalid object."));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.SMTP_QUERY_EXECUTION_FAILED,
+                        "Unable to parse the email body/attachments because it was an invalid object.",
+                        e.getMessage()));
             }
 
             return Mono.just(result);

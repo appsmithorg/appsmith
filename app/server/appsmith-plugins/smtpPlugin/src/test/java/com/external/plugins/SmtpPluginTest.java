@@ -147,7 +147,7 @@ public class SmtpPluginTest {
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithPluginException &&
-                        e.getMessage().contains(AppsmithPluginError.PLUGIN_ERROR.getMessage("Unable to send email because of error: 535 Invalid username or password")))
+                        ((AppsmithPluginException) e).getDownstreamErrorMessage().contains("Unable to send email because of error: 535 Invalid username or password"))
                 .verify();
     }
 
