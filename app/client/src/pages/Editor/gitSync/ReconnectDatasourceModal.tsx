@@ -317,6 +317,13 @@ function ReconnectDatasourceModal() {
   const [datasource, setDatasource] = useState<Datasource | null>(null);
   const [isImport, setIsImport] = useState(queryIsImport);
   const [isTesting, setIsTesting] = useState(false);
+  const queryDS = datasources.find((ds) => ds.id === queryDatasourceId);
+  const dsName = queryDS?.name;
+  const orgId = queryDS?.workspaceId;
+  let pluginName = "";
+  if (!!queryDS?.pluginId) {
+    pluginName = pluginNames[queryDS.pluginId];
+  }
 
   // when redirecting from oauth, processing the status
   if (isImport) {
@@ -331,6 +338,13 @@ function ReconnectDatasourceModal() {
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
       Toaster.show({ text: display_message || message, variant });
+      const oAuthStatus = status;
+      AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
+        dsName,
+        oAuthStatus,
+        orgId,
+        pluginName,
+      });
     } else if (queryDatasourceId) {
       dispatch(getOAuthAccessToken(queryDatasourceId));
     }
