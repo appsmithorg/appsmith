@@ -12,6 +12,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.constants.FieldName;
 import com.appsmith.external.models.ActionCollection;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
