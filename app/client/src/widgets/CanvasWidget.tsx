@@ -81,7 +81,6 @@ class CanvasWidget extends ContainerWidget {
   ): JSX.Element {
     const direction = this.getDirection();
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
-    const stretchFlexBox = !this.props.children || !this.props.children?.length;
     return (
       <ContainerComponent {...props}>
         {props.renderMode === RenderModes.CANVAS && (
@@ -109,28 +108,44 @@ class CanvasWidget extends ContainerWidget {
             />
           </>
         )}
+        {this.props.useAutoLayout
+          ? this.renderFlexCanvas(direction)
+          : this.renderFixedCanvas(props)}
+      </ContainerComponent>
+    );
+  }
+
+  renderFlexCanvas(direction: LayoutDirection) {
+    const stretchFlexBox = !this.props.children || !this.props.children?.length;
+    return (
+      <FlexBoxComponent
+        direction={direction}
+        flexLayers={this.props.flexLayers || []}
+        overflow={
+          direction === LayoutDirection.Horizontal
+            ? Overflow.Wrap
+            : Overflow.NoWrap
+        }
+        stretchHeight={stretchFlexBox}
+        useAutoLayout={this.props.useAutoLayout || false}
+        widgetId={this.props.widgetId}
+      >
+        {this.renderChildren()}
+      </FlexBoxComponent>
+    );
+  }
+
+  renderFixedCanvas(props: ContainerWidgetProps<WidgetProps>) {
+    return (
+      <>
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
         />
-        {/* without the wrapping div onClick events are triggered twice */}
-        <FlexBoxComponent
-          direction={direction}
-          flexLayers={this.props.flexLayers || []}
-          overflow={
-            direction === LayoutDirection.Horizontal
-              ? Overflow.Wrap
-              : Overflow.NoWrap
-          }
-          stretchHeight={stretchFlexBox}
-          useAutoLayout={this.props.useAutoLayout || false}
-          widgetId={this.props.widgetId}
-        >
-          {this.renderChildren()}
-        </FlexBoxComponent>
-      </ContainerComponent>
+        {this.renderChildren()}
+      </>
     );
   }
 
