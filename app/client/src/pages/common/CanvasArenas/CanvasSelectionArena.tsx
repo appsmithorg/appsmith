@@ -23,8 +23,8 @@ import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getAbsolutePixels } from "utils/helpers";
 import {
-  getSlidingCanvasName,
   getStickyCanvasName,
+  getSlidingArenaName,
 } from "constants/componentClassNameConstants";
 
 export interface SelectedArenaDimensions {
@@ -482,10 +482,10 @@ export function CanvasSelectionArena({
   return shouldShow ? (
     <StickyCanvasArena
       canExtend={canExtend}
-      canvasId={getSlidingCanvasName(widgetId)}
+      canvasId={getStickyCanvasName(widgetId)}
       canvasPadding={canvasPadding}
       getRelativeScrollingParent={getNearestParentCanvas}
-      id={getStickyCanvasName(widgetId)}
+      id={getSlidingArenaName(widgetId)}
       ref={canvasRef}
       showCanvas={shouldShow}
       snapColSpace={snapColumnSpace}
