@@ -63,7 +63,7 @@ export const modalSetter = (changeValue: any, currentValue: string) => {
   try {
     return setModalName(requiredValue, changeValue, self.evaluationVersion);
   } catch (e) {
-    showError();
+    // showError();
     throw e;
   }
 };
@@ -102,7 +102,7 @@ export const textSetter = (
           ) || currentValue
         );
       } catch (e) {
-        showError();
+        // showError();
         return currentValue;
       }
     }
@@ -116,7 +116,7 @@ export const textSetter = (
       self.evaluationVersion,
     );
   } catch (e) {
-    showError();
+    // showError();
     return currentValue;
   }
 };
@@ -148,7 +148,7 @@ export const enumTypeSetter = (
       self.evaluationVersion,
     );
   } catch (e) {
-    showError();
+    // showError();
     throw e;
   }
 };
@@ -186,7 +186,7 @@ export const callBackFieldSetter = (
       ) || currentValue
     );
   } catch (e) {
-    showError();
+    // showError();
     throw e;
   }
 };
