@@ -6,7 +6,7 @@ import {
     isCallExpressionNode,
     isMemberExpressionNode,
     LiteralNode,
-    wrapCode,
+    wrapCode, CallExpressionNode,
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {simple} from "acorn-walk";
@@ -47,7 +47,13 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
                         requiredArgument = argument.value;
                         break;
                     case NodeTypes.MemberExpression:
-                        requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`
+                        requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
+                        break;
+                    case NodeTypes.ArrowFunctionExpression:
+                    case NodeTypes.CallExpression:
+                        const requiredArg = ((node.callee as MemberExpressionNode).object as CallExpressionNode).arguments[argNum];
+                        requiredArgument = (requiredArg as LiteralNode).value;
+                        break;
                 }
             }
         },

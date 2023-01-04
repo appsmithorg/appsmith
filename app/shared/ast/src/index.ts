@@ -26,11 +26,11 @@ import {attachComments} from "astravel";
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
 type Expression = Node;
-export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression | MemberExpressionNode;
+export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression | MemberExpressionNode | CallExpressionNode;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
 export interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
-  object: MemberExpressionNode | IdentifierNode;
+  object: MemberExpressionNode | IdentifierNode | CallExpressionNode;
   property: IdentifierNode | LiteralNode;
   computed: boolean;
   // doc: https://github.com/estree/estree/blob/master/es2020.md#chainexpression
@@ -97,7 +97,7 @@ export interface LiteralNode extends Node {
 
 export interface CallExpressionNode extends Node {
   type: NodeTypes.CallExpression;
-  callee: CallExpressionNode | IdentifierNode;
+  callee: CallExpressionNode | IdentifierNode | MemberExpressionNode;
   arguments: ArgumentTypes[];
 }
 
@@ -431,7 +431,7 @@ const constructFinalMemberExpIdentifier = (
   } else {
     const propertyAccessor = getPropertyAccessor(node.property);
     const nestedChild = `${propertyAccessor}${child}`;
-    return constructFinalMemberExpIdentifier(node.object, nestedChild);
+    return constructFinalMemberExpIdentifier(node.object as MemberExpressionNode, nestedChild);
   }
 };
 
