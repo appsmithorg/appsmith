@@ -166,7 +166,7 @@ public class DatasourceContextServiceTest {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertEquals(password, authentication.getPassword());
                     DBAuth encryptedAuthentication = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
-                    assertEquals(encryptionService.encryptString(password), encryptedAuthentication.getPassword());
+                    assertEquals(password, encryptionService.decryptString(encryptedAuthentication.getPassword()));
                 })
                 .verifyComplete();
     }

@@ -10,17 +10,17 @@ import {
 } from "utils/DynamicBindingUtils";
 import { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { initiateLinting } from "workers/Linting/utils";
 import {
   createUnEvalTreeForEval,
   makeEntityConfigsAsObjProperties,
-} from "../dataTreeUtils";
+} from "@appsmith/workers/Evaluation/dataTreeUtils";
 import {
   CrashingError,
   DataTreeDiff,
   getSafeToRenderDataTree,
-} from "../evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   EvalTreeRequestData,
   EvalTreeResponseData,

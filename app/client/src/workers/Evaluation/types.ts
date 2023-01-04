@@ -11,9 +11,9 @@ import {
 } from "workers/Evaluation/evalWorkerActions";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
-import { WorkerRequest } from "workers/common/types";
-import { DataTreeDiff } from "./evaluationUtils";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import { WorkerRequest } from "@appsmith/workers/common/types";
+import { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export type EvalWorkerSyncRequest = WorkerRequest<any, EVAL_WORKER_SYNC_ACTION>;
 export type EvalWorkerASyncRequest = WorkerRequest<

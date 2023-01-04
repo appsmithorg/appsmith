@@ -188,7 +188,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
-        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), aclPermission);
+        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), null, aclPermission);
     }
 
     @Override

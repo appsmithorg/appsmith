@@ -5,7 +5,7 @@ import {
   copyJSCollectionRequest,
   deleteJSCollection,
 } from "actions/jsActionActions";
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import noop from "lodash/noop";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { getJSEntityName } from "./helpers";

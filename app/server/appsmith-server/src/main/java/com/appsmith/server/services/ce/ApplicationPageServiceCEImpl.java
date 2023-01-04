@@ -23,8 +23,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -49,6 +49,7 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -57,14 +58,13 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -72,7 +72,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 
 
 @Slf4j
@@ -424,7 +423,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
                         String repoName = gitData.getRepoName();
-                        Path repoPath = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), repoName);
+                        Path repoPath = Paths.get(application.getWorkspaceId(), gitData.getDefaultApplicationId(), repoName);
                         // Delete git repo from local
                         return gitFileUtils.deleteLocalRepo(repoPath)
                                 .then(Mono.just(application));
@@ -1024,7 +1023,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 //In each page, copy each layout's dsl to publishedDsl field
                 .flatMap(applicationPage -> newPageService
                         .findById(applicationPage.getId(), pagePermission.getEditPermission())
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, applicationPage.getId())))
+                        // For a git connected app if the user does not have permission to edit few pages in master branch
+                        // They don't get access to the same resources in feature branch. When they do operations like commit and push we publish the changes automatically
+                        // and this will fail due to permission issue. Hence removing the throwing error part and handling it gracefully
+                        // Only the pages which the user pocesses permission will be published
                         .map(page -> {
                             page.setPublishedPage(page.getUnpublishedPage());
                             return page;
@@ -1076,14 +1078,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                             Mono<List<NewAction>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
                                                             Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
-                                                            String applicationId, boolean isPublishedManually) {        return Mono.zip(
+                                                            String applicationId, boolean isPublishedManually) {
+        return Mono.zip(
                         publishApplicationAndPages,
                         publishedActionsFlux,
                         publishedActionsCollectionFlux,
                         // not using existing applicationMono because we need the latest Application after published
                         applicationService.findById(applicationId, applicationPermission.getEditPermission()),
                         publishedJSLibDTOsMono
-                    )
+                )
                 .flatMap(objects -> {
                     Application application = objects.getT4();
                     Map<String, Object> extraProperties = new HashMap<>();

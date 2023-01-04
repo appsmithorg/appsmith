@@ -8,6 +8,47 @@ const commonLocators = ObjectsRegistry.CommonLocators;
 
 const NAVIGATION_ATTRIBUTE = "data-navigate-to";
 
+const JSInputTestCode = `export default {
+  myVar1: "test",
+  myFun1: () => {
+    return this.myVar1;
+  },
+  myFun2: () => {
+    return this.myFun1;
+  },
+  myFun3: () => {
+    return JSObject2.myFun1();
+  }
+}`;
+
+const JSInput2TestCode = `export default {
+\tmyVar1: [],
+\tmyVar2: {},
+\tmyFun1: () => {
+\t\t
+\t\t//write code here
+\t},
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+\t
+}`;
+
 describe("1. CommandClickNavigation", function() {
   it("1. Import the test application", () => {
     homePage.NavigateToHome();
@@ -94,7 +135,49 @@ describe("1. CommandClickNavigation", function() {
       .click({ cmdKey: true });
   });
 
-  it.skip("7. Will work with string arguments in framework functions", () => {
+  it("7. Will navigate to specific JS Functions", () => {
+    cy.SearchEntityandOpen("Text1");
+    cy.updateCodeInput(".t--property-control-text", "{{ JSObject1.myFun1() }}");
+
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
+      ctrlKey: true,
+    });
+
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 1, line: 3 });
+  });
+
+  it("8. Will navigate within Js Object properly", () => {
+    cy.updateCodeInput(".js-editor", JSInputTestCode);
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myVar1"]`).click({
+      ctrlKey: true,
+    });
+    cy.getCodeInput(".js-editor").then((input) => {
+      const codeMirrorInput = input[0].CodeMirror;
+      codeMirrorInput.focus();
+    });
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 1 });
+
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
+      ctrlKey: true,
+    });
+    cy.getCodeInput(".js-editor").then((input) => {
+      const codeMirrorInput = input[0].CodeMirror;
+      codeMirrorInput.focus();
+    });
+
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
+
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject2.myFun1"]`).click({
+      ctrlKey: true,
+    });
+
+    cy.getCodeInput(".js-editor").then((input) => {
+      const codeMirrorInput = input[0].CodeMirror;
+      expect(codeMirrorInput.getValue()).to.equal(JSInput2TestCode);
+    });
+  });
+
+  it.skip("Will work with string arguments in framework functions", () => {
     cy.get(PROPERTY_SELECTOR.onClick)
       .find(".t--js-toggle")
       .click();

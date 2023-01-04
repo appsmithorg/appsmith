@@ -1,4 +1,4 @@
-import { createGlobalData } from "workers/Evaluation/evaluate";
+import { createEvaluationContext } from "workers/Evaluation/evaluate";
 const ctx: Worker = self as any;
 
 /*
@@ -8,7 +8,7 @@ const ctx: Worker = self as any;
  *
  * needs a REQUEST_ID to be passed in to know which request is going on right now
  */
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "./handlers/evalTree";
@@ -19,15 +19,6 @@ export const promisifyAction = (
   actionDescription: ActionDescription,
   eventType?: EventType,
 ) => {
-  if (!self.ALLOW_ASYNC) {
-    /**
-     * To figure out if any function (JS action) is async, we do a dry run so that we can know if the function
-     * is using an async action. We set an IS_ASYNC flag to later indicate that a promise was called.
-     * @link isFunctionAsync
-     * */
-    self.IS_ASYNC = true;
-    throw new Error("Async function called in a sync field");
-  }
   return new Promise((resolve, reject) => {
     // We create a new sub request id for each request going on so that we can resolve the correct one later on
     const messageId = _.uniqueId(`${actionDescription.type}_`);
@@ -61,7 +52,7 @@ export const promisifyAction = (
         } else {
           self.ALLOW_ASYNC = true;
           // Reset the global data with the correct request id for this promise
-          const globalData = createGlobalData({
+          const evalContext = createEvaluationContext({
             dataTree: dataTreeEvaluator.evalTree,
             resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
             isTriggerBased: true,
@@ -69,10 +60,8 @@ export const promisifyAction = (
               eventType,
             },
           });
-          for (const entity in globalData) {
-            // @ts-expect-error: Types are not available
-            self[entity] = globalData[entity];
-          }
+
+          Object.assign(self, evalContext);
 
           // Resolve or reject the promise
           if (success) {

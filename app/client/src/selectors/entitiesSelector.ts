@@ -21,7 +21,7 @@ import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer"
 import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
-import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
+import { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
 import {
@@ -29,9 +29,11 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import { TJSLibrary } from "workers/common/JSLibrary";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -413,6 +415,21 @@ export const getJSCollection = (
     (a) => a.config.id === actionId,
   );
   return jsaction ? jsaction.config : undefined;
+};
+
+export const getJSFunctionFromName = (state: AppState, name: string) => {
+  const {
+    entityName: collectionName,
+    propertyPath: functionName,
+  } = getEntityNameAndPropertyPath(name);
+  const jsCollection = find(
+    state.entities.jsActions,
+    (a) => a.config.name === collectionName,
+  );
+  if (jsCollection) {
+    return find(jsCollection.config.actions, (a) => a.name === functionName);
+  }
+  return undefined;
 };
 
 export function getCurrentPageNameByActionId(

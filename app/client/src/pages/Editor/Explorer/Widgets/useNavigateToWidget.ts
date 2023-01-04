@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";

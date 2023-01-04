@@ -6,7 +6,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Dynamic Height Width validation", function () {
+describe("Dynamic Height Width validation", function() {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -14,7 +14,7 @@ describe("Dynamic Height Width validation", function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
-  it("Validate change with auto height width for widgets", function () {
+  it("Validate change with auto height width for widgets", function() {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");
@@ -24,40 +24,42 @@ describe("Dynamic Height Width validation", function () {
     cy.get(".t--property-control-fontsize .ur--has-border")
       .invoke("css", "font-size")
       .then((dropdownFont) => {
-        cy.get(".t--property-control-fontsize .remixicon-icon").click({ force: true })
+        cy.get(".t--property-control-fontsize .remixicon-icon").click({
+          force: true,
+        });
         cy.get(".t--dropdown-option span")
-          .should('have.length.greaterThan', 2)
-          .its('length')
-          .then(n => {
-            for (let i = n-2; i >= 0;i--) {
+          .should("have.length.greaterThan", 2)
+          .its("length")
+          .then((n) => {
+            for (let i = n - 2; i >= 0; i--) {
               cy.get(".t--dropdown-option span")
                 .eq(i)
                 .invoke("css", "font-size")
                 .then((selectedFont) => {
                   expect(dropdownFont).to.equal(selectedFont);
-                })
-                i--;
+                });
+              i--;
             }
-          })
-      })
+          });
+      });
     cy.get(".t--property-control-fontsize .ur--has-border")
       .invoke("css", "font-family")
       .then((dropdownFont) => {
         //cy.get(".t--property-control-fontsize .remixicon-icon").click({ force: true })
         cy.get(".t--dropdown-option span")
-          .should('have.length.greaterThan', 2)
-          .its('length')
-          .then(n => {
-            for (let i = 0; i < n;i++) {
+          .should("have.length.greaterThan", 2)
+          .its("length")
+          .then((n) => {
+            for (let i = 0; i < n; i++) {
               cy.get(".t--dropdown-option span")
                 .eq(i)
                 .invoke("css", "font-family")
                 .then((selectedFont) => {
                   expect(dropdownFont).to.equal(selectedFont);
-                })
+                });
             }
-          })
-      })
+          });
+      });
     cy.moveToContentTab();
     //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.get(".t--widget-containerwidget")
@@ -89,7 +91,7 @@ describe("Dynamic Height Width validation", function () {
       });
   });
 
-  it("Validate container with auto height and child widgets with fixed height", function () {
+  it("Validate container with auto height and child widgets with fixed height", function() {
     cy.addDsl(cdsl);
     cy.wait(3000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");

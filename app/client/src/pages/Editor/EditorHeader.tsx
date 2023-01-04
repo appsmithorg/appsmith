@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  lazy,
+  Suspense,
+  useMemo,
+} from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
@@ -66,8 +73,9 @@ import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
   DEPLOY_MENU_OPTION,
-  INVITE_USERS_MESSAGE,
+  INVITE_TAB,
   INVITE_USERS_PLACEHOLDER,
+  IN_APP_EMBED_SETTING,
   LOCK_ENTITY_EXPLORER_MESSAGE,
   LOGO_TOOLTIP,
   RENAME_APPLICATION_TOOLTIP,
@@ -89,6 +97,10 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
+import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -332,6 +344,21 @@ export function EditorHeader(props: EditorHeaderProps) {
     (user) => user.username !== props.currentUser?.username,
   );
 
+  const tabs = useMemo(() => {
+    return [
+      {
+        key: "INVITE",
+        title: createMessage(INVITE_TAB),
+        component: AppInviteUsersForm,
+      },
+      {
+        key: "EMBED",
+        title: createMessage(IN_APP_EMBED_SETTING.embed),
+        component: EmbedSnippetForm,
+      },
+    ];
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
@@ -447,18 +474,13 @@ export function EditorHeader(props: EditorHeaderProps) {
               Form={AppInviteUsersForm}
               applicationId={applicationId}
               canOutsideClickClose
-              headerIcon={{
-                name: "right-arrow",
-                bgColor: Colors.GEYSER_LIGHT,
-              }}
               isOpen={showAppInviteUsersDialog}
-              message={createMessage(INVITE_USERS_MESSAGE)}
-              placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
-              title={
-                currentApplication
-                  ? currentApplication.name
-                  : "Share Application"
-              }
+              noModalBodyMarginTop
+              placeholder={createMessage(
+                INVITE_USERS_PLACEHOLDER,
+                cloudHosting,
+              )}
+              tabs={tabs}
               trigger={
                 <TooltipComponent
                   content={
