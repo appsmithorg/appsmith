@@ -34,6 +34,10 @@ import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import { ThemeProp } from "widgets/constants";
+import { translate } from "utils/translate";
+import { getLang } from "selectors/appViewSelectors";
+import { useSelector } from "react-redux";
+import { LanguageEnums } from "entities/App";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -253,12 +257,14 @@ export interface PopoverContentProps {
       iconColor?: string;
       iconAlign?: Alignment;
       onClick?: string;
+      translationJp?: string;
     }
   >;
   onItemClicked: (onClick: string | undefined) => void;
   isCompact?: boolean;
   borderRadius?: string;
   backgroundColor?: string;
+  lang?: LanguageEnums;
 }
 
 function PopoverContent(props: PopoverContentProps) {
@@ -267,6 +273,7 @@ function PopoverContent(props: PopoverContentProps) {
     isCompact,
     menuItems: itemsObj,
     onItemClicked,
+    lang,
   } = props;
 
   if (!itemsObj) return <StyledMenu />;
@@ -287,6 +294,7 @@ function PopoverContent(props: PopoverContentProps) {
       label,
       onClick,
       textColor,
+      translationJp,
     } = menuItem;
     if (iconAlign === Alignment.RIGHT) {
       return (
@@ -297,7 +305,7 @@ function PopoverContent(props: PopoverContentProps) {
           key={id}
           labelElement={<Icon color={iconColor} icon={iconName} />}
           onClick={() => onItemClicked(onClick)}
-          text={label}
+          text={translate(lang, label, translationJp)}
           textColor={textColor}
         />
       );
@@ -310,7 +318,7 @@ function PopoverContent(props: PopoverContentProps) {
         isCompact={isCompact}
         key={id}
         onClick={() => onItemClicked(onClick)}
-        text={label}
+        text={translate(lang, label, translationJp)}
         textColor={textColor}
       />
     );
@@ -374,6 +382,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
 
 export interface MenuButtonComponentProps {
   label?: string;
+  translationJp?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
@@ -386,6 +395,7 @@ export interface MenuButtonComponentProps {
       isVisible?: boolean;
       isDisabled?: boolean;
       label?: string;
+      translationJp?: string;
       backgroundColor?: string;
       textColor?: string;
       iconName?: IconName;
@@ -427,7 +437,9 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     renderMode,
     widgetId,
     width,
+    translationJp,
   } = props;
+  const lang = useSelector(getLang);
 
   return (
     <>
@@ -445,6 +457,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
             isCompact={isCompact}
             menuItems={menuItems}
             onItemClicked={onItemClicked}
+            lang={lang}
           />
         }
         disabled={isDisabled}
@@ -461,7 +474,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           iconAlign={iconAlign}
           iconName={iconName}
           isDisabled={isDisabled}
-          label={label}
+          label={translate(lang, label, translationJp)}
           placement={placement}
           renderMode={renderMode}
         />
