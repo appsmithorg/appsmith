@@ -13,7 +13,7 @@ export class CommonLocators {
     widgetName +
     "') span.bp3-editable-text-content";
   _widgetNameTxt = ".editable-text-container input.bp3-editable-text-input";
-  _saveStatusSuccess = ".t--save-status-success";
+  _saveStatusContainer = ".t--save-status-container";
   _codeMirrorTextArea = ".CodeMirror textarea";
   _codeMirrorCode = ".CodeMirror-code";
   _codeEditorTargetTextArea = ".CodeEditorTarget textarea";
