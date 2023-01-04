@@ -11,6 +11,7 @@
       "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,
+      "placeholderText": "collection/{{Table1.selectedRow._ref}}",
       "initialValue": ""
     }
   ]

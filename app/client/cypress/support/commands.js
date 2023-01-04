@@ -1685,7 +1685,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
   const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
-    ".t--property-control-alignment .t--button-tab-right";
+    ".t--property-control-alignment .t--button-group-right";
   const labelWidth = options.labelWidth;
 
   // Drag a widget
@@ -1702,17 +1702,17 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .contains(labelText);
 
   // Set the label position: Auto
-  cy.get(".t--button-tab-Auto").click({ force: true });
+  cy.get(".t--button-group-Auto").click({ force: true });
   // Assert label position: Auto
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
-  cy.get(".t--button-tab-Top").click({ force: true });
+  cy.get(".t--button-group-Top").click({ force: true });
   // Assert label position: Top
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Left
-  cy.get(".t--button-tab-Left").click({ force: true });
+  cy.get(".t--button-group-Left").click({ force: true });
   // Assert label position: Left
   cy.get(containerSelector).should("have.css", "flex-direction", "row");
 
