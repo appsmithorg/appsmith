@@ -15,6 +15,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.external.utils.SqlUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -25,7 +26,6 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -55,12 +55,12 @@ public class SnowflakePlugin extends BasePlugin {
     }
 
     @Extension
-    public static class SnowflakePluginExecutor implements PluginExecutor<Connection> {
+    public static class SnowflakePluginExecutor implements PluginExecutor<HikariDataSource> {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
         @Override
-        public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
 
             String query = actionConfiguration.getBody();
 
@@ -70,14 +70,49 @@ public class SnowflakePlugin extends BasePlugin {
                         "Missing required parameter: Query."));
             }
 
-            return Mono
-                    .fromCallable(() -> {
+            return Mono.fromCallable(() -> {
+
+                        Connection connectionFromPool;
+
+                        try {
+                            connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                        } catch (SQLException | StaleConnectionException e) {
+                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                        }
+
+                        HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
+
+                        int idleConnections = poolProxy.getIdleConnections();
+                        int activeConnections = poolProxy.getActiveConnections();
+                        int totalConnections = poolProxy.getTotalConnections();
+                        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                        log.debug("Before executing snowflake query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
+                                query, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
+
                         try {
                             // Connection staleness is checked as part of this method call.
-                            return getRowsFromQueryResult(connection, query);
+                            return getRowsFromQueryResult(connectionFromPool, query);
                         } catch (AppsmithPluginException | StaleConnectionException e) {
                             throw e;
+                        } finally {
+
+                            idleConnections = poolProxy.getIdleConnections();
+                            activeConnections = poolProxy.getActiveConnections();
+                            totalConnections = poolProxy.getTotalConnections();
+                            threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                            log.debug("After executing snowflake query, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
+                                    activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
+
+                            if (connectionFromPool != null) {
+                                try {
+                                    // Return the connection back to the pool
+                                    connectionFromPool.close();
+                                } catch (SQLException e) {
+                                    log.debug("Execute Error returning Snowflake connection to pool", e);
+                                }
+                            }
                         }
+
                     })
                     .map(rowsList -> {
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -92,13 +127,14 @@ public class SnowflakePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             try {
                 Class.forName("net.snowflake.client.jdbc.SnowflakeDriver");
             } catch (ClassNotFoundException ex) {
                 log.debug("Driver not found");
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, ex.getMessage()));
             }
+
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             Properties properties = new Properties();
             properties.setProperty("user", authentication.getUsername());
@@ -107,87 +143,84 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
             properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
             properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
-            properties.setProperty("connectTimeout",String.valueOf(10000));
-            properties.setProperty("socketTimeout",String.valueOf(15000));
-
-            log.info("marvel testing 123");
 
             return Mono
                     .fromCallable(() -> {
-                        Connection conn;
-                        try {
-//                            DriverManager.setLoginTimeout(10);
-                            conn = DriverManager.getConnection("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com", properties);
-                        } catch (SQLException e) {
-                            log.error("Exception caught when connecting to Snowflake endpoint: " + datasourceConfiguration.getUrl() + ". Cause: ", e);
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
-                        }
-                        if (conn == null) {
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create connection to Snowflake URL");
-                        }
-                        return conn;
+                        log.debug("Connecting to Snowflake");
+                        return createConnectionPool(datasourceConfiguration,properties);
                     })
                     .subscribeOn(scheduler);
-
-//            return Mono
-//                    .fromCallable(() -> {
-//                        log.debug("Connecting to Postgres db");
-//                        return createConnectionPool(datasourceConfiguration,properties).getConnection();
-//                    })
-//                    .subscribeOn(scheduler);
         }
 
-//        /**
-//         * This function is blocking in nature which connects to the database and creates a connection pool
-//         *
-//         * @param datasourceConfiguration
-//         * @return connection pool
-//         */
-//        private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration,Properties properties) throws AppsmithPluginException {
-//
-//            HikariConfig config = new HikariConfig();
-//
-//            config.setDriverClassName(JDBC_DRIVER);
-//
-//            config.setMinimumIdle(MINIMUM_POOL_SIZE);
-//            config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
-//
-//            // Set authentication properties
-//            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-//            if (authentication.getUsername() != null) {
-//                config.setUsername(authentication.getUsername());
-//            }
-//            if (authentication.getPassword() != null) {
-//                config.setPassword(authentication.getPassword());
-//            }
-//
-//            // Set up the connection URL
-//            StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
-//
-//            config.setDataSourceProperties(properties);
-//
-//            // Now create the connection pool from the configuration
-//            HikariDataSource datasource = null;
-//            try {
-//                datasource = new HikariDataSource(config);
-//            } catch (HikariPool.PoolInitializationException e) {
-//                throw new AppsmithPluginException(
-//                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-//                        e.getMessage()
-//                );
-//            }
-//
-//            return datasource;
-//        }
+        /**
+         * This function is blocking in nature which connects to the database and creates a connection pool
+         *
+         * @param datasourceConfiguration
+         * @return connection pool
+         */
+        private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration,Properties properties) throws AppsmithPluginException {
+
+            HikariConfig config = new HikariConfig();
+
+            config.setDriverClassName(JDBC_DRIVER);
+
+            config.setMinimumIdle(MINIMUM_POOL_SIZE);
+            config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+
+            // Set authentication properties
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            if (authentication.getUsername() != null) {
+                config.setUsername(authentication.getUsername());
+            }
+            if (authentication.getPassword() != null) {
+                config.setPassword(authentication.getPassword());
+            }
+
+            // Set up the connection URL
+            StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
+            config.setJdbcUrl(urlBuilder.toString());
+
+            config.setDataSourceProperties(properties);
+
+            // Now create the connection pool from the configuration
+            HikariDataSource datasource = null;
+            try {
+                datasource = new HikariDataSource(config);
+            } catch (HikariPool.PoolInitializationException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        e.getMessage()
+                );
+            }
+
+            return datasource;
+        }
 
         @Override
-        public void datasourceDestroy(Connection connection) {
+        public Mono<DatasourceTestResult> testDatasource(HikariDataSource connection) {
+            return Mono.fromCallable(() -> {
+
+                        Connection connectionFromPool;
+                        try {
+                            connectionFromPool = getConnectionFromConnectionPool(connection, null);
+                        } catch (SQLException | StaleConnectionException e) {
+                            // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                            // library throws SQLException in case the pool is closed or there is an issue initializing
+                            // the connection pool which can also be translated in our world to StaleConnectionException
+                            // and should then trigger the destruction and recreation of the pool.
+                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                        }
+
+                        return validateWarehouseDatabaseSchema(connectionFromPool);
+                    })
+                    .map(Object::toString)
+                    .map(DatasourceTestResult::new);
+        }
+
+        @Override
+        public void datasourceDestroy(HikariDataSource connection) {
             if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException throwable) {
-                    log.error("Exception caught when closing Snowflake connection. Cause: ", throwable);
-                }
+                connection.close();
             }
         }
 
@@ -240,31 +273,45 @@ public class SnowflakePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(Connection connection) {
-            return Mono.fromCallable(() -> {
-                        return validateWarehouseDatabaseSchema(connection);
-                    })
-                    .map(DatasourceTestResult::new);
-        }
-
-        @Override
-        public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
+        public Mono<DatasourceStructure> getStructure(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
             return Mono
                     .fromSupplier(() -> {
+
+                        Connection connectionFromPool;
+                        try {
+                            connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                        } catch (SQLException | StaleConnectionException e) {
+                            // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                            // library throws SQLException in case the pool is closed or there is an issue initializing
+                            // the connection pool which can also be translated in our world to StaleConnectionException
+                            // and should then trigger the destruction and recreation of the pool.
+                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                        }
+
+                        HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
+
+                        int idleConnections = poolProxy.getIdleConnections();
+                        int activeConnections = poolProxy.getActiveConnections();
+                        int totalConnections = poolProxy.getTotalConnections();
+                        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                        log.debug("Before getting snowflake structure Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
+                                activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
+
+
                         try {
                             // Connection staleness is checked as part of this method call.
-                            Set<String> invalids = validateWarehouseDatabaseSchema(connection);
+                            Set<String> invalids = validateWarehouseDatabaseSchema(connectionFromPool);
                             if (!invalids.isEmpty()) {
                                 throw new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                         invalids.toArray()[0]
                                 );
                             }
-                            Statement statement = connection.createStatement();
+                            Statement statement = connectionFromPool.createStatement();
                             final String columnsQuery = SqlUtils.COLUMNS_QUERY + "'"
                                     + datasourceConfiguration.getProperties().get(2).getValue() + "'";
                             ResultSet resultSet = statement.executeQuery(columnsQuery);
@@ -292,10 +339,53 @@ public class SnowflakePlugin extends BasePlugin {
                         } catch (SQLException throwable) {
                             log.error("Exception caught while fetching structure of Snowflake datasource. Cause: ", throwable);
                             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, throwable.getMessage());
+                        } finally {
+
+                            idleConnections = poolProxy.getIdleConnections();
+                            activeConnections = poolProxy.getActiveConnections();
+                            totalConnections = poolProxy.getTotalConnections();
+                            threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+                            log.debug("After snowflake structure, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
+                                    activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
+
+                            if (connectionFromPool != null) {
+                                try {
+                                    // Return the connection back to the pool
+                                    connectionFromPool.close();
+                                } catch (SQLException e) {
+                                    log.debug("Error returning snowflake connection to pool during get structure", e);
+                                }
+                            }
                         }
                         return structure;
                     })
+                    .map(resultStructure -> (DatasourceStructure) resultStructure)
                     .subscribeOn(scheduler);
+        }
+
+        /**
+         * First checks if the connection pool is still valid. If yes, we fetch a connection from the pool and return
+         * In case a connection is not available in the pool, SQL Exception is thrown
+         *
+         * @param connectionPool
+         * @return SQL Connection
+         */
+        private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
+                                                                  DatasourceConfiguration datasourceConfiguration) throws SQLException {
+
+            if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
+                log.debug("Encountered stale connection pool in Snowflake plugin. Reporting back.");
+                throw new StaleConnectionException();
+            }
+
+            Connection connection = connectionPool.getConnection();
+
+//            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+//            if (configurationConnection == null) {
+//                return connection;
+//            }
+
+            return connection;
         }
     }
 }
