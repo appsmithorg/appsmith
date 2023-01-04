@@ -2,7 +2,6 @@ import { isEmpty, set } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
 import { isPromise } from "./utils";
-import auditLogs from "../AuditLogs";
 
 export interface JSExecutionData {
   data: unknown;
@@ -78,9 +77,8 @@ export class JSProxy {
   }
 
   // When a function is called, increase number of pending functions;
-  private functionExecutionStart(fullName) {
+  private functionExecutionStart() {
     this.pendingExecutionCount += 1;
-    auditLogs.saveLog({ actionName: fullName });
     this.postData();
   }
 
