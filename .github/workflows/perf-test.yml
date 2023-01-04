@@ -238,6 +238,7 @@ jobs:
       - name: Exit if Server hasnt started
         if: steps.run_result.outputs.run_result != 'success'
         run: |
+          sleep 30s
           if lsof -i :8080; then
             echo "Server Found"
           else
