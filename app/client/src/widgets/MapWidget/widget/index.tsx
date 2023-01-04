@@ -1,20 +1,19 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { DEFAULT_CENTER, WidgetType } from "constants/WidgetConstants";
 import MapComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import styled from "styled-components";
-import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { MarkerProps } from "../constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Stylesheet } from "entities/AppTheming";
-
-const { google } = getAppsmithConfigs();
+import { connect } from "react-redux";
+import { AppState } from "../../../ce/reducers";
+import { getCurrentUser } from "../../../selectors/usersSelectors";
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
@@ -45,7 +44,10 @@ type Center = {
   long: number;
   [x: string]: any;
 };
+
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
+  static defaultProps = {};
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -402,12 +404,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   getPageView() {
     return (
       <>
-        {!google.enabled && (
+        {!this.props.apiKey && (
           <DisabledContainer
             borderRadius={this.props.borderRadius}
             boxShadow={this.props.boxShadow}
           >
             <h1>{"Map Widget disabled"}</h1>
+            <mark>Key: x{this.props.apiKey}x</mark>
             <p>{"Map widget requires a Google Maps API Key"}</p>
             <p>
               {"See our"}
@@ -422,10 +425,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             </p>
           </DisabledContainer>
         )}
-        {google.enabled && (
+        {this.props.apiKey && (
           <MapComponent
             allowZoom={this.props.allowZoom}
-            apiKey={google.apiKey}
+            apiKey={this.props.apiKey}
             borderRadius={this.props.borderRadius}
             boxShadow={this.props.boxShadow}
             center={this.getCenter()}
@@ -457,6 +460,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
 }
 
 export interface MapWidgetProps extends WidgetProps {
+  apiKey?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   enableSearch: boolean;
@@ -486,4 +490,10 @@ export interface MapWidgetProps extends WidgetProps {
   boxShadow?: string;
 }
 
-export default MapWidget;
+const mapStateToProps = (state: AppState) => {
+  return {
+    apiKey: getCurrentUser(state)?.instanceConfig.googleMapsKey,
+  };
+};
+
+export default connect(mapStateToProps)(MapWidget);

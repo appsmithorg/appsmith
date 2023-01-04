@@ -16,6 +16,9 @@ export type User = {
   isConfigurable: boolean;
   enableTelemetry: boolean;
   adminSettingsVisible?: boolean;
+  instanceConfig: {
+    googleMapsKey: string;
+  };
 };
 
 export interface UserApplication {
@@ -37,6 +40,9 @@ export const DefaultCurrentUserDetails: User = {
   isConfigurable: false,
   enableTelemetry: false,
   adminSettingsVisible: false,
+  instanceConfig: {
+    googleMapsKey: "",
+  },
 };
 
 // TODO keeping it here instead of the USER_API since it leads to cyclic deps errors during tests
