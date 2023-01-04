@@ -98,6 +98,7 @@ import {
   validateActionProperty,
   validateAndParseWidgetProperty,
 } from "./validationUtils";
+import { errorModifier } from "workers/Evaluation/errorModifier";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -661,6 +662,9 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const tree = klona(oldUnevalTree);
+
+    errorModifier.updateAsyncFunctions(tree);
+
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
@@ -1033,7 +1037,7 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
-    createGlobalData: boolean,
+    isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
     skipUserLogsOperations = false,
@@ -1043,7 +1047,7 @@ export default class DataTreeEvaluator {
         js,
         data,
         resolvedFunctions,
-        createGlobalData,
+        isJSObject,
         contextData,
         callbackData,
         skipUserLogsOperations,

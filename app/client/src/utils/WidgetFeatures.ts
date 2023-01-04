@@ -64,7 +64,17 @@ export const WidgetFeaturePropertyEnhancements: Record<
       newProperties.minDynamicHeight =
         config.defaults.minDynamicHeight ||
         WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
+      newProperties.maxDynamicHeight =
+        config.defaults.maxDynamicHeight ||
+        WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
       newProperties.shouldScrollContents = true;
+    } else {
+      newProperties.minDynamicHeight =
+        config.defaults.minDynamicHeight ||
+        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+      newProperties.maxDynamicHeight =
+        config.defaults.maxDynamicHeight ||
+        WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
     }
     if (config.defaults.overflow) newProperties.overflow = "NONE";
     return newProperties;

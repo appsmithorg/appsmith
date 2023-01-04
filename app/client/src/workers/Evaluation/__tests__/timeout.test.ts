@@ -1,8 +1,8 @@
 import { PluginType } from "entities/Action";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { createGlobalData } from "../evaluate";
-import "../TimeoutOverride";
+import { createEvaluationContext } from "../evaluate";
 import overrideTimeout from "../TimeoutOverride";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 
 describe("Expects appsmith setTimeout to pass the following criteria", () => {
   overrideTimeout();
@@ -107,13 +107,16 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
       },
     };
     self.ALLOW_ASYNC = true;
-    const dataTreeWithFunctions = createGlobalData({
+    const evalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions: {},
       isTriggerBased: true,
       context: {},
     });
-    setTimeout(() => dataTreeWithFunctions.action1.run(), 1000);
+
+    addPlatformFunctionsToEvalContext(evalContext);
+
+    setTimeout(() => evalContext.action1.run(), 1000);
     jest.runAllTimers();
     expect(self.postMessage).toBeCalled();
   });

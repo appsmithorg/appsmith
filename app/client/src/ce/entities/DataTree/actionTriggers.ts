@@ -21,6 +21,8 @@ export enum ActionTriggerType {
   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
   CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
   POST_MESSAGE = "POST_MESSAGE",
+  SET_TIMEOUT = "SET_TIMEOUT",
+  CLEAR_TIMEOUT = "CLEAR_TIMEOUT",
 }
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
@@ -43,6 +45,8 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
   [ActionTriggerType.CONFIRMATION_MODAL]: "ConfirmationModal",
   [ActionTriggerType.POST_MESSAGE]: "postWindowMessage",
+  [ActionTriggerType.SET_TIMEOUT]: "setTimeout",
+  [ActionTriggerType.CLEAR_TIMEOUT]: "clearTimeout",
 };
 
 export type RunPluginActionDescription = {

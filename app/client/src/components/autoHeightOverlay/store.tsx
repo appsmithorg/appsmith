@@ -1,4 +1,5 @@
 import { GridDefaults } from "constants/WidgetConstants";
+import React, { useContext, useReducer } from "react";
 
 interface AutoHeightLimitsUIState {
   isMaxDotDragging: boolean;
@@ -98,3 +99,39 @@ export function createInitialAutoHeightUIState({
     mindY: 0, // the difference during dragging
   };
 }
+
+interface StateContextType {
+  state: AutoHeightLimitsUIState;
+  dispatch: React.Dispatch<AutoHeightLimitsUIAction>;
+}
+
+export const AutoHeightLimitsStateContext = React.createContext<
+  StateContextType
+>({} as StateContextType);
+
+export const AutoHeightLimitsStateContextProvider: React.FC<{
+  children: React.ReactNode;
+  maxDynamicHeight: number;
+  minDynamicHeight: number;
+}> = ({ children, maxDynamicHeight, minDynamicHeight }) => {
+  const [state, dispatch] = useReducer(
+    AutoHeightOverlayUIStateReducer,
+    createInitialAutoHeightUIState({ maxDynamicHeight, minDynamicHeight }),
+  );
+
+  return (
+    <AutoHeightLimitsStateContext.Provider value={{ state, dispatch }}>
+      {children}
+    </AutoHeightLimitsStateContext.Provider>
+  );
+};
+
+export const useAutoHeightLimitsDispatch = () => {
+  const { dispatch } = useContext(AutoHeightLimitsStateContext);
+  return dispatch;
+};
+
+export const useAutoHeightLimitsState = () => {
+  const { state } = useContext(AutoHeightLimitsStateContext);
+  return state;
+};
