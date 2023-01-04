@@ -52,7 +52,7 @@ export type MetaWidgets = Record<string, MetaWidget>;
 export type MetaWidget = FlattenedWidgetProps & {
   currentIndex: number;
   currentView: string;
-  currentItem: string;
+  currentItem: Record<string, unknown> | string;
 };
 
 export type LevelData = {
@@ -189,7 +189,7 @@ class ListWidget extends BaseWidget<
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
     }
-    this.updateRowDataCacheWidgetProp();
+    // this.updateRowDataCacheWidgetProp();
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
@@ -538,11 +538,8 @@ class ListWidget extends BaseWidget<
   };
 
   updateRowDataCacheWidgetProp = () => {
-    if (
-      !equal(this.rowDataCache, this.props.rowDataCache) &&
-      this.props.serverSidePagination
-    ) {
-      super.updateWidgetProperty("rowDataCache", this.rowDataCache);
+    if (this.props.serverSidePagination) {
+      this.metaWidgetGenerator.updateRowDataCache(this.rowDataCache);
     }
   };
 
