@@ -2143,7 +2143,7 @@ export const light: ColorType = {
     helpBarBackground: "#F0F0F0",
     helpBarText: Colors.GRAY_400,
     helpButtonBackground: "#F0F0F0",
-    helpIcon: "#939090",
+    helpIcon: Colors.GRAY_700,
   },
   navigationMenu: {
     contentActive: "#090707",

@@ -52,7 +52,7 @@ const Trigger = withTheme(({ theme, tooltipsDisabled }: TriggerProps) => (
     <StyledTrigger>
       <Icon
         fillColor={theme.colors.globalSearch.helpIcon}
-        name="help"
+        name="question-line"
         size={IconSize.XXXL}
       />
     </StyledTrigger>

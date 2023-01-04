@@ -111,7 +111,12 @@ export function DebuggerTrigger() {
           preventOverflow: { enabled: true },
         }}
       >
-        <Icon name="bug" onClick={onClick} size={IconSize.XXXL} />
+        <Icon
+          fillColor={Colors.GRAY_700}
+          name="bug-line"
+          onClick={onClick}
+          size={IconSize.XXXL}
+        />
       </TooltipComponent>
       {!!messageCounters.errors && (
         <div className="debugger-count t--debugger-count">
