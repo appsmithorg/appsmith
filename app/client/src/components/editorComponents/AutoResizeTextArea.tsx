@@ -1,6 +1,8 @@
+import { debounce } from "lodash";
 import React, {
   MutableRefObject,
   TextareaHTMLAttributes,
+  useEffect,
   useLayoutEffect,
   useRef,
 } from "react";
@@ -20,6 +22,7 @@ const StyledTextArea = styled.textarea<AutoResizeTextAreaStyledProps>`
   box-sizing: border-box;
   width: 100%;
   height: ${(props) => (!props.autoResize ? "100%" : "auto")};
+  overflow: ${(props) => (!props.autoResize ? "unset" : "hidden")};
 `;
 
 const ProxyTextArea = styled(StyledTextArea)`
@@ -28,6 +31,8 @@ const ProxyTextArea = styled(StyledTextArea)`
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
+  overflow: hidden;
+  resize: none;
 `;
 
 const AutoResizeTextArea: React.ForwardRefRenderFunction<
@@ -37,7 +42,7 @@ const AutoResizeTextArea: React.ForwardRefRenderFunction<
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
   const proxyTextAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  useLayoutEffect(() => {
+  function updateHeight() {
     if (props.autoResize) {
       const height = proxyTextAreaRef.current?.scrollHeight;
       if (height) {
@@ -46,6 +51,30 @@ const AutoResizeTextArea: React.ForwardRefRenderFunction<
         }
       }
     }
+  }
+
+  const observer = React.useRef(
+    new ResizeObserver(
+      debounce(() => {
+        updateHeight();
+      }, 100),
+    ),
+  );
+
+  useEffect(() => {
+    if (proxyTextAreaRef.current) {
+      observer.current.observe(proxyTextAreaRef.current);
+    }
+
+    return () => {
+      if (proxyTextAreaRef.current) {
+        observer.current.unobserve(proxyTextAreaRef.current);
+      }
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    updateHeight();
   }, [props.value, props.autoResize]);
 
   function assignRef(element: HTMLTextAreaElement) {
