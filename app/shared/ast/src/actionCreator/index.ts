@@ -44,7 +44,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
                         requiredArgument = "{{{}}}";
                         break;
                     case NodeTypes.Literal:
-                        requiredArgument = argument.value;
+                        requiredArgument = typeof argument.value === "string" ? argument.value : `{{${argument.value}}}`;
                         break;
                     case NodeTypes.MemberExpression:
                         requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
