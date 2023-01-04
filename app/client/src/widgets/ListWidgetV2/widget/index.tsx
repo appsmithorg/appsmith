@@ -13,7 +13,10 @@ import ListPagination, {
 } from "../component/ListPagination";
 import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
-import MetaWidgetGenerator, { GeneratorOptions } from "../MetaWidgetGenerator";
+import MetaWidgetGenerator, {
+  GeneratorOptions,
+  HookOptions,
+} from "../MetaWidgetGenerator";
 import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
@@ -31,6 +34,10 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetState } from "../../BaseWidget";
 import { Stylesheet } from "entities/AppTheming";
+import {
+  TabContainerWidgetProps,
+  TabsWidgetProps,
+} from "widgets/TabsWidget/constants";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -49,11 +56,15 @@ export type DynamicPathMap = Record<string, DynamicPathType[]>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
 
-export type MetaWidget = FlattenedWidgetProps & {
+type BaseMetaWidget = FlattenedWidgetProps & {
   currentIndex: number;
   currentView: string;
   currentItem: string;
 };
+
+export type MetaWidget<TProps = void> = TProps extends void
+  ? BaseMetaWidget
+  : TProps & BaseMetaWidget;
 
 export type LevelData = {
   [level: string]: {
@@ -273,6 +284,9 @@ class ListWidget extends BaseWidget<
       pageNo,
       pageSize,
       serverSidePagination,
+      hooks: {
+        afterMetaWidgetGenerate: this.afterMetaWidgetGenerate,
+      },
     };
   };
 
@@ -337,6 +351,24 @@ class ListWidget extends BaseWidget<
     if (!equal(this.prevMetaMainCanvasWidget, mainCanvasWidget)) {
       this.prevMetaMainCanvasWidget = klona(mainCanvasWidget);
       return mainCanvasWidget;
+    }
+  };
+
+  afterMetaWidgetGenerate = (metaWidget: MetaWidget, options: HookOptions) => {
+    if (metaWidget.type === "TABS_WIDGET") {
+      const tabsWidget = metaWidget as MetaWidget<
+        TabsWidgetProps<TabContainerWidgetProps>
+      >;
+      const widgetIdToMetaWidgetIdMap: Record<string, string> = {};
+      Object.values(options.childMetaWidgets).forEach(
+        ({ referencedWidgetId = "", widgetId }) => {
+          widgetIdToMetaWidgetIdMap[referencedWidgetId] = widgetId;
+        },
+      );
+
+      Object.values(tabsWidget.tabsObj).forEach((tab) => {
+        tab.widgetId = widgetIdToMetaWidgetIdMap[tab.widgetId];
+      });
     }
   };
 

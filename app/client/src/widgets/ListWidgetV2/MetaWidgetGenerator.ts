@@ -39,6 +39,16 @@ type TemplateWidgets = ListWidgetProps<
   WidgetProps
 >["flattenedChildCanvasWidgets"];
 
+export type HookOptions = {
+  childMetaWidgets: MetaWidgets;
+};
+
+type Hook = (metaWidget: MetaWidget, options: HookOptions) => void;
+
+type Hooks = {
+  afterMetaWidgetGenerate?: Hook;
+};
+
 export type GeneratorOptions = {
   cacheIndexArr: number[];
   containerParentId: string;
@@ -46,6 +56,7 @@ export type GeneratorOptions = {
   currTemplateWidgets: TemplateWidgets;
   prevTemplateWidgets?: TemplateWidgets;
   data: Record<string, unknown>[];
+  hooks?: Hooks;
   itemSpacing: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
   levelData?: LevelData;
@@ -162,6 +173,7 @@ class MetaWidgetGenerator {
   private currViewMetaWidgetIds: string[];
   private data: GeneratorOptions["data"];
   private getWidgetCache: ConstructorProps["getWidgetCache"];
+  private hooks?: GeneratorOptions["hooks"];
   private itemSpacing: GeneratorOptions["itemSpacing"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
   private isListCloned: ConstructorProps["isListCloned"];
@@ -245,6 +257,7 @@ class MetaWidgetGenerator {
     this.serverSidePagination = options.serverSidePagination;
     this.templateBottomRow = options.templateBottomRow;
     this.widgetName = options.widgetName;
+    this.hooks = options.hooks;
     this.currTemplateWidgets = extractTillNestedListWidget(
       options.currTemplateWidgets,
       options.containerParentId,
@@ -484,6 +497,10 @@ class MetaWidgetGenerator {
     metaWidget.parentId = parentId;
     metaWidget.referencedWidgetId = templateWidgetId;
     metaWidget.metaWidgetId = originalMetaWidgetId;
+
+    this.hooks?.afterMetaWidgetGenerate?.(metaWidget, {
+      childMetaWidgets,
+    });
 
     return {
       childMetaWidgets,
