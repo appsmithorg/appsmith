@@ -197,27 +197,6 @@ public class SnowflakePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(HikariDataSource connection) {
-            return Mono.fromCallable(() -> {
-
-                        Connection connectionFromPool;
-                        try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection, null);
-                        } catch (SQLException | StaleConnectionException e) {
-                            // The function can throw either StaleConnectionException or SQLException. The underlying hikari
-                            // library throws SQLException in case the pool is closed or there is an issue initializing
-                            // the connection pool which can also be translated in our world to StaleConnectionException
-                            // and should then trigger the destruction and recreation of the pool.
-                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
-                        }
-
-                        return validateWarehouseDatabaseSchema(connectionFromPool);
-                    })
-                    .map(Object::toString)
-                    .map(DatasourceTestResult::new);
-        }
-
-        @Override
         public void datasourceDestroy(HikariDataSource connection) {
             if (connection != null) {
                 connection.close();
@@ -270,6 +249,27 @@ public class SnowflakePlugin extends BasePlugin {
             }
 
             return invalids;
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(HikariDataSource connection) {
+            return Mono.fromCallable(() -> {
+
+                        Connection connectionFromPool;
+                        try {
+                            connectionFromPool = getConnectionFromConnectionPool(connection, null);
+                        } catch (SQLException | StaleConnectionException e) {
+                            // The function can throw either StaleConnectionException or SQLException. The underlying hikari
+                            // library throws SQLException in case the pool is closed or there is an issue initializing
+                            // the connection pool which can also be translated in our world to StaleConnectionException
+                            // and should then trigger the destruction and recreation of the pool.
+                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                        }
+
+                        return validateWarehouseDatabaseSchema(connectionFromPool);
+                    })
+                    .map(Object::toString)
+                    .map(DatasourceTestResult::new);
         }
 
         @Override
