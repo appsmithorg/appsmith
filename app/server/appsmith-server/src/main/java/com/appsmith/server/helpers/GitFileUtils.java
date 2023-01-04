@@ -5,6 +5,7 @@ import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.external.constants.FieldName;
 import com.appsmith.external.models.ActionCollection;
@@ -383,10 +384,17 @@ public class GitFileUtils {
         if (CollectionUtils.isNullOrEmpty(applicationReference.getActionCollections())) {
             applicationJson.setActionCollectionList(new ArrayList<>());
         } else {
+            Map<String, String> actionCollectionBody = applicationReference.getActionCollectionBody();
             List<ActionCollection> actionCollections = getApplicationResource(applicationReference.getActionCollections(), ActionCollection.class);
             // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actionCollections, PredicateUtils.notNullPredicate());
             actionCollections.forEach(actionCollection -> {
+                // Set the js object body to the unpublished collection
+                // Since file version v3 we are splitting the js object code and metadata separately
+                String keyName = actionCollection.getUnpublishedCollection().getName() + actionCollection.getUnpublishedCollection().getPageId();
+                if (actionCollectionBody.containsKey(keyName)) {
+                    actionCollection.getUnpublishedCollection().setBody(actionCollectionBody.get(keyName));
+                }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionCollectionDTO will be same, so we create a deep copy for the published version for
                 // actionCollection from unpublishedActionCollectionDTO

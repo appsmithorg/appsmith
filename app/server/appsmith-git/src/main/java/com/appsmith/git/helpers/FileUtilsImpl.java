@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.ActionCollectionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.ActionCollection;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -36,6 +38,7 @@ import reactor.core.scheduler.Schedulers;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -304,20 +307,24 @@ public class FileUtilsImpl implements FileInterface {
         try {
             Files.createDirectories(path);
             ActionCollection actionCollection = (ActionCollection) sourceEntity;
-            String jsBody = actionCollection.getUnpublishedCollection().getBody();
-            actionCollection.getUnpublishedCollection().setBody(null);
             // Write the js Object body to .js file to make conflict handling easier
-            Path bodyPath = path.resolve(CommonConstants.JS_BODY + CommonConstants.JS_EXTENSION);
-            jsBody.replaceAll("\n", "").replaceAll("\t", "");
-            jsBody = gson.toJson(jsBody);
-            writeToFile(jsBody, bodyPath, gson);
+            Path bodyPath = path.resolve(actionCollection.getUnpublishedCollection().getName() + CommonConstants.JS_EXTENSION);
+            writeStringToFile(actionCollection.getUnpublishedCollection().getBody(), bodyPath);
             // Write metadata for the jsObject
+            actionCollection.getUnpublishedCollection().setBody(null);
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
             return writeToFile(actionCollection, metadataPath, gson);
         } catch (IOException e) {
             log.debug(e.getMessage());
         }
         return false;
+    }
+
+    private boolean writeStringToFile(String data, Path path) throws IOException {
+        try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            fileWriter.write(data);
+            return true;
+        }
     }
 
     private boolean writeToFile(Object sourceEntity, Path path, Gson gson) throws IOException {
@@ -529,6 +536,42 @@ public class FileUtilsImpl implements FileInterface {
         return resource;
     }
 
+    /**
+     * This method will read the content of the file as a plain text and does not apply the gson to json transformation
+     * @param filePath file path for files on which read operation will be performed
+     * @return content of the file in the path
+     */
+    private String readFileAsString(Path filePath) {
+        String data = "";
+        try {
+            data = FileUtils.readFileToString(filePath.toFile(), "UTF-8");
+        } catch (IOException e) {
+            log.error(" Error while reading the file from git repo {0} ", e.getMessage());
+        }
+        return data;
+    }
+
+    /**
+     * This method is to read the content for action and actionCollection or any nested resources which has the new structure - v3
+     * Where the user queries and the metadata is split into teo different files
+     * @param directoryPath file path for files on which read operation will be performed
+     * @return resources stored in the directory
+     */
+    private Map<String, Object> readActionCollection(Path directoryPath, Gson gson, String keySuffix, Map<String, String> actionCollectionBodyMap) {
+        Map<String, Object> resource = new HashMap<>();
+        File directory = directoryPath.toFile();
+        if (directory.isDirectory()) {
+            for (File dirFile : Objects.requireNonNull(directory.listFiles())) {
+                String resourceName = dirFile.getName();
+                String body = readFileAsString(directoryPath.resolve(resourceName).resolve( resourceName + CommonConstants.JS_EXTENSION));
+                Object file = readFile(directoryPath.resolve(resourceName).resolve( CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
+                actionCollectionBodyMap.put(resourceName + keySuffix, body);
+                resource.put(resourceName + keySuffix, file);
+            }
+        }
+        return resource;
+    }
+
     private ApplicationGitReference fetchApplicationReference(Path baseRepoPath, Gson gson) {
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
         // Extract application metadata from the json
@@ -571,7 +614,9 @@ public class FileUtilsImpl implements FileInterface {
         File directory = pageDirectory.toFile();
         Map<String, Object> pageMap = new HashMap<>();
         Map<String, Object> actionMap = new HashMap<>();
+        Map<String, Object> actionBodyMap = new HashMap<>();
         Map<String, Object> actionCollectionMap = new HashMap<>();
+        Map<String, String> actionCollectionBodyMap = new HashMap<>();
         // TODO same approach should be followed for modules(app level actions, actionCollections, widgets etc)
         if (directory.isDirectory()) {
             // Loop through all the directories and nested directories inside the pages directory to extract
@@ -579,12 +624,16 @@ public class FileUtilsImpl implements FileInterface {
             for (File page : Objects.requireNonNull(directory.listFiles())) {
                 pageMap.put(page.getName(), readFile(page.toPath().resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson));
                 actionMap.putAll(readFiles(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName()));
-                // TODO use fileFormatVersion
-                actionCollectionMap.putAll(readFiles(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName()));
+                if (fileFormatVersion == 3) {
+                    actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
+                } else {
+                    actionCollectionMap.putAll(readFiles(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName()));
+                }
             }
         }
         applicationGitReference.setActions(actionMap);
         applicationGitReference.setActionCollections(actionCollectionMap);
+        applicationGitReference.setActionCollectionBody(actionCollectionBodyMap);
         applicationGitReference.setPages(pageMap);
         // Extract datasources
         applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, ""));

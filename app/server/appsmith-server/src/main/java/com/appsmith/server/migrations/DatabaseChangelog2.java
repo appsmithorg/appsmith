@@ -143,6 +143,7 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Update.update;
 
 
 @Slf4j
