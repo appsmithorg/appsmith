@@ -182,7 +182,8 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   padding: 0px 10px;
 
   &:hover,
-  &:active {
+  &:active,
+  &:focus {
     ${buttonHoverActiveStyles}
   }
 
@@ -268,7 +269,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
     backgroundColor
       ? `
       background-color: ${backgroundColor} !important;
-      &:hover {
+      &:hover, &:focus {
         background-color: ${darkenHover(backgroundColor)} !important;
       }
       &:active {
@@ -277,7 +278,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   `
       : `
     background: none !important
-      &:hover {
+      &:hover, &:focus {
         background-color: ${tinycolor(
           theme.colors.button.primary.primary.textColor,
         )

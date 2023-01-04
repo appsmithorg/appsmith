@@ -85,12 +85,12 @@ jobs:
         run: echo "I'm alive!" && exit 0
 
       # Setup Java
-      - name: Set up JDK 1.11
+      - name: Set up JDK 17
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-java@v3
         with:
-          java-version: "11.0.10"
-          distribution: adopt
+          distribution: 'temurin'
+          java-version: '17'
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
@@ -125,6 +125,7 @@ jobs:
       - name: Build and test
         if: steps.run_result.outputs.run_result != 'success'
         env:
+          ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
           APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
