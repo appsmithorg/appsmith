@@ -27,6 +27,7 @@ import { fetchJSLibraries } from "actions/JSLibraryActions";
 import FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { waitForSegmentInit } from "ce/sagas/userSagas";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -115,7 +116,7 @@ export default class AppViewerEngine extends AppEngine {
       );
 
     console.log("---- segment load wait");
-    yield call(waitForSegmentInit);
+    if (!AnalyticsUtil.getAnonymousId()) yield call(waitForSegmentInit);
     console.log("---- segment loaded - call actions");
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }

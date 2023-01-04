@@ -19,10 +19,12 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "ce/configs";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
 export const axiosConnectionAbortedCode = "ECONNABORTED";
+const appsmithConfig = getAppsmithConfigs();
 
 const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
   ...response.data,
@@ -52,7 +54,8 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();
-  anonymousId &&
+  appsmithConfig.segment.enabled &&
+    anonymousId &&
     (config.headers["x-anonymous-user-id"] = AnalyticsUtil.getAnonymousId());
 
   return { ...config, timer: performance.now() };
