@@ -292,26 +292,24 @@ export const useCanvasDragging = (
         const updateParamsPostReflow = () => {
           const { movementLimitMap } = currentReflowParams;
 
-          if (movementLimitMap) {
-            // update isColliding of each block based on movementLimitMap
-            currentRectanglesToDraw = updateRectanglesPostReflow(
-              movementLimitMap,
-              currentRectanglesToDraw,
-              snapColumnSpace,
-              snapRowSpace,
-              rowRef.current,
-            );
+          // update isColliding of each block based on movementLimitMap
+          currentRectanglesToDraw = updateRectanglesPostReflow(
+            movementLimitMap,
+            currentRectanglesToDraw,
+            snapColumnSpace,
+            snapRowSpace,
+            rowRef.current,
+          );
 
-            const widgetIdsToExclude = currentRectanglesToDraw.map(
-              (a) => a.widgetId,
-            );
-            const newRows = updateBottomRow(
-              currentReflowParams.bottomMostRow,
-              rowRef.current,
-              widgetIdsToExclude,
-            );
-            rowRef.current = newRows ? newRows : rowRef.current;
-          }
+          const widgetIdsToExclude = currentRectanglesToDraw.map(
+            (a) => a.widgetId,
+          );
+          const newRows = updateBottomRow(
+            currentReflowParams.bottomMostRow,
+            rowRef.current,
+            widgetIdsToExclude,
+          );
+          rowRef.current = newRows ? newRows : rowRef.current;
         };
 
         const onMouseMove = (e: any, firstMove = false) => {
