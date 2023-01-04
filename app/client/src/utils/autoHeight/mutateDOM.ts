@@ -1,6 +1,7 @@
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 
 // Here the data structure is the `widgetsToUpdate` data structure. If possible, we should create the `updates`
@@ -17,19 +18,29 @@ export function directlyMutateDOMNodes(
     Record<string, number>
   > = getNodesAndStylesToUpdate(widgetsToUpdate);
   for (const widgetId in updates) {
-    const widgetNode = document.getElementById(widgetId);
+    let idSelector = widgetId;
+    let height = updates[widgetId].height;
+    if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
+      idSelector = "art-board";
+      height =
+        updates[widgetId].height -
+        CONTAINER_GRID_PADDING * 2 -
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    }
+    const widgetNode = document.getElementById(idSelector);
     const dropTarget = widgetNode?.querySelector(`.drop-target-${widgetId}`);
 
-    console.log("Auto Height:", updates);
+    console.log("Auto Height: ", {
+      updates,
+      dropTarget,
+      widgetNode,
+      widgetsToUpdate,
+    });
+
     if (widgetNode) {
-      // const oldTop = parseInt(
-      //   widgetNode.style.top.slice(0, widgetNode.style.top.length - 2),
-      //   10,
-      // );
-      // widgetNode.style.transform = `translate3d(0,${updates[widgetId].y -
-      //   oldTop}px,0)`;
-      widgetNode.style.height = `${updates[widgetId].height}px`;
+      widgetNode.style.height = `${height}px`;
       widgetNode.style.top = `${updates[widgetId].y}px`;
+
       if (dropTarget) {
         const dropTargetHeight =
           updates[widgetId].height - CONTAINER_GRID_PADDING * 2;

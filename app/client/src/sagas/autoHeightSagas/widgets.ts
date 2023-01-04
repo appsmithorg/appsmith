@@ -90,6 +90,7 @@ export function* updateWidgetAutoHeightSaga(
     dynamicHeightLayoutTree = result.tree;
   }
 
+  console.log("Auto Height: Calling for updates", { updates });
   // Get all widgets from canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -512,6 +513,7 @@ export function* updateWidgetAutoHeightSaga(
 
   if (Object.keys(widgetsToUpdate).length > 0) {
     if (!action?.payload) {
+      console.log("Auto Height: updating stuff:", { widgetsToUpdate });
       // Push all updates to the CanvasWidgetsReducer.
       // Note that we're not calling `UPDATE_LAYOUT`
       // as we don't need to trigger an eval

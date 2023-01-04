@@ -99,10 +99,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           widgetProps.bottomRow = props.bottomRow;
           widgetProps.minHeight = props.minHeight;
         } else if (canvasBottomRow !== undefined) {
-          console.log("Auto Height: from withWidgetProps ", {
-            parentId: props.parentId,
-            canvasBottomRow,
-          });
           widgetProps.bottomRow =
             canvasBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
           widgetProps.minHeight =
@@ -116,7 +112,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps.parentColumnSpace = props.parentColumnSpace;
         widgetProps.parentRowSpace = props.parentRowSpace;
         widgetProps.parentId = props.parentId;
-
         // Form Widget Props
         widgetProps.onReset = props.onReset;
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;

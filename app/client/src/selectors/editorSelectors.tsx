@@ -16,6 +16,7 @@ import {
   getJSCollections,
 } from "selectors/entitiesSelector";
 import {
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
   WidgetType,
@@ -796,8 +797,14 @@ export const getCanvasBottomRow = (canvasWidgetId: string) =>
           parentWidget.type,
           parentWidget,
         );
-        const parentHeightInRows =
-          parentWidget.bottomRow - parentWidget.topRow - parentHeightOffset;
+        let parentHeightInRows = parentWidget.bottomRow - parentWidget.topRow;
+
+        if (parentWidget.type === "MODAL_WIDGET") {
+          parentHeightInRows = Math.floor(
+            parentHeightInRows / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          );
+        }
+        parentHeightInRows -= parentHeightOffset;
 
         if (Array.isArray(children) && children.length > 0) {
           const bottomRow = children.reduce((prev, next) => {

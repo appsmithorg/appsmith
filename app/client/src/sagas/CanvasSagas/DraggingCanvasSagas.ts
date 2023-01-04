@@ -88,7 +88,6 @@ export function* getCanvasSizeAfterWidgetMove(
     const newRows = calculateDropTargetRows(
       movedWidgetIds,
       movedWidgetsBottomRow,
-      canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
       occupiedSpacesByChildren,
       canvasWidgetId,
     );

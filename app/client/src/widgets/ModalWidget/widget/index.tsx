@@ -133,11 +133,9 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     const childData = { ...childWidgetData };
     childData.parentId = this.props.widgetId;
-    childData.shouldScrollContents = false;
+
     childData.canExtend = this.props.shouldScrollContents;
-    childData.bottomRow = this.props.shouldScrollContents
-      ? Math.max(childData.bottomRow, this.props.height)
-      : this.props.height;
+
     childData.containerStyle = "none";
     childData.minHeight = this.props.height;
     childData.rightColumn =
