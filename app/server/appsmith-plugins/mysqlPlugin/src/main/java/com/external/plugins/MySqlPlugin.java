@@ -508,7 +508,7 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.MYSQL_QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -560,7 +560,7 @@ public class MySqlPlugin extends BasePlugin {
                     || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.MYSQL_QUERY_EXECUTION_FAILED,
                                 "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
                                         "Please reach out to Appsmith customer support to resolve this."
                         )
@@ -590,7 +590,7 @@ public class MySqlPlugin extends BasePlugin {
                 default:
                     return Mono.error(
                             new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.MYSQL_QUERY_EXECUTION_FAILED,
                                     "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
                                             " Appsmith customer support to resolve this."
                             )
@@ -866,7 +866,7 @@ public class MySqlPlugin extends BasePlugin {
                     .onErrorMap(e -> {
                         if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
                             return new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                     e.getMessage()
                             );
                         }
