@@ -318,3 +318,119 @@ function checkIsNotVerticalStack(widget: any): boolean {
     widget.positioning !== Positioning.Vertical
   );
 }
+
+/**
+ * COPY PASTE UTILS
+ */
+
+export function pasteWidgetInFlexLayers(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  widget: any,
+  originalWidgetId: string,
+  isMobile: boolean,
+): CanvasWidgetsReduxState {
+  let widgets = { ...allWidgets };
+  const parent = widgets[parentId];
+  let flexLayers: FlexLayer[] = parent.flexLayers || [];
+  /**
+   * If the new parent is not the same as the original parent,
+   * then add a new flex layer.
+   */
+  if (widgets[originalWidgetId].parentId !== parentId) {
+    flexLayers = [
+      ...flexLayers,
+      {
+        children: [
+          {
+            id: widget.widgetId,
+            align: FlexLayerAlignment.Start,
+          },
+        ],
+        hasFillChild: widget.responsiveBehavior === ResponsiveBehavior.Fill,
+      },
+    ];
+  } else {
+    /**
+     * If the new parent is the same as the original parent,
+     * then update the flex layer.
+     */
+    let rowIndex = -1,
+      alignment = FlexLayerAlignment.Start;
+    const flexLayerIndex = flexLayers.findIndex((layer: FlexLayer) => {
+      const temp = layer.children.findIndex(
+        (child: LayerChild) => child.id === originalWidgetId,
+      );
+      if (temp > -1) {
+        rowIndex = temp;
+        alignment = layer.children[temp].align;
+      }
+      return temp > -1;
+    });
+    if (flexLayerIndex > -1 && rowIndex > -1) {
+      let selectedLayer = flexLayers[flexLayerIndex];
+      selectedLayer = {
+        children: [
+          ...selectedLayer.children.slice(0, rowIndex + 1),
+          { id: widget.widgetId, align: alignment },
+          ...selectedLayer.children.slice(rowIndex + 1),
+        ],
+        hasFillChild: selectedLayer.hasFillChild,
+      };
+      flexLayers = [
+        ...flexLayers.slice(0, flexLayerIndex),
+        selectedLayer,
+        ...flexLayers.slice(flexLayerIndex + 1),
+      ];
+    }
+  }
+  widgets = {
+    ...widgets,
+    [parentId]: {
+      ...parent,
+      flexLayers,
+    },
+  };
+  return updateWidgetPositions(widgets, parentId, isMobile);
+}
+
+export function addChildToPastedFlexLayers(
+  allWidgets: CanvasWidgetsReduxState,
+  widget: any,
+  widgetIdMap: Record<string, string>,
+  isMobile: boolean,
+): CanvasWidgetsReduxState {
+  let widgets = { ...allWidgets };
+  const parent = widgets[widget.parentId];
+  const flexLayers = parent.flexLayers || [];
+  if (flexLayers.length > 0) {
+    let index = 0;
+    for (const layer of flexLayers) {
+      let children = layer.children;
+      let childIndex = 0;
+      for (const child of children) {
+        if (widgetIdMap[child.id] === widget.widgetId) {
+          children = [
+            ...children.slice(0, childIndex),
+            { id: widget.widgetId, align: child.align },
+            ...children.slice(childIndex + 1),
+          ];
+          childIndex += 1;
+        }
+      }
+      flexLayers[index] = {
+        children,
+        hasFillChild: layer.hasFillChild,
+      };
+      index += 1;
+    }
+  }
+  widgets = {
+    ...widgets,
+    [parent.widgetId]: {
+      ...parent,
+      flexLayers,
+    },
+  };
+  return updateWidgetPositions(widgets, parent.widgetId, isMobile);
+}

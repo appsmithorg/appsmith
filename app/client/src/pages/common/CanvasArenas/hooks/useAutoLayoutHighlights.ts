@@ -28,7 +28,6 @@ export interface HighlightInfo {
   width: number; // width of the highlight.
   height: number; // height of the highlight.
   isVertical: boolean; // determines if the highlight is vertical or horizontal.
-  el?: Element; // dom node of the highlight.
   canvasId: string; // widgetId of the canvas to which the highlight belongs.
 }
 

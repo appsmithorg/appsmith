@@ -297,7 +297,7 @@ function extractAlignmentInfo(
   // Fill widgets are designed to take up parent's entire width on mobile viewport.
   const fillWidgetLength: number = isMobile
     ? GridDefaults.DEFAULT_GRID_COLUMNS
-    : availableColumns / fillChildren.length;
+    : Math.min(availableColumns / fillChildren.length, 64);
   for (const child of fillChildren) {
     if (child.align === FlexLayerAlignment.Start) {
       startColumns += fillWidgetLength;
