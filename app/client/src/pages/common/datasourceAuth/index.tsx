@@ -4,6 +4,7 @@ import { ActionButton } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
+  getPluginNameFromId,
   getPluginTypeFromDatasourceId,
 } from "selectors/entitiesSelector";
 import {
@@ -124,8 +125,11 @@ function DatasourceAuth({
       ? formData?.authType
       : formData?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const { id: datasourceId, isDeleting } = datasource;
+  const { id: datasourceId, isDeleting, pluginId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
+  const pluginName = useSelector((state: AppState) =>
+    getPluginNameFromId(state, pluginId),
+  );
 
   const datasourcePermissions = datasource.userPermissions || [];
 
@@ -144,6 +148,8 @@ function DatasourceAuth({
 
   const pageId = (pageIdQuery || pageIdProp) as string;
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const dsName = datasource?.name;
+  const orgId = datasource?.workspaceId;
 
   useEffect(() => {
     if (confirmDelete) {
@@ -172,6 +178,13 @@ function DatasourceAuth({
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
           Toaster.show({ text: display_message || message, variant });
+          const oAuthStatus = status;
+          AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
+            dsName,
+            oAuthStatus,
+            orgId,
+            pluginName,
+          });
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
