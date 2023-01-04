@@ -13,7 +13,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Stylesheet } from "entities/AppTheming";
 import { connect } from "react-redux";
 import { AppState } from "../../../ce/reducers";
-import { getCurrentUser } from "../../../selectors/usersSelectors";
+import { getMapsApiKey } from "../../../selectors/configSelectors";
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
@@ -492,7 +492,7 @@ export interface MapWidgetProps extends WidgetProps {
 
 const mapStateToProps = (state: AppState) => {
   return {
-    apiKey: getCurrentUser(state)?.instanceConfig.googleMapsKey,
+    apiKey: getMapsApiKey(state),
   };
 };
 

@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { StyledInputGroup } from "./StyledControls";
 import log from "loglevel";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-
-const { google } = getAppsmithConfigs();
+import { useSelector } from "react-redux";
+import { getMapsApiKey } from "../../selectors/configSelectors";
 
 class LocationSearchControl extends BaseControl<ControlProps> {
   searchBox: any = null;
@@ -72,8 +71,11 @@ interface MapScriptWrapperProps {
 }
 
 function MapScriptWrapper(props: MapScriptWrapperProps) {
+  const apiKey = useSelector(getMapsApiKey);
   const status = useScript(
-    `https://maps.googleapis.com/maps/api/js?key=${google.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
+    apiKey
+      ? `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=3.exp&libraries=geometry,drawing,places`
+      : "",
     AddScriptTo.HEAD,
   );
   const [title, setTitle] = useState("");
