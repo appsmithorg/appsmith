@@ -339,13 +339,16 @@ export const addDataTreeToContext = (args: {
       if (!funcCreator.qualifier(entity)) continue;
       const func = funcCreator.func(entity);
       const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
-      const entityFunc = pusher.bind(
-        {
-          EVENT_TYPE: eventType,
-        },
-        func,
+      set(
+        entityFunctionCollection,
+        fullPath,
+        pusher.bind(
+          {
+            EVENT_TYPE: eventType,
+          },
+          func,
+        ),
       );
-      set(entityFunctionCollection, fullPath, entityFunc);
     }
   }
 
