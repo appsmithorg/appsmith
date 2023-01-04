@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.ce.AnalyticsServiceCEImpl;
+import com.google.gson.Gson;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,10 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
                                 CommonConfig commonConfig,
                                 ConfigService configService,
                                 PolicyUtils policyUtils,
-                                UserUtils userUtils) {
+                                UserUtils userUtils,
+                                Gson gson) {
 
-        super(analytics, sessionUserService, commonConfig, configService, policyUtils, userUtils);
+        super(analytics, sessionUserService, commonConfig, configService, policyUtils, userUtils, gson);
     }
 
 
