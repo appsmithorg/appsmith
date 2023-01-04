@@ -91,7 +91,6 @@ function error(
 
 // Function used to add errors to the error tab of the debugger
 function addErrors(errors: ErrorObject[]) {
-  console.log("ondhu ", errors);
   if (isEmpty(errors)) return;
   const refinedErrors = errors.map((error) => ({
     ...error.payload,
