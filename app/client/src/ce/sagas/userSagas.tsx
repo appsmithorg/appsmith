@@ -1,4 +1,4 @@
-import { call, put, select, take } from "redux-saga/effects";
+import { call, put, race, select, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionWithPromise,
@@ -56,6 +56,13 @@ import {
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
+import { getAppsmithConfigs } from "ce/configs";
+import { getIsSegmentInitialized } from "selectors/analyticsSelectors";
+import {
+  segmentInitUncertain,
+  segmentInitSuccess,
+} from "actions/analyticsActions";
+import { SegmentState } from "reducers/uiReducers/analyticsReducer";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -96,6 +103,30 @@ export function* createUserSaga(
   }
 }
 
+export function* waitForSegmentInit() {
+  yield call(waitForFetchUserSuccess);
+  const currentUser: User | undefined = yield select(getCurrentUser);
+  const segmentState: SegmentState = yield select(getIsSegmentInitialized);
+  const appsmithConfig = getAppsmithConfigs();
+  console.log(
+    "segment check for SEGMENT_INITIALIZED",
+    currentUser?.enableTelemetry,
+    appsmithConfig.segment.enabled,
+    segmentState,
+  );
+  if (
+    currentUser?.enableTelemetry &&
+    appsmithConfig.segment.enabled &&
+    !segmentState
+  ) {
+    console.log("segment wait for SEGMENT_INITIALIZED");
+    yield race([
+      take(ReduxActionTypes.SEGMENT_INITIALIZED),
+      take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
+    ]);
+  }
+}
+
 export function* getCurrentUserSaga() {
   try {
     PerformanceTracker.startAsyncTracking(
@@ -108,7 +139,18 @@ export function* getCurrentUserSaga() {
       //@ts-expect-error: response is of type unknown
       const { enableTelemetry } = response.data;
       if (enableTelemetry) {
-        initializeAnalyticsAndTrackers();
+        console.log("segment enable start");
+        const promise = initializeAnalyticsAndTrackers();
+        if (promise instanceof Promise) {
+          const result: boolean = yield promise;
+          if (result) {
+            console.log("segment promise response", result);
+            yield put(segmentInitSuccess());
+          } else {
+            console.log("segment promise failed", result);
+            yield put(segmentInitUncertain());
+          }
+        }
       }
       yield put(initAppLevelSocketConnection());
       yield put(initPageLevelSocketConnection());
