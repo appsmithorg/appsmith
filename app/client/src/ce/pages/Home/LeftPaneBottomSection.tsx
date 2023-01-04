@@ -29,7 +29,7 @@ import {
 } from "@appsmith/utils/adminSettingsHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
   background-color: ${Colors.WHITE};
   width: 100%;
@@ -47,7 +47,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const LeftPaneVersionData = styled.div`
+export const LeftPaneVersionData = styled.div`
   display: flex;
   justify-content: space-between;
   color: ${Colors.MIRAGE_2};

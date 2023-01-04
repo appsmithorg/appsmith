@@ -7,7 +7,7 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import { Icon, IconSize } from "design-system";
 import { createMessage } from "design-system/build/constants/messages";
-import { USAGE_AND_BILLING } from "@appsmith/constants/messages";
+import { UPGRADE } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -194,7 +194,7 @@ export default function LeftPane() {
                 <div>
                   <Icon name="lock-2-line" size={IconSize.XL} />
                 </div>
-                <div>{createMessage(USAGE_AND_BILLING.usage)}</div>
+                <div>{createMessage(UPGRADE)}</div>
               </StyledLink>
             </CategoryItem>
           )}
