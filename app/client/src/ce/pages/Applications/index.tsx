@@ -306,9 +306,13 @@ function Item(props: {
   );
 }
 
-const LeftPaneDataSection = styled.div`
+const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   position: relative;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 24}px);
+  height: calc(
+    100vh -
+      ${(props) =>
+        props.theme.homePage.header + 24 + props.isBannerVisible ? 48 : 0}px
+  );
   display: flex;
   flex-direction: column;
 `;
@@ -317,9 +321,10 @@ function LeftPaneSection(props: {
   heading: string;
   children?: any;
   isFetchingApplications: boolean;
+  isBannerVisible?: boolean;
 }) {
   return (
-    <LeftPaneDataSection>
+    <LeftPaneDataSection isBannerVisible={props.isBannerVisible}>
       {/* <MenuItem text={props.heading}/> */}
       <Item
         isFetchingApplications={props.isFetchingApplications}

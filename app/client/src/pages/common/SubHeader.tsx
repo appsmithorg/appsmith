@@ -18,8 +18,8 @@ const SubHeaderWrapper = styled.div<{
   justify-content: space-between;
   ${(props) =>
     props.isBannerVisible
-      ? "margin-top: 96px !important"
-      : "margin-top: ${(props) => props.theme.spaces[11]}px"};
+      ? "margin-top: 96px"
+      : "margin-top: ${props.theme.spaces[11]}px"};
   background: ${(props) => props.theme.colors.homepageBackground};
   z-index: ${Indices.Layer9};
   margin-left: ${(props) => props.theme.spaces[4]}px;
