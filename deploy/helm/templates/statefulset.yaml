@@ -95,6 +95,10 @@ spec:
             - secretRef:
                 name: {{ .Values.secretName }}
             {{- end }}
+      {{- if .Values.image.pullSecrets}}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}
+      {{- end }}
       volumes:
   {{- if not .Values.persistence.enabled }}
       - name: data
