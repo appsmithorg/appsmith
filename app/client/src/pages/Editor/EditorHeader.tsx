@@ -197,7 +197,7 @@ const BindingBanner = styled.div`
 `;
 
 const StyledDeployIcon = styled(Icon)`
-  height: 30px;
+  height: ${(props) => props.theme.smallHeaderHeight};
   width: 20px;
   align-self: center;
   &:hover {
@@ -206,7 +206,7 @@ const StyledDeployIcon = styled(Icon)`
 `;
 
 const HamburgerContainer = styled.div`
-  height: 34px;
+  height: ${(props) => props.theme.smallHeaderHeight};
   width: 34px;
 
   :hover {
@@ -216,6 +216,7 @@ const HamburgerContainer = styled.div`
 
 const StyledButton = styled(Button)`
   padding: 0 6px;
+  height: ${(props) => props.theme.smallHeaderHeight};
   color: ${Colors.GREY_900};
 
   svg {
@@ -252,6 +253,7 @@ export function ShareButtonComponent() {
       icon={"share-line"}
       iconPosition={IconPositions.left}
       size={Size.medium}
+      tag={"button"}
       text="SHARE"
     />
   );
@@ -515,6 +517,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   isLoading={isPublishing}
                   onClick={() => handleClickDeploy(true)}
                   size={Size.medium}
+                  tag={"button"}
                   text={DEPLOY_MENU_OPTION()}
                   width={"88px"}
                 />

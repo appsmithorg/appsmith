@@ -1164,6 +1164,7 @@ function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   const currentPageId: string = yield select(getCurrentPageId);
   if (action.payload) {
+    yield put(setPreviewModeAction(action.payload));
     history.push(
       builderURL({
         pageId: currentPageId,
@@ -1171,11 +1172,9 @@ function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
     );
   } else {
     history.goBack();
+    yield delay(10);
+    yield put(setPreviewModeAction(action.payload));
   }
-  // simulating requestAnimationFrame for a smoother transition
-  // without this the property pane is shown for a moment and then shows the api/query etc UI
-  yield delay(0);
-  yield put(setPreviewModeAction(action.payload));
 }
 
 export default function* pageSagas() {

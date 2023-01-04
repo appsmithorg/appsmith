@@ -28,6 +28,7 @@ const StyledButton = styled(Button)<{ active: boolean }>`
   `}
   padding: 0 6px;
   color: ${Colors.GREY_900};
+  height: ${(props) => props.theme.smallHeaderHeight};
 
   svg {
     height: 18px;
