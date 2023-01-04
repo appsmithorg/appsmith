@@ -77,7 +77,12 @@ public class SnowflakePlugin extends BasePlugin {
                         try {
                             connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
                         } catch (SQLException | StaleConnectionException e) {
-                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                            if (e instanceof StaleConnectionException) {
+                                throw e;
+                            } else {
+                                throw new StaleConnectionException();
+                            }
+//                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                         }
 
                         HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
@@ -129,7 +134,7 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             try {
-                Class.forName("net.snowflake.client.jdbc.SnowflakeDriver");
+                Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException ex) {
                 log.debug("Driver not found");
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, ex.getMessage()));
@@ -253,6 +258,7 @@ public class SnowflakePlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(HikariDataSource connection) {
+
             return Mono.fromCallable(() -> {
 
                         Connection connectionFromPool;
@@ -263,12 +269,16 @@ public class SnowflakePlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                            if (e instanceof StaleConnectionException) {
+                                throw e;
+                            } else {
+                                throw new StaleConnectionException();
+                            }
+//                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                         }
 
                         return validateWarehouseDatabaseSchema(connectionFromPool);
                     })
-                    .map(Object::toString)
                     .map(DatasourceTestResult::new);
         }
 
@@ -289,7 +299,8 @@ public class SnowflakePlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                            throw new StaleConnectionException();
+//                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                         }
 
                         HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
@@ -359,7 +370,6 @@ public class SnowflakePlugin extends BasePlugin {
                         }
                         return structure;
                     })
-                    .map(resultStructure -> (DatasourceStructure) resultStructure)
                     .subscribeOn(scheduler);
         }
 
