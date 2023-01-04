@@ -39,15 +39,15 @@ public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
         final User user = event.getUser();
         log.debug("Handling user document changes {}", user);
         updateNameInComments(user)
-                .subscribeOn(Schedulers.elastic())
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
 
         updateNameInUserRoles(user)
-                .subscribeOn(Schedulers.elastic())
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
 
         updateNameInNotifications(user)
-                .subscribeOn(Schedulers.elastic())
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
 
@@ -56,7 +56,7 @@ public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
     public void handle(UserPhotoChangedEvent event) {
         log.debug("Handling user photo changes {}", event.getUserId());
         updatePhotoIdInComments(event.getUserId(), event.getPhotoAssetId())
-                .subscribeOn(Schedulers.elastic())
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
 
