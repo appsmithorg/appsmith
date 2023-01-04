@@ -22,8 +22,8 @@ export function SignupSuccess() {
   const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
     "enableFirstTimeUserExperience",
   );
-  const isUsageAndBillingEnabled =
-    useSelector(selectFeatureFlags)?.USAGE_AND_BILLING || true;
+  const isUsageAndBillingEnabled = useSelector(selectFeatureFlags)
+    ?.USAGE_AND_BILLING;
   const validLicense = useSelector(isValidLicense);
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
