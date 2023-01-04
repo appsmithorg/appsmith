@@ -972,11 +972,14 @@ function* executePluginActionSaga(
       yield validateResponse(response);
       const payload = createActionExecutionResponse(response);
       let hasError = false;
-      // HACK: for hasura query error by token invalid
+      // HACK: for hasura or grpc gateway query error by token invalid
       if (payload.body) {
         const datas: any = payload.body;
         for (const key in datas) {
-          if (key == "errors" && datas[key].length > 0) {
+          if (
+            (key == "message" && datas[key] == "Unauthenticated") ||
+            (key == "errors" && datas[key].length > 0)
+          ) {
             hasError = true;
             yield delay(1000);
           }
