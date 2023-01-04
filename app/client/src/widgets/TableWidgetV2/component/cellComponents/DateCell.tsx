@@ -9,10 +9,7 @@ import DateComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { RenderDefaultPropsType } from "./PlainTextCell";
 import styled from "styled-components";
-import {
-  ColumnTypes,
-  EditableCellActions,
-} from "widgets/TableWidgetV2/constants";
+import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import moment from "moment";
 import { BasicCell } from "./BasicCell";
@@ -26,11 +23,9 @@ import {
 type DateComponentProps = RenderDefaultPropsType &
   editPropertyType & {
     accentColor?: string;
-    animateLoading?: boolean;
     borderRadius?: string;
     boxShadow?: string;
     closeOnSelection: boolean;
-    convertToISO: boolean;
     maxDate: string;
     minDate: string;
     onDateChange?: string;
@@ -198,7 +193,6 @@ export const DateCell = (props: DateComponentProps) => {
     isRequired,
     maxDate,
     minDate,
-    onCellTextChange,
     onDateSave,
     onDateSelectedString,
     onDateSelection,
@@ -220,7 +214,6 @@ export const DateCell = (props: DateComponentProps) => {
   const [hasFocus, setHasFocus] = useState(false);
   const [isValid, setIsValid] = useState(true);
   const [showRequiredError, setShowRequiredError] = useState(false);
-  const value = props.value;
 
   const editEvents = useMemo(
     () => ({
@@ -235,39 +228,32 @@ export const DateCell = (props: DateComponentProps) => {
           false,
           rowIndex,
           alias,
-          value,
+          props.value,
           "",
           EditableCellActions.DISCARD,
         ),
-      onEdit: () => toggleCellEditMode(true, rowIndex, alias, value),
+      onEdit: () => toggleCellEditMode(true, rowIndex, alias, props.value),
     }),
-    [
-      onCellTextChange,
-      toggleCellEditMode,
-      value,
-      rowIndex,
-      alias,
-      onSubmitString,
-    ],
+    [toggleCellEditMode, props.value, rowIndex, alias, onSubmitString],
   );
 
   const contentRef = useRef<HTMLDivElement>(null);
 
   const valueInISOFormat = useMemo(() => {
-    if (typeof value !== "string") return "";
+    if (typeof props.value !== "string") return "";
 
-    if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
-      return value;
+    if (moment(props.value, ISO_DATE_FORMAT, true).isValid()) {
+      return props.value;
     }
 
-    const valueInSelectedFormat = moment(value, props.outputFormat, true);
+    const valueInSelectedFormat = moment(props.value, props.outputFormat, true);
 
     if (valueInSelectedFormat.isValid()) {
       return valueInSelectedFormat.format(ISO_DATE_FORMAT);
     }
 
-    return value;
-  }, [value, props.outputFormat]);
+    return props.value;
+  }, [props.value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
     if (isRequired && !date) {
@@ -277,6 +263,7 @@ export const DateCell = (props: DateComponentProps) => {
     }
     setIsValid(true);
     setShowRequiredError(false);
+    setHasFocus(false);
     const formattedDate = date ? moment(date).format(inputFormat) : "";
     onDateSelection(rowIndex, onDateSelectedString);
     editEvents.onSave(rowIndex, alias, formattedDate, onSubmitString);
@@ -284,9 +271,9 @@ export const DateCell = (props: DateComponentProps) => {
 
   const onDateCellEdit = () => {
     if (!isNewRow) {
-      setHasFocus(true);
     }
-    if (isRequired && !value) {
+    setHasFocus(true);
+    if (isRequired && !props.value) {
       setIsValid(false);
       setShowRequiredError(true);
     }
@@ -294,9 +281,6 @@ export const DateCell = (props: DateComponentProps) => {
   };
 
   const onPopoverClosed = () => {
-    if (isNewRow) {
-      return;
-    }
     setHasFocus(false);
     setIsValid(true);
     editEvents.onDiscard();
@@ -305,6 +289,12 @@ export const DateCell = (props: DateComponentProps) => {
   const onDateOutOfRange = () => {
     setIsValid(false);
     setShowRequiredError(false);
+  };
+
+  const onDateInputFocus = () => {
+    if (isNewRow) {
+      setHasFocus(true);
+    }
   };
 
   let editor;
@@ -325,7 +315,6 @@ export const DateCell = (props: DateComponentProps) => {
         verticalAlignment={verticalAlignment}
       >
         <ErrorTooltip
-          boundary={`#table${widgetId} .tableWrap`}
           isOpen={showRequiredError && !isValid}
           message={
             validationErrorMessage ||
@@ -352,6 +341,7 @@ export const DateCell = (props: DateComponentProps) => {
                 ? (date) => updateNewRowValues(alias, date, date)
                 : onDateSelected
             }
+            onFocus={onDateInputFocus}
             onPopoverClosed={onPopoverClosed}
             selectedDate={valueInISOFormat}
             shortcuts={shortcuts}
@@ -393,8 +383,7 @@ export const DateCell = (props: DateComponentProps) => {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        url={columnType === ColumnTypes.URL ? props.value : null}
-        value={value}
+        value={props.value}
         verticalAlignment={verticalAlignment}
       />
       {editor}

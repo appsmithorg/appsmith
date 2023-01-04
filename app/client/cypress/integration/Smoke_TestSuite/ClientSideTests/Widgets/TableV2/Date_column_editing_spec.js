@@ -288,7 +288,7 @@ describe("Table widget date column inline editing functionality", () => {
     );
   });
 
-  it("10. should chceck property pane Required toggle functionality", () => {
+  it("10. should check property pane Required toggle functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
     cy.get(
@@ -325,5 +325,35 @@ describe("Table widget date column inline editing functionality", () => {
     cy.get(
       ".bp3-transition-container .bp3-popover .bp3-popover-content",
     ).should("not.exist");
+  });
+
+  it("11. should check date cells behave as expected when adding a new row to table", () => {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get(
+      ".t--property-pane-section-addingarow .t--property-control-allowaddingarow input[type=checkbox]+span",
+    ).click();
+    cy.get(".t--add-new-row").click();
+    cy.get(".bp3-datepicker").should("not.exist");
+    cy.get(".t--inlined-cell-editor")
+      .should("have.css", "border")
+      .and("eq", "1px solid rgb(255, 255, 255)");
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
+    ).should("have.value", "");
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
+    ).click();
+    cy.get(".bp3-datepicker").should("exist");
+    cy.get(".t--inlined-cell-editor")
+      .should("have.css", "border")
+      .and("not.eq", "none")
+      .and("not.eq", "1px solid rgb(255, 255, 255)");
+    cy.get(
+      ".bp3-datepicker .DayPicker .DayPicker-Body .DayPicker-Week:nth-child(2) .DayPicker-Day:first-child",
+    ).click();
+    cy.get(
+      `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3) input`,
+    ).should("not.have.value", "");
   });
 });

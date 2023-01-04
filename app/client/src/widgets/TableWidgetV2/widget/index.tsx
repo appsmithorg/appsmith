@@ -1847,17 +1847,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           <DateCell
             accentColor={this.props.accentColor}
             alias={props.cell.column.columnProperties.alias}
-            animateLoading={props.cell.column.columnProperties.alias}
             cellBackground={cellProperties.cellBackground}
             closeOnSelection
             columnType={column.columnType}
             compactMode={compactMode}
-            convertToISO={false}
             disabledEditIcon={
               shouldDisableEdit || this.props.isAddRowInProgress
             }
             disabledEditIconMessage={disabledEditMessage}
-            displayText={cellProperties.displayText}
             firstDayOfWeek={props.cell.column.columnProperties.firstDayOfWeek}
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanges={cellProperties.hasUnsavedChanges}

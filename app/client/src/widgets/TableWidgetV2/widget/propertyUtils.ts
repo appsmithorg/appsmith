@@ -643,7 +643,7 @@ export const updateCustomColumnAliasOnLabelChange = (
   }
 };
 
-export const allowedFirstDayOfWeekRange = (value: any) => {
+export const allowedFirstDayOfWeekRange = (value: number) => {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
   const isValid = allowedValues.includes(Number(value));
   return {

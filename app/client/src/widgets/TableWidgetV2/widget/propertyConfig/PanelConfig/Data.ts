@@ -267,7 +267,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== "date";
+        return columnType !== ColumnTypes.DATE;
       },
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
@@ -396,7 +396,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== "date";
+        return columnType !== ColumnTypes.DATE;
       },
       dependencies: ["primaryColumns", "columnType"],
       isBindProperty: true,
@@ -457,7 +457,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== "date";
+        return columnType !== ColumnTypes.DATE;
       },
     },
     {
@@ -498,7 +498,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== "date";
+        return columnType !== ColumnTypes.DATE;
       },
     },
   ],
