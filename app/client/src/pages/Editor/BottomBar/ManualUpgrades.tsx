@@ -246,7 +246,7 @@ function ManualUpgrades(props: {
     </div>
   );
 
-  if (false) return null;
+  if (applicationVersion === latestVersion) return null;
 
   return (
     <div
