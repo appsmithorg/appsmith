@@ -1,6 +1,9 @@
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { TypeOptions } from "react-toastify";
 
+/* exported only for extending this in EE
+ * Use ActionTriggerKeys to access these values
+ */
 export const __ActionTriggerType__ = {
   RUN_PLUGIN_ACTION: "RUN_PLUGIN_ACTION",
   CLEAR_PLUGIN_ACTION: "CLEAR_PLUGIN_ACTION",

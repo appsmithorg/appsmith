@@ -113,7 +113,7 @@ import {
 import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import { MessageType, TMessage } from "utils/MessageUtil";
-import { ActionDescription } from "ce/entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
