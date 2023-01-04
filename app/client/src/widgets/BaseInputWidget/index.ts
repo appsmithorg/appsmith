@@ -12,6 +12,10 @@ export const CONFIG = {
   defaults: {
     rows: 4,
     label: "Label",
+    translationJp: "",
+    tooltipJp: "",
+    errorMessageJp: "",
+    placeholderJp: "",
     labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelTextSize: "0.875rem",
