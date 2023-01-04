@@ -115,9 +115,9 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
-const { cloudHosting } = getAppsmithConfigs();
+export const { cloudHosting } = getAppsmithConfigs();
 
-const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
+export const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
   padding: ${(props) => (props.isMobile ? `10px 16px` : `10px 10px`)};
   font-size: ${(props) => props.theme.fontSizes[1]}px;
@@ -133,7 +133,7 @@ const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   `}
 `;
 
-const ApplicationCardsWrapper = styled.div<{ isMobile?: boolean }>`
+export const ApplicationCardsWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-wrap: wrap;
   gap: ${({ isMobile }) => (isMobile ? 12 : 20)}px;
@@ -141,11 +141,11 @@ const ApplicationCardsWrapper = styled.div<{ isMobile?: boolean }>`
   padding: ${({ isMobile }) => (isMobile ? `10px 16px` : `10px`)};
 `;
 
-const WorkspaceSection = styled.div<{ isMobile?: boolean }>`
+export const WorkspaceSection = styled.div<{ isMobile?: boolean }>`
   margin-bottom: ${({ isMobile }) => (isMobile ? `8` : `40`)}px;
 `;
 
-const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
+export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   align-items: baseline;
   justify-content: center;
@@ -218,7 +218,7 @@ const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   `}
 `;
 
-const LeftPaneWrapper = styled.div`
+export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
   overflow: auto;
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
@@ -227,10 +227,13 @@ const LeftPaneWrapper = styled.div`
   padding-top: 16px;
   flex-direction: column;
   position: fixed;
-  top: ${(props) => props.theme.homePage.header}px;
+  top: calc(
+    ${(props) => props.theme.homePage.header}px +
+      ${(props) => (props.isBannerVisible ? "48px" : "0px")}
+  );
   box-shadow: 1px 0px 0px #ededed;
 `;
-const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
+export const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
   padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
   padding-top: 16px;
   ${({ isMobile }) =>
@@ -242,13 +245,13 @@ const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
   `}
 `;
 
-const ItemWrapper = styled.div`
+export const ItemWrapper = styled.div`
   padding: 9px 15px;
 `;
-const StyledIcon = styled(Icon)`
+export const StyledIcon = styled(Icon)`
   margin-right: 11px;
 `;
-const WorkspaceShareUsers = styled.div`
+export const WorkspaceShareUsers = styled.div`
   display: flex;
   align-items: center;
 
@@ -272,7 +275,7 @@ const WorkspaceShareUsers = styled.div`
   }
 `;
 
-const NoAppsFound = styled.div`
+export const NoAppsFound = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -284,7 +287,7 @@ const NoAppsFound = styled.div`
   }
 `;
 
-function Item(props: {
+export function Item(props: {
   label: string;
   textType: TextType;
   icon?: IconName;
@@ -317,7 +320,7 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   flex-direction: column;
 `;
 
-function LeftPaneSection(props: {
+export function LeftPaneSection(props: {
   heading: string;
   children?: any;
   isFetchingApplications: boolean;
@@ -336,18 +339,18 @@ function LeftPaneSection(props: {
   );
 }
 
-const StyledAnchor = styled.a`
+export const StyledAnchor = styled.a`
   position: relative;
   top: -24px;
 `;
 
-const WorkpsacesNavigator = styled.div`
+export const WorkpsacesNavigator = styled.div`
   overflow: auto;
   ${thinScrollbar};
   /* padding-bottom: 160px; */
 `;
 
-const textIconStyles = (props: { color: string; hover: string }) => {
+export const textIconStyles = (props: { color: string; hover: string }) => {
   return `
     &&&&&& {
       .${Classes.TEXT},.${Classes.ICON} svg path {
@@ -368,7 +371,7 @@ const textIconStyles = (props: { color: string; hover: string }) => {
   `;
 };
 
-function WorkspaceMenuItem({
+export function WorkspaceMenuItem({
   isFetchingApplications,
   selected,
   workspace,
@@ -398,12 +401,17 @@ function WorkspaceMenuItem({
   );
 }
 
-const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
+export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
   const result = await createWorkspaceSubmitHandler(data, dispatch);
   return result;
 };
 
-function LeftPane() {
+export type LeftPaneProps = {
+  isBannerVisible?: boolean;
+};
+
+export function LeftPane(props: LeftPaneProps) {
+  const { isBannerVisible = false } = props;
   const dispatch = useDispatch();
   const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
@@ -425,7 +433,7 @@ function LeftPane() {
   if (isMobile) return null;
 
   return (
-    <LeftPaneWrapper>
+    <LeftPaneWrapper isBannerVisible={isBannerVisible}>
       <LeftPaneSection
         heading={createMessage(WORKSPACES_HEADING)}
         isFetchingApplications={isFetchingApplications}
@@ -469,21 +477,21 @@ function LeftPane() {
   );
 }
 
-const CreateNewLabel = styled(Text)`
+export const CreateNewLabel = styled(Text)`
   margin-top: 18px;
 `;
 
-const WorkspaceNameElement = styled(Text)<{ isMobile?: boolean }>`
+export const WorkspaceNameElement = styled(Text)<{ isMobile?: boolean }>`
   max-width: ${({ isMobile }) => (isMobile ? 220 : 500)}px;
   ${truncateTextUsingEllipsis}
 `;
 
-const WorkspaceNameHolder = styled(Text)`
+export const WorkspaceNameHolder = styled(Text)`
   display: flex;
   align-items: center;
 `;
 
-const WorkspaceNameWrapper = styled.div<{ disabled?: boolean }>`
+export const WorkspaceNameWrapper = styled.div<{ disabled?: boolean }>`
   ${(props) => {
     const color = props.disabled
       ? props.theme.colors.applications.workspaceColor
@@ -499,15 +507,15 @@ const WorkspaceNameWrapper = styled.div<{ disabled?: boolean }>`
     color: ${(props) => props.theme.colors.applications.iconColor};
   }
 `;
-const WorkspaceRename = styled(EditableText)`
+export const WorkspaceRename = styled(EditableText)`
   padding: 0 2px;
 `;
 
-const NoSearchResultImg = styled.img`
+export const NoSearchResultImg = styled.img`
   margin: 1em;
 `;
 
-const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
+export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
   height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
   overflow: auto;
   margin-left: ${(props) =>
@@ -531,7 +539,7 @@ const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
   `}
 `;
 
-function ApplicationsSection(props: any) {
+export function ApplicationsSection(props: any) {
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
@@ -977,7 +985,7 @@ function ApplicationsSection(props: any) {
   );
 }
 
-type ApplicationProps = {
+export type ApplicationProps = {
   applicationList: ApplicationPayload[];
   searchApplications: (keyword: string) => void;
   isCreatingApplication: creatingApplicationMap;
