@@ -971,7 +971,7 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Set<String> getSelfReferencingDataPaths() {
-            return Set.of("formData.prev.data", "formData.next.data");
+            return Set.of("formData.prev.data", "formData.next.data", "formData.startAfter.data", "formData.endBefore.data");
         }
     }
 }
