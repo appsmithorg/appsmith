@@ -43,9 +43,12 @@ export function FlexComponent(props: AutoLayoutProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
 
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
-  const onClickFn = useCallback(() => {
-    clickToSelectWidget(props.widgetId);
-  }, [props.widgetId, clickToSelectWidget]);
+  const onClickFn = useCallback(
+    (e) => {
+      clickToSelectWidget(e);
+    },
+    [props.widgetId, clickToSelectWidget],
+  );
 
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
