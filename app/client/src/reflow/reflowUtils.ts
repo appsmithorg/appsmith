@@ -378,12 +378,7 @@ export function getCollidingSpaceMap(
             ].direction;
         }
 
-        if (
-          occupiedSpace.isDropTarget &&
-          newSpacePositions.length === 1 &&
-          onTimeOut &&
-          !forceDirection
-        ) {
+        if (occupiedSpace.isDropTarget && onTimeOut && !forceDirection) {
           movementDirection = getCollisionDirectionOfDropTarget(
             occupiedSpace,
             movementDirection,

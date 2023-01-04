@@ -284,26 +284,33 @@ export const useCanvasDragging = (
             }
 
             if (isReflowing) {
-              const { movementLimitMap } = currentReflowParams;
-              // update isColliding of each block based on movementLimitMap
-              currentRectanglesToDraw = updateRectanglesPostReflow(
-                movementLimitMap,
-                currentRectanglesToDraw,
-                snapColumnSpace,
-                snapRowSpace,
-                rowRef.current,
-              );
-
-              const widgetIdsToExclude = currentRectanglesToDraw.map(
-                (a) => a.widgetId,
-              );
-              const newRows = updateBottomRow(
-                currentReflowParams.bottomMostRow,
-                rowRef.current,
-                widgetIdsToExclude,
-              );
-              rowRef.current = newRows ? newRows : rowRef.current;
+              updateParamsPostReflow();
             }
+          }
+        };
+
+        const updateParamsPostReflow = () => {
+          const { movementLimitMap } = currentReflowParams;
+
+          if (movementLimitMap) {
+            // update isColliding of each block based on movementLimitMap
+            currentRectanglesToDraw = updateRectanglesPostReflow(
+              movementLimitMap,
+              currentRectanglesToDraw,
+              snapColumnSpace,
+              snapRowSpace,
+              rowRef.current,
+            );
+
+            const widgetIdsToExclude = currentRectanglesToDraw.map(
+              (a) => a.widgetId,
+            );
+            const newRows = updateBottomRow(
+              currentReflowParams.bottomMostRow,
+              rowRef.current,
+              widgetIdsToExclude,
+            );
+            rowRef.current = newRows ? newRows : rowRef.current;
           }
         };
 
@@ -446,6 +453,7 @@ export const useCanvasDragging = (
           spacePositionMap: SpaceMap | undefined;
         }) => {
           currentReflowParams = { ...currentReflowParams, ...reflowParams };
+          updateParamsPostReflow();
           isUpdatingRows = renderBlocks(
             currentRectanglesToDraw,
             currentReflowParams.spacePositionMap,
