@@ -66,6 +66,15 @@ public enum AppsmithPluginErrorCode {
     //All Appsmith error codes for SMTP plugin
     SMTP_QUERY_EXECUTION_FAILED("PE-SMT-5000", "SMTP query execution failed"),
 
+    //All Appsmith error codes for GraphQL plugin
+    GRAPHQL_QUERY_EXECUTION_FAILED("PE-GQL-5000", "GraphQL query execution failed"),
+
+    //All Appsmith error codes for GraphQL plugin
+    SNOWFLAKE_QUERY_EXECUTION_FAILED("PE-SNW-5000", "Snowflake query execution failed"),
+
+    //All Appsmith error codes for SaaS plugin
+    SAAS_API_EXECUTION_FAILED("PE-SAS-5000", "SaaS query API failed"),
+
     //All Appsmith error codes for generic plugin errors
     JSON_PROCESSING_ERROR("PE-JSN-4000", "JSON processing error either at serializing or deserializing"),
     SMART_SUBSTITUTION_VALUE_MISSING("PE-SST-5000", "Missing required binding parameter's value"),

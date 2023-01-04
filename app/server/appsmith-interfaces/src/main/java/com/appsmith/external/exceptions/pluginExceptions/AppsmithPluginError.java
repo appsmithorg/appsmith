@@ -87,8 +87,8 @@ public enum AppsmithPluginError {
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Datasource configuration is invalid",
             ErrorType.INTERNAL_ERROR,
-            "{1}",
-            "{2}"
+            "{0}",
+            "{1}"
     ),
     PLUGIN_DATASOURCE_TIMEOUT_ERROR(
             504,
@@ -456,6 +456,36 @@ public enum AppsmithPluginError {
     SMTP_QUERY_EXECUTION_FAILED(
             500,
             AppsmithPluginErrorCode.SMTP_QUERY_EXECUTION_FAILED.getCode(),
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    GRAPHQL_QUERY_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode(),
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    SNOWFLAKE_QUERY_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.SNOWFLAKE_QUERY_EXECUTION_FAILED.getCode(),
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    SAAS_API_EXECUTION_FAILED(
+            500,
+            AppsmithPluginErrorCode.SAAS_API_EXECUTION_FAILED.getCode(),
             "{0}",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Query execution error",

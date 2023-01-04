@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -88,7 +89,7 @@ public class SnowflakePlugin extends BasePlugin {
                 Class.forName("net.snowflake.client.jdbc.SnowflakeDriver");
             } catch (ClassNotFoundException ex) {
                 log.debug("Driver not found");
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, ex.getMessage()));
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.SNOWFLAKE_QUERY_EXECUTION_FAILED, ex.getMessage()));
             }
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             Properties properties = new Properties();
@@ -109,7 +110,7 @@ public class SnowflakePlugin extends BasePlugin {
                             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
                         }
                         if (conn == null) {
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create connection to Snowflake URL");
+                            throw new AppsmithPluginException(AppsmithPluginError.SNOWFLAKE_QUERY_EXECUTION_FAILED, "Unable to create connection to Snowflake URL");
                         }
                         return conn;
                     })
@@ -227,7 +228,7 @@ public class SnowflakePlugin extends BasePlugin {
                             }
                         } catch (SQLException throwable) {
                             log.error("Exception caught while fetching structure of Snowflake datasource. Cause: ", throwable);
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, throwable.getMessage());
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, AppsmithPluginErrorCode.PLUGIN_GET_STRUCTURE_ERROR.getDescription(), throwable.getMessage(), "SQLSTATE: " + throwable.getSQLState());
                         }
                         return structure;
                     })

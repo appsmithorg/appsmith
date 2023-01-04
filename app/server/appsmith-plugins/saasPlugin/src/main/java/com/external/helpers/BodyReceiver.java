@@ -67,7 +67,7 @@ public class BodyReceiver {
 
         if (value == DUMMY) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.SAAS_API_EXECUTION_FAILED,
                     "Value was not received, check if your inserter worked properly");
         } else {
             validatedValue = value;
@@ -192,13 +192,13 @@ public class BodyReceiver {
                 consumer.accept(o);
                 remainedAccepts -= 1;
             } else {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "No more values can be consumed");
+                throw new AppsmithPluginException(AppsmithPluginError.SAAS_API_EXECUTION_FAILED, "No more values can be consumed");
             }
         }
 
         @Override
         public void onError(Throwable t) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Single value was not consumed", t);
+            throw new AppsmithPluginException(AppsmithPluginError.SAAS_API_EXECUTION_FAILED, "Single value was not consumed", t);
         }
 
         @Override

@@ -1,6 +1,7 @@
 package com.external.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,7 @@ public class ExecutionUtils {
                 throw new StaleConnectionException();
             }
             log.error("Exception caught when executing Snowflake query. Cause: ", e);
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.SNOWFLAKE_QUERY_EXECUTION_FAILED, AppsmithPluginErrorCode.SNOWFLAKE_QUERY_EXECUTION_FAILED.getDescription(), e.getMessage(), "SQLSTATE: " + e.getSQLState());
 
         } finally {
             if (resultSet != null) {

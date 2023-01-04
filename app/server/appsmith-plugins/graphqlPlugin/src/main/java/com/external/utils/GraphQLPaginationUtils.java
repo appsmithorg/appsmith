@@ -227,7 +227,7 @@ public class GraphQLPaginationUtils {
         }
         else {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
+                    AppsmithPluginError.GRAPHQL_QUERY_EXECUTION_FAILED,
                     "Appsmith server encountered an unexpected error: unrecognized pagination type: " + actionConfiguration.getPaginationType() +
                             ". Please reach out to our customer support to resolve this."
             );

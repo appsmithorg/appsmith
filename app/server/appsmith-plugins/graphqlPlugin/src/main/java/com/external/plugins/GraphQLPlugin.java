@@ -105,7 +105,6 @@ public class GraphQLPlugin extends BasePlugin {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(e);
-                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         return Mono.just(errorResult);
                     }
                 }
@@ -128,7 +127,6 @@ public class GraphQLPlugin extends BasePlugin {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setIsExecutionSuccess(false);
                         errorResult.setErrorInfo(e);
-                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                         return Mono.just(errorResult);
                     }
                 }
@@ -254,7 +252,7 @@ public class GraphQLPlugin extends BasePlugin {
                  */
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                AppsmithPluginError.GRAPHQL_QUERY_EXECUTION_FAILED,
                                 "Appsmith server has found an unexpected HTTP method configured with the GraphQL " +
                                         "plugin query: " + httpMethod
                         )

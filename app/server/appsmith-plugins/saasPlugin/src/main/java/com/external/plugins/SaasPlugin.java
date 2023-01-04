@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginErrorCode;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -142,7 +143,7 @@ public class SaasPlugin extends BasePlugin {
                         } else {
                             throw Exceptions.propagate(
                                     new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
+                                            AppsmithPluginError.SAAS_API_EXECUTION_FAILED,
                                             body
                                     )
                             );
@@ -161,7 +162,7 @@ public class SaasPlugin extends BasePlugin {
                                               int iteration, String contentType) {
             if (iteration == MAX_REDIRECTS) {
                 return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
+                        AppsmithPluginError.SAAS_API_EXECUTION_FAILED,
                         "Exceeded the HTTP redirect limits of " + MAX_REDIRECTS
                 ));
             }
@@ -174,7 +175,7 @@ public class SaasPlugin extends BasePlugin {
                     .uri(uri)
                     .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
                     .exchange()
-                    .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
+                    .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.SAAS_API_EXECUTION_FAILED, e)))
                     .flatMap(response -> {
                         if (response.statusCode().is3xxRedirection()) {
                             String redirectUrl = response.headers().header("Location").get(0);
@@ -189,7 +190,7 @@ public class SaasPlugin extends BasePlugin {
                             try {
                                 redirectUri = new URI(redirectUrl);
                             } catch (URISyntaxException e) {
-                                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
+                                return Mono.error(new AppsmithPluginException(AppsmithPluginError.SAAS_API_EXECUTION_FAILED, AppsmithPluginErrorCode.SAAS_API_EXECUTION_FAILED.getDescription(), e));
                             }
                             return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1,
                                     contentType);
