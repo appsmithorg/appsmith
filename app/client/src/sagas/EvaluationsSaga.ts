@@ -32,7 +32,7 @@ import {
 import {
   EVAL_WORKER_ACTIONS,
   MAIN_THREAD_ACTION,
-} from "workers/Evaluation/evalWorkerActions";
+} from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {

@@ -13,7 +13,7 @@ import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
-import { MAIN_THREAD_ACTION } from "./evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 
 export const promisifyAction = (
   actionDescription: ActionDescription,
