@@ -103,7 +103,8 @@ export function* createUserSaga(
   }
 }
 
-export function* waitForSegmentInit() {
+export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
+  if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
   yield call(waitForFetchUserSuccess);
   const currentUser: User | undefined = yield select(getCurrentUser);
   const segmentState: SegmentState | undefined = yield select(getSegmentState);

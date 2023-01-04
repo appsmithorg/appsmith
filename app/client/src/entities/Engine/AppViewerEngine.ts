@@ -116,7 +116,7 @@ export default class AppViewerEngine extends AppEngine {
       );
 
     console.log("---- segment load wait");
-    if (!AnalyticsUtil.getAnonymousId()) yield call(waitForSegmentInit);
+    yield call(waitForSegmentInit, true);
     console.log("---- segment loaded - call actions");
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
