@@ -29,7 +29,7 @@ const StyledHelpBar = styled.div`
   }
 `;
 
-const comboText = <>{modText()} + K</>;
+const comboText = <>{modText()} K</>;
 
 type Props = {
   toggleShowModal: () => void;

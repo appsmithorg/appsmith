@@ -465,7 +465,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         >
           <HelpBar />
         </HeaderSection>
-        <HeaderSection className="gap-x-3">
+        <HeaderSection className="gap-x-2">
           <Boxed
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
