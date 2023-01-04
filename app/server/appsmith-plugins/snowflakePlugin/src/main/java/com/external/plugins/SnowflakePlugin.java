@@ -75,7 +75,7 @@ public class SnowflakePlugin extends BasePlugin {
                         Connection connectionFromPool;
 
                         try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                            connectionFromPool = getConnectionFromConnectionPool(connection);
                         } catch (SQLException | StaleConnectionException e) {
                             if (e instanceof StaleConnectionException) {
                                 throw e;
@@ -263,7 +263,7 @@ public class SnowflakePlugin extends BasePlugin {
 
                         Connection connectionFromPool;
                         try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection, null);
+                            connectionFromPool = getConnectionFromConnectionPool(connection);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing
@@ -293,13 +293,13 @@ public class SnowflakePlugin extends BasePlugin {
 
                         Connection connectionFromPool;
                         try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection, datasourceConfiguration);
+                            connectionFromPool = getConnectionFromConnectionPool(connection);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            throw new StaleConnectionException();
+                            throw new StaleConnectionException(e.getMessage());
 //                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                         }
 
@@ -380,22 +380,14 @@ public class SnowflakePlugin extends BasePlugin {
          * @param connectionPool
          * @return SQL Connection
          */
-        private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
-                                                                  DatasourceConfiguration datasourceConfiguration) throws SQLException {
+        private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
 
             if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
                 log.debug("Encountered stale connection pool in Snowflake plugin. Reporting back.");
                 throw new StaleConnectionException();
             }
 
-            Connection connection = connectionPool.getConnection();
-
-//            com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-//            if (configurationConnection == null) {
-//                return connection;
-//            }
-
-            return connection;
+            return connectionPool.getConnection();
         }
     }
 }
