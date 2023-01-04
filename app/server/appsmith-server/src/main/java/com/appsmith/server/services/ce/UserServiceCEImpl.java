@@ -755,7 +755,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
 
                     profile.getInstanceConfig().putAll(Map.of(
-                            "googleMapsKey", System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY")
+                            "googleMapsKey", org.apache.commons.lang3.StringUtils.defaultIfEmpty(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"), "")
                     ));
 
                     return profile;
