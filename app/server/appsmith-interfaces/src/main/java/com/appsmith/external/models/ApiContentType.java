@@ -10,7 +10,7 @@ public enum ApiContentType {
     JSON("application/json"),
     FORM_URLENCODED("application/x-www-form-urlencoded"),
     MULTIPART_FORM_DATA("multipart/form-data"),
-    RAW("raw"),
+    RAW("text/plain"),
     GRAPHQL("application/graphql")
     ;
 
