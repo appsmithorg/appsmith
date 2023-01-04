@@ -354,6 +354,7 @@ function WorkspaceInviteUsersForm(props: any) {
           showCrossIcon
           title="Granular access control is here!"
           type="Notify"
+          url="https://docs.appsmith.com/advanced-concepts/access-control/granular-access-control"
         />
       )}
       <StyledForm
