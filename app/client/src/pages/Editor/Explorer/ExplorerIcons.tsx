@@ -242,8 +242,11 @@ const EntityIconWrapper = styled.div<{
   height: ${({ height }) => (height ? height : "18px")};
   width: ${({ width }) => (width ? width : "18px")};
   background: ${({ bgColor }) => bgColor ?? Colors.WHITE};
-  border: ${({ borderColor, noBorder }) =>
-    noBorder ? "none" : `1.5px solid ${borderColor ?? Colors.SCORPION}`};
+  border: ${({ borderColor, height, noBorder }) =>
+    noBorder
+      ? "none"
+      : `${parseInt(height ? height : "18px") * 0.0845}px solid ${borderColor ??
+          Colors.SCORPION}`};
   box-sizing: border-box;
   display: flex;
   align-items: center;

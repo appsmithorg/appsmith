@@ -555,17 +555,25 @@ function* deleteDebuggerErrorLogsSaga(
   const currentDebuggerErrors: Record<string, Log> = yield select(
     getDebuggerErrors,
   );
-  const existingErrorPayloads = payload.filter((item) =>
-    currentDebuggerErrors.hasOwnProperty(item.id),
-  );
-  if (isEmpty(existingErrorPayloads)) return;
-
-  const validErrorPayloadsToDelete = existingErrorPayloads.filter((payload) => {
-    const existingError = currentDebuggerErrors[payload.id];
-    return existingError && existingError.source;
+  const validErrorPayloadsToDelete: any[] = [];
+  const validErrorIds: any[] = [];
+  Object.keys(currentDebuggerErrors).forEach((errorId) => {
+    payload.every((error, index) => {
+      if (error.id === errorId.split("_")[0]) {
+        if (
+          currentDebuggerErrors[errorId] &&
+          currentDebuggerErrors[errorId].source
+        ) {
+          validErrorPayloadsToDelete.push(payload[index]);
+          validErrorIds.push(errorId);
+        }
+        return false;
+      }
+      return true;
+    });
   });
 
-  if (isEmpty(validErrorPayloadsToDelete)) return;
+  if (isEmpty(validErrorPayloadsToDelete) || isEmpty(validErrorIds)) return;
 
   for (const validErrorPayload of validErrorPayloadsToDelete) {
     const error = currentDebuggerErrors[validErrorPayload.id];
@@ -605,7 +613,6 @@ function* deleteDebuggerErrorLogsSaga(
       );
     }
   }
-  const validErrorIds = validErrorPayloadsToDelete.map((payload) => payload.id);
   yield put(deleteErrorLog(validErrorIds));
 }
 

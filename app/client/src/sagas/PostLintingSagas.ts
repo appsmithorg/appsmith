@@ -49,7 +49,7 @@ export function* logLatestLintPropertyErrors({
           text: lintError.message,
           lineNumber: lintError.lineNumer,
           source: {
-            id: path,
+            id: entity.actionId,
             name: entityName,
             type: ENTITY_TYPE.JSACTION,
             propertyPath,

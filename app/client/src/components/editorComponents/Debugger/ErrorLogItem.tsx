@@ -20,6 +20,7 @@ import {
   Icon,
   IconName,
   IconSize,
+  Size,
   Text,
   TextType,
   TooltipComponent,
@@ -31,11 +32,7 @@ import {
 import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import {
-  DefaultApiIcon,
-  getPluginIcon,
-  JsFileIconV2,
-} from "pages/Editor/Explorer/ExplorerIcons";
+import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -73,6 +70,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 
   .debugger-toggle {
+    margin-right: -4px;
     ${(props) =>
       props.collapsed
         ? `transform: rotate(-90deg);`
@@ -80,8 +78,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
   .debugger-time {
     ${getTypographyByKey("h6")}
-    font-size: 11px;
-    line-height: 16px;
     margin-left: 4px;
     margin-right: 4px;
     &.${Severity.INFO} {
@@ -98,11 +94,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 
   .debugger-error-type {
-    font-family: "SF Pro Text";
-    font-size: 11px;
-    line-height: 13px;
+    ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
-    font-weight: 500;
     margin-left: 4px;
     margin-right: 4px;
     color: ${(props) => props.theme.colors.debugger.error.type};
@@ -137,10 +130,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     margin-right: 4px;
 
     .debugger-label {
-      font-family: "SF Pro Text";
+      ${getTypographyByKey("h6")}
       font-weight: 400;
-      font-size: 11px;
-      line-height: 13px;
       letter-spacing: -0.195px;
       color: ${Colors.GRAY_800};
       text-overflow: ellipsis;
@@ -175,11 +166,9 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 
   .debugger-entity-link {
-    font-family: "SF Pro Text";
-    font-size: 11px;
-    line-height: 13px;
-    letter-spacing: -0.24px;
+    ${getTypographyByKey("h6")}
     font-weight: 400;
+    letter-spacing: -0.195px;
     color: ${(props) => props.theme.colors.debugger.error.type};
     cursor: pointer;
     text-decoration-line: underline;
@@ -221,23 +210,23 @@ const JsonWrapper = styled.div`
 `;
 
 const LineNumber = styled.div`
-  font-family: "SF Pro Text";
+  ${getTypographyByKey("h6")}
   font-weight: 400;
-  font-size: 11px;
-  line-height: 13px;
   letter-spacing: -0.195px;
   color: ${Colors.GRAY_500};
 `;
 
 const StyledCollapse = styled(Collapse)<{ category: LOG_CATEGORY }>`
-margin-top:${(props) =>
-  props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
-    ? " -20px"
-    : " 4px"} ;
+  margin-top: ${(props) =>
+    props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
+      ? " -20px"
+      : " 4px"};
   margin-left: 120px;
 
   .debugger-message {
-    ${getTypographyByKey("p2")}
+    ${getTypographyByKey("h6")}
+    font-weight: 400;
+    letter-spacing: -0.195px;
     color: ${(props) => props.theme.colors.debugger.message};
     text-decoration-line: underline;
     cursor: pointer;
@@ -306,7 +295,6 @@ type LogItemProps = {
 };
 
 function LogItem(props: LogItemProps) {
-  console.log("ondhu123 ", props);
   const [isOpen, setIsOpen] = useState(!!props.expand);
   const reactJsonProps = {
     name: null,
@@ -314,7 +302,7 @@ function LogItem(props: LogItemProps) {
     displayObjectSize: false,
     displayDataTypes: false,
     style: {
-      fontSize: "13px",
+      fontSize: "12px",
     },
     collapsed: 1,
   };
@@ -329,7 +317,10 @@ function LogItem(props: LogItemProps) {
   const theme = useTheme();
 
   const getIcon = () => {
-    if (props.logType === LOG_TYPE.LINT_ERROR) {
+    if (
+      props.logType === LOG_TYPE.LINT_ERROR ||
+      props.logType === LOG_TYPE.EVAL_ERROR
+    ) {
       return <IconWrapper>{JsFileIconV2(12, 12)}</IconWrapper>;
     }
   };
@@ -365,7 +356,7 @@ function LogItem(props: LogItemProps) {
             fillColor={get(theme, "colors.debugger.collapseIcon")}
             name={"expand-more"}
             onClick={() => setIsOpen(!isOpen)}
-            size={IconSize.XL}
+            size={IconSize.SMALL}
           />
         )}
         <span className={`debugger-error-type`}>{`${props.logType}:`}</span>
@@ -376,6 +367,7 @@ function LogItem(props: LogItemProps) {
               marginRight: "4px",
               display: "flex",
               alignItems: "center",
+              lineHeight: "14px",
             }}
           >
             {getIcon()}
