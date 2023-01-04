@@ -13,7 +13,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
-import frameworkFunctionWrapper from "workers/Evaluation/FunctionProxy";
 
 declare global {
   /** All identifiers added to the worker global scope should also
