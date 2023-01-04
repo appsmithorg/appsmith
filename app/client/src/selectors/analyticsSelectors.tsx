@@ -1,4 +1,4 @@
 import { AppState } from "ce/reducers";
 
-export const getIsSegmentInitialized = (state: AppState) =>
-  state.ui.analytics.telemetry.isSegmentInitialized;
+export const getSegmentState = (state: AppState) =>
+  state.ui.analytics.telemetry.segmentState;

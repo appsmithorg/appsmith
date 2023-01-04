@@ -9,7 +9,7 @@ export const initialState: AnalyticsReduxState = {
 
 export interface AnalyticsReduxState {
   telemetry: {
-    isSegmentInitialized?: SegmentState;
+    segmentState?: SegmentState;
   };
 }
 
@@ -20,7 +20,7 @@ export const handlers = {
     ...state,
     telemetry: {
       ...state.telemetry,
-      isSegmentInitialized: "INIT_SUCCESS",
+      segmentState: "INIT_SUCCESS",
     },
   }),
   [ReduxActionTypes.SEGMENT_INIT_UNCERTAIN]: (
@@ -29,7 +29,7 @@ export const handlers = {
     ...state,
     telemetry: {
       ...state.telemetry,
-      isSegmentInitialized: "INIT_UNCERTAIN",
+      segmentState: "INIT_UNCERTAIN",
     },
   }),
 };

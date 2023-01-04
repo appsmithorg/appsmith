@@ -57,7 +57,7 @@ import {
 } from "utils/storage";
 import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 import { getAppsmithConfigs } from "ce/configs";
-import { getIsSegmentInitialized } from "selectors/analyticsSelectors";
+import { getSegmentState } from "selectors/analyticsSelectors";
 import {
   segmentInitUncertain,
   segmentInitSuccess,
@@ -106,7 +106,7 @@ export function* createUserSaga(
 export function* waitForSegmentInit() {
   yield call(waitForFetchUserSuccess);
   const currentUser: User | undefined = yield select(getCurrentUser);
-  const segmentState: SegmentState = yield select(getIsSegmentInitialized);
+  const segmentState: SegmentState | undefined = yield select(getSegmentState);
   const appsmithConfig = getAppsmithConfigs();
   console.log(
     "segment check for SEGMENT_INITIALIZED",
