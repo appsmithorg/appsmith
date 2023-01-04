@@ -2,10 +2,12 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.InvisibleActionFields;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.constants.FieldName;
@@ -20,7 +22,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.external.models.ActionCollectionDTO;
@@ -122,6 +123,9 @@ public class ImportExportApplicationServiceV2Tests {
     @Autowired
     @Qualifier("importExportServiceCEImplV2")
     ImportExportApplicationService importExportApplicationService;
+
+    @Autowired
+    Gson gson;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -275,7 +279,6 @@ public class ImportExportApplicationServiceV2Tests {
 
         return stringifiedFile
                 .map(data -> {
-                    Gson gson = new Gson();
                     return gson.fromJson(data, ApplicationJson.class);
                 })
                 .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
@@ -2147,7 +2150,6 @@ public class ImportExportApplicationServiceV2Tests {
                 });
         Mono<ApplicationJson> v1ApplicationMono = stringifiedFile
                 .map(data -> {
-                    Gson gson = new Gson();
                     return gson.fromJson(data, ApplicationJson.class);
                 }).cache();
 
@@ -3018,8 +3020,8 @@ public class ImportExportApplicationServiceV2Tests {
                     NewPage page = pageList.stream().filter(newPage -> newPage.getUnpublishedPage().getName().equals("Page12")).collect(Collectors.toList()).get(0);
                     // Verify the actions after merging the template
                     actionList.forEach(newAction -> {
-                            assertThat(newAction.getUnpublishedAction().getName()).containsAnyOf("api_wo_auth", "get_users", "run");
-                            assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(page.getId());
+                        assertThat(newAction.getUnpublishedAction().getName()).containsAnyOf("api_wo_auth", "get_users", "run");
+                        assertThat(newAction.getUnpublishedAction().getPageId()).isEqualTo(page.getId());
                     });
 
                     // Verify the actionCollections after merging the template

@@ -28,6 +28,7 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.mail.MessagingException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +50,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -637,19 +637,19 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 });
     }
 
-  /**
-   * A filter function on getAll that returns env variables which are having non-empty values
-   */
+    /**
+     * A filter function on getAll that returns env variables which are having non-empty values
+     */
     @Override
     public Mono<Map<String, String>> getAllNonEmpty() {
         return getAll().flatMap(map -> {
-              Map<String, String> nonEmptyValuesMap = new HashMap<>();
-              for (Map.Entry<String, String> entry: map.entrySet()) {
-                  if (StringUtils.hasText(entry.getValue())) {
-                      nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
-                  }
-              }
-              return Mono.just(nonEmptyValuesMap);
+            Map<String, String> nonEmptyValuesMap = new HashMap<>();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if (StringUtils.hasText(entry.getValue())) {
+                    nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return Mono.just(nonEmptyValuesMap);
         });
     }
 

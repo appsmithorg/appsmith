@@ -37,18 +37,22 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     private final UserUtils userUtils;
 
+    private final Gson gson;
+
     @Autowired
     public AnalyticsServiceCEImpl(@Autowired(required = false) Analytics analytics,
                                   SessionUserService sessionUserService,
                                   CommonConfig commonConfig,
                                   ConfigService configService,
                                   PolicyUtils policyUtils,
-                                  UserUtils userUtils) {
+                                  UserUtils userUtils,
+                                  Gson gson) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
         this.configService = configService;
         this.userUtils = userUtils;
+        this.gson = gson;
     }
 
     public boolean isActive() {
@@ -153,14 +157,17 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         }
 
         final String finalUserId = userId;
-        configService.getInstanceId().map(instanceId -> {
-            TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(finalUserId);
-            analyticsProperties.put("originService", "appsmith-server");
-            analyticsProperties.put("instanceId", instanceId);
-            messageBuilder = messageBuilder.properties(analyticsProperties);
-            analytics.enqueue(messageBuilder);
-            return instanceId;
-        }).subscribeOn(Schedulers.boundedElastic()).subscribe();
+        configService.getInstanceId()
+                .map(instanceId -> {
+                    TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(finalUserId);
+                    analyticsProperties.put("originService", "appsmith-server");
+                    analyticsProperties.put("instanceId", instanceId);
+                    messageBuilder = messageBuilder.properties(analyticsProperties);
+                    analytics.enqueue(messageBuilder);
+                    return instanceId;
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
     }
 
     @Override

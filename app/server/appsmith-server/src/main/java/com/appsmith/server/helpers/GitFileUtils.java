@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.constants.CommonConstants;
@@ -65,15 +66,19 @@ public class GitFileUtils {
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
 
+    private final Gson gson;
+
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS, EDIT_MODE_THEME);
+            = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS, EDIT_MODE_THEME);
+
     /**
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
-     * @param baseRepoSuffix path suffix used to create a local repo path
+     *
+     * @param baseRepoSuffix  path suffix used to create a local repo path
      * @param applicationJson application reference object from which entire application can be rehydrated
-     * @param branchName name of the branch for the current application
+     * @param branchName      name of the branch for the current application
      * @return repo path where the application is stored
      */
     public Mono<Path> saveApplicationToLocalRepo(Path baseRepoSuffix,
@@ -113,8 +118,9 @@ public class GitFileUtils {
     /**
      * Method to convert application resources to the structure which can be serialised by appsmith-git module for
      * serialisation
+     *
      * @param applicationJson application resource including actions, jsobjects, pages
-     * @return                resource which can be saved to file system
+     * @return resource which can be saved to file system
      */
     public ApplicationGitReference createApplicationReference(ApplicationJson applicationJson) {
         ApplicationGitReference applicationReference = new ApplicationGitReference();
@@ -222,9 +228,9 @@ public class GitFileUtils {
     /**
      * Method to reconstruct the application from the local git repo
      *
-     * @param workspaceId To which workspace application needs to be rehydrated
+     * @param workspaceId          To which workspace application needs to be rehydrated
      * @param defaultApplicationId Root application for the current branched application
-     * @param branchName for which branch the application needs to rehydrate
+     * @param branchName           for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
     public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String workspaceId,
@@ -268,7 +274,6 @@ public class GitFileUtils {
         if (resource == null) {
             return null;
         }
-        Gson gson = new Gson();
         return gson.fromJson(gson.toJson(resource), type);
     }
 
@@ -287,12 +292,13 @@ public class GitFileUtils {
     public Mono<Path> initializeReadme(Path baseRepoSuffix,
                                        String viewModeUrl,
                                        String editModeUrl) throws IOException {
-        return fileUtils.initializeReadme(baseRepoSuffix,viewModeUrl, editModeUrl)
+        return fileUtils.initializeReadme(baseRepoSuffix, viewModeUrl, editModeUrl)
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
     /**
      * When the user clicks on detach remote, we need to remove the repo from the file system
+     *
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success on remove of file system
      */
@@ -340,7 +346,6 @@ public class GitFileUtils {
         // Clone the edit mode theme to published theme as both should be same for git connected application because we
         // do deploy and push as a single operation
         applicationJson.setPublishedTheme(applicationJson.getEditModeTheme());
-        Gson gson = new Gson();
 
         if (application != null && !CollectionUtils.isNullOrEmpty(application.getPages())) {
             // Remove null values

@@ -65,7 +65,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         }
 
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        if (StringUtils.isEmpty(baseUrl)) {
+        if (!StringUtils.hasLength(baseUrl)) {
             return Mono.justOrEmpty(mockData);
         }
 
@@ -110,7 +110,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             } else {
                 datasourceConfiguration = getPostgresDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
             }
-            if( datasourceConfiguration.getAuthentication() == null) {
+            if (datasourceConfiguration.getAuthentication() == null) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
                         " Couldn't find any mock datasource with the given name - " + mockDataSource.getName()));
             }
@@ -137,7 +137,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         SSLDetails sslDetails = new SSLDetails();
 
         Optional<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).findFirst();
-        if(Boolean.TRUE.equals(credentialsList.isEmpty())) {
+        if (Boolean.TRUE.equals(credentialsList.isEmpty())) {
             return datasourceConfiguration;
         }
 
@@ -176,7 +176,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         List<Endpoint> endpointList = new ArrayList<>();
 
         Optional<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).findFirst();
-        if(Boolean.TRUE.equals(credentialsList.isEmpty())) {
+        if (Boolean.TRUE.equals(credentialsList.isEmpty())) {
             return datasourceConfiguration;
         }
 
@@ -205,16 +205,17 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
     /**
      * Tries to create the given datasource with the name, over and over again with an incremented suffix, but **only**
      * if the error is because of a name clash.
+     *
      * @param datasource Datasource to try create.
-     * @param name Name of the datasource, to which numbered suffixes will be appended.
-     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
+     * @param name       Name of the datasource, to which numbered suffixes will be appended.
+     * @param suffix     Suffix used for appending, recursion artifact. Usually set to 0.
      * @return A Mono that yields the created datasource.
      */
     private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         datasource.setName(actualName);
         String password = null;
-        if( datasource.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
+        if (datasource.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
             password = ((DBAuth) datasource.getDatasourceConfiguration().getAuthentication()).getPassword();
         }
         final String finalPassword = password;

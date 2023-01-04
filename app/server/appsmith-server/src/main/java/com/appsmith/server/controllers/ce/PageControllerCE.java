@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 
 @RequestMapping(Url.PAGE_URL)
@@ -43,8 +43,8 @@ public class PageControllerCE {
 
     @Autowired
     public PageControllerCE(ApplicationPageService applicationPageService,
-                          NewPageService newPageService,
-                          CreateDBTablePageSolution createDBTablePageSolution
+                            NewPageService newPageService,
+                            CreateDBTablePageSolution createDBTablePageSolution
     ) {
         this.applicationPageService = applicationPageService;
         this.newPageService = newPageService;
@@ -122,9 +122,10 @@ public class PageControllerCE {
      * In case the page has never been published, the page gets deleted.
      * In case the page has been published, this page would eventually get deleted whenever the application is published
      * next.
+     *
      * @param defaultPageId defaultPageId which will be needed to find the actual page that needs to be deleted
      * @param branchName    git branch to find the exact page which needs to be deleted
-     * @return              deleted page DTO
+     * @return deleted page DTO
      */
     @DeleteMapping("/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> deletePage(@PathVariable String defaultPageId,
@@ -155,10 +156,11 @@ public class PageControllerCE {
      * If Application ID is present, it'll fetch all pages of that application in the provided mode.
      * if Page ID is present, it'll fetch all pages of the corresponding Application.
      * If both IDs are present, it'll use the Application ID only and ignore the Page ID
+     *
      * @param applicationId Id of the application
-     * @param pageId id of a page
-     * @param mode In which mode it's in
-     * @param branchName name of the current branch
+     * @param pageId        id of a page
+     * @param mode          In which mode it's in
+     * @param branchName    name of the current branch
      * @return List of ApplicationPagesDTO along with other meta data
      */
     @GetMapping
@@ -166,6 +168,7 @@ public class PageControllerCE {
                                                               @RequestParam(required = false) String pageId,
                                                               @RequestParam(required = true, defaultValue = "EDIT") ApplicationMode mode,
                                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to fetch applicationPageDTO for applicationId: {}, pageId: {}, branchName: {}, mode: {}", applicationId, pageId, branchName, mode);
         return newPageService.findApplicationPages(applicationId, pageId, branchName, mode)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }

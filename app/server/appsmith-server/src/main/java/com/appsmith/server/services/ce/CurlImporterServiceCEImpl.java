@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
@@ -336,11 +337,14 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             boolean isStateProcessed = true;
 
             if (ARG_REQUEST.equals(state)) {
-                // The `token` is next to `--request`.
-                final HttpMethod method = HttpMethod.resolve(token.toUpperCase());
-                if (method == null) {
+                // HttpMethod now supports custom verbs as well,
+                // so we limit our check to non-ASCII characters as the HTTP 1.1 RFC states
+                // Ref: https://www.rfc-editor.org/rfc/rfc7231#section-8.1
+                if (token == null || !token.chars().allMatch(c -> c < 128)) {
                     throw new AppsmithException(AppsmithError.INVALID_CURL_METHOD, token);
                 }
+                // The `token` is next to `--request`.
+                final HttpMethod method = HttpMethod.valueOf(token.toUpperCase());
                 actionConfiguration.setHttpMethod(method);
 
             } else if (ARG_HEADER.equals(state)) {
