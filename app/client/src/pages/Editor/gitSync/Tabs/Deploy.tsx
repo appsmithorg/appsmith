@@ -258,8 +258,21 @@ function Deploy() {
     hasChangesToCommit &&
     !isDiscarding &&
     !isCommitting;
+  let replaceMessage = "";
+  if (currentBranch) {
+    const jiraIdPattern = new RegExp("([A-Z]+-\\d+)", "ig");
+    const matched = currentBranch.match(jiraIdPattern);
+    if (matched && matched.length > 0) {
+      matched.forEach((line) => {
+        replaceMessage += `[${line}]`;
+      });
+    }
+  }
+
   const commitMessageDisplay = hasChangesToCommit
-    ? commitMessage
+    ? replaceMessage.length > 0
+      ? `${replaceMessage} ${commitMessage}`
+      : commitMessage
     : NO_CHANGES_TO_COMMIT;
 
   const theme = useTheme() as Theme;
