@@ -51,6 +51,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   scrollContents: boolean;
   showReset: boolean;
   sourceData?: Record<string, unknown>;
+  useSourceData?: boolean;
   submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
@@ -238,6 +239,11 @@ class JSONFormWidget extends BaseWidget<
       this.state.resetObserverCallback(this.props.schema);
     }
 
+    if (prevProps.useSourceData !== this.props.useSourceData) {
+      const { formData } = this.props;
+      this.updateFormData(formData);
+    }
+
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
@@ -342,12 +348,15 @@ class JSONFormWidget extends BaseWidget<
 
   updateFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
+    const { sourceData, useSourceData } = this.props;
     let formData = values;
 
     if (!skipConversion) {
       formData = convertSchemaItemToFormData(rootSchemaItem, values, {
         fromId: "identifier",
         toId: "accessor",
+        useSourceData,
+        sourceData,
       });
     }
 
