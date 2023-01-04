@@ -51,6 +51,18 @@ const MapStatusText = styled.span`
   align-items: center;
   color: var(--wds-color-text-light);
 `;
+
+const MapStatusLoading = styled.span`
+  font-size: 14px;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--wds-color-text-light);
+  background: var(--wds-color-bg-light);
+  text-align: center;
+`;
 /**
  * This component will render the map based on the status of the google maps api.
  *
@@ -60,11 +72,11 @@ const MapStatusText = styled.span`
 const renderMapStatus = (status: Status) => {
   switch (status) {
     case Status.LOADING:
-      return <MapStatusText>Loading...</MapStatusText>;
+      return <MapStatusLoading />;
     case Status.FAILURE:
-      return <MapStatusText>Error in the component</MapStatusText>;
+      return <MapStatusText>Error while initializing the map</MapStatusText>;
     case Status.SUCCESS:
-      return <MapStatusText>Component loaded....</MapStatusText>;
+      return <div />;
   }
 };
 

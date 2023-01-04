@@ -13,10 +13,9 @@ type SearchBoxProps = {
 const StyledInput = styled.input`
   position: absolute;
   top: 0%;
-  left: 34%;
   box-sizing: border-box;
   border: 1px solid transparent;
-  width: 240px;
+  width: min(90%, 240px);
   height: 32px;
   padding: 0 12px;
   border-radius: 3px;
