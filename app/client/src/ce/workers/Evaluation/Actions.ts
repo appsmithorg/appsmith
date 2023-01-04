@@ -361,10 +361,7 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    context[funcName] = frameworkFunctionWrapper.addProxy(
-      pusher.bind({}, fn),
-      funcName,
-    );
+    context[funcName] = pusher.bind({}, fn);
   }
 };
 
