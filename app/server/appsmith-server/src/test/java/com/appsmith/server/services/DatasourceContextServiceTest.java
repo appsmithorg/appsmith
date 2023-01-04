@@ -8,6 +8,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.DsContextMapKey;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -18,6 +20,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -31,6 +34,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -307,5 +311,47 @@ public class DatasourceContextServiceTest {
         assertNotNull(dsc2);
         assertTrue(dsc2.getConnection() instanceof UpdatableConnection);
         assertTrue(((UpdatableConnection) dsc2.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof BasicAuth);
+    }
+
+
+    @Test
+    public void verifyDsMapKeyEqualComparison() {
+        String dsId = new ObjectId().toHexString();
+        String actionId = new ObjectId().toHexString();
+
+        Datasource ds = new Datasource();
+        ds.setId(dsId);
+        Datasource ds1 = new Datasource();
+        ds1.setId(dsId);
+        NewAction newAction = new NewAction();
+        newAction.setId(actionId);
+        NewAction newAction1 = new NewAction();
+        newAction1.setId(actionId);
+
+
+        DsContextMapKey<NewAction> keyObj = new DsContextMapKey<>(ds, newAction);
+        DsContextMapKey<NewAction> keyObj1 = new DsContextMapKey<>(ds1, newAction1);
+        assertEquals(keyObj,keyObj1);
+    }
+
+    @Test
+    public void verifyDsMapKeyNotEquals() {
+        String dsId = new ObjectId().toHexString();
+        String dsId1 = new ObjectId().toHexString();
+        String actionId = new ObjectId().toHexString();
+
+        Datasource ds = new Datasource();
+        ds.setId(dsId);
+        Datasource ds1 = new Datasource();
+        ds1.setId(dsId1);
+        NewAction newAction = new NewAction();
+        newAction.setId(actionId);
+        NewAction newAction1 = new NewAction();
+        newAction1.setId(actionId);
+
+
+        DsContextMapKey<NewAction> keyObj = new DsContextMapKey<>(ds, newAction);
+        DsContextMapKey<NewAction> keyObj1 = new DsContextMapKey<>(ds1, newAction1);
+        assertNotEquals(keyObj,keyObj1);
     }
 }

@@ -827,7 +827,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (plugin.isRemotePlugin()) {
             return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource);
         }
-        return datasourceContextService.getDatasourceContext(validatedDatasource);
+        return datasourceContextService.getDatasourceContext(datasourceContextService.getCustomKey(validatedDatasource));
 
     }
 
@@ -841,7 +841,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     protected Mono<DatasourceContext<?>> deleteDatasourceContextForRetry(Datasource datasource, String environmentName) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
-        return datasourceContextService.deleteDatasourceContext(datasource.getId());
+        return datasourceContextService.deleteDatasourceContext(datasourceContextService.getCustomKey(datasource));
     }
 
     protected Mono<ActionExecutionResult> handleExecutionErrors(Mono<ActionExecutionResult> actionExecutionResultMono,

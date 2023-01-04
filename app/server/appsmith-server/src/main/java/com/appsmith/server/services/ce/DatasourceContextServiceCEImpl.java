@@ -7,6 +7,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.DsContextMapKey;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.ConfigService;
@@ -23,15 +24,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 
 @Slf4j
 public class DatasourceContextServiceCEImpl implements DatasourceContextServiceCE {
 
     //This is DatasourceId mapped to the DatasourceContext
-    private final Map<String, Mono<? extends DatasourceContext<?>>> datasourceContextMonoMap;
-    private final Map<String, Object> datasourceContextSynchronizationMonitorMap;
-    private final Map<String, DatasourceContext<?>> datasourceContextMap;
+    private final Map<DsContextMapKey, Mono<? extends DatasourceContext<?>>> datasourceContextMonoMap;
+    private final Map<DsContextMapKey, Object> datasourceContextSynchronizationMonitorMap;
+    private final Map<DsContextMapKey, DatasourceContext<?>> datasourceContextMap;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -64,21 +64,21 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * value. Hence, even if multiple threads subscribe to the same source publisher they get the pre-computed cached
      * value instead of creating a new connection for each subscription of the source publisher.
      *
-     * @param datasource     - datasource for which a new datasource context / connection needs to be created
+     * @param dsContextMapKey     - datasource for which a new datasource context / connection needs to be created
      * @param pluginExecutor - plugin executor associated with the datasource's plugin
      * @param monitor        - unique monitor object per datasource id. Lock is acquired on this monitor object.
      * @return a cached source publisher which upon subscription produces / returns the latest datasource context /
      * connection.
      */
-    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(Datasource datasource,
+    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(DsContextMapKey<?> dsContextMapKey,
                                                                                PluginExecutor<Object> pluginExecutor,
                                                                                Object monitor) {
         synchronized (monitor) {
             /* Destroy any stale connection to free up resource */
-            String datasourceId = datasource.getId();
+            Datasource datasource = dsContextMapKey.getDatasource();
             final boolean isStale = getIsStale(datasource);
             if (isStale) {
-                final Object connection = datasourceContextMap.get(datasourceId).getConnection();
+                final Object connection = datasourceContextMap.get(dsContextMapKey).getConnection();
                 if (connection != null) {
                     try {
                         // Basically remove entry from both cache maps
@@ -87,8 +87,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         log.info("Error destroying stale datasource connection", e);
                     }
                 }
-                datasourceContextMonoMap.remove(datasourceId);
-                datasourceContextMap.remove(datasourceId);
+                datasourceContextMonoMap.remove(dsContextMapKey);
+                datasourceContextMap.remove(dsContextMapKey);
             }
 
             /*
@@ -96,64 +96,77 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
              * evaluated multiple times the actual datasource creation will only happen once and get cached and the same
              * value would directly be returned to further evaluations / subscriptions.
              */
-            if (datasourceId != null && datasourceContextMonoMap.get(datasourceId) != null) {
+            if (!dsContextMapKey.isEmpty() && datasourceContextMonoMap.get(dsContextMapKey) != null) {
                 log.debug("Cached resource context mono exists. Returning the same.");
-                return datasourceContextMonoMap.get(datasourceId);
+                return datasourceContextMonoMap.get(dsContextMapKey);
             }
 
             /* Create a fresh datasource context */
-            DatasourceContext<Object> datasourceContext = new DatasourceContext<Object>();
-            if (datasourceId != null) {
+            DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
+            if (!dsContextMapKey.isEmpty()) {
             /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
             the new connection in the context map. */
-                datasourceContextMap.put(datasourceId, datasourceContext);
+                datasourceContextMap.put(dsContextMapKey, datasourceContext);
             }
 
             Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration()).cache();
 
             Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMono
-                    .flatMap(connection -> {
-                        Mono<Datasource> datasourceMono1 = Mono.just(datasource);
-                        if (connection instanceof UpdatableConnection) {
-                            datasource.setUpdatedAt(Instant.now());
-                            datasource
-                                    .getDatasourceConfiguration()
-                                    .setAuthentication(
-                                            ((UpdatableConnection) connection).getAuthenticationDTO(
-                                                    datasource.getDatasourceConfiguration().getAuthentication()));
-                            datasourceMono1 = datasourceService.update(datasource.getId(), datasource);
-                        }
-                        return datasourceMono1.thenReturn(connection);
-                    })
+                    .flatMap(connection -> updateDatasourceAndSetAuthentication(connection, dsContextMapKey))
                     .map(connection -> {
                         /* When a connection object exists and makes sense for the plugin, we put it in the
-                         context. Example, DB plugins. */
+                        context. Example, DB plugins. */
                         datasourceContext.setConnection(connection);
                         return datasourceContext;
                     })
                     .defaultIfEmpty(
-                        /* When a connection object doesn't make sense for the plugin, we get an empty mono and we
-                        just return the context object as is. */
-                            datasourceContext
-                    )
+                        /* When a connection object doesn't make sense for the plugin, we get an empty mono
+                        and we just return the context object as is. */
+                        datasourceContext)
                     .cache(); /* Cache the value so that further evaluations don't result in new connections */
-            if (datasourceId != null) {
-                datasourceContextMonoMap.put(datasourceId, datasourceContextMonoCache);
+
+            if (!dsContextMapKey.isEmpty()) {
+                datasourceContextMonoMap.put(dsContextMapKey, datasourceContextMonoCache);
             }
             return datasourceContextMonoCache;
         }
     }
 
-    Mono<DatasourceContext<?>> createNewDatasourceContext(Datasource datasource) {
-        log.debug("Datasource context doesn't exist. Creating connection.");
+    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(Datasource datasource,
+                                                                               PluginExecutor<Object> pluginExecutor,
+                                                                               Object monitor) {
+        return getCachedDatasourceContextMono(getCustomKey(datasource),pluginExecutor , monitor);
+    }
 
-        String datasourceId = datasource.getId();
-        Mono<Datasource> datasourceMono;
-        if (datasource.getId() != null) {
-            datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getExecutePermission());
-        } else {
-            datasourceMono = Mono.just(datasource);
+    public Mono<Object>  updateDatasourceAndSetAuthentication(Object connection, DsContextMapKey<?> dsContextMapKey) {
+        // this will have override in EE
+        Datasource datasource = dsContextMapKey.getDatasource();
+        Mono<Datasource> datasourceMono1 = Mono.just(datasource);
+        if (connection instanceof UpdatableConnection) {
+            datasource.setUpdatedAt(Instant.now());
+            datasource
+                    .getDatasourceConfiguration()
+                    .setAuthentication(
+                            ((UpdatableConnection) connection).getAuthenticationDTO(
+                                    datasource.getDatasourceConfiguration().getAuthentication()));
+            datasourceMono1 = datasourceService.update(datasource.getId(), datasource);
         }
+        return datasourceMono1.thenReturn(connection);
+    }
+
+    Mono<Datasource> retrieveDatasourceFromDB(DsContextMapKey<?> dsContextMapKey) {
+        Datasource datasource = dsContextMapKey.getDatasource();
+        if (datasource.getId() != null) {
+            return datasourceService.findById(datasource.getId(), datasourcePermission.getExecutePermission());
+        } else {
+            return Mono.just(datasource);
+        }
+    }
+    Mono<DatasourceContext<?>> createNewDatasourceContext(DsContextMapKey<?> dsContextMapKey) {
+        log.debug("Datasource context doesn't exist. Creating connection.");
+        Datasource datasource = dsContextMapKey.getDatasource();
+        String datasourceId = datasource.getId();
+        Mono<Datasource> datasourceMono = retrieveDatasourceFromDB(dsContextMapKey);
 
         return datasourceMono
                 .zipWhen(datasource1 -> {
@@ -176,19 +189,19 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                      * synchronized.
                      */
                     Object monitor = new Object();
-                    if (datasourceId != null) {
-                        if (datasourceContextSynchronizationMonitorMap.get(datasourceId) == null) {
+                    if (!dsContextMapKey.isEmpty()) {
+                        if (datasourceContextSynchronizationMonitorMap.get(dsContextMapKey) == null) {
                             synchronized (this) {
-                                if (datasourceContextSynchronizationMonitorMap.get(datasourceId) == null) {
-                                    datasourceContextSynchronizationMonitorMap.put(datasourceId, new Object());
+                                if (datasourceContextSynchronizationMonitorMap.get(dsContextMapKey) == null) {
+                                    datasourceContextSynchronizationMonitorMap.put(dsContextMapKey, new Object());
                                 }
                             }
                         }
 
-                        monitor = datasourceContextSynchronizationMonitorMap.get(datasourceId);
+                        monitor = datasourceContextSynchronizationMonitorMap.get(dsContextMapKey);
                     }
 
-                    return getCachedDatasourceContextMono(datasource1, pluginExecutor, monitor);
+                    return getCachedDatasourceContextMono(dsContextMapKey, pluginExecutor, monitor);
                 });
     }
 
@@ -211,36 +224,38 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     @Override
-    public Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource) {
+    public Mono<DatasourceContext<?>> getDatasourceContext(DsContextMapKey<?> dsContextMapKey) {
+        Datasource datasource = dsContextMapKey.getDatasource();
         String datasourceId = datasource.getId();
         if (datasourceId == null) {
             log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this " +
                     "scenario");
         } else if (isValidDatasourceContextAvailable(datasource)) {
             log.debug("Resource context exists. Returning the same.");
-            return Mono.just(datasourceContextMap.get(datasourceId));
+            return Mono.just(datasourceContextMap.get(dsContextMapKey));
         }
-
-        return createNewDatasourceContext(datasource);
+        return createNewDatasourceContext(dsContextMapKey);
     }
 
     @Override
     public <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext<?>, Mono<T>> task) {
         final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasource)
-                .flatMap(this::getDatasourceContext)
+                .flatMap(datasource1 -> getDatasourceContext(getCustomKey(datasource1)))
                 // Now that we have the context (connection details), call the task.
                 .flatMap(task);
 
         return taskRunnerMono
                 .onErrorResume(StaleConnectionException.class, error -> {
                     log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                    return deleteDatasourceContext(datasource.getId())
+                    return deleteDatasourceContext(getCustomKey(datasource))
                             .then(taskRunnerMono);
                 });
     }
 
     @Override
-    public Mono<DatasourceContext<?>> deleteDatasourceContext(String datasourceId) {
+    public Mono<DatasourceContext<?>> deleteDatasourceContext(DsContextMapKey<?> dsContextMapKey) {
+
+        String datasourceId = dsContextMapKey.getDatasource().getId();
         if (datasourceId == null) {
             return Mono.empty();
         }
@@ -261,8 +276,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     final PluginExecutor<Object> pluginExecutor = tuple.getT2();
                     log.info("Clearing datasource context for datasource ID {}.", datasource.getId());
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
-                    datasourceContextMonoMap.remove(datasourceId);
-                    return datasourceContextMap.remove(datasourceId);
+                    datasourceContextMonoMap.remove(dsContextMapKey);
+                    return datasourceContextMap.remove(dsContextMapKey);
                 });
     }
 
@@ -282,5 +297,19 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
                     return datasourceContext;
                 });
+    }
+
+
+    /**
+     * Generates the custom key that is used in:
+     * datasourceContextMap
+     * datasourceContextMonoMap
+     * datasourceContextSynchronizationMonitorMap
+     * @param datasource
+     * @return an DsContextMapKey object
+     */
+    @Override
+    public DsContextMapKey<?> getCustomKey(Datasource datasource) {
+        return new DsContextMapKey<>(datasource, null);
     }
 }
