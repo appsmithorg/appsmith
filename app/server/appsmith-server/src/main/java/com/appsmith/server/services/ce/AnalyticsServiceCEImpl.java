@@ -19,7 +19,6 @@ import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
@@ -38,18 +37,22 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     private final UserUtils userUtils;
 
+    private final Gson gson;
+
     @Autowired
     public AnalyticsServiceCEImpl(@Autowired(required = false) Analytics analytics,
                                   SessionUserService sessionUserService,
                                   CommonConfig commonConfig,
                                   ConfigService configService,
                                   PolicyUtils policyUtils,
-                                  UserUtils userUtils) {
+                                  UserUtils userUtils,
+                                  Gson gson) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
         this.configService = configService;
         this.userUtils = userUtils;
+        this.gson = gson;
     }
 
     public boolean isActive() {

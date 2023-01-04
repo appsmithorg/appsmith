@@ -1069,6 +1069,7 @@ export function EditorJSONtoForm(props: Props) {
                               {createMessage(NO_DATASOURCE_FOR_QUERY)}
                             </p>
                             <EditorButton
+                              disabled={!canCreateDatasource}
                               filled
                               icon="plus"
                               intent="primary"
