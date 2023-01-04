@@ -151,7 +151,7 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: client-build
           path: app/client/build/
@@ -283,7 +283,7 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: server-build
           path: app/server/dist/
@@ -378,7 +378,7 @@ jobs:
           tar -cvf rts-dist.tar dist
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
       - name: Upload rts build bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: rts-dist
           path: app/rts/rts-dist.tar
@@ -749,7 +749,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
@@ -765,7 +765,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v1
         with:
           name: cypress-snapshots-visualRegression
           path: app/client/cypress/snapshots/
