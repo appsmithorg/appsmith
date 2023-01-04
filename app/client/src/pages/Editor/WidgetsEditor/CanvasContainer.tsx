@@ -220,6 +220,7 @@ function CanvasContainer() {
               left: isPreviewMode ? "0px" : "16px",
               top: "50%",
               zIndex: isPreviewMode ? 2 : undefined,
+              float: "left",
             }}
           >
             <Icon icon={"drawer-right-filled"} />
@@ -239,6 +240,7 @@ function CanvasContainer() {
               left: isPreviewMode ? "100%" : "calc(100% - 32px)",
               top: "50%",
               zIndex: isPreviewMode ? 2 : undefined,
+              float: "right",
             }}
           >
             <Icon icon={"drawer-left-filled"} />

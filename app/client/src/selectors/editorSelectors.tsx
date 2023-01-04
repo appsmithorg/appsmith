@@ -14,6 +14,7 @@ import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ApplicationVersion } from "actions/applicationActions";
+import { Positioning } from "components/constants";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import {
@@ -25,6 +26,7 @@ import { APP_MODE } from "entities/App";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { find, sortBy } from "lodash";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import {
@@ -43,7 +45,6 @@ import {
 } from "utils/widgetRenderUtils";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 
@@ -225,8 +226,34 @@ const defaultLayout: AppLayoutConfig = {
   type: "FLUID",
 };
 
-export const getCurrentApplicationLayout = (state: AppState) =>
+const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
+
+export const getMainCanvasPositioning = createSelector(
+  getWidgets,
+  (widgets) => {
+    return (
+      widgets &&
+      widgets[MAIN_CONTAINER_WIDGET_ID] &&
+      widgets[MAIN_CONTAINER_WIDGET_ID].positioning
+    );
+  },
+);
+
+export const getCurrentAppPositioningType = createSelector(
+  getMainCanvasPositioning,
+  (positioning: any): AppPositioningTypes => {
+    return positioning && positioning !== Positioning.Fixed ? "AUTO" : "FIXED";
+  },
+);
+
+export const getCurrentApplicationLayout = createSelector(
+  getAppLayout,
+  getCurrentAppPositioningType,
+  (appLayout: AppLayoutConfig, appPositionType) => {
+    return appPositionType === "FIXED" ? appLayout : defaultLayout;
+  },
+);
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
 

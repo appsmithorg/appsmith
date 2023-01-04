@@ -83,7 +83,7 @@ function ResizableHandle(props: ResizableHandleProps) {
       memo,
       movement: [mx, my],
     } = state;
-    if (!props.allowResize) {
+    if (!props.allowResize || props.disableDot) {
       return;
     }
     const scrollParent = getNearestParentCanvas(props.scrollParent);
