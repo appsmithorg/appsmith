@@ -30,6 +30,7 @@ export const CONFIG = {
   defaults: {
     responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
+    useSourceData: false,
     animateLoading: true,
     backgroundColor: "#fff",
     columns: 25,
