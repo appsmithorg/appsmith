@@ -154,7 +154,10 @@ export function RolesListing() {
       icon: "book-line",
       className: "documentation-page-menu-item",
       onSelect: () => {
-        /*console.log("hello onSelect")*/
+        window.open(
+          "https://docs.appsmith.com/advanced-concepts/access-control/granular-access-control/roles",
+          "_blank",
+        );
       },
       text: "Documentation",
     },
