@@ -49,7 +49,7 @@ import {
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
-import { ActionDescription } from "ce/entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
 export type TriggerMeta = {
   source?: TriggerSource;

@@ -13,7 +13,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "./evalWorkerActions";
-import { ActionDescription } from "ce/entities/DataTree/actionTriggers";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
 export const promisifyAction = (
   actionDescription: ActionDescription,

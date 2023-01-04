@@ -51,7 +51,7 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerKeys, string> = {
   CLEAR_TIMEOUT: "clearTimeout",
 };
 
-interface ActionDescriptionInterface<T, Type extends ActionTriggerKeys> {
+export interface ActionDescriptionInterface<T, Type extends ActionTriggerKeys> {
   type: Type;
   payload: T;
 }

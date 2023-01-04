@@ -26,12 +26,12 @@ declare global {
   }
 }
 
-enum ExecutionType {
+export enum ExecutionType {
   PROMISE = "PROMISE",
   TRIGGER = "TRIGGER",
 }
 
-type ActionDescriptionWithExecutionType = ActionDescription & {
+export type ActionDescriptionWithExecutionType = ActionDescription & {
   executionType: ExecutionType;
 };
 
