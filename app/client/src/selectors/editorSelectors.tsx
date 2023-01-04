@@ -399,6 +399,7 @@ export const getCanvasWidgetDsl = createSelector(
 export const getChildWidgets = createSelector(
   [
     getCanvasWidgets,
+    getMetaWidgets,
     getDataTree,
     getLoadingEntities,
     (_state: AppState, widgetId: string) => widgetId,
