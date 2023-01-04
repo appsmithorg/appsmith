@@ -35,6 +35,7 @@ import io.r2dbc.spi.Statement;
 import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
+import org.mariadb.r2dbc.MariadbConnectionFactoryProvider;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -297,7 +298,7 @@ public class MySqlPlugin extends BasePlugin {
                             resultMono = resultFlux
                                     .flatMap(Result::getRowsUpdated)
                                     .collectList()
-                                    .flatMap(list -> Mono.just(list.get(list.size() - 1)))
+                                    .map(list -> list.get(list.size() - 1))
                                     .map(rowsUpdated -> {
                                         rowsList.add(
                                                 Map.of(
@@ -417,7 +418,7 @@ public class MySqlPlugin extends BasePlugin {
             switch (appsmithType.type()) {
                 case NULL:
                     try {
-                        connectionStatement.bindNull((index - 1), Object.class);
+                        connectionStatement.bindNull((index - 1), String.class);
                     } catch (UnsupportedOperationException e) {
                         // Do nothing. Move on
                     }
@@ -528,7 +529,6 @@ public class MySqlPlugin extends BasePlugin {
             }
             return Mono.just(pool);
         }
-
         @Override
         public void datasourceDestroy(ConnectionPool connectionPool) {
             if (connectionPool != null) {
