@@ -119,7 +119,6 @@ class ListWidget extends BaseWidget<
   prevMetaContainerNames: string[];
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
-  rowDataCache: RowDataCache;
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -181,7 +180,6 @@ class ListWidget extends BaseWidget<
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
-    this.rowDataCache = {};
   }
 
   componentDidMount() {
@@ -189,7 +187,6 @@ class ListWidget extends BaseWidget<
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
     }
-    // this.updateRowDataCacheWidgetProp();
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
@@ -513,12 +510,15 @@ class ListWidget extends BaseWidget<
     }
   };
 
+  getCurrDataCache = () => this.metaWidgetGenerator.getRowDataCache();
+
   setRowDataCache = () => {
+    const prevDataCache = this.getCurrDataCache();
     const rowDataCache: RowDataCache = {};
 
     Object.entries(this.cachedKeys).forEach(([key, rowIndex]) => {
-      if (Object.keys(this.rowDataCache).includes(key)) {
-        rowDataCache[key] = this.rowDataCache[key];
+      if (Object.keys(prevDataCache).includes(key)) {
+        rowDataCache[key] = prevDataCache[key];
         return;
       }
       const startIndex = this.metaWidgetGenerator.getStartIndex();
@@ -527,19 +527,17 @@ class ListWidget extends BaseWidget<
       rowDataCache[key] = rowData;
     });
 
-    if (!isEmpty(rowDataCache)) {
-      this.rowDataCache = rowDataCache;
-      this.updateGeneratorCacheRowKeys(Object.keys(this.rowDataCache));
-    }
+    this.updateMetaGeneratorRowDataCache(rowDataCache);
+    this.updateGeneratorCacheRowKeys(Object.keys(rowDataCache));
   };
 
   updateGeneratorCacheRowKeys = (keys: string[]) => {
     this.metaWidgetGenerator.updateCurrCachedRows(keys);
   };
 
-  updateRowDataCacheWidgetProp = () => {
+  updateMetaGeneratorRowDataCache = (rowDataCache: RowDataCache) => {
     if (this.props.serverSidePagination) {
-      this.metaWidgetGenerator.updateRowDataCache(this.rowDataCache);
+      this.metaWidgetGenerator.updateRowDataCache(rowDataCache);
     }
   };
 
@@ -576,23 +574,23 @@ class ListWidget extends BaseWidget<
 
   handleRowCacheData = () => {
     this.setRowDataCache();
-    this.updateRowDataCacheWidgetProp();
   };
 
   updateRowCacheWithNewData = () => {
+    let rowDataCache: RowDataCache = { ...this.getCurrDataCache() };
     Object.keys(this.cachedKeys).forEach((key) => {
       if (this.props.primaryKeys?.toString().includes(key)) {
         const rowIndex = this.cachedKeys[key];
         const startIndex = this.metaWidgetGenerator.getStartIndex();
         const viewIndex = rowIndex - startIndex;
 
-        this.rowDataCache = {
-          ...this.rowDataCache,
-          [key]: this.props.listData?.[viewIndex] ?? this.rowDataCache[key],
+        rowDataCache = {
+          ...rowDataCache,
+          [key]: this.props.listData?.[viewIndex] ?? rowDataCache[key],
         };
       }
     });
-    this.updateRowDataCacheWidgetProp();
+    this.updateMetaGeneratorRowDataCache(rowDataCache);
   };
 
   onRowClick = (rowIndex: number) => {
