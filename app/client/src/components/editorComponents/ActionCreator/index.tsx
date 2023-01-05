@@ -132,8 +132,10 @@ function getFieldFromValue(
 function replaceAction(value: string, changeValue: string, argNum: number) {
   // if no action("") then send empty arrow expression
   // else replace with arrow expression and action selected
+  const changeValueWithoutBrackets = getDynamicBindings(changeValue)
+    .jsSnippets[0];
   const reqChangeValue =
-    changeValue === "" ? `() => {}` : `() => ${changeValue}`;
+    changeValue === "" ? `() => {}` : `() => ${changeValueWithoutBrackets}`;
   return `{{${replaceActionInQuery(
     value,
     reqChangeValue,
