@@ -23,6 +23,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
@@ -57,7 +58,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
-import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -2795,14 +2795,14 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongockTemplate, Workspace.class, "tenantId_deleted");
         ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
     }
-    
+
     @ChangeSet(order = "038", id = "add-unique-index-for-uidstring", author = "")
     public void addUniqueIndexOnUidString(MongockTemplate mongoTemplate) {
         Index uidStringUniqueness = makeIndex("uidString").unique()
                 .named("customjslibs_uidstring_index");
         ensureIndexes(mongoTemplate, CustomJSLib.class, uidStringUniqueness);
     }
-    
+
     // TODO We'll be deleting this migration after upgrade to Spring 6.0
     @ChangeSet(order = "039", id = "deprecate-queryabletext-encryption", author = "")
     public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate,
@@ -2894,6 +2894,11 @@ public class DatabaseChangelog2 {
                     // Encrypt attributes
                     pathList.stream()
                             .forEach(path -> reapplyNewEncryptionToPathValueIfExists(old, updated, path, encryptionService, textEncryptor));
+                    // Since empty unset values are only allowed since Mongo v5+,
+                    // Remove the operation if there is nothing to unset
+                    if (((BasicDBObject) updated.get("$unset")).isEmpty()) {
+                        updated.remove("$unset");
+                    }
                     documentPairList.add(List.of(query, updated));
                 }
 
