@@ -1,8 +1,8 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
@@ -21,15 +21,14 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportFileDTO;
@@ -64,7 +63,6 @@ import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,11 +92,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
-import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -127,6 +125,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final Gson gson;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -512,10 +511,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     public Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName) {
         return this.exportApplicationById(applicationId, branchName)
                 .map(applicationJson -> {
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
-                            .create();
-
                     String stringifiedFile = gson.toJson(applicationJson);
                     String applicationName = applicationJson.getExportedApplication().getName();
                     Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
@@ -568,9 +563,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
         Mono<ApplicationImportDTO> importedApplicationMono = stringifiedFile
                 .flatMap(data -> {
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
-                            .create();
                     /*
                     // Use JsonObject to migrate when we remove some field from the collection which is being exported
                     JsonObject json = gson.fromJson(data, JsonObject.class);
@@ -764,11 +756,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     existingDatasource.setStructure(null);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
-                                    return datasourceService.update(existingDatasource.getId(), existingDatasource)
-                                            .map(datasource1 -> {
-                                                datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                                return datasource1;
-                                            });
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
 
                                 // This is explicitly copied over from the map we created before
@@ -785,19 +773,17 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId)
-                                        .map(datasource1 -> {
-                                            datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                            return datasource1;
-                                        });
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId);
                             });
                 })
-                .then(
+                .collectMap(Datasource::getName, Datasource::getId)
+                .flatMap(map -> {
+                        datasourceMap.putAll(map);
                         // 1. Assign the policies for the imported application
                         // 2. Check for possible duplicate names,
                         // 3. Save the updated application
 
-                        Mono.just(importedApplication)
+                        return Mono.just(importedApplication)
                                 .zipWith(currUserMono)
                                 .map(objects -> {
                                     Application application = objects.getT1();
@@ -856,7 +842,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                 });
                                     }
                                     return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
-                                })
+                                });
+                    }
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
                 .flatMap(savedApp -> {
