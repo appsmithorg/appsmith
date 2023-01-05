@@ -263,14 +263,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
     children = this.showWidgetName(children, true);
-    if (isAutoHeightEnabledForWidget(this.props, true)) {
-      children = this.addAutoHeightOverlay(children, {
-        width: "100%",
-        height: "100%",
-        left: 0,
-        top: 0,
-      });
-    }
+
     return this.makeModalComponent(children, true);
   }
 

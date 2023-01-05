@@ -116,7 +116,6 @@ export type ModalComponentProps = {
   portalContainer?: HTMLElement;
   canOutsideClickClose: boolean;
   canEscapeKeyClose: boolean;
-  overlayClassName?: string;
   scrollContents: boolean;
   height?: number;
   top?: number;
@@ -265,6 +264,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         autoFocus={false}
         canEscapeKeyClose={false}
         canOutsideClickClose={false}
+        className="MAIN-OVERLAY"
         enforceFocus={false}
         hasBackdrop={false}
         isOpen={props.isOpen}
@@ -275,6 +275,7 @@ export default function ModalComponent(props: ModalComponentProps) {
           backgroundColor={props.backgroundColor}
           borderRadius={props.borderRadius}
           bottom={props.bottom}
+          className="CONTAINER-OVERLAY"
           height={props.height}
           isEditMode={props.isEditMode}
           left={props.left}
@@ -291,7 +292,7 @@ export default function ModalComponent(props: ModalComponentProps) {
             autoFocus={false}
             canEscapeKeyClose={props.canEscapeKeyClose}
             canOutsideClickClose={props.canOutsideClickClose}
-            className={props.overlayClassName}
+            className="FINAL_OVERLAY"
             enforceFocus={false}
             hasBackdrop
             isOpen={props.isOpen}

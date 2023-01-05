@@ -72,25 +72,6 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
-/*
-  Don't use buttonHoverActiveStyles in a nested function it won't work -
-
-  const buttonHoverActiveStyles = css ``
-
-  const Button = styled.button`
-  // won't work
-    ${({ buttonColor, theme }) => {
-      &:hover, &:active {
-        ${buttonHoverActiveStyles}
-      }
-    }}
-
-  // will work
-  &:hover, &:active {
-    ${buttonHoverActiveStyles}
-  }`
-*/
-
 const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
 height: 100%;
 background-image: none !important;

@@ -76,6 +76,8 @@ export function* updateWidgetAutoHeightSaga(
 
   let dynamicHeightLayoutTree: Record<string, TreeNode>;
 
+  const widgetsMeasuredInPixels = [];
+
   log.debug("Dynamic Height: updates to process", { updates });
 
   if (action?.payload) {
@@ -90,7 +92,11 @@ export function* updateWidgetAutoHeightSaga(
     dynamicHeightLayoutTree = result.tree;
   }
 
-  console.log("Auto Height: Calling for updates", { updates });
+  console.log(
+    "Auto Height: Calling for updates",
+    { updates },
+    { payload: action?.payload },
+  );
   // Get all widgets from canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -168,6 +174,8 @@ export function* updateWidgetAutoHeightSaga(
       // For widgets like Modal Widget. (Rather this assumes that it is only the modal widget which needs a change)
       const newHeight = updates[widgetId];
 
+      widgetsMeasuredInPixels.push(widgetId);
+
       // Setting the height and dimensions of the Modal Widget
       widgetsToUpdate[widgetId] = [
         {
@@ -183,23 +191,6 @@ export function* updateWidgetAutoHeightSaga(
           propertyValue: widget.topRow,
         },
       ];
-      // Setting the child canvas widget's dimensions in the Modal Widget
-      if (Array.isArray(widget.children) && widget.children.length === 1) {
-        widgetsToUpdate[widget.children[0]] = [
-          {
-            propertyPath: "minHeight",
-            propertyValue: newHeight,
-          },
-          {
-            propertyPath: "bottomRow",
-            propertyValue: newHeight,
-          },
-          {
-            propertyPath: "topRow",
-            propertyValue: 0,
-          },
-        ];
-      }
     }
   }
 
@@ -384,6 +375,10 @@ export function* updateWidgetAutoHeightSaga(
               // We need to make sure that we change properties other than bottomRow and topRow
               // In this case we're updating minHeight and height as well.
               if (parentContainerLikeWidget.detachFromLayout) {
+                widgetsMeasuredInPixels.push(
+                  parentContainerLikeWidget.widgetId,
+                );
+
                 // DRY this
                 widgetsToUpdate[parentContainerLikeWidget.widgetId] = [
                   {
@@ -470,6 +465,8 @@ export function* updateWidgetAutoHeightSaga(
       maxCanvasHeightInRows,
     );
 
+    widgetsMeasuredInPixels.push(MAIN_CONTAINER_WIDGET_ID);
+
     // Add the MainContainer's update.
     widgetsToUpdate[MAIN_CONTAINER_WIDGET_ID] = [
       {
@@ -523,7 +520,13 @@ export function* updateWidgetAutoHeightSaga(
         generateAutoHeightLayoutTreeAction(shouldRecomputeContainers, false),
       );
     }
-    directlyMutateDOMNodes(widgetsToUpdate);
+    directlyMutateDOMNodes(
+      widgetsToUpdate as Record<
+        string,
+        Array<{ propertyPath: string; propertyValue: number }>
+      >,
+      widgetsMeasuredInPixels,
+    );
   }
 
   log.debug(
