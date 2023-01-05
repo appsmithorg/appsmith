@@ -123,7 +123,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     let changedValue: string = currentValue;
     let changedValueCommentArray: Array<Comment> = [];
     let currentValueCommentArray: Array<Comment> = [];
-    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode | BinaryExpressionNode;
+    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode | BinaryExpressionNode | CallExpressionNode;
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -157,6 +157,11 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
         },
         BinaryExpression(node) {
             if(isBinaryExpressionNode(node)) {
+                requiredNode = node;
+            }
+        },
+        CallExpression(node) {
+            if(isCallExpressionNode(node)) {
                 requiredNode = node;
             }
         }
