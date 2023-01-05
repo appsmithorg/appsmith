@@ -1,6 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import {
   EventType,
   ExecutionResult,
@@ -8,10 +8,7 @@ import {
 import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import React from "react";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseInputComponent from "../component";
@@ -258,13 +255,7 @@ class BaseInputWidget<
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -387,7 +378,7 @@ class BaseInputWidget<
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

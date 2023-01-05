@@ -1,3 +1,4 @@
+import { ResponsiveBehavior } from "components/constants";
 import { CameraModeTypes } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -18,6 +19,7 @@ export const CONFIG = {
     isVisible: true,
     isMirrored: true,
     version: 1,
+    responsiveBehavior: ResponsiveBehavior.Hug,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

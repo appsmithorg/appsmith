@@ -7,16 +7,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
 import { IconNames } from "@blueprintjs/icons";
-import {
-  ButtonVariant,
-  ButtonVariantTypes,
-  ResponsiveBehavior,
-} from "components/constants";
+import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import IconButtonComponent from "../component";
 
 const ICON_NAMES = Object.keys(IconNames).map(
@@ -114,13 +107,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 

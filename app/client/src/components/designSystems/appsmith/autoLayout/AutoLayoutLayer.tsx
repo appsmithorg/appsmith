@@ -2,7 +2,6 @@ import React, { ReactNode } from "react";
 import styled from "styled-components";
 
 import { FlexDirection, LayoutDirection } from "components/constants";
-import { DRAG_MARGIN } from "widgets/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.
@@ -21,7 +20,6 @@ export interface AutoLayoutLayerProps {
   widgetId: string;
   isMobile?: boolean;
   isCurrentCanvasDragging: boolean;
-  currentChildCount: number;
   wrapStart: boolean;
   wrapCenter: boolean;
   wrapEnd: boolean;
@@ -41,7 +39,6 @@ const LayoutLayerContainer = styled.div<{
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
   gap: ${({ flexGap }) => `${flexGap}px`};
   width: 100%;
-  margin-top: ${DRAG_MARGIN}px;
 `;
 
 const SubWrapper = styled.div<{

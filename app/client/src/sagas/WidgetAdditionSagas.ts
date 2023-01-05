@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { ResponsiveBehavior } from "components/constants";
+import { Positioning, ResponsiveBehavior } from "components/constants";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
@@ -111,8 +111,14 @@ function* getChildWidgetProps(
     }
   }
 
-  // TODO: add check for positioning value in parent.
-  if (restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill)
+  const isAutoLayout =
+    parent?.positioning === Positioning.Vertical ||
+    (parent.parentId &&
+      widgets[parent.parentId].positioning === Positioning.Vertical);
+  if (
+    isAutoLayout &&
+    restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill
+  )
     columns = 64;
 
   const widgetProps = {

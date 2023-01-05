@@ -20,6 +20,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
+import useWidgetFocus from "utils/hooks/useWidgetFocus";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -101,6 +102,8 @@ const Canvas = memo((props: CanvasProps) => {
     backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
   }
 
+  const focusRef = useWidgetFocus();
+
   try {
     return (
       <Container
@@ -118,6 +121,7 @@ const Canvas = memo((props: CanvasProps) => {
           );
           !!data && delayedShareMousePointer(data);
         }}
+        ref={focusRef}
         style={{
           width: canvasWidth,
         }}

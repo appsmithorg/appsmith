@@ -7,16 +7,11 @@ import BaseWidget from "widgets/BaseWidget";
 import WidgetFactory, { NonSerialisableWidgetConfigs } from "./WidgetFactory";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import withMeta from "widgets/MetaHOC";
-import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
-import {
-  RegisteredWidgetFeatures,
-  WidgetFeaturePropertyEnhancements,
-  WidgetFeatureProps,
-} from "./WidgetFeatures";
 import { WidgetConfiguration } from "widgets/constants";
+import withMeta from "widgets/MetaHOC";
 import withWidgetProps from "widgets/withWidgetProps";
+import { generateReactKey } from "./generators";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
@@ -55,18 +50,19 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
 };
 
 export const configureWidget = (config: WidgetConfiguration) => {
-  let features: Record<string, unknown> = {};
-  if (config.features) {
-    Object.keys(config.features).forEach((registeredFeature: string) => {
-      features = Object.assign(
-        {},
-        WidgetFeatureProps[registeredFeature as RegisteredWidgetFeatures],
-        WidgetFeaturePropertyEnhancements[
-          registeredFeature as RegisteredWidgetFeatures
-        ](config),
-      );
-    });
-  }
+  const features: Record<string, unknown> = {};
+  // ToDO(Ashok): Need to bring back Dynamic Height features based on mode of the editor (Fixed vs Mobile responsiveness)
+  // if (config.features) {
+  //   Object.keys(config.features).forEach((registeredFeature: string) => {
+  //     features = Object.assign(
+  //       {},
+  //       WidgetFeatureProps[registeredFeature as RegisteredWidgetFeatures],
+  //       WidgetFeaturePropertyEnhancements[
+  //         registeredFeature as RegisteredWidgetFeatures
+  //       ](config),
+  //     );
+  //   });
+  // }
 
   const _config = {
     ...config.defaults,

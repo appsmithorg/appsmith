@@ -1,23 +1,23 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray } from "lodash";
+import { WidgetType } from "constants/WidgetConstants";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { isArray } from "lodash";
+import React from "react";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import MultiSelectComponent from "../component";
-import { Layers } from "constants/Layers";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
-import { DraftValueType } from "rc-select/lib/Select";
+import { LabelPosition } from "components/constants";
+import { Layers } from "constants/Layers";
 import { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { DraftValueType } from "rc-select/lib/Select";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import MultiSelectComponent from "../component";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -187,7 +187,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          ...getResponsiveLayoutConfig(this.getWidgetType()),
         ],
       },
       {
@@ -329,7 +329,7 @@ class MultiSelectWidget extends BaseWidget<
           {
             propertyName: "labelStyle",
             label: "Label Font Style",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

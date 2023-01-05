@@ -1,23 +1,23 @@
-import React, { CSSProperties, useMemo, useRef } from "react";
-import styled from "styled-components";
-import { WidgetProps } from "widgets/BaseWidget";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
-import {
-  useShowTableFilterPane,
-  useWidgetDragResize,
-} from "utils/hooks/dragResizeHooks";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import React, { CSSProperties, useMemo, useRef } from "react";
+import { useSelector } from "react-redux";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import {
   isCurrentWidgetFocused,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
+import styled from "styled-components";
+import {
+  useShowTableFilterPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -78,7 +78,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isPreviewMode = useSelector(previewModeSelector);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
-  const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
+  const { setDraggingState } = useWidgetDragResize();
   const showTableFilterPane = useShowTableFilterPane();
 
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
@@ -131,7 +131,9 @@ function DraggableComponent(props: DraggableComponentProps) {
     };
   }, [isResizingOrDragging, isCurrentWidgetResizing]);
 
-  const widgetBoundaries = <WidgetBoundaries style={dragBoundariesStyle} />;
+  const widgetBoundaries = props.isFlexChild ? null : (
+    <WidgetBoundaries style={dragBoundariesStyle} />
+  );
 
   const classNameForTesting = `t--draggable-${props.type
     .split("_")
@@ -173,13 +175,12 @@ function DraggableComponent(props: DraggableComponentProps) {
         ),
       };
       showTableFilterPane();
-      setDraggingCanvas(props.parentId);
-
       setDraggingState({
         isDragging: true,
         dragGroupActualParent: props.parentId || "",
         draggingGroupCenter: { widgetId: props.widgetId },
         startPoints,
+        draggedOn: props.parentId,
       });
     }
   };

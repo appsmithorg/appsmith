@@ -2,6 +2,7 @@ import React from "react";
 
 import {
   CONTAINER_GRID_PADDING,
+  FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
@@ -16,7 +17,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { Positioning, ResponsiveBehavior } from "components/constants";
+import { Positioning } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
 import {
   generateFlexGapConfig,
@@ -24,6 +25,7 @@ import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -74,11 +76,12 @@ export class ContainerWidget extends BaseWidget<
         sectionName: "Responsive Layout",
         children: [
           generatePositioningConfig(Positioning.Vertical),
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          //generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
           generateVerticalAlignmentConfig(),
           generateFlexGapConfig(),
         ],
       },
+      //...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -180,7 +183,10 @@ export class ContainerWidget extends BaseWidget<
       this.props.type === "CONTAINER_WIDGET"
     ) {
       //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
-      padding = CONTAINER_GRID_PADDING * 2;
+      padding =
+        this.props.positioning === Positioning.Vertical
+          ? FLEXBOX_PADDING * 2
+          : CONTAINER_GRID_PADDING * 2;
     }
     if (this.props.noPad) {
       // Widgets like ListWidget choose to have no container padding so will only have widget padding
@@ -233,7 +239,7 @@ export class ContainerWidget extends BaseWidget<
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     return (
-      <ContainerComponent {...props}>
+      <ContainerComponent {...props} shouldScrollContents={false}>
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}

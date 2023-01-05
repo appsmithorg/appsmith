@@ -117,16 +117,14 @@ function* getLastSelectedCanvas() {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgetLastSelected =
     lastSelectedWidget && canvasWidgets[lastSelectedWidget];
-  if (widgetLastSelected && !widgetLastSelected.flexLayers) {
+  if (widgetLastSelected) {
     const canvasToSelect: string = yield call(
       getDroppingCanvasOfWidget,
       widgetLastSelected,
     );
     return canvasToSelect ? canvasToSelect : MAIN_CONTAINER_WIDGET_ID;
   }
-  if (!canvasWidgets[MAIN_CONTAINER_WIDGET_ID].flexLayers) {
-    return MAIN_CONTAINER_WIDGET_ID;
-  }
+  return MAIN_CONTAINER_WIDGET_ID;
 }
 
 // used for List widget cases

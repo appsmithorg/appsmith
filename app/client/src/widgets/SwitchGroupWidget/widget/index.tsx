@@ -7,13 +7,10 @@ import React from "react";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { Stylesheet } from "entities/AppTheming";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import SwitchGroupComponent, { OptionProps } from "../component";
@@ -235,13 +232,7 @@ class SwitchGroupWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -322,7 +313,7 @@ class SwitchGroupWidget extends BaseWidget<
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

@@ -28,6 +28,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { NonResizableWidgets } from "utils/layoutPropertiesUtils";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
   WidgetOperations,
@@ -100,14 +101,22 @@ export const ResizableComponent = memo(function ResizableComponent(
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
     width:
-      ((props.isMobile && props.mobileRightColumn
+      ((props.isMobile && props.mobileRightColumn !== undefined
         ? props.mobileRightColumn
         : props.rightColumn) -
-        props.leftColumn) *
+        (props.isMobile && props.mobileLeftColumn !== undefined
+          ? props.mobileLeftColumn
+          : props.leftColumn)) *
         props.parentColumnSpace -
       2 * props.paddingOffset,
     height:
-      (props.bottomRow - props.topRow) * props.parentRowSpace -
+      ((props.isMobile && props.mobileBottomRow !== undefined
+        ? props.mobileBottomRow
+        : props.bottomRow) -
+        (props.isMobile && props.mobileTopRow !== undefined
+          ? props.mobileTopRow
+          : props.topRow)) *
+        props.parentRowSpace -
       2 * props.paddingOffset,
   };
 
@@ -318,10 +327,12 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isVerticalResizeEnabled = useMemo(() => {
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
-
+  const allowResize: boolean =
+    !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
+    !props.isFlexChild;
   return (
     <Resizable
-      allowResize={!isMultiSelected}
+      allowResize={allowResize}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       direction={props.direction}

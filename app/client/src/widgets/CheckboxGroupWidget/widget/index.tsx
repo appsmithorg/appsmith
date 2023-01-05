@@ -2,7 +2,6 @@ import { Alignment } from "@blueprintjs/core";
 import {
   CheckboxGroupAlignmentTypes,
   LabelPosition,
-  ResponsiveBehavior,
 } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
@@ -22,10 +21,7 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -292,13 +288,7 @@ class CheckboxGroupWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -378,7 +368,7 @@ class CheckboxGroupWidget extends BaseWidget<
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

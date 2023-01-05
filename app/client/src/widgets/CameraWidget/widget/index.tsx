@@ -8,12 +8,8 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
 
-import { ResponsiveBehavior } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import CameraComponent from "../component";
 import {
   CameraMode,
@@ -85,13 +81,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

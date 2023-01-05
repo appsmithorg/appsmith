@@ -8,6 +8,7 @@ import { ResponsiveBehavior } from "components/constants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
@@ -48,10 +49,12 @@ function* addChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
     const start = performance.now();
     const { parentId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const isMobile: boolean = yield select(getIsMobile);
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       wrapChildren,
       allWidgets,
       parentId,
+      isMobile,
     );
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("empty wrapper removal took", performance.now() - start, "ms");

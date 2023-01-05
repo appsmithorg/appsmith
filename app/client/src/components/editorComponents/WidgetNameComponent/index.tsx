@@ -1,5 +1,6 @@
 import { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
+import { Layers } from "constants/Layers";
 import { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,6 +32,7 @@ const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   display: flex;
   padding: 0 4px;
   cursor: pointer;
+  z-index: ${Layers.widgetName};
 `;
 
 const ControlGroup = styled.div`

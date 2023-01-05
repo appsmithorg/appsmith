@@ -1,15 +1,11 @@
 import React from "react";
 
-import { ResponsiveBehavior } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import { createBlobUrl } from "utils/AppsmithUtils";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
@@ -74,13 +70,7 @@ class AudioRecorderWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

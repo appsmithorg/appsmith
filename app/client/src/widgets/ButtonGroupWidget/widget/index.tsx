@@ -5,17 +5,13 @@ import {
   ButtonPlacementTypes,
   ButtonVariant,
   ButtonVariantTypes,
-  ResponsiveBehavior,
 } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
 import ButtonGroupComponent from "../component";
@@ -294,20 +290,9 @@ class ButtonGroupWidget extends BaseWidget<
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.BOOLEAN },
                     },
-                    {
-                      ...generateResponsiveBehaviorConfig(
-                        ResponsiveBehavior.Fill,
-                      ),
-                    },
                   ],
                 },
-                {
-                  sectionName: "Responsive Layout",
-                  children: [
-                    generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-                    generateVerticalAlignmentConfig(),
-                  ],
-                },
+                ...getResponsiveLayoutConfig(this.getWidgetType()),
                 {
                   sectionName: "Events",
                   hidden: (

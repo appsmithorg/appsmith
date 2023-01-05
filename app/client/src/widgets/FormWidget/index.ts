@@ -1,10 +1,11 @@
 import {
   ButtonVariantTypes,
+  Positioning,
   RecaptchaTypes,
-  ResponsiveBehavior,
 } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -30,6 +31,7 @@ export const CONFIG = {
     widgetName: "Form",
     backgroundColor: Colors.WHITE,
     children: [],
+    positioning: Positioning.Fixed,
     blueprint: {
       view: [
         {
@@ -100,7 +102,7 @@ export const CONFIG = {
         },
       ],
     },
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

@@ -1,18 +1,18 @@
-import { sortBy } from "lodash";
 import {
-  ReduxAction,
-  ReduxActionTypes,
-  Page,
   ClonePageSuccessPayload,
+  Page,
+  ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
 import {
   GenerateCRUDSuccess,
   UpdatePageErrorPayload,
 } from "actions/pageActions";
 import { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
+import { sortBy } from "lodash";
 import { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -246,6 +246,11 @@ export type SupportedLayouts =
   | "FLUID";
 export interface AppLayoutConfig {
   type: SupportedLayouts;
+}
+
+export type AppPositioningTypes = "AUTO" | "FIXED";
+export interface AppPositioningTypeConfig {
+  type: AppPositioningTypes;
 }
 
 export interface PageListReduxState {

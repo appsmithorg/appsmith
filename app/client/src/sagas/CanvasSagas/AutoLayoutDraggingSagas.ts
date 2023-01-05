@@ -18,12 +18,11 @@ import log from "loglevel";
 import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import {
-  updateFlexChildColumns,
-  updateSizeOfAllChildren,
-} from "sagas/AutoLayoutUtils";
+import { updateFlexChildColumns } from "sagas/AutoLayoutUtils";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -43,6 +42,7 @@ function* addWidgetAndReorderSaga(
     layerIndex,
     rowIndex,
   } = dropPayload;
+  const isMobile: boolean = yield select(getIsMobile);
   try {
     // if (newWidget.type === "SPACING_WIDGET") {
     //   if (isNewLayer) {
@@ -74,6 +74,7 @@ function* addWidgetAndReorderSaga(
         layerIndex,
         rowIndex,
         layerHeight: height,
+        isMobile,
       },
     );
     let updatedWidgetsAfterResizing = updatedWidgetsOnMove;
@@ -123,6 +124,7 @@ function* autoLayoutReorderSaga(
 
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const isMobile: boolean = yield select(getIsMobile);
     if (!parentId || !movedWidgets || !movedWidgets.length) return;
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       reorderAutolayoutChildren,
@@ -137,16 +139,11 @@ function* autoLayoutReorderSaga(
         layerIndex,
         rowIndex,
         layerHeight: height,
+        isMobile,
       },
     );
-    let updatedWidgetsAfterResizing = updatedWidgets;
-    if (direction === LayoutDirection.Vertical)
-      updatedWidgetsAfterResizing = updateSizeOfAllChildren(
-        updatedWidgets,
-        parentId,
-      );
 
-    yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
+    yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
     // console.error(e);
@@ -164,12 +161,14 @@ function* reorderAutolayoutChildren(params: {
   layerIndex?: number;
   rowIndex: number;
   layerHeight: number;
+  isMobile?: boolean;
 }) {
   const {
     alignment,
     allWidgets,
     direction,
     index,
+    isMobile,
     isNewLayer,
     layerHeight,
     layerIndex,
@@ -207,6 +206,7 @@ function* reorderAutolayoutChildren(params: {
     selectedWidgets,
     widgets,
     parentId,
+    isMobile,
   );
 
   // Update flexLayers for a vertical stack.
@@ -274,8 +274,13 @@ function* reorderAutolayoutChildren(params: {
       bottomRow: parentWidget.topRow + height,
     };
   }
+  const widgetsAfterPositionUpdate = updateWidgetPositions(
+    updatedWidgets,
+    parentId,
+    isMobile,
+  );
 
-  return updatedWidgets;
+  return widgetsAfterPositionUpdate;
 }
 
 /**
@@ -291,19 +296,21 @@ function updateRelationships(
   movedWidgets: string[],
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  isMobile = false,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   // Check if parent has changed
   const orphans = movedWidgets.filter(
     (item) => widgets[item].parentId !== parentId,
   );
-  let prevParentId: string | undefined;
+  const prevParents: string[] = [];
   if (orphans && orphans.length) {
     //parent has changed
     orphans.forEach((item) => {
       // remove from previous parent
-      prevParentId = widgets[item].parentId;
+      const prevParentId = widgets[item].parentId;
       if (prevParentId !== undefined) {
+        prevParents.push(prevParentId);
         const prevParent = Object.assign({}, widgets[prevParentId]);
         if (prevParent.children && isArray(prevParent.children)) {
           const updatedPrevParent = {
@@ -326,8 +333,11 @@ function updateRelationships(
       };
     });
   }
-  if (prevParentId) {
-    return updateSizeOfAllChildren(widgets, prevParentId);
+  if (prevParents.length) {
+    for (const id of prevParents) {
+      const updatedWidgets = updateWidgetPositions(widgets, id, isMobile);
+      return updatedWidgets;
+    }
   }
   return widgets;
 }
@@ -367,7 +377,7 @@ function updateExistingLayer(
   rowIndex: number,
 ): CanvasWidgetsReduxState {
   try {
-    const widgets: CanvasWidgetsReduxState = Object.assign({}, allWidgets);
+    const widgets: CanvasWidgetsReduxState = { ...allWidgets };
     const canvas = widgets[parentId];
     if (!canvas || !newLayer) return widgets;
 

@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
@@ -14,10 +14,7 @@ import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import React, { ReactNode } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -336,13 +333,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -440,7 +431,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

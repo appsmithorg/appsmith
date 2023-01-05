@@ -41,6 +41,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       dragGroupActualParent: string;
       draggingGroupCenter: DraggingGroupCenter;
       startPoints: any;
+      draggedOn?: string;
     }>,
   ) => {
     state.isDragging = action.payload.isDragging;
@@ -49,6 +50,9 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       draggingGroupCenter: action.payload.draggingGroupCenter,
       dragOffset: action.payload.startPoints,
     };
+    if (action.payload.draggedOn) {
+      state.dragDetails.draggedOn = action.payload.draggedOn;
+    }
   },
   [ReduxActionTypes.SET_NEW_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,

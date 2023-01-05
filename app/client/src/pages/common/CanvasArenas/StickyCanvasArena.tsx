@@ -127,6 +127,9 @@ export const StickyCanvasArena = forwardRef(
           data-testid={canvasId}
           id={canvasId}
           ref={stickyCanvasRef}
+          style={{
+            position: "absolute",
+          }}
         />
         <StyledCanvasSlider
           data-testid={id}

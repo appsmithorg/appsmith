@@ -7,7 +7,6 @@ import {
   ButtonVariantTypes,
   RecaptchaType,
   RecaptchaTypes,
-  ResponsiveBehavior,
 } from "components/constants";
 import {
   EventType,
@@ -17,10 +16,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import React from "react";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import ButtonComponent, { ButtonType } from "../component";
@@ -109,13 +105,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Validation",
         children: [

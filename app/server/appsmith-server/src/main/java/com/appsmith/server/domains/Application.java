@@ -14,7 +14,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,6 +47,7 @@ public class Application extends BaseDomain {
     TODO: remove default values from application.
      */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Deprecated(forRemoval = true)
     Boolean isPublic = false;
 
     List<ApplicationPage> pages;
@@ -108,6 +109,11 @@ public class Application extends BaseDomain {
     Instant lastEditedAt;
 
     EmbedSetting embedSetting;
+
+    NavigationSetting unpublishedNavigationSetting;
+
+    NavigationSetting publishedNavigationSetting;
+
 
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
@@ -251,11 +257,28 @@ public class Application extends BaseDomain {
      * EmbedSetting is used for embedding Appsmith apps on other platforms
      */
     @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class EmbedSetting {
         private String height;
         private String width;
         private Boolean showNavigationBar;
     }
+
+
+    /**
+     * NavigationSetting stores the navigation configuration for the app
+     */
+    @Data
+    public static class NavigationSetting {
+        private Boolean showNavbar;
+        private String orientation;
+        private String navStyle;
+        private String position;
+        private String itemStyle;
+        private String colorStyle;
+        private String logoAssetId;
+        private String logoConfiguration;
+        private Boolean showSignIn;
+        private Boolean showShareApp;
+    }
+
 }

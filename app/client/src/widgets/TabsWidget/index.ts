@@ -1,7 +1,8 @@
-import { Positioning, ResponsiveBehavior } from "components/constants";
+import { Positioning } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
@@ -27,7 +28,7 @@ export const CONFIG = {
     },
   },
   defaults: {
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
     columns: 24,

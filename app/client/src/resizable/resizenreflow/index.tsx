@@ -83,7 +83,7 @@ function ResizableHandle(props: ResizableHandleProps) {
       memo,
       movement: [mx, my],
     } = state;
-    if (!props.allowResize) {
+    if (!props.allowResize || props.disableDot) {
       return;
     }
     const scrollParent = getNearestParentCanvas(props.scrollParent);
@@ -492,6 +492,8 @@ export function ReflowResizable(props: ResizableProps) {
       props.enableHorizontalResize,
       props.enableVerticalResize,
       handle.handleDirection,
+      props.isFlexChild,
+      props.responsiveBehavior,
     );
     return (
       <ResizableHandle
@@ -540,8 +542,8 @@ export function ReflowResizable(props: ResizableProps) {
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
-        width: props.isAffectedByDrag ? "auto" : widgetWidth,
-        height: props.isMobile ? "auto" : widgetHeight,
+        width: widgetWidth,
+        height: widgetHeight,
         transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
       }}
     >

@@ -9,12 +9,9 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { DatePickerType, TimePrecision } from "../constants";
@@ -298,13 +295,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -403,7 +394,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

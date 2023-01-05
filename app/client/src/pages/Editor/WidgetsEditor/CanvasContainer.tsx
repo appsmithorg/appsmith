@@ -106,7 +106,11 @@ function CanvasContainer() {
   }
   const appLayout = useSelector(getCurrentApplicationLayout);
   useEffect(() => {
-    if (!isPreviewMode && appLayout?.type === "FLUID") {
+    if (isPreviewMode) {
+      const ele: any = document.getElementById("canvas-viewport");
+      ele.style.width = "inherit";
+    }
+    if (appLayout?.type === "FLUID") {
       const smallestWidth = layoutConfigurations.MOBILE.minWidth;
       // Query the element
       const ele: any = document.getElementById("canvas-viewport");
@@ -164,17 +168,15 @@ function CanvasContainer() {
       };
       const rightResizer: any = ele.querySelectorAll(".resizer-right")[0];
       const leftResizer: any = ele.querySelectorAll(".resizer-left")[0];
+      const rightMove = (e: any) => mouseDownHandler(e, true);
+      const leftMove = (e: any) => mouseDownHandler(e, false);
 
-      rightResizer.addEventListener("mousedown", (e: any) =>
-        mouseDownHandler(e, true),
-      );
-
-      leftResizer.addEventListener("mousedown", (e: any) =>
-        mouseDownHandler(e, false),
-      );
-    } else {
-      const ele: any = document.getElementById("canvas-viewport");
-      ele.style.width = "inherit";
+      rightResizer.addEventListener("mousedown", rightMove);
+      leftResizer.addEventListener("mousedown", leftMove);
+      return () => {
+        rightResizer.removeEventListener("mousedown", rightMove);
+        leftResizer.removeEventListener("mousedown", leftMove);
+      };
     }
   }, [appLayout, isPreviewMode, currentPageId]);
 
@@ -201,7 +203,7 @@ function CanvasContainer() {
         fontFamily: fontFamily,
       }}
     >
-      {appLayout?.type === "FLUID" && !isPreviewMode && (
+      {appLayout?.type === "FLUID" && (
         <>
           <span
             className="resizer-left"
@@ -215,8 +217,10 @@ function CanvasContainer() {
               cursor: "col-resize",
               width: "16px",
               height: "0px",
-              left: "16px",
+              left: isPreviewMode ? "0px" : "16px",
               top: "50%",
+              zIndex: isPreviewMode ? 2 : undefined,
+              float: "left",
             }}
           >
             <Icon icon={"drawer-right-filled"} />
@@ -233,8 +237,10 @@ function CanvasContainer() {
               cursor: "col-resize",
               width: "16px",
               height: "0px",
-              left: "calc(100% - 32px)",
+              left: isPreviewMode ? "100%" : "calc(100% - 32px)",
               top: "50%",
+              zIndex: isPreviewMode ? 2 : undefined,
+              float: "right",
             }}
           >
             <Icon icon={"drawer-left-filled"} />

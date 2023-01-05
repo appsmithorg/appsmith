@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
@@ -7,10 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import React, { lazy, Suspense } from "react";
 import showdown from "showdown";
 import { retryPromise } from "utils/AppsmithUtils";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -215,13 +212,8 @@ class RichTextEditorWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
+
       {
         sectionName: "Events",
         children: [
@@ -299,7 +291,7 @@ class RichTextEditorWidget extends BaseWidget<
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

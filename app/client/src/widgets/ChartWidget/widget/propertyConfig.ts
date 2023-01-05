@@ -1,10 +1,6 @@
-import { ResponsiveBehavior } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { ChartWidgetProps } from "widgets/ChartWidget/widget";
 import { isLabelOrientationApplicableFor } from "../component";
 import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
@@ -315,13 +311,7 @@ export const contentConfig = [
       },
     ],
   },
-  {
-    sectionName: "Responsive Layout",
-    children: [
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-      generateVerticalAlignmentConfig(),
-    ],
-  },
+  ...getResponsiveLayoutConfig("CHART_WIDGET"),
   {
     sectionName: "Events",
     children: [

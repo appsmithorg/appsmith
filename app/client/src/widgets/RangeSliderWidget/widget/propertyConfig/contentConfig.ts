@@ -1,11 +1,8 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { RangeSliderWidgetProps } from "..";
 import {
   endValueValidation,
@@ -320,13 +317,7 @@ export default [
       },
     ],
   },
-  {
-    sectionName: "Responsive Layout",
-    children: [
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-      generateVerticalAlignmentConfig(),
-    ],
-  },
+  ...getResponsiveLayoutConfig("RANGE_SLIDER_WIDGET"),
   {
     sectionName: "Events",
     children: [

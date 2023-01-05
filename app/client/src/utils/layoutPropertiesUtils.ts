@@ -3,12 +3,12 @@ import {
   AlignItems,
   Alignment,
   FlexDirection,
+  FlexVerticalAlignment,
   JustifyContent,
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
   Spacing,
-  FlexVerticalAlignment,
   FlexGap,
 } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -258,4 +258,80 @@ export const generateFlexGapConfig = () => {
 
 export function getLayoutConfig(alignment: Alignment, spacing: Spacing): any[] {
   return [generateAlignmentConfig(alignment), generateSpacingConfig(spacing)];
+}
+
+export const NonResizableWidgets = [
+  "AUDIO_WIDGET",
+  "BUTTON_WIDGET",
+  "BUTTON_GROUP_WIDGET",
+  "CHECKBOX_WIDGET",
+  "CURRENCY_INPUT_WIDGET",
+  "DATE_PICKER_WIDGET2",
+  "DIVIDER_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
+  "ICON_WIDGET",
+  "ICON_BUTTON_WIDGET",
+  "INPUT_WIDGET_V2",
+  "MENU_BUTTON_WIDGET",
+  "MULTI_SELECT_TREE_WIDGET",
+  "MULTI_SELECT_WIDGET_V2",
+  "PHONE_INPUT_WIDGET",
+  "PROGRESS_WIDGET",
+  "RATE_WIDGET",
+  "SELECT_WIDGET",
+  "SWITCH_WIDGET",
+  "TEXT_WIDGET",
+  "SINGLE_SELECT_TREE_WIDGET",
+];
+
+export const DefaultFillWidgets = [
+  "CANVAS_WIDGET",
+  "AUDIO_WIDGET",
+  "AUDIO_RECORDER_WIDGET",
+  "BASE_INPUT_WIDGET",
+  "BUTTON_GROUP_WIDGET",
+  "CHART_WIDGET",
+  "CHECKBOX_WIDGET",
+  "CHECKBOX_GROUP_WIDGET",
+  "CURRENCY_INPUT_WIDGET",
+  "CONTAINER_WIDGET",
+  "DATE_PICKER_WIDGET2",
+  "DIVIDER_WIDGET",
+  "FORM_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
+  "INPUT_WIDGET_V2",
+  "JSON_FORM_WIDGET",
+  "LIST_WIDGET",
+  "MAP_WIDGET",
+  "MULTI_SELECT_TREE_WIDGET",
+  "MULTI_SELECT_WIDGET",
+  "MULTI_SELECT_WIDGET_V2",
+  "PHONE_INPUT_WIDGET",
+  "SELECT_WIDGET",
+  "TEXT_WIDGET",
+  "SINGLE_SELECT_TREE_WIDGET",
+  "RICH_TEXT_EDITOR_WIDGET",
+  "TABS_WIDGET_",
+  "TABLE_WIDGET_V2",
+];
+
+export function getDefaultResponsiveBehavior(widgetType: string) {
+  return DefaultFillWidgets.includes(widgetType)
+    ? ResponsiveBehavior.Fill
+    : ResponsiveBehavior.Hug;
+}
+
+export function getResponsiveLayoutConfig(widgetType: string) {
+  // ToDO(Ashok): disabling for now, will be revisited at a later point
+
+  // const defaultBehavior = getDefaultResponsiveBehavior(widgetType);
+  return [
+    // {
+    //   sectionName: "Responsive Layout",
+    //   children: [
+    //     generateResponsiveBehaviorConfig(defaultBehavior),
+    //     generateVerticalAlignmentConfig(),
+    //   ],
+    // },
+  ];
 }

@@ -7,7 +7,9 @@ import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
   const container = widgets[containerId];
@@ -38,6 +40,7 @@ export function removeChildLayers(
 export function* wrapChildren(
   allWidgets: CanvasWidgetsReduxState,
   containerId: string,
+  isMobile?: boolean,
 ) {
   const widgets = { ...allWidgets };
   let canvas = getCanvas(widgets, containerId);
@@ -60,7 +63,11 @@ export function* wrapChildren(
   canvas = { ...canvas, flexLayers };
   widgets[canvas.widgetId] = canvas;
   // update size
-  const updatedWidgets = updateSizeOfAllChildren(widgets, canvas.widgetId);
+  const updatedWidgets = updateWidgetPositions(
+    widgets,
+    canvas.widgetId,
+    isMobile,
+  );
   return updatedWidgets;
 }
 
@@ -68,6 +75,7 @@ export function* updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   parentId: string,
+  isMobile?: boolean,
 ) {
   const widgets = { ...allWidgets };
   let parent = widgets[parentId];
@@ -114,7 +122,7 @@ export function* updateFlexLayersOnDelete(
   widgets[parentId] = parent;
 
   if (layerIndex === -1) return widgets;
-  return updateFlexChildColumns(widgets, layerIndex, parentId);
+  return updateWidgetPositions(widgets, parentId, isMobile);
 }
 // TODO: refactor these implementations
 export function updateFillChildStatus(
@@ -191,9 +199,7 @@ export function updateFlexChildColumns(
   );
   if (!fillChildren.length) return widgets;
 
-  const columnsPerFillChild = Math.floor(
-    (64 - hugChildrenColumns) / fillChildren.length,
-  );
+  const columnsPerFillChild = (64 - hugChildrenColumns) / fillChildren.length;
 
   for (const child of fillChildren) {
     widgets[child.widgetId] = {
@@ -260,31 +266,29 @@ export function alterLayoutForMobile(
 
   for (const child of children) {
     const widget = { ...widgets[child] };
-
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
       widget.mobileRightColumn = 64;
-      widget.leftColumn = 0;
+      widget.mobileLeftColumn = 0;
     } else if (
       widget.responsiveBehavior === ResponsiveBehavior.Hug &&
       widget.minWidth
     ) {
       const { minWidth, rightColumn } = widget;
-      const columnSpace = canvasWidth / 64;
+      const columnSpace = (canvasWidth - FLEXBOX_PADDING * 2) / 64;
       if (columnSpace * rightColumn < minWidth) {
-        widget.leftColumn = 0;
-        widget.mobileRightColumn = Math.min(
-          Math.floor(minWidth / columnSpace),
-          64,
-        );
+        widget.mobileLeftColumn = 0;
+        widget.mobileRightColumn = Math.min(minWidth / columnSpace, 64);
       }
     }
-
+    widget.mobileTopRow = widget.topRow;
+    widget.mobileBottomRow = widget.bottomRow;
     widgets = alterLayoutForMobile(
       widgets,
       child,
       (canvasWidth * (widget.mobileRightColumn || 1)) / 64,
     );
     widgets[child] = widget;
+    widgets = updateWidgetPositions(widgets, child, true);
   }
   return widgets;
 }
@@ -301,11 +305,10 @@ export function alterLayoutForDesktop(
     return widgets;
   if (!children || !children.length) return widgets;
 
-  widgets = updateSizeOfAllChildren(widgets, parentId);
+  widgets = updateWidgetPositions(widgets, parentId, false);
   for (const child of children) {
     widgets = alterLayoutForDesktop(widgets, child);
   }
-
   return widgets;
 }
 
@@ -314,4 +317,120 @@ function checkIsNotVerticalStack(widget: any): boolean {
     widget.positioning !== undefined &&
     widget.positioning !== Positioning.Vertical
   );
+}
+
+/**
+ * COPY PASTE UTILS
+ */
+
+export function pasteWidgetInFlexLayers(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  widget: any,
+  originalWidgetId: string,
+  isMobile: boolean,
+): CanvasWidgetsReduxState {
+  let widgets = { ...allWidgets };
+  const parent = widgets[parentId];
+  let flexLayers: FlexLayer[] = parent.flexLayers || [];
+  /**
+   * If the new parent is not the same as the original parent,
+   * then add a new flex layer.
+   */
+  if (widgets[originalWidgetId].parentId !== parentId) {
+    flexLayers = [
+      ...flexLayers,
+      {
+        children: [
+          {
+            id: widget.widgetId,
+            align: FlexLayerAlignment.Start,
+          },
+        ],
+        hasFillChild: widget.responsiveBehavior === ResponsiveBehavior.Fill,
+      },
+    ];
+  } else {
+    /**
+     * If the new parent is the same as the original parent,
+     * then update the flex layer.
+     */
+    let rowIndex = -1,
+      alignment = FlexLayerAlignment.Start;
+    const flexLayerIndex = flexLayers.findIndex((layer: FlexLayer) => {
+      const temp = layer.children.findIndex(
+        (child: LayerChild) => child.id === originalWidgetId,
+      );
+      if (temp > -1) {
+        rowIndex = temp;
+        alignment = layer.children[temp].align;
+      }
+      return temp > -1;
+    });
+    if (flexLayerIndex > -1 && rowIndex > -1) {
+      let selectedLayer = flexLayers[flexLayerIndex];
+      selectedLayer = {
+        children: [
+          ...selectedLayer.children.slice(0, rowIndex + 1),
+          { id: widget.widgetId, align: alignment },
+          ...selectedLayer.children.slice(rowIndex + 1),
+        ],
+        hasFillChild: selectedLayer.hasFillChild,
+      };
+      flexLayers = [
+        ...flexLayers.slice(0, flexLayerIndex),
+        selectedLayer,
+        ...flexLayers.slice(flexLayerIndex + 1),
+      ];
+    }
+  }
+  widgets = {
+    ...widgets,
+    [parentId]: {
+      ...parent,
+      flexLayers,
+    },
+  };
+  return updateWidgetPositions(widgets, parentId, isMobile);
+}
+
+export function addChildToPastedFlexLayers(
+  allWidgets: CanvasWidgetsReduxState,
+  widget: any,
+  widgetIdMap: Record<string, string>,
+  isMobile: boolean,
+): CanvasWidgetsReduxState {
+  let widgets = { ...allWidgets };
+  const parent = widgets[widget.parentId];
+  const flexLayers = parent.flexLayers || [];
+  if (flexLayers.length > 0) {
+    let index = 0;
+    for (const layer of flexLayers) {
+      let children = layer.children;
+      let childIndex = 0;
+      for (const child of children) {
+        if (widgetIdMap[child.id] === widget.widgetId) {
+          children = [
+            ...children.slice(0, childIndex),
+            { id: widget.widgetId, align: child.align },
+            ...children.slice(childIndex + 1),
+          ];
+          childIndex += 1;
+        }
+      }
+      flexLayers[index] = {
+        children,
+        hasFillChild: layer.hasFillChild,
+      };
+      index += 1;
+    }
+  }
+  widgets = {
+    ...widgets,
+    [parent.widgetId]: {
+      ...parent,
+      flexLayers,
+    },
+  };
+  return updateWidgetPositions(widgets, parent.widgetId, isMobile);
 }

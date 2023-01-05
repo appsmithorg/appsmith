@@ -1,12 +1,8 @@
-import { ResponsiveBehavior } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import React from "react";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
@@ -72,13 +68,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [

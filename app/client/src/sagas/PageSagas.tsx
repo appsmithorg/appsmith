@@ -28,6 +28,7 @@ import {
   fetchAllPageEntityCompletion,
   updatePageSuccess,
   updatePageError,
+  fetchPage,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -1072,6 +1073,8 @@ export function* generateTemplatePageSaga(
         pageId,
         isFirstLoad: true,
       });
+
+      yield put(fetchPage(pageId));
 
       // trigger evaluation after completion of page success & fetch actions for page + fetch jsobject for page
 

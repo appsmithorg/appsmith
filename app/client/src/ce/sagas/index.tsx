@@ -1,51 +1,51 @@
-import pageSagas from "sagas/PageSagas";
-import { watchActionSagas } from "sagas/ActionSagas";
-import { watchJSActionSagas } from "sagas/JSActionSagas";
 import { watchActionExecutionSagas } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
-import templateSagas from "sagas/TemplatesSagas";
-import widgetOperationSagas from "sagas/WidgetOperationSagas";
-import errorSagas from "sagas/ErrorSagas";
-import applicationSagas from "sagas/ApplicationSagas";
-import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
-import initSagas from "sagas/InitSagas";
-import apiPaneSagas from "sagas/ApiPaneSagas";
-import jsPaneSagas from "sagas/JSPaneSagas";
-import userSagas from "@appsmith/sagas/userSagas";
-import pluginSagas from "sagas/PluginSagas";
-import workspaceSagas from "@appsmith/sagas/WorkspaceSagas";
-import importedCollectionsSagas from "sagas/CollectionSagas";
-import providersSagas from "sagas/ProvidersSaga";
-import curlImportSagas from "sagas/CurlImportSagas";
-import snipingModeSagas from "sagas/SnipingModeSagas";
-import queryPaneSagas from "sagas/QueryPaneSagas";
-import modalSagas from "sagas/ModalSagas";
-import batchSagas from "sagas/BatchSagas";
-import themeSagas from "sagas/ThemeSaga";
-import evaluationsSaga from "sagas/EvaluationsSaga";
-import onboardingSagas from "sagas/OnboardingSagas";
-import utilSagas from "sagas/UtilSagas";
-import saaSPaneSagas from "sagas/SaaSPaneSagas";
-import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
-import globalSearchSagas from "sagas/GlobalSearchSagas";
-import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
-import debuggerSagas from "sagas/DebuggerSagas";
-import replaySaga from "sagas/ReplaySaga";
-import selectionCanvasSagas from "sagas/CanvasSagas/SelectionCanvasSagas";
-import draggingCanvasSagas from "sagas/CanvasSagas/DraggingCanvasSagas";
-import gitSyncSagas from "sagas/GitSyncSagas";
-import appThemingSaga from "sagas/AppThemingSaga";
-import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
-import NavigationSagas from "sagas/NavigationSagas";
-import editorContextSagas from "sagas/editorContextSagas";
-import PageVisibilitySaga from "sagas/PageVisibilitySagas";
-import JSLibrarySaga from "sagas/JSLibrarySaga";
-import AutoHeightSagas from "sagas/autoHeightSagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
-import LintingSaga from "sagas/LintingSagas";
-import layoutUpdateSagas from "sagas/LayoutUpdateSagas";
+import userSagas from "@appsmith/sagas/userSagas";
+import workspaceSagas from "@appsmith/sagas/WorkspaceSagas";
+import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
+import { watchActionSagas } from "sagas/ActionSagas";
+import apiPaneSagas from "sagas/ApiPaneSagas";
+import applicationSagas from "sagas/ApplicationSagas";
+import appThemingSaga from "sagas/AppThemingSaga";
+import AutoHeightSagas from "sagas/autoHeightSagas";
+import autoLayoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
+import batchSagas from "sagas/BatchSagas";
 import autoLayoutDraggingSagas from "sagas/CanvasSagas/AutoLayoutDraggingSagas";
+import draggingCanvasSagas from "sagas/CanvasSagas/DraggingCanvasSagas";
+import selectionCanvasSagas from "sagas/CanvasSagas/SelectionCanvasSagas";
+import importedCollectionsSagas from "sagas/CollectionSagas";
+import curlImportSagas from "sagas/CurlImportSagas";
+import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
+import debuggerSagas from "sagas/DebuggerSagas";
+import editorContextSagas from "sagas/editorContextSagas";
+import errorSagas from "sagas/ErrorSagas";
+import evaluationsSaga from "sagas/EvaluationsSaga";
+import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
+import gitSyncSagas from "sagas/GitSyncSagas";
+import globalSearchSagas from "sagas/GlobalSearchSagas";
+import initSagas from "sagas/InitSagas";
+import { watchJSActionSagas } from "sagas/JSActionSagas";
+import JSLibrarySaga from "sagas/JSLibrarySaga";
+import jsPaneSagas from "sagas/JSPaneSagas";
+import LintingSaga from "sagas/LintingSagas";
+import modalSagas from "sagas/ModalSagas";
+import NavigationSagas from "sagas/NavigationSagas";
+import onboardingSagas from "sagas/OnboardingSagas";
+import pageSagas from "sagas/PageSagas";
+import PageVisibilitySaga from "sagas/PageVisibilitySagas";
+import pluginSagas from "sagas/PluginSagas";
+import providersSagas from "sagas/ProvidersSaga";
+import queryPaneSagas from "sagas/QueryPaneSagas";
+import replaySaga from "sagas/ReplaySaga";
+import saaSPaneSagas from "sagas/SaaSPaneSagas";
+import snipingModeSagas from "sagas/SnipingModeSagas";
+import templateSagas from "sagas/TemplatesSagas";
+import themeSagas from "sagas/ThemeSaga";
+import utilSagas from "sagas/UtilSagas";
+import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
+import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
+import widgetOperationSagas from "sagas/WidgetOperationSagas";
 
 export const sagas = [
   initSagas,
@@ -94,6 +94,6 @@ export const sagas = [
   tenantSagas,
   JSLibrarySaga,
   LintingSaga,
-  layoutUpdateSagas,
+  autoLayoutUpdateSagas,
   autoLayoutDraggingSagas,
 ];

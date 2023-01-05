@@ -242,7 +242,10 @@ abstract class BaseWidget<
       this.props.bottomRow,
       this.props.parentColumnSpace,
       this.props.parentRowSpace,
+      this.props.mobileLeftColumn,
       this.props.mobileRightColumn,
+      this.props.mobileTopRow,
+      this.props.mobileBottomRow,
       this.props.isMobile,
     );
   };
@@ -254,19 +257,34 @@ abstract class BaseWidget<
     bottomRow: number,
     parentColumnSpace: number,
     parentRowSpace: number,
+    mobileLeftColumn?: number,
     mobileRightColumn?: number,
+    mobileTopRow?: number,
+    mobileBottomRow?: number,
     isMobile?: boolean,
   ): {
     componentWidth: number;
     componentHeight: number;
   } {
     const right =
-      isMobile && mobileRightColumn && parentColumnSpace !== 1
+      isMobile && mobileRightColumn !== undefined && parentColumnSpace !== 1
         ? mobileRightColumn
         : rightColumn;
+    const left =
+      isMobile && mobileLeftColumn !== undefined && parentColumnSpace !== 1
+        ? mobileLeftColumn
+        : leftColumn;
+    const top =
+      isMobile && mobileTopRow !== undefined && parentRowSpace !== 1
+        ? mobileTopRow
+        : topRow;
+    const bottom =
+      isMobile && mobileBottomRow !== undefined && parentRowSpace !== 1
+        ? mobileBottomRow
+        : bottomRow;
     return {
-      componentWidth: (right - leftColumn) * parentColumnSpace,
-      componentHeight: (bottomRow - topRow) * parentRowSpace,
+      componentWidth: (right - left) * parentColumnSpace,
+      componentHeight: (bottom - top) * parentRowSpace,
     };
   }
 
@@ -358,6 +376,8 @@ abstract class BaseWidget<
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         focused={this.props.focused}
+        isDisabled={this.props.isDisabled}
+        isVisible={this.props.isVisible}
         leftColumn={this.props.leftColumn}
         noContainerOffset={this.props.noContainerOffset}
         parentColumnSpace={this.props.parentColumnSpace}
@@ -432,7 +452,6 @@ abstract class BaseWidget<
 
   makeFlex(content: ReactNode) {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <FlexComponent
         componentHeight={componentHeight}
@@ -507,8 +526,11 @@ abstract class BaseWidget<
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          if (this.props.isFlexChild) content = this.makeFlex(content);
-          else content = this.makePositioned(content);
+          if (this.props.isFlexChild) {
+            content = this.makeFlex(content);
+          } else {
+            content = this.makePositioned(content);
+          }
           if (isAutoHeightEnabledForWidget(this.props, true)) {
             content = this.addAutoHeightOverlay(content);
           }
@@ -602,7 +624,10 @@ export type WidgetRowCols = {
   topRow: number;
   bottomRow: number;
   minHeight?: number; // Required to reduce the size of CanvasWidgets.
+  mobileLeftColumn?: number;
   mobileRightColumn?: number;
+  mobileTopRow?: number;
+  mobileBottomRow?: number;
   height?: number;
 };
 

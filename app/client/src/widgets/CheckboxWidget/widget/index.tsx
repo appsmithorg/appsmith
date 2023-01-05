@@ -1,13 +1,10 @@
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import React from "react";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -127,13 +124,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -218,7 +209,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

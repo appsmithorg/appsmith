@@ -1,5 +1,6 @@
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultISDCode } from "./component/ISDCodeDropdown";
@@ -28,7 +29,7 @@ export const CONFIG = {
     defaultDialCode: getDefaultISDCode().dial_code,
     allowDialCodeChange: false,
     allowFormatting: true,
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

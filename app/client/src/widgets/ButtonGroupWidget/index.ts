@@ -1,12 +1,12 @@
 import { ButtonVariantTypes } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { klona as clone } from "klona/full";
 import { get } from "lodash";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
-import { klona as clone } from "klona/full";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { ResponsiveBehavior } from "components/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -24,7 +24,7 @@ export const CONFIG = {
     isVisible: true,
     version: 1,
     animateLoading: true,
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
     groupButtons: {
       groupButton1: {

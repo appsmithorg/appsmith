@@ -2,7 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { compact, isArray, isNumber } from "lodash";
 import React from "react";
 
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import {
@@ -12,10 +12,7 @@ import {
 import { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
@@ -352,13 +349,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Responsive Layout",
-        children: [
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(),
-        ],
-      },
+      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
@@ -439,7 +430,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",

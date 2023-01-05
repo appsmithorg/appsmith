@@ -3,7 +3,6 @@ import {
   LayoutDirection,
   Overflow,
   Positioning,
-  ResponsiveBehavior,
 } from "components/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
@@ -11,8 +10,11 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import React, { CSSProperties } from "react";
 import { getCanvasClassName } from "utils/generators";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -84,7 +86,6 @@ class CanvasWidget extends ContainerWidget {
   ): JSX.Element {
     const direction = this.getDirection();
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
-    const stretchFlexBox = !this.props.children || !this.props.children?.length;
     return (
       <ContainerComponent {...props}>
         {props.renderMode === RenderModes.CANVAS && (
@@ -102,8 +103,6 @@ class CanvasWidget extends ContainerWidget {
               widgetId={props.widgetId}
               widgetName={props.widgetName}
             />
-            {/*
-            // Removing Canvas Selection and grouping in the POC
             <CanvasSelectionArena
               {...this.getSnapSpaces()}
               canExtend={props.canExtend}
@@ -111,32 +110,48 @@ class CanvasWidget extends ContainerWidget {
               parentId={props.parentId}
               snapRows={snapRows}
               widgetId={props.widgetId}
-            /> */}
+            />
           </>
         )}
-        {/* <WidgetsMultiSelectBox
+        {this.props.useAutoLayout
+          ? this.renderFlexCanvas(direction)
+          : this.renderFixedCanvas(props)}
+      </ContainerComponent>
+    );
+  }
+
+  renderFlexCanvas(direction: LayoutDirection) {
+    const stretchFlexBox = !this.props.children || !this.props.children?.length;
+    return (
+      <FlexBoxComponent
+        direction={direction}
+        flexGap={this.props.flexGap || FlexGap.None}
+        flexLayers={this.props.flexLayers || []}
+        overflow={
+          direction === LayoutDirection.Horizontal
+            ? Overflow.Wrap
+            : Overflow.NoWrap
+        }
+        stretchHeight={stretchFlexBox}
+        useAutoLayout={this.props.useAutoLayout || false}
+        widgetId={this.props.widgetId}
+      >
+        {this.renderChildren()}
+      </FlexBoxComponent>
+    );
+  }
+
+  renderFixedCanvas(props: ContainerWidgetProps<WidgetProps>) {
+    return (
+      <>
+        <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
-        /> */}
-        {/* without the wrapping div onClick events are triggered twice */}
-        <FlexBoxComponent
-          direction={direction}
-          flexGap={this.props.flexGap || FlexGap.None}
-          flexLayers={this.props.flexLayers || []}
-          overflow={
-            direction === LayoutDirection.Horizontal
-              ? Overflow.Wrap
-              : Overflow.NoWrap
-          }
-          stretchHeight={stretchFlexBox}
-          useAutoLayout={this.props.useAutoLayout || false}
-          widgetId={this.props.widgetId}
-        >
-          {this.renderChildren()}
-        </FlexBoxComponent>
-      </ContainerComponent>
+        />
+        {this.renderChildren()}
+      </>
     );
   }
 
@@ -196,7 +211,9 @@ export const CONFIG = {
     version: 1,
     detachFromLayout: true,
     flexLayers: [],
-    responsiveBehavior: ResponsiveBehavior.Fill,
+    responsiveBehavior: getDefaultResponsiveBehavior(
+      CanvasWidget.getWidgetType(),
+    ),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

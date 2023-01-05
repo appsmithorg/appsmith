@@ -3,6 +3,7 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
@@ -237,7 +238,7 @@ export const useCanvasDragging = (
       const scrollParent: Element | null = getNearestParentCanvas(
         slidingArenaRef.current,
       );
-      // console.log(`#### init variable: ${widgetName}`);
+
       let canvasIsDragging = false;
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
@@ -262,6 +263,13 @@ export const useCanvasDragging = (
         leftColumn: 0,
         topRow: 0,
       };
+      let lastMousePositionDeltas: {
+        deltaX: number;
+        deltaY: number;
+      }[] = new Array(5).fill({
+        deltaX: 0,
+        deltaY: 0,
+      });
 
       const resetCanvasState = () => {
         throttledStopReflowing();
@@ -274,8 +282,10 @@ export const useCanvasDragging = (
             stickyCanvasRef.current.height,
           );
           slidingArenaRef.current.style.zIndex = "";
-          // console.log(`#### reset canvas state: ${widgetName}`);
           canvasIsDragging = false;
+        }
+        if (isDragging) {
+          setDraggingCanvas(MAIN_CONTAINER_WIDGET_ID);
         }
       };
       if (isDragging) {
@@ -356,7 +366,6 @@ export const useCanvasDragging = (
         };
 
         const onFirstMoveOnCanvas = (e: any, over = false) => {
-          // console.log(`#### first move: ${widgetName}`);
           if (
             !isResizing &&
             isDragging &&
@@ -379,7 +388,6 @@ export const useCanvasDragging = (
               logContainerJump(widgetId, speed, acceleration);
               containerJumpThresholdMetrics.clearMetrics();
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
-              // console.log(`#### set dragging canvas: ${widgetName}`);
               setDraggingCanvas(widgetId);
             }
             canvasIsDragging = true;
@@ -412,14 +420,48 @@ export const useCanvasDragging = (
 
         //   }
         // };
+        const addMousePositionDelta = (payload: {
+          deltaX: number;
+          deltaY: number;
+        }) => {
+          lastMousePositionDeltas = [
+            payload,
+            ...lastMousePositionDeltas.slice(0, 4),
+          ];
+        };
+        const getInterpolatedDelta = () => {
+          return lastMousePositionDeltas.reduce(
+            (prev, cur) => {
+              return {
+                deltaX: prev.deltaX + cur.deltaX,
+                deltaY: prev.deltaY + cur.deltaY,
+              };
+            },
+            {
+              deltaX: 0,
+              deltaY: 0,
+            },
+          );
+        };
         const getMouseMoveDirection = (event: any, minDelta = 0) => {
           if (lastMousePosition) {
-            const deltaX = lastMousePosition.x - event.clientX,
+            let deltaX = lastMousePosition.x - event.clientX,
               deltaY = lastMousePosition.y - event.clientY;
             lastMousePosition = {
               x: event.clientX,
               y: event.clientY,
             };
+            if (useAutoLayout) {
+              /**
+               * Use interpolated data over the last five frames to calculate delta values.
+               * This is needed to reduce sensitivity to mouse move direction.
+               * Involuntary flickers while releasing the mouse should not impact the overall direction.
+               */
+              addMousePositionDelta({ deltaX, deltaY });
+              const delta = getInterpolatedDelta();
+              deltaX = delta.deltaX;
+              deltaY = delta.deltaY;
+            }
             if (
               deltaX === 0 &&
               ["TOP", "BOTTOM"].includes(currentDirection.current)
@@ -575,6 +617,14 @@ export const useCanvasDragging = (
 
           let { columnWidth, height, left, rowHeight, top, width } = block;
 
+          if (
+            (isNewLayer &&
+              block.columnWidth === GridDefaults.DEFAULT_GRID_COLUMNS) ||
+            (!isNewLayer &&
+              block.columnWidth !== GridDefaults.DEFAULT_GRID_COLUMNS)
+          )
+            return block;
+
           if (isNewLayer) {
             columnWidth = GridDefaults.DEFAULT_GRID_COLUMNS;
             width = columnWidth * snapColumnSpace;
@@ -603,7 +653,6 @@ export const useCanvasDragging = (
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
             };
-            // console.log("#### mouse move", delta);
             const drawingBlocks = blocksToDraw.map((each) => ({
               ...each,
               left: each.left + delta.left,
@@ -640,14 +689,13 @@ export const useCanvasDragging = (
             } else if (!isUpdatingRows) {
               currentDirection.current = getMouseMoveDirection(e);
               triggerReflow(e, firstMove);
+              let highlight: HighlightInfo | undefined;
               if (
                 useAutoLayout &&
                 isCurrentDraggedCanvas &&
                 currentDirection.current !== ReflowDirection.UNSET
               ) {
-                debounce(() => {
-                  highlightDropPosition(e, currentDirection.current);
-                }, 100)();
+                highlight = highlightDropPosition(e, currentDirection.current);
                 currentRectanglesToDraw = drawingBlocks.map((each) => {
                   const block = updateCurrentBlocks(each, e);
                   return {
@@ -671,7 +719,7 @@ export const useCanvasDragging = (
                   };
                 });
               }
-              renderBlocks();
+              renderBlocks(highlight);
             }
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
@@ -738,7 +786,7 @@ export const useCanvasDragging = (
           },
         );
 
-        const renderBlocks = () => {
+        const renderBlocks = (highlight?: HighlightInfo | undefined) => {
           if (
             slidingArenaRef.current &&
             isCurrentDraggedCanvas &&
@@ -759,6 +807,18 @@ export const useCanvasDragging = (
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);
               });
+            }
+            if (highlight) {
+              canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
+              const { height, posX, posY, width } = highlight;
+              let val = 0;
+              if (
+                widgetId === MAIN_CONTAINER_WIDGET_ID &&
+                scrollParent?.scrollTop
+              )
+                val = scrollParent.scrollTop;
+              canvasCtx.fillRect(posX, posY - val, width, height);
+              canvasCtx.save();
             }
             canvasCtx.restore();
           }

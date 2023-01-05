@@ -2,11 +2,11 @@ import {
   ButtonBoxShadowTypes,
   FlexGap,
   Positioning,
-  ResponsiveBehavior,
 } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -49,8 +49,8 @@ export const CONFIG = {
     },
     version: 1,
     positioning: Positioning.Vertical,
-    responsiveBehavior: ResponsiveBehavior.Fill,
     flexGap: FlexGap.None,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
