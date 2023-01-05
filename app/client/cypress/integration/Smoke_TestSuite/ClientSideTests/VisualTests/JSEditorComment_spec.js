@@ -44,9 +44,6 @@ describe("JSEditor Comment - Visual tests", () => {
     // Allow time to comment out lines
     agHelper.Sleep(1000);
 
-    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterCommenting1", {
-      failureThreshold: 0.1,
-      failureThresholdType: "percent",
-    });
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterCommenting1");
   });
 });
