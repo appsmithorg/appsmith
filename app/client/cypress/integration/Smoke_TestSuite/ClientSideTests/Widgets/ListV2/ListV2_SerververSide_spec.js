@@ -6,6 +6,9 @@ let ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   deployMode = ObjectsRegistry.DeployMode;
 
+const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
+const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
+
 describe("List widget V2 Serverside Pagination", () => {
   before(() => {
     cy.addDsl(dsl);
@@ -62,5 +65,111 @@ describe("List widget V2 Serverside Pagination", () => {
       force: true,
     });
     cy.get(commonlocators.listPaginateActivePage).should("have.text", "2");
+
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("3. SelectedItemView and TriggeredItemView", () => {
+    cy.get(
+      `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {});
+    });
+
+    cy.get(
+      `${widgetSelector("TriggeredItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {});
+    });
+
+    // Select First Row
+    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
+      .eq(0)
+      .click();
+    cy.wait(200);
+
+    cy.get(
+      `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
+
+    cy.get(
+      `${widgetSelector("TriggeredItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
+
+    // Change Page and Validate Data
+    cy.get(commonlocators.listPaginateNextButton).click({
+      force: true,
+    });
+
+    cy.get(
+      `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
+
+    cy.get(
+      `${widgetSelector("TriggeredItemView")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data).should("deep.equal", {
+        Image1: {
+          isVisible: true,
+        },
+        Text1: {
+          isVisible: true,
+          text: "Perry234",
+        },
+        Text2: {
+          isVisible: true,
+          text: "8",
+        },
+      });
+    });
   });
 });

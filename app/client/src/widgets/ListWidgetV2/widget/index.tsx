@@ -59,7 +59,7 @@ export type MetaWidgets = Record<string, MetaWidget>;
 type BaseMetaWidget = FlattenedWidgetProps & {
   currentIndex: number;
   currentView: string;
-  currentItem: string;
+  currentItem: Record<string, unknown> | string;
 };
 
 export type MetaWidget<TProps = void> = TProps extends void
@@ -89,6 +89,8 @@ export type MetaWidgetCacheProps = {
   viewIndex: number;
 };
 
+export type RowDataCache = Record<string, Record<string, unknown>>;
+
 type LevelDataMetaWidgetCacheProps = Omit<
   MetaWidgetCacheProps,
   "originalMetaWidgetId" | "originalMetaWidgetName"
@@ -110,7 +112,8 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
 type RenderChildrenOption = {
   componentWidth: number;
   parentColumnSpace: number;
-  selectedItemIndex?: number;
+  selectedItemIndex: number;
+  startIndex: number;
 };
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
@@ -120,6 +123,7 @@ class ListWidget extends BaseWidget<
   WidgetState,
   MetaWidgetCache
 > {
+  cachedKeys: Record<string, number>;
   componentRef: RefObject<HTMLDivElement>;
   metaWidgetGenerator: MetaWidgetGenerator;
   prevFlattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
@@ -183,6 +187,7 @@ class ListWidget extends BaseWidget<
       renderMode: props.renderMode,
       setWidgetCache: this.setWidgetCache,
     });
+    this.cachedKeys = {};
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
@@ -218,6 +223,9 @@ class ListWidget extends BaseWidget<
       }
     }
 
+    if (this.props.serverSidePagination) {
+      this.updateRowCacheWithNewData();
+    }
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
       const maxPageNo = Math.max(
         Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
@@ -225,6 +233,10 @@ class ListWidget extends BaseWidget<
       );
 
       this.onPageChange(maxPageNo);
+    }
+
+    if (this.shouldUpdateCacheKeys(prevProps)) {
+      this.updateCacheKey();
     }
 
     this.setupMetaWidgets(prevProps);
@@ -265,10 +277,7 @@ class ListWidget extends BaseWidget<
     } = this.props;
     const pageSize = this.pageSize;
 
-    const cacheRowIndexes = this.getCachedRowIndexes();
-
     return {
-      cacheIndexArr: cacheRowIndexes,
       containerParentId: mainCanvasId,
       containerWidgetId: mainContainerId,
       currTemplateWidgets: flattenedChildCanvasWidgets,
@@ -292,6 +301,7 @@ class ListWidget extends BaseWidget<
 
   generateMetaWidgets = () => {
     const generatorOptions = this.metaWidgetGeneratorOptions();
+    this.handleRowCacheData();
 
     const {
       metaWidgets,
@@ -532,6 +542,88 @@ class ListWidget extends BaseWidget<
     }
   };
 
+  getCurrDataCache = () => this.metaWidgetGenerator.getRowDataCache();
+
+  setRowDataCache = () => {
+    const prevDataCache = this.getCurrDataCache();
+    const rowDataCache: RowDataCache = {};
+
+    Object.entries(this.cachedKeys).forEach(([key, rowIndex]) => {
+      if (Object.keys(prevDataCache).includes(key)) {
+        rowDataCache[key] = prevDataCache[key];
+        return;
+      }
+      const viewIndex = this.metaWidgetGenerator.getViewIndex(rowIndex);
+      const rowData = this.props.listData?.[viewIndex] ?? {};
+      rowDataCache[key] = rowData;
+    });
+
+    this.updateMetaGeneratorRowDataCache(rowDataCache);
+    this.updateGeneratorCacheRowKeys(Object.keys(rowDataCache));
+  };
+
+  updateGeneratorCacheRowKeys = (keys: string[]) => {
+    this.metaWidgetGenerator.updateCurrCachedRows(keys);
+  };
+
+  updateMetaGeneratorRowDataCache = (rowDataCache: RowDataCache) => {
+    if (this.props.serverSidePagination) {
+      this.metaWidgetGenerator.updateRowDataCache(rowDataCache);
+    }
+  };
+
+  updateCacheKey = () => {
+    const { selectedItemIndex = -1, triggeredItemIndex = -1 } = this.props;
+    const cachedKeys: Record<string, number> = {};
+
+    if (selectedItemIndex === -1 && triggeredItemIndex === -1) return;
+
+    [selectedItemIndex, triggeredItemIndex].forEach((index) => {
+      if (index === -1) return;
+
+      if (Object.values(this.cachedKeys).includes(index)) {
+        const key = Object.keys(this.cachedKeys).find(
+          (key) => this.cachedKeys[key] === index,
+        );
+        if (key) cachedKeys[key] = index;
+        return;
+      }
+
+      const key = this.metaWidgetGenerator.getPrimaryKey(index);
+      cachedKeys[key] = index;
+    });
+
+    this.cachedKeys = cachedKeys;
+  };
+
+  shouldUpdateCacheKeys = (prevProps: ListWidgetProps) => {
+    return (
+      this.props.triggeredItemIndex !== prevProps.triggeredItemIndex ||
+      this.props.selectedItemIndex !== prevProps.selectedItemIndex
+    );
+  };
+
+  handleRowCacheData = () => {
+    this.setRowDataCache();
+  };
+
+  updateRowCacheWithNewData = () => {
+    let rowDataCache: RowDataCache = { ...this.getCurrDataCache() };
+    Object.keys(this.cachedKeys).forEach((key) => {
+      if (this.props.primaryKeys?.toString().includes(key)) {
+        const rowIndex = this.cachedKeys[key];
+        const startIndex = this.metaWidgetGenerator.getStartIndex();
+        const viewIndex = rowIndex - startIndex;
+
+        rowDataCache = {
+          ...rowDataCache,
+          [key]: this.props.listData?.[viewIndex] ?? rowDataCache[key],
+        };
+      }
+    });
+    this.updateMetaGeneratorRowDataCache(rowDataCache);
+  };
+
   onRowClick = (rowIndex: number) => {
     this.updateSelectedItemViewIndex(rowIndex);
     this.updateSelectedItemView(rowIndex);
@@ -565,15 +657,7 @@ class ListWidget extends BaseWidget<
   onRowClickCapture = (rowIndex: number) => {
     this.updateTriggeredItemViewIndex(rowIndex);
     this.updateTriggeredItemView(rowIndex);
-  };
-
-  getCachedRowIndexes = () => {
-    const cachedRowIndexes = new Set<number>();
-
-    cachedRowIndexes.add(this.props.selectedItemIndex ?? -1);
-    cachedRowIndexes.add(this.props.triggeredItemIndex ?? -1);
-
-    return Array.from(cachedRowIndexes);
+    this.setRowDataCache();
   };
 
   updateSelectedItemViewIndex = (rowIndex: number) => {
@@ -583,7 +667,6 @@ class ListWidget extends BaseWidget<
       this.resetSelectedItemViewIndex();
       return;
     }
-
     this.props.updateWidgetMetaProperty("selectedItemIndex", rowIndex);
   };
 
@@ -660,11 +743,6 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  getRowIndex = (viewIndex: number) => {
-    const startIndex = this.metaWidgetGenerator.getStartIndex();
-    return startIndex + viewIndex;
-  };
-
   /**
    * Note: Do not use this.props inside the renderChildren method if the expectation is that
    * the renderChildren would re-render when the particular prop changes.
@@ -676,7 +754,12 @@ class ListWidget extends BaseWidget<
       metaWidgetChildrenStructure: ListWidgetProps["metaWidgetChildrenStructure"],
       options: RenderChildrenOption,
     ) => {
-      const { componentWidth, parentColumnSpace, selectedItemIndex } = options;
+      const {
+        componentWidth,
+        parentColumnSpace,
+        selectedItemIndex,
+        startIndex,
+      } = options;
 
       const childWidgets = (metaWidgetChildrenStructure || []).map(
         (childWidgetStructure) => {
@@ -687,7 +770,7 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.children = child.children?.map((container, viewIndex) => {
-            const rowIndex = this.getRowIndex(viewIndex);
+            const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             return {
@@ -720,7 +803,8 @@ class ListWidget extends BaseWidget<
           prevMetaChildrenStructure === nextMetaChildrenStructure &&
           prevOptions.componentWidth === nextOptions.componentWidth &&
           prevOptions.parentColumnSpace === nextOptions.parentColumnSpace &&
-          prevOptions.selectedItemIndex === nextOptions.selectedItemIndex
+          prevOptions.selectedItemIndex === nextOptions.selectedItemIndex &&
+          prevOptions.startIndex === nextOptions.startIndex
         );
       },
     },
@@ -822,8 +906,9 @@ class ListWidget extends BaseWidget<
       isLoading,
       parentColumnSpace,
       parentRowSpace,
-      selectedItemIndex,
+      selectedItemIndex = -1,
     } = this.props;
+    const startIndex = this.metaWidgetGenerator.getStartIndex();
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
 
     if (isLoading) {
@@ -876,6 +961,7 @@ class ListWidget extends BaseWidget<
             componentWidth,
             parentColumnSpace,
             selectedItemIndex,
+            startIndex,
           })}
         </MetaWidgetContextProvider>
         {this.renderPaginationUI()}
@@ -916,6 +1002,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   triggeredItemIndex?: number;
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
+  rowDataCache: RowDataCache;
 }
 
 export default ListWidget;
