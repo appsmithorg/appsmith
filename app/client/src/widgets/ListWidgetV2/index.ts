@@ -5,6 +5,7 @@ import Widget from "./widget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "widgets/BaseWidget";
+import { GridDefaults } from "constants/WidgetConstants";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -101,12 +102,13 @@ export const CONFIG = {
                     isDeletable: false,
                     disallowCopy: true,
                     noContainerOffset: true,
+
                     disabledWidgetFeatures: [
                       RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
                     ],
                     shouldScrollContents: false,
                     // Removed dynamicHeight to enable dropping of widgets on the container
-                    // dynamicHeight: "FIXED",
+                    dynamicHeight: "FIXED",
                     children: [],
                     blueprint: {
                       view: [
