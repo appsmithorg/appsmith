@@ -8,12 +8,16 @@ import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   MovementLimitMap,
   ReflowDirection,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
-import { getZoomLevel } from "selectors/editorSelectors";
+import {
+  getCurrentAppPositioningType,
+  getZoomLevel,
+} from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
@@ -68,6 +72,7 @@ export const useCanvasDragging = (
   const canvasZoomLevel = useSelector(getZoomLevel);
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   const { devicePixelRatio: scale = 1 } = window;
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -494,7 +499,7 @@ export const useCanvasDragging = (
           const canReflow =
             !currentRectanglesToDraw[0].detachFromLayout &&
             !dropDisabled &&
-            false;
+            appPositioningType === AppPositioningTypes.FIXED;
           const currentBlock = currentRectanglesToDraw[0];
           const [leftColumn, topRow] = getDropZoneOffsets(
             snapColumnSpace,

@@ -496,7 +496,7 @@ const PropertyControl = memo((props: Props) => {
       (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
       props.invisible ||
       (childWidgetShouldHidePropertyFn &&
-        childWidgetShouldHidePropertyFn(props.propertyName))
+        childWidgetShouldHidePropertyFn(widgetProperties, props.propertyName))
     ) {
       return null;
     }

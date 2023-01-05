@@ -5,6 +5,7 @@ import {
 } from "constants/PropertyControlConstants";
 import { debounce } from "lodash";
 import { useCallback, useState } from "react";
+import { appPositioningBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
 
 export function useSearchText(initialVal: string) {
   const [searchText, setSearchText] = useState(initialVal);
@@ -57,6 +58,10 @@ export function evaluateHiddenProperty(
       }
     } else if (controlConfig.controlType) {
       const isControlHidden =
+        appPositioningBasedPropertyFilter(
+          widgetProps,
+          controlConfig.propertyName,
+        ) ||
         (controlConfig.hidden &&
           controlConfig.hidden(widgetProps, controlConfig.propertyName)) ||
         (shouldHidePropertyFn &&

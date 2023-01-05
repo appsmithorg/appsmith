@@ -248,7 +248,10 @@ export interface AppLayoutConfig {
   type: SupportedLayouts;
 }
 
-export type AppPositioningTypes = "AUTO" | "FIXED";
+export enum AppPositioningTypes {
+  "FIXED",
+  "AUTO",
+}
 export interface AppPositioningTypeConfig {
   type: AppPositioningTypes;
 }

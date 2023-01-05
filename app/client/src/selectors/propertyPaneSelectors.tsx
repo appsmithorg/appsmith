@@ -21,6 +21,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
+import { getCurrentAppPositioningType } from "./editorSelectors";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 
@@ -70,16 +71,18 @@ const getCurrentWidgetName = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
+  getCurrentAppPositioningType,
   getDataTree,
   (
     widget: WidgetProps | undefined,
+    appPositioningType,
     evaluatedTree: DataTree,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
     const evaluatedWidget = find(evaluatedTree, {
       widgetId: widget.widgetId,
     }) as DataTreeWidget;
-    const widgetProperties = { ...widget };
+    const widgetProperties = { ...widget, appPositioningType };
 
     if (evaluatedWidget) {
       widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];

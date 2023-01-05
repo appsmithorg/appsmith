@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import {
   getCanvasWidth,
   getCurrentApplicationLayout,
+  getCurrentAppPositioningType,
   getCurrentPageId,
   getIsFetchingPage,
   getViewModePageList,
@@ -32,7 +33,7 @@ import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 // import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import { Positioning } from "components/constants";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import Canvas from "../Canvas";
 
 const Container = styled.section<{
@@ -96,89 +97,88 @@ function CanvasContainer() {
       <Canvas
         canvasWidth={canvasWidth}
         pageId={params.pageId}
-        widgetsStructure={{
-          ...widgetsStructure,
-          positioning: Positioning.Vertical,
-          useAutoLayout: true,
-        }}
+        widgetsStructure={widgetsStructure}
       />
     );
   }
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
   const appLayout = useSelector(getCurrentApplicationLayout);
   useEffect(() => {
-    if (isPreviewMode) {
-      const ele: any = document.getElementById("canvas-viewport");
-      ele.style.width = "inherit";
+    if (appPositioningType === AppPositioningTypes.AUTO) {
+      if (isPreviewMode) {
+        const ele: any = document.getElementById("canvas-viewport");
+        ele.style.width = "inherit";
+      }
+      if (appLayout?.type === "FLUID") {
+        const smallestWidth = layoutConfigurations.MOBILE.minWidth;
+        // Query the element
+        const ele: any = document.getElementById("canvas-viewport");
+        const initialWidth = ele.offsetWidth;
+        // The current position of mouse
+        let x = 0;
+        // let y = 0;
+
+        // The dimension of the element
+        let w = 0;
+        // let h = 0;
+        let events: any = [];
+
+        // Handle the mousedown event
+        // that's triggered when user drags the resizer
+        const mouseDownHandler = function(e: any, rightHandle: boolean) {
+          // Get the current mouse position
+          x = e.clientX;
+          // y = e.clientY;
+
+          // Calculate the dimension of element
+          const styles = window.getComputedStyle(ele);
+          w = parseInt(styles.width, 10);
+          // h = parseInt(styles.height, 10);
+          const mouseMove = (e: any) => mouseMoveHandler(e, rightHandle);
+          events.push(mouseMove);
+          // Attach the listeners to `document`
+          document.addEventListener("mousemove", mouseMove);
+          document.addEventListener("mouseup", mouseUpHandler);
+          // e.stopPropagation();
+        };
+
+        const mouseMoveHandler = function(e: any, rightHandle: boolean) {
+          // How far the mouse has been moved
+          const multiplier = rightHandle ? 2 : -2;
+          const dx = (e.clientX - x) * multiplier;
+          if (initialWidth >= w + dx && smallestWidth <= w + dx) {
+            // Adjust the dimension of element
+            ele.style.width = `${w + dx}px`;
+          }
+          if (initialWidth < w + dx) {
+            ele.style.width = `${initialWidth}px`;
+          }
+          if (smallestWidth > w + dx) {
+            ele.style.width = `${smallestWidth}px`;
+          }
+          // e.stopPropagation();
+        };
+
+        const mouseUpHandler = function() {
+          // Remove the handlers of `mousemove` and `mouseup`
+          document.removeEventListener("mousemove", events[0] as any);
+          document.removeEventListener("mouseup", mouseUpHandler);
+          events = [];
+        };
+        const rightResizer: any = ele.querySelectorAll(".resizer-right")[0];
+        const leftResizer: any = ele.querySelectorAll(".resizer-left")[0];
+        const rightMove = (e: any) => mouseDownHandler(e, true);
+        const leftMove = (e: any) => mouseDownHandler(e, false);
+
+        rightResizer.addEventListener("mousedown", rightMove);
+        leftResizer.addEventListener("mousedown", leftMove);
+        return () => {
+          rightResizer.removeEventListener("mousedown", rightMove);
+          leftResizer.removeEventListener("mousedown", leftMove);
+        };
+      }
     }
-    if (appLayout?.type === "FLUID") {
-      const smallestWidth = layoutConfigurations.MOBILE.minWidth;
-      // Query the element
-      const ele: any = document.getElementById("canvas-viewport");
-      const initialWidth = ele.offsetWidth;
-      // The current position of mouse
-      let x = 0;
-      // let y = 0;
-
-      // The dimension of the element
-      let w = 0;
-      // let h = 0;
-      let events: any = [];
-
-      // Handle the mousedown event
-      // that's triggered when user drags the resizer
-      const mouseDownHandler = function(e: any, rightHandle: boolean) {
-        // Get the current mouse position
-        x = e.clientX;
-        // y = e.clientY;
-
-        // Calculate the dimension of element
-        const styles = window.getComputedStyle(ele);
-        w = parseInt(styles.width, 10);
-        // h = parseInt(styles.height, 10);
-        const mouseMove = (e: any) => mouseMoveHandler(e, rightHandle);
-        events.push(mouseMove);
-        // Attach the listeners to `document`
-        document.addEventListener("mousemove", mouseMove);
-        document.addEventListener("mouseup", mouseUpHandler);
-        // e.stopPropagation();
-      };
-
-      const mouseMoveHandler = function(e: any, rightHandle: boolean) {
-        // How far the mouse has been moved
-        const multiplier = rightHandle ? 2 : -2;
-        const dx = (e.clientX - x) * multiplier;
-        if (initialWidth >= w + dx && smallestWidth <= w + dx) {
-          // Adjust the dimension of element
-          ele.style.width = `${w + dx}px`;
-        }
-        if (initialWidth < w + dx) {
-          ele.style.width = `${initialWidth}px`;
-        }
-        if (smallestWidth > w + dx) {
-          ele.style.width = `${smallestWidth}px`;
-        }
-        // e.stopPropagation();
-      };
-
-      const mouseUpHandler = function() {
-        // Remove the handlers of `mousemove` and `mouseup`
-        document.removeEventListener("mousemove", events[0] as any);
-        document.removeEventListener("mouseup", mouseUpHandler);
-        events = [];
-      };
-      const rightResizer: any = ele.querySelectorAll(".resizer-right")[0];
-      const leftResizer: any = ele.querySelectorAll(".resizer-left")[0];
-      const rightMove = (e: any) => mouseDownHandler(e, true);
-      const leftMove = (e: any) => mouseDownHandler(e, false);
-
-      rightResizer.addEventListener("mousedown", rightMove);
-      leftResizer.addEventListener("mousedown", leftMove);
-      return () => {
-        rightResizer.removeEventListener("mousedown", rightMove);
-        leftResizer.removeEventListener("mousedown", leftMove);
-      };
-    }
-  }, [appLayout, isPreviewMode, currentPageId]);
+  }, [appLayout, isPreviewMode, currentPageId, appPositioningType]);
 
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
@@ -203,7 +203,7 @@ function CanvasContainer() {
         fontFamily: fontFamily,
       }}
     >
-      {appLayout?.type === "FLUID" && (
+      {appPositioningType === AppPositioningTypes.AUTO && (
         <>
           <span
             className="resizer-left"

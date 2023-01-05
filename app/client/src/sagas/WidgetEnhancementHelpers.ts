@@ -1,11 +1,12 @@
+import { AppState } from "@appsmith/reducers";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
 } from "constants/WidgetConstants";
 import { get, set } from "lodash";
 import { useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { select } from "redux-saga/effects";
 import WidgetFactory from "utils/WidgetFactory";
 import { getWidgets } from "./selectors";
@@ -66,6 +67,18 @@ export function getParentWithEnhancementFn(
 
     return;
   }
+}
+
+const propertiesToExcludeForAutoLayout = ["dynamicHeight"];
+
+export function appPositioningBasedPropertyFilter(
+  parentProps: any,
+  propertyName: string,
+) {
+  return (
+    parentProps.appPositioningType === AppPositioningTypes.AUTO &&
+    propertiesToExcludeForAutoLayout.includes(propertyName)
+  );
 }
 
 export function getWidgetEnhancementFn(

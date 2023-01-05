@@ -2,11 +2,7 @@ import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import React from "react";
 import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
 
-import { Positioning } from "components/constants";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderMode,
-} from "constants/WidgetConstants";
+import { RenderMode } from "constants/WidgetConstants";
 import { Stylesheet } from "entities/AppTheming";
 import * as log from "loglevel";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
@@ -209,10 +205,6 @@ class WidgetFactory {
       ...widgetData,
       renderMode,
     };
-    if (widgetData.widgetId === MAIN_CONTAINER_WIDGET_ID) {
-      widgetProps.useAutoLayout = true;
-      widgetProps.positioning = Positioning.Vertical;
-    }
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       const widget = widgetBuilder.buildWidget(widgetProps);

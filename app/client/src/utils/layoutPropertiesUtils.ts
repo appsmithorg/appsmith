@@ -271,6 +271,7 @@ export const DefaultFillWidgets = [
   "MULTI_SELECT_TREE_WIDGET",
   "MULTI_SELECT_WIDGET",
   "MULTI_SELECT_WIDGET_V2",
+  "MENU_BUTTON_WIDGET",
   "PHONE_INPUT_WIDGET",
   "SELECT_WIDGET",
   "TEXT_WIDGET",
@@ -278,6 +279,8 @@ export const DefaultFillWidgets = [
   "RICH_TEXT_EDITOR_WIDGET",
   "TABS_WIDGET",
   "TABLE_WIDGET_V2",
+  "PROGRESS_WIDGET",
+  "SWITCH_WIDGET",
 ];
 
 export function getDefaultResponsiveBehavior(widgetType: string) {
