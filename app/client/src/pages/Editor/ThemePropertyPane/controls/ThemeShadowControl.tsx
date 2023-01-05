@@ -1,8 +1,6 @@
 import React, { useCallback } from "react";
-import { ButtonTab } from "design-system";
-
 import { AppTheme } from "entities/AppTheming";
-import { TooltipComponent } from "design-system";
+import { ButtonGroup, TooltipComponent } from "design-system";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import { invertedBoxShadowOptions } from "constants/ThemeConstants";
 
@@ -42,7 +40,7 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
     ? [invertedBoxShadowOptions[selectedOption]]
     : [];
 
-  const buttonTabOptions = Object.keys(options).map((optionKey) => ({
+  const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
     icon: (
       <TooltipComponent
         content={optionKey}
@@ -63,8 +61,8 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
   }));
 
   return (
-    <ButtonTab
-      options={buttonTabOptions}
+    <ButtonGroup
+      options={buttonGroupOptions}
       selectButton={onChangeShadow}
       values={selectedOptionKey}
     />

@@ -53,7 +53,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
         Criteria workspaceIdCriteria = where(fieldName(QDatasource.datasource.workspaceId)).is(workspaceId);
-        return queryOne(List.of(nameCriteria, workspaceIdCriteria), aclPermission);
+        return queryOne(List.of(nameCriteria, workspaceIdCriteria), null, aclPermission);
     }
 
     @Override
