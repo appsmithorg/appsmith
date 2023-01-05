@@ -250,6 +250,7 @@ export function ShareButtonComponent() {
   return (
     <StyledButton
       category={Category.tertiary}
+      className="t--application-share-btn"
       icon={"share-line"}
       iconPosition={IconPositions.left}
       size={Size.medium}
