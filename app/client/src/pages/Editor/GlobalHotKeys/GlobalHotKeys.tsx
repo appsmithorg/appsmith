@@ -42,7 +42,7 @@ import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "@appsmith/constants/messages";
-import { setPreviewModeInitAction } from "actions/editorActions";
+import { setPreviewModeAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
@@ -411,7 +411,7 @@ const mapDispatchToProps = (dispatch: any) => {
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
     setPreviewModeAction: (shouldSet: boolean) =>
-      dispatch(setPreviewModeInitAction(shouldSet)),
+      dispatch(setPreviewModeAction(shouldSet)),
     setExplorerPinnedAction: (shouldSet: boolean) =>
       dispatch(setExplorerPinnedAction(shouldSet)),
     showCommitModal: () =>
