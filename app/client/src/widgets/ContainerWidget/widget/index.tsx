@@ -211,10 +211,6 @@ class ContainerWidget extends BaseWidget<
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     const snapRows = getCanvasSnapRows(props.bottomRow);
 
-    console.log(
-      "Rendering Canvas: ",
-      props.type === "CANVAS_WIDGET" && props.renderMode === RenderModes.CANVAS,
-    );
     return (
       <ContainerComponent {...props}>
         {props.type === "CANVAS_WIDGET" &&

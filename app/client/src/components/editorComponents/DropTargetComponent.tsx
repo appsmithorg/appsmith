@@ -142,12 +142,7 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
       rowRef.current = newRows;
       if (isParentAutoHeightEnabled || widgetId === MAIN_CONTAINER_WIDGET_ID) {
         dispatch(
-          immediatelyUpdateAutoHeightAction(
-            parentId || widgetId,
-            widgetId !== MAIN_CONTAINER_WIDGET_ID
-              ? newRows
-              : newRows / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          ),
+          immediatelyUpdateAutoHeightAction(parentId || widgetId, newRows),
         );
       }
       if (!isParentAutoHeightEnabled && widgetId !== MAIN_CONTAINER_WIDGET_ID)
@@ -177,7 +172,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     props.parentId,
   );
 
-  console.log("Auto height: DropTarget:", props, rowRef.current);
   // Are we currently resizing?
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -216,6 +210,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows) {
       rowRef.current = snapRows;
+      updateHeight(dropTargetRef, snapRows, false);
     }
   }, [props.bottomRow, isPreviewMode]);
 
