@@ -14,12 +14,12 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-public class GsonISOStringToInstantConverter implements JsonSerializer<Instant>, JsonDeserializer<Instant> {
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX").withZone(ZoneOffset.UTC);
+public class ISOStringToInstantConverter implements JsonSerializer<Instant>, JsonDeserializer<Instant> {
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX").withZone(ZoneOffset.UTC);
 
     @Override
     public Instant deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-        if(jsonElement.isJsonNull()) {
+        if (jsonElement.isJsonNull()) {
             return null;
         }
         if (jsonElement.isJsonPrimitive()) {
@@ -46,15 +46,11 @@ public class GsonISOStringToInstantConverter implements JsonSerializer<Instant>,
             JsonElement nanoElt = timeObject.get("nano");
             Long epochSecond = (epochSecondElt != null ? epochSecondElt.getAsLong() : null);
             Long nano = (nanoElt != null ? nanoElt.getAsLong() : null);
-            if (epochSecond != null)
-            {
-                if (nano != null)
-                {
+            if (epochSecond != null) {
+                if (nano != null) {
                     Instant val = Instant.ofEpochSecond(epochSecond, nano);
                     return val;
-                }
-                else
-                {
+                } else {
                     Instant val = Instant.ofEpochSecond(epochSecond);
                     return val;
                 }
