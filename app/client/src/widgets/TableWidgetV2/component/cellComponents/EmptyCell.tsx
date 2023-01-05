@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
 import { Cell, Row } from "react-table";
-import { ReactTableColumnProps } from "../Constants";
+import { ReactTableColumnProps, StickyType } from "../Constants";
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
 import { renderBodyCheckBoxCell } from "./SelectionCheckboxCell";
 
@@ -52,7 +52,20 @@ export const renderEmptyRows = (
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
           {tableColumns.map((column: any, colIndex: number) => {
             return (
-              <EmptyCell className="td" key={colIndex} width={column.width} />
+              <EmptyCell
+                className="td"
+                {...(column.sticky !== StickyType.NONE
+                  ? {
+                      ["data-sticky-td"]: true,
+                      [`data-sticky-${
+                        column.sticky === StickyType.LEFT ? "last" : "first"
+                      }-${column.sticky}-td`]: true,
+                    }
+                  : {})}
+                key={colIndex}
+                sticky={column.sticky}
+                width={column.width}
+              />
             );
           })}
         </EmptyRow>

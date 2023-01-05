@@ -101,9 +101,10 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
         .then(($elem) => {
           cy.wrap($elem)
             .find(".t--edit-column-btn")
+            .last()
             .click({ force: true });
         });
-      cy.get(".t--property-control-columnfreeze .t--button-tab-NONE").click({
+      cy.get(".t--property-control-columnfreeze .t--button-tab-").click({
         force: true,
       });
       // Check if the first cell has position sticky:
@@ -132,11 +133,6 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
   describe("1.2 Column freeze and unfreeze testing via dropdown", () => {
     it("1.2.1 Check if column freeze for user mode is enabled", () => {
       cy.openPropertyPane(WIDGET.TABLE);
-      cy.get(
-        ".t--property-control-allowcolumnfreeze .bp3-switch input[type='checkbox']",
-      ).click({
-        force: true,
-      });
 
       cy.get(
         ".t--property-control-allowcolumnfreeze .bp3-switch input[type='checkbox']",
@@ -261,11 +257,6 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
   before(() => {
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 200, y: 200 });
     cy.openPropertyPane(WIDGET.TABLE);
-    cy.get(
-      ".t--property-control-allowcolumnfreeze .bp3-switch input[type='checkbox']",
-    ).click({
-      force: true,
-    });
     cy.PublishtheApp();
   });
   describe("2.1 Column freeze and unfreeze testing with 0 pre-frozen columns", () => {

@@ -470,6 +470,7 @@ export default [
         helpText: "Controls whether the user can freeze columns",
         label: "Allow Column Freeze",
         controlType: "SWITCH",
+        defaultValue: true,
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,

@@ -16,7 +16,12 @@ import {
   MULTISELECT_CHECKBOX_WIDTH,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
-import { hideScrollbar, invisible } from "constants/DefaultTheme";
+import {
+  tableScrollBars,
+  hideScrollbar,
+  invisible,
+  thinScrollbar,
+} from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
@@ -60,9 +65,12 @@ export const TableWrapper = styled.div<{
     height: 100%;
     display: block;
     position: relative;
-    width: ${(props) => props.width}px;
+    width: 100%;
     overflow-x: auto;
-    ${hideScrollbar};
+    ${tableScrollBars};
+    &.virtual {
+      ${hideScrollbar};
+    }
     ${scrollbarOnHoverCSS};
     .thumb-horizontal {
       height: 4px !important;
@@ -81,11 +89,9 @@ export const TableWrapper = styled.div<{
       height: ${(props) =>
         props.isHeaderVisible
           ? props.height - OFFSET_WITH_HEADER
-          : props.height - OFFSET_WITHOUT_HEADER}px !important;
+          : props.height - OFFSET_WITHOUT_HEADER}px;
       width: 100%;
-    }
-    .tbody.no-scroll {
-      overflow: visible !important;
+      ${hideScrollbar};
     }
     .tr {
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
@@ -132,6 +138,9 @@ export const TableWrapper = styled.div<{
       line-height: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
       :last-child {
         border-right: 0;
+        .resizer {
+          display: none;
+        }
       }
       .resizer {
         display: inline-block;
@@ -154,10 +163,6 @@ export const TableWrapper = styled.div<{
       font-size: 14px;
     }
 
-    .thead:hover .th {
-      border-right: 1px solid var(--wds-color-border-onaccent);
-    }
-
     .th {
       padding: 0 10px 0 0;
       height: ${(props) =>
@@ -178,6 +183,10 @@ export const TableWrapper = styled.div<{
     }
   }
 
+  .virtual-list {
+    ${tableScrollBars};
+  }
+
   .column-freeze {
     .body {
       position: relative;
@@ -192,16 +201,20 @@ export const TableWrapper = styled.div<{
       position: sticky;
       position: -webkit-sticky;
       background-color: inherit;
+      border-bottom: ${(props) =>
+        props.variant === TableVariantTypes.VARIANT2
+          ? "none"
+          : "1px solid var(--wds-color-border-onaccent)"};
     }
 
     [data-sticky-last-left-td] {
       left: 0px;
-      box-shadow: 2px 0px 3px #ccc;
+      border-right: 3px solid var(--wds-color-border);
     }
 
     [data-sticky-first-right-td] {
       right: 0px;
-      box-shadow: -2px 0px 3px #ccc;
+      border-left: 3px solid var(--wds-color-border);
     }
   }
 
@@ -221,7 +234,7 @@ export const TableWrapper = styled.div<{
     }
   }
   .draggable-header {
-    cursor: pointer;
+    cursor: grab;
     display: inline-block;
     width: 100%;
     height: 38px;
@@ -234,6 +247,26 @@ export const TableWrapper = styled.div<{
     opacity: 0.6;
 
     ${invisible};
+  }
+  .header-menu {
+    cursor: pointer;
+    width: 24px;
+    display: flex;
+    align-items: center;
+    .bp3-popover2-target {
+      display: block;
+    }
+
+    &.hide {
+      &:hover {
+        .bp3-popover2-target {
+          display: block;
+        }
+      }
+      .bp3-popover2-target {
+        display: none;
+      }
+    }
   }
   .column-menu {
     cursor: pointer;
@@ -595,21 +628,13 @@ export const TableHeaderWrapper = styled.div<{
 }>`
   position: relative;
   display: flex;
-  width: ${(props) => props.width}px;
+  width: 100%;
   .show-page-items {
     display: ${(props) =>
       props.width < MIN_WIDTH_TO_SHOW_PAGE_ITEMS ? "none" : "flex"};
   }
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
-  overflow-x: auto;
-  ${hideScrollbar};
-  ${scrollbarOnHoverCSS};
-  .thumb-horizontal {
-    height: 4px !important;
-    border-radius: ${(props) => props.theme.radii[3]}px;
-    background: ${(props) => props.theme.colors.scrollbarLight};
-  }
 `;
 
 export const TableHeaderInnerWrapper = styled.div<{
@@ -626,6 +651,11 @@ export const TableHeaderInnerWrapper = styled.div<{
   border-bottom: ${(props) =>
     props.variant !== "VARIANT2" &&
     `1px solid var(--wds-color-border-onaccent)`};
+  overflow-x: scroll;
+  ${thinScrollbar};
+  ::-webkit-scrollbar {
+    height: 3px;
+  }
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div<{
@@ -721,8 +751,9 @@ export const EmptyRow = styled.div`
   flex: 1 0 auto;
 `;
 
-export const EmptyCell = styled.div<{ width: number }>`
+export const EmptyCell = styled.div<{ width: number; sticky?: string }>`
   width: ${(props) => props.width}px;
   boxsizing: border-box;
   flex: ${(props) => props.width} 0 auto;
+  z-index: ${(props) => (props.sticky ? 3 : 0)};
 `;

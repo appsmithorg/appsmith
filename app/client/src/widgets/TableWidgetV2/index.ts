@@ -6,6 +6,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
+import { StickyType } from "./component/Constants";
 import { InlineEditingSaveOptions } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -18,6 +19,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 28,
+    canFreezeColumn: true,
     columns: 34,
     animateLoading: true,
     defaultSelectedRowIndex: 0,
@@ -76,6 +78,7 @@ export const CONFIG = {
         label: "step",
         computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["step"]))}}`,
         validation: {},
+        sticky: StickyType.NONE,
       },
       task: {
         index: 1,
@@ -96,6 +99,7 @@ export const CONFIG = {
         label: "task",
         computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["task"]))}}`,
         validation: {},
+        sticky: StickyType.NONE,
       },
       status: {
         index: 2,
@@ -116,6 +120,7 @@ export const CONFIG = {
         label: "status",
         computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["status"]))}}`,
         validation: {},
+        sticky: StickyType.NONE,
       },
       action: {
         index: 3,
@@ -139,6 +144,7 @@ export const CONFIG = {
           "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
         computedValue: `{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["action"]))}}`,
         validation: {},
+        sticky: StickyType.NONE,
       },
     },
     tableData: [
@@ -163,8 +169,8 @@ export const CONFIG = {
     ],
     columnWidthMap: {
       task: 245,
-      step: 62,
-      status: 75,
+      step: 70,
+      status: 85,
     },
     columnOrder: ["step", "task", "status", "action"],
     blueprint: {

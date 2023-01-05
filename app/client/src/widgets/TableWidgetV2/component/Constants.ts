@@ -48,7 +48,7 @@ export enum ImageSizes {
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 32,
-    TABLE_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 40,
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
     VERTICAL_PADDING: 6,
@@ -58,7 +58,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
   },
   [CompactModeTypes.SHORT]: {
     COLUMN_HEADER_HEIGHT: 32,
-    TABLE_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 40,
     ROW_HEIGHT: 30,
     ROW_FONT_SIZE: 12,
     VERTICAL_PADDING: 0,
@@ -68,7 +68,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
   },
   [CompactModeTypes.TALL]: {
     COLUMN_HEADER_HEIGHT: 32,
-    TABLE_HEADER_HEIGHT: 38,
+    TABLE_HEADER_HEIGHT: 40,
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 18,
     VERTICAL_PADDING: 16,
@@ -227,7 +227,7 @@ export interface TableColumnMetaProps {
 export enum StickyType {
   LEFT = "left",
   RIGHT = "right",
-  NONE = "NONE",
+  NONE = "",
 }
 export interface TableColumnProps {
   id: string;
@@ -505,3 +505,13 @@ export enum AddNewRowActions {
 }
 
 export const EDITABLE_CELL_PADDING_OFFSET = 8;
+
+export const TABLE_SCROLLBAR_WIDTH = 6;
+export const TABLE_SCROLLBAR_HEIGHT = 6;
+
+export const POPOVER_ITEMS_TEXT_MAP = {
+  SORT_ASC: "Sort column ascending",
+  SORT_DSC: "Sort column descending",
+  FREEZE_LEFT: "Freeze column left",
+  FREEZE_RIGHT: "Freeze column right",
+};

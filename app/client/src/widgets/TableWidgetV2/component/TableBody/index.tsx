@@ -4,10 +4,19 @@ import {
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
-import { FixedSizeList, ListChildComponentProps, areEqual } from "react-window";
+import {
+  FixedSizeList,
+  ListChildComponentProps,
+  areEqual,
+  ReactElementType,
+} from "react-window";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EmptyRows, EmptyRow, Row } from "./Row";
-import { ReactTableColumnProps, TableSizes } from "../Constants";
+import {
+  ReactTableColumnProps,
+  TABLE_SCROLLBAR_HEIGHT,
+  TableSizes,
+} from "../Constants";
 
 type BodyContextType = {
   accentColor: string;
@@ -67,32 +76,30 @@ type BodyPropsType = {
   pageSize: number;
   rows: ReactTableRowType<Record<string, unknown>>[];
   height: number;
+  width?: number;
   tableSizes: TableSizes;
+  innerElementType?: ReactElementType;
 };
 
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<HTMLDivElement>) => {
     return (
       <FixedSizeList
-        className="tbody no-scroll body"
+        className="virtual-list"
         height={
           props.height -
           props.tableSizes.TABLE_HEADER_HEIGHT -
-          props.tableSizes.COLUMN_HEADER_HEIGHT -
-          2 * WIDGET_PADDING // Top and bottom padding
+          2 * WIDGET_PADDING -
+          TABLE_SCROLLBAR_HEIGHT / 2
         }
-        innerElementType={({ children, style, ...rest }: any) => (
-          <div {...props.getTableBodyProps()} style={style} {...rest}>
-            {children}
-          </div>
-        )}
+        innerElementType={props.innerElementType}
         itemCount={Math.max(props.rows.length, props.pageSize)}
         itemData={props.rows}
         itemSize={
           props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
         }
         outerRef={ref}
-        width={`calc(100% + ${2 * WIDGET_PADDING}px`}
+        width={props.width || `calc(100% + ${2 * WIDGET_PADDING}px)`}
       >
         {rowRenderer}
       </FixedSizeList>
@@ -155,7 +162,12 @@ export const TableBody = React.forwardRef(
         }}
       >
         {useVirtual ? (
-          <TableVirtualBodyComponent ref={ref} rows={rows} {...restOfProps} />
+          <TableVirtualBodyComponent
+            ref={ref}
+            rows={rows}
+            width={width}
+            {...restOfProps}
+          />
         ) : (
           <TableBodyComponent ref={ref} rows={rows} {...restOfProps} />
         )}

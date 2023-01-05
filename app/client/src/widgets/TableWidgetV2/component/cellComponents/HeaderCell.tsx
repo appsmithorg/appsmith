@@ -7,7 +7,12 @@ import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 import { Colors } from "constants/Colors";
 import styled from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
-import { CellAlignment, JUSTIFY_CONTENT, StickyType } from "../Constants";
+import {
+  CellAlignment,
+  JUSTIFY_CONTENT,
+  POPOVER_ITEMS_TEXT_MAP,
+  StickyType,
+} from "../Constants";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
@@ -122,9 +127,14 @@ export function HeaderCell(props: {
   const { column, editMode, isSortable } = props;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleSortColumn = (sortOrder: boolean) => {
+  const handleSortColumn = () => {
     if (props.isResizingColumn) return;
-    const columnIndex = props.columnIndex;
+    let columnIndex = props.columnIndex;
+    if (props.isAscOrder === true) {
+      columnIndex = -1;
+    }
+    const sortOrder =
+      props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
 
@@ -148,7 +158,10 @@ export function HeaderCell(props: {
       className="th header-reorder"
       data-header={props.columnName}
     >
-      <div className={!props.isHidden ? `draggable-header` : "hidden-header"}>
+      <div
+        className={!props.isHidden ? `draggable-header` : "hidden-header"}
+        onClick={!disableSort && props ? handleSortColumn : undefined}
+      >
         <ColumnNameContainer
           horizontalAlignment={column.columnProperties.horizontalAlignment}
         >
@@ -158,7 +171,7 @@ export function HeaderCell(props: {
           </Title>
         </ColumnNameContainer>
       </div>
-      <div className="header-menu">
+      <div className={`header-menu${!isMenuOpen ? " hide" : ""}`}>
         <Popover2
           content={
             <Menu>
@@ -166,9 +179,9 @@ export function HeaderCell(props: {
                 disabled={disableSort}
                 labelElement={props.isAscOrder === true ? <Check /> : undefined}
                 onClick={() => {
-                  handleSortColumn(true);
+                  props.sortTableColumn(props.columnIndex, true);
                 }}
-                text="Sort column ascending"
+                text={POPOVER_ITEMS_TEXT_MAP.SORT_ASC}
               />
               <MenuItem
                 disabled={disableSort}
@@ -176,11 +189,16 @@ export function HeaderCell(props: {
                   props.isAscOrder === false ? <Check /> : undefined
                 }
                 onClick={() => {
-                  handleSortColumn(false);
+                  props.sortTableColumn(props.columnIndex, false);
                 }}
-                text="Sort column descending"
+                text={POPOVER_ITEMS_TEXT_MAP.SORT_DSC}
               />
-              <MenuDivider />
+              <MenuDivider
+                style={{
+                  marginLeft: 0,
+                  marginRight: 0,
+                }}
+              />
               <MenuItem
                 disabled={!props.canFreezeColumn}
                 labelElement={
@@ -189,7 +207,7 @@ export function HeaderCell(props: {
                 onClick={() => {
                   toggleColumnFreeze(StickyType.LEFT);
                 }}
-                text="Freeze column left"
+                text={POPOVER_ITEMS_TEXT_MAP.FREEZE_LEFT}
               />
               <MenuItem
                 disabled={!props.canFreezeColumn}
@@ -199,12 +217,13 @@ export function HeaderCell(props: {
                 onClick={() => {
                   toggleColumnFreeze(StickyType.RIGHT);
                 }}
-                text="Freeze column right"
+                text={POPOVER_ITEMS_TEXT_MAP.FREEZE_RIGHT}
               />
             </Menu>
           }
           interactionKind="click"
           isOpen={isMenuOpen}
+          minimal
           onInteraction={setIsMenuOpen}
           placement="bottom-end"
         >

@@ -13,7 +13,10 @@ import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import {
+  ColumnProperties,
+  StickyType,
+} from "widgets/TableWidgetV2/component/Constants";
 import {
   createColumn,
   isColumnTypeEditable,
@@ -130,12 +133,24 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   }
 
   componentDidUpdate(prevProps: ControlProps): void {
-    //on adding a new column last column should get focused
+    /**
+     * On adding a new column the last column should get focused.
+     * If frozen columns are present then the focus should be on the newly added column
+     */
     if (
       Object.keys(prevProps.propertyValue).length + 1 ===
       Object.keys(this.props.propertyValue).length
     ) {
-      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+      const columns = Object.keys(this.props.propertyValue);
+
+      const frozenColumnIndex = columns
+        .map((column) => this.props.propertyValue[column])
+        .filter((column) => column.sticky !== StickyType.RIGHT).length;
+
+      this.updateFocus(
+        frozenColumnIndex === 0 ? columns.length - 1 : frozenColumnIndex - 1,
+        true,
+      );
       this.checkAndUpdateIfEditableColumnPresent();
     }
 

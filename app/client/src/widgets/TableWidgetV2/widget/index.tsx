@@ -13,8 +13,9 @@ import _, {
   isEmpty,
   union,
   isObject,
-  findLastIndex,
   pickBy,
+  findIndex,
+  get,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -304,7 +305,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       // Get the index of the first column that is frozen to right
-      const rightFrozenColumnIdx = findLastIndex(
+      const rightFrozenColumnIdx = findIndex(
         columns,
         (col) => col.sticky === StickyType.RIGHT,
       );
@@ -1092,7 +1093,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleColumnFreeze = (columnName: string, sticky?: StickyType) => {
     if (this.props.columnOrder) {
-      super.updateWidgetProperty(`primaryColumns.${columnName}.sticky`, sticky);
       const newColumnOrder = generateNewColumnOrderFromStickyValue(
         this.props.primaryColumns,
         this.props.columnOrder,
@@ -1100,8 +1100,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         sticky,
       );
       if (this.props.renderMode === RenderModes.CANVAS) {
-        super.updateWidgetProperty("columnOrder", newColumnOrder);
+        // Updating these properties in batch so that undo/redo gets executed in a combined way.
+        super.batchUpdateWidgetProperty(
+          {
+            modify: {
+              [`primaryColumns.${columnName}.sticky`]: sticky,
+              columnOrder: newColumnOrder,
+            },
+          },
+          true,
+        );
       } else {
+        super.updateWidgetProperty(
+          `primaryColumns.${columnName}.sticky`,
+          sticky,
+        );
         this.props.updateWidgetMetaProperty("columnOrder", newColumnOrder);
       }
     }
