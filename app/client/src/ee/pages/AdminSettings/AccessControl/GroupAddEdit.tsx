@@ -138,7 +138,8 @@ const NoUsersText = styled.div`
 `;
 
 export function GroupAddEdit(props: GroupEditProps) {
-  const { isEditing, isLoading, isNew = false, selected } = props;
+  const { isEditing, isLoading, selected } = props;
+  const { isNew = false } = selected;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");

@@ -34,6 +34,7 @@ export const rolesReducers = {
     selectedRole: {
       ...action.payload,
       isSaving: false,
+      isNew: false,
     },
     isLoading: false,
   }),
@@ -50,6 +51,7 @@ export const rolesReducers = {
     selectedRole: {
       ...action.payload,
       isSaving: false,
+      isNew: true,
     },
     isLoading: false,
   }),
@@ -78,6 +80,7 @@ export const rolesReducers = {
     selectedRole: {
       ...state.selectedRole,
       isSaving: false,
+      isNew: false,
     },
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE_NAME_SUCCESS]: (
@@ -90,6 +93,7 @@ export const rolesReducers = {
       name: action.payload.name,
       description: action.payload.description,
       isSaving: false,
+      isNew: false,
     },
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE]: (state: any) => ({
@@ -97,6 +101,7 @@ export const rolesReducers = {
     selectedRole: {
       ...state.selectedRole,
       isSaving: true,
+      isNew: false,
     },
   }),
   [ReduxActionErrorTypes.UPDATE_ACL_ROLE_ERROR]: (state: any) => ({
@@ -104,6 +109,7 @@ export const rolesReducers = {
     selectedRole: {
       ...state.selectedRole,
       isSaving: false,
+      isNew: false,
     },
   }),
   [ReduxActionTypes.UPDATE_ACL_ROLE_SUCCESS]: (state: any, action: any) => ({
@@ -114,6 +120,7 @@ export const rolesReducers = {
       userPermissions:
         action.payload.userPermissions ?? state.selectedRole.userPermissions,
       isSaving: false,
+      isNew: false,
     },
   }),
   [ReduxActionTypes.DELETE_ACL_ROLE]: (state: any) => ({
@@ -158,6 +165,7 @@ export const rolesReducers = {
     selectedRole: {
       ...state.selectedRole,
       isSaving: action.payload,
+      isNew: false,
     },
   }),
 };
