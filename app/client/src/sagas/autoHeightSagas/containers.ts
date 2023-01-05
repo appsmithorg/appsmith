@@ -111,9 +111,6 @@ export function* dynamicallyUpdateContainersSaga() {
         // Default to the min height expected.
         let maxBottomRow = minDynamicHeightInRows;
 
-        // For the child Canvas, use the value in pixels.
-        let canvasBottomRow = maxBottomRow + 0;
-
         // For widgets like Tabs Widget, some of the height is occupied by the
         // tabs themselves, the child canvas as a result has less number of rows available
         // To accommodate for this, we need to increase the new height by the offset amount.
@@ -136,16 +133,12 @@ export function* dynamicallyUpdateContainersSaga() {
           );
           // Add a canvas extension offset
           maxBottomRowBasedOnChildren += GridDefaults.CANVAS_EXTENSION_OFFSET;
-          // Set the canvas bottom row as a new variable with a new reference
-          canvasBottomRow = maxBottomRowBasedOnChildren + 0;
 
           // Add the offset to the total height of the parent widget
           maxBottomRowBasedOnChildren += canvasHeightOffset;
 
           // Get the larger value between the minDynamicHeightInRows and bottomMostRowForChild
           maxBottomRow = Math.max(maxBottomRowBasedOnChildren, maxBottomRow);
-        } else {
-          canvasBottomRow = maxBottomRow - canvasHeightOffset;
         }
 
         // The following makes sure we stay within bounds
@@ -158,16 +151,8 @@ export function* dynamicallyUpdateContainersSaga() {
           maxBottomRow = maxDynamicHeightInRows;
         }
 
-        canvasBottomRow =
-          Math.max(maxBottomRow - canvasHeightOffset, canvasBottomRow) *
-          GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
         // If we have a new height to set and
-        // If the canvas for some reason doesn't have the correct bottomRow
-        if (
-          maxBottomRow !== bottomRow - topRow ||
-          canvasBottomRow !== canvasWidget.bottomRow
-        ) {
+        if (maxBottomRow !== bottomRow - topRow) {
           if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
             updates[parentContainerWidget.widgetId] =
               maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;

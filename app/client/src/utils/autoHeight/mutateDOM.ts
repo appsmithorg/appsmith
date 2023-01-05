@@ -95,13 +95,6 @@ export function directlyMutateDOMNodes(
 
     const dropTarget = widgetNode?.querySelector(`.drop-target-${widgetId}`);
 
-    console.log("Auto Height: ", {
-      updates,
-      dropTarget,
-      widgetNode,
-      widgetsToUpdate,
-    });
-
     if (widgetNode) {
       widgetNode.style.height = `${height}px`;
       // For some widgets the top is going to be useless,

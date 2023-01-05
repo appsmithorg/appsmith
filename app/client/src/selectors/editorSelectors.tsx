@@ -789,10 +789,12 @@ export const getCanvasBottomRow = (canvasWidgetId: string) =>
     getCanvasWidgets,
     (widgets: CanvasWidgetsReduxState): number => {
       const canvasWidget = widgets[canvasWidgetId];
+      if (canvasWidget === undefined) return 0;
       if (canvasWidget.type !== "CANVAS_WIDGET") return canvasWidget.bottomRow;
       const children = canvasWidget.children;
       if (canvasWidget.parentId) {
         const parentWidget = widgets[canvasWidget.parentId];
+        if (parentWidget.type === "LIST_WIDGET") return canvasWidget.bottomRow;
         const parentHeightOffset = getCanvasHeightOffset(
           parentWidget.type,
           parentWidget,

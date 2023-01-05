@@ -54,12 +54,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     const canvasBottomRow = useSelector(getCanvasBottomRow(props.widgetId));
 
-    console.log("Auto Height: in withWidgetProps", {
-      widgetId: props.widgetId,
-      canvasBottomRow,
-      widgetName: props.widgetName,
-    });
-
     const dispatch = useDispatch();
 
     const childWidgets = useSelector((state: AppState) => {
