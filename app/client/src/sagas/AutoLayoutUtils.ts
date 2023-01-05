@@ -290,6 +290,7 @@ export function alterLayoutForMobile(
     widgets[child] = widget;
     widgets = updateWidgetPositions(widgets, child, true);
   }
+  widgets = updateWidgetPositions(widgets, parentId, true);
   return widgets;
 }
 

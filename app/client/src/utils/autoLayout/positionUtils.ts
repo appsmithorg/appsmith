@@ -16,7 +16,7 @@ export type Widget = WidgetProps & {
   children?: string[] | undefined;
 };
 
-interface AlignmentInfo {
+export interface AlignmentInfo {
   alignment: FlexLayerAlignment;
   columns: number;
   children: Widget[];
@@ -82,6 +82,7 @@ export function updateWidgetPositions(
       );
       widgets = { ...widgets, [parent.widgetId]: updatedParent };
     }
+
     const shouldUpdateHeight =
       parent.parentId &&
       ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
@@ -371,7 +372,7 @@ function getAlignmentSizeInfo(
  * @param resIndex | number : Last index of res.
  * @returns AlignmentInfo[][]
  */
-function getWrappedAlignmentInfo(
+export function getWrappedAlignmentInfo(
   arr: AlignmentInfo[],
   res: AlignmentInfo[][] = [[], [], []],
   resIndex = 0,

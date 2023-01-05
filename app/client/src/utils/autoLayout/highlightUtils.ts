@@ -19,7 +19,12 @@ import {
   getWidgetHeight,
   getWidgetWidth,
 } from "./flexWidgetUtils";
-import { getTotalRowsOfAllChildren, Widget } from "./positionUtils";
+import {
+  AlignmentInfo,
+  getTotalRowsOfAllChildren,
+  getWrappedAlignmentInfo,
+  Widget,
+} from "./positionUtils";
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState
@@ -162,6 +167,7 @@ function generateVerticalHighlights(data: {
     centerChildren = [],
     endChildren = [];
   let startColumns = 0,
+    centerColumns = 0,
     endColumns = 0;
   let maxHeight = 0;
   for (const child of children) {
@@ -178,60 +184,79 @@ function generateVerticalHighlights(data: {
       endColumns += getWidgetWidth(widget, isMobile);
     } else if (child.align === FlexLayerAlignment.Center) {
       centerChildren.push(widget);
+      centerColumns += getWidgetWidth(widget, isMobile);
     } else {
       startChildren.push(widget);
       startColumns += getWidgetWidth(widget, isMobile);
     }
   }
 
-  return {
-    highlights: [
-      ...generateHighlightsForAlignment({
-        arr: startChildren,
-        childCount,
-        layerIndex,
-        alignment: FlexLayerAlignment.Start,
-        maxHeight,
-        offsetTop,
-        canvasId,
-        parentColumnSpace: columnSpace,
-        parentRowSpace: widgets[canvasId].parentRowSpace,
-        canvasWidth,
-        columnSpace,
-        isMobile,
-      }),
-      ...generateHighlightsForAlignment({
-        arr: centerChildren,
-        childCount: childCount + startChildren.length,
-        layerIndex,
-        alignment: FlexLayerAlignment.Center,
-        maxHeight,
-        offsetTop,
-        canvasId,
-        parentColumnSpace: columnSpace,
-        parentRowSpace: widgets[canvasId].parentRowSpace,
-        canvasWidth,
-        columnSpace,
-        avoidInitialHighlight: startColumns > 25 || endColumns > 25,
-        isMobile,
-      }),
-      ...generateHighlightsForAlignment({
-        arr: endChildren,
-        childCount: childCount + startChildren.length + centerChildren.length,
-        layerIndex,
-        alignment: FlexLayerAlignment.End,
-        maxHeight,
-        offsetTop,
-        canvasId,
-        parentColumnSpace: columnSpace,
-        parentRowSpace: widgets[canvasId].parentRowSpace,
-        canvasWidth,
-        columnSpace,
-        isMobile,
-      }),
-    ],
-    childCount: count,
-  };
+  const alignmentInfo: AlignmentInfo[] = [
+    {
+      alignment: FlexLayerAlignment.Start,
+      children: startChildren,
+      columns: startColumns,
+    },
+    {
+      alignment: FlexLayerAlignment.Center,
+      children: centerChildren,
+      columns: centerColumns,
+    },
+    {
+      alignment: FlexLayerAlignment.End,
+      children: endChildren,
+      columns: endColumns,
+    },
+  ];
+
+  const wrappingInfo: AlignmentInfo[][] = isMobile
+    ? getWrappedAlignmentInfo(alignmentInfo)
+    : [alignmentInfo];
+
+  const highlights: HighlightInfo[] = [];
+  for (const each of wrappingInfo) {
+    if (!each.length) continue;
+    /**
+     * On mobile viewport,
+     * if the row is wrapped, i.e. it contains less than all three alignments
+     * and if total columns required by these alignments are zero;
+     * then don't add a highlight for them as they will be squashed.
+     */
+    if (
+      isMobile &&
+      each.length < 3 &&
+      each.reduce((a, b) => a + b.columns, 0) === 0
+    )
+      continue;
+    for (const item of each) {
+      highlights.push(
+        ...generateHighlightsForAlignment({
+          arr: item.children,
+          childCount:
+            item.alignment === FlexLayerAlignment.Start
+              ? childCount
+              : item.alignment === FlexLayerAlignment.Center
+              ? childCount + startChildren.length
+              : childCount + startChildren.length + centerChildren.length,
+          layerIndex,
+          alignment: item.alignment,
+          maxHeight,
+          offsetTop,
+          canvasId,
+          parentColumnSpace: columnSpace,
+          parentRowSpace: widgets[canvasId].parentRowSpace,
+          canvasWidth,
+          columnSpace,
+          isMobile,
+          avoidInitialHighlight:
+            item.alignment === FlexLayerAlignment.Center && !isMobile
+              ? startColumns > 25 || endColumns > 25
+              : false,
+        }),
+      );
+    }
+  }
+  return { highlights, childCount: count };
 }
 
 /**
