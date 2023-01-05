@@ -10,7 +10,6 @@ import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
@@ -37,10 +36,9 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final CommonConfig commonConfig;
 
-    private boolean isRtsAccessible = false;
+    private final ApplicationContext applicationContext;
 
-    @Autowired
-    private ApplicationContext applicationContext;
+    private boolean isRtsAccessible = false;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -55,7 +53,8 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(performRtsHealthCheck())
                 .doFinally(ignored -> this.printReady());
 
-        Mono.when(checkInstanceSchemaVersion(), registrationAndRtsCheckMono)
+        checkInstanceSchemaVersion()
+                .flatMap(signal -> registrationAndRtsCheckMono)
                 .subscribe(null, e -> {
                     log.debug("Application start up encountered an error: {}", e.getMessage());
                     Sentry.captureException(e);
@@ -72,11 +71,13 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                     return Mono.error(populateSchemaMismatchError((Integer) config.getConfig().get("value")));
                 })
                 .doOnError(errorSignal -> {
-                    log.error("\n" +
-                                    "################################################\n" +
-                                    "Error while trying to start up Appsmith instance: \n" +
-                                    "{}\n" +
-                                    "################################################\n",
+                    log.error("""
+
+                                    ################################################
+                                    Error while trying to start up Appsmith instance:\s
+                                    {}
+                                    ################################################
+                                    """,
                             errorSignal.getMessage());
 
                     SpringApplication.exit(applicationContext, () -> 1);
@@ -93,7 +94,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         switch (currentInstanceSchemaVersion) {
             // Example, we expect that in v1.8.14, all instances will have been migrated to instanceSchemaVer 2
             case 1:
-                versions.add("v1.9");
+                versions.add("v1.9.1");
             default:
         }
 
@@ -152,15 +153,17 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private void printReady() {
         System.out.println(
-                "\n" +
-                        " █████╗ ██████╗ ██████╗ ███████╗███╗   ███╗██╗████████╗██╗  ██╗    ██╗███████╗    ██████╗ ██╗   ██╗███╗   ██╗███╗   ██╗██╗███╗   ██╗ ██████╗ ██╗\n" +
-                        "██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗ ████║██║╚══██╔══╝██║  ██║    ██║██╔════╝    ██╔══██╗██║   ██║████╗  ██║████╗  ██║██║████╗  ██║██╔════╝ ██║\n" +
-                        "███████║██████╔╝██████╔╝███████╗██╔████╔██║██║   ██║   ███████║    ██║███████╗    ██████╔╝██║   ██║██╔██╗ ██║██╔██╗ ██║██║██╔██╗ ██║██║  ███╗██║\n" +
-                        "██╔══██║██╔═══╝ ██╔═══╝ ╚════██║██║╚██╔╝██║██║   ██║   ██╔══██║    ██║╚════██║    ██╔══██╗██║   ██║██║╚██╗██║██║╚██╗██║██║██║╚██╗██║██║   ██║╚═╝\n" +
-                        "██║  ██║██║     ██║     ███████║██║ ╚═╝ ██║██║   ██║   ██║  ██║    ██║███████║    ██║  ██║╚██████╔╝██║ ╚████║██║ ╚████║██║██║ ╚████║╚██████╔╝██╗\n" +
-                        "╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝    ╚═╝╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝\n" +
-                        "\n" +
-                        "Please open http://localhost:<port> in your browser to experience Appsmith!\n"
+                """
+
+                         █████╗ ██████╗ ██████╗ ███████╗███╗   ███╗██╗████████╗██╗  ██╗    ██╗███████╗    ██████╗ ██╗   ██╗███╗   ██╗███╗   ██╗██╗███╗   ██╗ ██████╗ ██╗
+                        ██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗ ████║██║╚══██╔══╝██║  ██║    ██║██╔════╝    ██╔══██╗██║   ██║████╗  ██║████╗  ██║██║████╗  ██║██╔════╝ ██║
+                        ███████║██████╔╝██████╔╝███████╗██╔████╔██║██║   ██║   ███████║    ██║███████╗    ██████╔╝██║   ██║██╔██╗ ██║██╔██╗ ██║██║██╔██╗ ██║██║  ███╗██║
+                        ██╔══██║██╔═══╝ ██╔═══╝ ╚════██║██║╚██╔╝██║██║   ██║   ██╔══██║    ██║╚════██║    ██╔══██╗██║   ██║██║╚██╗██║██║╚██╗██║██║██║╚██╗██║██║   ██║╚═╝
+                        ██║  ██║██║     ██║     ███████║██║ ╚═╝ ██║██║   ██║   ██║  ██║    ██║███████║    ██║  ██║╚██████╔╝██║ ╚████║██║ ╚████║██║██║ ╚████║╚██████╔╝██╗
+                        ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝    ╚═╝╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝
+
+                        Please open http://localhost:<port> in your browser to experience Appsmith!
+                        """
         );
     }
 
