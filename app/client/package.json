@@ -303,6 +303,6 @@
     "node-fetch": "2.6.7",
     "minimatch": "^5.0.0",
     "loader-utils": "^2.0.4",
-    "json5": "2.2.2"
+    "json5": "2.2.3"
   }
 }
