@@ -492,7 +492,7 @@ describe("Table widget inline editing functionality", () => {
       },
       {
         columnType: "Date",
-        expected: "exist",
+        expected: "not.exist",
       },
       {
         columnType: "Image",

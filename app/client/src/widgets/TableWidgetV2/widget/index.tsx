@@ -1847,6 +1847,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           <DateCell
             accentColor={this.props.accentColor}
             alias={props.cell.column.columnProperties.alias}
+            borderRadius={this.props.borderRadius}
             cellBackground={cellProperties.cellBackground}
             closeOnSelection
             columnType={column.columnType}
