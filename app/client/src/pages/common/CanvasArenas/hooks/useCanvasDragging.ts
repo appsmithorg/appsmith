@@ -748,7 +748,7 @@ export const useCanvasDragging = (
                 widgetId === MAIN_CONTAINER_WIDGET_ID &&
                 scrollParent?.scrollTop
               )
-                val = scrollParent.scrollTop - 20;
+                val = scrollParent.scrollTop;
               canvasCtx.fillRect(posX, posY - val, width, height);
               canvasCtx.save();
             }
