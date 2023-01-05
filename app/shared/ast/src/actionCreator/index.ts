@@ -47,12 +47,19 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
                         requiredArgument = typeof argument.value === "string" ? argument.value : `{{${argument.value}}}`;
                         break;
                     case NodeTypes.MemberExpression:
+                        // this is for cases where we have {{appsmith.mode}} or {{Jsobj1.mytext}}
                         requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
                         break;
                     case NodeTypes.ArrowFunctionExpression:
                     case NodeTypes.CallExpression:
-                        const requiredArg = ((node.callee as MemberExpressionNode).object as CallExpressionNode).arguments[argNum];
-                        requiredArgument = (requiredArg as LiteralNode).value;
+                        if (value.indexOf(".then") === -1) {
+                            // this is for cases where we need to extract functions with no .then
+                            requiredArgument = argument;
+                        } else {
+                            // this is for cases with a .then in the value
+                            const requiredArg = ((node.callee as MemberExpressionNode).object as CallExpressionNode).arguments[argNum];
+                            requiredArgument = (requiredArg as LiteralNode).value;
+                        }
                         break;
                 }
             }
