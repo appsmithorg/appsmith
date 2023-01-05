@@ -56,7 +56,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   const anonymousId = AnalyticsUtil.getAnonymousId();
   appsmithConfig.segment.enabled &&
     anonymousId &&
-    (config.headers["x-anonymous-user-id"] = AnalyticsUtil.getAnonymousId());
+    (config.headers["x-anonymous-user-id"] = anonymousId);
 
   return { ...config, timer: performance.now() };
 };

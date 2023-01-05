@@ -115,9 +115,7 @@ export default class AppViewerEngine extends AppEngine {
         `Unable to fetch actions for the application: ${applicationId}`,
       );
 
-    console.log("---- segment load wait");
     yield call(waitForSegmentInit, true);
-    console.log("---- segment loaded - call actions");
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 }

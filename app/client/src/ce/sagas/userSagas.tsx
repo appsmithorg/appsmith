@@ -109,18 +109,12 @@ export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
   const currentUser: User | undefined = yield select(getCurrentUser);
   const segmentState: SegmentState | undefined = yield select(getSegmentState);
   const appsmithConfig = getAppsmithConfigs();
-  console.log(
-    "segment check for SEGMENT_INITIALIZED",
-    currentUser?.enableTelemetry,
-    appsmithConfig.segment.enabled,
-    segmentState,
-  );
+  
   if (
     currentUser?.enableTelemetry &&
     appsmithConfig.segment.enabled &&
     !segmentState
   ) {
-    console.log("segment wait for SEGMENT_INITIALIZED");
     yield race([
       take(ReduxActionTypes.SEGMENT_INITIALIZED),
       take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
@@ -140,15 +134,12 @@ export function* getCurrentUserSaga() {
       //@ts-expect-error: response is of type unknown
       const { enableTelemetry } = response.data;
       if (enableTelemetry) {
-        console.log("segment enable start");
         const promise = initializeAnalyticsAndTrackers();
         if (promise instanceof Promise) {
           const result: boolean = yield promise;
           if (result) {
-            console.log("segment promise response", result);
             yield put(segmentInitSuccess());
           } else {
-            console.log("segment promise failed", result);
             yield put(segmentInitUncertain());
           }
         }
