@@ -289,6 +289,7 @@ export const useCanvasDragging = (
           }
         };
 
+        //update blocks after reflow
         const updateParamsPostReflow = () => {
           const { movementLimitMap } = currentReflowParams;
 
