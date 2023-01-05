@@ -15,6 +15,7 @@ export interface AutoLayoutLayerProps {
   center?: ReactNode;
   end?: ReactNode;
   direction: LayoutDirection;
+  flexGap: number;
   hasFillChild?: boolean;
   index: number;
   widgetId: string;
@@ -29,6 +30,7 @@ export interface AutoLayoutLayerProps {
 
 const LayoutLayerContainer = styled.div<{
   flexDirection: FlexDirection;
+  flexGap: number;
   isCurrentCanvasDragging: boolean;
   wrap?: boolean;
 }>`
@@ -37,7 +39,7 @@ const LayoutLayerContainer = styled.div<{
   justify-content: flex-start;
   align-items: flex-start;
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
-
+  gap: ${({ flexGap }) => `${flexGap}px`};
   width: 100%;
   margin-top: ${DRAG_MARGIN}px;
 `;
@@ -45,6 +47,7 @@ const LayoutLayerContainer = styled.div<{
 const SubWrapper = styled.div<{
   isCurrentCanvasDragging: boolean;
   flexDirection: FlexDirection;
+  flexGap: number;
   wrap?: boolean;
 }>`
   flex: ${({ wrap }) => `1 1 ${wrap ? "100" : "33.3"}%`};
@@ -53,6 +56,7 @@ const SubWrapper = styled.div<{
   align-items: flex-start;
   align-self: stretch;
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
+  gap: ${({ flexGap }) => `${flexGap}px`};
 `;
 
 const StartWrapper = styled(SubWrapper)`
@@ -86,30 +90,40 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}
       flexDirection={flexDirection}
+      flexGap={props.flexGap}
       isCurrentCanvasDragging={props.isCurrentCanvasDragging}
       wrap={props.isMobile && props.wrapLayer}
     >
-      <StartWrapper
-        flexDirection={flexDirection}
-        isCurrentCanvasDragging={props.isCurrentCanvasDragging}
-        wrap={props.wrapStart && props.isMobile}
-      >
-        {props.start}
-      </StartWrapper>
-      <CenterWrapper
-        flexDirection={flexDirection}
-        isCurrentCanvasDragging={props.isCurrentCanvasDragging}
-        wrap={props.wrapCenter && props.isMobile}
-      >
-        {props.center}
-      </CenterWrapper>
-      <EndWrapper
-        flexDirection={flexDirection}
-        isCurrentCanvasDragging={props.isCurrentCanvasDragging}
-        wrap={props.wrapEnd && props.isMobile}
-      >
-        {props.end}
-      </EndWrapper>
+      {props.start && (
+        <StartWrapper
+          flexDirection={flexDirection}
+          flexGap={props.flexGap}
+          isCurrentCanvasDragging={props.isCurrentCanvasDragging}
+          wrap={props.wrapStart && props.isMobile}
+        >
+          {props.start}
+        </StartWrapper>
+      )}
+      {props.center && (
+        <CenterWrapper
+          flexDirection={flexDirection}
+          flexGap={props.flexGap}
+          isCurrentCanvasDragging={props.isCurrentCanvasDragging}
+          wrap={props.wrapCenter && props.isMobile}
+        >
+          {props.center}
+        </CenterWrapper>
+      )}
+      {props.end && (
+        <EndWrapper
+          flexDirection={flexDirection}
+          flexGap={props.flexGap}
+          isCurrentCanvasDragging={props.isCurrentCanvasDragging}
+          wrap={props.wrapEnd && props.isMobile}
+        >
+          {props.end}
+        </EndWrapper>
+      )}
     </LayoutLayerContainer>
   );
 }

@@ -163,6 +163,14 @@ export enum Spacing {
   SpaceBetween = "space-between",
 }
 
+export enum FlexGap {
+  None = 0,
+  Small = 4,
+  Medium = 8,
+  Large = 16,
+  XtraLarge = 32,
+}
+
 export enum Overflow {
   Wrap = "wrap",
   NoWrap = "nowrap",

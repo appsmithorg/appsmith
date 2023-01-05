@@ -9,6 +9,7 @@ import {
   ResponsiveBehavior,
   Spacing,
   FlexVerticalAlignment,
+  FlexGap,
 } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -218,6 +219,40 @@ export const generateVerticalAlignmentConfig = (
     isBindProperty: true,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
+  };
+};
+
+export const generateFlexGapConfig = () => {
+  return {
+    helpText: "This defines the grid gap between rows and columns",
+    propertyName: "flexGap",
+    label: "Flex Gap",
+    controlType: "DROP_DOWN",
+    defaultValue: 0,
+    isBindProperty: false,
+    isTriggerProperty: false,
+    options: [
+      {
+        label: "none",
+        value: FlexGap.None,
+      },
+      {
+        label: "S",
+        value: FlexGap.Small,
+      },
+      {
+        label: "M",
+        value: FlexGap.Medium,
+      },
+      {
+        label: "L",
+        value: FlexGap.Large,
+      },
+      {
+        label: "XL",
+        value: FlexGap.XtraLarge,
+      },
+    ],
   };
 };
 

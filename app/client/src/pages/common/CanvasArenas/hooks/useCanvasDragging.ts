@@ -560,6 +560,43 @@ export const useCanvasDragging = (
             }
           }
         };
+
+        const updateCurrentBlocks = (block: WidgetDraggingBlock, e: any) => {
+          if (!useAutoLayout || block.type !== "SPACING_WIDGET") return block;
+
+          const dropInfo: HighlightInfo | undefined = getDropInfo({
+            x: block.top,
+            y: block.left,
+          });
+
+          if (dropInfo == undefined) return block;
+
+          const { height: layerHeight, isNewLayer } = dropInfo;
+
+          let { columnWidth, height, left, rowHeight, top, width } = block;
+
+          if (isNewLayer) {
+            columnWidth = GridDefaults.DEFAULT_GRID_COLUMNS;
+            width = columnWidth * snapColumnSpace;
+            rowHeight = 4;
+            height = rowHeight * snapRowSpace;
+          } else {
+            rowHeight = Math.floor(layerHeight / snapRowSpace);
+            height = rowHeight * snapRowSpace;
+            columnWidth = 4;
+            width = columnWidth * snapColumnSpace;
+          }
+          left = e.offsetX - 20 - parentDiff.left;
+          top = e.offsetY - 20 - parentDiff.top;
+
+          return {
+            ...block,
+            columnWidth,
+            rowHeight,
+            height,
+            width,
+          };
+        };
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && slidingArenaRef.current) {
             const delta = {
@@ -575,25 +612,27 @@ export const useCanvasDragging = (
             const newRows = updateRelativeRows(drawingBlocks, rowRef.current);
             const rowDelta = newRows ? newRows - rowRef.current : 0;
             rowRef.current = newRows ? newRows : rowRef.current;
-            currentRectanglesToDraw = drawingBlocks.map((each) => ({
-              ...each,
-              isNotColliding:
-                useAutoLayout ||
-                (!dropDisabled &&
-                  noCollision(
-                    { x: each.left, y: each.top },
-                    snapColumnSpace,
-                    snapRowSpace,
-                    { x: 0, y: 0 },
-                    each.columnWidth,
-                    each.rowHeight,
-                    each.widgetId,
-                    occSpaces,
-                    rowRef.current,
-                    GridDefaults.DEFAULT_GRID_COLUMNS,
-                    each.detachFromLayout,
-                  )),
-            }));
+            currentRectanglesToDraw = drawingBlocks.map((each) => {
+              return {
+                ...each,
+                isNotColliding:
+                  useAutoLayout ||
+                  (!dropDisabled &&
+                    noCollision(
+                      { x: each.left, y: each.top },
+                      snapColumnSpace,
+                      snapRowSpace,
+                      { x: 0, y: 0 },
+                      each.columnWidth,
+                      each.rowHeight,
+                      each.widgetId,
+                      occSpaces,
+                      rowRef.current,
+                      GridDefaults.DEFAULT_GRID_COLUMNS,
+                      each.detachFromLayout,
+                    )),
+              };
+            });
             if (rowDelta && slidingArenaRef.current && !useAutoLayout) {
               isUpdatingRows = true;
               canScroll.current = false;
@@ -605,10 +644,33 @@ export const useCanvasDragging = (
                 useAutoLayout &&
                 isCurrentDraggedCanvas &&
                 currentDirection.current !== ReflowDirection.UNSET
-              )
+              ) {
                 debounce(() => {
                   highlightDropPosition(e, currentDirection.current);
                 }, 100)();
+                currentRectanglesToDraw = drawingBlocks.map((each) => {
+                  const block = updateCurrentBlocks(each, e);
+                  return {
+                    ...block,
+                    isNotColliding:
+                      useAutoLayout ||
+                      (!dropDisabled &&
+                        noCollision(
+                          { x: block.left, y: block.top },
+                          snapColumnSpace,
+                          snapRowSpace,
+                          { x: 0, y: 0 },
+                          block.columnWidth,
+                          block.rowHeight,
+                          block.widgetId,
+                          occSpaces,
+                          rowRef.current,
+                          GridDefaults.DEFAULT_GRID_COLUMNS,
+                          block.detachFromLayout,
+                        )),
+                  };
+                });
+              }
               renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {
@@ -627,7 +689,6 @@ export const useCanvasDragging = (
           isUpdatingRows = true;
           if (slidingArenaRef.current && stickyCanvasRef.current) {
             const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
-
             currentRectanglesToDraw = blocksToDraw.map((each) => {
               return {
                 ...each,

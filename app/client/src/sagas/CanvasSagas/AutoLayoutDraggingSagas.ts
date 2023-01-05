@@ -35,8 +35,24 @@ function* addWidgetAndReorderSaga(
 ) {
   const start = performance.now();
   const { direction, dropPayload, newWidget, parentId } = actionPayload.payload;
-  const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
+  const {
+    alignment,
+    height,
+    index,
+    isNewLayer,
+    layerIndex,
+    rowIndex,
+  } = dropPayload;
   try {
+    // if (newWidget.type === "SPACING_WIDGET") {
+    //   if (isNewLayer) {
+    //     newWidget.columns = GridDefaults.DEFAULT_GRID_COLUMNS;
+    //   } else {
+    //     newWidget.rows = Math.floor(
+    //       height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    //     );
+    //   }
+    // }
     const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
       getUpdateDslAfterCreatingChild,
       {
@@ -57,6 +73,7 @@ function* addWidgetAndReorderSaga(
         direction,
         layerIndex,
         rowIndex,
+        layerHeight: height,
       },
     );
     let updatedWidgetsAfterResizing = updatedWidgetsOnMove;
@@ -95,7 +112,14 @@ function* autoLayoutReorderSaga(
     parentId,
   } = actionPayload.payload;
 
-  const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
+  const {
+    alignment,
+    height,
+    index,
+    isNewLayer,
+    layerIndex,
+    rowIndex,
+  } = dropPayload;
 
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -112,6 +136,7 @@ function* autoLayoutReorderSaga(
         direction,
         layerIndex,
         rowIndex,
+        layerHeight: height,
       },
     );
     let updatedWidgetsAfterResizing = updatedWidgets;
@@ -138,6 +163,7 @@ function* reorderAutolayoutChildren(params: {
   direction: LayoutDirection;
   layerIndex?: number;
   rowIndex: number;
+  layerHeight: number;
 }) {
   const {
     alignment,
@@ -145,6 +171,7 @@ function* reorderAutolayoutChildren(params: {
     direction,
     index,
     isNewLayer,
+    layerHeight,
     layerIndex,
     movedWidgets,
     parentId,
@@ -154,6 +181,28 @@ function* reorderAutolayoutChildren(params: {
   if (!movedWidgets) return widgets;
   const selectedWidgets = [...movedWidgets];
 
+  if (
+    movedWidgets.length === 1 &&
+    widgets[movedWidgets[0]].type === "SPACING_WIDGET"
+  ) {
+    const widgetId = movedWidgets[0];
+    const { leftColumn, topRow } = widgets[widgetId];
+    if (isNewLayer) {
+      widgets[widgetId] = {
+        ...widgets[widgetId],
+        rightColumn: leftColumn + GridDefaults.DEFAULT_GRID_COLUMNS,
+        bottomRow: 4 + topRow,
+      };
+    } else {
+      widgets[widgetId] = {
+        ...widgets[widgetId],
+        bottomRow:
+          topRow +
+          Math.floor(layerHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
+        rightColumn: 4 + leftColumn,
+      };
+    }
+  }
   let updatedWidgets: CanvasWidgetsReduxState = updateRelationships(
     selectedWidgets,
     widgets,

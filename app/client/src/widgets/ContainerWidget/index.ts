@@ -1,5 +1,6 @@
 import {
   ButtonBoxShadowTypes,
+  FlexGap,
   Positioning,
   ResponsiveBehavior,
 } from "components/constants";
@@ -49,6 +50,7 @@ export const CONFIG = {
     version: 1,
     positioning: Positioning.Vertical,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    flexGap: FlexGap.None,
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {

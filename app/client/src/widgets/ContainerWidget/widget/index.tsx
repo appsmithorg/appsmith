@@ -19,6 +19,7 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { Positioning, ResponsiveBehavior } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
 import {
+  generateFlexGapConfig,
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
@@ -75,6 +76,7 @@ export class ContainerWidget extends BaseWidget<
           generatePositioningConfig(Positioning.Vertical),
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
           generateVerticalAlignmentConfig(),
+          generateFlexGapConfig(),
         ],
       },
     ];
@@ -212,6 +214,7 @@ export class ContainerWidget extends BaseWidget<
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
     childWidget.useAutoLayout = this.props.positioning !== Positioning.Fixed;
+    childWidget.flexGap = this.props.flexGap;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }

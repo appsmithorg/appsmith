@@ -11,7 +11,6 @@ import {
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
-import { isCurrentCanvasDragging } from "selectors/autoLayoutSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AutoLayoutLayer from "./AutoLayoutLayer";
@@ -24,6 +23,7 @@ export interface FlexBoxProps {
   widgetId: string;
   overflow: Overflow;
   flexLayers: FlexLayer[];
+  flexGap: number;
 }
 
 export interface LayerChild {
@@ -66,6 +66,7 @@ export const FlexContainer = styled.div<{
   isMobile?: boolean;
   isMainContainer: boolean;
   isDragging: boolean;
+  flexGap: number;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
   flex-direction: ${({ direction }) =>
@@ -84,6 +85,7 @@ export const FlexContainer = styled.div<{
 
   padding: ${({ isDragging, leaveSpaceForWidgetName }) =>
     !isDragging && leaveSpaceForWidgetName ? "4px 4px 22px 4px;" : "4px;"};
+  gap: ${({ flexGap }) => `${flexGap}px`};
 `;
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
@@ -425,6 +427,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           currentChildCount={childCount}
           direction={direction}
           end={end}
+          flexGap={props.flexGap}
           hasFillChild={layer.hasFillChild}
           index={index}
           isCurrentCanvasDragging={isDragging}
@@ -446,6 +449,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     <FlexContainer
       className={`flex-container-${props.widgetId}`}
       direction={direction}
+      flexGap={props.flexGap}
       isDragging={isDragging}
       isMainContainer={props.widgetId === "0"}
       isMobile={isMobile}

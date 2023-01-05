@@ -1,4 +1,5 @@
 import {
+  FlexGap,
   LayoutDirection,
   Overflow,
   Positioning,
@@ -122,6 +123,7 @@ class CanvasWidget extends ContainerWidget {
         {/* without the wrapping div onClick events are triggered twice */}
         <FlexBoxComponent
           direction={direction}
+          flexGap={this.props.flexGap || FlexGap.None}
           flexLayers={this.props.flexLayers || []}
           overflow={
             direction === LayoutDirection.Horizontal
