@@ -15,7 +15,6 @@ import _, {
   isObject,
   pickBy,
   findIndex,
-  get,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";

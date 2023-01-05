@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import _, { isBoolean, isObject, pickBy, uniq, without } from "lodash";
+import _, { isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import {
   CellAlignmentTypes,
