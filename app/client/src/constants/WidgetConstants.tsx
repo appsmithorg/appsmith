@@ -165,7 +165,7 @@ export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;
 // This also makes sure that widgets have sufficient area in which users can interact.
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,
-  MIN_HEIGHT_IN_ROWS: 4,
+  MIN_HEIGHT_IN_ROWS: 2,
   MIN_CANVAS_HEIGHT_IN_ROWS: 10,
 };
 
