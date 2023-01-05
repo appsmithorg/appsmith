@@ -6,7 +6,10 @@ import {
     isCallExpressionNode,
     isMemberExpressionNode,
     LiteralNode,
-    wrapCode, CallExpressionNode,
+    wrapCode,
+    CallExpressionNode,
+    isBinaryExpressionNode,
+    BinaryExpressionNode,
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {simple} from "acorn-walk";
@@ -120,7 +123,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     let changedValue: string = currentValue;
     let changedValueCommentArray: Array<Comment> = [];
     let currentValueCommentArray: Array<Comment> = [];
-    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode;
+    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode | BinaryExpressionNode;
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -152,6 +155,11 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
                 requiredNode = node;
             }
         },
+        BinaryExpression(node) {
+            if(isBinaryExpressionNode(node)) {
+                requiredNode = node;
+            }
+        }
     });
 
     // @ts-ignore

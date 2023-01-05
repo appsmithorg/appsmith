@@ -37,6 +37,12 @@ export interface MemberExpressionNode extends Node {
   optional?: boolean;
 }
 
+export interface BinaryExpressionNode extends Node {
+  type: NodeTypes.BinaryExpression;
+  left: BinaryExpressionNode | IdentifierNode;
+  right: BinaryExpressionNode | IdentifierNode;
+}
+
 // doc: https://github.com/estree/estree/blob/master/es5.md#identifier
 interface IdentifierNode extends Node {
   type: NodeTypes.Identifier;
@@ -136,6 +142,10 @@ export const isIdentifierNode = (node: Node): node is IdentifierNode => {
 export const isMemberExpressionNode = (node: Node): node is MemberExpressionNode => {
   return node.type === NodeTypes.MemberExpression;
 };
+
+export const isBinaryExpressionNode = (node: Node): node is BinaryExpressionNode => {
+  return node.type === NodeTypes.BinaryExpression;
+}
 
 export const isVariableDeclarator = (
   node: Node
