@@ -100,7 +100,6 @@ import { useHref } from "./utils";
 import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
-import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -374,9 +373,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     <ThemeProvider theme={theme}>
       <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
         <HeaderSection className="space-x-3">
-          {isMultiPane ? (
-            <PaneCountSwitcher />
-          ) : (
+          {!isMultiPane && (
             <HamburgerContainer
               className={classNames({
                 "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,

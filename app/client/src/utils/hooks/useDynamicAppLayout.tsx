@@ -165,7 +165,11 @@ export const useDynamicAppLayout = () => {
         GUTTER_WIDTH -
         BORDERS_WIDTH;
       if (paneCount === 3) canvasSpace -= propertyPaneWidth;
-      scale = Math.min(+Math.abs(canvasSpace / calculatedWidth).toFixed(2), 1);
+      // Scale will always be between 0.5 to 1
+      scale = Math.max(
+        Math.min(+Math.abs(canvasSpace / calculatedWidth).toFixed(2), 1),
+        0.5,
+      );
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));
     } else if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(updateCanvasLayoutAction(calculatedWidth, scale));

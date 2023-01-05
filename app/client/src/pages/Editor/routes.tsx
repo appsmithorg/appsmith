@@ -1,5 +1,5 @@
-import React, { useEffect, ReactNode, useCallback } from "react";
-import { Switch, Route } from "react-router-dom";
+import React, { ReactNode, useCallback, useEffect } from "react";
+import { Route, Switch } from "react-router-dom";
 import { useLocation, useRouteMatch } from "react-router";
 import ApiEditor from "./APIEditor";
 import IntegrationEditor from "./IntegrationEditor";
@@ -9,17 +9,17 @@ import GeneratePage from "./GeneratePage";
 import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
-  INTEGRATION_EDITOR_PATH,
   API_EDITOR_ID_PATH,
-  QUERIES_EDITOR_ID_PATH,
-  JS_COLLECTION_EDITOR_PATH,
-  JS_COLLECTION_ID_PATH,
-  CURL_IMPORT_PAGE_PATH,
-  PROVIDER_TEMPLATE_PATH,
-  GENERATE_TEMPLATE_FORM_PATH,
-  matchBuilderPath,
   BUILDER_CHECKLIST_PATH,
   BUILDER_CUSTOM_PATH,
+  CURL_IMPORT_PAGE_PATH,
+  GENERATE_TEMPLATE_FORM_PATH,
+  INTEGRATION_EDITOR_PATH,
+  JS_COLLECTION_EDITOR_PATH,
+  JS_COLLECTION_ID_PATH,
+  matchBuilderPath,
+  PROVIDER_TEMPLATE_PATH,
+  QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -29,8 +29,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
-
-const SentryRoute = Sentry.withSentryRouting(Route);
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { builderURL } from "RouteBuilder";
@@ -40,6 +38,9 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
 import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
 import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -94,7 +95,9 @@ function EditorsRouter() {
     e.stopPropagation();
   }, []);
 
-  const showPropertyPane = isMultiPane ? paneCount === 2 : false;
+  const showPropertyPane = isMultiPane
+    ? paneCount === PaneLayoutOptions.TWO_PANE
+    : false;
 
   return (
     <Wrapper isVisible={isVisible} onClick={handleClose}>

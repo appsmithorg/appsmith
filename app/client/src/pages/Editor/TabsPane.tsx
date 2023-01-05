@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { tailwindLayers } from "constants/Layers";
@@ -8,6 +8,9 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import EditorsRouter from "pages/Editor/routes";
 import * as Sentry from "@sentry/react";
 import { Route } from "react-router";
+import { TABS_PANE_MIN_WIDTH } from "reducers/uiReducers/multiPaneReducer";
+import useWindowDimensions from "utils/hooks/useWindowDimensions";
+import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 
 const TabsContainer = styled.div`
   height: calc(
@@ -27,8 +30,18 @@ const TabsPane = (props: Props) => {
   const { onWidthChange, width } = props;
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isPreviewMode = useSelector(previewModeSelector);
+  const [windowWidth] = useWindowDimensions();
 
   const resizer = useHorizontalResize(sidebarRef, onWidthChange);
+
+  useEffect(() => {
+    // Tabs width should be 1/3 of the screen but not less than minimum
+    const initialWidth = Math.max(
+      (windowWidth - SIDE_NAV_WIDTH) / 3,
+      TABS_PANE_MIN_WIDTH,
+    );
+    onWidthChange(initialWidth);
+  }, []);
 
   return (
     <TabsContainer
@@ -36,7 +49,7 @@ const TabsPane = (props: Props) => {
         "transition-all transform duration-400 border-r border-gray-200": true,
         "translate-x-0 opacity-0": isPreviewMode,
         "opacity-100": !isPreviewMode,
-        [`w-[${width}px] min-w-[400px] translate-x-${width}`]: !isPreviewMode,
+        [`w-[${width}px] min-w-[${TABS_PANE_MIN_WIDTH}px] translate-x-${width}`]: !isPreviewMode,
       })}
       ref={sidebarRef}
     >

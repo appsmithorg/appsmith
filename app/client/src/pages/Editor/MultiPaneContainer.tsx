@@ -15,6 +15,7 @@ import {
 } from "selectors/multiPaneSelectors";
 import { setTabsPaneWidth } from "actions/multiPaneActions";
 import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
+import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 
 const Container = styled.div`
   height: calc(
@@ -43,7 +44,9 @@ const MultiPaneContainer = () => {
   const updatePaneWidth = (width: number) => dispatch(setTabsPaneWidth(width));
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
-  const showPropertyPane = isMultiPane ? paneCount === 3 : true;
+  const showPropertyPane = isMultiPane
+    ? paneCount === PaneLayoutOptions.THREE_PANE
+    : true;
   return (
     <>
       <Container className="relative w-full overflow-x-hidden flex">

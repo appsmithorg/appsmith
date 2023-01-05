@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 
 export const setTabsPaneWidth = (width: number) => {
   return {
@@ -9,7 +10,7 @@ export const setTabsPaneWidth = (width: number) => {
   };
 };
 
-export const setPaneCount = (count: 2 | 3) => {
+export const setPaneCount = (count: PaneLayoutOptions) => {
   return {
     type: ReduxActionTypes.SET_PANE_COUNT,
     payload: {

@@ -4,9 +4,16 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
+export const TABS_PANE_MIN_WIDTH = 390;
+
+export enum PaneLayoutOptions {
+  TWO_PANE = 2,
+  THREE_PANE = 3,
+}
+
 const initialState: MultiPaneReduxState = {
-  tabsPaneWidth: 400,
-  paneCount: 3,
+  tabsPaneWidth: TABS_PANE_MIN_WIDTH,
+  paneCount: PaneLayoutOptions.TWO_PANE,
 };
 
 const multiPaneReducer = createImmerReducer(initialState, {
@@ -18,7 +25,7 @@ const multiPaneReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.SET_PANE_COUNT]: (
     state: MultiPaneReduxState,
-    action: ReduxAction<{ count: 2 | 3 }>,
+    action: ReduxAction<{ count: PaneLayoutOptions }>,
   ) => {
     state.paneCount = action.payload.count;
   },
@@ -26,7 +33,7 @@ const multiPaneReducer = createImmerReducer(initialState, {
 
 export interface MultiPaneReduxState {
   tabsPaneWidth: number;
-  paneCount: 2 | 3;
+  paneCount: PaneLayoutOptions;
 }
 
 export default multiPaneReducer;

@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
-import React, { memo, useEffect, useRef, useMemo } from "react";
+import React, { memo, useEffect, useMemo, useRef } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -26,6 +26,7 @@ import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
 import { quickScrollToWidget } from "utils/helpers";
 import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 
 type Props = {
   width: number;
@@ -125,7 +126,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const showResizer = isAppSettingsPaneOpen
     ? false
     : isMultiPane
-    ? paneCount === 3
+    ? paneCount === PaneLayoutOptions.THREE_PANE
     : true;
 
   return (
