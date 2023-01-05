@@ -434,7 +434,10 @@ function LogItem(props: LogItemProps) {
         {props.lineNumber && (
           <LineNumber>
             [Ln{" "}
-            {props.lineNumber < 10 ? "0" + props.lineNumber : props.lineNumber}]
+            {props.lineNumber < 10
+              ? "0" + (props.lineNumber + 1)
+              : props.lineNumber + 1}
+            ]
           </LineNumber>
         )}
       </InnerWrapper>
