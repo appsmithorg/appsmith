@@ -66,8 +66,9 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
     let ast: Node = { end: 0, start: 0, type: "" };
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];
+    const rawValue = typeof changeValue === "string" ? String.raw`"${changeValue}"` : String.raw`${changeValue}`;
     try {
-        const changeValueScript = sanitizeScript(changeValue, evaluationVersion);
+        const changeValueScript = sanitizeScript(rawValue, evaluationVersion);
         const changeValueAst = getAST(changeValueScript, {
             locations: true,
             ranges: true,
@@ -90,7 +91,6 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
                 // add 1 to get the starting position of the next
                 // node to ending position of previous
                 const startPosition = node.callee.end + NEXT_POSITION;
-                const rawValue = typeof changeValue === "string" ? String.raw`"${changeValue}"` : String.raw`${changeValue}`;
                 node.arguments[argNum] = {
                     type: NodeTypes.Literal,
                     value: changeValue,
