@@ -46,8 +46,8 @@ import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -107,6 +108,15 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
+        return createEx(datasource, Optional.of(workspacePermission.getDatasourceCreatePermission()));
+    }
+
+    @Override
+    public Mono<Datasource> createWithoutPermissions(Datasource datasource) {
+        return createEx(datasource, Optional.empty());
+    }
+
+    private Mono<Datasource> createEx(@NotNull Datasource datasource, Optional<AclPermission> permission) {
         String workspaceId = datasource.getWorkspaceId();
         if (workspaceId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
@@ -131,7 +141,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         Mono<Datasource> datasourceWithPoliciesMono = datasourceMono
                 .flatMap(datasource1 -> {
                     Mono<User> userMono = sessionUserService.getCurrentUser();
-                    return generateAndSetDatasourcePolicies(userMono, datasource1);
+                    return generateAndSetDatasourcePolicies(userMono, datasource1, permission);
                 });
 
         return datasourceWithPoliciesMono
@@ -143,10 +153,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .flatMap(repository::setUserPermissionsInObject);
     }
 
-    private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
+    private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource, Optional<AclPermission> permission) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), workspacePermission.getDatasourceCreatePermission())
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), permission)
+                    .log()
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
                     return workspaceMono.map(workspace -> {
@@ -391,6 +402,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission) {
+        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
+    }
+
+    @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission);
     }
@@ -431,6 +447,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
+        return repository.findAllByWorkspaceId(workspaceId, permission)
+                .flatMap(this::populateHintMessages);
+    }
+
+    @Override
+    public Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
         return repository.findAllByWorkspaceId(workspaceId, permission)
                 .flatMap(this::populateHintMessages);
     }

@@ -29,6 +29,7 @@ type PageHeaderProps = {
   pageMenuItems: MenuItemProps[];
   title?: string;
   showMoreOptions?: boolean;
+  showSearchNButton?: boolean;
 };
 
 const Container = styled.div<{ isMobile?: boolean }>`
@@ -79,6 +80,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
     pageMenuItems,
     searchPlaceholder,
     showMoreOptions,
+    showSearchNButton = true,
     title,
   } = props;
 
@@ -114,7 +116,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
       </HeaderWrapper>
       <Container isMobile={isMobile}>
         <SearchWrapper>
-          {onSearch && (
+          {onSearch && showSearchNButton && (
             <StyledSearchInput
               className="search-input"
               data-testid={"t--search-input"}
@@ -127,7 +129,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
         </SearchWrapper>
         {/* <VerticalDelimeter /> */}
         <ActionsWrapper>
-          {buttonText && (
+          {buttonText && showSearchNButton && (
             <StyledButton
               data-testid={"t--page-header-input"}
               height="36"

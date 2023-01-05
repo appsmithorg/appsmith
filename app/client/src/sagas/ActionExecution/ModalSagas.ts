@@ -2,7 +2,7 @@ import {
   ActionTriggerType,
   CloseModalActionDescription,
   ShowModalActionDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { put } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";

@@ -9,7 +9,7 @@ import {
   isDynamicLeaf,
   isValidEntity,
   getEntityNameAndPropertyPath,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTree,
   DataTreeAction,

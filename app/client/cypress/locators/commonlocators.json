@@ -183,6 +183,7 @@
   "saveThemeBtn": ".t--save-theme-btn",
   "selectThemeBackBtn": ".t--theme-select-back-btn",
   "themeAppBorderRadiusBtn": ".t--theme-appBorderRadius",
+  "themeAppBoxShadowBtn": ".t--theme-appBoxShadow",
   "codeEditorWrapper": ".unfocused-code-editor",
   "textWidgetContainer": ".t--text-widget-container",
   "propertyStyle": "li:contains('STYLE')",

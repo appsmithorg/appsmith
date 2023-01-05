@@ -11,7 +11,7 @@ import {
   functionParam,
 } from "../index";
 
-export type JsObjectProperty = {
+type JsObjectProperty = {
   key: string;
   value: string;
   type: string;

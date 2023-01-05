@@ -1,21 +1,15 @@
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import styled from "styled-components";
-// import store from "store";
 import { CanvasWidgetStructure } from "widgets/constants";
 import WidgetFactory from "utils/WidgetFactory";
 import React, { memo } from "react";
 
-// import { throttle } from "lodash";
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-// import { initPageLevelSocketConnection } from "actions/websocketActions";
-// import { collabShareUserPointerEvent } from "actions/appCollabActions";
-// import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
-// import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-// import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import { previewModeSelector } from "selectors/editorSelectors";
+import useWidgetFocus from "utils/hooks/useWidgetFocus";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -48,6 +42,8 @@ const Canvas = memo((props: CanvasProps) => {
     backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
   }
 
+  const focusRef = useWidgetFocus();
+
   try {
     return (
       <Container
@@ -55,6 +51,7 @@ const Canvas = memo((props: CanvasProps) => {
         className="relative mx-auto t--canvas-artboard pb-52"
         data-testid="t--canvas-artboard"
         id="art-board"
+        ref={focusRef}
         width={canvasWidth}
       >
         {props.widgetsStructure.widgetId &&

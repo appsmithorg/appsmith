@@ -70,7 +70,7 @@ const getOptions = (type?: string, subType?: string) => {
           CONTEXT_MENU_ACTIONS.INTERCOM,
         ];
       case PropertyEvaluationErrorType.PARSE:
-        return [CONTEXT_MENU_ACTIONS.SNIPPET];
+        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.SNIPPET];
       case PropertyEvaluationErrorType.LINT:
         return [CONTEXT_MENU_ACTIONS.SNIPPET];
       default:

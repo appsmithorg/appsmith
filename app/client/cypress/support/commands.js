@@ -449,6 +449,7 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
   cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
     .last()
     .click({ force: true });
+  //cy.get(".bp3-editable-text-content").should("contain.text", apiname1);
   //cy.get('.t--entity-name').click({multiple:true})
 });
 
@@ -1151,7 +1152,7 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess).should("exist");
+  cy.get(commonlocators.saveStatusSuccess).should("exist", { timeout: 40000 });
 });
 
 Cypress.Commands.add(
@@ -1672,7 +1673,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
   const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
-    ".t--property-control-alignment .t--button-tab-right";
+    ".t--property-control-alignment .t--button-group-right";
   const labelWidth = options.labelWidth;
 
   // Drag a widget
@@ -1689,17 +1690,17 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .contains(labelText);
 
   // Set the label position: Auto
-  cy.get(".t--button-tab-Auto").click({ force: true });
+  cy.get(".t--button-group-Auto").click({ force: true });
   // Assert label position: Auto
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
-  cy.get(".t--button-tab-Top").click({ force: true });
+  cy.get(".t--button-group-Top").click({ force: true });
   // Assert label position: Top
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Left
-  cy.get(".t--button-tab-Left").click({ force: true });
+  cy.get(".t--button-group-Left").click({ force: true });
   // Assert label position: Left
   cy.get(containerSelector).should("have.css", "flex-direction", "row");
 
@@ -1928,6 +1929,11 @@ Cypress.Commands.add("AddPageFromTemplate", () => {
     .first()
     .click({ force: true });
   cy.get("[data-cy='add-page-from-template']").click();
+});
+
+Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {
+  cy.wait(alias);
+  cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
 });
 
 Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {

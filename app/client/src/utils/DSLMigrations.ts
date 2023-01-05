@@ -23,6 +23,7 @@ import {
   migrateTableWidgetIconButtonVariant,
   migrateTableWidgetV2Validation,
   migrateTableWidgetV2ValidationBinding,
+  migrateMenuButtonDynamicItemsInsideTableWidget,
   migrateTableWidgetV2SelectOption,
 } from "./migrations/TableWidget";
 import {
@@ -62,7 +63,10 @@ import {
   migratePhoneInputWidgetAllowFormatting,
   migratePhoneInputWidgetDefaultDialCode,
 } from "./migrations/PhoneInputWidgetMigrations";
-import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
+import {
+  migrateCurrencyInputWidgetDefaultCurrencyCode,
+  migrateInputWidgetShowStepArrows,
+} from "./migrations/CurrencyInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
@@ -1147,6 +1151,16 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 72) {
     currentDSL = migrateListWidgetChildrenForAutoHeight(currentDSL);
+    currentDSL.version = 73;
+  }
+
+  if (currentDSL.version === 73) {
+    currentDSL = migrateInputWidgetShowStepArrows(currentDSL);
+    currentDSL.version = 74;
+  }
+
+  if (currentDSL.version === 74) {
+    currentDSL = migrateMenuButtonDynamicItemsInsideTableWidget(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

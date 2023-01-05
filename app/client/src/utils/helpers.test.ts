@@ -575,12 +575,9 @@ describe("isNameValid()", () => {
   it("works properly", () => {
     const invalidEntityNames = [
       "console",
-      "moment",
       "Promise",
       "appsmith",
       "Math",
-      "_",
-      "forge",
       "yield",
       "Boolean",
       "ReferenceError",

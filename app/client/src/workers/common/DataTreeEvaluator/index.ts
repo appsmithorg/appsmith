@@ -29,7 +29,6 @@ import {
   convertPathToString,
   CrashingError,
   DataTreeDiff,
-  getAllPaths,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   isAction,
@@ -39,8 +38,9 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   overrideWidgetProperties,
+  getAllPaths,
   isValidEntity,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
   flatten,
@@ -63,14 +63,14 @@ import {
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluateSync, {
   EvalResult,
-  evaluateAsync,
   EvaluateContext,
+  evaluateAsync,
 } from "workers/Evaluation/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
 import {
-  ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
   Severity,
   SourceEntity,
+  ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
   UserLogObject,
 } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
@@ -81,29 +81,24 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
-import { EvalMetaUpdates } from "./types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
-  createDependencyMap,
   updateDependencyMap,
+  createDependencyMap,
 } from "workers/common/DependencyMap";
 import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
-  parseJSActionsForViewMode,
   parseJSActions,
-  parseJSActionsWithDifferences,
 } from "workers/Evaluation/JSObject";
 import { getFixedTimeDifference } from "./utils";
-import {
-  getAppMode,
-  isJSObjectFunction,
-} from "workers/Evaluation/JSObject/utils";
+import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
   validateActionProperty,
   validateAndParseWidgetProperty,
 } from "./validationUtils";
-import { APP_MODE } from "../../../entities/App";
+import { errorModifier } from "workers/Evaluation/errorModifier";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -156,10 +151,6 @@ export default class DataTreeEvaluator {
    */
   evalProps: EvalProps = {};
   public hasCyclicalDependency = false;
-  parseJsActionsConfig = {
-    [APP_MODE.EDIT]: parseJSActions,
-    [APP_MODE.PUBLISHED]: parseJSActionsForViewMode,
-  };
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
     allActionValidationConfig?: {
@@ -208,9 +199,8 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const currentAppMode: APP_MODE = getAppMode(localUnEvalTree);
-    jsUpdates =
-      this.parseJsActionsConfig[currentAppMode](this, localUnEvalTree) || {};
+    const parsedCollections = parseJSActions(this, localUnEvalTree);
+    jsUpdates = parsedCollections.jsUpdates;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
@@ -386,18 +376,18 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
-    // save parsed functions in resolveJSFunctions, update current state of js collection
-    jsUpdates =
-      (!!jsTranslatedDiffs && !!this.oldUnEvalTree
-        ? parseJSActionsWithDifferences(
-            this,
-            localUnEvalTree,
-            jsTranslatedDiffs,
-          )
-        : parseJSActions(this, localUnEvalTree)) || {};
-    // update local data tree if js body has updated (remove/update/add js functions or variables)
+    //save parsed functions in resolveJSFunctions, update current state of js collection
+    const parsedCollections = parseJSActions(
+      this,
+      localUnEvalTree,
+      jsTranslatedDiffs,
+      this.oldUnEvalTree,
+    );
+
+    jsUpdates = parsedCollections.jsUpdates;
+    //update local data tree if js body has updated (remove/update/add js functions or variables)
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
-      jsUpdates || {},
+      jsUpdates,
       localUnEvalTree,
     );
 
@@ -672,6 +662,9 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const tree = klona(oldUnevalTree);
+
+    errorModifier.updateAsyncFunctions(tree);
+
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
@@ -1024,7 +1017,6 @@ export default class DataTreeEvaluator {
   async evaluateTriggers(
     userScript: string,
     dataTree: DataTree,
-    requestId: string,
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
@@ -1033,7 +1025,6 @@ export default class DataTreeEvaluator {
     return evaluateAsync(
       jsSnippets[0] || userScript,
       dataTree,
-      requestId,
       resolvedFunctions,
       context,
       callbackData,
@@ -1046,7 +1037,7 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
-    createGlobalData: boolean,
+    isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
     skipUserLogsOperations = false,
@@ -1056,7 +1047,7 @@ export default class DataTreeEvaluator {
         js,
         data,
         resolvedFunctions,
-        createGlobalData,
+        isJSObject,
         contextData,
         callbackData,
         skipUserLogsOperations,

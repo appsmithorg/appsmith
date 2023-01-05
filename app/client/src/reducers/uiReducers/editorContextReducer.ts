@@ -1,9 +1,15 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
+export enum CursorPositionOrigin {
+  Navigation = "Navigation",
+  LastFocus = "LastFocus",
+}
+
 export type CursorPosition = {
   line: number;
   ch: number;
+  origin: CursorPositionOrigin;
 };
 
 export type EvaluatedPopupState = {
@@ -51,7 +57,13 @@ const initialState: EditorContextState = {
   explorerSwitchIndex: 0,
 };
 
-const entitySections = ["Pages", "Widgets", "Queries/JS", "Datasources"];
+const entitySections = [
+  "Pages",
+  "Widgets",
+  "Queries/JS",
+  "Datasources",
+  "Libraries",
+];
 
 export const isSubEntities = (name: string): boolean => {
   return entitySections.indexOf(name) < 0;

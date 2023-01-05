@@ -59,10 +59,13 @@ function ContainerComponentWrapper(
   return (
     <StyledContainerComponent
       {...props}
+      // Before you remove: generateClassName is used for bounding the resizables within this canvas
+      // getCanvasClassName is used to add a scrollable parent.
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} container-with-scrollbar`}
       noScroll={props.noScroll}
+      tabIndex={props.shouldScrollContents ? undefined : 0}
     >
       {props.children}
     </StyledContainerComponent>

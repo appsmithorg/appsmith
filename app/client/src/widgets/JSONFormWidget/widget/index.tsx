@@ -29,6 +29,7 @@ import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContaine
 import { convertSchemaItemToFormData } from "../helper";
 import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -50,6 +51,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   scrollContents: boolean;
   showReset: boolean;
   sourceData?: Record<string, unknown>;
+  useSourceData?: boolean;
   submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
@@ -237,6 +239,11 @@ class JSONFormWidget extends BaseWidget<
       this.state.resetObserverCallback(this.props.schema);
     }
 
+    if (prevProps.useSourceData !== this.props.useSourceData) {
+      const { formData } = this.props;
+      this.updateFormData(formData);
+    }
+
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
@@ -341,12 +348,15 @@ class JSONFormWidget extends BaseWidget<
 
   updateFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
+    const { sourceData, useSourceData } = this.props;
     let formData = values;
 
     if (!skipConversion) {
       formData = convertSchemaItemToFormData(rootSchemaItem, values, {
         fromId: "identifier",
         toId: "accessor",
+        useSourceData,
+        sourceData,
       });
     }
 
@@ -493,6 +503,7 @@ class JSONFormWidget extends BaseWidget<
   };
 
   getPageView() {
+    const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,
       // it would lead to severe performance degradation due to frequent
@@ -507,6 +518,7 @@ class JSONFormWidget extends BaseWidget<
         disabledWhenInvalid={this.props.disabledWhenInvalid}
         executeAction={this.onExecuteAction}
         fieldLimitExceeded={this.props.fieldLimitExceeded}
+        fixMessageHeight={isAutoHeightEnabled}
         fixedFooter={this.props.fixedFooter}
         getFormData={this.getFormData}
         isSubmitting={this.state.isSubmitting}
