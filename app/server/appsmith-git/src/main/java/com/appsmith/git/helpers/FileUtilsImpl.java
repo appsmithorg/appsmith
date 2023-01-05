@@ -86,41 +86,41 @@ public class FileUtilsImpl implements FileInterface {
 
      For v1:
      repo_name
-     application.json
-     metadata.json
-     datasource
-     datasource1Name.json
-     datasource2Name.json
+        application.json
+        metadata.json
+        datasource
+            datasource1Name.json
+            datasource2Name.json
      queries (Only requirement here is the filename should be unique)
-     action1_page1
-     action2_page2
+        action1_page1
+        action2_page2
      jsobjects (Only requirement here is the filename should be unique)
-     jsobject1_page1
-     jsobject2_page2
+        jsobject1_page1
+        jsobject2_page2
      pages
-     page1
-     page2
+        page1
+        page2
 
      For v2:
      repo_name
-     application.json
-     metadata.json
-     theme
-     publishedTheme.json
-     editModeTheme.json
+        application.json
+        metadata.json
+        theme
+        publishedTheme.json
+        editModeTheme.json
      pages
-     page1
-     canvas.json
-     queries
-     Query1.json
-     Query2.json
-     jsobjects
-     JSObject1.json
-     page2
-     page3
+        page1
+            canvas.json
+            queries
+                Query1.json
+                Query2.json
+            jsobjects
+                JSObject1.json
+        page2
+        page3
      datasources
-     datasource1.json
-     datasource2.json
+        datasource1.json
+        datasource2.json
      */
 
 
@@ -299,19 +299,30 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     private boolean saveJsObject(Object sourceEntity, Path path, Gson gson) {
-        /*try {
+        try {
             Files.createDirectories(path);
-            ActionCollection actionCollection = (ActionCollection) sourceEntity;
+            JsonObject jsonObject = gson.fromJson(gson.toJson(sourceEntity), JsonObject.class);
+
+            // Get the js Object code from the action collection
+            JsonObject unPublishedCollectionObject = jsonObject.get("unpublishedCollection").getAsJsonObject();
+            String body = unPublishedCollectionObject.get("body").getAsString();
+            String resourceName = unPublishedCollectionObject.get("name").getAsString();
+            // Remove the code before writing the the metadata to te file
+            unPublishedCollectionObject.remove("body");
+            jsonObject.remove("unpublishedCollection");
+            jsonObject.add("unpublishedCollection", unPublishedCollectionObject);
+
             // Write the js Object body to .js file to make conflict handling easier
-            Path bodyPath = path.resolve(actionCollection.getUnpublishedCollection().getName() + CommonConstants.JS_EXTENSION);
-            writeStringToFile(actionCollection.getUnpublishedCollection().getBody(), bodyPath);
+            Path bodyPath = path.resolve(resourceName + CommonConstants.JS_EXTENSION);
+            writeStringToFile(body, bodyPath);
+
             // Write metadata for the jsObject
-            actionCollection.getUnpublishedCollection().setBody(null);
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
-            return writeToFile(actionCollection, metadataPath, gson);
+            return writeToFile(gson.fromJson(gson.toJson(jsonObject), Object.class), metadataPath, gson);
+
         } catch (IOException e) {
             log.debug(e.getMessage());
-        }*/
+        }
         return false;
     }
 
