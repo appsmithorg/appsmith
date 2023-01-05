@@ -397,7 +397,7 @@ public class GitFileUtils {
                 // Set the js object body to the unpublished collection
                 // Since file version v3 we are splitting the js object code and metadata separately
                 String keyName = actionCollection.getUnpublishedCollection().getName() + actionCollection.getUnpublishedCollection().getPageId();
-                if (actionCollectionBody.containsKey(keyName)) {
+                if (actionCollectionBody!= null && actionCollectionBody.containsKey(keyName)) {
                     actionCollection.getUnpublishedCollection().setBody(actionCollectionBody.get(keyName));
                 }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
