@@ -479,6 +479,10 @@ class MetaWidgetGenerator {
       this.addDynamicPathsProperties(metaWidget, metaCacheProps);
     }
 
+    if (isMainContainerWidget) {
+      this.disableResizeHandles(metaWidget);
+    }
+
     if (templateWidget.type === this.primaryWidgetType) {
       this.addLevelData(metaWidget, rowIndex);
       metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
@@ -643,7 +647,7 @@ class MetaWidgetGenerator {
     }
   };
 
-  private disableWidgetOperations = (metaWidget: FlattenedWidgetProps) => {
+  private disableWidgetOperations = (metaWidget: MetaWidget) => {
     set(metaWidget, "resizeDisabled", true);
     set(metaWidget, "disablePropertyPane", true);
     set(metaWidget, "dragDisabled", true);
@@ -652,6 +656,10 @@ class MetaWidgetGenerator {
     set(metaWidget, "ignoreCollision", true);
     set(metaWidget, "shouldScrollContents", undefined);
 
+    this.disableResizeHandles(metaWidget);
+  };
+
+  private disableResizeHandles = (metaWidget: MetaWidget) => {
     set(metaWidget, `disabledResizeHandles`, [
       "left",
       "top",
