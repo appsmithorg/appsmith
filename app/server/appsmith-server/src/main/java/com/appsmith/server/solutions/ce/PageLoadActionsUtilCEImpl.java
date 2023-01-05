@@ -8,7 +8,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.dtos.DslActionDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.NewActionService;

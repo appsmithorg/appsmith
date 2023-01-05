@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;

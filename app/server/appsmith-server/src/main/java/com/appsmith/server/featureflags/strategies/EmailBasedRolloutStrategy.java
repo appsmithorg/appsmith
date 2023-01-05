@@ -1,6 +1,6 @@
 package com.appsmith.server.featureflags.strategies;
 
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

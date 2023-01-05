@@ -4,7 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.domains.User;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;

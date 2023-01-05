@@ -1,6 +1,6 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;

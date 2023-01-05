@@ -12,7 +12,7 @@ import com.appsmith.server.dtos.ReleaseNode;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;

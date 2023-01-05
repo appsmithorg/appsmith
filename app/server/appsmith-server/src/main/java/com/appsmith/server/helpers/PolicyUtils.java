@@ -5,7 +5,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.external.models.ActionCollection;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewAction;

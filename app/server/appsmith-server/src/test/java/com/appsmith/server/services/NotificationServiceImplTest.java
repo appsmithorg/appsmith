@@ -4,7 +4,7 @@ import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NotificationRepository;
 import com.mongodb.client.result.UpdateResult;

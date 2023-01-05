@@ -2,7 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 

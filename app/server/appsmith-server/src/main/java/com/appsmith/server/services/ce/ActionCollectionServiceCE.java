@@ -1,9 +1,9 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.models.ActionCollection;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.external.models.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.services.CrudService;

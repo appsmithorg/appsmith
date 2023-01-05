@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;

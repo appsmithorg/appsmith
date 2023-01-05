@@ -16,7 +16,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.external.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)

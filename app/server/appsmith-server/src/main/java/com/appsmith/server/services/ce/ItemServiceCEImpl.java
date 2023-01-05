@@ -2,13 +2,13 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.AddItemToPageDTO;
 import com.appsmith.server.dtos.ItemDTO;
 import com.appsmith.server.dtos.ItemType;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApiTemplateService;
 import com.appsmith.server.services.LayoutActionService;

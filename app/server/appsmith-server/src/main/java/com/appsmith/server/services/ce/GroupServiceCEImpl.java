@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclConstants;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.repositories.GroupRepository;
 import com.appsmith.server.services.AnalyticsService;

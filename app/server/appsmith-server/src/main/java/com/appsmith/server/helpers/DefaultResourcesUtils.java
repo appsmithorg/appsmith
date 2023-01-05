@@ -1,10 +1,10 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.models.ActionCollection;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.external.models.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;

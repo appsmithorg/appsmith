@@ -1,6 +1,5 @@
 package com.appsmith.server.exceptions;
 
-import com.appsmith.external.exceptions.AppsmithError;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;

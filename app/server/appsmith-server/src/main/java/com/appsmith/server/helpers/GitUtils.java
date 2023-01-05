@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
 
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
 import org.eclipse.jgit.util.StringUtils;

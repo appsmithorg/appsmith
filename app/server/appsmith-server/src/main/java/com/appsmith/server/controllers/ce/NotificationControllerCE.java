@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 
 import jakarta.validation.Valid;
 
-import static com.appsmith.external.exceptions.AppsmithError.UNSUPPORTED_OPERATION;
+import static com.appsmith.server.exceptions.AppsmithError.UNSUPPORTED_OPERATION;
 
 @Slf4j
 @RequestMapping(Url.NOTIFICATION_URL)

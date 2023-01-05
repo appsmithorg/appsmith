@@ -2,11 +2,11 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.User;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ConfigRepository;

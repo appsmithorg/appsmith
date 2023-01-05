@@ -1,6 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.ResponseDTO;

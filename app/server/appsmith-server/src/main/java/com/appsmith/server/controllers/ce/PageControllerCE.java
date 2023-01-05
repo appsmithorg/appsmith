@@ -1,6 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -8,7 +8,7 @@ import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.NewPageService;

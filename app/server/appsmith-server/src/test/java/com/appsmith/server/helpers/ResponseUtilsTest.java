@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.models.ActionCollection;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;

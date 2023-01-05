@@ -2,7 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Security;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
 import lombok.extern.slf4j.Slf4j;

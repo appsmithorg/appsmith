@@ -1,7 +1,6 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.external.constants.FieldName;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.appsmith.server.constants.FieldName;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 

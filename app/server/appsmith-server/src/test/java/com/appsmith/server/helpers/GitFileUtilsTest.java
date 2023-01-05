@@ -2,7 +2,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
-import com.appsmith.external.models.ActionCollection;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;

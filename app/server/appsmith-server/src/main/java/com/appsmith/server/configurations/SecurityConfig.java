@@ -4,7 +4,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;

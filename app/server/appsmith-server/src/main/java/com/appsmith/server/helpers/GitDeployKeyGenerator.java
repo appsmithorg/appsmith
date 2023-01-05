@@ -4,7 +4,7 @@ import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;

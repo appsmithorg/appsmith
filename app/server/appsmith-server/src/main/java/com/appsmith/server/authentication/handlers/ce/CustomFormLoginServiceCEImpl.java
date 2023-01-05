@@ -1,7 +1,7 @@
 package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.WordUtils;

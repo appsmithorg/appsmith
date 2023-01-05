@@ -4,7 +4,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.dtos.GitConnectionLimitDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.util.WebClientUtils;

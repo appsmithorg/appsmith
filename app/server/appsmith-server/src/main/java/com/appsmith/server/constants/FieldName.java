@@ -1,4 +1,4 @@
-package com.appsmith.external.constants;
+package com.appsmith.server.constants;
 
 public class FieldName {
     public static final String EMAIL = "email";

@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.ActionCollectionDTO;
 import lombok.Getter;
 import lombok.Setter;
 

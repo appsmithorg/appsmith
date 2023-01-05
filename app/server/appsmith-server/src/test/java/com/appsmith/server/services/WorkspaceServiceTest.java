@@ -7,7 +7,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.Constraint;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
@@ -16,7 +16,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.AssetRepository;
@@ -69,9 +69,9 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBER
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
-import static com.appsmith.external.constants.FieldName.ADMINISTRATOR;
-import static com.appsmith.external.constants.FieldName.DEVELOPER;
-import static com.appsmith.external.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)

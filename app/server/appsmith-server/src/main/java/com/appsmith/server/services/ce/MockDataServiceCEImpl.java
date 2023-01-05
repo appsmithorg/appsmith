@@ -14,7 +14,7 @@ import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceService;

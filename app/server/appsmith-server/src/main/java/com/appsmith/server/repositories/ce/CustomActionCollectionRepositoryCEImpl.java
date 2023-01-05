@@ -1,9 +1,9 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.QActionCollection;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.constants.FieldName;
-import com.appsmith.external.models.ActionCollection;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang3.StringUtils;

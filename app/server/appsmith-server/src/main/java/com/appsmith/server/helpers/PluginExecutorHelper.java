@@ -2,7 +2,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;

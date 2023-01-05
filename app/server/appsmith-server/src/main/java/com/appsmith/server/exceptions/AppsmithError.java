@@ -1,6 +1,7 @@
-package com.appsmith.external.exceptions;
+package com.appsmith.server.exceptions;
 
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
+import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.models.ErrorType;
 import lombok.Getter;
 import lombok.NonNull;

@@ -2,7 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;

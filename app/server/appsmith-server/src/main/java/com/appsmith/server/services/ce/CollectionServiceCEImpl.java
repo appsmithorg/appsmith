@@ -1,10 +1,10 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CollectionRepository;
 import com.appsmith.server.services.AnalyticsService;

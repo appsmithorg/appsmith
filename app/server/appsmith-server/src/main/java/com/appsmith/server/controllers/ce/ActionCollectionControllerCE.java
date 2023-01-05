@@ -1,8 +1,8 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
-import com.appsmith.external.models.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.LayoutDTO;

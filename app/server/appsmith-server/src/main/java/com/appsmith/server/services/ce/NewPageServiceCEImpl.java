@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
@@ -11,7 +11,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -47,7 +47,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-import static com.appsmith.external.exceptions.AppsmithError.INVALID_PARAMETER;
+import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
 
 
 @Slf4j

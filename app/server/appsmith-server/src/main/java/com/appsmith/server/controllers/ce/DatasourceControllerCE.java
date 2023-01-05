@@ -7,7 +7,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.MockDataSet;

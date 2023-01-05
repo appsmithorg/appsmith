@@ -8,7 +8,7 @@ import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ConfigRepository;
@@ -35,8 +35,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
-import static com.appsmith.external.constants.FieldName.PERMISSION_GROUP_ID;
-import static com.appsmith.external.constants.FieldName.PUBLIC_PERMISSION_GROUP;
+import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 

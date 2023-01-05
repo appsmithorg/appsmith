@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -21,7 +21,7 @@ import reactor.test.StepVerifier;
 
 import java.util.Set;
 
-import static com.appsmith.external.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j

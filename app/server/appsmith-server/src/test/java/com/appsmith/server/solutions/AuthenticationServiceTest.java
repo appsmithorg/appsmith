@@ -11,7 +11,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;

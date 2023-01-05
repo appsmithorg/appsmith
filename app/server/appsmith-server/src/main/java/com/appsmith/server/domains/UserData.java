@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.constants.FieldName.DEFAULT;
+import static com.appsmith.server.constants.FieldName.DEFAULT;
 
 /**
  * This model is intended to hold any user-specific information that is not directly about the user's authentication.

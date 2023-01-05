@@ -1,7 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 

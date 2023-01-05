@@ -2,7 +2,7 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
@@ -29,8 +29,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATIO
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
-import static com.appsmith.external.constants.FieldName.DEFAULT_PERMISSION_GROUP;
-import static com.appsmith.external.constants.FieldName.INSTANCE_CONFIG;
+import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 public class UserUtilsCE {

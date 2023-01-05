@@ -2,7 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;

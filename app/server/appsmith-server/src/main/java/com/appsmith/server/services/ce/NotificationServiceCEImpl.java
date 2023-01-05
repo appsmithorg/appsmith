@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentNotification;
 import com.appsmith.server.domains.CommentThread;
@@ -10,7 +10,7 @@ import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.events.CommentNotificationEvent;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.NumberUtils;
 import com.appsmith.server.helpers.ResponseUtils;

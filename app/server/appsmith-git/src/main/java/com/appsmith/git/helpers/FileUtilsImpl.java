@@ -6,10 +6,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.Stopwatch;
-import com.appsmith.external.models.ActionCollectionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.ActionCollection;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.converters.GsonDoubleToLongConverter;
@@ -22,10 +20,8 @@ import com.google.gson.stream.JsonReader;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -38,7 +34,6 @@ import reactor.core.scheduler.Schedulers;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -304,7 +299,7 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     private boolean saveJsObject(Object sourceEntity, Path path, Gson gson) {
-        try {
+        /*try {
             Files.createDirectories(path);
             ActionCollection actionCollection = (ActionCollection) sourceEntity;
             // Write the js Object body to .js file to make conflict handling easier
@@ -316,7 +311,7 @@ public class FileUtilsImpl implements FileInterface {
             return writeToFile(actionCollection, metadataPath, gson);
         } catch (IOException e) {
             log.debug(e.getMessage());
-        }
+        }*/
         return false;
     }
 

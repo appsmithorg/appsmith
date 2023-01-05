@@ -6,7 +6,7 @@ import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;

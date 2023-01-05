@@ -4,7 +4,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.InstanceConfig;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;

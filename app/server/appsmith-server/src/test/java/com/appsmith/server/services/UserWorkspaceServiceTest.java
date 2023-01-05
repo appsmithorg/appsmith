@@ -4,7 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -12,7 +12,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -37,8 +37,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.FieldName.ADMINISTRATOR;
-import static com.appsmith.external.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

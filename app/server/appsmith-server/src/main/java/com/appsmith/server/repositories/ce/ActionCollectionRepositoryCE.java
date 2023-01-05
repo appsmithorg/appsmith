@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.ActionCollection;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomActionCollectionRepository;
 import reactor.core.publisher.Flux;

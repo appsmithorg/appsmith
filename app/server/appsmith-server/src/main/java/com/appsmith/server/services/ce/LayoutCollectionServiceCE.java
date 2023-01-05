@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.models.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;

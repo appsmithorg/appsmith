@@ -23,12 +23,12 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATION
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
-import static com.appsmith.external.constants.FieldName.ADMINISTRATOR;
-import static com.appsmith.external.constants.FieldName.DEVELOPER;
-import static com.appsmith.external.constants.FieldName.VIEWER;
-import static com.appsmith.external.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
-import static com.appsmith.external.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
-import static com.appsmith.external.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 
 @Getter
 public enum AppsmithRole {

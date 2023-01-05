@@ -1,7 +1,7 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.exceptions.BaseException;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.LogHelper;

@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Provider;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ProviderRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;

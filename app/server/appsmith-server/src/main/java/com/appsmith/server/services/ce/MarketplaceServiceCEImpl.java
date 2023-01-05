@@ -4,7 +4,7 @@ import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.Provider;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.dtos.ProviderPaginatedDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

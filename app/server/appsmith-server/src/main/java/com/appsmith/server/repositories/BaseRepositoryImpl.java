@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.constants.FieldName;
+import com.appsmith.server.constants.FieldName;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;

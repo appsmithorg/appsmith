@@ -3,7 +3,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.util.WebClientUtils;

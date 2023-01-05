@@ -7,7 +7,7 @@ import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.AuthenticationValidator;
@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.appsmith.external.constants.FieldName.DISPLAY_TYPE;
-import static com.appsmith.external.constants.FieldName.REQUEST_TYPE;
+import static com.appsmith.server.constants.FieldName.DISPLAY_TYPE;
+import static com.appsmith.server.constants.FieldName.REQUEST_TYPE;
 
 @RequiredArgsConstructor
 @Slf4j
