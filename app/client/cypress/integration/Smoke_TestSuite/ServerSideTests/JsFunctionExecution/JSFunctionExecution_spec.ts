@@ -437,13 +437,15 @@ describe("JS Function Execution", function() {
 
   it("9. Bug 13197: Verify converting async functions to sync resets all settings", () => {
     const asyncJSCode = `export default {
+name: "Appsmith",
 asyncToSync : async ()=>{
 return "yes";`;
 
     const syncJSCode = `export default {
+      name: "Appsmith",
       asyncToSync : ()=>{
         return "yes";
-      }
+      },
     }`;
 
     jsEditor.CreateJSObject(asyncJSCode, {

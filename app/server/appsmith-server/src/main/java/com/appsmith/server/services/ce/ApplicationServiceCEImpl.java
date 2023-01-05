@@ -281,6 +281,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             }
                             return Mono.error(error);
                         })
+                        .flatMap(application1 -> this.setTransientFields(application1))
                         .flatMap(application1 -> {
                             final Map<String, Object> eventData = Map.of(
                                     FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
