@@ -622,7 +622,7 @@ public class FirestorePluginTest {
                             error.getMessage());
 
                     // Check that the error does not get logged externally.
-                    assertNotEquals(AppsmithErrorAction.LOG_EXTERNALLY, ((AppsmithPluginException) error).getError().getErrorAction());
+                    assertNotEquals(AppsmithErrorAction.LOG_EXTERNALLY, ((AppsmithPluginException) error).getAppsmithPluginErrorBaseType().getErrorAction());
                 })
                 .verify();
     }

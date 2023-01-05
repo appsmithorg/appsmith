@@ -420,7 +420,7 @@ public class MongoPluginErrorsTest {
                     boolean sameClass = throwable.getClass().equals(AppsmithPluginException.class);
                     if (sameClass) {
                         var ape = ((AppsmithPluginException) throwable);
-                        return ape.getError().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR)
+                        return ape.getAppsmithPluginErrorBaseType().equals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR)
                                 && ape.getArgs()[0].equals("Pipeline stage is not a valid JSON object.");
                     }
                     return false;

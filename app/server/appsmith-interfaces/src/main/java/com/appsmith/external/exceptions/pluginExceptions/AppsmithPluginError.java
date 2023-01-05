@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.text.MessageFormat;
 
 @Getter
-public enum AppsmithPluginError {
+public enum AppsmithPluginError implements AppsmithPluginErrorBaseType{
 
     PLUGIN_ERROR(500, 5000, "{0}",
             AppsmithErrorAction.LOG_EXTERNALLY, "Query execution error", ErrorType.INTERNAL_ERROR),
@@ -67,6 +67,6 @@ public enum AppsmithPluginError {
         return new MessageFormat(this.message).format(args);
     }
 
-    public String getErrorType() { return this.errorType.toString(); }
+    public ErrorType getErrorType() { return this.errorType; }
 
 }

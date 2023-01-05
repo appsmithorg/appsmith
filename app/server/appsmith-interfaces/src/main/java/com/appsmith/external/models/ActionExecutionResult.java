@@ -45,7 +45,7 @@ public class ActionExecutionResult {
         if (error instanceof AppsmithPluginException) {
             this.statusCode = ((AppsmithPluginException) error).getAppErrorCode().toString();
             this.title = ((AppsmithPluginException) error).getTitle();
-            this.errorType = ((AppsmithPluginException) error).getErrorType();
+            this.errorType = ((AppsmithPluginException) error).getErrorType().toString();
 
             if (((AppsmithPluginException) error).getExternalError() != null && pluginErrorUtils != null) {
                 this.readableError = pluginErrorUtils.getReadableError(error);

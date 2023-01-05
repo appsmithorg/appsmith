@@ -870,7 +870,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (e instanceof AppsmithPluginException) {
                         result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
                         result.setTitle(((AppsmithPluginException) e).getTitle());
-                        result.setErrorType(((AppsmithPluginException) e).getErrorType());
+                        result.setErrorType(((AppsmithPluginException) e).getErrorType().toString());
                     } else {
                         result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
 

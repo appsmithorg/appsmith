@@ -24,6 +24,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.datatypes.MySQLSpecificDataTypes;
+import com.external.plugins.execeptions.MySQLPluginError;
 import com.external.utils.QueryUtils;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
@@ -192,13 +193,10 @@ public class MySqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (query == null) {
+            if (! StringUtils.hasLength(query)) {
                 ActionExecutionResult errorResult = new ActionExecutionResult();
-                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                 errorResult.setIsExecutionSuccess(false);
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Missing required " +
-                        "parameter: Query."));
-                errorResult.setTitle(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle());
+                errorResult.setErrorInfo(new AppsmithPluginException(MySQLPluginError.MYSQL_QUERY_EXECUTION_FAILED, "Query is null or empty"));
                 ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                 actionExecutionRequest.setProperties(requestData);
                 errorResult.setRequest(actionExecutionRequest);
@@ -207,7 +205,7 @@ public class MySqlPlugin extends BasePlugin {
 
             actionConfiguration.setBody(query.trim());
 
-            // In case of non prepared statement, simply do binding replacement and execute
+            // In case of non-prepared statement, simply do binding replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connection, actionConfiguration, FALSE, null, null, requestData);
@@ -502,7 +500,7 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(MySQLPluginError.MYSQL_QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -556,7 +554,7 @@ public class MySqlPlugin extends BasePlugin {
                     || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
+                                MySQLPluginError.MYSQL_QUERY_EXECUTION_FAILED,
                                 "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
                                         "Please reach out to Appsmith customer support to resolve this."
                         )
@@ -586,7 +584,7 @@ public class MySqlPlugin extends BasePlugin {
                 default:
                     return Mono.error(
                             new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    MySQLPluginError.MYSQL_QUERY_EXECUTION_FAILED,
                                     "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
                                             " Appsmith customer support to resolve this."
                             )
@@ -862,7 +860,7 @@ public class MySqlPlugin extends BasePlugin {
                     .onErrorMap(e -> {
                         if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
                             return new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                                     e.getMessage()
                             );
                         }
