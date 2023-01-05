@@ -277,7 +277,6 @@ export function* evalErrorHandler(
         break;
       }
       default: {
-        Sentry.captureException(error);
         log.debug(error);
       }
     }
