@@ -551,6 +551,7 @@ export function ReflowResizable(props: ResizableProps) {
         <ResizeWrapper
           $prevents={pointerEvents}
           className={props.className}
+          id={`resize-${props.widgetId}`}
           ref={resizableRef}
           style={_props}
         >

@@ -1,9 +1,9 @@
+import { AppState } from "@appsmith/reducers";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 import { Colors } from "constants/Colors";
 import PopperJS, { Placement, PopperOptions } from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
-import { AppState } from "@appsmith/reducers";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
@@ -27,6 +27,7 @@ export type PopperProps = {
     zIndex?: string;
     position?: string;
   };
+  style?: React.CSSProperties;
   placement: Placement;
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
@@ -44,8 +45,7 @@ export type PopperProps = {
 const PopperWrapper = styled.div<{ zIndex: number; borderRadius?: string }>`
   z-index: ${(props) => props.zIndex};
   position: absolute;
-  border-radius: ${(props) => props.borderRadius || "0"};
-  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15);
+
   overflow: hidden;
 `;
 
@@ -126,6 +126,7 @@ export default (props: PopperProps) => {
               elementRef.style.top = initPositon.top + "px";
               elementRef.style.left = initPositon.left + "px";
             }
+            _popper.scheduleUpdate();
           },
           modifiers: {
             flip: {
@@ -149,6 +150,18 @@ export default (props: PopperProps) => {
           },
         },
       );
+      if (props.targetNode) {
+        const config = { attributes: true };
+        const callback = (mutationList: any, observer: any) => {
+          for (const mutation of mutationList) {
+            if (mutation.type === "attributes") {
+              _popper.scheduleUpdate();
+            }
+          }
+        };
+        const observer = new MutationObserver(callback);
+        observer.observe(props.targetNode, config);
+      }
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
         draggableElement(
@@ -186,6 +199,7 @@ export default (props: PopperProps) => {
       <PopperWrapper
         borderRadius={props.borderRadius}
         ref={contentRef}
+        style={props.style || {}}
         zIndex={props.zIndex}
       >
         {props.children}

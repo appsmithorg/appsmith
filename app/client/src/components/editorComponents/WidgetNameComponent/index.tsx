@@ -2,6 +2,8 @@ import { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { Layers } from "constants/Layers";
 import { WidgetType } from "constants/WidgetConstants";
+import Popper from "pages/Editor/Popper";
+import { Data } from "popper.js";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { hideErrors } from "selectors/debuggerSelectors";
@@ -24,13 +26,9 @@ import SettingsControl, { Activities } from "./SettingsControl";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
-  position: absolute;
-  top: ${(props) =>
-    props.topRow > 2 ? `${-1 * props.theme.spaces[10]}px` : "calc(100%)"};
   height: ${(props) => props.theme.spaces[10]}px;
-  ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0")};
+  ${(props) => (props.isSnipingMode ? "left: -7px" : "left: 0px")};
   display: flex;
-  padding: 0 4px;
   cursor: pointer;
   z-index: ${Layers.widgetName};
 `;
@@ -161,23 +159,43 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     propertyPaneWidgetId === props.widgetId
   )
     currentActivity = Activities.ACTIVE;
-
+  const targetNode: any = document.getElementById(`resize-${props.widgetId}`);
   return showWidgetName ? (
-    <PositionStyle
-      className={isSnipingMode ? "t--settings-sniping-control" : ""}
-      data-testid="t--settings-controls-positioned-wrapper"
-      isSnipingMode={isSnipingMode}
-      topRow={props.isFlexChild ? 0 : props.topRow}
+    <Popper
+      isOpen
+      modifiers={{
+        offset: {
+          enabled: true,
+          fn: (data: Data) => {
+            data.offsets.popper = {
+              ...data.offsets.popper,
+              left: data.offsets.popper.left - 4,
+              top: data.offsets.popper.top - 3,
+            };
+            return data;
+          },
+        },
+      }}
+      placement="top-start"
+      targetNode={targetNode}
+      zIndex={Layers.widgetName - 1}
     >
-      <ControlGroup>
-        <SettingsControl
-          activity={currentActivity}
-          errorCount={shouldHideErrors ? 0 : props.errorCount}
-          name={props.widgetName}
-          toggleSettings={togglePropertyEditor}
-        />
-      </ControlGroup>
-    </PositionStyle>
+      <PositionStyle
+        className={isSnipingMode ? "t--settings-sniping-control" : ""}
+        data-testid="t--settings-controls-positioned-wrapper"
+        isSnipingMode={isSnipingMode}
+        topRow={3}
+      >
+        <ControlGroup>
+          <SettingsControl
+            activity={currentActivity}
+            errorCount={shouldHideErrors ? 0 : props.errorCount}
+            name={props.widgetName}
+            toggleSettings={togglePropertyEditor}
+          />
+        </ControlGroup>
+      </PositionStyle>
+    </Popper>
   ) : null;
 }
 

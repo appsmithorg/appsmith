@@ -14,21 +14,35 @@ export const VisibilityContainer = styled.div<{
   width: 100%;
 `;
 
-const ResizeIndicatorStyle = css<{
+const VerticalResizeIndicators = css<{
   showLightBorder: boolean;
 }>`
   &::after {
     position: absolute;
     content: "";
     width: 6px;
+    height: 16px;
+    border-radius: 50%/16%;
+    background: white;
+    top: calc(50% - 8px);
+    left: calc(50% - 2.5px);
+    border: 1px solid #f86a2b;
+  }
+`;
+
+const HorizontalResizeIndicators = css<{
+  showLightBorder: boolean;
+}>`
+  &::after {
+    position: absolute;
+    content: "";
+    width: 16px;
     height: 6px;
-    border-radius: 50%;
-    background: ${(props) =>
-      props.showLightBorder
-        ? theme.colors.widgetLightBorder
-        : theme.colors.widgetBorder};
-    top: calc(50% - 2px);
-    left: calc(50% - 2px);
+    border-radius: 16%/50%;
+    border: 1px solid #f86a2b;
+    background: white;
+    top: calc(50% - 2.5px);
+    left: calc(50% - 8px);
   }
 `;
 
@@ -47,12 +61,10 @@ export const EdgeHandleStyles = css<{
 
       if (props.showAsBorder) return theme.colors.widgetMultiSelectBorder;
 
-      return theme.colors.widgetBorder;
+      return "#F86A2B";
     }};
     content: "";
   }
-  ${(props) =>
-    props.showAsBorder || props.disableDot ? "" : ResizeIndicatorStyle}
 `;
 
 export const VerticalHandleStyles = css<{
@@ -61,6 +73,8 @@ export const VerticalHandleStyles = css<{
   disableDot: boolean;
 }>`
   ${EdgeHandleStyles}
+  ${(props) =>
+    props.showAsBorder || props.disableDot ? "" : VerticalResizeIndicators}
   top:${~(WIDGET_PADDING - 1) + 1}px;
   height: calc(100% + ${2 * WIDGET_PADDING - 1}px);
   ${(props) =>
@@ -79,6 +93,8 @@ export const HorizontalHandleStyles = css<{
   disableDot: boolean;
 }>`
   ${EdgeHandleStyles}
+  ${(props) =>
+    props.showAsBorder || props.disableDot ? "" : HorizontalResizeIndicators}
   left: ${~WIDGET_PADDING + 1}px;
   width: calc(100% + ${2 * WIDGET_PADDING}px);
   ${(props) =>
