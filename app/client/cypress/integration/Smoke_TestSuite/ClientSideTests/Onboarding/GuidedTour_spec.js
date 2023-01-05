@@ -53,8 +53,8 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
-      x: 700,
-      y: 400,
+      x: 800,
+      y: 750,
     });
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
