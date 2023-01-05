@@ -105,6 +105,7 @@ export interface Message {
   message: string;
   type?: ErrorType;
   subType?: string;
+  lineNumber?: number;
   // The section of code being referred to
   // codeSegment?: string;
 }

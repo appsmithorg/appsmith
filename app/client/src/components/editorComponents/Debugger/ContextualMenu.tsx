@@ -258,7 +258,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
                   <Icon
                     fillColor="#858282"
                     name={menuProps.icon}
-                    size={IconSize.XXXL}
+                    size={IconSize.SMALL}
                   />
                   <Text type={TextType.P1} weight={FontWeight.NORMAL}>
                     {menuProps.text}
