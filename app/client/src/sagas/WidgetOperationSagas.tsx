@@ -82,7 +82,6 @@ import { validateProperty } from "./EvaluationsSaga";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
-import { Positioning } from "components/constants";
 import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { MetaState } from "reducers/entityReducers/metaReducer";

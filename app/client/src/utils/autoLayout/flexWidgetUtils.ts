@@ -94,7 +94,7 @@ export function setDimensions(
       isMobile,
     );
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return widget;
   }
 }

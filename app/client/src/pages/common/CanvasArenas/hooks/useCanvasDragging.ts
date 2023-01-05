@@ -1,4 +1,3 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
@@ -8,7 +7,7 @@ import {
 import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   MovementLimitMap,
   ReflowDirection,
@@ -127,7 +126,6 @@ export const useCanvasDragging = (
     isDragging,
     useAutoLayout,
   });
-  const dispatch = useDispatch();
 
   setTimeout(() => {
     calculateHighlights();
@@ -358,9 +356,6 @@ export const useCanvasDragging = (
                 });
               }
               setDraggingCanvas();
-              dispatch({
-                type: ReduxActionTypes.CLEAR_HIGHLIGHT_SELECTION,
-              });
             }
           }, 0);
         };

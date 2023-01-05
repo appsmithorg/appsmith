@@ -61,7 +61,7 @@ export function updateWidgetPositions(
     } else if (parent.children?.length) {
       // calculate the total height required by all widgets.
       height = getHeightOfFixedCanvas(widgets, parent, isMobile);
-    }
+    } else return widgets;
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
     const parentHeight = getWidgetRows(parent, isMobile);
@@ -331,7 +331,7 @@ function extractAlignmentInfo(
   };
 }
 
-function getAlignmentSizeInfo(
+export function getAlignmentSizeInfo(
   arr: AlignmentInfo[],
 ): { startSize: number; centerSize: number; endSize: number } {
   let startSize = 0,

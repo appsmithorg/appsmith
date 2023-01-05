@@ -21,6 +21,7 @@ import {
 } from "./flexWidgetUtils";
 import {
   AlignmentInfo,
+  getAlignmentSizeInfo,
   getTotalRowsOfAllChildren,
   getWrappedAlignmentInfo,
   Widget,
@@ -228,7 +229,20 @@ function generateVerticalHighlights(data: {
       each.reduce((a, b) => a + b.columns, 0) === 0
     )
       continue;
+    let index = 0;
     for (const item of each) {
+      let avoidInitialHighlight = false;
+      let startPosition: number | undefined;
+      if (item.alignment === FlexLayerAlignment.Center) {
+        const { centerSize } = getAlignmentSizeInfo(each);
+        avoidInitialHighlight =
+          startColumns > 25 || endColumns > 25 || centerSize === 0;
+        if (each.length === 2)
+          startPosition =
+            index === 0
+              ? centerSize / 2
+              : GridDefaults.DEFAULT_GRID_COLUMNS - centerSize / 2;
+      }
       highlights.push(
         ...generateHighlightsForAlignment({
           arr: item.children,
@@ -248,12 +262,11 @@ function generateVerticalHighlights(data: {
           canvasWidth,
           columnSpace,
           isMobile,
-          avoidInitialHighlight:
-            item.alignment === FlexLayerAlignment.Center && !isMobile
-              ? startColumns > 25 || endColumns > 25
-              : false,
+          avoidInitialHighlight,
+          startPosition,
         }),
       );
+      index += 1;
     }
   }
   return { highlights, childCount: count };
@@ -280,6 +293,7 @@ function generateHighlightsForAlignment(data: {
   columnSpace: number;
   avoidInitialHighlight?: boolean;
   isMobile: boolean;
+  startPosition: number | undefined;
 }): HighlightInfo[] {
   const {
     alignment,
@@ -294,6 +308,7 @@ function generateHighlightsForAlignment(data: {
     maxHeight,
     offsetTop,
     parentColumnSpace,
+    startPosition,
   } = data;
   const res: HighlightInfo[] = [];
   let count = 0;
@@ -336,6 +351,7 @@ function generateHighlightsForAlignment(data: {
         canvasWidth,
         canvasId,
         columnSpace,
+        startPosition,
       ),
       posY:
         lastChild === null
@@ -370,13 +386,15 @@ function getPositionForInitialHighlight(
   containerWidth: number,
   canvasId: string,
   columnSpace: number,
+  startPosition: number | undefined,
 ): number {
   const endPosition =
     64 * columnSpace - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 4 : 0);
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
-    if (!highlights.length) return containerWidth / 2;
+    if (!highlights.length)
+      return startPosition !== undefined ? startPosition : containerWidth / 2;
     return Math.min(posX, endPosition);
   } else {
     if (!highlights.length) return 2;
