@@ -318,7 +318,8 @@ const StyledNumericInput = styled(NumericInput)`
       min-width: 24px;
       width: 24px;
       border-radius: 0;
-      &:hover {
+      &:hover,
+      &:focus {
         background: ${Colors.GREY_2};
         span {
           color: ${Colors.GREY_10};

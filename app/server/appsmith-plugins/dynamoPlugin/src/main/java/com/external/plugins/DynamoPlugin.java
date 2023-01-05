@@ -87,7 +87,7 @@ public class DynamoPlugin extends BasePlugin {
     @Extension
     public static class DynamoPluginExecutor implements PluginExecutor<DynamoDbClient> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         public Object extractValue(Object rawItem) {
 

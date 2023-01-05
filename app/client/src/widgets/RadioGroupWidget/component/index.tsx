@@ -10,6 +10,7 @@ import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
+import { darkenColor } from "widgets/WidgetUtils";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
@@ -44,6 +45,11 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
       background: ${({ accentColor }) => `${accentColor}`} !important;
       border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
+    }
+
+    & input:not(:disabled):checked:focus ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ accentColor }) =>
+        `${darkenColor(accentColor)}`} !important;
     }
 
     & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {

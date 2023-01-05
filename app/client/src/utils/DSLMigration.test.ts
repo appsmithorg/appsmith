@@ -721,11 +721,20 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
+        moduleObj: tableMigrations,
+        functionName: "migrateMenuButtonDynamicItemsInsideTableWidget",
+      },
+    ],
+    version: 74,
+  },
+  {
+    functionLookup: [
+      {
         moduleObj: migrateAutoHeight,
         functionName: "migrateInputWidgetsMultiLineInputType",
       },
     ],
-    version: 74,
+    version: 75,
   },
 ];
 
