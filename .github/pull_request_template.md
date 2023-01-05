@@ -59,6 +59,8 @@ Media
 ### QA activity:
 - [ ] Test plan has been approved by relevant developers
 - [ ] Test plan has been peer reviewed by QA
+- [ ] Organized a Bug Bash with relevant internal stakeholders (pod members)
+- [ ] Organized a Bug Bash with QA team members
+- [ ] Received usability test feedback from Appsmith team and users on Discord
 - [ ] Cypress test cases have been added and approved by either SDET or manual QA
-- [ ] Organized project review call with relevant stakeholders after Round 1/2 of QA
 - [ ] Added Test Plan Approved label after reveiwing all Cypress test
