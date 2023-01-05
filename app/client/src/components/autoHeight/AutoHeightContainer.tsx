@@ -10,6 +10,13 @@ const StyledAutoHeightContainer = styled.div<{ isOverflow?: boolean }>`
   height: 100%;
 `;
 
+const CenterContainer = styled.div<{ shouldBeCentered: boolean }>`
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: ${(props) => (props.shouldBeCentered ? "center" : "flex-start")};
+`;
+
 interface AutoHeightContainerProps {
   maxDynamicHeight: number;
   minDynamicHeight: number;
@@ -21,6 +28,7 @@ interface AutoHeightContainerProps {
 
 const SimpleContainer = styled.div`
   height: auto !important;
+  width: 100%;
 `;
 
 export default function AutoHeightContainer({
@@ -73,6 +81,10 @@ export default function AutoHeightContainer({
     }
   }, [widgetHeightInPixels]);
 
+  const shouldBeCentered =
+    widgetHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT ===
+    minDynamicHeight;
+
   if (isAutoHeightWithLimits) {
     const expectedHeightInRows = Math.ceil(
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
@@ -89,16 +101,20 @@ export default function AutoHeightContainer({
         isOverflow={maxDynamicHeight < expectedHeightInRows}
         style={{ backgroundColor }}
       >
-        <SimpleContainer className="auto-height-container" ref={ref}>
-          {children}
-        </SimpleContainer>
+        <CenterContainer shouldBeCentered={shouldBeCentered}>
+          <SimpleContainer className="auto-height-container" ref={ref}>
+            {children}
+          </SimpleContainer>
+        </CenterContainer>
       </StyledAutoHeightContainer>
     );
   }
 
   return (
-    <SimpleContainer className="auto-height-container" ref={ref}>
-      {children}
-    </SimpleContainer>
+    <CenterContainer shouldBeCentered={shouldBeCentered}>
+      <SimpleContainer className="auto-height-container" ref={ref}>
+        {children}
+      </SimpleContainer>
+    </CenterContainer>
   );
 }
