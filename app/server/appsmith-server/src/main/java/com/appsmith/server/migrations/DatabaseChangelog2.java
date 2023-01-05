@@ -2763,12 +2763,12 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongoTemplate, Application.class, "deleted");
         ensureIndexes(mongoTemplate, Application.class, makeIndex("deleted"));
 
-        dropIndexIfExists(mongockTemplate, Workspace.class, "tenantId_deleted");
-        ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
+        dropIndexIfExists(mongoTemplate, Workspace.class, "tenantId_deleted");
+        ensureIndexes(mongoTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
     }
 
     @ChangeSet(order = "038", id = "add-unique-index-for-uidstring", author = "")
-    public void addUniqueIndexOnUidString(MongockTemplate mongoTemplate) {
+    public void addUniqueIndexOnUidString(MongoTemplate mongoTemplate) {
         Index uidStringUniqueness = makeIndex("uidString").unique()
                 .named("customjslibs_uidstring_index");
         ensureIndexes(mongoTemplate, CustomJSLib.class, uidStringUniqueness);
