@@ -342,6 +342,7 @@ abstract class BaseWidget<
             type={this.props.type}
             widgetId={this.props.widgetId}
             widgetName={this.props.widgetName}
+            widgetProps={this.props}
           />
         )}
         {content}

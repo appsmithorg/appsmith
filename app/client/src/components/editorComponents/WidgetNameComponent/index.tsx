@@ -13,14 +13,22 @@ import {
 } from "selectors/editorSelectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
+import {
+  isCurrentWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
+import {
+  useShowTableFilterPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import WidgetFactory from "utils/WidgetFactory";
+import { canDrag } from "../DraggableComponent";
 import SettingsControl, { Activities } from "./SettingsControl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -53,6 +61,7 @@ type WidgetNameComponentProps = {
   topRow: number;
   errorCount: number;
   isFlexChild: boolean;
+  widgetProps: any;
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
@@ -160,6 +169,71 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   )
     currentActivity = Activities.ACTIVE;
   const targetNode: any = document.getElementById(`resize-${props.widgetId}`);
+
+  // This state tells us to disable dragging,
+  // This is usually true when widgets themselves implement drag/drop
+  // This flag resolves conflicting drag/drop triggers.
+  const isDraggingDisabled: boolean = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
+  );
+
+  // True when any widget is dragging or resizing, including this one
+  const isResizingOrDragging = !!isResizing || !!isDragging;
+  const allowDrag = canDrag(
+    isResizingOrDragging,
+    isDraggingDisabled,
+    props.widgetProps,
+    isSnipingMode,
+    isPreviewMode,
+  );
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  // This state tels us which widget is focused
+  // The value is the widgetId of the focused widget.
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  const { setDraggingState } = useWidgetDragResize();
+
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // allowDrag check is added as react jest test simulation is not respecting default behaviour
+    // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
+    if (allowDrag && targetNode && !(e.metaKey || e.ctrlKey)) {
+      if (!isFocused) return;
+
+      if (!isSelected) {
+        selectWidget(props.widgetId);
+      }
+      const widgetHeight =
+        props.widgetProps.bottomRow - props.widgetProps.topRow;
+      const widgetWidth =
+        props.widgetProps.rightColumn - props.widgetProps.leftColumn;
+      const bounds = targetNode.getBoundingClientRect();
+      const startPoints = {
+        top: Math.min(
+          Math.max(
+            (e.clientY - bounds.top) / props.widgetProps.parentRowSpace,
+            0,
+          ),
+          widgetHeight - 1,
+        ),
+        left: Math.min(
+          Math.max(
+            (e.clientX - bounds.left) / props.widgetProps.parentColumnSpace,
+            0,
+          ),
+          widgetWidth - 1,
+        ),
+      };
+      showTableFilterPane();
+      setDraggingState({
+        isDragging: true,
+        dragGroupActualParent: props.widgetProps.parentId || "",
+        draggingGroupCenter: { widgetId: props.widgetProps.widgetId },
+        startPoints,
+        draggedOn: props.widgetProps.parentId,
+      });
+    }
+  };
   return showWidgetName ? (
     <Popper
       isOpen
@@ -183,7 +257,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       <PositionStyle
         className={isSnipingMode ? "t--settings-sniping-control" : ""}
         data-testid="t--settings-controls-positioned-wrapper"
+        draggable={allowDrag}
         isSnipingMode={isSnipingMode}
+        onDragStart={onDragStart}
         topRow={3}
       >
         <ControlGroup>
