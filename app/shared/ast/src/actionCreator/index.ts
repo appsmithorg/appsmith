@@ -154,17 +154,21 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
         },
     });
 
-    simple(currentValueAstWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments[argNum]) {
-                requiredNode.start = node.arguments[0].start;
-                requiredNode.end = node.arguments[0].start + changedValue.length;
-                // @ts-ignore
-                node.arguments[argNum] = requiredNode;
-                changedValue = `{{${generate(currentValueAstWithComments, {comments: true}).trim()}}}`;
-            }
-        },
-    });
+    // @ts-ignore
+    if(!!requiredNode) {
+        simple(currentValueAstWithComments, {
+            CallExpression(node) {
+                if (isCallExpressionNode(node) && node.arguments[argNum]) {
+                    requiredNode.start = node.arguments[0].start;
+                    requiredNode.end = node.arguments[0].start + changedValue.length;
+                    // @ts-ignore
+                    node.arguments[argNum] = requiredNode;
+                    changedValue = `{{${generate(currentValueAstWithComments, {comments: true}).trim()}}}`;
+                }
+            },
+        });
+
+    }
 
     return changedValue;
 }
