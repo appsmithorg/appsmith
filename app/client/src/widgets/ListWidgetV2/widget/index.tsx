@@ -521,8 +521,7 @@ class ListWidget extends BaseWidget<
         rowDataCache[key] = prevDataCache[key];
         return;
       }
-      const startIndex = this.metaWidgetGenerator.getStartIndex();
-      const viewIndex = rowIndex - startIndex;
+      const viewIndex = this.metaWidgetGenerator.getViewIndex(rowIndex);
       const rowData = this.props.listData?.[viewIndex] ?? {};
       rowDataCache[key] = rowData;
     });

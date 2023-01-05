@@ -1082,8 +1082,9 @@ class MetaWidgetGenerator {
    */
   private shouldGenerateCacheWidgets = (nextOptions: GeneratorOptions) => {
     return (
-      !isEqual(this.currTemplateWidgets, nextOptions.currTemplateWidgets) ||
-      !isEqual(this.cachedRows.curr, this.cachedRows.prev)
+      (!isEqual(this.currTemplateWidgets, nextOptions.currTemplateWidgets) ||
+        !isEqual(this.cachedRows.curr, this.cachedRows.prev)) &&
+      this.renderMode !== RenderModes.PAGE
     );
   };
 
