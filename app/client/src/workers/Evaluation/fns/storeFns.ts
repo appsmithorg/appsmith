@@ -4,14 +4,11 @@ import {
   StoreValueActionDescription,
 } from "ce/entities/DataTree/actionTriggers";
 import set from "lodash/set";
-import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
 import { addFn } from "./utils/fnGuard";
-import { TriggerCollector } from "./utils/TriggerCollector";
+import { TriggerEmitter } from "./utils/TriggerEmitter";
 
 export function initStoreFns(ctx: typeof globalThis) {
-  const triggerCollector = new TriggerCollector(
-    MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES,
-  );
+  const triggerEmitter = TriggerEmitter.getInstance();
   function storeValue(key: string, value: string, persist = true) {
     const requestPayload: StoreValueActionDescription = {
       type: ActionTriggerType.STORE_VALUE,
@@ -22,7 +19,7 @@ export function initStoreFns(ctx: typeof globalThis) {
       },
     };
     set(self, ["appsmith", "store", key], value);
-    triggerCollector.collect(requestPayload);
+    triggerEmitter.emit("process_store_updates", requestPayload);
     return Promise.resolve({});
   }
 
@@ -35,14 +32,14 @@ export function initStoreFns(ctx: typeof globalThis) {
     };
     //@ts-expect-error no types for store
     delete self.appsmith.store[key];
-    triggerCollector.collect(requestPayload);
+    triggerEmitter.emit("process_store_updates", requestPayload);
     return Promise.resolve({});
   }
 
   function clearStore() {
     //@ts-expect-error no types for store
     self.appsmith.store = {};
-    triggerCollector.collect({
+    triggerEmitter.emit("process_store_updates", {
       type: ActionTriggerType.CLEAR_STORE,
       payload: null,
     });

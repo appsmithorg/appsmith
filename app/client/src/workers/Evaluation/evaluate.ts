@@ -7,7 +7,7 @@ import {
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
 import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
-import userLogs from "./UserLog";
+import userLogs from "./fns/console";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
@@ -244,18 +244,13 @@ export default function evaluateSync(
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
-  skipLogsOperations = false,
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
-    let logs: LogObject[] = [];
     let result;
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
-    if (!skipLogsOperations) {
-      userLogs.resetLogs();
-    }
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
@@ -305,7 +300,6 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      if (!skipLogsOperations) logs = userLogs.flushLogs();
       for (const entityName in evalContext) {
         if (evalContext.hasOwnProperty(entityName)) {
           // @ts-expect-error: Types are not available
@@ -313,7 +307,7 @@ export default function evaluateSync(
         }
       }
     }
-    return { result, errors, logs };
+    return { result, errors };
   })();
 }
 
@@ -328,14 +322,9 @@ export async function evaluateAsync(
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
-    let logs;
     const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
     /**** Setting the eval context ****/
-    userLogs.resetLogs();
-    userLogs.setCurrentRequestInfo({
-      eventType: context?.eventType,
-      triggerMeta: context?.triggerMeta,
-    });
+    userLogs.setupConsole(context?.eventType, context?.triggerMeta);
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
@@ -354,7 +343,6 @@ export async function evaluateAsync(
 
     try {
       result = await indirectEval(script);
-      logs = userLogs.flushLogs();
     } catch (e) {
       const error = e as Error;
       const errorMessage = error.name
@@ -367,7 +355,6 @@ export async function evaluateAsync(
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
       });
-      logs = userLogs.flushLogs();
     } finally {
       setEvaluationEnd(true);
       // Adding this extra try catch because there are cases when logs have child objects
@@ -376,7 +363,6 @@ export async function evaluateAsync(
       return {
         result,
         errors,
-        logs,
         triggers: Array.from(self.TRIGGER_COLLECTOR),
       };
     }

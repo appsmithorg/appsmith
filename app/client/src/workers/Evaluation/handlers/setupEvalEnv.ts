@@ -4,7 +4,7 @@ import { resetJSLibraries } from "../../common/JSLibrary";
 import setupDOM from "../SetupDOM";
 import overrideTimeout from "../TimeoutOverride";
 import { EvalWorkerSyncRequest } from "../types";
-import userLogs from "../UserLog";
+import userLogs from "../fns/console";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 
 export default function() {

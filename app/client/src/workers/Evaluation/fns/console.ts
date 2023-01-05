@@ -4,48 +4,29 @@ import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
 import { klona } from "klona/lite";
 import moment from "moment";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import { sendMessage, MessageType } from "utils/MessageUtil";
-import { MAIN_THREAD_ACTION } from "./evalWorkerActions";
-import { _internalClearTimeout, _internalSetTimeout } from "./TimeoutOverride";
+import { ENTITY_TYPE } from "entities/DataTree/types";
+import { TriggerEmitter } from "./utils/TriggerEmitter";
 
 class UserLog {
-  private flushLogsTimerDelay = 0;
-  private logs: LogObject[] = [];
-  private flushLogTimerId: number | undefined;
-  private requestInfo: {
-    eventType?: EventType;
-    triggerMeta?: TriggerMeta;
-  } | null = null;
-
-  public setCurrentRequestInfo(requestInfo: {
-    eventType?: EventType;
-    triggerMeta?: TriggerMeta;
-  }) {
-    this.requestInfo = requestInfo;
+  private source: any = {};
+  public setupConsole(eventType?: EventType, triggerMeta?: TriggerMeta) {
+    const type =
+      eventType === EventType.ON_JS_FUNCTION_EXECUTE
+        ? ENTITY_TYPE.JSACTION
+        : ENTITY_TYPE.WIDGET;
+    const name =
+      triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "";
+    const id = triggerMeta?.source?.id || "";
+    this.setSource({ type, name, id });
   }
 
-  private resetFlushTimer() {
-    if (this.flushLogTimerId) _internalClearTimeout(this.flushLogTimerId);
-    this.flushLogTimerId = _internalSetTimeout(() => {
-      const logs = this.flushLogs();
-      sendMessage.call(self, {
-        messageType: MessageType.DEFAULT,
-        body: {
-          data: {
-            logs,
-            eventType: this.requestInfo?.eventType,
-            triggerMeta: this.requestInfo?.triggerMeta,
-          },
-          method: MAIN_THREAD_ACTION.PROCESS_LOGS,
-        },
-      });
-    }, this.flushLogsTimerDelay);
+  public setSource(source: any) {
+    this.source = source;
   }
 
   private saveLog(method: Methods, data: any[]) {
     const parsed = this.parseLogs(method, data);
-    this.logs.push(parsed);
-    this.resetFlushTimer();
+    TriggerEmitter.getInstance().emit("process_logs", parsed);
   }
 
   public overrideConsoleAPI() {
@@ -98,19 +79,8 @@ class UserLog {
       return [`There was some error: ${e} ${JSON.stringify(data)}`];
     }
   }
-  // returns the logs from the function execution after sanitising them and resets the logs object after that
-  public flushLogs(): LogObject[] {
-    const sanitisedLogs = this.logs.map((log) => {
-      return {
-        ...log,
-        data: this.sanitizeData(log.data),
-      };
-    });
-    this.resetLogs();
-    return sanitisedLogs;
-  }
   // parses the incoming log and converts it to the log object
-  public parseLogs(method: Methods, data: any[]): LogObject {
+  private parseLogs(method: Methods, data: any[]): LogObject {
     // Create an ID
     const id = uuid4();
     const timestamp = moment().format("hh:mm:ss");
@@ -121,11 +91,7 @@ class UserLog {
     if (method === "error") {
       severity = Severity.ERROR;
       output = data.map((error) => {
-        try {
-          return error.stack || error;
-        } catch (e) {
-          return error;
-        }
+        return error?.stack || error;
       });
     } else if (method === "warn") {
       severity = Severity.WARNING;
@@ -134,13 +100,11 @@ class UserLog {
     return {
       method,
       id,
-      data: klona(output),
+      data: this.sanitizeData(klona(output)),
       timestamp,
       severity,
+      source: this.source,
     };
-  }
-  public resetLogs() {
-    this.logs = [];
   }
 }
 

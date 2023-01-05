@@ -13,6 +13,7 @@ import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 import { initStoreFns } from "workers/Evaluation/fns/storeFns";
+import { EvaluationVersion } from "api/ApplicationApi";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -20,6 +21,10 @@ declare global {
    * */
 
   interface Window {
+    $allowAsync: boolean;
+    $isAsync: boolean;
+    $eventType: EventType;
+    $evaluationVersion: EvaluationVersion;
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
