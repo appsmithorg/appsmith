@@ -243,7 +243,9 @@ export const getMainCanvasPositioning = createSelector(
 export const getCurrentAppPositioningType = createSelector(
   getMainCanvasPositioning,
   (positioning: any): AppPositioningTypes => {
-    return positioning && positioning !== Positioning.Fixed ? "AUTO" : "FIXED";
+    return positioning && positioning !== Positioning.Fixed
+      ? AppPositioningTypes.AUTO
+      : AppPositioningTypes.FIXED;
   },
 );
 
@@ -251,7 +253,9 @@ export const getCurrentApplicationLayout = createSelector(
   getAppLayout,
   getCurrentAppPositioningType,
   (appLayout: AppLayoutConfig, appPositionType) => {
-    return appPositionType === "FIXED" ? appLayout : defaultLayout;
+    return appPositionType === AppPositioningTypes.FIXED
+      ? appLayout
+      : defaultLayout;
   },
 );
 

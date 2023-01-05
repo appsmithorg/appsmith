@@ -4,9 +4,15 @@ import {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import log from "loglevel";
 import { generateReactKey } from "./generators";
 import { WidgetType } from "./WidgetFactory";
-import { WidgetFeatures } from "./WidgetFeatures";
+import {
+  PropertyPaneConfigTemplates,
+  RegisteredWidgetFeatures,
+  WidgetFeaturePropertyPaneEnhancements,
+  WidgetFeatures,
+} from "./WidgetFeatures";
 
 export enum PropertyPaneConfigTypes {
   STYLE = "STYLE",
@@ -160,37 +166,36 @@ export function enhancePropertyPaneConfig(
   // TODO(abhinav): The following "configType" check should come
   // from the features themselves.
 
-  // ToDO(Ashok): Need to bring back Dynamic Height features based on mode of the editor (Fixed vs Mobile responsiveness)
-  // if (
-  //   features &&
-  //   (configType === undefined || configType === PropertyPaneConfigTypes.CONTENT)
-  // ) {
-  //   Object.keys(features).forEach((registeredFeature: string) => {
-  //     const { sectionIndex } = features[
-  //       registeredFeature as RegisteredWidgetFeatures
-  //     ];
-  //     const sectionName = (config[sectionIndex] as PropertyPaneSectionConfig)
-  //       ?.sectionName;
-  //     if (!sectionName || sectionName !== "General") {
-  //       log.error(`Invalid section index for feature: ${registeredFeature}`);
-  //     }
-  //     if (
-  //       Array.isArray(config[sectionIndex].children) &&
-  //       PropertyPaneConfigTemplates[
-  //         registeredFeature as RegisteredWidgetFeatures
-  //       ]
-  //     ) {
-  //       config[sectionIndex].children?.push(
-  //         ...PropertyPaneConfigTemplates[
-  //           registeredFeature as RegisteredWidgetFeatures
-  //         ],
-  //       );
-  //       config = WidgetFeaturePropertyPaneEnhancements[
-  //         registeredFeature as RegisteredWidgetFeatures
-  //       ](config, widgetType);
-  //     }
-  //   });
-  // }
+  if (
+    features &&
+    (configType === undefined || configType === PropertyPaneConfigTypes.CONTENT)
+  ) {
+    Object.keys(features).forEach((registeredFeature: string) => {
+      const { sectionIndex } = features[
+        registeredFeature as RegisteredWidgetFeatures
+      ];
+      const sectionName = (config[sectionIndex] as PropertyPaneSectionConfig)
+        ?.sectionName;
+      if (!sectionName || sectionName !== "General") {
+        log.error(`Invalid section index for feature: ${registeredFeature}`);
+      }
+      if (
+        Array.isArray(config[sectionIndex].children) &&
+        PropertyPaneConfigTemplates[
+          registeredFeature as RegisteredWidgetFeatures
+        ]
+      ) {
+        config[sectionIndex].children?.push(
+          ...PropertyPaneConfigTemplates[
+            registeredFeature as RegisteredWidgetFeatures
+          ],
+        );
+        config = WidgetFeaturePropertyPaneEnhancements[
+          registeredFeature as RegisteredWidgetFeatures
+        ](config, widgetType);
+      }
+    });
+  }
 
   return config;
 }

@@ -11,9 +11,11 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import {
   getCurrentApplicationLayout,
+  getCurrentAppPositioningType,
   getCurrentPageId,
   getMainCanvasProps,
   previewModeSelector,
@@ -221,19 +223,22 @@ export const useDynamicAppLayout = () => {
     propertyPaneWidth,
     isAppSettingsPaneOpen,
   ]);
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   useEffect(() => {
     function relayoutAtBreakpoint() {
       dispatch(
         updateLayoutForMobileBreakpointAction(
           MAIN_CONTAINER_WIDGET_ID,
-          mainCanvasProps?.isMobile,
+          appPositioningType === AppPositioningTypes.AUTO
+            ? mainCanvasProps?.isMobile
+            : false,
           calculateCanvasWidth(),
         ),
       );
     }
     relayoutAtBreakpoint();
-  }, [mainCanvasProps?.isMobile]);
+  }, [mainCanvasProps?.isMobile, appPositioningType]);
 
   return isCanvasInitialized;
 };

@@ -22,18 +22,18 @@ interface ApplicationPositionTypeConfigOption {
 }
 
 export const AppsmithDefaultPositionType: AppPositioningTypeConfig = {
-  type: "FIXED",
+  type: AppPositioningTypes.FIXED,
 };
 
 const AppsmithLayoutTypes: ApplicationPositionTypeConfigOption[] = [
   {
     name: "Fixed Layout",
-    type: "FIXED",
+    type: AppPositioningTypes.FIXED,
     icon: "desktop",
   },
   {
     name: "Auto Layout",
-    type: "AUTO",
+    type: AppPositioningTypes.AUTO,
     icon: "fluid",
   },
 ];
@@ -59,7 +59,9 @@ export function AppPositionTypeControl() {
     layoutOption: ApplicationPositionTypeConfigOption,
   ) => {
     const selectedType =
-      layoutOption.type !== "AUTO" ? Positioning.Fixed : Positioning.Vertical;
+      layoutOption.type !== AppPositioningTypes.AUTO
+        ? Positioning.Fixed
+        : Positioning.Vertical;
     dispatch(
       batchUpdateMultipleWidgetProperties([
         {
@@ -121,7 +123,6 @@ export function AppPositionTypeControl() {
                     "bg-gray-100 hover:bg-gray-200": selectedIndex !== index,
                   })}
                   onClick={() => {
-                    //   updateAppLayout(layoutOption);
                     updateAppPositioningLayout(layoutOption);
                     setFocusedIndex(index);
                   }}
@@ -140,7 +141,7 @@ export function AppPositionTypeControl() {
           })}
         </div>
       </div>
-      {selectedOption === "FIXED" && (
+      {selectedOption === AppPositioningTypes.FIXED && (
         <>
           <Title className="text-sm">Canvas Size</Title>
           <MainContainerLayoutControl />
