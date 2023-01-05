@@ -16,6 +16,7 @@ import {
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -679,6 +680,86 @@ export const updateCustomColumnAliasOnLabelChange = (
       },
     ];
   }
+};
+
+export const hideByMenuItemsSource = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  menuItemsSource: MenuItemsSource,
+) => {
+  const baseProperty = getBasePropertyPath(propertyPath);
+  const currentMenuItemsSource = get(
+    props,
+    `${baseProperty}.menuItemsSource`,
+    "",
+  );
+
+  return currentMenuItemsSource === menuItemsSource;
+};
+
+export const hideIfMenuItemsSourceDataIsFalsy = (
+  props: TableWidgetProps,
+  propertyPath: string,
+) => {
+  const baseProperty = getBasePropertyPath(propertyPath);
+  const sourceData = get(props, `${baseProperty}.sourceData`, "");
+
+  return !sourceData;
+};
+
+export const updateMenuItemsSource = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
+  const propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: unknown;
+  }> = [];
+  const baseProperty = getBasePropertyPath(propertyPath);
+  const menuItemsSource = get(props, `${baseProperty}.menuItemsSource`);
+
+  if (propertyValue === ColumnTypes.MENU_BUTTON && !menuItemsSource) {
+    // Sets the default value for menuItemsSource to static when
+    // selecting the menu button column type for the first time
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.menuItemsSource`,
+      propertyValue: MenuItemsSource.STATIC,
+    });
+  } else {
+    const sourceData = get(props, `${baseProperty}.sourceData`);
+    const configureMenuItems = get(props, `${baseProperty}.configureMenuItems`);
+    const isMenuItemsSourceChangedFromStaticToDynamic =
+      menuItemsSource === MenuItemsSource.STATIC &&
+      propertyValue === MenuItemsSource.DYNAMIC;
+
+    if (isMenuItemsSourceChangedFromStaticToDynamic) {
+      if (!sourceData) {
+        propertiesToUpdate.push({
+          propertyPath: `${baseProperty}.sourceData`,
+          propertyValue: [],
+        });
+      }
+
+      if (!configureMenuItems) {
+        propertiesToUpdate.push({
+          propertyPath: `${baseProperty}.configureMenuItems`,
+          propertyValue: {
+            label: "Configure Menu Items",
+            id: "config",
+            config: {
+              id: "config",
+              label: "Menu Item",
+              isVisible: true,
+              isDisabled: false,
+            },
+          },
+        });
+      }
+    }
+  }
+
+  return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
 };
 
 export function selectColumnOptionsValidation(

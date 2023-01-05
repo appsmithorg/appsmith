@@ -28,6 +28,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
 import { Stylesheet } from "entities/AppTheming";
+import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -236,12 +237,19 @@ export const getPropertyValue = (
   value: any,
   index: number,
   preserveCase = false,
+  isSourceData = false,
 ) => {
   if (value && isObject(value) && !Array.isArray(value)) {
     return value;
   }
   if (value && Array.isArray(value) && value[index]) {
-    return preserveCase
+    const getValueForSourceData = (value: any, index: number) => {
+      return Array.isArray(value[index]) ? value[index] : value;
+    };
+
+    return isSourceData
+      ? getValueForSourceData(value, index)
+      : preserveCase
       ? value[index].toString()
       : value[index].toString().toUpperCase();
   } else if (value) {
@@ -309,6 +317,18 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
+      menuItemsSource: getPropertyValue(
+        columnProperties.menuItemsSource,
+        rowIndex,
+        true,
+      ),
+      sourceData: getPropertyValue(
+        columnProperties.sourceData,
+        rowIndex,
+        false,
+        true,
+      ),
+      configureMenuItems: columnProperties.configureMenuItems,
       buttonVariant: getPropertyValue(
         columnProperties.buttonVariant,
         rowIndex,
@@ -754,4 +774,23 @@ export const generateNewColumnOrderFromStickyValue = (
   }
   newColumnOrder.splice(columnIndex, 0, columnName);
   return newColumnOrder;
+};
+
+export const getSourceDataAndCaluclateKeysForEventAutoComplete = (
+  props: TableWidgetProps,
+): unknown => {
+  const { __evaluation__, primaryColumns } = props;
+  const primaryColumnKeys = primaryColumns ? Object.keys(primaryColumns) : [];
+  const columnName = primaryColumnKeys?.length ? primaryColumnKeys[0] : "";
+  const evaluatedColumns: any = __evaluation__?.evaluatedValues?.primaryColumns;
+
+  if (evaluatedColumns) {
+    const result = getKeysFromSourceDataForEventAutocomplete(
+      evaluatedColumns[columnName]?.sourceData || [],
+    );
+
+    return result;
+  } else {
+    return {};
+  }
 };

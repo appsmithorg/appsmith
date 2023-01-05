@@ -46,12 +46,20 @@ spec:
       initContainers:
       {{- if .Values.redis.enabled }}
       - name: redis-init-container
-        image: alpine
+      {{- if ((.Values.initContainer.redis).image) }}
+        image: {{ .Values.initContainer.redis.image }}
+      {{- else }}
+        image: "alpine"
+      {{- end }}
         command: ['sh', '-c', "apk add redis; until redis-cli -h {{ include "appsmith.fullname" . }}-redis-master.{{.Release.Namespace}}.svc.cluster.local ping; do echo waiting for redis; sleep 2; done"]
       {{- end }}
       {{- if .Values.mongodb.enabled }}
       - name: mongo-init-container
-        image: docker.io/bitnami/mongodb:4.4.11-debian-10-r12
+      {{- if ((.Values.initContainer.mongodb).image) }}
+        image: {{ .Values.initContainer.mongodb.image }}
+      {{- else }}
+        image:  "docker.io/bitnami/mongodb:4.4.11-debian-10-r12"
+      {{- end }}
         command: ['sh', '-c', "until mongo --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
       {{- end }}
       containers:

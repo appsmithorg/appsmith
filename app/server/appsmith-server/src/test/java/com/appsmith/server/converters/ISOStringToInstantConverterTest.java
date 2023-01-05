@@ -1,7 +1,7 @@
 package com.appsmith.server.converters;
 
 
-import com.appsmith.external.converters.GsonISOStringToInstantConverter;
+import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -14,13 +14,13 @@ import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GsonISOStringToInstantConverterTest {
+public class ISOStringToInstantConverterTest {
     private Gson gson;
 
     @BeforeEach
     public void setUp() {
         gson = new GsonBuilder()
-                .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
+                .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
                 .create();
     }
 

@@ -8,6 +8,7 @@ import {
   BUILDER_PATH_DEPRECATED,
   BUILDER_PATH,
   BUILDER_CUSTOM_PATH,
+  matchBuilderPath,
 } from "constants/routes";
 
 import {
@@ -75,6 +76,10 @@ export const getActionIdFromURL = () => {
   if (saasMatch?.params?.apiId) {
     return saasMatch.params.apiId;
   }
+};
+
+export const isEditorPath = (path: string) => {
+  return !!matchBuilderPath(path, { end: false });
 };
 
 export const getJSCollectionIdFromURL = () => {

@@ -58,7 +58,6 @@ import {
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
-import { ScrollIndicator } from "design-system";
 import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
@@ -452,13 +451,17 @@ function WorkspaceInviteUsersForm(props: any) {
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values);
-          AnalyticsUtil.logEvent("INVITE_USER", values);
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
           updateNumberOfUsersInvited(usersAsStringsArray.length);
           const users = usersAsStringsArray
             .filter((user: any) => isEmail(user))
             .join(",");
+          AnalyticsUtil.logEvent("INVITE_USER", {
+            users: usersAsStringsArray,
+            role: values.role,
+            numberOfUsersInvited: usersAsStringsArray.length,
+          });
           return inviteUsersToWorkspace(
             {
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
@@ -569,7 +572,6 @@ function WorkspaceInviteUsersForm(props: any) {
                     );
                   },
                 )}
-                <ScrollIndicator containerRef={userRef} mode="DARK" />
               </UserList>
             )}
           </>
@@ -634,6 +636,7 @@ export default connect(
       applicationId?: string;
       workspaceId?: string;
       isApplicationInvite?: boolean;
+      placeholder?: string;
     }
   >({
     validate,
