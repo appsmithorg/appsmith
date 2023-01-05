@@ -21,6 +21,7 @@ export function TextView(props: TextViewProps) {
             type: "string",
             example: props.exampleText,
             autocompleteDataType: AutocompleteDataType.STRING,
+            openExampleTextByDefault: true,
           }}
           label={props.label}
           onChange={(event: any) => {
