@@ -320,7 +320,7 @@ function checkIsNotVerticalStack(widget: any): boolean {
 }
 
 /**
- * COPY PASTE UTILS
+ * START: COPY PASTE UTILS
  */
 
 export function pasteWidgetInFlexLayers(
@@ -434,3 +434,21 @@ export function addChildToPastedFlexLayers(
   };
   return updateWidgetPositions(widgets, parent.widgetId, isMobile);
 }
+
+export function isStack(
+  allWidgets: CanvasWidgetsReduxState,
+  widget: any,
+): boolean {
+  const parent = widget.parentId ? allWidgets[widget.parentId] : undefined;
+  return (
+    widget.positioning === Positioning.Vertical ||
+    (parent && parent.positioning === Positioning.Vertical) ||
+    (parent !== undefined &&
+      parent?.type === "TABS_WIDGET" &&
+      parent?.tabsObj[widget.tabId].positioning === Positioning.Vertical)
+  );
+}
+
+/**
+ * END: copy paste utils
+ */

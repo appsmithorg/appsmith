@@ -151,6 +151,7 @@ import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   addChildToPastedFlexLayers,
+  isStack,
   pasteWidgetInFlexLayers,
 } from "./AutoLayoutUtils";
 
@@ -1698,14 +1699,7 @@ function* pasteWidgetSaga(
            */
           if (widget.parentId) {
             const pastingIntoWidget = widgets[widget.parentId];
-            // TODO: Preet - add check for main container's positioning.
-            if (
-              pastingIntoWidget.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-              pastingIntoWidget.positioning === Positioning.Vertical ||
-              (pastingIntoWidget.parentId &&
-                widgets[pastingIntoWidget.parentId].positioning ===
-                  Positioning.Vertical)
-            ) {
+            if (isStack(widgets, pastingIntoWidget)) {
               if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
                 widgets = pasteWidgetInFlexLayers(
                   widgets,
@@ -1714,7 +1708,7 @@ function* pasteWidgetSaga(
                   reverseWidgetIdMap[widget.widgetId],
                   isMobile,
                 );
-              else
+              else if (widget.type !== "CANVAS_WIDGET")
                 widgets = addChildToPastedFlexLayers(
                   widgets,
                   widget,

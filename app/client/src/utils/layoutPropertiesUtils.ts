@@ -276,7 +276,7 @@ export const DefaultFillWidgets = [
   "TEXT_WIDGET",
   "SINGLE_SELECT_TREE_WIDGET",
   "RICH_TEXT_EDITOR_WIDGET",
-  "TABS_WIDGET_",
+  "TABS_WIDGET",
   "TABLE_WIDGET_V2",
 ];
 
