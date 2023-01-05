@@ -15,8 +15,8 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.EnvironmentVariable;
-import com.appsmith.server.domains.Environment;
+import com.appsmith.external.models.EnvironmentVariable;
+import com.appsmith.external.models.Environment;
 
 import lombok.Getter;
 

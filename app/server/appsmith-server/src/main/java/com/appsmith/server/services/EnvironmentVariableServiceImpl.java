@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.EnvironmentVariable;
+import com.appsmith.external.models.EnvironmentVariable;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.EnvironmentVariableRepository;

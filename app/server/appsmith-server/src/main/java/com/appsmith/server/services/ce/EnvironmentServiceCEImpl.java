@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.domains.Environment;
+import com.appsmith.external.models.Environment;
 import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;

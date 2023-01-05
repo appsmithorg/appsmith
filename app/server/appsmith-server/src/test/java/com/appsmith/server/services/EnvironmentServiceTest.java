@@ -1,13 +1,12 @@
 package com.appsmith.server.services;
 
-
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.EnvironmentVariable;
+import com.appsmith.external.models.EnvironmentVariable;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.EnvironmentVariableRepository;
 import com.appsmith.server.repositories.EnvironmentRepository;
-import com.appsmith.server.dtos.EnvironmentDTO;
+import com.appsmith.external.dtos.EnvironmentDTO;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;

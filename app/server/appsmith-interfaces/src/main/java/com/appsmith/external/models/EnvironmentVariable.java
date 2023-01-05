@@ -1,7 +1,6 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
-import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

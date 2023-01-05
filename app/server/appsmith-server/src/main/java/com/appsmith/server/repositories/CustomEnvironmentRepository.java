@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Environment;
+import com.appsmith.external.models.Environment;
 import com.appsmith.server.repositories.ce.CustomEnvironmentRepositoryCE;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

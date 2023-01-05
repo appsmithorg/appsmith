@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.domains.EnvironmentVariable;
+import com.appsmith.external.models.EnvironmentVariable;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
