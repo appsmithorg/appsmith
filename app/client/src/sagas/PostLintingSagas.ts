@@ -1,9 +1,9 @@
-import { ENTITY_TYPE, Message, Severity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { isEmpty } from "lodash";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
-import AppsmithConsole, { ErrorObject } from "utils/AppsmithConsole";
+import AppsmithConsole from "utils/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
@@ -17,7 +17,7 @@ export function* logLatestLintPropertyErrors({
   errors: LintErrors;
   dataTree: DataTree;
 }) {
-  const errorsToAdd: ErrorObject[] = [];
+  const errorsToAdd = [];
   const errorsToRemove = [];
 
   for (const path of Object.keys(errors)) {
@@ -32,7 +32,7 @@ export function* logLatestLintPropertyErrors({
     const lintErrorMessagesInPath = lintErrorsInPath.map((error) => ({
       type: error.errorType,
       message: error.errorMessage,
-      lineNumer: error.line,
+      lineNumber: error.line,
     }));
     const debuggerKey = entity.actionId + propertyPath + "-lint";
 
@@ -41,21 +41,19 @@ export function* logLatestLintPropertyErrors({
       continue;
     }
 
-    lintErrorMessagesInPath.forEach((lintError: Message, index) => {
-      errorsToAdd.push({
-        payload: {
-          id: debuggerKey + `_${index}`,
-          logType: LOG_TYPE.LINT_ERROR,
-          text: lintError.message,
-          lineNumber: lintError.lineNumer,
-          source: {
-            id: entity.actionId,
-            name: entityName,
-            type: ENTITY_TYPE.JSACTION,
-            propertyPath,
-          },
+    errorsToAdd.push({
+      payload: {
+        id: debuggerKey,
+        logType: LOG_TYPE.LINT_ERROR,
+        text: "LINT ERROR",
+        messages: lintErrorMessagesInPath,
+        source: {
+          id: entity.actionId,
+          name: entityName,
+          type: ENTITY_TYPE.JSACTION,
+          propertyPath,
         },
-      });
+      },
     });
   }
   AppsmithConsole.addErrors(errorsToAdd);

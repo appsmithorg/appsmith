@@ -40,14 +40,29 @@ function Errors(props: { hasShortCut?: boolean }) {
         ) : (
           Object.values(errors).map((e, index) => {
             const logItemProps = getLogItemProps(e);
-            // Expand all errors by default
-            return (
-              <ErrorLogItem
-                key={`debugger-${index}`}
-                {...logItemProps}
-                expand
-              />
-            );
+            const logItems = [];
+            if (e.messages) {
+              e.messages.forEach((message) => {
+                logItemProps.messages = [message];
+                logItems.push(
+                  <ErrorLogItem
+                    key={`debugger-${index}`}
+                    {...logItemProps}
+                    expand
+                  />,
+                );
+              });
+            } else {
+              // Expand all errors by default
+              logItems.push(
+                <ErrorLogItem
+                  key={`debugger-${index}`}
+                  {...logItemProps}
+                  expand
+                />,
+              );
+            }
+            return logItems;
           })
         )}
       </ListWrapper>

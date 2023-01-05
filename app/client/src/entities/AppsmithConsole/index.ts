@@ -89,8 +89,6 @@ export interface LogActionPayload {
   occurrenceCount?: number;
   // Deconstructed data of the log, this includes the whole nested objects/arrays/strings etc.
   logData?: any[];
-  // Line number where the error was generated.
-  lineNumber?: number;
   messages?: Array<Message>;
   // Time taken for the event to complete
   timeTaken?: string;
@@ -107,7 +105,7 @@ export interface Message {
   message: string;
   type?: ErrorType;
   subType?: string;
-  lineNumer?: number;
+  lineNumber?: number;
   // The section of code being referred to
   // codeSegment?: string;
 }

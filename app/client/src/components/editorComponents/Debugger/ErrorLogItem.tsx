@@ -20,7 +20,6 @@ import {
   Icon,
   IconName,
   IconSize,
-  Size,
   Text,
   TextType,
   TooltipComponent,
@@ -261,7 +260,6 @@ export const getLogItemProps = (e: Log) => {
     label: e.text,
     logData: e.logData,
     logType: e.logType,
-    lineNumber: e.lineNumber,
     category: e.category,
     timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
     severity: e.severity,
@@ -285,7 +283,6 @@ type LogItemProps = {
   category: LOG_CATEGORY;
   logType?: LOG_TYPE;
   logData?: any[];
-  lineNumber?: number;
   state?: Record<string, any>;
   id?: string;
   source?: SourceEntity;
@@ -349,7 +346,7 @@ function LogItem(props: LogItemProps) {
               {props.timestamp}
             </span>
           )}
-        {collapsable && (
+        {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
           <Icon
             className={`${Classes.ICON} debugger-toggle`}
             clickable={collapsable}
@@ -398,7 +395,7 @@ function LogItem(props: LogItemProps) {
               className="debugger-label t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}
             >
-              {props.text}
+              {props.messages && props.messages[0].message}
             </span>
 
             {props.timeTaken && (
@@ -408,7 +405,8 @@ function LogItem(props: LogItemProps) {
             )}
             {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
               props.severity === Severity.ERROR &&
-              props.logType !== LOG_TYPE.LINT_ERROR && (
+              props.logType !== LOG_TYPE.LINT_ERROR &&
+              props.logType !== LOG_TYPE.EVAL_ERROR && (
                 <div onClick={(e) => e.stopPropagation()}>
                   <ContextualMenu entity={props.source} error={errorToSearch}>
                     <TooltipComponent
@@ -431,18 +429,18 @@ function LogItem(props: LogItemProps) {
               )}
           </div>
         )}
-        {props.lineNumber && (
+        {props.messages && props.messages[0].lineNumber && (
           <LineNumber>
             [Ln{" "}
-            {props.lineNumber < 10
-              ? "0" + (props.lineNumber + 1)
-              : props.lineNumber + 1}
+            {props.messages[0].lineNumber < 10
+              ? "0" + (props.messages[0].lineNumber + 1)
+              : props.messages[0].lineNumber + 1}
             ]
           </LineNumber>
         )}
       </InnerWrapper>
 
-      {collapsable && isOpen && (
+      {collapsable && isOpen && props.logType !== LOG_TYPE.LINT_ERROR && (
         <StyledCollapse
           category={props.category}
           isOpen={isOpen}
