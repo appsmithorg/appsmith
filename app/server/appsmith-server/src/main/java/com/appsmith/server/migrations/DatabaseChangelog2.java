@@ -65,6 +65,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
+import io.mongock.api.annotations.ChangeUnit;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
@@ -2912,4 +2913,21 @@ public class DatabaseChangelog2 {
 //            }
 //        }
 //    }
+
+    /**
+     * Since MySQL plugin's underlying driver has been changed to MariaDB driver, the `ssl-mode=preferred` is no
+     * longer supported. Hence, any such usage is being updated to `ssl-mode=default` by this method.
+     */
+    @ChangeSet(order = "040", id = "remove-preferred-ssl-mode-from-mysql", author = "")
+    public void changeSSLModeFromPreferredToDefaultForMySQLPlugin(MongoTemplate mongoTemplate) {
+        Plugin mySQLPlugin = mongoTemplate.findOne(query(where("packageName").is("mysql-plugin")),
+                Plugin.class);
+        Query queryToGetDatasources = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(mySQLPlugin);
+        queryToGetDatasources.addCriteria(Criteria.where("datasourceConfiguration.connection.ssl.authType").is(
+                "PREFERRED"));
+
+        Update update = new Update();
+        update.set("datasourceConfiguration.connection.ssl.authType", "DEFAULT");
+        mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
+    }
 }

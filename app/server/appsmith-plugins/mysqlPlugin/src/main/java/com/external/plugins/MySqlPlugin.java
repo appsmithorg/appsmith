@@ -13,7 +13,6 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
@@ -35,7 +34,6 @@ import io.r2dbc.spi.Statement;
 import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
-import org.mariadb.r2dbc.MariadbConnectionFactoryProvider;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -230,6 +228,7 @@ public class MySqlPlugin extends BasePlugin {
             String query = actionConfiguration.getBody();
 
             /**
+             * TBD: check if this comment is resolved with the new MariaDB driver.
              * - MySQL r2dbc driver is not able to substitute the `True/False` value properly after the IS keyword.
              * Converting `True/False` to integer 1 or 0 also does not work in this case as MySQL syntax does not support
              * integers with IS keyword.

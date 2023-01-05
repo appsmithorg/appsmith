@@ -14,6 +14,9 @@ import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
 import org.apache.commons.lang.ObjectUtils;
+import org.mariadb.r2dbc.MariadbConnectionConfiguration;
+import org.mariadb.r2dbc.MariadbConnectionFactory;
+import org.mariadb.r2dbc.MariadbConnectionFactoryProvider;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -39,7 +42,7 @@ public class MySqlDatasourceUtils {
         if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
             urlBuilder.append(datasourceConfiguration.getUrl());
         } else {
-            urlBuilder.append("r2dbc:pool:mysql://");
+            urlBuilder.append("r2dbc:pool:mariadb://");
             final List<String> hosts = new ArrayList<>();
 
             for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
@@ -94,7 +97,7 @@ public class MySqlDatasourceUtils {
          */
         SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
-            case PREFERRED:
+            /*case PREFERRED:*/
             case REQUIRED:
                 ob = ob
                         .option(SSL, true)
@@ -110,10 +113,10 @@ public class MySqlDatasourceUtils {
 
                 break;
             default:
-                        throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
-                                        " Appsmith customer support to resolve this.");
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                " Appsmith customer support to resolve this.");
         }
 
         return ob;
@@ -176,7 +179,13 @@ public class MySqlDatasourceUtils {
     public static ConnectionPool getNewConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
         ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
         ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
-        ConnectionFactory cf = ConnectionFactories.get(ob.build());
+        MariadbConnectionFactory cf =
+                MariadbConnectionFactory.from(
+                        MariadbConnectionConfiguration.fromOptions(ob.build())
+                                .allowPublicKeyRetrieval(true).build()
+                );
+
+        //ConnectionFactory cf = ConnectionFactories.get(ob.build());
 
         /**
          * The pool configuration object does not seem to have any option to set the minimum pool size, hence could

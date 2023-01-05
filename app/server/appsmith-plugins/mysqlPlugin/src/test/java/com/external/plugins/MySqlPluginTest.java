@@ -20,15 +20,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import io.r2dbc.pool.ConnectionPool;
+import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Option;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
 import org.mariadb.r2dbc.MariadbConnectionFactoryProvider;
+import org.reactivestreams.Publisher;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -50,6 +54,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.utils.MySqlDatasourceUtils.getBuilder;
+import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -63,7 +69,7 @@ import static org.mockito.Mockito.spy;
 @Testcontainers
 public class MySqlPluginTest {
 
-        MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
+        static MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
 
         @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is
         // pseudo-optional.
@@ -92,6 +98,16 @@ public class MySqlPluginTest {
         private static String database;
         private static DatasourceConfiguration dsConfig;
 
+        private static Mono<org.mariadb.r2dbc.api.MariadbConnection> getConnectionMonoFromContainer(MySQLContainer mySQLContainer) {
+                ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
+                ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+                MariadbConnectionConfiguration conf = MariadbConnectionConfiguration.fromOptions(ob.build())
+                        .allowPublicKeyRetrieval(true)
+                        .build();
+                MariadbConnectionFactory connFactory = new MariadbConnectionFactory(conf);
+                return connFactory.create();
+        }
+
         @BeforeAll
         public static void setUp() {
                 address = mySQLContainer.getContainerIpAddress();
@@ -101,10 +117,7 @@ public class MySqlPluginTest {
                 database = mySQLContainer.getDatabaseName();
                 dsConfig = createDatasourceConfiguration();
 
-                ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
-                ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-
-                Mono.from(ConnectionFactories.get(ob.build()).create())
+                Mono.from(getConnectionMonoFromContainer(mySQLContainer))
                         .map(connection -> {
                                 return connection.createBatch()
                                         .add("DROP TABLE IF EXISTS possessions")
@@ -260,11 +273,7 @@ public class MySqlPluginTest {
                 final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
 
                 // adding a user with empty password
-                ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer
-                        .getOptions(mySQLContainerWithInvalidTimezone);
-                ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-
-                Mono.from(ConnectionFactories.get(ob.build()).create())
+                Mono.from(getConnectionMonoFromContainer(mySQLContainerWithInvalidTimezone))
                         .map(connection -> connection.createBatch()
                                 // adding a new user called 'mysql' with empty password
                                 .add("CREATE USER 'mysql'@'%';\n" +
@@ -554,9 +563,7 @@ public class MySqlPluginTest {
 
         @Test
         public void testPreparedStatementWithRealTypes() {
-                ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
-                ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-                Mono.from(ConnectionFactories.get(ob.build()).create())
+                Mono.from(getConnectionMonoFromContainer(mySQLContainer))
                         .map(connection -> connection.createBatch()
                                 .add("create table test_real_types(id int, c_float float, c_double double, c_real real)")
                                 .add("insert into test_real_types values (1, 1.123, 3.123, 5.123)")
@@ -619,19 +626,21 @@ public class MySqlPluginTest {
                         })
                         .verifyComplete();
 
-                Mono.from(ConnectionFactories.get(ob.build()).create())
+                Mono.from(getConnectionMonoFromContainer(mySQLContainer))
                         .map(connection -> connection.createBatch()
                                 .add("drop table test_real_types"))
                         .flatMapMany(batch -> Flux.from(batch.execute()))
                         .blockLast(); // wait until completion of all the queries
         }
 
+        private Publisher<? extends Connection> getConnectionFromBuilder(ConnectionFactoryOptions.Builder builder) {
+                return ConnectionFactories.get(builder.build()).create();
+        }
+
         @Test
         public void testPreparedStatementWithBooleanType() {
                 // Create a new table with boolean type
-                ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
-                ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-                Mono.from(ConnectionFactories.get(ob.build()).create())
+                Mono.from(getConnectionMonoFromContainer(mySQLContainer))
                         .map(connection -> connection.createBatch()
                                 .add("create table test_boolean_type(id int, c_boolean boolean)")
                                 .add("insert into test_boolean_type values (1, True)")
@@ -673,7 +682,7 @@ public class MySqlPluginTest {
                         })
                         .verifyComplete();
 
-                Mono.from(ConnectionFactories.get(ob.build()).create())
+                Mono.from(getConnectionMonoFromContainer(mySQLContainer))
                         .map(connection -> connection.createBatch()
                                 .add("drop table test_boolean_type"))
                         .flatMapMany(batch -> Flux.from(batch.execute()))
@@ -870,9 +879,7 @@ public class MySqlPluginTest {
                 String query_select_from_test_data_types = "select * from test_data_types;";
                 String query_select_from_test_geometry_types = "select * from test_geometry_types;";
 
-                ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
-                ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
-                Mono.from(ConnectionFactories.get(ob.build()).create())
+                Mono.from(getConnectionMonoFromContainer(mySQLContainer))
                         .map(connection -> {
                                 return connection.createBatch()
                                         .add(query_create_table_numeric_types)
@@ -1135,32 +1142,7 @@ public class MySqlPluginTest {
                                 assertTrue(result.getIsExecutionSuccess());
                                 Object body = result.getBody();
                                 assertNotNull(body);
-                                assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-GCM-SHA256\"}]",
-                                        body.toString());
-                        })
-                        .verifyComplete();
-        }
-
-        @Test
-        public void testSslPreferred() {
-                ActionConfiguration actionConfiguration = new ActionConfiguration();
-                actionConfiguration.setBody("show session status like 'Ssl_cipher'");
-
-                DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-                datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.PREFERRED);
-                Mono<ConnectionPool> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
-                Mono<Object> executeMono = dsConnectionMono
-                        .flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(),
-                                dsConfig,
-                                actionConfiguration));
-                StepVerifier.create(executeMono)
-                        .assertNext(obj -> {
-                                ActionExecutionResult result = (ActionExecutionResult) obj;
-                                assertNotNull(result);
-                                assertTrue(result.getIsExecutionSuccess());
-                                Object body = result.getBody();
-                                assertNotNull(body);
-                                assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-GCM-SHA256\"}]",
+                                assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"TLS_AES_128_GCM_SHA256\"}]",
                                         body.toString());
                         })
                         .verifyComplete();
@@ -1185,7 +1167,7 @@ public class MySqlPluginTest {
                                 assertTrue(result.getIsExecutionSuccess());
                                 Object body = result.getBody();
                                 assertNotNull(body);
-                                assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-GCM-SHA256\"}]",
+                                assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"\"}]",
                                         body.toString());
                         })
                         .verifyComplete();
