@@ -1878,8 +1878,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onDateSelectedString={
               props.cell.column.columnProperties.onDateSelected
             }
-            onDateSelection={this.onDateSelection}
-            onSubmitString={props.cell.column.columnProperties.onSubmit}
             outputFormat={cellProperties.outputFormat}
             rowIndex={rowIndex}
             shortcuts={cellProperties.shortcuts}
@@ -2069,21 +2067,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         });
       }
-      // if (this.props.onDateSelected) {
-      //   this.props?.onDateSelected(value);
-      // }
-      this.clearEditableCell();
-    }
-  };
 
-  onDateSelection = (rowIndex: number, onDateSelected: string) => {
-    if (onDateSelected) {
-      this.onColumnEvent({
-        rowIndex: rowIndex,
-        action: onDateSelected,
-        triggerPropertyName: "onDateSelected",
-        eventType: EventType.ON_DATE_SELECTED,
-      });
+      this.clearEditableCell();
     }
   };
 

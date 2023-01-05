@@ -39,7 +39,6 @@ type DateComponentProps = RenderDefaultPropsType &
       value: string,
       onSubmit?: string,
     ) => void;
-    onDateSelection: (rowIndex: number, onDateSelected: string) => void;
     onDateSelectedString: string;
     firstDayOfWeek?: number;
     isRequired: boolean;
@@ -58,7 +57,7 @@ const COMPONENT_DEFAULT_VALUES = {
 
 type editPropertyType = {
   alias: string;
-  onSubmitString: string;
+  onDateSelectedString: string;
   rowIndex: number;
 };
 
@@ -195,8 +194,6 @@ export const DateCell = (props: DateComponentProps) => {
     minDate,
     onDateSave,
     onDateSelectedString,
-    onDateSelection,
-    onSubmitString,
     outputFormat,
     rowIndex,
     shortcuts,
@@ -215,45 +212,47 @@ export const DateCell = (props: DateComponentProps) => {
   const [isValid, setIsValid] = useState(true);
   const [showRequiredError, setShowRequiredError] = useState(false);
 
+  const { value } = props;
+
   const editEvents = useMemo(
     () => ({
       onSave: (
         rowIndex: number,
         alias: string,
         formattedDate: string,
-        onSubmitString?: string,
-      ) => onDateSave(rowIndex, alias, formattedDate, onSubmitString),
+        onDateSelectedString?: string,
+      ) => onDateSave(rowIndex, alias, formattedDate, onDateSelectedString),
       onDiscard: () =>
         toggleCellEditMode(
           false,
           rowIndex,
           alias,
-          props.value,
+          value,
           "",
           EditableCellActions.DISCARD,
         ),
-      onEdit: () => toggleCellEditMode(true, rowIndex, alias, props.value),
+      onEdit: () => toggleCellEditMode(true, rowIndex, alias, value),
     }),
-    [toggleCellEditMode, props.value, rowIndex, alias, onSubmitString],
+    [toggleCellEditMode, value, rowIndex, alias, onDateSelectedString],
   );
 
   const contentRef = useRef<HTMLDivElement>(null);
 
   const valueInISOFormat = useMemo(() => {
-    if (typeof props.value !== "string") return "";
+    if (typeof value !== "string") return "";
 
-    if (moment(props.value, ISO_DATE_FORMAT, true).isValid()) {
-      return props.value;
+    if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
+      return value;
     }
 
-    const valueInSelectedFormat = moment(props.value, props.outputFormat, true);
+    const valueInSelectedFormat = moment(value, props.outputFormat, true);
 
     if (valueInSelectedFormat.isValid()) {
       return valueInSelectedFormat.format(ISO_DATE_FORMAT);
     }
 
-    return props.value;
-  }, [props.value, props.outputFormat]);
+    return value;
+  }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
     if (isRequired && !date) {
@@ -265,15 +264,12 @@ export const DateCell = (props: DateComponentProps) => {
     setShowRequiredError(false);
     setHasFocus(false);
     const formattedDate = date ? moment(date).format(inputFormat) : "";
-    onDateSelection(rowIndex, onDateSelectedString);
-    editEvents.onSave(rowIndex, alias, formattedDate, onSubmitString);
+    editEvents.onSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
 
   const onDateCellEdit = () => {
-    if (!isNewRow) {
-    }
     setHasFocus(true);
-    if (isRequired && !props.value) {
+    if (isRequired && !value) {
       setIsValid(false);
       setShowRequiredError(true);
     }
@@ -383,7 +379,7 @@ export const DateCell = (props: DateComponentProps) => {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        value={props.value}
+        value={value}
         verticalAlignment={verticalAlignment}
       />
       {editor}

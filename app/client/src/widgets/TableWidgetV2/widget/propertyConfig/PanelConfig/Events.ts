@@ -55,9 +55,7 @@ export default {
         const isEditable = get(props, `${baseProperty}.isEditable`, "");
         return (
           !(
-            columnType === ColumnTypes.TEXT ||
-            columnType === ColumnTypes.NUMBER ||
-            columnType === ColumnTypes.DATE
+            columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
           ) || !isEditable
         );
       },
