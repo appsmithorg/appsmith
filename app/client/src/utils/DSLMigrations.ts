@@ -1162,7 +1162,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 74) {
     currentDSL = migrateMenuButtonDynamicItemsInsideTableWidget(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 75;
   }
 
   if (currentDSL.version === 75) {
