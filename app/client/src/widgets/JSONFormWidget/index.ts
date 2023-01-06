@@ -26,6 +26,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
+    useSourceData: false,
     animateLoading: true,
     backgroundColor: "#fff",
     columns: 25,

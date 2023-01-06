@@ -59,9 +59,9 @@
           "widgetId": "bvixbymoxr",
           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
         },
-        "Text3": {
+        "Text": {
           "text": "{{newList.listData.map((currentItem) => currentItem.name)}}",
-          "widgetName": "Text3",
+          "widgetName": "Text",
           "type": "TEXT_WIDGET",
           "key": "3pqpn28ba4",
           "dynamicBindingPathList": [
@@ -117,7 +117,7 @@
           "key": "template.Image1.image"
         },
         {
-          "key": "template.Text3.text"
+          "key": "template.Text.text"
         },
         {
           "key": "template.Text4.text"
@@ -128,7 +128,7 @@
           "key": "onListItemClick"
         }
       ],
-      "onListItemClick": "{{Text3.text}}",
+      "onListItemClick": "{{Text.text}}",
       "children": [
         {
           "widgetName": "Canvas1",
@@ -183,7 +183,7 @@
                       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
                     },
                     {
-                      "widgetName": "Text3",
+                      "widgetName": "Text",
                       "type": "TEXT_WIDGET",
                       "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
                       "dynamicBindingPathList": [
