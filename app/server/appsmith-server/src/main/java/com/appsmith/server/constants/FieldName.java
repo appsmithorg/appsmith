@@ -9,7 +9,6 @@ public class FieldName {
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
     public static final String DELETED_AT = "deletedAt";
-    public static final String UPDATED_AT = "updatedAt";
     public static final String CURL_CODE = "curlCode";
     public static final String PLUGIN_TYPE = "pluginType";
     public static final String COLLECTION_ID = "collectionId";
@@ -30,7 +29,6 @@ public class FieldName {
     public static String TYPE = "type";
     public static final String WIDGET_ID = "widgetId";
     public static String WIDGET_NAME = "widgetName";
-    public static String DYNAMIC_BINDINGS = "dynamicBindings";
     public static String DYNAMIC_BINDING_PATH_LIST = "dynamicBindingPathList";
     public static String KEY = "key";
     public static String CHILDREN = "children";
@@ -40,7 +38,6 @@ public class FieldName {
     public static String CATEGORY = "category";
     public static String PAGE = "page";
     public static String PAGES = "pages";
-    public static String SIZE = "size";
     public static String ROLE = "role";
     public static String DEFAULT_WIDGET_NAME = "MainContainer";
     public static String DEFAULT_PAGE_LAYOUT = "{\n" +
@@ -95,19 +92,13 @@ public class FieldName {
     public static String MONGO_UNESCAPED_CLASS = "_class";
     public static String DATASOURCE_STRUCTURE = "datasource structure";
     public static final String OBJECT_ID = "ObjectId";
-    public static final String PLACEHOLDER_TEXT = "placeholderText";
-    public static final String IS_DISABLED = "isDisabled";
-    public static final String IS_REQUIRED = "isRequired";
     public static final String UNUSED_DATASOURCE = "UNUSED_DATASOURCE";
     public static final String BRANCH_NAME = "branchName";
-    public static final String SOURCE_BRANCH = "sourceBranch";
-    public static final String DESTINATION_BRANCH = "destinationBranch";
     public static final String DEFAULT = "default";
     public static final String GIT_SYNC_ID = "gitSyncId";
     public static final String DYNAMIC_TRIGGER_PATH_LIST = "dynamicTriggerPathList";
     public static final String REQUEST_TYPE = "requestType";
     public static final String DISPLAY_TYPE = "displayType";
-    public static final String PARAMETERS = "parameters";
     public static final String EXPORTED_APPLICATION = "exportedApplication";
     public static final String DATASOURCE_LIST = "datasourceList";
     public static final String PAGE_LIST = "pageList";
@@ -127,10 +118,7 @@ public class FieldName {
     public static final String VIEWER = "App Viewer";
     public static final String WORKSPACE_VIEWER_DESCRIPTION = "Can view applications and invite other users to view " +
             "applications";
-    public static final String USER_GROUP = "userGroup";
-    public static final Object GROUP_ID = "groupId";
     public static final Object USERNAME = "username";
-    public static final Object NEW_GROUP_ID = "newGroupId";
     public static final String PERMISSION_GROUP_ID = "permissionGroupId";
     public static final String INSTANCE_CONFIG = "instanceConfig";
     public static final String INSTANCE_ADMIN_ROLE = "Instance Administrator Role";
@@ -152,16 +140,6 @@ public class FieldName {
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
-    public static final String INVITED_USERS_TO_USER_GROUPS = "invitedUsers";
-    public static final String REMOVED_USERS_FROM_USER_GROUPS = "removedUsers";
-    public static final String REMOVE_USERS_FROM_USER_GROUPS = "removeUsers";
-    public static final String INVITE_USERS_TO_USER_GROUPS = "inviteUsers";
-    public static final String ASSIGNED_USERS_TO_PERMISSION_GROUPS = "assignedUsers";
-    public static final String UNASSIGNED_USERS_FROM_PERMISSION_GROUPS = "unAssignedUsers";
-    public static final String ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS = "assignedGroups";
-    public static final String UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS = "unAssignedGroups";
-    public static final String ASSIGNED_TO_PERMISSION_GROUPS = "assignedUserAndGroups";
-    public static final String UNASSIGNED_FROM_PERMISSION_GROUPS = "unAssignedUsersAndGroups";
     public static final String ENVIRONMENT_NAME ="environmentName";
 
     public static final String IS_FORCE_INSTALL = "forceInstall";
