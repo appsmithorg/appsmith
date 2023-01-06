@@ -2944,6 +2944,12 @@ public class DatabaseChangelog2 {
                         if ("Hex-encoded string must have an even number of characters".equals(e.getMessage())) {
                             decryptedValue = String.valueOf(oldEncryptedValue);
                         }
+                    } catch (IllegalStateException e) {
+                        // This means that the value in DB was already in a malformed state,
+                        // we'll ignore these values under the assumption that the user is not using this workspace
+                        log.debug("Encountered unexpected encrypted value at {} for document with id: {}", path, document.getObjectId("_id"));
+                        log.debug("Permanently ignoring the value.");
+                        return;
                     }
                     String newEncryptedValue = encryptionService.encryptString(decryptedValue);
                     ((BasicDBObject) update.get("$set")).put(path, newEncryptedValue);
