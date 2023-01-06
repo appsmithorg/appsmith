@@ -42,6 +42,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
+import static java.lang.Math.round;
 import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
 
 @Slf4j
@@ -387,5 +388,20 @@ public class DataTypeStringUtils {
         dataTypes.add(new ParsedDataType(DisplayDataType.RAW));
 
         return dataTypes;
+    }
+
+    /**
+     * To mask a string by adding 'x' in the middle of the string for half of the string length
+     * @param string
+     * @return
+     */
+    public static String maskString(String string) {
+        Integer maskLength = round(string.length() / 4);
+        StringBuilder maskedString = new StringBuilder(string);
+        for (int i = maskLength; i < string.length() - maskLength; i++) {
+            maskedString.setCharAt(i, 'x');
+        }
+
+        return maskedString.toString();
     }
 }
