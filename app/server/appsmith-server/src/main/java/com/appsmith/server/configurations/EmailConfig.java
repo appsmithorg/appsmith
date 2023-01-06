@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import jakarta.mail.internet.InternetAddress;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
-import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 
 @Getter

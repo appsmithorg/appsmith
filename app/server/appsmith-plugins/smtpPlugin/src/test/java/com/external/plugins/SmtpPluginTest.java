@@ -18,7 +18,7 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import javax.mail.Session;
+import jakarta.mail.Session;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

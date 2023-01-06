@@ -112,6 +112,8 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
+import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import { MessageType, TMessage } from "utils/MessageUtil";
 
 const evalWorker = new GracefulWorkerService(
@@ -366,6 +368,16 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
           : ENTITY_TYPE.WIDGET,
         triggerMeta?.source?.id || "",
       );
+      break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION: {
+      const sortedData: BatchedJSExecutionData = yield sortJSExecutionDataByCollectionId(
+        data.JSData as Record<string, unknown>,
+      );
+      yield put({
+        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+        payload: sortedData,
+      });
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_TRIGGER: {
