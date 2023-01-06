@@ -23,15 +23,12 @@ import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactoryOptions;
-import io.r2dbc.spi.Option;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
-import org.mariadb.r2dbc.MariadbConnectionFactoryProvider;
 import org.reactivestreams.Publisher;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
@@ -54,8 +51,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.utils.MySqlDatasourceUtils.getBuilder;
-import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -270,19 +265,20 @@ public class MySqlPluginTest {
 
         @Test
         public void testDatasourceWithNullPassword() {
-                final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
-
                 // adding a user with empty password
+                String sqlCmd = "CREATE USER 'mysql'@'%' IDENTIFIED BY '';" +
+                        "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;" +
+                        "FLUSH PRIVILEGES;";
                 Mono.from(getConnectionMonoFromContainer(mySQLContainerWithInvalidTimezone))
                         .map(connection -> connection.createBatch()
-                                // adding a new user called 'mysql' with empty password
-                                .add("CREATE USER 'mysql'@'%';\n" +
-                                        "GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;\n"
-                                        +
-                                        "FLUSH PRIVILEGES;"))
+                                .add("CREATE USER 'mysql'@'%' IDENTIFIED BY '';")
+                                .add("GRANT ALL PRIVILEGES ON *.* TO 'mysql'@'%' WITH GRANT OPTION;")
+                                .add("FLUSH PRIVILEGES;")
+                        )
                         .flatMapMany(batch -> Flux.from(batch.execute()))
                         .blockLast(); // wait until completion of all the queries
 
+                final DatasourceConfiguration dsConfig = createDatasourceConfigForContainerWithInvalidTZ();
                 // change to ordinary user
                 DBAuth auth = ((DBAuth) dsConfig.getAuthentication());
                 auth.setPassword("");

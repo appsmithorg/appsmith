@@ -9,14 +9,11 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
-import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
 import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
-import org.mariadb.r2dbc.MariadbConnectionFactoryProvider;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -72,8 +69,7 @@ public class MySqlDatasourceUtils {
         ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions)
                 .option(ConnectionFactoryOptions.USER, authentication.getUsername())
-                .option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword())
-                .option(MAX_SIZE, MAX_CONNECTION_POOL_SIZE);
+                .option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
 
         return ob;
     }
@@ -179,19 +175,17 @@ public class MySqlDatasourceUtils {
     public static ConnectionPool getNewConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
         ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
         ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
-        MariadbConnectionFactory cf =
+        MariadbConnectionFactory connectionFactory =
                 MariadbConnectionFactory.from(
                         MariadbConnectionConfiguration.fromOptions(ob.build())
                                 .allowPublicKeyRetrieval(true).build()
                 );
 
-        //ConnectionFactory cf = ConnectionFactories.get(ob.build());
-
         /**
          * The pool configuration object does not seem to have any option to set the minimum pool size, hence could
          * not configure the minimum pool size.
          */
-        ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(cf)
+        ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(connectionFactory)
                 .maxIdleTime(MAX_IDLE_TIME)
                 .maxSize(MAX_CONNECTION_POOL_SIZE)
                 .build();
