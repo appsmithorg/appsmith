@@ -401,7 +401,9 @@ export class DataSources {
   public TestDatasource(expectedRes = true) {
     this.agHelper.GetNClick(this._testDs, 0, false, 0);
     this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
-    this.agHelper.AssertContains("datasource is valid");
+    if (expectedRes) {
+      this.agHelper.AssertContains("datasource is valid");
+    }
   }
 
   public SaveDatasource() {
