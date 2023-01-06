@@ -54,7 +54,7 @@ public class MySqlDatasourceUtils {
 
         }
 
-        urlBuilder.append("?zeroDateTimeBehavior=convertToNull");
+        urlBuilder.append("?zeroDateTimeBehavior=convertToNull&allowMultiQueries=true");
         final List<Property> dsProperties = datasourceConfiguration.getProperties();
 
         if (dsProperties != null) {
