@@ -66,7 +66,7 @@ public class ArangoDBPlugin extends BasePlugin {
     @Extension
     public static class ArangoDBPluginExecutor implements PluginExecutor<ArangoDatabase> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(ArangoDatabase db,

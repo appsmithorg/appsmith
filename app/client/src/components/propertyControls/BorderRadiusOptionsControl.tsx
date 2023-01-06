@@ -1,9 +1,8 @@
 import * as React from "react";
 
-import { TooltipComponent } from "design-system";
+import { ButtonGroup, TooltipComponent } from "design-system";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
-import { ButtonTab } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -64,7 +63,7 @@ class BorderRadiusOptionsControl extends BaseControl<
 
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
-      e.detail.component === "ButtonTab" &&
+      e.detail.component === "ButtonGroup" &&
       e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
@@ -80,7 +79,7 @@ class BorderRadiusOptionsControl extends BaseControl<
 
   public render() {
     return (
-      <ButtonTab
+      <ButtonGroup
         options={options}
         ref={this.componentRef}
         selectButton={(value, isUpdatedViaKeyboard = false) => {

@@ -225,6 +225,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   const dropdownTrigger = (
     <DropdownTriggerIconWrapper
       className="t--input-currency-change currency-change-dropdown-trigger"
+      data-tabbable={false}
       disabled={props.isDisabled}
       tabIndex={0}
       type="button"
