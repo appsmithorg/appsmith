@@ -461,6 +461,7 @@ abstract class BaseWidget<
           this.props.flexVerticalAlignment || FlexVerticalAlignment.Top
         }
         focused={this.props.focused}
+        isMobile={this.props.isMobile}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
@@ -584,6 +585,7 @@ abstract class BaseWidget<
     resizeDisabled: false,
     disablePropertyPane: false,
     isFlexChild: false,
+    isMobile: false,
   };
 }
 

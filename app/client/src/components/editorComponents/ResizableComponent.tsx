@@ -13,7 +13,6 @@ import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   getParentToOpenSelector,
   isCurrentWidgetFocused,
@@ -96,7 +95,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   );
   const isWidgetFocused = isFocused || isLastSelected || isSelected;
 
-  const isMobile = useSelector(getIsMobile);
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
@@ -343,7 +341,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       handles={handles}
       isAffectedByDrag={isAffectedByDrag}
       isFlexChild={props.isFlexChild}
-      isMobile={isMobile}
+      isMobile={props.isMobile || false}
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}

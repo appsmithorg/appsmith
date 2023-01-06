@@ -13,7 +13,6 @@ import {
 } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
@@ -32,6 +31,7 @@ export type AutoLayoutProps = {
   widgetType: WidgetType;
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
+  isMobile?: boolean;
 };
 
 const FlexWidget = styled.div`
@@ -39,7 +39,6 @@ const FlexWidget = styled.div`
 `;
 
 export function FlexComponent(props: AutoLayoutProps) {
-  const isMobile = useSelector(getIsMobile);
   const isSnipingMode = useSelector(snipingModeSelector);
 
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
@@ -62,14 +61,6 @@ export function FlexComponent(props: AutoLayoutProps) {
     !isSnipingMode && e.stopPropagation();
   };
 
-  /**
-   * In a vertical stack,
-   * Fill widgets grow / shrink to take up all the available space.
-   * => width: auto && flex-grow: 1;
-   */
-  const isFillWidget: boolean =
-    props.direction === LayoutDirection.Vertical &&
-    props.responsiveBehavior === ResponsiveBehavior.Fill;
   const className = `auto-layout-parent-${props.parentId} auto-layout-child-${
     props.widgetId
   } ${widgetTypeClassname(props.widgetType)}`;
@@ -82,15 +73,13 @@ export function FlexComponent(props: AutoLayoutProps) {
       height: props.componentHeight - WIDGET_PADDING * 2 + "px",
       minHeight: "30px",
       margin: WIDGET_PADDING + "px",
-      flexGrow: isFillWidget ? 1 : 0,
       alignSelf: props.flexVerticalAlignment,
       "&:hover": {
         zIndex: onHoverZIndex + " !important",
       },
     };
   }, [
-    isFillWidget,
-    isMobile,
+    props.isMobile,
     props.componentWidth,
     props.componentHeight,
     props.flexVerticalAlignment,
