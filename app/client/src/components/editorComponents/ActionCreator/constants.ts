@@ -23,6 +23,7 @@ export const APPSMITH_NAMESPACED_FUNCTIONS = {
 export const AppsmithFunction = {
   none: "none",
   integration: "integration",
+  runAPI: "runAPI",
   jsFunction: "jsFunction",
   ...APPSMITH_GLOBAL_FUNCTIONS,
   ...APPSMITH_NAMESPACED_FUNCTIONS,

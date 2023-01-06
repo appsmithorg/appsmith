@@ -45,10 +45,11 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    const { propertyValue } = this.props;
+    const { label, propertyValue } = this.props;
 
     return (
       <ActionCreator
+        action={label}
         additionalAutoComplete={this.props.additionalAutoComplete}
         onValueChange={this.handleValueUpdate}
         ref={this.componentRef}

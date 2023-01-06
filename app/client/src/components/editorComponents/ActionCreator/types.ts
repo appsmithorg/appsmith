@@ -54,6 +54,7 @@ export type FieldConfigs = Partial<Record<FieldType, FieldConfig>>;
 
 export type ActionCreatorProps = {
   value: string;
+  action: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
   pageDropdownOptions: TreeDropdownOption[];

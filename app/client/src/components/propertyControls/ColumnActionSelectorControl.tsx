@@ -64,6 +64,7 @@ class ColumnActionSelectorControl extends BaseControl<
                 </InputTextWrapper>
                 <Wrapper>
                   <ActionCreator
+                    action={this.props.label}
                     onValueChange={this.updateColumnActionFunction.bind(
                       this,
                       columnAction,

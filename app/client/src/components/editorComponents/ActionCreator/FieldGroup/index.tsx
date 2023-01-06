@@ -14,38 +14,38 @@ function FieldGroup(props: FieldGroupProps) {
 
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
     const remainingFields = fields.slice(1);
-    if (
-      remainingFields[0]?.field ===
-      FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD
-    ) {
-      /* Navigate to does not follow the tree like structure
-       * other global functions have
-       * This if condition achieves that design */
-      return (
-        <>
-          {Field({
-            ...otherProps,
-            field: fields[0],
-          })}
+    // if (
+    //   remainingFields[0]?.field ===
+    //   FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD
+    // ) {
+    //   /* Navigate to does not follow the tree like structure
+    //    * other global functions have
+    //    * This if condition achieves that design */
+    //   return (
+    //     <>
+    //       {Field({
+    //         ...otherProps,
+    //         field: fields[0],
+    //       })}
 
-          <StyledNavigateToFieldWrapper>
-            <StyledDividerContainer>
-              <DividerComponent
-                capType="dot"
-                dividerColor="#b3b3b3"
-                orientation="vertical"
-                thickness={2}
-              />
-            </StyledDividerContainer>
-            <StyledNavigateToFieldsContainer>
-              {remainingFields.map((paramField: any) => {
-                return Field({ field: paramField, ...otherProps });
-              })}
-            </StyledNavigateToFieldsContainer>
-          </StyledNavigateToFieldWrapper>
-        </>
-      );
-    }
+    //       <StyledNavigateToFieldWrapper>
+    //         <StyledDividerContainer>
+    //           <DividerComponent
+    //             capType="dot"
+    //             dividerColor="#b3b3b3"
+    //             orientation="vertical"
+    //             thickness={2}
+    //           />
+    //         </StyledDividerContainer>
+    //         <StyledNavigateToFieldsContainer>
+    //           {remainingFields.map((paramField: any) => {
+    //             return Field({ field: paramField, ...otherProps });
+    //           })}
+    //         </StyledNavigateToFieldsContainer>
+    //       </StyledNavigateToFieldWrapper>
+    //     </>
+    //   );
+    // }
     return (
       <>
         {Field({
@@ -55,6 +55,7 @@ function FieldGroup(props: FieldGroupProps) {
 
         <ul className={props.depth === 1 ? "tree" : ""}>
           {remainingFields.map((field: any, index: number) => {
+            console.log("field", field);
             if (Array.isArray(field)) {
               if (props.depth > props.maxDepth) {
                 // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -108,6 +109,7 @@ function FieldGroup(props: FieldGroupProps) {
     );
   } else {
     const ui = fields.map((field: any, index: number) => {
+      console.log({ fields });
       if (Array.isArray(field)) {
         if (props.depth > props.maxDepth) {
           // eslint-disable-next-line react/jsx-no-useless-fragment

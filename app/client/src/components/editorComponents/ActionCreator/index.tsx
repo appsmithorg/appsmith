@@ -1,5 +1,11 @@
 import { createModalAction } from "actions/widgetActions";
-import { TreeDropdownOption } from "design-system";
+import {
+  TreeDropdownOption,
+  TooltipComponent,
+  Icon,
+  TreeDropdown,
+} from "design-system";
+import { Popover2 } from "@blueprintjs/popover2";
 import TreeStructure from "components/utils/TreeStructure";
 import { PluginType } from "entities/Action";
 import { isString, keyBy } from "lodash";
@@ -52,6 +58,9 @@ import {
   getFunction,
   replaceActionInQuery,
 } from "@shared/ast";
+import { ActionBlock } from "./viewComponents/ActionBlock";
+import { TabView } from "./viewComponents/TabView";
+import { SelectorDropdown } from "./viewComponents/SelectorDropdown";
 
 const actionList: {
   label: string;
@@ -88,7 +97,14 @@ function getFieldFromValue(
     const trimmedVal = value && value.replace(/(^{{)|(}}$)/g, "");
     const entityProps = getEntityNameAndPropertyPath(trimmedVal);
     entity = dataTree && dataTree[entityProps.entityName];
+    console.log({ trimmedVal: value, entityProps, entity });
   }
+
+  // 1. JS functions
+  // 2. APIs, Queries
+  // 3. SetInterval, ShowAlert etc.
+
+  console.log("Entity: ", entity);
 
   if (entity && "ENTITY_TYPE" in entity) {
     if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
@@ -143,6 +159,7 @@ function getActionEntityFields(
   activeTabNavigateTo: SwitchType,
   dataTree: DataTree,
 ) {
+  console.log("*** Entity Action Fields***");
   fields.push({
     field: FieldType.ACTION_SELECTOR_FIELD,
     getParentValue,
@@ -167,6 +184,9 @@ function getActionEntityFields(
   );
   successFields[0].label = "onSuccess";
   fields.push(successFields);
+
+  console.log({ successFunction, successValue });
+  console.log("successFields", successFields);
 
   // get the fields for onError
   const errorFunction = getFuncExpressionAtPosition(
@@ -371,19 +391,23 @@ function getApiAndQueryOptions(
       action.config.pluginType === PluginType.REMOTE,
   );
 
-  const queryAndApiOptions = actionList.find(
+  const queryOptions = actionList.find(
     (action) => action.value === AppsmithFunction.integration,
   );
 
-  if (queryAndApiOptions) {
-    queryAndApiOptions.children = [createQueryObject];
+  const apiOptions = actionList.find(
+    (action) => action.value === AppsmithFunction.runAPI,
+  );
+
+  if (apiOptions) {
+    apiOptions.children = [createQueryObject];
 
     apis.forEach((api) => {
-      (queryAndApiOptions.children as TreeDropdownOption[]).push({
+      (apiOptions.children as TreeDropdownOption[]).push({
         label: api.config.name,
         id: api.config.id,
         value: api.config.name,
-        type: queryAndApiOptions.value,
+        type: apiOptions.value,
         icon: getActionConfig(api.config.pluginType)?.getIcon(
           api.config,
           plugins[(api as any).config.datasource.pluginId],
@@ -391,13 +415,17 @@ function getApiAndQueryOptions(
         ),
       } as TreeDropdownOption);
     });
+  }
+
+  if (queryOptions) {
+    queryOptions.children = [createQueryObject];
 
     queries.forEach((query) => {
-      (queryAndApiOptions.children as TreeDropdownOption[]).push({
+      (queryOptions.children as TreeDropdownOption[]).push({
         label: query.config.name,
         id: query.config.id,
         value: query.config.name,
-        type: queryAndApiOptions.value,
+        type: queryOptions.value,
         icon: getActionConfig(query.config.pluginType)?.getIcon(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
@@ -534,6 +562,7 @@ const ActionCreator = React.forwardRef(
     const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
       NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
     );
+    const [activeTabAPICallback, setActiveTabAPICallback] = useState<0 | 1>(0);
     const dataTree = useSelector(getDataTree);
     const integrationOptions = useApisQueriesAndJsActionOptions();
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
@@ -545,23 +574,103 @@ const ActionCreator = React.forwardRef(
       dataTree,
     );
 
+    const apiCallbackTabSwitches: SwitchType[] = [
+      {
+        id: "onSuccess",
+        text: "onSuccess",
+        action: () => setActiveTabAPICallback(0),
+      },
+      {
+        id: "onFailure",
+        text: "onFailure",
+        action: () => setActiveTabAPICallback(1),
+      },
+    ];
+
+    console.log({ value: props.value });
+
+    console.log({ fields });
+
     return (
-      <TreeStructure ref={ref}>
-        <FieldGroup
-          activeNavigateToTab={activeTabNavigateTo}
-          additionalAutoComplete={props.additionalAutoComplete}
-          depth={1}
-          fields={fields}
-          integrationOptions={integrationOptions}
-          maxDepth={1}
-          modalDropdownList={modalDropdownList}
-          navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
-          onValueChange={props.onValueChange}
-          pageDropdownOptions={props.pageDropdownOptions}
-          value={props.value}
-          widgetOptionTree={widgetOptionTree}
-        />
-      </TreeStructure>
+      <Popover2
+        className="w-full"
+        content={
+          <div className="flex flex-col p-3 w-full">
+            <div className="flex mb-2 w-full justify-between">
+              <div className="text-sm font-medium text-gray">
+                Configure {props.action}
+              </div>
+              <Icon
+                className="t--close-action-creator"
+                name="cross"
+                size="extraExtraSmall"
+                // onClick={props.onClose}
+              />
+            </div>
+
+            <SelectorDropdown
+              onSelect={(
+                option: TreeDropdownOption,
+                defaultVal: any,
+                isUpdatedViaKeyboard: boolean,
+              ) => {
+                props.onValueChange(option.value, isUpdatedViaKeyboard);
+              }}
+              options={integrationOptions}
+              selectedOption={props.value}
+            />
+            <TabView
+              activeObj={apiCallbackTabSwitches[activeTabAPICallback]}
+              label=""
+              switches={apiCallbackTabSwitches}
+            />
+            <FieldGroup
+              activeNavigateToTab={activeTabNavigateTo}
+              additionalAutoComplete={props.additionalAutoComplete}
+              depth={1}
+              fields={fields}
+              integrationOptions={integrationOptions}
+              maxDepth={1}
+              modalDropdownList={modalDropdownList}
+              navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
+              onValueChange={props.onValueChange}
+              pageDropdownOptions={props.pageDropdownOptions}
+              value={props.value}
+              widgetOptionTree={widgetOptionTree}
+            />
+          </div>
+        }
+        isOpen
+        minimal
+        popoverClassName="!translate-x-[-18px] translate-y-[35%] w-[280px]"
+        position="left"
+      >
+        {/* <TooltipComponent boundary="viewport" content="Action"> */}
+        {/* {" "} */}
+        <div className="mt-1">
+          <ActionBlock label="API" />
+        </div>
+        {/* </TooltipComponent> */}
+      </Popover2>
+    );
+
+    return (
+      // <TreeStructure ref={ref}>
+      <FieldGroup
+        activeNavigateToTab={activeTabNavigateTo}
+        additionalAutoComplete={props.additionalAutoComplete}
+        depth={1}
+        fields={fields}
+        integrationOptions={integrationOptions}
+        maxDepth={1}
+        modalDropdownList={modalDropdownList}
+        navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
+        onValueChange={props.onValueChange}
+        pageDropdownOptions={props.pageDropdownOptions}
+        value={props.value}
+        widgetOptionTree={widgetOptionTree}
+      />
+      // </TreeStructure>
     );
   },
 );

@@ -63,6 +63,7 @@ class PropertyControlFactory {
       };
 
       const control = controlBuilder.buildPropertyControl(controlProps);
+      console.log({ control });
       return control;
     } else {
       const ex: ControlCreationException = {
