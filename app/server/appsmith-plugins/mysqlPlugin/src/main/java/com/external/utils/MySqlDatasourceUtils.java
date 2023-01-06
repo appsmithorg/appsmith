@@ -93,7 +93,6 @@ public class MySqlDatasourceUtils {
          */
         SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
-            /*case PREFERRED:*/
             case REQUIRED:
                 ob = ob
                         .option(SSL, true)
