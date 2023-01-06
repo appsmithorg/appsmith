@@ -372,13 +372,10 @@ class AnalyticsUtil {
             a.parentNode.insertBefore(n, a);
             analytics._loadOptions = e;
           };
-          console.log("segment init", analytics, key);
-          analytics.ready((data: any) => {
-            console.log("segment ready", data, analytics);
+          analytics.ready(() => {
             resolve(true);
           });
           setTimeout(() => {
-            console.log("segment reject from timeout", analytics);
             resolve(false);
           }, 2000);
           analytics.SNIPPET_VERSION = "4.1.0";
