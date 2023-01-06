@@ -40,6 +40,7 @@ type DropTargetComponentProps = WidgetProps & {
   noPad?: boolean;
   isWrapper?: boolean;
   useAutoLayout?: boolean;
+  isMobile?: boolean;
 };
 
 const StyledDropTarget = styled.div`
@@ -159,6 +160,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     const snapRows = getCanvasSnapRows(
       props.bottomRow,
       props.canExtend && !isPreviewMode,
+      props.mobileBottomRow,
+      props.isMobile,
     );
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows) {
@@ -174,7 +177,13 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         updateCanvasSnapRows(props.widgetId, snapRows);
       }
     }
-  }, [props.bottomRow, props.canExtend, isPreviewMode]);
+  }, [
+    props.bottomRow,
+    props.mobileBottomRow,
+    props.isMobile,
+    props.canExtend,
+    isPreviewMode,
+  ]);
 
   // If we've stopped dragging, resizing or changing auto height limits
   useEffect(() => {
@@ -248,9 +257,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     };
   }, [updateDropTargetRows, occupiedSpacesByChildren]);
 
-  const wrapperClass = props.isWrapper
-    ? `auto-layout-parent-${props.parentId} auto-layout-child-${props.widgetId}`
-    : "";
   /** EO PREPARE CONTEXT */
 
   const height = getDropTargetHeight(
@@ -289,7 +295,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
-        className={`t--drop-target ${wrapperClass}`}
+        className={`t--drop-target`}
         onClick={handleFocus}
         ref={dropTargetRef}
         style={dropTargetStyles}

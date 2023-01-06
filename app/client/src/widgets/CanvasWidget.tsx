@@ -49,6 +49,7 @@ class CanvasWidget extends ContainerWidget {
       <DropTargetComponent
         {...canvasProps}
         {...this.getSnapSpaces()}
+        isMobile={this.props.isMobile}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
         useAutoLayout={this.props.useAutoLayout}
       >
@@ -121,6 +122,7 @@ class CanvasWidget extends ContainerWidget {
       <FlexBoxComponent
         direction={direction}
         flexLayers={this.props.flexLayers || []}
+        isMobile={this.props.isMobile}
         overflow={
           direction === LayoutDirection.Horizontal
             ? Overflow.Wrap

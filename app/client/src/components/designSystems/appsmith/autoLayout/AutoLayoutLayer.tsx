@@ -18,7 +18,6 @@ export interface AutoLayoutLayerProps {
   index: number;
   widgetId: string;
   isMobile?: boolean;
-  isCurrentCanvasDragging: boolean;
   wrapStart: boolean;
   wrapCenter: boolean;
   wrapEnd: boolean;
@@ -27,7 +26,6 @@ export interface AutoLayoutLayerProps {
 
 const LayoutLayerContainer = styled.div<{
   flexDirection: FlexDirection;
-  isCurrentCanvasDragging: boolean;
   wrap?: boolean;
 }>`
   display: flex;
@@ -40,7 +38,6 @@ const LayoutLayerContainer = styled.div<{
 `;
 
 const SubWrapper = styled.div<{
-  isCurrentCanvasDragging: boolean;
   flexDirection: FlexDirection;
   wrap?: boolean;
 }>`
@@ -83,26 +80,22 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}
       flexDirection={flexDirection}
-      isCurrentCanvasDragging={props.isCurrentCanvasDragging}
       wrap={props.isMobile && props.wrapLayer}
     >
       <StartWrapper
         flexDirection={flexDirection}
-        isCurrentCanvasDragging={props.isCurrentCanvasDragging}
         wrap={props.wrapStart && props.isMobile}
       >
         {props.start}
       </StartWrapper>
       <CenterWrapper
         flexDirection={flexDirection}
-        isCurrentCanvasDragging={props.isCurrentCanvasDragging}
         wrap={props.wrapCenter && props.isMobile}
       >
         {props.center}
       </CenterWrapper>
       <EndWrapper
         flexDirection={flexDirection}
-        isCurrentCanvasDragging={props.isCurrentCanvasDragging}
         wrap={props.wrapEnd && props.isMobile}
       >
         {props.end}
@@ -111,4 +104,4 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
   );
 }
 
-export default AutoLayoutLayer;
+export default React.memo(AutoLayoutLayer);
