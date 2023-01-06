@@ -34,6 +34,7 @@ import LabelWithTooltip, {
 } from "widgets/components/LabelWithTooltip";
 import { getLocale } from "utils/helpers";
 import AutoResizeTextArea from "components/editorComponents/AutoResizeTextArea";
+import { checkInputTypeText } from "../utils";
 
 /**
  * All design system component specific logic goes here.
@@ -106,14 +107,14 @@ const InputComponentWrapper = styled((props) => (
 
   &&&& {
     ${({ inputType, labelPosition }) => {
-      if (!labelPosition && inputType !== InputTypes.TEXT) {
+      if (!labelPosition && !checkInputTypeText(inputType)) {
         return "flex-direction: row";
       }
     }};
     & .${LABEL_CONTAINER_CLASS} {
       flex-grow: 0;
       ${({ inputType, labelPosition }) => {
-        if (!labelPosition && inputType !== InputTypes.TEXT) {
+        if (!labelPosition && !checkInputTypeText(inputType)) {
           return "flex: 1; margin-right: 5px; label { margin-right: 5px; margin-bottom: 0;}";
         }
       }}
@@ -286,7 +287,7 @@ const InputComponentWrapper = styled((props) => (
       justify-content: flex-start;
     }
     align-items: ${({ compactMode, inputType, labelPosition }) => {
-      if (!labelPosition && inputType !== InputTypes.TEXT) {
+      if (!labelPosition && !checkInputTypeText(inputType)) {
         return "center";
       }
       if (labelPosition === LabelPosition.Top) {

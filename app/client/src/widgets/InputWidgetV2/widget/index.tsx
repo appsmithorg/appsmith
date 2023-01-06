@@ -30,6 +30,7 @@ import {
 import { getParsedText } from "./Utilities";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 
 export function defaultValueValidation(
   value: any,
@@ -269,7 +270,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                 params: { min: 1, natural: true, passThroughOnZero: false },
               },
               hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.TEXT;
+                return !checkInputTypeTextByProps(props);
               },
               dependencies: ["inputType"],
             },
@@ -517,7 +518,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       conditionalProps.minNum = this.props.minNum;
     }
 
-    if (this.props.inputType === InputTypes.TEXT && this.props.maxChars) {
+    if (checkInputTypeTextByProps(this.props) && this.props.maxChars) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (

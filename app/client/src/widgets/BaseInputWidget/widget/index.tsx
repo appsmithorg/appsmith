@@ -12,6 +12,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
 import { LabelPosition } from "components/constants";
+import { checkInputTypeTextByProps } from "../utils";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -147,7 +148,7 @@ class BaseInputWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: (props: BaseInputWidgetProps) => {
-              return props.inputType !== InputTypes.TEXT;
+              return !checkInputTypeTextByProps(props);
             },
             dependencies: ["inputType"],
           },

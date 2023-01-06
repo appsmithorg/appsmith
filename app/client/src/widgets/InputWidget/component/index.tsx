@@ -43,6 +43,7 @@ import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "design-system";
+import { checkInputTypeText } from "widgets/BaseInputWidget/utils";
 
 /**
  * All design system component specific logic goes here.
@@ -206,7 +207,7 @@ const InputComponentWrapper = styled((props) => (
         : compactMode
         ? `center`
         : labelPosition === LabelPosition.Left
-        ? inputType === InputTypes.TEXT
+        ? checkInputTypeText(inputType)
           ? `stretch`
           : `center`
         : `flex-start`};
