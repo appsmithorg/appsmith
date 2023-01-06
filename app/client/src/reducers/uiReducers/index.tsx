@@ -45,8 +45,10 @@ import guidedTourReducer from "./guidedTourReducer";
 import libraryReducer from "./libraryReducer";
 import appSettingsPaneReducer from "./appSettingsPaneReducer";
 import autoHeightUIReducer from "./autoHeightReducer";
+import analyticsReducer from "./analyticsReducer";
 
 const uiReducer = combineReducers({
+  analytics: analyticsReducer,
   editor: editorReducer,
   errors: errorReducer,
   propertyPane: propertyPaneReducer,
