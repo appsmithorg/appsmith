@@ -108,7 +108,8 @@ function CanvasContainer() {
         [`${getCanvasClassName()} scrollbar-thin`]: true,
         "mt-0": !shouldHaveTopMargin,
         "mt-4": showCanvasTopSection,
-        "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
+        "mt-8": shouldHaveTopMargin && !showCanvasTopSection && !isPreviewMode,
+        "mt-11": shouldHaveTopMargin && !showCanvasTopSection && isPreviewMode,
       })}
       id={"canvas-viewport"}
       key={currentPageId}

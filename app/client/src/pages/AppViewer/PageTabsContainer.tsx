@@ -5,13 +5,26 @@ import {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { Icon, IconSize } from "design-system";
-import PageTabs from "./PageTabs";
+import Navigation from "./Navigation";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { Colors } from "constants/Colors";
+import {
+  NavigationSettingsColorStyle,
+  NAVIGATION_SETTINGS,
+} from "constants/AppConstants";
+import { get } from "lodash";
+import { useSelector } from "react-redux";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getMenuContainerBackgroundColor } from "./utils";
 
-const Container = styled.div`
+const Container = styled.div<{
+  primaryColor: string;
+  navColorStyle: NavigationSettingsColorStyle;
+}>`
   width: 100%;
   align-items: center;
+  background-color: ${({ navColorStyle, primaryColor }) =>
+    getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
 
   & {
     svg path,
@@ -59,6 +72,15 @@ type AppViewerHeaderProps = {
 
 export function PageTabsContainer(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, pages } = props;
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  // TODO - @Dhruvik - ImprovedAppNav
+  // Fetch nav color style from the application's nav settings
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  const primaryColor = get(
+    selectedTheme,
+    "properties.colors.primaryColor",
+    "inherit",
+  );
 
   // Mark default page as first page
   const appPages = pages;
@@ -128,7 +150,11 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   }, [isScrolling, isScrollingLeft]);
 
   return appPages.length > 1 ? (
-    <Container className="relative hidden px-6 h-9 md:flex">
+    <Container
+      className="relative hidden px-6 h-11 md:flex"
+      navColorStyle={navColorStyle}
+      primaryColor={primaryColor}
+    >
       <ScrollBtnContainer
         className="left-0"
         onMouseDown={() => startScrolling(true)}
@@ -140,7 +166,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
       >
         <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
       </ScrollBtnContainer>
-      <PageTabs
+      <Navigation
         appPages={appPages}
         currentApplicationDetails={currentApplicationDetails}
         measuredTabsRef={measuredTabsRef}

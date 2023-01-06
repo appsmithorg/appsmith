@@ -2,25 +2,69 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import AppsIcon from "remixicon-react/AppsLineIcon";
-
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { NavigationSettingsColorStyle } from "constants/AppConstants";
+import {
+  getMenuItemBackgroundColorOnHover,
+  getMenuItemTextColor,
+} from "pages/AppViewer/utils";
+import styled from "styled-components";
 
-function BackToHomeButton() {
+type BackToHomeButtonProps = {
+  primaryColor: string;
+  navColorStyle: NavigationSettingsColorStyle;
+};
+
+const StyledLabel = styled.span<BackToHomeButtonProps>`
+  color: ${({ navColorStyle, primaryColor }) =>
+    getMenuItemTextColor(primaryColor, navColorStyle)};
+`;
+
+const StyledAppIcon = styled(AppsIcon)<
+  BackToHomeButtonProps & {
+    borderRadius: string;
+  }
+>`
+  color: ${({ navColorStyle, primaryColor }) =>
+    getMenuItemTextColor(primaryColor, navColorStyle)};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  transition: all 0.3s ease-in-out;
+`;
+
+const StyledLink = styled(Link)<BackToHomeButtonProps>`
+  &:hover {
+    ${StyledAppIcon} {
+      background-color: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
+    }
+  }
+`;
+
+function BackToHomeButton(props: BackToHomeButtonProps) {
+  const { navColorStyle, primaryColor } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
 
   return (
-    <Link
+    <StyledLink
       className="flex items-center gap-2 group t--back-to-home hover:no-underline"
+      navColorStyle={navColorStyle}
+      primaryColor={primaryColor}
       to="/applications"
     >
-      <AppsIcon
-        className="p-1 text-[#858282] w-7 h-7 group-hover:bg-gray-100"
-        style={{
-          borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
-        }}
+      <StyledAppIcon
+        borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+        className="p-1 w-7 h-7"
+        navColorStyle={navColorStyle}
+        primaryColor={primaryColor}
       />
-      <span className="hidden md:block text-[#4B4848]">Apps</span>
-    </Link>
+      <StyledLabel
+        className="hidden md:block"
+        navColorStyle={navColorStyle}
+        primaryColor={primaryColor}
+      >
+        Apps
+      </StyledLabel>
+    </StyledLink>
   );
 }
 

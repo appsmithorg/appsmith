@@ -30,7 +30,6 @@ import Button from "./AppViewerButton";
 import MenuIcon from "remixicon-react/MenuFillIcon";
 import CloseIcon from "remixicon-react/CloseFillIcon";
 import PageMenu from "./PageMenu";
-import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
@@ -40,6 +39,12 @@ import {
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import {
+  NavigationSettingsColorStyle,
+  NAVIGATION_SETTINGS,
+} from "constants/AppConstants";
+import { getMenuContainerBackgroundColor, getMenuItemTextColor } from "./utils";
+import { get } from "lodash";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -71,8 +76,32 @@ type AppViewerHeaderProps = {
   lightTheme: Theme;
 };
 
+const StyledNav = styled.div<{
+  primaryColor: string;
+  navColorStyle: NavigationSettingsColorStyle;
+}>`
+  background-color: ${({ navColorStyle, primaryColor }) =>
+    getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
+`;
+
+const StyledApplicationName = styled.div<{
+  primaryColor: string;
+  navColorStyle: NavigationSettingsColorStyle;
+}>`
+  color: ${({ navColorStyle, primaryColor }) =>
+    getMenuItemTextColor(primaryColor, navColorStyle)};
+`;
+
 export function AppViewerHeader(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
+  // TODO - @Dhruvik - ImprovedAppNav
+  // Fetch nav color style from the application's nav settings
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  const primaryColor = get(
+    selectedTheme,
+    "properties.colors.primaryColor",
+    "inherit",
+  );
   const [isMenuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const {
@@ -96,9 +125,11 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   return (
     <ThemeProvider theme={props.lightTheme}>
       <>
-        <nav
-          className="relative bg-white js-appviewer-header"
+        <StyledNav
+          className="relative js-appviewer-header"
           data-testid={"t--appsmith-app-viewer-header"}
+          navColorStyle={navColorStyle}
+          primaryColor={primaryColor}
           ref={headerRef}
         >
           <HtmlTitle name={currentApplicationDetails?.name} />
@@ -114,16 +145,25 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   <MenuIcon className="w-5 h-5" />
                 )}
               </div>
-              <div className="">
+              {/* TODO - @Dhruvik - ImprovedAppNav */}
+              {/* Remove the following if no button comes to the left of header */}
+              {/* <div className="">
                 {currentUser?.username !== ANONYMOUS_USERNAME && (
-                  <BackToHomeButton />
+                  <BackToHomeButton
+                    navColorStyle={navColorStyle}
+                    primaryColor={primaryColor}
+                  />
                 )}
-              </div>
+              </div> */}
             </section>
-            <div className="absolute top-0 bottom-0 flex items-center justify-center w-full mt-auto text-center">
-              <div className="w-7/12 overflow-hidden text-base font-medium text-gray-600 overflow-ellipsis whitespace-nowrap">
+            <div className="absolute top-0 bottom-0 flex items-center w-full mt-auto">
+              <StyledApplicationName
+                className="w-7/12 overflow-hidden text-base font-medium overflow-ellipsis whitespace-nowrap"
+                navColorStyle={navColorStyle}
+                primaryColor={primaryColor}
+              >
                 {currentApplicationDetails?.name}
-              </div>
+              </StyledApplicationName>
             </div>
             <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
@@ -187,7 +227,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             currentApplicationDetails={currentApplicationDetails}
             pages={pages}
           />
-        </nav>
+        </StyledNav>
         <PageMenu
           application={currentApplicationDetails}
           headerRef={headerRef}

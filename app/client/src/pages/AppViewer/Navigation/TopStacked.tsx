@@ -18,13 +18,13 @@ import {
   getMenuItemBackgroundColorWhenActive,
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
-} from "./utils";
+} from "../utils";
 import {
   NavigationSettingsColorStyle,
   NAVIGATION_SETTINGS,
 } from "constants/AppConstants";
 
-const PageTab = styled(NavLink)<{
+const StyledMenuItem = styled(NavLink)<{
   primaryColor: string;
   navColorStyle: NavigationSettingsColorStyle;
 }>`
@@ -50,7 +50,7 @@ const PageTab = styled(NavLink)<{
   }
 `;
 
-const StyleTabText = styled.div<{
+const StyledMenuItemText = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSettingsColorStyle;
 }>`
@@ -74,30 +74,31 @@ const StyleTabText = styled.div<{
     align-items: center;
   }
 
-  ${PageTab}:hover &, ${PageTab}.is-active & {
+  ${StyledMenuItem}:hover &, ${StyledMenuItem}.is-active & {
     color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemTextColor(primaryColor, navColorStyle)};
   }
 `;
 
-function PageTabName({
-  name,
-  navColorStyle,
-  primaryColor,
-}: {
+type MenuTextProps = {
   name: string;
   primaryColor: string;
   navColorStyle: NavigationSettingsColorStyle;
-}) {
+};
+
+const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
-    <StyleTabText navColorStyle={navColorStyle} primaryColor={primaryColor}>
+    <StyledMenuItemText
+      navColorStyle={navColorStyle}
+      primaryColor={primaryColor}
+    >
       <div className="relative flex items-center justify-center flex-grow">
         <span ref={tabNameRef}>{name}</span>
         {ellipsisActive && "..."}
       </div>
-    </StyleTabText>
+    </StyledMenuItemText>
   );
 
   useEffect(() => {
@@ -117,19 +118,21 @@ function PageTabName({
       {tabNameText}
     </TooltipComponent>
   );
-}
+};
 
-function PageTabContainer({
-  children,
-  isTabActive,
-  setShowScrollArrows,
-  tabsScrollable,
-}: {
+type MenuContainerProps = {
   children: React.ReactNode;
   isTabActive: boolean;
   tabsScrollable: boolean;
   setShowScrollArrows: () => void;
-}) {
+};
+
+const MenuContainer = ({
+  children,
+  isTabActive,
+  setShowScrollArrows,
+  tabsScrollable,
+}: MenuContainerProps) => {
   const tabContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -140,9 +143,53 @@ function PageTabContainer({
   }, [isTabActive, tabsScrollable]);
 
   return <div ref={tabContainerRef}>{children}</div>;
-}
+};
 
-type Props = {
+type MenuItemProps = {
+  page: Page;
+  query: string;
+};
+
+const MenuItem = ({ page, query }: MenuItemProps) => {
+  const appMode = useSelector(getAppMode);
+  const pageURL = useHref(
+    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
+    { pageId: page.pageId },
+  );
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  // TODO - @Dhruvik - ImprovedAppNav
+  // Fetch nav color style from the application's nav settings
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  const primaryColor = get(
+    selectedTheme,
+    "properties.colors.primaryColor",
+    "inherit",
+  );
+
+  return (
+    <StyledMenuItem
+      activeClassName="is-active"
+      className="t--page-switch-tab"
+      navColorStyle={navColorStyle}
+      primaryColor={primaryColor}
+      to={{
+        pathname: trimQueryString(pageURL),
+        search: query,
+      }}
+    >
+      <MenuText
+        name={page.pageName}
+        navColorStyle={navColorStyle}
+        primaryColor={primaryColor}
+      />
+    </StyledMenuItem>
+  );
+};
+
+// TODO - @Dhruvik - ImprovedAppNav
+// Replace with NavigationProps if nothing changes
+// appsmith/app/client/src/pages/AppViewer/Navigation/constants.ts
+type TopStackedProps = {
   appPages: Page[];
   currentApplicationDetails?: ApplicationPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
@@ -150,7 +197,7 @@ type Props = {
   setShowScrollArrows: () => void;
 };
 
-export function PageTabs(props: Props) {
+const TopStacked = (props: TopStackedProps) => {
   const { appPages } = props;
   const location = useLocation();
   const { pathname } = location;
@@ -167,57 +214,18 @@ export function PageTabs(props: Props) {
     >
       {appPages.map((page) => {
         return (
-          <PageTabContainer
+          <MenuContainer
             isTabActive={pathname.indexOf(page.pageId) > -1}
             key={page.pageId}
             setShowScrollArrows={props.setShowScrollArrows}
             tabsScrollable={props.tabsScrollable}
           >
-            <PageTabItem page={page} query={query} />
-          </PageTabContainer>
+            <MenuItem page={page} query={query} />
+          </MenuContainer>
         );
       })}
     </div>
   );
-}
+};
 
-function PageTabItem({ page, query }: { page: Page; query: string }) {
-  const appMode = useSelector(getAppMode);
-  const pageURL = useHref(
-    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
-    { pageId: page.pageId },
-  );
-  const selectedTheme = useSelector(getSelectedAppTheme);
-  // TODO - @Dhruvik - ImprovedAppNav
-  // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
-
-  return (
-    <PageTab
-      activeClassName="is-active"
-      className="t--page-switch-tab"
-      navColorStyle={navColorStyle}
-      primaryColor={get(
-        selectedTheme,
-        "properties.colors.primaryColor",
-        "inherit",
-      )}
-      to={{
-        pathname: trimQueryString(pageURL),
-        search: query,
-      }}
-    >
-      <PageTabName
-        name={page.pageName}
-        navColorStyle={navColorStyle}
-        primaryColor={get(
-          selectedTheme,
-          "properties.colors.primaryColor",
-          "inherit",
-        )}
-      />
-    </PageTab>
-  );
-}
-
-export default PageTabs;
+export default TopStacked;
