@@ -2,10 +2,12 @@ import { get } from "lodash";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  FlattenedWidgetProps,
+} from "widgets/constants";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "widgets/BaseWidget";
-import { GridDefaults } from "constants/WidgetConstants";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -62,6 +64,11 @@ export const CONFIG = {
         autocomplete: (parentProps: any) => {
           return parentProps.childAutoComplete;
         },
+        shouldHideProperty: (parentProps: any, propertyName: string) => {
+          if (propertyName === "dynamicHeight") return true;
+
+          return false;
+        },
       },
     },
     itemSpacing: 8,
@@ -107,7 +114,6 @@ export const CONFIG = {
                       RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
                     ],
                     shouldScrollContents: false,
-                    // Removed dynamicHeight to enable dropping of widgets on the container
                     dynamicHeight: "FIXED",
                     children: [],
                     blueprint: {
@@ -167,6 +173,7 @@ export const CONFIG = {
                                       },
                                     ],
                                     dynamicTriggerPathList: [],
+                                    dynamicHeight: "FIXED",
                                   },
                                 },
                                 {
@@ -190,6 +197,7 @@ export const CONFIG = {
                                       },
                                     ],
                                     dynamicTriggerPathList: [],
+                                    dynamicHeight: "FIXED",
                                   },
                                 },
                               ],
@@ -232,6 +240,22 @@ export const CONFIG = {
                 propertyValue: primaryKeys,
               },
             ];
+          },
+        },
+        {
+          type: BlueprintOperationTypes.CHILD_OPERATIONS,
+          fn: (
+            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgetId: string,
+            parentId: string,
+          ) => {
+            if (!parentId) return { widgets };
+            const widget = { ...widgets[widgetId] };
+
+            widget.dynamicHeight = "FIXED";
+
+            widgets[widgetId] = widget;
+            return { widgets };
           },
         },
       ],
