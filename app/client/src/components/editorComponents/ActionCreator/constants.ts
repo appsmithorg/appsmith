@@ -30,13 +30,8 @@ export const AppsmithFunction = {
 };
 
 export const AppsmithFunctionsWithFields = [
-  APPSMITH_NAMESPACED_FUNCTIONS.getGeolocation,
+  ...Object.values(APPSMITH_NAMESPACED_FUNCTIONS),
   ...Object.keys(APPSMITH_GLOBAL_FUNCTIONS),
-];
-
-export const FUNCTIONS_WITH_CALLBACKS = [
-  APPSMITH_GLOBAL_FUNCTIONS.setInterval,
-  APPSMITH_NAMESPACED_FUNCTIONS.getGeolocation,
 ];
 
 export const RESET_CHILDREN_OPTIONS = [

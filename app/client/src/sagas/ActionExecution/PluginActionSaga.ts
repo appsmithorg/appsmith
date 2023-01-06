@@ -83,7 +83,7 @@ import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import {
   ActionTriggerType,
   RunPluginActionDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
@@ -99,15 +99,18 @@ import { JSCollection } from "entities/JSCollection";
 import {
   executeAppAction,
   TriggerMeta,
-} from "sagas/ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
-import { matchBasePath } from "pages/Editor/Explorer/helpers";
-import { isTrueObject, findDatatype } from "workers/Evaluation/evaluationUtils";
+import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
+import {
+  isTrueObject,
+  findDatatype,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";

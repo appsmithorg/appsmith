@@ -3,7 +3,7 @@ import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import {
   APP_SETTINGS_CLOSE_TOOLTIP,
   APP_SETTINGS_PANE_HEADER,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import { Icon, IconSize, TooltipComponent } from "design-system";
 import React from "react";

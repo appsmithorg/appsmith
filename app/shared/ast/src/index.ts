@@ -26,15 +26,21 @@ import {attachComments} from "astravel";
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
 type Expression = Node;
-export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression;
+export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression | MemberExpressionNode | CallExpressionNode;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
-interface MemberExpressionNode extends Node {
+export interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
-  object: MemberExpressionNode | IdentifierNode;
+  object: MemberExpressionNode | IdentifierNode | CallExpressionNode;
   property: IdentifierNode | LiteralNode;
   computed: boolean;
   // doc: https://github.com/estree/estree/blob/master/es2020.md#chainexpression
   optional?: boolean;
+}
+
+export interface BinaryExpressionNode extends Node {
+  type: NodeTypes.BinaryExpression;
+  left: BinaryExpressionNode | IdentifierNode;
+  right: BinaryExpressionNode | IdentifierNode;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#identifier
@@ -97,7 +103,7 @@ export interface LiteralNode extends Node {
 
 export interface CallExpressionNode extends Node {
   type: NodeTypes.CallExpression;
-  callee: CallExpressionNode | IdentifierNode;
+  callee: CallExpressionNode | IdentifierNode | MemberExpressionNode;
   arguments: ArgumentTypes[];
 }
 
@@ -136,6 +142,10 @@ export const isIdentifierNode = (node: Node): node is IdentifierNode => {
 export const isMemberExpressionNode = (node: Node): node is MemberExpressionNode => {
   return node.type === NodeTypes.MemberExpression;
 };
+
+export const isBinaryExpressionNode = (node: Node): node is BinaryExpressionNode => {
+  return node.type === NodeTypes.BinaryExpression;
+}
 
 export const isVariableDeclarator = (
   node: Node
@@ -431,7 +441,7 @@ const constructFinalMemberExpIdentifier = (
   } else {
     const propertyAccessor = getPropertyAccessor(node.property);
     const nestedChild = `${propertyAccessor}${child}`;
-    return constructFinalMemberExpIdentifier(node.object, nestedChild);
+    return constructFinalMemberExpIdentifier(node.object as MemberExpressionNode, nestedChild);
   }
 };
 

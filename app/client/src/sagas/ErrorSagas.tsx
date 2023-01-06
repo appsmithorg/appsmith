@@ -274,6 +274,7 @@ export function* flushErrorsAndRedirectSaga(
   if (safeCrash) {
     yield put(flushErrors());
   }
+  if (!action.payload.url) return;
 
   history.push(action.payload.url);
 }

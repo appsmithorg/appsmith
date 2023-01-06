@@ -30,15 +30,10 @@ import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
-import { handlePathUpdated } from "actions/recentEntityActions";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
-
-import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
-
 import { getCurrentPageId } from "selectors/editorSelectors";
-
 import { getSearchQuery } from "utils/helpers";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 import {
@@ -69,7 +64,6 @@ type EditorProps = {
   user?: User;
   lightTheme: Theme;
   resetEditorRequest: () => void;
-  handlePathUpdated: (location: typeof window.location) => void;
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
   handleBranchChange: (branch: string) => void;
@@ -83,9 +77,6 @@ type EditorProps = {
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
-  unlisten: any;
-  prevLocation: any;
-
   public state = {
     registered: false,
   };
@@ -108,9 +99,6 @@ class Editor extends Component<Props> {
         branch,
         mode: APP_MODE.EDIT,
       });
-    this.props.handlePathUpdated(window.location);
-    this.prevLocation = window.location;
-    this.unlisten = history.listen(this.handleHistoryChange);
 
     if (this.props.isPageLevelSocketConnected && pageId) {
       this.props.collabStartSharingPointerEvent(
@@ -173,7 +161,7 @@ class Editor extends Component<Props> {
     } else {
       /**
        * First time load is handled by init sagas
-       * If we don't check for `prevPageId`: fetch page is retriggered
+       * If we don't check for `prevPageId`: fetch page is re triggered
        * when redirected to the default page
        */
       if (prevPageId && pageId && isPageIdUpdated) {
@@ -196,21 +184,10 @@ class Editor extends Component<Props> {
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
     this.props.resetEditorRequest();
-    if (typeof this.unlisten === "function") this.unlisten();
     this.props.collabStopSharingPointerEvent(
       getPageLevelSocketRoomId(pageId, branch),
     );
   }
-
-  handleHistoryChange = (location: any) => {
-    if (
-      this.prevLocation?.pathname !== location?.pathname ||
-      this.prevLocation?.search !== location?.search
-    ) {
-      this.props.handlePathUpdated(location);
-      this.prevLocation = location;
-    }
-  };
 
   public render() {
     if (
@@ -277,8 +254,6 @@ const mapDispatchToProps = (dispatch: any) => {
     initEditor: (payload: InitializeEditorPayload) =>
       dispatch(initEditor(payload)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
-    handlePathUpdated: (location: typeof window.location) =>
-      dispatch(handlePathUpdated(location)),
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
     collabStartSharingPointerEvent: (pageId: string) =>

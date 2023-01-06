@@ -38,7 +38,6 @@ function getFile(file: string, c: CallbackFn) {
 }
 
 function startServer(defs: Def[], plugins = {}, scripts?: string[]) {
-  //@ts-expect-error test
   if (scripts) self.importScripts.apply(null, scripts);
 
   server = new tern.Server({

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import {
-  ActionButton,
-  SaveButtonContainer,
-} from "pages/Editor/DataSourceEditor/JSONtoForm";
+import { ActionButton } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
+  getPluginNameFromId,
   getPluginTypeFromDatasourceId,
 } from "selectors/entitiesSelector";
 import {
@@ -22,7 +20,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { AppState } from "@appsmith/reducers";
 import {
   AuthType,
@@ -30,6 +28,7 @@ import {
   AuthenticationStatus,
 } from "entities/Datasource";
 import {
+  CONFIRM_CONTEXT_DELETING,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
@@ -40,6 +39,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
+import { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 import {
@@ -49,12 +49,13 @@ import {
 
 interface Props {
   datasource: Datasource;
-  formData: Datasource;
+  formData: Datasource | ApiDatasourceForm;
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
   pageId?: string;
-  shouldRender: boolean;
+  shouldRender?: boolean;
   datasourceButtonConfiguration: string[] | undefined;
+  shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
   isFormDirty?: boolean;
   datasourceDeleteTrigger: () => void;
@@ -91,6 +92,12 @@ const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
   }
 `;
 
+const SaveButtonContainer = styled.div`
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+`;
+
 const StyledAuthMessage = styled.div`
   color: ${(props) => props.theme.colors.error};
   margin-top: 15px;
@@ -109,15 +116,20 @@ function DatasourceAuth({
   isInvalid,
   pageId: pageIdProp,
   shouldRender,
+  shouldDisplayAuthMessage = true,
   triggerSave,
   isFormDirty,
 }: Props) {
   const authType =
-    formData &&
-    formData?.datasourceConfiguration?.authentication?.authenticationType;
+    formData && "authType" in formData
+      ? formData?.authType
+      : formData?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const { id: datasourceId, isDeleting } = datasource;
+  const { id: datasourceId, isDeleting, pluginId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
+  const pluginName = useSelector((state: AppState) =>
+    getPluginNameFromId(state, pluginId),
+  );
 
   const datasourcePermissions = datasource.userPermissions || [];
 
@@ -136,6 +148,8 @@ function DatasourceAuth({
 
   const pageId = (pageIdQuery || pageIdProp) as string;
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const dsName = datasource?.name;
+  const orgId = datasource?.workspaceId;
 
   useEffect(() => {
     if (confirmDelete) {
@@ -164,6 +178,13 @@ function DatasourceAuth({
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
           Toaster.show({ text: display_message || message, variant });
+          const oAuthStatus = status;
+          AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
+            dsName,
+            oAuthStatus,
+            orgId,
+            pluginName,
+          });
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
@@ -276,12 +297,16 @@ function DatasourceAuth({
           isLoading={isDeleting}
           key={buttonType}
           onClick={() => {
-            confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
+            if (!isDeleting) {
+              confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
+            }
           }}
           size="medium"
           tag="button"
           text={
-            confirmDelete && !isDeleting
+            isDeleting
+              ? createMessage(CONFIRM_CONTEXT_DELETING)
+              : confirmDelete
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE)
           }
@@ -330,7 +355,7 @@ function DatasourceAuth({
           onClick={handleOauthDatasourceSave}
           size="medium"
           tag="button"
-          text={isAuthorized ? "Save and Re-authorize" : "Save and Authorize"}
+          text="Save and Authorize"
           variant={Variant.success}
         />
       ),
@@ -339,9 +364,11 @@ function DatasourceAuth({
 
   return (
     <>
-      {authType === AuthType.OAUTH2 && !isAuthorized && (
-        <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
-      )}
+      {authType === AuthType.OAUTH2 &&
+        !isAuthorized &&
+        shouldDisplayAuthMessage && (
+          <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+        )}
       {shouldRender && (
         <SaveButtonContainer>
           {datasourceButtonConfiguration?.map((btnConfig) =>
@@ -349,7 +376,6 @@ function DatasourceAuth({
           )}
         </SaveButtonContainer>
       )}
-      {""}
     </>
   );
 }

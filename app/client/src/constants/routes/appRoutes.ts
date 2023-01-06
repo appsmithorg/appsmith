@@ -39,10 +39,13 @@ export const matchApiPath = match(API_EDITOR_ID_PATH);
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
 export const matchQueryBasePath = match(QUERIES_EDITOR_BASE_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
-export const matchBuilderPath = (pathName: string) =>
-  match(BUILDER_PATH)(pathName) ||
-  match(BUILDER_PATH_DEPRECATED)(pathName) ||
-  match(BUILDER_CUSTOM_PATH)(pathName);
+export const matchBuilderPath = (
+  pathName: string,
+  options?: { end?: boolean },
+) =>
+  match(BUILDER_PATH, options)(pathName) ||
+  match(BUILDER_PATH_DEPRECATED, options)(pathName) ||
+  match(BUILDER_CUSTOM_PATH, options)(pathName);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
   match(VIEWER_PATH)(pathName) ||

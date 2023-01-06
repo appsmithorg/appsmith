@@ -1,5 +1,6 @@
 import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
+import memoize from "proxy-memoize";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -14,6 +15,7 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
+import { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
@@ -56,8 +58,8 @@ export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
     .map((widget: FlattenedWidgetProps) => widget.widgetId);
 };
 
-export const getWidgetOptionsTree = createSelector(getWidgets, (widgets) =>
-  Object.values(widgets)
+export const getWidgetOptionsTree = memoize((state: AppState) =>
+  Object.values(state.entities.canvasWidgets)
     .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
     .map((w) => {
       return {
@@ -67,6 +69,22 @@ export const getWidgetOptionsTree = createSelector(getWidgets, (widgets) =>
       };
     }),
 );
+
+export const getDataTreeForActionCreator = memoize((state: AppState) => {
+  const dataTree: DataTreeForActionCreator = {};
+  Object.keys(state.evaluations.tree).forEach((key) => {
+    const value: any = state.evaluations.tree[key];
+    if (value.meta)
+      dataTree[key] = {
+        meta: value.meta,
+      };
+    if (value.ENTITY_TYPE)
+      dataTree[key] = {
+        ENTITY_TYPE: value.ENTITY_TYPE,
+      };
+  });
+  return dataTree;
+});
 
 export const getEditorConfigs = (
   state: AppState,

@@ -28,4 +28,5 @@ export enum NodeTypes {
   ArrayExpression = 'ArrayExpression',
   ThisExpression = 'ThisExpression',
   CallExpression = 'CallExpression',
+  BinaryExpression = 'BinaryExpression',
 }

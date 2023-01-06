@@ -12,6 +12,8 @@ import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.PaginationType;
+import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
@@ -26,6 +28,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -34,14 +37,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -61,6 +67,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 public class RestApiPluginTest {
 
@@ -120,6 +127,260 @@ public class RestApiPluginTest {
                             assertEquals("application/json", field.getValue().get(0).asText());
                         }
                     });
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testExecuteApiWithPaginationForPreviousUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.PREV);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedPreviousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc+11";
+                        assertEquals(encodedPreviousUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteApiWithPaginationForPreviousEncodedUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11",
+                StandardCharsets.UTF_8);
+        String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.PREV);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedPreviousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc+11";
+                        assertEquals(encodedPreviousUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteApiWithPaginationForNextUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedNextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc+11";
+                        assertEquals(encodedNextUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteApiWithPaginationForNextEncodedUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11", StandardCharsets.UTF_8);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedNextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc+11";
+                        assertEquals(encodedNextUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
                 })
                 .verifyComplete();
     }
@@ -211,6 +472,79 @@ public class RestApiPluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testHttpGetRequestRawBody() {
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("123");
+        param.setClientDataType(ClientDataType.STRING);
+        param.setPseudoBindingName("k0");
+
+        executeActionDTO.setParams(Collections.singletonList(param));
+        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
+        executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text","k0"));
+        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Input1.text"));
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("https://postman-echo.com/get");
+
+        final List<Property> headers = List.of(
+                new Property("content-type",MediaType.TEXT_PLAIN_VALUE));
+
+        final List<Property> queryParameters = List.of();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(headers);
+        actionConfiguration.setQueryParameters(queryParameters);
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+
+        actionConfiguration.setTimeoutInMillisecond("10000");
+
+        actionConfiguration.setPaginationType(PaginationType.NONE);
+
+        actionConfiguration.setEncodeParamsToggle(true);
+
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfiguration.setFormData(Collections.singletonMap("apiContentType", MediaType.TEXT_PLAIN_VALUE));
+
+        String[] requestBodyList = {"abc is equals to {{Input1.text}}","{ \"abc\": {{Input1.text}} }",""};
+
+        String[] finalRequestBodyList = {"abc is equals to \"123\"","{ \"abc\": \"123\" }",""};
+
+        for (int requestBodyIndex = 0; requestBodyIndex < requestBodyList.length; requestBodyIndex++) {
+
+            actionConfiguration.setBody(requestBodyList[requestBodyIndex]);
+            Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
+
+            int currentIndex = requestBodyIndex;
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertTrue(result.getIsExecutionSuccess());
+                        JsonNode body = (JsonNode) result.getBody();
+                        assertNotNull(body);
+                        JsonNode args = body.get("args");
+                        int index = 0;
+                        StringBuilder actualRequestBody = new StringBuilder();
+                        while (true) {
+                            if (!args.has(String.valueOf(index))) {
+                                break;
+                            }
+                            JsonNode ans = args.get(String.valueOf(index));
+                            index++;
+                            actualRequestBody.append(ans.asText());
+                        }
+                        assertEquals(finalRequestBodyList[currentIndex],actualRequestBody.toString());
+                        final ActionExecutionRequest request = result.getRequest();
+                        assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    })
+                    .verifyComplete();
+        }
     }
 
     @Test

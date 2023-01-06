@@ -189,7 +189,8 @@ const datasourceToFormAuthentication = (
       isAuthorizationHeader: !!authentication.isAuthorizationHeader,
       audience: authentication.audience || "",
       resource: authentication.resource || "",
-      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
+      sendScopeWithRefreshToken:
+        authentication.sendScopeWithRefreshToken || false,
       refreshTokenClientCredentialsLocation:
         authentication.refreshTokenClientCredentialsLocation || "BODY",
     };

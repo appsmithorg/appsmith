@@ -16,6 +16,11 @@ import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { searchPropertyPaneConfig } from "./propertyPaneSearch";
 import { evaluateHiddenProperty } from "./helpers";
+import {
+  EnhancementFns,
+  getWidgetEnhancementSelector,
+} from "selectors/widgetEnhancementSelectors";
+import equal from "fast-deep-equal/es6";
 
 export type PropertyControlsGeneratorProps = {
   id: string;
@@ -32,6 +37,7 @@ const generatePropertyControl = (
   propertyPaneConfig: readonly PropertyPaneConfig[],
   props: PropertyControlsGeneratorProps,
   isSearchResult: boolean,
+  enhancements: EnhancementFns,
 ) => {
   if (!propertyPaneConfig) return null;
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
@@ -58,7 +64,12 @@ const generatePropertyControl = (
             tag={sectionConfig.tag}
           >
             {config.children &&
-              generatePropertyControl(config.children, props, isSearchResult)}
+              generatePropertyControl(
+                config.children,
+                props,
+                isSearchResult,
+                enhancements,
+              )}
           </PropertySection>
         </Boxed>
       );
@@ -76,6 +87,7 @@ const generatePropertyControl = (
             isPanelProperty={!!props.isPanelProperty}
             key={config.id + props.id}
             {...(config as PropertyPaneControlConfig)}
+            enhancements={enhancements}
             isSearchResult={isSearchResult}
             panel={props.panel}
             theme={props.theme}
@@ -89,8 +101,20 @@ const generatePropertyControl = (
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+
+  const enhancementSelector = getWidgetEnhancementSelector(
+    widgetProps?.widgetId,
+  );
+  const enhancements = useSelector(enhancementSelector, equal);
+
   if (!widgetProps) return null;
-  const finalProps = evaluateHiddenProperty(props.config, widgetProps);
+
+  const finalProps = evaluateHiddenProperty(
+    props.config,
+    widgetProps,
+    enhancements?.enhancementFns?.shouldHidePropertyFn,
+  );
+
   const searchResults = searchPropertyPaneConfig(
     finalProps as PropertyPaneSectionConfig[],
     props.searchQuery,
@@ -107,6 +131,7 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
         searchResults as readonly PropertyPaneConfig[],
         props,
         isSearchResult,
+        enhancements,
       )}
     </>
   );

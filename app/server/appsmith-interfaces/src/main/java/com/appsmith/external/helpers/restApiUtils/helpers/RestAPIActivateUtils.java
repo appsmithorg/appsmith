@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.web.reactive.function.BodyInserter;
@@ -58,11 +58,11 @@ public class RestAPIActivateUtils {
     public static HeaderUtils headerUtils = new HeaderUtils();
 
     public Mono<ActionExecutionResult> triggerApiCall(WebClient client, HttpMethod httpMethod, URI uri,
-                                                             Object requestBody,
-                                                             ActionExecutionRequest actionExecutionRequest,
-                                                             ObjectMapper objectMapper, Set<String> hintMessages,
-                                                             ActionExecutionResult errorResult,
-                                                             RequestCaptureFilter requestCaptureFilter) {
+                                                      Object requestBody,
+                                                      ActionExecutionRequest actionExecutionRequest,
+                                                      ObjectMapper objectMapper, Set<String> hintMessages,
+                                                      ActionExecutionResult errorResult,
+                                                      RequestCaptureFilter requestCaptureFilter) {
         return httpCall(client, httpMethod, uri, requestBody, 0)
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                 .map(stringResponseEntity -> {
@@ -78,7 +78,7 @@ public class RestAPIActivateUtils {
                         contentType = MediaType.TEXT_PLAIN;
                     }
                     byte[] body = stringResponseEntity.getBody();
-                    HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                    HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
 
                     ActionExecutionResult result = new ActionExecutionResult();
 
@@ -174,7 +174,7 @@ public class RestAPIActivateUtils {
     }
 
     protected Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
-                                          int iteration) {
+                                            int iteration) {
         if (iteration == MAX_REDIRECTS) {
             return Mono.error(new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_ERROR,
@@ -215,8 +215,8 @@ public class RestAPIActivateUtils {
     }
 
     public WebClient getWebClient(WebClient.Builder webClientBuilder, APIConnection apiConnection,
-                                         String reqContentType, ObjectMapper objectMapper,
-                                         ExchangeStrategies EXCHANGE_STRATEGIES, RequestCaptureFilter requestCaptureFilter) {
+                                  String reqContentType, ObjectMapper objectMapper,
+                                  ExchangeStrategies EXCHANGE_STRATEGIES, RequestCaptureFilter requestCaptureFilter) {
         // Right before building the webclient object, we populate it with whatever mutation the APIConnection object demands
         if (apiConnection != null) {
             webClientBuilder.filter(apiConnection);
@@ -232,7 +232,7 @@ public class RestAPIActivateUtils {
     }
 
     public WebClient.Builder getWebClientBuilder(ActionConfiguration actionConfiguration,
-                                                        DatasourceConfiguration datasourceConfiguration) {
+                                                 DatasourceConfiguration datasourceConfiguration) {
         HttpClient httpClient = getHttpClient(datasourceConfiguration);
         WebClient.Builder webClientBuilder = WebClientUtils.builder(httpClient);
         addAllHeaders(webClientBuilder, actionConfiguration, datasourceConfiguration);
@@ -242,7 +242,7 @@ public class RestAPIActivateUtils {
     }
 
     protected void addSecretKey(WebClient.Builder webClientBuilder,
-                                     DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+                                DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
         // If users have chosen to share the Appsmith signature in the header, calculate and add that
         String secretKey;
         secretKey = headerUtils.getSignatureKey(datasourceConfiguration);
@@ -262,7 +262,7 @@ public class RestAPIActivateUtils {
     }
 
     protected void addAllHeaders(WebClient.Builder webClientBuilder, ActionConfiguration actionConfiguration,
-                                      DatasourceConfiguration datasourceConfiguration) {
+                                 DatasourceConfiguration datasourceConfiguration) {
         /**
          * First, check if headers are defined in API datasource and add them.
          */

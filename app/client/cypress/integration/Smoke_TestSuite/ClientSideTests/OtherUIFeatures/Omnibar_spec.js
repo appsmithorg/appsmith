@@ -166,12 +166,15 @@ describe("Omnibar functionality test cases", () => {
     // verify recently opened items with their subtext i.e page name
     cy.xpath(omnibar.recentlyopenItem)
       .eq(0)
-      .should("have.text", "Button1")
-      .next()
       .should("have.text", "Page1");
     cy.xpath(omnibar.recentlyopenItem)
       .eq(1)
       .should("have.text", "Audio1")
+      .next()
+      .should("have.text", "Page1");
+    cy.xpath(omnibar.recentlyopenItem)
+      .eq(2)
+      .should("have.text", "Button1")
       .next()
       .should("have.text", "Page1");
     cy.xpath(omnibar.recentlyopenItem)

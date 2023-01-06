@@ -62,12 +62,12 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.QUERY_PARAMS_FIELD,
       FieldType.NAVIGATION_TARGET_FIELD,
     ],
-    defaultParams: `'', {}, 'SAME_WINDOW'`,
+    defaultParams: `"", {}, 'SAME_WINDOW'`,
   },
   [AppsmithFunction.showAlert]: {
     label: createMessage(SHOW_MESSAGE),
     fields: [FieldType.ALERT_TEXT_FIELD, FieldType.ALERT_TYPE_SELECTOR_FIELD],
-    defaultParams: `'', ''`,
+    defaultParams: `"", ''`,
   },
   [AppsmithFunction.showModal]: {
     label: createMessage(OPEN_MODAL),
@@ -82,12 +82,12 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.storeValue]: {
     label: createMessage(STORE_VALUE),
     fields: [FieldType.KEY_TEXT_FIELD_STORE_VALUE, FieldType.VALUE_TEXT_FIELD],
-    defaultParams: `'', ''`,
+    defaultParams: `"", ""`,
   },
   [AppsmithFunction.removeValue]: {
     label: createMessage(REMOVE_VALUE),
     fields: [FieldType.KEY_TEXT_FIELD_REMOVE_VALUE],
-    defaultParams: `''`,
+    defaultParams: `""`,
   },
   [AppsmithFunction.clearStore]: {
     label: createMessage(CLEAR_STORE),
@@ -101,12 +101,12 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.DOWNLOAD_FILE_NAME_FIELD,
       FieldType.DOWNLOAD_FILE_TYPE_FIELD,
     ],
-    defaultParams: `'', '', ''`,
+    defaultParams: `"", "", ''`,
   },
   [AppsmithFunction.copyToClipboard]: {
     label: createMessage(COPY_TO_CLIPBOARD),
     fields: [FieldType.COPY_TEXT_FIELD],
-    defaultParams: `''`,
+    defaultParams: `""`,
   },
   [AppsmithFunction.resetWidget]: {
     label: createMessage(RESET_WIDGET),
@@ -127,7 +127,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.clearInterval]: {
     label: createMessage(CLEAR_INTERVAL),
     fields: [FieldType.CLEAR_INTERVAL_ID_FIELD],
-    defaultParams: `''`,
+    defaultParams: `""`,
   },
   [AppsmithFunction.getGeolocation]: {
     label: createMessage(GET_GEO_LOCATION),
@@ -153,6 +153,6 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.SOURCE_FIELD,
       FieldType.TARGET_ORIGIN_FIELD,
     ],
-    defaultParams: `'', 'window', '*'`,
+    defaultParams: `"", "window", "*"`,
   },
 };

@@ -2,10 +2,14 @@ import {
     ArrowFunctionExpressionNode, getAST,
     attachCommentsToAst,
     isArrowFunctionExpression,
+    MemberExpressionNode,
     isCallExpressionNode,
     isMemberExpressionNode,
     LiteralNode,
     wrapCode,
+    CallExpressionNode,
+    isBinaryExpressionNode,
+    BinaryExpressionNode,
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {simple} from "acorn-walk";
@@ -43,7 +47,23 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
                         requiredArgument = "{{{}}}";
                         break;
                     case NodeTypes.Literal:
-                        requiredArgument = argument.value;
+                        requiredArgument = typeof argument.value === "string" ? argument.value : `{{${argument.value}}}`;
+                        break;
+                    case NodeTypes.MemberExpression:
+                        // this is for cases where we have {{appsmith.mode}} or {{Jsobj1.mytext}}
+                        requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
+                        break;
+                    case NodeTypes.ArrowFunctionExpression:
+                    case NodeTypes.CallExpression:
+                        if (value.indexOf(".then") === -1) {
+                            // this is for cases where we need to extract functions with no .then
+                            requiredArgument = argument;
+                        } else {
+                            // this is for cases with a .then in the value
+                            const requiredArg = ((node.callee as MemberExpressionNode).object as CallExpressionNode).arguments[argNum];
+                            requiredArgument = (requiredArg as LiteralNode).value;
+                        }
+                        break;
                 }
             }
         },
@@ -56,7 +76,13 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
     let ast: Node = { end: 0, start: 0, type: "" };
     let changedValue: string = currentValue;
     let commentArray: Array<Comment> = [];
+    const rawValue = typeof changeValue === "string" ? String.raw`"${changeValue}"` : String.raw`${changeValue}`;
     try {
+        const changeValueScript = sanitizeScript(rawValue, evaluationVersion);
+        const changeValueAst = getAST(changeValueScript, {
+            locations: true,
+            ranges: true,
+        });
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
         const __ast = getAST(sanitizedScript, {
             locations: true,
@@ -65,7 +91,7 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
         });
         ast = klona(__ast);
     } catch (error) {
-        return changedValue;
+        throw error;
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
@@ -74,7 +100,6 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: any
             if (isCallExpressionNode(node)) {
                 // add 1 to get the starting position of the next
                 // node to ending position of previous
-                const rawValue = typeof changeValue === "string" ? String.raw`"${changeValue}"` : String.raw`${changeValue}`;
                 const startPosition = node.callee.end + NEXT_POSITION;
                 node.arguments[argNum] = {
                     type: NodeTypes.Literal,
@@ -98,13 +123,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     let changedValue: string = currentValue;
     let changedValueCommentArray: Array<Comment> = [];
     let currentValueCommentArray: Array<Comment> = [];
-    let requiredNode: ArrowFunctionExpressionNode = {
-        end: 0,
-        start: 0,
-        type: NodeTypes.ArrowFunctionExpression,
-        params: [],
-        id: null,
-    };
+    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode | BinaryExpressionNode | CallExpressionNode;
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -120,29 +139,49 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
             onComment: changedValueCommentArray,
         });
     } catch (error) {
-        return changedValue;
+        throw error;
     }
     const changeValueAstWithComments = klona(attachCommentsToAst(changeValueAst, changedValueCommentArray));
     const currentValueAstWithComments = klona(attachCommentsToAst(ast, currentValueCommentArray));
 
     simple(changeValueAstWithComments, {
         ArrowFunctionExpression(node) {
-            if (isArrowFunctionExpression(node)) {
+            if(isArrowFunctionExpression(node)) {
+                requiredNode = node;
+            }
+        },
+        MemberExpression(node) {
+            if (isMemberExpressionNode(node)) {
+                requiredNode = node;
+            }
+        },
+        BinaryExpression(node) {
+            if(isBinaryExpressionNode(node)) {
+                requiredNode = node;
+            }
+        },
+        CallExpression(node) {
+            if(isCallExpressionNode(node)) {
                 requiredNode = node;
             }
         }
     });
 
-    simple(currentValueAstWithComments, {
-        CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments[argNum]) {
-                requiredNode.start = node.arguments[0].start;
-                requiredNode.end = node.arguments[0].start + changedValue.length;
-                node.arguments[argNum] = requiredNode;
-                changedValue = `{{${generate(currentValueAstWithComments, {comments: true}).trim()}}}`;
-            }
-        },
-    });
+    // @ts-ignore
+    if(!!requiredNode) {
+        simple(currentValueAstWithComments, {
+            CallExpression(node) {
+                if (isCallExpressionNode(node) && node.arguments[argNum]) {
+                    requiredNode.start = node.arguments[0].start;
+                    requiredNode.end = node.arguments[0].start + changedValue.length;
+                    // @ts-ignore
+                    node.arguments[argNum] = requiredNode;
+                    changedValue = `{{${generate(currentValueAstWithComments, {comments: true}).trim()}}}`;
+                }
+            },
+        });
+
+    }
 
     return changedValue;
 }
@@ -194,7 +233,7 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
         });
         ast = klona(__ast);
     } catch (error) {
-        return changedValue;
+        throw error;
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
@@ -265,7 +304,7 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
         });
         ast = klona(__ast);
     } catch (error) {
-        return changedValue;
+        throw error;
     }
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
@@ -379,7 +418,7 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
             onComment: changeActionCommentArray,
         });
     } catch (error) {
-        return requiredQuery;
+        throw error;
     }
     const astWithComments = klona(attachCommentsToAst(ast, commentArray));
     const changeActionAstWithComments = klona(attachCommentsToAst(changeActionAst, changeActionCommentArray));

@@ -101,7 +101,7 @@ public class FirestorePlugin extends BasePlugin {
     @Extension
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         @Deprecated
@@ -967,6 +967,11 @@ public class FirestorePlugin extends BasePlugin {
                         return structure;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Set<String> getSelfReferencingDataPaths() {
+            return Set.of("formData.prev.data", "formData.next.data", "formData.startAfter.data", "formData.endBefore.data");
         }
     }
 }

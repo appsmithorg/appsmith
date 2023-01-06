@@ -11,22 +11,34 @@ describe("Property Pane Search", function() {
     });
   });
 
-  // TODO(aswathkk): Fix /ClientSideTests/IDE/Canvas_Context_Property_Pane_spec.js and uncomment this
-  // it("1. Verify if the search Input is getting focused when a widget is selected", function() {
-  //   ee.SelectEntityByName("Table1", "Widgets");
+  it("1. Verify if the search Input is getting focused when a widget is selected", function() {
+    ee.SelectEntityByName("Table1", "Widgets");
 
-  //   // Initially the search input will only be soft focused
-  //   // We need to press Enter to properly focus it
-  //   agHelper.PressEnter();
-  //   agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
+    // Initially the search input will only be soft focused
+    // We need to press Enter to properly focus it
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
+    agHelper.PressEnter();
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInput);
 
-  //   // Pressing Escape should soft focus the search input
-  //   agHelper.PressEscape();
-  //   agHelper.AssertElementFocus(propPane._propertyPaneSearchInput, false);
-  // });
+    // Pressing Escape should soft focus the search input
+    agHelper.PressEscape();
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
+
+    // Opening a panel should focus the search input
+    propPane.OpenTableColumnSettings("name");
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
+
+    // Opening some other widget and then going back to the initial widget should soft focus the search input that is inside a panel
+    ee.SelectEntityByName("Switch1", "Widgets");
+    ee.SelectEntityByName("Table1", "Widgets");
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
+
+    // Going out of the panel should soft focus the search input
+    propPane.NavigateBackToPropertyPane();
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
+  });
 
   it("2. Search for Properties", function() {
-    ee.SelectEntityByName("Table1", "Widgets");
     // Search for a property inside content tab
     propPane.Search("visible");
     propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");

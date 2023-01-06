@@ -24,7 +24,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { GenerateTemplatePageRequest } from "api/PageApi";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
-import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
+import { StoreValueActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
 export interface FetchPageListPayload {
   applicationId: string;

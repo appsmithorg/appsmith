@@ -21,7 +21,7 @@ import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer"
 import { DefaultPlugin, GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
-import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
+import { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
 import {
@@ -29,6 +29,11 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+
+import { InstallState } from "reducers/uiReducers/libraryReducer";
+import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
+import { TJSLibrary } from "workers/common/JSLibrary";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -412,6 +417,21 @@ export const getJSCollection = (
   return jsaction ? jsaction.config : undefined;
 };
 
+export const getJSFunctionFromName = (state: AppState, name: string) => {
+  const {
+    entityName: collectionName,
+    propertyPath: functionName,
+  } = getEntityNameAndPropertyPath(name);
+  const jsCollection = find(
+    state.entities.jsActions,
+    (a) => a.config.name === collectionName,
+  );
+  if (jsCollection) {
+    return find(jsCollection.config.actions, (a) => a.name === functionName);
+  }
+  return undefined;
+};
+
 export function getCurrentPageNameByActionId(
   state: AppState,
   actionId: string,
@@ -480,7 +500,10 @@ export const getCurrentPageWidgets = createSelector(
     currentPageId ? widgetsByPage[currentPageId] : {},
 );
 
-const getParentModalId = (widget: any, pageWidgets: Record<string, any>) => {
+export const getParentModalId = (
+  widget: any,
+  pageWidgets: Record<string, any>,
+) => {
   let parentModalId;
   let { parentId } = widget;
   let parentWidget = pageWidgets[parentId];
@@ -843,5 +866,53 @@ export const getNumberOfEntitiesInCurrentPage = createSelector(
     return (
       Object.keys(widgets).length - 1 + actions.length + jsCollections.length
     );
+  },
+);
+
+export const selectIsInstallerOpen = (state: AppState) =>
+  state.ui.libraries.isInstallerOpen;
+export const selectInstallationStatus = (state: AppState) =>
+  state.ui.libraries.installationStatus;
+export const selectInstalledLibraries = (state: AppState) =>
+  state.ui.libraries.installedLibraries;
+export const selectStatusForURL = (url: string) =>
+  createSelector(selectInstallationStatus, (statusMap) => {
+    return statusMap[url];
+  });
+export const selectIsLibraryInstalled = createSelector(
+  [selectInstalledLibraries, (_: AppState, url: string) => url],
+  (installedLibraries, url) => {
+    return !!installedLibraries.find((lib) => lib.url === url);
+  },
+);
+
+export const selectQueuedLibraries = createSelector(
+  selectInstallationStatus,
+  (statusMap) => {
+    return Object.keys(statusMap).filter(
+      (url) => statusMap[url] === InstallState.Queued,
+    );
+  },
+);
+
+export const selectLibrariesForExplorer = createSelector(
+  selectInstalledLibraries,
+  selectInstallationStatus,
+  (libs, libStatus) => {
+    const queuedInstalls = Object.keys(libStatus)
+      .filter((key) => libStatus[key] === InstallState.Queued)
+      .map((url) => {
+        const recommendedLibrary = recommendedLibraries.find(
+          (lib) => lib.url === url,
+        );
+        return {
+          name: recommendedLibrary?.name || url,
+          docsURL: recommendedLibrary?.url || url,
+          version: recommendedLibrary?.version || "",
+          url: recommendedLibrary?.url || url,
+          accessor: [],
+        } as TJSLibrary;
+      });
+    return [...queuedInstalls, ...libs];
   },
 );
