@@ -109,7 +109,7 @@ export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
   const currentUser: User | undefined = yield select(getCurrentUser);
   const segmentState: SegmentState | undefined = yield select(getSegmentState);
   const appsmithConfig = getAppsmithConfigs();
-  
+
   if (
     currentUser?.enableTelemetry &&
     appsmithConfig.segment.enabled &&
