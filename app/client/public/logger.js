@@ -1,19 +1,17 @@
-// Gets the current Unix timestamp
-function getCurrentUTCTimestamp(date) {
-  return Math.floor((date || new Date()).getTime() / 1000);
-}
-
-// Gets the unix timestamp of the hour
-// For a current time of 19:15, returns the timestamp of 19:00
-function getCurrentUTCHourTimestamp() {
-  const date = new Date();
-  date.setUTCMinutes(0);
-  date.setUTCSeconds(0);
-  date.setUTCMilliseconds(0);
-  return getCurrentUTCTimestamp(date);
-}
-
 const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
+const PULSE_INTERVAL = 60; /* 1 hour in seconds */
+
+/* TODO: This offset is too early and might lead to incorrent tracking needs to be revised */
+const PULSE_INTERVAL_OFFSET = 0; /* offset seconds to subtract from interval */
+const TRACKABLE_URL = "/app/"; /* when user is on editor and viewer. */
+const USER_ACTIVITY_LISTENER_EVENT = "pointerdown";
+
+/*
+ * Function to return the current unix timestamp in seconds
+ */
+function getCurrentUTCTimestamp() {
+  return (Date.now() / 1000);
+}
 
 /**
  * Sends HTTP pulse to the server, when beaconAPI is not available.
@@ -24,9 +22,6 @@ function sendHTTPPulse() {
     method: "POST",
     credentials: "same-origin",
   })
-    .then(() => {
-      // Fire and forget
-    })
     .catch(() => {
       // Ignore errors; fire and forget
     });
@@ -35,59 +30,58 @@ function sendHTTPPulse() {
 /**
  * Sends a usage-pulse to the server using the Beacon API.
  * If the Beacon API is not available, falls back to a standard fetch.
- * Note: Only sends pulse when user is on "/app/" pages: editor and viewer.
+ * Note: Only sends pulse 
  */
 function sendPulse() {
-  if (window.location.href.includes("/app/")) {
-    navigator.sendBeacon(PULSE_API_ENDPOINT, "") || sendHTTPPulse();
-  }
-}
-
-// Checks if the it is time to send another pulse
-function shouldSendPulse() {
-  const timestamp = getCurrentUTCTimestamp();
-  return NEXT_LOGGING_HOUR < timestamp;
+  navigator.sendBeacon(PULSE_API_ENDPOINT, "") || sendHTTPPulse();
 }
 
 function addActivityListener() {
-  window.document.body.addEventListener("pointerdown", punchIn);
+  window.document.body.addEventListener(USER_ACTIVITY_LISTENER_EVENT, punchIn);
 }
 function removeActivityListener() {
-  window.document.body.removeEventListener("pointerdown", punchIn);
+  window.document.body.removeEventListener(USER_ACTIVITY_LISTENER_EVENT, punchIn);
 }
 
-// Removes event listeners and adds them just in time for the next pulse
+let lastPulseTimestamp = 0;
+let nextPulseTriggerRegisterationTimestamp = 0;
+
 function scheduleNextPunchIn() {
-  const timestamp = getCurrentUTCTimestamp();
-  const startListentingIn = NEXT_LOGGING_HOUR - timestamp - 2;
+  lastPulseTimestamp = getCurrentUTCTimestamp();
+  nextPulseTriggerRegisterationTimestamp = lastPulseTimestamp + PULSE_INTERVAL;
+  const startListentingIn = nextPulseTriggerRegisterationTimestamp - PULSE_INTERVAL_OFFSET;
 
-  // If we don't have much time until TTL expires;
-  // Don't bother removing listener
-  if (startListentingIn <= 10) return;
-
-  // Remove all listeners for now.
   removeActivityListener();
 
-  // Add listeners 2 seconds before the next hour begins
   setTimeout(addActivityListener, startListentingIn * 1000);
+
+  console.log("Fired at $$$$$ ", new Date(lastPulseTimestamp * 1000));
+  console.log("user activity listener is suspended until $$$$$ ", new Date(nextPulseTriggerRegisterationTimestamp * 1000))
 }
 
-LAST_LOGGED_HOUR = 0; // The last time we logged
-NEXT_LOGGING_HOUR = 0; // The next time we should log
-
 function punchIn() {
-  if (!LAST_LOGGED_HOUR) {
-    // When this is the first time we're logging
-    LAST_LOGGED_HOUR = getCurrentUTCHourTimestamp();
-    NEXT_LOGGING_HOUR = LAST_LOGGED_HOUR + 3600;
+  if (window.location.href.includes(TRACKABLE_URL)) {
+    sendPulse();
+    scheduleNextPunchIn();
   } else {
-    // Make sure it is time to send the pulse again
-    if (!shouldSendPulse) return;
-    LAST_LOGGED_HOUR = NEXT_LOGGING_HOUR;
-    NEXT_LOGGING_HOUR = LAST_LOGGED_HOUR + 3600;
+
   }
-  sendPulse();
-  scheduleNextPunchIn();
 }
 
 window.addEventListener("DOMContentLoaded", punchIn);
+
+/*
+ *  - When user loads the application, we send a pulse and set a timeout to fire in
+ *    {PULSE_INTERVAL - PULSE_INTERVAL_OFFSET} seconds to register events to look for user
+ *    activity.
+ *  - We're using rolling window. i.e 
+ *      1. Initial session start from the time user loads the application for first time.
+ *      2. Subsequent session starts only on user activity after {PULSE_INTERVAL - PULSE_INTERVAL_OFFSET}
+ *         seconds elapsed from the previous session start.
+ *  - Example: 
+ *    Let's say user starts session (application loads for first time) at 02:00:00 hrs, we fire a pulse and
+ *    schedule a call to register events to look for user activity at 02:59:58 hrs.
+ *    Now if the next user Activity is at 03:05:00 hrs , we fire the next pulse and schedule a call to register 
+ *    events to look for next user activity at 04:04:58 hrs.
+ *    
+ */

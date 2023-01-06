@@ -3,11 +3,25 @@
 // All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
 const { match } = require("path-to-regexp");
 
-export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
+/*
+ *  Note: Usage tracking logic relies on the structure of these url's.
+ *  Any changes to these url's must be cross verified with the
+ *  public/logger.js file's TRACKABLE_URL variable.
+ */
 export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
-export const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
 export const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
+export const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
 export const VIEWER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId`;
+export const getViewerPath = (
+  applicationSlug: string,
+  pageSlug: string,
+  pageId: string,
+) => `/app/${applicationSlug}/${pageSlug}-${pageId}`;
+export const getViewerCustomPath = (customSlug: string, pageId: string) =>
+  `/app/${customSlug}-${pageId}`;
+/*** END ***/
+
+export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
 export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
 export const VIEWER_FORK_PATH = `/fork`;
 export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
