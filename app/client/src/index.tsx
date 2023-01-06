@@ -23,6 +23,13 @@ import AppErrorBoundary from "AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
+const supportsContainerQueries = "container" in document.documentElement.style;
+
+if (!supportsContainerQueries) {
+  // @ts-expect-error: polyfill type declarations not found
+  import("shadow-container-query-polyfill");
+}
+
 runSagaMiddleware();
 
 appInitializer();
