@@ -72,7 +72,7 @@ export class CommonLocators {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//button[contains(@class, 't--open-dropdown-Select-Action')]";
-    _selectPropPageDropdown = (ddName: string) =>
+  _selectPropPageDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//button[contains(@class, 't--open-dropdown-Select-Page')]";
@@ -164,7 +164,8 @@ export class CommonLocators {
     "']";
   _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
   _omnibarDescription = "[data-cy='description']";
-  _previewModeToggle = ".t--switch-preview-mode-toggle";
+  _previewModeToggle = (currentMode: "preview" | "edit") =>
+    `[data-cy='${currentMode}-mode']`;
   _editModeToggle = ".t--switch-comment-mode-off";
   _editorVariable = ".cm-variable";
   _consoleString = ".cm-string";

@@ -66,6 +66,7 @@ function ToggleModeButton() {
       <StyledButton
         active={isPreviewMode}
         category={Category.tertiary}
+        data-cy={`${isPreviewMode ? "preview" : "edit"}-mode`}
         icon={"play-circle-line"}
         iconPosition={IconPositions.left}
         onClick={onClickPreviewModeButton}
