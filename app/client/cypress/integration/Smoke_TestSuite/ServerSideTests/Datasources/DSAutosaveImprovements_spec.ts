@@ -58,7 +58,7 @@ describe("Datasource Autosave Improvements Tests", function() {
       dataSources.FillPostgresDSForm();
       dataSources.SaveDSFromDialog(true);
 
-      // assert that datasource is saved and cant be seen in active ds list
+      // assert that datasource is saved and can be seen in active ds list
       dataSources.NavigateToActiveTab();
       agHelper.AssertContains(dsName, "exist", dataSources._datasourceCard);
 
