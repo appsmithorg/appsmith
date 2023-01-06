@@ -480,7 +480,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .then(currentUserMono)
-                .map(user -> {
+                .flatMap(user -> {
                     stopwatch.stopTimer();
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID, applicationId,
@@ -490,8 +490,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             FieldName.FLOW_NAME, stopwatch.getFlow(),
                             "executionTime", stopwatch.getExecutionTime()
                     );
-                    analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
-                    return applicationJson;
+                    return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
+                            .thenReturn(applicationJson);
                 })
                 .then(allCustomJSLibListMono)
                 .map(allCustomLibList -> {
@@ -1182,7 +1182,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
                             .then(sendImportExportApplicationAnalyticsEvent(importedApplication.getId(), AnalyticsEvents.IMPORT))
                             .zipWith(currUserMono)
-                            .map(tuple -> {
+                            .flatMap(tuple -> {
                                 Application application = tuple.getT1();
                                 stopwatch.stopTimer();
                                 stopwatch.stopAndLogTimeInMillis();
@@ -1195,8 +1195,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         FieldName.FLOW_NAME, stopwatch.getFlow(),
                                         "executionTime", stopwatch.getExecutionTime()
                                 );
-                                analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
-                                return application;
+                                return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data)
+                                        .thenReturn(application);
                             });
                 })
                 .onErrorResume(throwable -> {
