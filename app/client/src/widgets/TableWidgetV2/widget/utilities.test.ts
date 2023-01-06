@@ -9,6 +9,7 @@ import {
   getOriginalRowIndex,
   getSelectRowIndex,
   getSelectRowIndices,
+  getSourceDataAndCaluclateKeysForEventAutoComplete,
   getTableStyles,
   reorderColumns,
 } from "./utilities";
@@ -1989,6 +1990,264 @@ describe("getColumnType", () => {
   it("returns Date column type for valid Date field", () => {
     const result = getColumnType(tableData, "dob");
     expect(ColumnTypes.DATE).toEqual(result);
+  });
+});
+
+describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
+  it("Should test with valid values", () => {
+    const mockProps = {
+      type: "TABLE_WIDGET_V2",
+      widgetName: "Table1",
+      widgetId: "9oh3qyw84m",
+      primaryColumns: {
+        action: {
+          configureMenuItems: {
+            config: {
+              label:
+                "{{Table1.primaryColumns.action.sourceData.map((currentItem, currentIndex) => ( currentItem.))}}",
+            },
+          },
+        },
+      },
+      __evaluation__: {
+        errors: {
+          primaryColumns: [],
+        },
+        evaluatedValues: {
+          primaryColumns: {
+            step: {
+              index: 0,
+              width: 150,
+              id: "step",
+              originalId: "step",
+              alias: "step",
+              columnType: "text",
+              label: "step",
+              computedValue: ["#1", "#2", "#3"],
+              validation: {},
+              labelColor: "#FFFFFF",
+            },
+            action: {
+              index: 3,
+              width: 150,
+              id: "action",
+              originalId: "action",
+              alias: "action",
+              columnType: "menuButton",
+              label: "action",
+              computedValue: ["", "", ""],
+              labelColor: "#FFFFFF",
+              buttonLabel: ["Action", "Action", "Action"],
+              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+              menuItemsSource: "DYNAMIC",
+              menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+              sourceData: [
+                {
+                  gender: "male",
+                  name: "Victor",
+                  email: "victor.garrett@example.com",
+                },
+                {
+                  gender: "male",
+                  name: "Tobias",
+                  email: "tobias.hansen@example.com",
+                },
+                {
+                  gender: "female",
+                  name: "Jane",
+                  email: "jane.coleman@example.com",
+                },
+                {
+                  gender: "female",
+                  name: "Yaromira",
+                  email: "yaromira.manuylenko@example.com",
+                },
+                {
+                  gender: "male",
+                  name: "Andre",
+                  email: "andre.ortiz@example.com",
+                },
+              ],
+              configureMenuItems: {
+                label: "Configure Menu Items",
+                id: "config",
+                config: {
+                  id: "config",
+                  label: ["male", "male", "female", "female", "male"],
+                  isVisible: true,
+                  isDisabled: false,
+                  onClick: "",
+                  backgroundColor: ["red", "red", "tan", "tan", "red"],
+                  iconName: "add-row-top",
+                  iconAlign: "right",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
+    const expected = {
+      currentItem: {
+        name: "",
+        email: "",
+        gender: "",
+      },
+    };
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("Should test with empty sourceData", () => {
+    const mockProps = {
+      type: "TABLE_WIDGET_V2",
+      widgetName: "Table1",
+      widgetId: "9oh3qyw84m",
+      primaryColumns: {
+        action: {
+          configureMenuItems: {
+            config: {
+              label:
+                "{{Table1.primaryColumns.action.sourceData.map((currentItem, currentIndex) => ( currentItem.))}}",
+            },
+          },
+        },
+      },
+      __evaluation__: {
+        errors: {
+          primaryColumns: [],
+        },
+        evaluatedValues: {
+          primaryColumns: {
+            step: {
+              index: 0,
+              width: 150,
+              id: "step",
+              originalId: "step",
+              alias: "step",
+              columnType: "text",
+              label: "step",
+              computedValue: ["#1", "#2", "#3"],
+              validation: {},
+              labelColor: "#FFFFFF",
+            },
+            action: {
+              index: 3,
+              width: 150,
+              id: "action",
+              originalId: "action",
+              alias: "action",
+              columnType: "menuButton",
+              label: "action",
+              computedValue: ["", "", ""],
+              labelColor: "#FFFFFF",
+              buttonLabel: ["Action", "Action", "Action"],
+              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+              menuItemsSource: "DYNAMIC",
+              menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+              sourceData: [],
+              configureMenuItems: {
+                label: "Configure Menu Items",
+                id: "config",
+                config: {
+                  id: "config",
+                  label: ["male", "male", "female", "female", "male"],
+                  isVisible: true,
+                  isDisabled: false,
+                  onClick: "",
+                  backgroundColor: ["red", "red", "tan", "tan", "red"],
+                  iconName: "add-row-top",
+                  iconAlign: "right",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
+    const expected = { currentItem: {} };
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("Should test without sourceData", () => {
+    const mockProps = {
+      type: "TABLE_WIDGET_V2",
+      widgetName: "Table1",
+      widgetId: "9oh3qyw84m",
+      primaryColumns: {
+        action: {
+          configureMenuItems: {
+            config: {
+              label:
+                "{{Table1.primaryColumns.action.sourceData.map((currentItem, currentIndex) => ( currentItem.))}}",
+            },
+          },
+        },
+      },
+      __evaluation__: {
+        errors: {
+          primaryColumns: [],
+        },
+        evaluatedValues: {
+          primaryColumns: {
+            step: {
+              index: 0,
+              width: 150,
+              id: "step",
+              originalId: "step",
+              alias: "step",
+              columnType: "text",
+              label: "step",
+              computedValue: ["#1", "#2", "#3"],
+              validation: {},
+              labelColor: "#FFFFFF",
+            },
+            action: {
+              index: 3,
+              width: 150,
+              id: "action",
+              originalId: "action",
+              alias: "action",
+              columnType: "menuButton",
+              label: "action",
+              computedValue: ["", "", ""],
+              labelColor: "#FFFFFF",
+              buttonLabel: ["Action", "Action", "Action"],
+              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
+              menuItemsSource: "DYNAMIC",
+              menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
+              configureMenuItems: {
+                label: "Configure Menu Items",
+                id: "config",
+                config: {
+                  id: "config",
+                  label: ["male", "male", "female", "female", "male"],
+                  isVisible: true,
+                  isDisabled: false,
+                  onClick: "",
+                  backgroundColor: ["red", "red", "tan", "tan", "red"],
+                  iconName: "add-row-top",
+                  iconAlign: "right",
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      mockProps as any,
+    );
+    const expected = { currentItem: {} };
+    expect(result).toStrictEqual(expected);
   });
 });
 
