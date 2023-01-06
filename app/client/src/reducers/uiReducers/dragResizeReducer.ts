@@ -67,6 +67,12 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.isResizing = action.payload.isResizing;
   },
+  [ReduxActionTypes.SET_SELECTED_WIDGETS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{ widgetIds: string[] }>,
+  ) => {
+    state.selectedWidgets = action.payload.widgetIds;
+  },
   [ReduxActionTypes.SELECT_WIDGET]: (
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }>,

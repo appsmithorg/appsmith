@@ -97,3 +97,10 @@ export const appendSelectedWidgetToUrl = (selectedWidgets: string[]) => {
     payload: { selectedWidgets },
   };
 };
+
+export const setSelectedWidgets = (widgetIds: string[]) => {
+  return {
+    type: ReduxActionTypes.SET_SELECTED_WIDGETS,
+    payload: { widgetIds },
+  };
+};
