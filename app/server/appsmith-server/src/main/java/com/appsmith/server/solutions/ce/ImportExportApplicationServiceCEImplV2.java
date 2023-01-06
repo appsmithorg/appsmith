@@ -756,11 +756,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     existingDatasource.setStructure(null);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
-                                    return datasourceService.update(existingDatasource.getId(), existingDatasource)
-                                            .map(datasource1 -> {
-                                                datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                                return datasource1;
-                                            });
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
 
                                 // This is explicitly copied over from the map we created before
@@ -777,19 +773,17 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId)
-                                        .map(datasource1 -> {
-                                            datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                            return datasource1;
-                                        });
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId);
                             });
                 })
-                .then(
+                .collectMap(Datasource::getName, Datasource::getId)
+                .flatMap(map -> {
+                        datasourceMap.putAll(map);
                         // 1. Assign the policies for the imported application
                         // 2. Check for possible duplicate names,
                         // 3. Save the updated application
 
-                        Mono.just(importedApplication)
+                        return Mono.just(importedApplication)
                                 .zipWith(currUserMono)
                                 .map(objects -> {
                                     Application application = objects.getT1();
@@ -848,7 +842,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                 });
                                     }
                                     return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
-                                })
+                                });
+                    }
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
                 .flatMap(savedApp -> {
