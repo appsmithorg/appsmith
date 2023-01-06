@@ -9,6 +9,7 @@ import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelper
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { UpgradeToBEPage } from "../Upgrade/businessEdition/UpgradeToBEPage";
 
 const Main = () => {
   const params = useParams() as any;
@@ -27,6 +28,10 @@ const Main = () => {
   }
   if (category === "audit-logs") {
     return <AuditLogsUpgradePage />;
+  }
+
+  if (category === "business-edition") {
+    return <UpgradeToBEPage />;
   }
 
   /* Old, still working flow; config, factory based */

@@ -1489,3 +1489,7 @@ export const customJSLibraryMessages = {
   NAME_COLLISION_ERROR: (accessors: string) =>
     `Name collision detected: ${accessors}`,
 };
+
+// Business Edition upgrade page
+export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
+  `Move to Business Edition${trailingChar ? trailingChar : ""}`;

@@ -11,6 +11,7 @@ import { UPGRADE } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import camelCase from "lodash/camelCase";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -186,15 +187,15 @@ export default function LeftPane() {
           {features.USAGE_AND_BILLING && (
             <CategoryItem>
               <StyledLink
-                $active={category === "usage"}
-                data-testid="t--enterprise-settings-category-item-usage"
-                onClick={() => triggerAnalytics("Usage")}
-                to="/settings/usage"
+                $active={category === "business-edition"}
+                data-testid="t--enterprise-settings-category-item-be"
+                onClick={() => triggerAnalytics("BusinessEdition")}
+                to="/settings/business-edition"
               >
                 <div>
-                  <Icon name="lock-2-line" size={IconSize.XL} />
+                  <Icon name="arrow-right-up-line" size={IconSize.XL} />
                 </div>
-                <div>{createMessage(UPGRADE)}</div>
+                <div>{camelCase(createMessage(UPGRADE))}</div>
               </StyledLink>
             </CategoryItem>
           )}
