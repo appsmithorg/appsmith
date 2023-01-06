@@ -26,7 +26,7 @@ import {attachComments} from "astravel";
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
 type Expression = Node;
-export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression | MemberExpressionNode | CallExpressionNode;
+export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression | MemberExpressionNode | CallExpressionNode | BinaryExpressionNode;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
 export interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
