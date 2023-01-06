@@ -35,8 +35,9 @@ public class DatabaseChangelog0 {
                 return;
             }
         }
-        throw new UnsupportedMongoDBVersionException("Appsmith requires MongoDB v" + MIN_MAJOR_VERSION + ". Please upgrade your MongoDB. " +
-                "You are running: '" + buildInfo.get("version") + "'.");
+        throw new UnsupportedMongoDBVersionException("""
+                Appsmith requires MongoDB v%d. Please upgrade your MongoDB. " +
+                "You are running: '%s'.""".formatted(MIN_MAJOR_VERSION, buildInfo.get("version")));
     }
 
     /**
