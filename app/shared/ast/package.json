@@ -20,6 +20,7 @@
     "link-package": "yarn install && rollup -c && cd build && cp -R ../node_modules ./node_modules && yarn link"
   },
   "dependencies": {
+    "@babel/runtime": "^7.20.7",
     "acorn": "^8.8.0",
     "acorn-walk": "^8.2.0",
     "astravel": "^0.6.1",
