@@ -121,6 +121,30 @@ public class FileUtilsImpl implements FileInterface {
      datasources
         datasource1.json
         datasource2.json
+
+     For v3:
+     repo_name
+        application.json
+        metadata.json
+        theme
+        publishedTheme.json
+        editModeTheme.json
+     pages
+        page1
+            canvas.json
+            queries
+                Query1
+                    Query1.txt
+                    metadata.json
+            jsobjects
+                JSObject1
+                    JSObject1.js
+                    Metadata.json
+     page2
+     page3
+     datasources
+         datasource1.json
+         datasource2.json
      */
 
 
@@ -251,8 +275,10 @@ public class FileUtilsImpl implements FileInterface {
                             validActionCollectionsMap.get(pageName).add(actionCollectionName);
                             Boolean isResourceUpdated = updatedResources.get(ACTION_COLLECTION_LIST).contains(resource.getKey());
                             if(Boolean.TRUE.equals(isResourceUpdated)) {
-                                saveJsObject(
+                                saveActionCollection(
                                         resource.getValue(),
+                                        applicationGitReference.getActionCollectionBody().get(resource.getKey()),
+                                        actionCollectionName,
                                         actionCollectionSpecificDirectory.resolve(actionCollectionName),
                                         gson
                                 );
@@ -298,28 +324,27 @@ public class FileUtilsImpl implements FileInterface {
         return false;
     }
 
-    private boolean saveJsObject(Object sourceEntity, Path path, Gson gson) {
+    /**
+     * This method is used to write actionCollection specific resource to file system. We write the data in two steps
+     * 1. Actual js code
+     * 2. Metadata of the actionCollection
+     * @param sourceEntity the metadata of the action collection
+     * @param body actual js code written by the user
+     * @param resourceName name of the action collection
+     * @param path file path where the resource will be stored
+     * @param gson
+     * @return if the file operation is successful
+     */
+    private boolean saveActionCollection(Object sourceEntity, String body, String resourceName, Path path, Gson gson) {
         try {
             Files.createDirectories(path);
-            JsonObject jsonObject = gson.fromJson(gson.toJson(sourceEntity), JsonObject.class);
-
-            // Get the js Object code from the action collection
-            JsonObject unPublishedCollectionObject = jsonObject.get("unpublishedCollection").getAsJsonObject();
-            String body = unPublishedCollectionObject.get("body").getAsString();
-            String resourceName = unPublishedCollectionObject.get("name").getAsString();
-            // Remove the code before writing the the metadata to te file
-            unPublishedCollectionObject.remove("body");
-            jsonObject.remove("unpublishedCollection");
-            jsonObject.add("unpublishedCollection", unPublishedCollectionObject);
-
             // Write the js Object body to .js file to make conflict handling easier
             Path bodyPath = path.resolve(resourceName + CommonConstants.JS_EXTENSION);
             writeStringToFile(body, bodyPath);
 
             // Write metadata for the jsObject
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
-            return writeToFile(gson.fromJson(gson.toJson(jsonObject), Object.class), metadataPath, gson);
-
+            return writeToFile(sourceEntity, metadataPath, gson);
         } catch (IOException e) {
             log.debug(e.getMessage());
         }
@@ -559,7 +584,7 @@ public class FileUtilsImpl implements FileInterface {
 
     /**
      * This method is to read the content for action and actionCollection or any nested resources which has the new structure - v3
-     * Where the user queries and the metadata is split into teo different files
+     * Where the user queries and the metadata is split into to different files
      * @param directoryPath file path for files on which read operation will be performed
      * @return resources stored in the directory
      */

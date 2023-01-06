@@ -192,6 +192,7 @@ public class GitFileUtils {
 
         // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
         // JSObjectName_pageName => nomenclature for the keys
+        Map<String, String> resourceMapBody = new HashMap<>();
         applicationJson
                 .getActionCollectionList()
                 .stream()
@@ -205,9 +206,13 @@ public class GitFileUtils {
                             : actionCollection.getPublishedCollection().getName() + NAME_SEPARATOR + actionCollection.getPublishedCollection().getPageId();
                     removeUnwantedFieldFromActionCollection(actionCollection);
 
+                    String body = actionCollection.getUnpublishedCollection().getBody() != null ? actionCollection.getUnpublishedCollection().getBody() : "";
+                    actionCollection.getUnpublishedCollection().setBody(null);
+                    resourceMapBody.put(prefix, body);
                     resourceMap.put(prefix, actionCollection);
                 });
         applicationReference.setActionCollections(new HashMap<>(resourceMap));
+        applicationReference.setActionCollectionBody(new HashMap<>(resourceMapBody));
         applicationReference.setUpdatedResources(updatedResources);
         resourceMap.clear();
 
