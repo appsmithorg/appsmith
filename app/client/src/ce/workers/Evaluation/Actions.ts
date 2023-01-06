@@ -4,7 +4,6 @@ import set from "lodash/set";
 import {
   ActionDescription,
   ActionTriggerFunctionNames,
-  ActionTriggerType,
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
@@ -26,12 +25,12 @@ declare global {
   }
 }
 
-enum ExecutionType {
+export enum ExecutionType {
   PROMISE = "PROMISE",
   TRIGGER = "TRIGGER",
 }
 
-type ActionDescriptionWithExecutionType = ActionDescription & {
+export type ActionDescriptionWithExecutionType = ActionDescription & {
   executionType: ExecutionType;
 };
 
@@ -49,7 +48,7 @@ export const PLATFORM_FUNCTIONS: Record<
     target?: NavigationTargetType,
   ) {
     return {
-      type: ActionTriggerType.NAVIGATE_TO,
+      type: "NAVIGATE_TO",
       payload: { pageNameOrUrl, params, target },
       executionType: ExecutionType.PROMISE,
     };
@@ -59,28 +58,28 @@ export const PLATFORM_FUNCTIONS: Record<
     style: "info" | "success" | "warning" | "error" | "default",
   ) {
     return {
-      type: ActionTriggerType.SHOW_ALERT,
+      type: "SHOW_ALERT",
       payload: { message, style },
       executionType: ExecutionType.PROMISE,
     };
   },
   showModal: function(modalName: string) {
     return {
-      type: ActionTriggerType.SHOW_MODAL_BY_NAME,
+      type: "SHOW_MODAL_BY_NAME",
       payload: { modalName },
       executionType: ExecutionType.PROMISE,
     };
   },
   closeModal: function(modalName: string) {
     return {
-      type: ActionTriggerType.CLOSE_MODAL,
+      type: "CLOSE_MODAL",
       payload: { modalName },
       executionType: ExecutionType.PROMISE,
     };
   },
   download: function(data: string, name: string, type: string) {
     return {
-      type: ActionTriggerType.DOWNLOAD,
+      type: "DOWNLOAD",
       payload: { data, name, type },
       executionType: ExecutionType.PROMISE,
     };
@@ -90,7 +89,7 @@ export const PLATFORM_FUNCTIONS: Record<
     options?: { debug?: boolean; format?: string },
   ) {
     return {
-      type: ActionTriggerType.COPY_TO_CLIPBOARD,
+      type: "COPY_TO_CLIPBOARD",
       payload: {
         data,
         options: { debug: options?.debug, format: options?.format },
@@ -100,14 +99,14 @@ export const PLATFORM_FUNCTIONS: Record<
   },
   resetWidget: function(widgetName: string, resetChildren = true) {
     return {
-      type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
+      type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
       payload: { widgetName, resetChildren },
       executionType: ExecutionType.PROMISE,
     };
   },
   setInterval: function(callback: Function, interval: number, id?: string) {
     return {
-      type: ActionTriggerType.SET_INTERVAL,
+      type: "SET_INTERVAL",
       payload: {
         callback: callback?.toString(),
         interval,
@@ -118,7 +117,7 @@ export const PLATFORM_FUNCTIONS: Record<
   },
   clearInterval: function(id: string) {
     return {
-      type: ActionTriggerType.CLEAR_INTERVAL,
+      type: "CLEAR_INTERVAL",
       payload: {
         id,
       },
@@ -131,7 +130,7 @@ export const PLATFORM_FUNCTIONS: Record<
     targetOrigin: string,
   ) {
     return {
-      type: ActionTriggerType.POST_MESSAGE,
+      type: "POST_MESSAGE",
       payload: {
         message,
         source,
@@ -168,7 +167,7 @@ const ENTITY_FUNCTIONS: Record<
 
         if (isNewSignature) {
           return {
-            type: ActionTriggerType.RUN_PLUGIN_ACTION,
+            type: "RUN_PLUGIN_ACTION",
             payload: {
               actionId: isAction(entity) ? entity.actionId : "",
               params: actionParams,
@@ -178,7 +177,7 @@ const ENTITY_FUNCTIONS: Record<
         }
         // Backwards compatibility
         return {
-          type: ActionTriggerType.RUN_PLUGIN_ACTION,
+          type: "RUN_PLUGIN_ACTION",
           payload: {
             actionId: isAction(entity) ? entity.actionId : "",
             onSuccess: onSuccessOrParams
@@ -196,7 +195,7 @@ const ENTITY_FUNCTIONS: Record<
     func: (entity) =>
       function() {
         return {
-          type: ActionTriggerType.CLEAR_PLUGIN_ACTION,
+          type: "CLEAR_PLUGIN_ACTION",
           payload: {
             actionId: isAction(entity) ? entity.actionId : "",
           },
@@ -218,7 +217,7 @@ const ENTITY_FUNCTIONS: Record<
         },
       ) {
         return {
-          type: ActionTriggerType.GET_CURRENT_LOCATION,
+          type: "GET_CURRENT_LOCATION",
           payload: {
             options,
             onError: errorCallback
@@ -249,7 +248,7 @@ const ENTITY_FUNCTIONS: Record<
         },
       ) {
         return {
-          type: ActionTriggerType.WATCH_CURRENT_LOCATION,
+          type: "WATCH_CURRENT_LOCATION",
           payload: {
             options,
             onSuccess: onSuccessCallback
@@ -269,7 +268,7 @@ const ENTITY_FUNCTIONS: Record<
     func: () =>
       function() {
         return {
-          type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION,
+          type: "STOP_WATCHING_CURRENT_LOCATION",
           payload: {},
           executionType: ExecutionType.PROMISE,
         };

@@ -5,10 +5,7 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import {
-  ActionTriggerType,
-  ResetWidgetDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
+import { ResetWidgetDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import {
   ActionValidationError,
   TriggerFailureError,
@@ -26,7 +23,7 @@ export default function* resetWidgetActionSaga(
   const { widgetName } = payload;
   if (getType(widgetName) !== Types.STRING) {
     throw new ActionValidationError(
-      ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
+      "RESET_WIDGET_META_RECURSIVE_BY_NAME",
       "widgetName",
       Types.STRING,
       getType(widgetName),
