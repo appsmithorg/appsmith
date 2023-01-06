@@ -18,6 +18,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
+import "codemirror/addon/comment/comment";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -114,6 +115,7 @@ import {
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
+import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 import {
   EntityNavigationData,
   getEntitiesForNavigation,
@@ -201,6 +203,7 @@ export type EditorProps = EditorStyleProps &
     // On focus and blur event handler
     onEditorBlur?: () => void;
     onEditorFocus?: () => void;
+    lineCommentString?: string;
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -223,6 +226,7 @@ class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker, entityMarker],
     hinting: [bindingHint, commandsHelper],
+    lineCommentString: "//",
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
@@ -290,6 +294,11 @@ class CodeEditor extends Component<Props, State> {
       const moveCursorLeftKey = getMoveCursorLeftKey();
       options.extraKeys = {
         [moveCursorLeftKey]: "goLineStartSmart",
+        [getCodeCommentKeyMap()]: handleCodeComment(
+          // We've provided the default props value for lineCommentString
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.lineCommentString!,
+        ),
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
@@ -344,7 +353,7 @@ class CodeEditor extends Component<Props, State> {
         //
         editor.on("beforeChange", this.handleBeforeChange);
         editor.on("change", this.startChange);
-        editor.on("keyup", this.handleAutocompleteKeyup);
+        editor.on("keydown", this.handleAutocompleteKeydown);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
@@ -535,7 +544,7 @@ class CodeEditor extends Component<Props, State> {
 
     this.editor.off("beforeChange", this.handleBeforeChange);
     this.editor.off("change", this.startChange);
-    this.editor.off("keyup", this.handleAutocompleteKeyup);
+    this.editor.off("keydown", this.handleAutocompleteKeydown);
     this.editor.off("focus", this.handleEditorFocus);
     this.editor.off("cursorActivity", this.handleCursorMovement);
     this.editor.off("blur", this.handleEditorBlur);
@@ -903,8 +912,16 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ hinterOpen });
   };
 
-  handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
+  handleAutocompleteKeydown = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
     const key = event.key;
+
+    // Since selection from AutoComplete list is also done using the Enter keydown event
+    // we need to return from here so that autocomplete selection works fine
+    if (key === "Enter") return;
+
+    // Check if the user is trying to comment out the line, in that case we should not show autocomplete
+    const isCtrlOrCmdPressed = event.metaKey || event.ctrlKey;
+
     if (isModifierKey(key)) return;
     const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
     if (isCloseKey(code) || isCloseKey(key)) {
@@ -916,20 +933,25 @@ class CodeEditor extends Component<Props, State> {
     const line = cm.getLine(cursor.line);
     let showAutocomplete = false;
     /* Check if the character before cursor is completable to show autocomplete which backspacing */
-    if (key === "/") {
+    if (key === "/" && !isCtrlOrCmdPressed) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
       const prevChar = line[cursor.ch - 1];
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
-      /* Autocomplete for "{" should show up only when a user attempts to write {{}} and not a code block. */
-      const prevChar = line[cursor.ch - 2];
+      /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
+      const prevChar = line[cursor.ch - 1];
       showAutocomplete = prevChar === "{";
     } else if (key.length == 1) {
       showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
       /* Autocomplete should be triggered only for characters that make up valid variable names */
     }
-    showAutocomplete && this.handleAutocompleteVisibility(cm);
+
+    // Allow keydown event to enter the text to the editor before firing autocomplete
+    // otherwise it'll not work for the first character
+    setTimeout(() => {
+      showAutocomplete && this.handleAutocompleteVisibility(cm);
+    }, 10);
   };
 
   lintCode(editor: CodeMirror.Editor) {
