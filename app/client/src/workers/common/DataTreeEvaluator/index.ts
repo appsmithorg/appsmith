@@ -949,8 +949,6 @@ export default class DataTreeEvaluator {
             !!entity && isJSAction(entity),
             contextData,
             callBackData,
-            fullPropertyPath?.includes("body") ||
-              !toBeSentForEval.includes("console."),
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty({
@@ -1030,7 +1028,6 @@ export default class DataTreeEvaluator {
     isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
-    skipUserLogsOperations = false,
   ): EvalResult {
     try {
       return evaluateSync(
@@ -1040,7 +1037,6 @@ export default class DataTreeEvaluator {
         isJSObject,
         contextData,
         callbackData,
-        skipUserLogsOperations,
       );
     } catch (error) {
       return {

@@ -25,6 +25,7 @@ import {
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
 } from "../types";
+import { clearAllIntervals } from "../fns/interval";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -211,5 +212,6 @@ export default function(request: EvalWorkerSyncRequest) {
 
 export function clearCache() {
   dataTreeEvaluator = undefined;
+  clearAllIntervals();
   return true;
 }

@@ -2,7 +2,7 @@ import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
 import interceptAndOverrideHttpRequest from "../HTTPRequestOverride";
 import { resetJSLibraries } from "../../common/JSLibrary";
 import setupDOM from "../SetupDOM";
-import overrideTimeout from "../TimeoutOverride";
+import initTimeoutFns from "../fns/timeout";
 import { EvalWorkerSyncRequest } from "../types";
 import userLogs from "../fns/console";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
@@ -22,7 +22,7 @@ export default function() {
   });
   self.window = self;
   userLogs.overrideConsoleAPI();
-  overrideTimeout();
+  initTimeoutFns();
   interceptAndOverrideHttpRequest();
   setupDOM();
   addPlatformFunctionsToEvalContext(self);

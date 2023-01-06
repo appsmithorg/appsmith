@@ -14,6 +14,7 @@ import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 import { initStoreFns } from "workers/Evaluation/fns/storeFns";
 import { EvaluationVersion } from "api/ApplicationApi";
+import { initIntervalFns } from "workers/Evaluation/fns/interval";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -108,26 +109,6 @@ export const PLATFORM_FUNCTIONS: Record<
       type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
       payload: { widgetName, resetChildren },
       executionType: ExecutionType.PROMISE,
-    };
-  },
-  setInterval: function(callback: Function, interval: number, id?: string) {
-    return {
-      type: ActionTriggerType.SET_INTERVAL,
-      payload: {
-        callback: callback?.toString(),
-        interval,
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-  clearInterval: function(id: string) {
-    return {
-      type: ActionTriggerType.CLEAR_INTERVAL,
-      payload: {
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
     };
   },
   postWindowMessage: function(
@@ -342,11 +323,10 @@ export const addPlatformFunctionsToEvalContext = (context: any) => {
     Object.defineProperty(context, funcName, {
       value: pusher.bind({}, fn),
       enumerable: false,
-      writable: true,
-      configurable: true,
     });
   }
   initStoreFns(context);
+  initIntervalFns(context);
 };
 
 export const getAllAsyncFunctions = (dataTree: DataTree) => {

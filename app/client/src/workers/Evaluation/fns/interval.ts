@@ -21,7 +21,7 @@ export function initIntervalFns(context: typeof globalThis) {
 
   function setInterval(
     callback: (...args: any[]) => void,
-    delay: number,
+    delay = 100,
     ...args: any[]
   ) {
     const evalContext = createEvaluationContext({

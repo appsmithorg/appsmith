@@ -38,10 +38,6 @@ import {
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import {
-  clearIntervalSaga,
-  setIntervalSaga,
-} from "sagas/ActionExecution/SetIntervalSaga";
-import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
@@ -100,12 +96,6 @@ export function* executeActionTriggers(
       break;
     case ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME:
       yield call(resetWidgetActionSaga, trigger.payload);
-      break;
-    case ActionTriggerType.SET_INTERVAL:
-      yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
-      break;
-    case ActionTriggerType.CLEAR_INTERVAL:
-      yield call(clearIntervalSaga, trigger.payload);
       break;
     case ActionTriggerType.GET_CURRENT_LOCATION:
       response = yield call(
