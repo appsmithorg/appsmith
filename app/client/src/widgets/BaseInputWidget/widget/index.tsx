@@ -490,7 +490,12 @@ class BaseInputWidget<
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
 
     if (this.props.inputType === InputTypes.MULTI_LINE_TEXT) {
-      if (isEnterKey && e.metaKey && typeof onSubmit === "string" && onSubmit) {
+      if (
+        isEnterKey &&
+        (e.metaKey || e.ctrlKey) &&
+        typeof onSubmit === "string" &&
+        onSubmit
+      ) {
         this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
           triggerPropertyName: "onSubmit",
           dynamicString: onSubmit,
