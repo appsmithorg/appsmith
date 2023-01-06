@@ -3,23 +3,18 @@
 // All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
 const { match } = require("path-to-regexp");
 
-/*
- *  Note: Usage tracking logic relies on the structure of these url's.
- *  Any changes to these url's must be cross verified with the
- *  public/logger.js file's TRACKABLE_URL variable.
- */
-export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
-export const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
-export const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
-export const VIEWER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId`;
+export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
+export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId/edit`;
+export const BUILDER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId/edit`;
+export const VIEWER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId`;
+export const VIEWER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId`;
 export const getViewerPath = (
   applicationSlug: string,
   pageSlug: string,
   pageId: string,
-) => `/app/${applicationSlug}/${pageSlug}-${pageId}`;
+) => `${BUILDER_VIEWER_PATH_PREFIX}${applicationSlug}/${pageSlug}-${pageId}`;
 export const getViewerCustomPath = (customSlug: string, pageId: string) =>
-  `/app/${customSlug}-${pageId}`;
-/*** END ***/
+  `${BUILDER_VIEWER_PATH_PREFIX}${customSlug}-${pageId}`;
 
 export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
 export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
