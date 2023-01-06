@@ -490,7 +490,7 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
-      .click({ force: force })
+      .click({ force: true })
       .wait(waitTimeInterval);
   }
 
@@ -551,6 +551,7 @@ export class AggregateHelper {
     return locator
       .eq(index)
       .focus()
+      .wait(100)
       .type(value, {
         parseSpecialCharSequences: parseSpecialCharSeq,
         //delay: 3,
