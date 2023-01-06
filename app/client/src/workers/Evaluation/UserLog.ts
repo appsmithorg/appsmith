@@ -16,12 +16,21 @@ class UserLog {
     eventType?: EventType;
     triggerMeta?: TriggerMeta;
   } | null = null;
+  private isEnabled = true;
 
   public setCurrentRequestInfo(requestInfo: {
     eventType?: EventType;
     triggerMeta?: TriggerMeta;
   }) {
     this.requestInfo = requestInfo;
+  }
+
+  enable() {
+    this.isEnabled = true;
+  }
+
+  disable() {
+    this.isEnabled = false;
   }
 
   private resetFlushTimer() {
@@ -53,26 +62,32 @@ class UserLog {
     console = {
       ...console,
       table: (...args: any) => {
+        if (!this.isEnabled) return;
         table.call(this, args);
         this.saveLog("table", args);
       },
       error: (...args: any) => {
+        if (!this.isEnabled) return;
         error.apply(this, args);
         this.saveLog("error", args);
       },
       log: (...args: any) => {
+        if (!this.isEnabled) return;
         log.apply(this, args);
         this.saveLog("log", args);
       },
       debug: (...args: any) => {
+        if (!this.isEnabled) return;
         debug.apply(this, args);
         this.saveLog("debug", args);
       },
       warn: (...args: any) => {
+        if (!this.isEnabled) return;
         warn.apply(this, args);
         this.saveLog("warn", args);
       },
       info: (...args: any) => {
+        if (!this.isEnabled) return;
         info.apply(this, args);
         this.saveLog("info", args);
       },
