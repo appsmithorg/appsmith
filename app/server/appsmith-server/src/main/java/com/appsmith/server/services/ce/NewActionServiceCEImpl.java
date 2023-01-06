@@ -24,6 +24,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -32,6 +33,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.DsContextMapKey;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -84,6 +86,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple5;
 
 import javax.lang.model.SourceVersion;
@@ -765,44 +768,72 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                                          PluginExecutor pluginExecutor,
                                                                          String environmentName) {
         // This method will be overridden in EE branch to make use of environmentName.
-        Mono<Datasource> validatedDatasourceMono = getValidatedDatasourceForActionExecution(datasource, environmentName);
+        Mono< Tuple3 <Datasource, DsContextMapKey, Map<String, BaseDomain>>> dsContextKeyAndDatasourceMono =
+                getValidatedDatasourceWithDsContextKeyAndEnvMap(datasource, environmentName).cache();
 
-        Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
-                .flatMap(datasource1 -> getDatasourceContextFromValidatedDatasourceForActionExecution(datasource1,
-                        plugin,
-                        environmentName))
-                // Now that we have the context (connection details), execute the action.
-                .flatMap(resourceContext -> validatedDatasourceMono
-                        .flatMap(datasource1 -> {
-                            final Instant requestedAt = Instant.now();
-                            return ((Mono<ActionExecutionResult>) pluginExecutor.
-                                    executeParameterized(resourceContext.getConnection(),
-                                            executeActionDTO,
-                                            datasource1.getDatasourceConfiguration(),
-                                            actionDTO.getActionConfiguration()))
-                                    .map(actionExecutionResult -> {
-                                        ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
-                                        if (actionExecutionRequest == null) {
-                                            actionExecutionRequest = new ActionExecutionRequest();
-                                        }
-                                        actionExecutionRequest.setActionId(executeActionDTO.getActionId());
-                                        actionExecutionRequest.setRequestedAt(requestedAt);
 
-                                        actionExecutionResult.setRequest(actionExecutionRequest);
-                                        return actionExecutionResult;
-                                    });
-                        }));
+        Mono<ActionExecutionResult> executionMono =
+                dsContextKeyAndDatasourceMono.flatMap( tuple3 -> {
+                            Datasource validatedDatasource = tuple3.getT1();
+                            DsContextMapKey dsContextMapKey = tuple3.getT2();
+                            Map<String, BaseDomain> environmentMap = tuple3.getT3();
+
+                            return getDatasourceContextFromValidatedDatasourceForActionExecution(validatedDatasource,
+                                                                                                 plugin,
+                                                                                                 dsContextMapKey,
+                                                                                                 environmentMap)
+                                    // Now that we have the context (connection details), execute the action.
+                                    .zipWhen(resourceContext -> {
+                                        Instant requestedAt  = Instant.now();
+                                        return ((Mono<ActionExecutionResult>)
+                                                pluginExecutor.executeParameterized(resourceContext.getConnection(),
+                                                                      executeActionDTO,
+                                                                      validatedDatasource.getDatasourceConfiguration(),
+                                                                      actionDTO.getActionConfiguration()))
+                                                .map(actionExecutionResult -> {
+                                                    ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
+                                                    if (actionExecutionRequest == null) {
+                                                        actionExecutionRequest = new ActionExecutionRequest();
+                                                    }
+
+                                                    actionExecutionRequest.setActionId(executeActionDTO.getActionId());
+                                                    actionExecutionRequest.setRequestedAt(requestedAt);
+
+                                                    actionExecutionResult.setRequest(actionExecutionRequest);
+                                                    return actionExecutionResult;
+                                                });
+                                        }, (dsContext, actionExecutionResult) -> actionExecutionResult);
+                });
 
         return executionMono.onErrorResume(StaleConnectionException.class, error -> {
             log.info("Looks like the connection is stale. Retrying with a fresh context.");
-            return deleteDatasourceContextForRetry(datasource, environmentName)
+            return dsContextKeyAndDatasourceMono
+                    .flatMap(tuple3 -> deleteDatasourceContextForRetry(tuple3.getT2()))
+                    // tuple3.t2 is dsContextMapKey
                     .then(executionMono);
         });
     }
 
     /**
+     * This is a composite method for fetching authenticated datasource, dsContextMapKey and environmentMap
+     * @param datasource
+     * @param environmentName
+     * @return
+     */
+    protected Mono<Tuple3 <Datasource, DsContextMapKey, Map<String, BaseDomain>>>
+    getValidatedDatasourceWithDsContextKeyAndEnvMap(Datasource datasource, String environmentName) {
+        // see EE override for complete usage.
+        Mono<Datasource> authenticatedDatasourceMono = getValidatedDatasourceForActionExecution(datasource, environmentName);
+        Mono<DsContextMapKey> dsContextMapKeyMono = Mono.just(datasourceContextService.getCustomKey(datasource));
+
+        // see EE override for complete usage,
+        // Here just returning an empty map, this map is not used here
+        Mono<Map<String, BaseDomain>> environmentMapMono = Mono.just(new HashMap<>());
+        return Mono.zip(authenticatedDatasourceMono, dsContextMapKeyMono, environmentMapMono);
+    }
+
+    /**
      * Validates the datasource for further execution
-     *
      * @param datasource
      * @return
      */
@@ -817,31 +848,29 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      *
      * @param validatedDatasource
      * @param plugin
-     * @param environmentName
+     * @param dsContextMapKey
+     * @param environmentMap
      * @return datasourceContextMono
      */
     protected Mono<DatasourceContext<?>> getDatasourceContextFromValidatedDatasourceForActionExecution
-    (Datasource validatedDatasource, Plugin plugin, String environmentName) {
+    (Datasource validatedDatasource, Plugin plugin, DsContextMapKey dsContextMapKey, Map<String, BaseDomain> environmentMap) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
         if (plugin.isRemotePlugin()) {
             return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource);
         }
-        return datasourceContextService.getDatasourceContext(datasourceContextService.getCustomKey(validatedDatasource));
-
+        return datasourceContextService.getDatasourceContext(validatedDatasource, dsContextMapKey);
     }
 
     /**
      * Deletes the datasourceContext for the given datasource
-     *
-     * @param datasource
-     * @param environmentName
+     * @param dsContextMapKey
      * @return datasourceContextMono
      */
-    protected Mono<DatasourceContext<?>> deleteDatasourceContextForRetry(Datasource datasource, String environmentName) {
+    protected Mono<DatasourceContext<?>> deleteDatasourceContextForRetry(DsContextMapKey dsContextMapKey) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
-        return datasourceContextService.deleteDatasourceContext(datasourceContextService.getCustomKey(datasource));
+        return datasourceContextService.deleteDatasourceContext(dsContextMapKey);
     }
 
     protected Mono<ActionExecutionResult> handleExecutionErrors(Mono<ActionExecutionResult> actionExecutionResultMono,

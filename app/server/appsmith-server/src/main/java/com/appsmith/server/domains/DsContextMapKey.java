@@ -1,12 +1,8 @@
 package com.appsmith.server.domains;
 
-
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Datasource;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.util.StringUtils;
-
 
 /**
  * This class is for generating keys for dscontext.
@@ -14,14 +10,19 @@ import org.springframework.util.StringUtils;
  */
 @Getter
 @Setter
-public class DsContextMapKey<T extends BaseDomain> {
-    Datasource datasource;
+public class DsContextMapKey {
 
-    T baseDomainObject;
+    String datasourceId;
 
-    public DsContextMapKey(Datasource datasource, T baseDomainObject) {
-        this.datasource = datasource;
-        this.baseDomainObject = baseDomainObject;
+    String environmentId;
+
+    public DsContextMapKey(String datasourceId, String environmentId) {
+        this.datasourceId = datasourceId;
+        this.environmentId = environmentId;
+    }
+
+    public DsContextMapKey() {
+        // empty constructor
     }
 
 
@@ -30,49 +31,31 @@ public class DsContextMapKey<T extends BaseDomain> {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof DsContextMapKey<?>) || obj == null) {
+
+        if (!(obj instanceof DsContextMapKey) || obj == null) {
             return false;
         }
-        DsContextMapKey<T> keyObj = (DsContextMapKey<T>) obj;
-        boolean datasourceBoolean = compareIds(this.getDatasource(), keyObj.getDatasource());
-        boolean baseDomainObjectBoolean = compareIds(this.getBaseDomainObject(), keyObj.getBaseDomainObject());
-        return datasourceBoolean && baseDomainObjectBoolean;
+        DsContextMapKey keyObj = (DsContextMapKey)  obj;
+        boolean areBothEnvironmentIdSameOrNull = StringUtils.hasLength(environmentId) ?
+                environmentId.equals(keyObj.environmentId) : !StringUtils.hasLength(keyObj.environmentId);
+
+        // if datasourceId is null for either of the objects then the keys can't be equal
+        return StringUtils.hasLength(datasourceId)
+                && datasourceId.equals(keyObj.datasourceId) &&
+                areBothEnvironmentIdSameOrNull;
     }
 
     @Override
     public int hashCode() {
         int result = 0;
-        if (this.datasource != null && this.datasource.getId() != null) {
-            result = this.datasource.getId().hashCode();
-        }
-
-        if (this.baseDomainObject != null && this.baseDomainObject.getId() != null) {
-            result = result*31 + this.baseDomainObject.getId().hashCode();
-        }
+        result = StringUtils.hasLength(this.datasourceId) ? this.datasourceId.hashCode() : result;
+        result = StringUtils.hasLength(this.environmentId) ? result*31 + this.environmentId.hashCode() : result;
         return result;
     }
 
-    public boolean compareIds(BaseDomain obj, BaseDomain obj1) {
-        if (obj == null && obj1 == null) {
-            return true;
-        } else if (obj == null || obj1 == null) {
-            return false;
-        } else if(obj.getId() == null && obj1.getId() == null) {
-            return true;
-        } else if (obj.getId() == null || obj1.getId() == null) {
-            return false;
-        } else if (obj.getId().equals(obj1.getId())) {
-            return true;
-        }
-        return false;
-    }
-
     public boolean isEmpty() {
-        // this will be overridden in EE to have baseDomainObject
-        if (this.datasource == null || !StringUtils.hasLength(this.datasource.getId())) {
-            return true;
-        }
-        return false;
+        // this will be overridden in EE
+       return !StringUtils.hasLength(this.datasourceId);
     }
 
 }

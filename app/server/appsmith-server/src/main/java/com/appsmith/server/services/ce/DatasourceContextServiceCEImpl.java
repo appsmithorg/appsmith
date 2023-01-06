@@ -70,13 +70,13 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * @return a cached source publisher which upon subscription produces / returns the latest datasource context /
      * connection.
      */
-    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(DsContextMapKey<?> dsContextMapKey,
+    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(Datasource datasource,
                                                                                PluginExecutor<Object> pluginExecutor,
-                                                                               Object monitor) {
+                                                                               Object monitor,
+                                                                               DsContextMapKey dsContextMapKey) {
         synchronized (monitor) {
             /* Destroy any stale connection to free up resource */
-            Datasource datasource = dsContextMapKey.getDatasource();
-            final boolean isStale = getIsStale(datasource);
+            final boolean isStale = getIsStale(datasource, dsContextMapKey);
             if (isStale) {
                 final Object connection = datasourceContextMap.get(dsContextMapKey).getConnection();
                 if (connection != null) {
@@ -96,7 +96,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
              * evaluated multiple times the actual datasource creation will only happen once and get cached and the same
              * value would directly be returned to further evaluations / subscriptions.
              */
-            if (!dsContextMapKey.isEmpty() && datasourceContextMonoMap.get(dsContextMapKey) != null) {
+            if (dsContextMapKey.getDatasourceId() != null && datasourceContextMonoMap.get(dsContextMapKey) != null) {
                 log.debug("Cached resource context mono exists. Returning the same.");
                 return datasourceContextMonoMap.get(dsContextMapKey);
             }
@@ -112,7 +112,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration()).cache();
 
             Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMono
-                    .flatMap(connection -> updateDatasourceAndSetAuthentication(connection, dsContextMapKey))
+                    .flatMap(connection -> updateDatasourceAndSetAuthentication(connection, datasource, dsContextMapKey))
                     .map(connection -> {
                         /* When a connection object exists and makes sense for the plugin, we put it in the
                         context. Example, DB plugins. */
@@ -135,12 +135,12 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(Datasource datasource,
                                                                                PluginExecutor<Object> pluginExecutor,
                                                                                Object monitor) {
-        return getCachedDatasourceContextMono(getCustomKey(datasource),pluginExecutor , monitor);
+        return getCachedDatasourceContextMono(datasource, pluginExecutor, monitor, getCustomKey(datasource));
     }
 
-    public Mono<Object>  updateDatasourceAndSetAuthentication(Object connection, DsContextMapKey<?> dsContextMapKey) {
+    public Mono<Object>  updateDatasourceAndSetAuthentication(Object connection, Datasource datasource,
+                                                              DsContextMapKey dsContextMapKey) {
         // this will have override in EE
-        Datasource datasource = dsContextMapKey.getDatasource();
         Mono<Datasource> datasourceMono1 = Mono.just(datasource);
         if (connection instanceof UpdatableConnection) {
             datasource.setUpdatedAt(Instant.now());
@@ -154,19 +154,17 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         return datasourceMono1.thenReturn(connection);
     }
 
-    Mono<Datasource> retrieveDatasourceFromDB(DsContextMapKey<?> dsContextMapKey) {
-        Datasource datasource = dsContextMapKey.getDatasource();
-        if (datasource.getId() != null) {
-            return datasourceService.findById(datasource.getId(), datasourcePermission.getExecutePermission());
+    Mono<Datasource> retrieveDatasourceFromDB( Datasource datasource, DsContextMapKey dsContextMapKey) {
+        if (dsContextMapKey.isEmpty()) {
+            return datasourceService.findById(dsContextMapKey.getDatasourceId(), datasourcePermission.getExecutePermission());
         } else {
             return Mono.just(datasource);
         }
     }
-    Mono<DatasourceContext<?>> createNewDatasourceContext(DsContextMapKey<?> dsContextMapKey) {
+    Mono<DatasourceContext<?>> createNewDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey) {
         log.debug("Datasource context doesn't exist. Creating connection.");
-        Datasource datasource = dsContextMapKey.getDatasource();
         String datasourceId = datasource.getId();
-        Mono<Datasource> datasourceMono = retrieveDatasourceFromDB(dsContextMapKey);
+        Mono<Datasource> datasourceMono = retrieveDatasourceFromDB(datasource, dsContextMapKey);
 
         return datasourceMono
                 .zipWhen(datasource1 -> {
@@ -201,46 +199,44 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         monitor = datasourceContextSynchronizationMonitorMap.get(dsContextMapKey);
                     }
 
-                    return getCachedDatasourceContextMono(dsContextMapKey, pluginExecutor, monitor);
+                    return getCachedDatasourceContextMono(datasource, pluginExecutor, monitor, dsContextMapKey);
                 });
     }
 
-    public boolean getIsStale(Datasource datasource) {
+    public boolean getIsStale(Datasource datasource, DsContextMapKey dsContextMapKey) {
         String datasourceId = datasource.getId();
         return datasourceId != null
-                && datasourceContextMap.get(datasourceId) != null
+                && datasourceContextMap.get(dsContextMapKey) != null
                 && datasource.getUpdatedAt() != null
-                && datasource.getUpdatedAt().isAfter(datasourceContextMap.get(datasourceId).getCreationTime());
+                && datasource.getUpdatedAt().isAfter(datasourceContextMap.get(dsContextMapKey).getCreationTime());
     }
 
-    boolean isValidDatasourceContextAvailable(Datasource datasource) {
-        String datasourceId = datasource.getId();
-        boolean isStale = getIsStale(datasource);
-        return datasourceContextMap.get(datasourceId) != null
+    boolean isValidDatasourceContextAvailable(Datasource datasource, DsContextMapKey dsContextMapKey) {
+        boolean isStale = getIsStale(datasource, dsContextMapKey);
+        return datasourceContextMap.get(dsContextMapKey) != null
                 // The following condition happens when there's a timeout in the middle of destroying a connection and
                 // the reactive flow interrupts, resulting in the destroy operation not completing.
-                && datasourceContextMap.get(datasourceId).getConnection() != null
+                && datasourceContextMap.get(dsContextMapKey).getConnection() != null
                 && !isStale;
     }
 
     @Override
-    public Mono<DatasourceContext<?>> getDatasourceContext(DsContextMapKey<?> dsContextMapKey) {
-        Datasource datasource = dsContextMapKey.getDatasource();
+    public Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey) {
         String datasourceId = datasource.getId();
         if (datasourceId == null) {
             log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this " +
                     "scenario");
-        } else if (isValidDatasourceContextAvailable(datasource)) {
+        } else if (isValidDatasourceContextAvailable(datasource, dsContextMapKey)) {
             log.debug("Resource context exists. Returning the same.");
             return Mono.just(datasourceContextMap.get(dsContextMapKey));
         }
-        return createNewDatasourceContext(dsContextMapKey);
+        return createNewDatasourceContext(datasource, dsContextMapKey);
     }
 
     @Override
     public <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext<?>, Mono<T>> task) {
         final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasource)
-                .flatMap(datasource1 -> getDatasourceContext(getCustomKey(datasource1)))
+                .flatMap(datasource1 -> getDatasourceContext(datasource1, getCustomKey(datasource1)))
                 // Now that we have the context (connection details), call the task.
                 .flatMap(task);
 
@@ -253,14 +249,14 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     @Override
-    public Mono<DatasourceContext<?>> deleteDatasourceContext(DsContextMapKey<?> dsContextMapKey) {
+    public Mono<DatasourceContext<?>> deleteDatasourceContext(DsContextMapKey dsContextMapKey) {
 
-        String datasourceId = dsContextMapKey.getDatasource().getId();
-        if (datasourceId == null) {
+        String datasourceId = dsContextMapKey.getDatasourceId();
+        if (dsContextMapKey.isEmpty()) {
             return Mono.empty();
         }
 
-        DatasourceContext<?> datasourceContext = datasourceContextMap.get(datasourceId);
+        DatasourceContext<?> datasourceContext = datasourceContextMap.get(dsContextMapKey);
         if (datasourceContext == null) {
             // No resource context exists for this resource. Return void.
             return Mono.empty();
@@ -309,7 +305,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * @return an DsContextMapKey object
      */
     @Override
-    public DsContextMapKey<?> getCustomKey(Datasource datasource) {
-        return new DsContextMapKey<>(datasource, null);
+    public DsContextMapKey getCustomKey(Datasource datasource) {
+        return new DsContextMapKey(datasource.getId(), null);
     }
 }

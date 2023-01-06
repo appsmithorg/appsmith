@@ -86,7 +86,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                                 if (plugin.isRemotePlugin()) {
                                     return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
                                 } else {
-                                    return datasourceContextService.getDatasourceContext(
+                                    return datasourceContextService.getDatasourceContext(datasource1,
                                             datasourceContextService.getCustomKey(datasource1));
                                 }
                             })

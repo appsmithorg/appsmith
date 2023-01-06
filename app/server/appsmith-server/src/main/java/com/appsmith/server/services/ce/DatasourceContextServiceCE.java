@@ -18,13 +18,13 @@ public interface DatasourceContextServiceCE {
      * @param dsContextMapKey
      * @return DatasourceContext
      */
-    Mono<DatasourceContext<?>> getDatasourceContext(DsContextMapKey<?> dsContextMapKey);
+    Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey);
 
     Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, Datasource datasource);
 
     <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext<?>, Mono<T>> task);
 
-    Mono<DatasourceContext<?>> deleteDatasourceContext(DsContextMapKey<?> dsContextMapKey);
+    Mono<DatasourceContext<?>> deleteDatasourceContext(DsContextMapKey dsContextMapKey);
 
-    DsContextMapKey<?> getCustomKey(Datasource datasource);
+    DsContextMapKey getCustomKey(Datasource datasource);
 }

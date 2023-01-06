@@ -84,7 +84,7 @@ public class DatasourceContextServiceTest {
     @WithUserDetails(value = "api_user")
     public void testDatasourceCache_afterDatasourceDeleted_doesNotReturnOldConnection() {
         // Never require the datasource connectin to be stale
-        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any());
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
 
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
@@ -227,7 +227,7 @@ public class DatasourceContextServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testCachedDatasourceCreate() {
-        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any());
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
 
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
@@ -315,43 +315,27 @@ public class DatasourceContextServiceTest {
 
 
     @Test
-    public void verifyDsMapKeyEqualComparison() {
+    public void verifyDsMapKeyEquality() {
         String dsId = new ObjectId().toHexString();
-        String actionId = new ObjectId().toHexString();
-
-        Datasource ds = new Datasource();
-        ds.setId(dsId);
-        Datasource ds1 = new Datasource();
-        ds1.setId(dsId);
-        NewAction newAction = new NewAction();
-        newAction.setId(actionId);
-        NewAction newAction1 = new NewAction();
-        newAction1.setId(actionId);
-
-
-        DsContextMapKey<NewAction> keyObj = new DsContextMapKey<>(ds, newAction);
-        DsContextMapKey<NewAction> keyObj1 = new DsContextMapKey<>(ds1, newAction1);
+        DsContextMapKey keyObj = new DsContextMapKey(dsId, null);
+        DsContextMapKey keyObj1 = new DsContextMapKey(dsId, null);
         assertEquals(keyObj,keyObj1);
     }
 
     @Test
-    public void verifyDsMapKeyNotEquals() {
+    public void verifyDsMapKeyNotEqual() {
         String dsId = new ObjectId().toHexString();
         String dsId1 = new ObjectId().toHexString();
-        String actionId = new ObjectId().toHexString();
+        DsContextMapKey keyObj = new DsContextMapKey(dsId, null);
+        DsContextMapKey keyObj1 = new DsContextMapKey(dsId, null);
+        assertNotEquals(keyObj,keyObj1);
+    }
 
-        Datasource ds = new Datasource();
-        ds.setId(dsId);
-        Datasource ds1 = new Datasource();
-        ds1.setId(dsId1);
-        NewAction newAction = new NewAction();
-        newAction.setId(actionId);
-        NewAction newAction1 = new NewAction();
-        newAction1.setId(actionId);
-
-
-        DsContextMapKey<NewAction> keyObj = new DsContextMapKey<>(ds, newAction);
-        DsContextMapKey<NewAction> keyObj1 = new DsContextMapKey<>(ds1, newAction1);
+    @Test
+    public void verifyDsMapKeyNotEqualWhenBothDatasourceIdNull() {
+        String envId = new ObjectId().toHexString();
+        DsContextMapKey keyObj = new DsContextMapKey(null, envId);
+        DsContextMapKey keyObj1 = new DsContextMapKey(null, envId);
         assertNotEquals(keyObj,keyObj1);
     }
 }
