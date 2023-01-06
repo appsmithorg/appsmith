@@ -217,11 +217,3 @@ export const isValueValidURL = (value: string) => {
     return isValidURL(str);
   }
 };
-
-export const showError = () => {
-  Toaster.show({
-    text:
-      "The resulting value from the field is invalid Javascript and cannot be parsed. Please enter a valid value and try again!",
-    variant: Variant.danger,
-  });
-};
