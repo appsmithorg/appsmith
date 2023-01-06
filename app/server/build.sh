@@ -1,5 +1,14 @@
 #!/bin/bash
 
+set -o errexit
+
+maven_version_output="$(mvn --version)"
+echo "$maven_version_output"
+if [[ "$maven_version_output" != *"Java version: 17."* ]]; then
+  echo "Maven is not using Java 17. Please install Java 17 and set it as the default Java version." >&2
+  exit 1
+fi
+
 # Remove previous dist directory
 rm -rf dist/
 
