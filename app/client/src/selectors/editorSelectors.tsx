@@ -35,6 +35,7 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory, {
   NonSerialisableWidgetConfigs,
 } from "utils/WidgetFactory";
@@ -289,6 +290,7 @@ export const getWidgetCards = createSelector(
         displayName,
         icon: iconSVG,
         searchTags,
+        isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -410,6 +412,7 @@ const getWidgetSpacesForContainer = (
       bottom: widget.bottomRow,
       right: widget.rightColumn,
       type: widget.type,
+      isDropTarget: checkIsDropTarget(widget.type),
       fixedHeight,
     };
     return occupiedSpace;
@@ -426,9 +429,9 @@ const getWidgetSpacesForContainer = (
 const generateOccupiedSpacesMap = (
   widgets: CanvasWidgetsReduxState,
   fetchNow = true,
-): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
+): { [containerWidgetId: string]: WidgetSpace[] } | undefined => {
   const occupiedSpaces: {
-    [containerWidgetId: string]: OccupiedSpace[];
+    [containerWidgetId: string]: WidgetSpace[];
   } = {};
   if (!fetchNow) return;
   // Get all widgets with type "CONTAINER_WIDGET" and has children
@@ -449,7 +452,7 @@ const generateOccupiedSpacesMap = (
       );
       // Get the occupied spaces in this container
       // Assign it to the containerWidgetId key in occupiedSpaces
-      occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
+      occupiedSpaces[containerWidgetId] = getWidgetSpacesForContainer(
         containerWidgetId,
         childWidgets.map((widgetId) => widgets[widgetId]),
       );
