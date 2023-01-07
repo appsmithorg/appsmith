@@ -18,7 +18,7 @@ import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
 export function SignupSuccess() {
   const dispatch = useDispatch();
   const urlObject = new URL(window.location.href);
-  const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+  const redirectUrl = urlObject?.searchParams.get("redirectUrl") ?? "";
   const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
     "enableFirstTimeUserExperience",
   );

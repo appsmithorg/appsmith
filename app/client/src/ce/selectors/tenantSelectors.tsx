@@ -26,3 +26,7 @@ export const getBrandColors = () => {
 export const isValidLicense = () => {
   return true;
 };
+
+export const isTenantLoading = (state: AppState) => {
+  return state.tenant?.isLoading;
+};

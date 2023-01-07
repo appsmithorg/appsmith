@@ -13,7 +13,7 @@ import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
 
 export const redirectUserAfterSignup = (
-  redirectUrl: string | null,
+  redirectUrl: string,
   shouldEnableFirstTimeUserOnboarding: string | null,
   _isUsageAndBillingEnabled: boolean | undefined,
   _validLicense?: boolean,

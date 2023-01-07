@@ -61,6 +61,7 @@ import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelecto
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
+import { Spinner } from "design-system";
 
 /*
     We use this polyfill to show emoji flags
@@ -68,9 +69,9 @@ import RouteChangeListener from "RouteChangeListener";
   */
 polyfillCountryFlagEmojis();
 
-const SentryRoute = Sentry.withSentryRouting(Route);
+export const SentryRoute = Sentry.withSentryRouting(Route);
 
-const loadingIndicator = <PageLoadingBar />;
+export const loadingIndicator = <PageLoadingBar />;
 
 export function Routes() {
   const user = useSelector(getCurrentUserSelector);
@@ -93,7 +94,6 @@ export function Routes() {
       <SentryRoute component={SignupSuccess} exact path={SIGNUP_SUCCESS_URL} />
       <SentryRoute component={UserProfile} path={PROFILE} />
       <SentryRoute component={Setup} exact path={SETUP} />
-
       <SentryRoute component={TemplatesListLoader} path={TEMPLATES_PATH} />
       <Redirect
         exact
@@ -120,6 +120,7 @@ export function Routes() {
       <SentryRoute component={AppViewerLoader} path={VIEWER_CUSTOM_PATH} />
       <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
       <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
+      <SentryRoute component={Spinner} path="/license-check" />
       <SentryRoute component={PageNotFound} />
     </Switch>
   );
