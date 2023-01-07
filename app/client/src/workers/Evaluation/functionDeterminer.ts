@@ -42,29 +42,30 @@ class FunctionDeterminer {
     self.IS_ASYNC = false;
 
     return (function() {
-      try {
-        if (typeof userFunction === "function") {
-          if (userFunction.constructor.name === "AsyncFunction") {
-            // functions declared with an async keyword
-            self.IS_ASYNC = true;
-          } else {
-            const returnValue = userFunction();
-            if (!!returnValue && returnValue instanceof Promise) {
-              self.IS_ASYNC = true;
-            }
-            if (self.TRIGGER_COLLECTOR.length) {
-              self.IS_ASYNC = true;
-            }
-          }
-        }
-      } catch (e) {
-        // We do not want to throw errors for internal operations, to users.
-        // logLevel should help us in debugging this.
-        logs.push({ error: "Error when determining async function" + e });
-      }
-      const isAsync = !!self.IS_ASYNC;
+      return true;
+      // try {
+      //   if (typeof userFunction === "function") {
+      //     if (userFunction.constructor.name === "AsyncFunction") {
+      //       // functions declared with an async keyword
+      //       self.IS_ASYNC = true;
+      //     } else {
+      //       const returnValue = userFunction();
+      //       if (!!returnValue && returnValue instanceof Promise) {
+      //         self.IS_ASYNC = true;
+      //       }
+      //       if (self.TRIGGER_COLLECTOR.length) {
+      //         self.IS_ASYNC = true;
+      //       }
+      //     }
+      //   }
+      // } catch (e) {
+      //   // We do not want to throw errors for internal operations, to users.
+      //   // logLevel should help us in debugging this.
+      //   logs.push({ error: "Error when determining async function" + e });
+      // }
+      // const isAsync = !!self.IS_ASYNC;
 
-      return isAsync;
+      // return isAsync;
     })();
   }
 }

@@ -6,6 +6,7 @@ import overrideTimeout from "../TimeoutOverride";
 import { EvalWorkerSyncRequest } from "../types";
 import userLogs from "../UserLog";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { initWindowProxy } from "../fns/windowProxy";
 
 export default function() {
   const libraries = resetJSLibraries();
@@ -20,11 +21,11 @@ export default function() {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
-  self.window = self;
   userLogs.overrideConsoleAPI();
   overrideTimeout();
   interceptAndOverrideHttpRequest();
   setupDOM();
+  initWindowProxy();
   addPlatformFunctionsToEvalContext(self);
   return true;
 }

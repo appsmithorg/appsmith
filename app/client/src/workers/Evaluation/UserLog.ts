@@ -49,9 +49,9 @@ class UserLog {
   }
 
   public overrideConsoleAPI() {
-    const { debug, error, info, log, table, warn } = console;
-    console = {
-      ...console,
+    const { debug, error, info, log, table, warn } = self.console;
+    self.console = {
+      ...self.console,
       table: (...args: any) => {
         table.call(this, args);
         this.saveLog("table", args);
