@@ -2224,6 +2224,7 @@ public class ApplicationServiceCETest {
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
@@ -2255,6 +2256,7 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
+                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
                 })
                 .verifyComplete();
     }
@@ -2278,6 +2280,7 @@ public class ApplicationServiceCETest {
         String appName = "Publish Application With Archived Page";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
         Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -2378,6 +2381,7 @@ public class ApplicationServiceCETest {
     public void publishApplication_withGitConnectedApp_success() {
         GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        gitConnectedApp.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
 
         Mono<Application> applicationMono = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
                 .flatMap(updatedApp -> applicationPageService.publish(updatedApp.getId(), gitData.getBranchName(), true))
@@ -2408,6 +2412,7 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getDefaultResources()).isNotNull();
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
+                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
                 })
                 .verifyComplete();
     }
