@@ -91,7 +91,6 @@ import {
   UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -111,7 +110,10 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
+import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import { MessageType, TMessage } from "utils/MessageUtil";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -363,6 +365,16 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
           : ENTITY_TYPE.WIDGET,
         triggerMeta?.source?.id || "",
       );
+      break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION: {
+      const sortedData: BatchedJSExecutionData = yield sortJSExecutionDataByCollectionId(
+        data.JSData as Record<string, unknown>,
+      );
+      yield put({
+        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+        payload: sortedData,
+      });
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_TRIGGER: {

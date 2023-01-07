@@ -19,7 +19,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
-  private isMac = Cypress.platform === "darwin";
+  public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
@@ -579,8 +579,8 @@ export class AggregateHelper {
     cy.get(selector)
       .contains(containsText)
       .eq(index)
-      .click()
-      .wait(200);
+      .click({ force: true })
+      .wait(500);
   }
 
   public CheckUncheck(selector: string, check = true) {

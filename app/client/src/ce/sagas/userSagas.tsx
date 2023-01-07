@@ -1,4 +1,4 @@
-import { call, put, select, take } from "redux-saga/effects";
+import { call, put, race, select, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionWithPromise,
@@ -56,6 +56,13 @@ import {
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
+import { getAppsmithConfigs } from "ce/configs";
+import { getSegmentState } from "selectors/analyticsSelectors";
+import {
+  segmentInitUncertain,
+  segmentInitSuccess,
+} from "actions/analyticsActions";
+import { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import FeatureFlags from "entities/FeatureFlags";
 
 export function* createUserSaga(
@@ -97,6 +104,25 @@ export function* createUserSaga(
   }
 }
 
+export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
+  if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
+  yield call(waitForFetchUserSuccess);
+  const currentUser: User | undefined = yield select(getCurrentUser);
+  const segmentState: SegmentState | undefined = yield select(getSegmentState);
+  const appsmithConfig = getAppsmithConfigs();
+
+  if (
+    currentUser?.enableTelemetry &&
+    appsmithConfig.segment.enabled &&
+    !segmentState
+  ) {
+    yield race([
+      take(ReduxActionTypes.SEGMENT_INITIALIZED),
+      take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
+    ]);
+  }
+}
+
 export function* getCurrentUserSaga() {
   try {
     PerformanceTracker.startAsyncTracking(
@@ -109,7 +135,15 @@ export function* getCurrentUserSaga() {
       //@ts-expect-error: response is of type unknown
       const { enableTelemetry } = response.data;
       if (enableTelemetry) {
-        initializeAnalyticsAndTrackers();
+        const promise = initializeAnalyticsAndTrackers();
+        if (promise instanceof Promise) {
+          const result: boolean = yield promise;
+          if (result) {
+            yield put(segmentInitSuccess());
+          } else {
+            yield put(segmentInitUncertain());
+          }
+        }
       }
       yield put(initAppLevelSocketConnection());
       yield put(initPageLevelSocketConnection());
