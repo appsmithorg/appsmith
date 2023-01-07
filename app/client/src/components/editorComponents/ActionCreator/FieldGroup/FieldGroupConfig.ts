@@ -45,7 +45,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   },
   [AppsmithFunction.runAPI]: {
     label: createMessage(RUN_API),
-    fields: [FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD],
+    fields: [],
     children: [{ label: "", value: "" }],
     defaultParams: "",
   },
