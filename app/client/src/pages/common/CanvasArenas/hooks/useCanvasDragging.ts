@@ -33,6 +33,7 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
+import { useSelector } from "react-redux";
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
@@ -55,6 +56,7 @@ export const useCanvasDragging = (
     blocksToDraw,
     defaultHandlePositions,
     draggingSpaces,
+
     getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
