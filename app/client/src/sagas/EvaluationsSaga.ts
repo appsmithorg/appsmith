@@ -80,11 +80,7 @@ import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
-import {
-  ENTITY_TYPE,
-  LogObject,
-  UserLogObject,
-} from "entities/AppsmithConsole";
+import { ENTITY_TYPE, LogObject } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import {
   logActionExecutionError,
@@ -114,6 +110,7 @@ import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import { MessageType, TMessage } from "utils/MessageUtil";
 import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -180,7 +177,6 @@ export function* evaluateTreeSaga(
     evaluationOrder,
     jsUpdates,
     logs,
-    userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
   } = workerResponse;
@@ -205,23 +201,6 @@ export function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
-  if (
-    !(!isCreateFirstTree && Object.keys(jsUpdates).length > 0) &&
-    !!userLogs &&
-    userLogs.length > 0
-  ) {
-    yield all(
-      userLogs.map((log: UserLogObject) => {
-        return call(
-          storeLogs,
-          log.logObject,
-          log.source.name,
-          log.source.type,
-          log.source.id,
-        );
-      }),
-    );
-  }
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
@@ -270,15 +249,6 @@ export function* evaluateActionBindings(
   return values;
 }
 
-/*
- * Used to evaluate and execute dynamic trigger end to end
- * Widget action fields and JS Object run triggers this flow
- *
- * We start a duplex request with the worker and wait till the time we get a 'finished' event from the
- * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
- * execution is returned to the worker where it can resolve/reject the current promise.
- */
-
 export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -303,15 +273,7 @@ export function* evaluateAndExecuteDynamicTrigger(
 
   const { logs = [], errors = [], triggers = [] } = response as any;
   yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
-  yield call(
-    storeLogs,
-    logs,
-    triggerMeta.source?.name || triggerMeta.triggerPropertyName || "",
-    eventType === EventType.ON_JS_FUNCTION_EXECUTE
-      ? ENTITY_TYPE.JSACTION
-      : ENTITY_TYPE.WIDGET,
-    triggerMeta.source?.id || "",
-  );
+  yield call(storeLogs, logs);
 
   yield call(evalErrorHandler, errors);
   if (errors.length) {
@@ -355,16 +317,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_LOGS: {
-      const { logs = [], triggerMeta, eventType } = data;
-      yield call(
-        storeLogs,
-        logs,
-        triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
-        eventType === EventType.ON_JS_FUNCTION_EXECUTE
-          ? ENTITY_TYPE.JSACTION
-          : ENTITY_TYPE.WIDGET,
-        triggerMeta?.source?.id || "",
-      );
+      yield call(storeLogs, data);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION: {
@@ -389,6 +342,9 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       if (messageType === MessageType.REQUEST)
         yield call(evalWorker.respond, message.messageId, result);
       break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
+      yield call(handleStoreOperations, data);
     }
   }
   yield call(evalErrorHandler, data?.errors || []);
@@ -456,20 +412,22 @@ export function* executeFunction(
     result: any;
     logs?: LogObject[];
   };
-
+  const triggerMeta = {
+    source: {
+      id: collectionId,
+      name: `${collectionName}.${action.name}`,
+      type: ENTITY_TYPE.JSACTION,
+    },
+    triggerPropertyName: `${collectionName}.${action.name}`,
+  };
+  const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
   if (isAsync) {
     try {
       response = yield call(
         evaluateAndExecuteDynamicTrigger,
         functionCall,
-        EventType.ON_JS_FUNCTION_EXECUTE,
-        {
-          source: {
-            id: collectionId,
-            name: `${collectionName}.${action.name}`,
-          },
-          triggerPropertyName: `${collectionName}.${action.name}`,
-        },
+        eventType,
+        triggerMeta,
       );
     } catch (e) {
       if (e instanceof UncaughtPromiseError) {
@@ -483,17 +441,9 @@ export function* executeFunction(
       EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS,
       {
         functionCall,
+        eventType,
+        triggerMeta,
       },
-    );
-
-    const { logs = [] } = response;
-    // Check for any logs in the response and store them in the redux store
-    yield call(
-      storeLogs,
-      logs,
-      collectionName + "." + action.name,
-      ENTITY_TYPE.JSACTION,
-      collectionId,
     );
   }
 

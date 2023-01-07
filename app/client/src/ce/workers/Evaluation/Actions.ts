@@ -1,18 +1,19 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _, { set } from "lodash";
+import set from "lodash/set";
 import {
   ActionDescription,
   ActionTriggerFunctionNames,
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
-import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
-
+import { initStoreFns } from "workers/Evaluation/fns/storeFns";
+import { EvaluationVersion } from "api/ApplicationApi";
+import { initIntervalFns } from "workers/Evaluation/fns/interval";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -20,6 +21,10 @@ declare global {
    * */
 
   interface Window {
+    $allowAsync: boolean;
+    $isAsync: boolean;
+    $eventType: EventType;
+    $evaluationVersion: EvaluationVersion;
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
@@ -78,34 +83,6 @@ export const PLATFORM_FUNCTIONS: Record<
       executionType: ExecutionType.PROMISE,
     };
   },
-  storeValue: function(key: string, value: string, persist = true) {
-    // momentarily store this value in local state to support loops
-    _.set(self, ["appsmith", "store", key], value);
-    return {
-      type: "STORE_VALUE",
-      payload: {
-        key,
-        value,
-        persist,
-        uniqueActionRequestId: uniqueId("store_value_id_"),
-      },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  removeValue: function(key: string) {
-    return {
-      type: "REMOVE_VALUE",
-      payload: { key },
-      executionType: ExecutionType.PROMISE,
-    };
-  },
-  clearStore: function() {
-    return {
-      type: "CLEAR_STORE",
-      executionType: ExecutionType.PROMISE,
-      payload: null,
-    };
-  },
   download: function(data: string, name: string, type: string) {
     return {
       type: "DOWNLOAD",
@@ -131,26 +108,6 @@ export const PLATFORM_FUNCTIONS: Record<
       type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
       payload: { widgetName, resetChildren },
       executionType: ExecutionType.PROMISE,
-    };
-  },
-  setInterval: function(callback: Function, interval: number, id?: string) {
-    return {
-      type: "SET_INTERVAL",
-      payload: {
-        callback: callback?.toString(),
-        interval,
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-  clearInterval: function(id: string) {
-    return {
-      type: "CLEAR_INTERVAL",
-      payload: {
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
     };
   },
   postWindowMessage: function(
@@ -362,8 +319,13 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    context[funcName] = pusher.bind({}, fn);
+    Object.defineProperty(context, funcName, {
+      value: pusher.bind({}, fn),
+      enumerable: false,
+    });
   }
+  initStoreFns(context);
+  initIntervalFns(context);
 };
 
 export const getAllAsyncFunctions = (dataTree: DataTree) => {
@@ -378,7 +340,7 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
     }
   }
 
-  for (const [name] of platformFunctionEntries) {
+  for (const name of Object.values(ActionTriggerFunctionNames)) {
     asyncFunctionNameMap[name] = true;
   }
 

@@ -24,6 +24,7 @@ type TResponseMessage<TBody> = {
 };
 
 type TDefaultMessage<TBody> = {
+  messageId?: string;
   body: TBody;
   messageType: MessageType.DEFAULT;
 };

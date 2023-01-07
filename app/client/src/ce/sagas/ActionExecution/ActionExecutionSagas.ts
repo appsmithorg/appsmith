@@ -16,10 +16,6 @@ import {
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
-import storeValueLocally, {
-  clearLocalStore,
-  removeLocalValue,
-} from "sagas/ActionExecution/StoreActionSaga";
 import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
 import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
@@ -37,10 +33,6 @@ import {
   UncaughtPromiseError,
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
-import {
-  clearIntervalSaga,
-  setIntervalSaga,
-} from "sagas/ActionExecution/SetIntervalSaga";
 import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
@@ -93,15 +85,6 @@ export function* executeActionTriggers(
     case "CLOSE_MODAL":
       yield call(closeModalSaga, trigger);
       break;
-    case "STORE_VALUE":
-      yield call(storeValueLocally, trigger.payload);
-      break;
-    case "REMOVE_VALUE":
-      yield call(removeLocalValue, trigger.payload);
-      break;
-    case "CLEAR_STORE":
-      yield call(clearLocalStore);
-      break;
     case "DOWNLOAD":
       yield call(downloadSaga, trigger.payload);
       break;
@@ -110,12 +93,6 @@ export function* executeActionTriggers(
       break;
     case "RESET_WIDGET_META_RECURSIVE_BY_NAME":
       yield call(resetWidgetActionSaga, trigger.payload);
-      break;
-    case "SET_INTERVAL":
-      yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
-      break;
-    case "CLEAR_INTERVAL":
-      yield call(clearIntervalSaga, trigger.payload);
       break;
     case "GET_CURRENT_LOCATION":
       response = yield call(

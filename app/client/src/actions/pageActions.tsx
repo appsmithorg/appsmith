@@ -355,21 +355,12 @@ export const updateAppStoreEvaluated = (
   payload: storeValueAction,
 });
 
-export const updateAppTransientStore = (
-  payload: Record<string, unknown>,
-  storeValueAction?: StoreValueActionDescription["payload"],
-): EvaluationReduxAction<Record<string, unknown>> => ({
-  type: ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
-  payload,
-  postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
-});
-
-export const updateAppPersistentStore = (
+export const updateAppStore = (
   payload: Record<string, unknown>,
   storeValueAction?: StoreValueActionDescription["payload"],
 ): EvaluationReduxAction<Record<string, unknown>> => {
   return {
-    type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
+    type: ReduxActionTypes.UPDATE_APP_STORE,
     payload,
     postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
   };

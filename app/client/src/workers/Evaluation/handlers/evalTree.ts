@@ -1,4 +1,3 @@
-import { UserLogObject } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
@@ -26,6 +25,7 @@ import {
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
 } from "../types";
+import { clearAllIntervals } from "../fns/interval";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -41,7 +41,6 @@ export default function(request: EvalWorkerSyncRequest) {
   let dataTree: DataTree = {};
   let errors: EvalError[] = [];
   let logs: any[] = [];
-  let userLogs: UserLogObject[] = [];
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
 
@@ -169,7 +168,6 @@ export default function(request: EvalWorkerSyncRequest) {
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
-    userLogs = dataTreeEvaluator.userLogs;
     if (shouldReplay) {
       if (replayMap[CANVAS]?.logs) logs = logs.concat(replayMap[CANVAS]?.logs);
       replayMap[CANVAS]?.clearLogs();
@@ -180,7 +178,6 @@ export default function(request: EvalWorkerSyncRequest) {
     if (dataTreeEvaluator !== undefined) {
       errors = dataTreeEvaluator.errors;
       logs = dataTreeEvaluator.logs;
-      userLogs = dataTreeEvaluator.userLogs;
     }
     if (!(error instanceof CrashingError)) {
       errors.push({
@@ -208,7 +205,6 @@ export default function(request: EvalWorkerSyncRequest) {
     evaluationOrder: evalOrder,
     jsUpdates,
     logs,
-    userLogs,
     unEvalUpdates,
     isCreateFirstTree,
   } as EvalTreeResponseData;
@@ -216,5 +212,6 @@ export default function(request: EvalWorkerSyncRequest) {
 
 export function clearCache() {
   dataTreeEvaluator = undefined;
+  clearAllIntervals();
   return true;
 }

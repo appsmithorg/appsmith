@@ -1,94 +1,63 @@
-import { put, select, take } from "redux-saga/effects";
+import { put, select } from "redux-saga/effects";
 import { getAppStoreName } from "constants/AppConstants";
 import localStorage from "utils/localStorage";
-import {
-  updateAppPersistentStore,
-  updateAppTransientStore,
-} from "actions/pageActions";
+import { updateAppStore } from "actions/pageActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "selectors/entitiesSelector";
 import {
+  ActionTriggerType,
+  ClearStoreActionDescription,
   RemoveValueActionDescription,
   StoreValueActionDescription,
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
+import moment from "moment";
 
-export default function* storeValueLocally(
-  action: StoreValueActionDescription["payload"],
-) {
-  if (action.persist) {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const branch: string | undefined = yield select(getCurrentGitBranch);
-    const appStoreName = getAppStoreName(applicationId, branch);
-    const existingStore = localStorage.getItem(appStoreName) || "{}";
-    const parsedStore = JSON.parse(existingStore);
-    parsedStore[action.key] = action.value;
-    const storeString = JSON.stringify(parsedStore);
-    localStorage.setItem(appStoreName, storeString);
-    yield put(updateAppPersistentStore(parsedStore, action));
-    AppsmithConsole.info({
-      text: `store('${action.key}', '${action.value}', true)`,
-    });
-  } else {
-    const existingStore: AppStoreState = yield select(getAppStoreData);
-    const newTransientStore = {
-      ...existingStore.transient,
-      [action.key]: action.value,
-    };
-    yield put(updateAppTransientStore(newTransientStore, action));
-    AppsmithConsole.info({
-      text: `store('${action.key}', '${action.value}', false)`,
-    });
-  }
-  /* It is possible that user calls multiple storeValue function together, in such case we need to track completion of each action separately
-  We use uniqueActionRequestId to differentiate each storeValueAction here.
-  */
-  while (true) {
-    const returnedAction: StoreValueActionDescription = yield take(
-      ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
-    );
-    if (!returnedAction?.payload?.uniqueActionRequestId) {
-      break;
-    }
+type StoreOperation =
+  | StoreValueActionDescription
+  | ClearStoreActionDescription
+  | RemoveValueActionDescription;
 
-    const { uniqueActionRequestId } = returnedAction.payload;
-    if (uniqueActionRequestId === action.uniqueActionRequestId) {
-      break;
-    }
-  }
-}
-
-export function* removeLocalValue(
-  action: RemoveValueActionDescription["payload"],
-) {
+export function* handleStoreOperations(triggers: StoreOperation[]) {
   const applicationId: string = yield select(getCurrentApplicationId);
   const branch: string | undefined = yield select(getCurrentGitBranch);
   const appStoreName = getAppStoreName(applicationId, branch);
-  const existingStore = localStorage.getItem(appStoreName) || "{}";
-  const parsedStore = JSON.parse(existingStore);
-  delete parsedStore[action.key];
-  const storeString = JSON.stringify(parsedStore);
+  const existingLocalStore = localStorage.getItem(appStoreName) || "{}";
+  let parsedLocalStore = JSON.parse(existingLocalStore);
+  let currentStore: AppStoreState = yield select(getAppStoreData);
+  const logs: string[] = [];
+  for (const t of triggers) {
+    const { type } = t;
+    if (type === ActionTriggerType.STORE_VALUE) {
+      const { key, persist, value } = t.payload;
+      if (persist) {
+        parsedLocalStore[key] = value;
+      }
+      currentStore[key] = value;
+      logs.push(`storeValue('${key}', '${value}', ${persist})`);
+    } else if (type === ActionTriggerType.REMOVE_VALUE) {
+      const { key } = t.payload;
+      delete parsedLocalStore[key];
+      delete currentStore[key];
+      logs.push(`removeValue('${key}')`);
+    } else if (type === ActionTriggerType.CLEAR_STORE) {
+      parsedLocalStore = {};
+      currentStore = {};
+      logs.push(`clearStore()`);
+    }
+  }
+  yield put(updateAppStore(currentStore));
+  const storeString = JSON.stringify(parsedLocalStore);
   localStorage.setItem(appStoreName, storeString);
-  yield put(updateAppPersistentStore(parsedStore));
-  const existingTransientStore: AppStoreState = yield select(getAppStoreData);
-  delete existingTransientStore.transient?.[action.key];
-  yield put(updateAppTransientStore(existingTransientStore.transient));
-  AppsmithConsole.info({
-    text: `remove('${action.key}')`,
-  });
-}
-
-export function* clearLocalStore() {
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const branch: string | undefined = yield select(getCurrentGitBranch);
-  const appStoreName = getAppStoreName(applicationId, branch);
-  localStorage.setItem(appStoreName, "{}");
-  yield put(updateAppPersistentStore({}));
-  yield put(updateAppTransientStore({}));
-  AppsmithConsole.info({
-    text: `clear()`,
-  });
+  AppsmithConsole.addLogs(
+    logs.map((text) => ({
+      text,
+      severity: Severity.INFO,
+      category: LOG_CATEGORY.USER_GENERATED,
+      timestamp: moment().format("hh:mm:ss"),
+    })),
+  );
 }
