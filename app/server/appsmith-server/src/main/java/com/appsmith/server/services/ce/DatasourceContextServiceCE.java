@@ -1,12 +1,14 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DsContextMapKey;
 import com.appsmith.server.domains.Plugin;
 import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
+import java.util.Map;
 
 public interface DatasourceContextServiceCE {
 
@@ -18,11 +20,12 @@ public interface DatasourceContextServiceCE {
      * @param dsContextMapKey
      * @return DatasourceContext
      */
-    Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey);
+    Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey, Map<String, BaseDomain> environmentMap);
 
     Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, Datasource datasource);
 
-    <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext<?>, Mono<T>> task);
+    <T> Mono<T> retryOnce(Datasource datasource, DsContextMapKey dsContextMapKey,
+                          Map<String, BaseDomain> environmentMap, Function<DatasourceContext<?>, Mono<T>> task);
 
     Mono<DatasourceContext<?>> deleteDatasourceContext(DsContextMapKey dsContextMapKey);
 

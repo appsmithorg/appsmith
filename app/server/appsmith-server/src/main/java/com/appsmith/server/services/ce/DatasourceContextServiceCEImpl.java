@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -155,8 +156,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     Mono<Datasource> retrieveDatasourceFromDB( Datasource datasource, DsContextMapKey dsContextMapKey) {
-        if (dsContextMapKey.isEmpty()) {
-            return datasourceService.findById(dsContextMapKey.getDatasourceId(), datasourcePermission.getExecutePermission());
+        if (!dsContextMapKey.isEmpty()) {
+            return datasourceService.findById(dsContextMapKey.getDatasourceId(),
+                                              datasourcePermission.getExecutePermission());
         } else {
             return Mono.just(datasource);
         }
@@ -221,7 +223,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     @Override
-    public Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey) {
+    public Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey,
+                                                           Map<String, BaseDomain> environmentMap) {
         String datasourceId = datasource.getId();
         if (datasourceId == null) {
             log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this " +
@@ -234,16 +237,18 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     @Override
-    public <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext<?>, Mono<T>> task) {
+    public <T> Mono<T> retryOnce(Datasource datasource, DsContextMapKey dsContextMapKey,
+                                 Map<String, BaseDomain> environmentMap, Function<DatasourceContext<?>, Mono<T>> task) {
+
         final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasource)
-                .flatMap(datasource1 -> getDatasourceContext(datasource1, getCustomKey(datasource1)))
+                .flatMap(datasource1 -> getDatasourceContext(datasource1, dsContextMapKey, environmentMap))
                 // Now that we have the context (connection details), call the task.
                 .flatMap(task);
 
         return taskRunnerMono
                 .onErrorResume(StaleConnectionException.class, error -> {
                     log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                    return deleteDatasourceContext(getCustomKey(datasource))
+                    return deleteDatasourceContext(dsContextMapKey)
                             .then(taskRunnerMono);
                 });
     }

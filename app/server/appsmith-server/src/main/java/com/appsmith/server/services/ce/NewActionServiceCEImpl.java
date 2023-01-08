@@ -783,13 +783,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                                                                  dsContextMapKey,
                                                                                                  environmentMap)
                                     // Now that we have the context (connection details), execute the action.
-                                    .zipWhen(resourceContext -> {
+                                    .flatMap(resourceContext -> {
                                         Instant requestedAt  = Instant.now();
                                         return ((Mono<ActionExecutionResult>)
                                                 pluginExecutor.executeParameterized(resourceContext.getConnection(),
-                                                                      executeActionDTO,
-                                                                      validatedDatasource.getDatasourceConfiguration(),
-                                                                      actionDTO.getActionConfiguration()))
+                                                                                    executeActionDTO,
+                                                                                    validatedDatasource.getDatasourceConfiguration(),
+                                                                                    actionDTO.getActionConfiguration()))
                                                 .map(actionExecutionResult -> {
                                                     ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
                                                     if (actionExecutionRequest == null) {
@@ -802,7 +802,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                     actionExecutionResult.setRequest(actionExecutionRequest);
                                                     return actionExecutionResult;
                                                 });
-                                        }, (dsContext, actionExecutionResult) -> actionExecutionResult);
+                                    });
                 });
 
         return executionMono.onErrorResume(StaleConnectionException.class, error -> {
@@ -823,13 +823,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     protected Mono<Tuple3 <Datasource, DsContextMapKey, Map<String, BaseDomain>>>
     getValidatedDatasourceWithDsContextKeyAndEnvMap(Datasource datasource, String environmentName) {
         // see EE override for complete usage.
-        Mono<Datasource> authenticatedDatasourceMono = getValidatedDatasourceForActionExecution(datasource, environmentName);
-        Mono<DsContextMapKey> dsContextMapKeyMono = Mono.just(datasourceContextService.getCustomKey(datasource));
+        return datasourceService.prepareForFetchingDsContext(datasource, environmentName)
+                .flatMap(tuple3 -> {
+                    Datasource datasource1 = tuple3.getT1();
+                    DsContextMapKey dsContextMapKey = tuple3.getT2();
+                    Map<String, BaseDomain> environmentMap = tuple3.getT3();
 
-        // see EE override for complete usage,
-        // Here just returning an empty map, this map is not used here
-        Mono<Map<String, BaseDomain>> environmentMapMono = Mono.just(new HashMap<>());
-        return Mono.zip(authenticatedDatasourceMono, dsContextMapKeyMono, environmentMapMono);
+                    return getValidatedDatasourceForActionExecution(datasource1, environmentName)
+                            .flatMap(datasource2 -> Mono.zip(Mono.just(datasource2),
+                                                             Mono.just(dsContextMapKey),
+                                                             Mono.just(environmentMap))
+                            );
+                });
     }
 
     /**
@@ -854,12 +859,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      */
     protected Mono<DatasourceContext<?>> getDatasourceContextFromValidatedDatasourceForActionExecution
     (Datasource validatedDatasource, Plugin plugin, DsContextMapKey dsContextMapKey, Map<String, BaseDomain> environmentMap) {
-        // the environmentName argument is not consumed over here
-        // See EE override for usage of variable
         if (plugin.isRemotePlugin()) {
             return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource);
         }
-        return datasourceContextService.getDatasourceContext(validatedDatasource, dsContextMapKey);
+        return datasourceContextService.getDatasourceContext(validatedDatasource, dsContextMapKey, environmentMap);
     }
 
     /**

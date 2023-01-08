@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -14,6 +15,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.DsContextMapKey;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -44,6 +46,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 
 import jakarta.validation.Validator;
@@ -546,5 +549,16 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             Datasource datasource = datasourceList.get(objects.getT1());
             datasource.setIsRecentlyCreated(true);
         }
+    }
+
+    public Mono<Tuple3<Datasource, DsContextMapKey, Map<String, BaseDomain>>>
+    prepareForFetchingDsContext(Datasource datasource, String environmentName) {
+        // see EE override for complete usage.
+        Mono<DsContextMapKey> dsContextMapKeyMono = Mono.just(datasourceContextService.getCustomKey(datasource));
+
+        // see EE override for complete usage,
+        // Here just returning an empty map, this map is not used here
+        Mono<Map<String, BaseDomain>> environmentMapMono = Mono.just(new HashMap<>());
+        return Mono.zip(Mono.just(datasource), dsContextMapKeyMono, environmentMapMono);
     }
 }
