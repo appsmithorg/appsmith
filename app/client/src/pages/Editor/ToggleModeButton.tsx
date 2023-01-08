@@ -18,6 +18,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 
 import { isExploringSelector } from "selectors/onboardingSelectors";
 import { Colors } from "constants/Colors";
+import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
 
 const StyledButton = styled(Button)<{ active: boolean }>`
   ${(props) =>
@@ -26,7 +27,7 @@ const StyledButton = styled(Button)<{ active: boolean }>`
   background-color: ${Colors.GREY_200};
   border: 1.2px solid transparent;
   `}
-  padding: 0 6px;
+  padding: 0 ${(props) => props.theme.spaces[2]}px;
   color: ${Colors.GREY_900};
   height: ${(props) => props.theme.smallHeaderHeight};
 
@@ -55,8 +56,10 @@ function ToggleModeButton() {
     <TooltipComponent
       content={
         <>
-          Preview Mode
-          <span style={{ color: "#fff", marginLeft: 20 }}>P</span>
+          {createMessage(EDITOR_HEADER.previewTooltip.text)}
+          <span style={{ color: "#fff", marginLeft: 20 }}>
+            {createMessage(EDITOR_HEADER.previewTooltip.shortcut)}
+          </span>
         </>
       }
       disabled={appMode !== APP_MODE.EDIT}
@@ -72,7 +75,7 @@ function ToggleModeButton() {
         onClick={onClickPreviewModeButton}
         size={Size.medium}
         tag={"button"}
-        text="PREVIEW"
+        text={createMessage(EDITOR_HEADER.previewTooltip.text).toUpperCase()}
       />
     </TooltipComponent>
   );

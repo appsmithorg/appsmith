@@ -1,7 +1,8 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 /**
- * action that sets preview mode
+ * init action that sets preview mode. navigates to canvas when payload is true
+ * navigates back when the payload is false i.e when switched to edit mode
  *
  * @param payload
  * @returns

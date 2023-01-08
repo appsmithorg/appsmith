@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { Icon, TextType, Text } from "design-system";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
+import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
 
 const SaveStatusContainer = styled.div`
   align-items: center;
@@ -30,13 +31,13 @@ export function EditorSaveIndicator() {
     saveStatusIcon = (
       <StyledLoader className="t--save-status-is-saving" name="refresh" />
     );
-    saveStatusText = "Saving";
+    saveStatusText = createMessage(EDITOR_HEADER.saving);
   } else {
     if (pageSaveError) {
       saveStatusIcon = (
         <Icon className={"t--save-status-error"} name="cloud-off-line" />
       );
-      saveStatusText = "Save failed";
+      saveStatusText = createMessage(EDITOR_HEADER.saveFailed);
     }
   }
 

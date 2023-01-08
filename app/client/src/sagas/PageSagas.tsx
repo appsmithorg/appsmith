@@ -1164,6 +1164,7 @@ function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   const currentPageId: string = yield select(getCurrentPageId);
   if (action.payload) {
+    // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));
     history.push(
       builderURL({
@@ -1171,7 +1172,10 @@ function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
       }),
     );
   } else {
+    // when switching back to edit mode
+    // we go back to the previous route e.g query, api etc.
     history.goBack();
+    // small delay to wait for the content to render and then animate
     yield delay(10);
     yield put(setPreviewModeAction(action.payload));
   }

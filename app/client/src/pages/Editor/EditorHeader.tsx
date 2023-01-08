@@ -74,6 +74,7 @@ import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
   DEPLOY_MENU_OPTION,
+  EDITOR_HEADER,
   INVITE_TAB,
   INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
@@ -201,7 +202,7 @@ const StyledDeployIcon = styled(Icon)`
   width: 20px;
   align-self: center;
   &:hover {
-    background-color: #f1f1f1;
+    background-color: ${Colors.GRAY_100};
   }
 `;
 
@@ -255,7 +256,7 @@ export function ShareButtonComponent() {
       iconPosition={IconPositions.left}
       size={Size.medium}
       tag={"button"}
-      text="SHARE"
+      text={createMessage(EDITOR_HEADER.share)}
     />
   );
 }

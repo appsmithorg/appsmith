@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getRealtimeAppEditors } from "selectors/appCollabSelectors";
-import { TooltipComponent } from "design-system";
+import { getTypographyByKey, TooltipComponent } from "design-system";
 import ProfileImage from "pages/common/ProfileImage";
 import UserApi from "@appsmith/api/UserApi";
 import styled from "styled-components";
@@ -31,9 +31,8 @@ const UserImageContainer = styled.div`
     border: 1px solid ${Colors.WHITE};
     span {
       color: ${Colors.GRAY_700};
-      font-size: 11px;
-      line-height: 12px;
-      letter-spacing: 0.4px;
+      font-weight: normal;
+      ${getTypographyByKey("btnSmall")};
     }
   }
 
