@@ -15,6 +15,52 @@ import {
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import { Channel, channel } from "redux-saga";
 
+const referenceMap = new Map();
+const inverseRefMap = new Map();
+
+navigator.serviceWorker &&
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    const { data } = event;
+    const port = event.ports[0];
+    let result = null;
+    console.log("Data received from service worker: ", { data });
+    if (data) {
+      const source = referenceMap.get(data["_referenceId"]) || window;
+      if (data.action === "APPLY") {
+        try {
+          const ctx = referenceMap.get(data["_ctxReferenceId"]) || window;
+          const args = data.args.map((arg: any) => {
+            if (typeof arg === "object" && arg["_referenceId"]) {
+              return referenceMap.get(arg["_referenceId"]);
+            }
+            return arg;
+          });
+          result = source.apply(ctx, args);
+        } catch (e) {
+          result = null;
+        }
+      } else if (data.action === "GET") {
+        result = source[data.property];
+      } else if (data.action === "SET") {
+        debugger;
+        source[data.property] = data.args[0];
+        result = source[data.property];
+      }
+      try {
+        port.postMessage({ data: result });
+      } catch (e) {
+        const _referenceType = typeof result;
+        let _referenceId = inverseRefMap.get(result);
+        if (!_referenceId) {
+          _referenceId = window.crypto.randomUUID();
+          referenceMap.set(_referenceId, result);
+          inverseRefMap.set(result, _referenceId);
+        }
+        port.postMessage({ data: { _referenceId, _referenceType } });
+      }
+    }
+  });
+
 // Making the getCurrentPosition call in a promise fashion
 const getUserLocation = (options?: PositionOptions) =>
   new Promise((resolve, reject) => {
