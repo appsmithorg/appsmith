@@ -25,6 +25,7 @@ declare global {
     $isAsync: boolean;
     $eventType: EventType;
     $evaluationVersion: EvaluationVersion;
+    crypto: Crypto;
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
