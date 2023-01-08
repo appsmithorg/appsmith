@@ -705,7 +705,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * fetches and caches plugin by pluginId after checking datasource for invalids(issues)
-     *
      * @param datasourceMono
      * @param actionId
      * @return pluginMono if datasource has no issues and plugin is find, else throws error
@@ -767,23 +766,29 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                                          Plugin plugin,
                                                                          PluginExecutor pluginExecutor,
                                                                          String environmentName) {
-        // This method will be overridden in EE branch to make use of environmentName.
-        Mono< Tuple3 <Datasource, DsContextMapKey, Map<String, BaseDomain>>> dsContextKeyAndDatasourceMono =
-                getValidatedDatasourceWithDsContextKeyAndEnvMap(datasource, environmentName).cache();
 
+        DsContextMapKey mapKey = new DsContextMapKey();
 
         Mono<ActionExecutionResult> executionMono =
-                dsContextKeyAndDatasourceMono.flatMap( tuple3 -> {
-                            Datasource validatedDatasource = tuple3.getT1();
+                datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
+                        .flatMap( tuple3 -> {
+                            Datasource datasource1 = tuple3.getT1();
                             DsContextMapKey dsContextMapKey = tuple3.getT2();
                             Map<String, BaseDomain> environmentMap = tuple3.getT3();
 
-                            return getDatasourceContextFromValidatedDatasourceForActionExecution(validatedDatasource,
-                                                                                                 plugin,
-                                                                                                 dsContextMapKey,
-                                                                                                 environmentMap)
-                                    // Now that we have the context (connection details), execute the action.
-                                    .flatMap(resourceContext -> {
+                            mapKey.setDatasourceId(dsContextMapKey.getDatasourceId());
+                            mapKey.setEnvironmentId(dsContextMapKey.getEnvironmentId());
+
+                            return getValidatedDatasourceForActionExecution(datasource1, environmentName)
+                                    .zipWhen(validatedDatasource -> getDsContextForActionExecution(validatedDatasource,
+                                                                                                   plugin,
+                                                                                                   dsContextMapKey,
+                                                                                                   environmentMap))
+                                    .flatMap(tuple2 -> {
+                                        Datasource validatedDatasource = tuple2.getT1();
+                                        DatasourceContext<?> resourceContext = tuple2.getT2();
+                                        // Now that we have the context (connection details), execute the action.
+
                                         Instant requestedAt  = Instant.now();
                                         return ((Mono<ActionExecutionResult>)
                                                 pluginExecutor.executeParameterized(resourceContext.getConnection(),
@@ -807,10 +812,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return executionMono.onErrorResume(StaleConnectionException.class, error -> {
             log.info("Looks like the connection is stale. Retrying with a fresh context.");
-            return dsContextKeyAndDatasourceMono
-                    .flatMap(tuple3 -> deleteDatasourceContextForRetry(tuple3.getT2()))
-                    // tuple3.t2 is dsContextMapKey
-                    .then(executionMono);
+            return deleteDatasourceContextForRetry(mapKey).then(executionMono);
         });
     }
 
@@ -823,7 +825,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     protected Mono<Tuple3 <Datasource, DsContextMapKey, Map<String, BaseDomain>>>
     getValidatedDatasourceWithDsContextKeyAndEnvMap(Datasource datasource, String environmentName) {
         // see EE override for complete usage.
-        return datasourceService.prepareForFetchingDsContext(datasource, environmentName)
+        return datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
                 .flatMap(tuple3 -> {
                     Datasource datasource1 = tuple3.getT1();
                     DsContextMapKey dsContextMapKey = tuple3.getT2();
@@ -857,8 +859,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param environmentMap
      * @return datasourceContextMono
      */
-    protected Mono<DatasourceContext<?>> getDatasourceContextFromValidatedDatasourceForActionExecution
-    (Datasource validatedDatasource, Plugin plugin, DsContextMapKey dsContextMapKey, Map<String, BaseDomain> environmentMap) {
+    protected Mono<DatasourceContext<?>> getDsContextForActionExecution (Datasource validatedDatasource, Plugin plugin,
+                                                                         DsContextMapKey dsContextMapKey,
+                                                                         Map<String, BaseDomain> environmentMap) {
         if (plugin.isRemotePlugin()) {
             return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource);
         }

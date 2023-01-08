@@ -88,7 +88,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())))
                 .flatMap(pluginExecutor -> datasourceService
-                        .prepareForFetchingDsContext(datasource, null)
+                        .getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, null)
                         .flatMap(tuple3 -> {
                             Datasource datasource2 = tuple3.getT1();
                             DsContextMapKey dsContextMapKey = tuple3.getT2();

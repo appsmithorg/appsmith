@@ -9,7 +9,6 @@ import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DsContextMapKey;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -327,7 +326,7 @@ public class DatasourceContextServiceTest {
         String dsId = new ObjectId().toHexString();
         String dsId1 = new ObjectId().toHexString();
         DsContextMapKey keyObj = new DsContextMapKey(dsId, null);
-        DsContextMapKey keyObj1 = new DsContextMapKey(dsId, null);
+        DsContextMapKey keyObj1 = new DsContextMapKey(dsId1, null);
         assertNotEquals(keyObj,keyObj1);
     }
 

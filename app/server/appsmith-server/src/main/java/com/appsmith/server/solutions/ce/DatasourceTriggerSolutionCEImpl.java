@@ -88,7 +88,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                                 if (plugin.isRemotePlugin()) {
                                     return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
                                 } else {
-                                    return datasourceService.prepareForFetchingDsContext(datasource1, null)
+                                    return datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource1, null)
                                             .flatMap(tuple3 -> {
                                                 Datasource datasource2 = tuple3.getT1();
                                                 DsContextMapKey dsContextMapKey = tuple3.getT2();

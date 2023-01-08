@@ -49,6 +49,7 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
 
     Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
-    Mono<Tuple3<Datasource, DsContextMapKey, Map<String, BaseDomain>>> prepareForFetchingDsContext(Datasource datasource, String environmentName);
+    Mono<Tuple3<Datasource, DsContextMapKey, Map<String, BaseDomain>>>
+    getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName);
 
 }

@@ -551,8 +551,16 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         }
     }
 
+    /**
+     * This is a composite method for retrieving datasource, dsContextMapKey and environmentMap
+     * See EE override for complete usage
+     * @param datasource
+     * @param environmentName
+     * @return
+     */
+    @Override
     public Mono<Tuple3<Datasource, DsContextMapKey, Map<String, BaseDomain>>>
-    prepareForFetchingDsContext(Datasource datasource, String environmentName) {
+    getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName) {
         // see EE override for complete usage.
         Mono<DsContextMapKey> dsContextMapKeyMono = Mono.just(datasourceContextService.getCustomKey(datasource));
 
