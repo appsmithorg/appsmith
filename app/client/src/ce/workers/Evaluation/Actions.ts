@@ -25,7 +25,9 @@ declare global {
     $isAsync: boolean;
     $eventType: EventType;
     $evaluationVersion: EvaluationVersion;
-    crypto: Crypto;
+    crypto: {
+      randomUUID: () => string;
+    };
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
