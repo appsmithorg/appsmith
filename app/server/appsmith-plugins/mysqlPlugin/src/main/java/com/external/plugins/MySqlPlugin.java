@@ -4,6 +4,7 @@ import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.InvalidQueryConfigError;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
@@ -24,12 +25,16 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.datatypes.MySQLSpecificDataTypes;
+import com.external.plugins.exceptions.MySQLQueryExecutionError;
+import com.external.plugins.exceptions.MySQLQuerySyntaxError;
 import com.external.utils.QueryUtils;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
+import io.r2dbc.spi.R2dbcBadGrammarException;
+import io.r2dbc.spi.R2dbcException;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -192,13 +197,11 @@ public class MySqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (query == null) {
+            if (! StringUtils.hasLength(query)) {
                 ActionExecutionResult errorResult = new ActionExecutionResult();
-                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                 errorResult.setIsExecutionSuccess(false);
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Missing required " +
-                        "parameter: Query."));
-                errorResult.setTitle(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle());
+                errorResult.setErrorInfo(new AppsmithPluginException(new InvalidQueryConfigError("Missing required " +
+                        "parameter: Query.")));
                 ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                 actionExecutionRequest.setProperties(requestData);
                 errorResult.setRequest(actionExecutionRequest);
@@ -207,7 +210,7 @@ public class MySqlPlugin extends BasePlugin {
 
             actionConfiguration.setBody(query.trim());
 
-            // In case of non prepared statement, simply do binding replacement and execute
+            // In case of non-prepared statement, simply do binding replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connection, actionConfiguration, FALSE, null, null, requestData);
@@ -323,13 +326,21 @@ public class MySqlPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
+                        } else if (error instanceof R2dbcBadGrammarException) {
+                            R2dbcBadGrammarException r2dbcBadGrammarException = (R2dbcBadGrammarException) error;
+                            error = new AppsmithPluginException(r2dbcBadGrammarException, new MySQLQuerySyntaxError(r2dbcBadGrammarException.getMessage(), "SQLSTATE: " + r2dbcBadGrammarException.getSqlState()));
+                        } else if (error instanceof R2dbcException){
+                            R2dbcException r2dbcException = (R2dbcException) error;
+                            error = new AppsmithPluginException(r2dbcException, new MySQLQueryExecutionError(r2dbcException.getMessage(), "SQLSTATE: "+ r2dbcException.getSqlState()));
+                        } else {
+                            error = new AppsmithPluginException(new MySQLQueryExecutionError(error.getMessage()));
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(finalQuery);

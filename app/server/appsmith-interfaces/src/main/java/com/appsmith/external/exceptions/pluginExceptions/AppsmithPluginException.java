@@ -12,14 +12,28 @@ public class AppsmithPluginException extends BaseException {
     private final AppsmithPluginError error;
     private final Object[] args;
 
+    private final BasePluginError basePluginError;
+
     public AppsmithPluginException(AppsmithPluginError error, Object... args) {
         this(null, error, args);
+    }
+    public AppsmithPluginException(BasePluginError basePluginError, Object... args) {
+        this(null, basePluginError, args);
     }
 
     public AppsmithPluginException(Throwable externalError, AppsmithPluginError error, Object... args) {
         super(error.getMessage(args));
         this.externalError = externalError;
         this.error = error;
+        this.args = args;
+        this.basePluginError = new CommonPluginError("Generic plugin error");
+    }
+
+    public AppsmithPluginException(Throwable externalError, BasePluginError basePluginError, Object... args) {
+        super(basePluginError.getMessage());
+        this.externalError = externalError;
+        this.error = AppsmithPluginError.PLUGIN_ERROR;
+        this.basePluginError = basePluginError;
         this.args = args;
     }
 
