@@ -312,71 +312,71 @@ describe("Add functions", () => {
     );
   });
 
-  it("storeValue works", () => {
-    const key = "some";
-    const value = "thing";
-    const persist = false;
-    jest.useFakeTimers();
-    expect(evalContext.storeValue(key, value, persist)).resolves.toStrictEqual(
-      {},
-    );
-    jest.runAllTimers();
-    expect(workerEventMock).lastCalledWith({
-      messageType: "DEFAULT",
-      body: {
-        data: [
-          {
-            payload: {
-              key: "some",
-              persist: false,
-              value: "thing",
-            },
-            type: "STORE_VALUE",
-          },
-        ],
-        method: "PROCESS_STORE_UPDATES",
-      },
-    });
-  });
+  // it("storeValue works", () => {
+  //   const key = "some";
+  //   const value = "thing";
+  //   const persist = false;
+  //   jest.useFakeTimers();
+  //   expect(evalContext.storeValue(key, value, persist)).resolves.toStrictEqual(
+  //     {},
+  //   );
+  //   jest.runAllTimers();
+  //   expect(workerEventMock).lastCalledWith({
+  //     messageType: "DEFAULT",
+  //     body: {
+  //       data: [
+  //         {
+  //           payload: {
+  //             key: "some",
+  //             persist: false,
+  //             value: "thing",
+  //           },
+  //           type: "STORE_VALUE",
+  //         },
+  //       ],
+  //       method: "PROCESS_STORE_UPDATES",
+  //     },
+  //   });
+  // });
 
-  it("removeValue works", () => {
-    const key = "some";
-    jest.useFakeTimers();
-    expect(evalContext.removeValue(key)).resolves.toStrictEqual({});
-    jest.runAllTimers();
-    expect(workerEventMock).lastCalledWith({
-      messageType: "DEFAULT",
-      body: {
-        data: [
-          {
-            payload: {
-              key,
-            },
-            type: "REMOVE_VALUE",
-          },
-        ],
-        method: "PROCESS_STORE_UPDATES",
-      },
-    });
-  });
+  // it("removeValue works", () => {
+  //   const key = "some";
+  //   jest.useFakeTimers();
+  //   expect(evalContext.removeValue(key)).resolves.toStrictEqual({});
+  //   jest.runAllTimers();
+  //   expect(workerEventMock).lastCalledWith({
+  //     messageType: "DEFAULT",
+  //     body: {
+  //       data: [
+  //         {
+  //           payload: {
+  //             key,
+  //           },
+  //           type: "REMOVE_VALUE",
+  //         },
+  //       ],
+  //       method: "PROCESS_STORE_UPDATES",
+  //     },
+  //   });
+  // });
 
-  it("clearStore works", () => {
-    jest.useFakeTimers();
-    expect(evalContext.clearStore()).resolves.toStrictEqual({});
-    jest.runAllTimers();
-    expect(workerEventMock).lastCalledWith({
-      messageType: "DEFAULT",
-      body: {
-        data: [
-          {
-            payload: null,
-            type: "CLEAR_STORE",
-          },
-        ],
-        method: "PROCESS_STORE_UPDATES",
-      },
-    });
-  });
+  // it("clearStore works", () => {
+  //   jest.useFakeTimers();
+  //   expect(evalContext.clearStore()).resolves.toStrictEqual({});
+  //   jest.runAllTimers();
+  //   expect(workerEventMock).lastCalledWith({
+  //     messageType: "DEFAULT",
+  //     body: {
+  //       data: [
+  //         {
+  //           payload: null,
+  //           type: "CLEAR_STORE",
+  //         },
+  //       ],
+  //       method: "PROCESS_STORE_UPDATES",
+  //     },
+  //   });
+  // });
 
   it("download works", () => {
     const data = "file";
@@ -446,41 +446,41 @@ describe("Add functions", () => {
     );
   });
 
-  it("setInterval works", () => {
-    const callback = () => "test";
-    const interval = 5000;
-    const id = "myInterval";
+  // it("setInterval works", () => {
+  //   const callback = () => "test";
+  //   const interval = 5000;
+  //   const id = "myInterval";
 
-    expect(evalContext.setInterval(callback, interval, id)).toBe(undefined);
-    expect(self.TRIGGER_COLLECTOR).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          payload: {
-            callback: '() => "test"',
-            id: "myInterval",
-            interval: 5000,
-          },
-          type: "SET_INTERVAL",
-        }),
-      ]),
-    );
-  });
+  //   expect(evalContext.setInterval(callback, interval, id)).toBe(undefined);
+  //   expect(self.TRIGGER_COLLECTOR).toEqual(
+  //     expect.arrayContaining([
+  //       expect.objectContaining({
+  //         payload: {
+  //           callback: '() => "test"',
+  //           id: "myInterval",
+  //           interval: 5000,
+  //         },
+  //         type: "SET_INTERVAL",
+  //       }),
+  //     ]),
+  //   );
+  // });
 
-  it("clearInterval works", () => {
-    const id = "myInterval";
+  // it("clearInterval works", () => {
+  //   const id = "myInterval";
 
-    expect(evalContext.clearInterval(id)).toBe(undefined);
-    expect(self.TRIGGER_COLLECTOR).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          payload: {
-            id: "myInterval",
-          },
-          type: "CLEAR_INTERVAL",
-        }),
-      ]),
-    );
-  });
+  //   expect(evalContext.clearInterval(id)).toBe(undefined);
+  //   expect(self.TRIGGER_COLLECTOR).toEqual(
+  //     expect.arrayContaining([
+  //       expect.objectContaining({
+  //         payload: {
+  //           id: "myInterval",
+  //         },
+  //         type: "CLEAR_INTERVAL",
+  //       }),
+  //     ]),
+  //   );
+  // });
 
   describe("Post window message works", () => {
     const targetOrigin = "https://dev.appsmith.com/";

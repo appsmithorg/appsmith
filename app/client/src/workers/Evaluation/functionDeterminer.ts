@@ -37,12 +37,11 @@ class FunctionDeterminer {
     }
   }
 
-  isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {
+  isFunctionAsync(...args: any[]) {
     self.TRIGGER_COLLECTOR = [];
     self.IS_ASYNC = false;
-
     return (function() {
-      return true;
+      return !!args;
       // try {
       //   if (typeof userFunction === "function") {
       //     if (userFunction.constructor.name === "AsyncFunction") {

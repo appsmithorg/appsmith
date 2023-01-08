@@ -23,7 +23,6 @@ navigator.serviceWorker &&
     const { data } = event;
     const port = event.ports[0];
     let result = null;
-    console.log("Data received from service worker: ", { data });
     if (data) {
       const source = referenceMap.get(data["_referenceId"]) || window;
       if (data.action === "APPLY") {
@@ -42,7 +41,6 @@ navigator.serviceWorker &&
       } else if (data.action === "GET") {
         result = source[data.property];
       } else if (data.action === "SET") {
-        debugger;
         source[data.property] = data.args[0];
         result = source[data.property];
       }
