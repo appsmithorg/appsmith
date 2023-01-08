@@ -16,7 +16,6 @@ self.addEventListener('fetch', function (event) {
                     channel.port2.close();
                 };
                 self.clients.matchAll({
-                    includeUncontrolled: true,
                     type: 'window',
                 }).then((clients) => {
                     if (clients && clients.length) {

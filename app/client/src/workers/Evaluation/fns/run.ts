@@ -1,4 +1,3 @@
-import { ActionTriggerType } from "ce/entities/DataTree/actionTriggers";
 import { isTrueObject } from "ce/workers/Evaluation/evaluationUtils";
 import { createEvaluationContext } from "../evaluate";
 import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
@@ -19,7 +18,7 @@ export default async function run(
     method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
     data: {
       trigger: {
-        type: ActionTriggerType.RUN_PLUGIN_ACTION,
+        type: "RUN_PLUGIN_ACTION",
         payload: {
           actionId: this.actionId,
           params: actionParams,

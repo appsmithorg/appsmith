@@ -1,5 +1,4 @@
 import {
-  ActionTriggerType,
   RemoveValueActionDescription,
   StoreValueActionDescription,
 } from "ce/entities/DataTree/actionTriggers";
@@ -11,7 +10,7 @@ export function initStoreFns(ctx: typeof globalThis) {
   const triggerEmitter = TriggerEmitter.getInstance();
   function storeValue(key: string, value: string, persist = true) {
     const requestPayload: StoreValueActionDescription = {
-      type: ActionTriggerType.STORE_VALUE,
+      type: "STORE_VALUE",
       payload: {
         key,
         value,
@@ -25,7 +24,7 @@ export function initStoreFns(ctx: typeof globalThis) {
 
   function removeValue(key: string) {
     const requestPayload: RemoveValueActionDescription = {
-      type: ActionTriggerType.REMOVE_VALUE,
+      type: "REMOVE_VALUE",
       payload: {
         key,
       },
@@ -40,7 +39,7 @@ export function initStoreFns(ctx: typeof globalThis) {
     //@ts-expect-error no types for store
     self.appsmith.store = {};
     triggerEmitter.emit("process_store_updates", {
-      type: ActionTriggerType.CLEAR_STORE,
+      type: "CLEAR_STORE",
       payload: null,
     });
     return Promise.resolve({});

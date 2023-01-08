@@ -110,7 +110,7 @@
     });
     const registerPageServiceWorker = () => {
       const referenceMap = new Map();
-      const ctxMap = new Map();
+      const inverseRefMap = new Map();
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/sw.js").then(function() {
@@ -121,31 +121,37 @@
               let result = null;
               console.log("Data received from service worker: ", { data });
               if (data) {
-                let source = (data["_referenceId"] ? referenceMap.get(data["_referenceId"]) : window) || window;
+                let source = referenceMap.get(data["_referenceId"]) || window;
                 if(data.action === "APPLY") {
                   try {
-                    const ctx = ctxMap.get(data["_referenceId"]);
-                    result = source.apply(ctx, data.args);
+                    const ctx = referenceMap.get(data["_ctxReferenceId"]) || window;
+                    const args = data.args.map((arg) => {
+                      if(typeof arg === "object" && arg["_referenceId"]) {
+                        return referenceMap.get(arg["_referenceId"]);
+                      }
+                      return arg;
+                    })
+                    result = source.apply(ctx, args);
                   } catch(e) {
                     result = null;
                   }
                 } else if(data.action === "GET") {
                   result = source[data.property]
                 } else if(data.action === "SET") {
+                  debugger;
                   source[data.property] = data.args[0];
                   result = source[data.property];
                 }
                 try {
                   port.postMessage({ data: result });
                 } catch(e) {
-                  const _referenceId = window.crypto.randomUUID();
                   const _referenceType = typeof result;
-                  if(typeof result === "function") {
-                    const ctx = referenceMap.get(data["_referenceId"]);
-                    ctxMap.set(_referenceId, ctx);
+                  let _referenceId = inverseRefMap.get(result);
+                  if(!_referenceId) {
+                    _referenceId = window.crypto.randomUUID();
+                    referenceMap.set(_referenceId, result);
+                    inverseRefMap.set(result, _referenceId);
                   }
-                  data["_referenceId"] && referenceMap.delete(data["_referenceId"]);
-                  referenceMap.set(_referenceId, result);
                   port.postMessage({ data:  { _referenceId, _referenceType  } });
                 }
               }
