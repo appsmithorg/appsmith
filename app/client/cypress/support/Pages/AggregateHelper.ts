@@ -490,7 +490,7 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
-      .click({ force: true })
+      .click({ force: force })
       .wait(waitTimeInterval);
   }
 
