@@ -63,15 +63,13 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         default:
           break;
       }
-      return value === "none"
-        ? ""
-        : defaultArgs && defaultArgs.length
-        ? `{{${value}(${defaultArgs})}}`
-        : defaultParams && defaultParams.length
-        ? `{{${value}(${defaultParams})}}`
-        : type === AppsmithFunction.integration
-        ? `{{${value}}}`
-        : `{{${value}()}}`;
+      if (value === "none") return "";
+      if (defaultArgs && defaultArgs.length)
+        return `{{${value}(${defaultArgs})}}`;
+      if (defaultParams && defaultParams.length)
+        return `{{${value}(${defaultParams})}}`;
+      if (type === AppsmithFunction.integration) return `{{${value}}}`;
+      return `{{${value}()}}`;
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
