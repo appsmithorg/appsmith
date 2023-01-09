@@ -1151,6 +1151,14 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
   });
 });
 
+Cypress.Commands.add("CheckForPageSaveError", () => {
+  cy.get("body").then(($ele) => {
+    if ($ele.find(commonlocators.saveStatusError).length) {
+      cy.reload()
+    }
+  });
+});
+
 Cypress.Commands.add("assertPageSave", () => {
   cy.get(commonlocators.saveStatusSuccess).should("exist", { timeout: 40000 });
 });
