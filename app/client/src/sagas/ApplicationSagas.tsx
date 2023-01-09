@@ -27,7 +27,7 @@ import ApplicationApi, {
   UpdateApplicationRequest,
   UpdateApplicationResponse,
 } from "api/ApplicationApi";
-import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
@@ -199,6 +199,7 @@ export function* getAllApplicationSaga() {
         payload: workspaceApplication,
       });
     }
+    yield call(fetchReleases);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
@@ -207,7 +208,6 @@ export function* getAllApplicationSaga() {
       },
     });
   }
-  yield fork(fetchReleases);
 }
 
 export function* fetchAppAndPagesSaga(
