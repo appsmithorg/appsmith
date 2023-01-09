@@ -1,4 +1,9 @@
-import { AppsmithFunction, FieldType, ViewTypes } from "../constants";
+import {
+  AppsmithFunction,
+  FieldType,
+  NEW_MODAL_LABEL,
+  ViewTypes,
+} from "../constants";
 import { TreeDropdownOption } from "design-system";
 import {
   FieldProps,
@@ -99,7 +104,7 @@ export function Field(props: FieldProps) {
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: (options as TreeDropdownOption[]).sort(
           (a: TreeDropdownOption, b: TreeDropdownOption) => {
-            if (a.label === "New Modal" || b.label === "New Modal") {
+            if (a.label === NEW_MODAL_LABEL || b.label === NEW_MODAL_LABEL) {
               return 1;
             } else {
               return a.label.localeCompare(b.label);

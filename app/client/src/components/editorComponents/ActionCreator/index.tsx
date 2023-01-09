@@ -43,6 +43,7 @@ import {
   AppsmithFunction,
   FieldType,
   AppsmithFunctionsWithFields,
+  NEW_MODAL_LABEL,
 } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import { isValueValidURL } from "./utils";
@@ -309,7 +310,7 @@ function useModalDropdownList() {
 
   let finalList: TreeDropdownOption[] = [
     {
-      label: "New Modal",
+      label: NEW_MODAL_LABEL,
       value: "Modal",
       id: "create",
       icon: "plus",

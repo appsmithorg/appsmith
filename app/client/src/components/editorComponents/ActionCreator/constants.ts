@@ -76,6 +76,8 @@ export const NAVIGATE_TO_TAB_OPTIONS = {
   URL: "url",
 };
 
+export const NEW_MODAL_LABEL = "New Modal";
+
 export enum FieldType {
   ACTION_SELECTOR_FIELD = "ACTION_SELECTOR_FIELD",
   ON_SUCCESS_FIELD = "ON_SUCCESS_FIELD",
