@@ -14,7 +14,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -114,6 +114,11 @@ public class Application extends BaseDomain {
 
     NavigationSetting publishedNavigationSetting;
 
+    @JsonIgnore
+    AppPositioning publishedAppPositioning;
+
+    @JsonIgnore
+    AppPositioning unpublishedAppPositioning;
 
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
@@ -179,6 +184,8 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+        this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
+        this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
     }
 
@@ -280,5 +287,37 @@ public class Application extends BaseDomain {
         private Boolean showSignIn;
         private Boolean showShareApp;
     }
+
+    public AppPositioning getAppPositioning() {
+        return Boolean.TRUE.equals(viewMode) ? publishedAppPositioning : unpublishedAppPositioning;
+    }
+
+    public void setAppPositioning(AppPositioning appPositioning) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedAppPositioning = appPositioning;
+        } else {
+            unpublishedAppPositioning = appPositioning;
+        }
+    }
+
+    /**
+     * AppPositioning captures widget positioning Mode of the application
+     */
+    @Data
+    @NoArgsConstructor
+    public static class AppPositioning {
+        Type type;
+
+        public AppPositioning(Type type) {
+            this.type = type;
+        }
+
+        public enum Type {
+            FIXED,
+            AUTO
+        }
+
+    }
+
 
 }

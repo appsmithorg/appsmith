@@ -8,7 +8,7 @@ import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
 import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import { JSAction } from "entities/JSCollection";
 import { getJSFunctionFromName } from "selectors/entitiesSelector";
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -197,6 +197,7 @@ export const updateJSCollectionInUnEvalTree = (
 export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: DataTree,
   entity: DataTreeJSAction,
+  jsEntityName: string,
 ) => {
   const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
   const modifiedDataTree: DataTree = unEvalTree;
@@ -206,10 +207,10 @@ export const removeFunctionsAndVariableJSCollection = (
   });
   //removed variables
   const varList: Array<string> = entity.variables;
-  set(modifiedDataTree, `${entity.name}.variables`, []);
+  set(modifiedDataTree, `${jsEntityName}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
-    unset(modifiedDataTree[entity.name], varName);
+    unset(modifiedDataTree[jsEntityName], varName);
   }
   //remove functions
 
@@ -220,7 +221,7 @@ export const removeFunctionsAndVariableJSCollection = (
     const actionName = functionsList[i];
     delete reactivePaths[actionName];
     delete meta[actionName];
-    unset(modifiedDataTree[entity.name], actionName);
+    unset(modifiedDataTree[jsEntityName], actionName);
 
     oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
       (path: any) => path["key"] !== actionName,
@@ -264,6 +265,7 @@ export function* sortJSExecutionDataByCollectionId(
     const jsAction: JSAction | undefined = yield select((state: AppState) =>
       getJSFunctionFromName(state, jsfuncFullName),
     );
+
     if (jsAction && jsAction.collectionId) {
       if (sortedData[jsAction.collectionId]) {
         sortedData[jsAction.collectionId].push({

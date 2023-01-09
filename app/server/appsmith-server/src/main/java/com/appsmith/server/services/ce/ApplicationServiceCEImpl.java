@@ -53,7 +53,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -281,6 +281,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             }
                             return Mono.error(error);
                         })
+                        .flatMap(application1 -> this.setTransientFields(application1))
                         .flatMap(application1 -> {
                             final Map<String, Object> eventData = Map.of(
                                     FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
