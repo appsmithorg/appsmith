@@ -3,7 +3,7 @@ import {
   StoreValueActionDescription,
 } from "ce/entities/DataTree/actionTriggers";
 import set from "lodash/set";
-import { MAIN_THREAD_ACTION } from "ce/workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { addFn } from "./utils/fnGuard";
 import { TriggerCollector } from "./utils/TriggerCollector";
 

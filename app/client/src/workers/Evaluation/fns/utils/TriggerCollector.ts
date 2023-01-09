@@ -1,6 +1,5 @@
 import { MessageType, sendMessage } from "utils/MessageUtil";
-import { MAIN_THREAD_ACTION } from "workers/Evaluation/evalWorkerActions";
-
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 export class TriggerCollector {
   private triggers: unknown[] = [];
   constructor(private requestType: MAIN_THREAD_ACTION) {}
