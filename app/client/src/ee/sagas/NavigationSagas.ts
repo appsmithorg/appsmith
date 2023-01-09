@@ -7,4 +7,5 @@ import { handlePageChange, handleRouteChange } from "ce/sagas/NavigationSagas";
 export default function* rootSaga() {
   yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
   yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);
+  // EE sagas called after this
 }

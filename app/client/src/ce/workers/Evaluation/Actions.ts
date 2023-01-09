@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _, { set } from "lodash";
+import { set } from "lodash";
 import {
   ActionDescription,
   ActionTriggerFunctionNames,
