@@ -27,7 +27,7 @@ import ApplicationApi, {
   UpdateApplicationRequest,
   UpdateApplicationResponse,
 } from "api/ApplicationApi";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
@@ -207,7 +207,7 @@ export function* getAllApplicationSaga() {
       },
     });
   }
-  yield call(fetchReleases);
+  yield fork(fetchReleases);
 }
 
 export function* fetchAppAndPagesSaga(
