@@ -1,5 +1,8 @@
 import { call, fork, put, select } from "redux-saga/effects";
-import { setFocusHistory } from "actions/focusHistoryActions";
+import {
+  RouteChangeActionPayload,
+  setFocusHistory,
+} from "actions/focusHistoryActions";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import { FocusElementsConfig } from "navigation/FocusElements";
@@ -36,7 +39,7 @@ function* appBackgroundHandler() {
 }
 
 export function* handleRouteChange(
-  action: ReduxAction<{ location: Location<AppsmithLocationState> }>,
+  action: ReduxAction<RouteChangeActionPayload>,
 ) {
   const { hash, pathname, state } = action.payload.location;
   try {
