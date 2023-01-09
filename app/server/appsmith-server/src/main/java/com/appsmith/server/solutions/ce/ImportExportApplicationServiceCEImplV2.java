@@ -1230,6 +1230,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                 return application;
                             });
                 })
+                .then(installedJSLibMono)
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application ", throwable.getMessage());
                     if (importedApplication.getId() != null && applicationId == null) {
