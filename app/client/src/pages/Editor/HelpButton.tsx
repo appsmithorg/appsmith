@@ -3,15 +3,13 @@ import styled, { createGlobalStyle, useTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
 import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
-import { Colors } from "constants/Colors";
-import { TooltipComponent } from "design-system";
 import {
   createMessage,
   HELP_RESOURCE_TOOLTIP,
@@ -19,6 +17,7 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useCallback } from "react";
 import { useState } from "react";
+import { BottomBarCTAStyles } from "./BottomBar/styles";
 import { Theme } from "constants/DefaultTheme";
 
 const HelpPopoverStyle = createGlobalStyle`
@@ -29,19 +28,10 @@ const HelpPopoverStyle = createGlobalStyle`
 
 const StyledTrigger = styled.div`
   cursor: pointer;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 ${(props) => props.theme.spaces[4]}px;
-  background: ${(props) =>
-    props.theme.colors.globalSearch.helpButtonBackground};
-
-  &:hover {
-    border: 1.5px solid ${Colors.GREY_10};
-  }
+  ${BottomBarCTAStyles}
 `;
 
 type TriggerProps = {
@@ -56,13 +46,16 @@ const Trigger = ({ tooltipsDisabled }: TriggerProps) => {
       content={createMessage(HELP_RESOURCE_TOOLTIP)}
       disabled={tooltipsDisabled}
       hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-      position="bottom"
+      modifiers={{
+        preventOverflow: { enabled: true },
+      }}
+      position={"bottom"}
     >
       <StyledTrigger>
         <Icon
           fillColor={theme.colors.globalSearch.helpIcon}
-          name="help"
-          size={IconSize.LARGE}
+          name="question-line"
+          size={IconSize.XXXL}
         />
       </StyledTrigger>
     </TooltipComponent>

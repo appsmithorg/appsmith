@@ -67,7 +67,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
   }
   &&&& .${Classes.EDITABLE_TEXT_CONTENT}, &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     display: block;
-    ${getTypographyByKey("h4")};
+    ${getTypographyByKey("h5")};
     line-height: ${(props) => props.theme.smallHeaderHeight} !important;
     padding: 0 ${(props) => props.theme.spaces[2]}px;
   }
@@ -232,7 +232,7 @@ export function EditorAppName(props: EditorAppNameProps) {
           <StyledIcon
             fillColor={theme.colors.navigationMenu.contentActive}
             name={isPopoverOpen ? "expand-less" : "down-arrow"}
-            size={IconSize.XXL}
+            size={IconSize.LARGE}
           />
         )}
       </Container>
