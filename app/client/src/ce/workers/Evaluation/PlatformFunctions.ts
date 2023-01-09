@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { ExecutionType } from "@appsmith/workers/Evaluation/Actions";
-import _, { uniqueId } from "lodash";
+import _ from "lodash";
+import uniqueId from "lodash/uniqueId";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 
 export type ActionDescriptionWithExecutionType = ActionDescription & {
