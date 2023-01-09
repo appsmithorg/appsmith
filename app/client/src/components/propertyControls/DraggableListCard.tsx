@@ -15,7 +15,6 @@ import {
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
 import { CheckboxType } from "design-system";
-import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -36,7 +35,7 @@ type RenderComponentProps = {
     isDuplicateLabel?: boolean;
     isChecked?: boolean;
     isCheckboxDisabled?: boolean;
-    sticky?: StickyType;
+    isDragDisabled?: boolean;
   };
   isDelete?: boolean;
   isDragging: boolean;
@@ -149,7 +148,7 @@ export function DraggableListCard(props: RenderComponentProps) {
 
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
-      {item.sticky !== StickyType.NONE && item?.sticky !== undefined ? (
+      {item?.isDragDisabled ? (
         <StyledPinIcon height={20} width={20} />
       ) : (
         <StyledDragIcon height={20} width={20} />
