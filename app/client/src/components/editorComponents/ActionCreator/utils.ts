@@ -11,7 +11,6 @@ import {
   setCallbackFunctionField,
   getFuncExpressionAtPosition,
 } from "@shared/ast";
-import { Toaster, Variant } from "design-system";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
