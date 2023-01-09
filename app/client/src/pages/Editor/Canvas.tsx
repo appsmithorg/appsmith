@@ -29,9 +29,8 @@ const Container = styled.section<{
   transformOrigin: "0 0 
 `;
 
-// TODO(abhinav): get the render mode from context
-const Canvas = memo((props: CanvasProps) => {
-  const { canvasScale = 1, canvasWidth, pageId } = props;
+const Canvas = (props: CanvasProps) => {
+  const { canvasScale = 1, canvasWidth } = props;
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
 
@@ -71,8 +70,6 @@ const Canvas = memo((props: CanvasProps) => {
     Sentry.captureException(error);
     return null;
   }
-});
-
-Canvas.displayName = "Canvas";
+};
 
 export default Canvas;
