@@ -52,6 +52,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         disableNewLineOnPressEnterKey={this.props.disableNewLineOnPressEnterKey}
         disabled={this.props.disabled}
         errorMessage={this.props.errorMessage}
+        errorMessageJp={this.props.errorMessageJp}
         fill={this.props.fill}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
@@ -63,6 +64,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        translationJp={this.props.translationJp}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
@@ -77,10 +79,12 @@ class InputComponent extends React.Component<InputComponentProps> {
         onKeyDown={this.props.onKeyDown}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
+        placeholderJp={this.props.placeholderJp}
         showError={this.props.showError}
         spellCheck={this.props.spellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
+        tooltipJp={this.props.tooltipJp}
         value={this.props.value}
         widgetId={this.props.widgetId}
       />

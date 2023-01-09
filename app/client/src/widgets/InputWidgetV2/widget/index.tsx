@@ -27,6 +27,10 @@ import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { AppState } from "ce/reducers";
+import { connect } from "react-redux";
+import { LanguageEnums } from "entities/App";
+import { translate } from "utils/translate";
 
 export function defaultValueValidation(
   value: any,
@@ -175,7 +179,14 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
     };
   }
 }
-class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
+
+interface InputProps extends InputWidgetProps {
+  lang?: LanguageEnums;
+}
+
+class InputWidget extends BaseInputWidget<InputProps, WidgetState> {
+  static defaultProps: Partial<InputProps> | undefined;
+
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
@@ -483,7 +494,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     }
 
     const conditionalProps: Partial<InputComponentProps> = {};
-    conditionalProps.errorMessage = this.props.errorMessage;
+
+    conditionalProps.errorMessage = translate(
+      this.props.lang,
+      this.props.errorMessage,
+      this.props.errorMessageJp,
+    );
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
@@ -571,6 +587,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
+        translationJp={this.props.translationJp}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
@@ -586,10 +603,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        placeholderJp={this.props.placeholderJp}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
+        tooltipJp={this.props.tooltipJp}
         value={value}
         widgetId={this.props.widgetId}
         {...conditionalProps}
@@ -611,4 +630,10 @@ export interface InputWidgetProps extends BaseInputWidgetProps {
   inputText: string;
 }
 
-export default InputWidget;
+const mapStateToProps = (state: AppState) => {
+  return {
+    lang: state.ui.appView.lang,
+  };
+};
+
+export default connect(mapStateToProps, null)(InputWidget);
