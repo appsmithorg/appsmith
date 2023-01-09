@@ -913,7 +913,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                 });
                     }
                 )
-
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
                 .flatMap(savedApp -> {
                     importedApplication.setId(savedApp.getId());
