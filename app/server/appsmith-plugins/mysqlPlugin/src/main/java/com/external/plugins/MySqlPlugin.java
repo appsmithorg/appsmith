@@ -10,26 +10,24 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
-import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.datatypes.MySQLSpecificDataTypes;
+import com.external.utils.MySqlDatasourceUtils;
 import com.external.utils.QueryUtils;
+import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
-import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactoryOptions;
-import io.r2dbc.spi.Option;
+import io.r2dbc.spi.R2dbcNonTransientResourceException;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -37,15 +35,14 @@ import io.r2dbc.spi.Statement;
 import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
-import org.mariadb.r2dbc.MariadbConnectionFactoryProvider;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import reactor.pool.PoolShutdownException;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -64,7 +61,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -72,16 +68,16 @@ import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
-import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
+import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
+import static com.external.utils.MySqlGetStructureUtils.getKeyInfo;
+import static com.external.utils.MySqlGetStructureUtils.getTableInfo;
+import static com.external.utils.MySqlGetStructureUtils.getTemplates;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class MySqlPlugin extends BasePlugin {
 
-    private static final String DATE_COLUMN_TYPE_NAME = "date";
-    private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
-    private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
 
@@ -142,7 +138,7 @@ public class MySqlPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
+    public static class MySqlPluginExecutor implements PluginExecutor<ConnectionPool>, SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
         private final Scheduler scheduler = Schedulers.boundedElastic();
@@ -162,7 +158,7 @@ public class MySqlPlugin extends BasePlugin {
          * @return
          */
         @Override
-        public Mono<ActionExecutionResult> executeParameterized(Connection connection,
+        public Mono<ActionExecutionResult> executeParameterized(ConnectionPool connection,
                                                                 ExecuteActionDTO executeActionDTO,
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
@@ -223,7 +219,7 @@ public class MySqlPlugin extends BasePlugin {
             return executeCommon(connection, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO, requestData);
         }
 
-        public Mono<ActionExecutionResult> executeCommon(Connection connection,
+        public Mono<ActionExecutionResult> executeCommon(ConnectionPool connectionPool,
                                                          ActionConfiguration actionConfiguration,
                                                          Boolean preparedStatement,
                                                          List<MustacheBindingToken> mustacheValuesInOrder,
@@ -233,6 +229,7 @@ public class MySqlPlugin extends BasePlugin {
             String query = actionConfiguration.getBody();
 
             /**
+             * TBD: check if this comment is resolved with the new MariaDB driver.
              * - MySQL r2dbc driver is not able to substitute the `True/False` value properly after the IS keyword.
              * Converting `True/False` to integer 1 or 0 also does not work in this case as MySQL syntax does not support
              * integers with IS keyword.
@@ -260,87 +257,96 @@ public class MySqlPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                     transformedQuery, null, null, psParams));
 
-            // TODO: need to write a JUnit TC for VALIDATION_CHECK_TIMEOUT
-            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
-                    .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
-                    .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
-                    .flatMapMany(isValid -> {
-                        if (isValid) {
-                            return createAndExecuteQueryFromConnection(finalQuery,
-                                    connection,
-                                    preparedStatement,
-                                    mustacheValuesInOrder,
-                                    executeActionDTO,
-                                    requestData,
-                                    psParams);
-                        }
-                        return Flux.error(new StaleConnectionException());
-                    });
+            return Mono.usingWhen(
+                    connectionPool.create(),
+                    connection -> {
+                        // TODO: add JUnit TC for the `connection.validate` check. Not sure how to do it at the moment.
+                        Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+                                .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
+                                .flatMapMany(isValid -> {
+                                    if (isValid) {
+                                        return createAndExecuteQueryFromConnection(finalQuery,
+                                                connection,
+                                                preparedStatement,
+                                                mustacheValuesInOrder,
+                                                executeActionDTO,
+                                                requestData,
+                                                psParams);
+                                    }
+                                    return Flux.error(new StaleConnectionException());
+                                });
 
-            Mono<List<Map<String, Object>>> resultMono;
+                        Mono<List<Map<String, Object>>> resultMono;
+                        if (isSelectOrShowOrDescQuery) {
+                            resultMono = resultFlux
+                                    .flatMap(result ->
+                                            result.map((row, meta) -> {
+                                                        rowsList.add(getRow(row, meta));
 
-            if (isSelectOrShowOrDescQuery) {
-                resultMono = resultFlux
-                        .flatMap(result ->
-                                result.map((row, meta) -> {
-                                            rowsList.add(getRow(row, meta));
+                                                        if (columnsList.isEmpty()) {
+                                                            meta.getColumnMetadatas().stream().forEach(columnMetadata -> columnsList.add(columnMetadata.getName()));
+                                                        }
 
-                                            if (columnsList.isEmpty()) {
-                                                meta.getColumnMetadatas().stream().forEach(columnMetadata -> columnsList.add(columnMetadata.getName()));
-                                            }
-
-                                            return result;
-                                        }
-                                )
-                        )
-                        .collectList()
-                        .thenReturn(rowsList);
-            } else {
-                resultMono = resultFlux
-                        .flatMap(Result::getRowsUpdated)
-                        .collectList()
-                        .map(list -> list.get(list.size() - 1))
-                        .map(rowsUpdated -> {
-                            rowsList.add(
-                                    Map.of(
-                                            "affectedRows",
-                                            ObjectUtils.defaultIfNull(rowsUpdated, 0)
+                                                        return result;
+                                                    }
+                                            )
                                     )
-                            );
-                            return rowsList;
-                        });
-            }
-
-            return resultMono
-                    .map(res -> {
-                        ActionExecutionResult result = new ActionExecutionResult();
-                        result.setBody(objectMapper.valueToTree(rowsList));
-                        result.setMessages(populateHintMessages(columnsList));
-                        result.setIsExecutionSuccess(true);
-                        log.debug("In the MySqlPlugin, got action execution result");
-                        return result;
-                    })
-                    .onErrorResume(error -> {
-                        if (error instanceof StaleConnectionException) {
-                            return Mono.error(error);
+                                    .collectList()
+                                    .thenReturn(rowsList);
+                        } else {
+                            resultMono = resultFlux
+                                    .flatMap(Result::getRowsUpdated)
+                                    .collectList()
+                                    .map(list -> list.get(list.size() - 1))
+                                    .map(rowsUpdated -> {
+                                        rowsList.add(
+                                                Map.of(
+                                                        "affectedRows",
+                                                        ObjectUtils.defaultIfNull(rowsUpdated, 0)
+                                                )
+                                        );
+                                        return rowsList;
+                                    });
                         }
-                        ActionExecutionResult result = new ActionExecutionResult();
-                        result.setIsExecutionSuccess(false);
-                        result.setErrorInfo(error);
-                        return Mono.just(result);
-                    })
-                    // Now set the request in the result to be returned back to the server
-                    .map(actionExecutionResult -> {
-                        ActionExecutionRequest request = new ActionExecutionRequest();
-                        request.setQuery(finalQuery);
-                        request.setProperties(requestData);
-                        request.setRequestParams(requestParams);
-                        ActionExecutionResult result = actionExecutionResult;
-                        result.setRequest(request);
-                        return result;
-                    })
-                    .subscribeOn(scheduler);
 
+                        return resultMono
+                                .map(res -> {
+                                    ActionExecutionResult result = new ActionExecutionResult();
+                                    result.setBody(objectMapper.valueToTree(rowsList));
+                                    result.setMessages(populateHintMessages(columnsList));
+                                    result.setIsExecutionSuccess(true);
+                                    log.debug("In the MySqlPlugin, got action execution result");
+                                    return result;
+                                })
+                                .onErrorResume(error -> {
+                                    if (error instanceof StaleConnectionException) {
+                                        return Mono.error(error);
+                                    }
+                                    ActionExecutionResult result = new ActionExecutionResult();
+                                    result.setIsExecutionSuccess(false);
+                                    result.setErrorInfo(error);
+                                    return Mono.just(result);
+                                })
+                                // Now set the request in the result to be returned back to the server
+                                .map(actionExecutionResult -> {
+                                    ActionExecutionRequest request = new ActionExecutionRequest();
+                                    request.setQuery(finalQuery);
+                                    request.setProperties(requestData);
+                                    request.setRequestParams(requestParams);
+                                    ActionExecutionResult result = actionExecutionResult;
+                                    result.setRequest(request);
+
+                                    return result;
+                                });
+                    },
+                    Connection::close
+            )
+            .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+            .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
+            .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException())
+            .onErrorMap(R2dbcNonTransientResourceException.class, error -> new StaleConnectionException())
+            .subscribeOn(scheduler);
         }
 
         boolean isIsOperatorUsed(String query) {
@@ -386,6 +392,14 @@ public class MySqlPlugin extends BasePlugin {
 
             return Flux.from(connectionStatement.execute());
 
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(ConnectionPool pool) {
+            return Mono.just(pool)
+                    .flatMap(p -> p.create())
+                    .flatMap(conn -> Mono.from(conn.close()))
+                    .then(Mono.just(new DatasourceTestResult()));
         }
 
         @Override
@@ -500,112 +514,26 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(ConnectionPool connection,
+                                                   DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
 
         @Override
-        public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-
-            StringBuilder urlBuilder = new StringBuilder();
-            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                urlBuilder.append(datasourceConfiguration.getUrl());
-            } else {
-                urlBuilder.append("r2dbc:mysql://");
-                final List<String> hosts = new ArrayList<>();
-
-                for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 3306L));
-                }
-
-                urlBuilder.append(String.join(",", hosts)).append("/");
-
-                if (StringUtils.hasLength(authentication.getDatabaseName())) {
-                    urlBuilder.append(authentication.getDatabaseName());
-                }
-
+        public Mono<ConnectionPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            ConnectionPool pool = null;
+            try {
+                pool = getNewConnectionPool(datasourceConfiguration);
+            } catch (AppsmithPluginException e) {
+                return Mono.error(e);
             }
-
-            urlBuilder.append("?zeroDateTimeBehavior=convertToNull");
-            final List<Property> dsProperties = datasourceConfiguration.getProperties();
-
-            if (dsProperties != null) {
-                for (Property property : dsProperties) {
-                    if ("serverTimezone".equals(property.getKey()) && !StringUtils.isEmpty(property.getValue())) {
-                        urlBuilder.append("&serverTimezone=").append(property.getValue());
-                        break;
-                    }
-                }
-            }
-
-
-            ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
-            ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions)
-                    .option(ConnectionFactoryOptions.DRIVER, MariadbConnectionFactoryProvider.MARIADB_DRIVER)
-                    .option(MariadbConnectionFactoryProvider.ALLOW_MULTI_QUERIES, true)
-                    .option(ConnectionFactoryOptions.USER, authentication.getUsername())
-                    .option(ConnectionFactoryOptions.PASSWORD, authentication.getPassword());
-
-            /*
-             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
-             */
-            if (datasourceConfiguration.getConnection() == null
-                    || datasourceConfiguration.getConnection().getSsl() == null
-                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_ERROR,
-                                "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                                        "Please reach out to Appsmith customer support to resolve this."
-                        )
-                );
-            }
-
-            /*
-             * - By default, the driver configures SSL in the preferred mode.
-             */
-            SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
-            switch (sslAuthType) {
-                case PREFERRED:
-                case REQUIRED:
-                    ob = ob
-                            .option(SSL, true)
-                            .option(Option.valueOf("sslMode"), sslAuthType.toString().toLowerCase());
-
-                    break;
-                case DISABLED:
-                    ob = ob.option(SSL, false);
-
-                    break;
-                case DEFAULT:
-                    /* do nothing - accept default driver setting*/
-
-                    break;
-                default:
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
-                                            " Appsmith customer support to resolve this."
-                            )
-                    );
-            }
-
-            return (Mono<Connection>) Mono.from(ConnectionFactories.get(ob.build()).create())
-                    .onErrorResume(exception -> Mono.error(new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            exception
-                    )))
-                    .subscribeOn(scheduler);
+            return Mono.just(pool);
         }
-
         @Override
-        public void datasourceDestroy(Connection connection) {
-
-            if (connection != null) {
-                Mono.from(connection.close())
+        public void datasourceDestroy(ConnectionPool connectionPool) {
+            if (connectionPool != null) {
+                Mono.just(connectionPool.disposeLater())
                         .onErrorResume(exception -> {
                             log.debug("In datasourceDestroy function error mode.", exception);
                             return Mono.empty();
@@ -617,258 +545,72 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-
-            Set<String> invalids = new HashSet<>();
-
-            if (datasourceConfiguration.getConnection() != null
-                    && datasourceConfiguration.getConnection().getMode() == null) {
-                invalids.add("Missing Connection Mode.");
-            }
-
-            if (StringUtils.isEmpty(datasourceConfiguration.getUrl()) &&
-                    CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add("Missing endpoint and url");
-            } else if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    if (endpoint.getHost() == null || endpoint.getHost().isBlank()) {
-                        invalids.add("Host value cannot be empty");
-                    } else if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
-                        invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
-                    }
-                }
-            }
-
-            if (datasourceConfiguration.getAuthentication() == null) {
-                invalids.add("Missing authentication details.");
-            } else {
-                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add("Missing username for authentication.");
-                }
-
-                if (StringUtils.isEmpty(authentication.getPassword()) && StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add("Missing password for authentication.");
-                } else if (StringUtils.isEmpty(authentication.getPassword())) {
-                    // it is valid if it has the username but not the password
-                    authentication.setPassword("");
-                }
-
-                if (StringUtils.isEmpty(authentication.getDatabaseName())) {
-                    invalids.add("Missing database name.");
-                }
-            }
-
-            /*
-             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
-             */
-            if (datasourceConfiguration.getConnection() == null
-                    || datasourceConfiguration.getConnection().getSsl() == null
-                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-                invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                        "Please reach out to Appsmith customer support to resolve this.");
-            }
-
-            return invalids;
-        }
-
-        /**
-         * 1. Parse results obtained by running COLUMNS_QUERY defined on top of the page.
-         * 2. A sample mysql output for the query is also given near COLUMNS_QUERY definition on top of the page.
-         */
-        private void getTableInfo(Row row, RowMetadata meta, Map<String, DatasourceStructure.Table> tablesByName) {
-            final String tableName = row.get("table_name", String.class);
-
-            if (!tablesByName.containsKey(tableName)) {
-                tablesByName.put(tableName, new DatasourceStructure.Table(
-                        DatasourceStructure.TableType.TABLE,
-                        null,
-                        tableName,
-                        new ArrayList<>(),
-                        new ArrayList<>(),
-                        new ArrayList<>()
-                ));
-            }
-
-            final DatasourceStructure.Table table = tablesByName.get(tableName);
-            table.getColumns().add(new DatasourceStructure.Column(
-                    row.get("column_name", String.class),
-                    row.get("column_type", String.class),
-                    null,
-                    row.get("extra", String.class).contains("auto_increment")
-            ));
-
-            return;
-        }
-
-        /**
-         * 1. Parse results obtained by running KEYS_QUERY defined on top of the page.
-         * 2. A sample mysql output for the query is also given near KEYS_QUERY definition on top of the page.
-         */
-        private void getKeyInfo(Row row, RowMetadata meta, Map<String, DatasourceStructure.Table> tablesByName,
-                                Map<String, DatasourceStructure.Key> keyRegistry) {
-            final String constraintName = row.get("constraint_name", String.class);
-            final char constraintType = row.get("constraint_type", String.class).charAt(0);
-            final String selfSchema = row.get("self_schema", String.class);
-            final String tableName = row.get("self_table", String.class);
-
-
-            if (!tablesByName.containsKey(tableName)) {
-                /* do nothing */
-                return;
-            }
-
-            final DatasourceStructure.Table table = tablesByName.get(tableName);
-            final String keyFullName = tableName + "." + row.get("constraint_name", String.class);
-
-            if (constraintType == 'p') {
-                if (!keyRegistry.containsKey(keyFullName)) {
-                    final DatasourceStructure.PrimaryKey key = new DatasourceStructure.PrimaryKey(
-                            constraintName,
-                            new ArrayList<>()
-                    );
-                    keyRegistry.put(keyFullName, key);
-                    table.getKeys().add(key);
-                }
-                ((DatasourceStructure.PrimaryKey) keyRegistry.get(keyFullName)).getColumnNames()
-                        .add(row.get("self_column", String.class));
-            } else if (constraintType == 'f') {
-                final String foreignSchema = row.get("foreign_schema", String.class);
-                final String prefix = (foreignSchema.equalsIgnoreCase(selfSchema) ? "" : foreignSchema + ".")
-                        + row.get("foreign_table", String.class) + ".";
-
-                if (!keyRegistry.containsKey(keyFullName)) {
-                    final DatasourceStructure.ForeignKey key = new DatasourceStructure.ForeignKey(
-                            constraintName,
-                            new ArrayList<>(),
-                            new ArrayList<>()
-                    );
-                    keyRegistry.put(keyFullName, key);
-                    table.getKeys().add(key);
-                }
-
-                ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getFromColumns()
-                        .add(row.get("self_column", String.class));
-                ((DatasourceStructure.ForeignKey) keyRegistry.get(keyFullName)).getToColumns()
-                        .add(prefix + row.get("foreign_column", String.class));
-            }
-
-            return;
-        }
-
-        /**
-         * 1. Generate template for all tables in the database.
-         */
-        private void getTemplates(Map<String, DatasourceStructure.Table> tablesByName) {
-            for (DatasourceStructure.Table table : tablesByName.values()) {
-                final List<DatasourceStructure.Column> columnsWithoutDefault = table.getColumns()
-                        .stream()
-                        .filter(column -> column.getDefaultValue() == null)
-                        .collect(Collectors.toList());
-
-                final List<String> columnNames = new ArrayList<>();
-                final List<String> columnValues = new ArrayList<>();
-                final StringBuilder setFragments = new StringBuilder();
-
-                for (DatasourceStructure.Column column : columnsWithoutDefault) {
-                    final String name = column.getName();
-                    final String type = column.getType();
-                    String value;
-
-                    if (type == null) {
-                        value = "null";
-                    } else if ("text".equals(type) || "varchar".equals(type)) {
-                        value = "''";
-                    } else if (type.startsWith("int")) {
-                        value = "1";
-                    } else if (type.startsWith("double")) {
-                        value = "1.0";
-                    } else if (DATE_COLUMN_TYPE_NAME.equals(type)) {
-                        value = "'2019-07-01'";
-                    } else if (DATETIME_COLUMN_TYPE_NAME.equals(type)
-                            || TIMESTAMP_COLUMN_TYPE_NAME.equals(type)) {
-                        value = "'2019-07-01 10:00:00'";
-                    } else {
-                        value = "''";
-                    }
-
-                    columnNames.add(name);
-                    columnValues.add(value);
-                    setFragments.append("\n    ").append(name).append(" = ").append(value).append(",");
-                }
-
-                // Delete the last comma
-                if (setFragments.length() > 0) {
-                    setFragments.deleteCharAt(setFragments.length() - 1);
-                }
-
-                final String tableName = table.getName();
-                table.getTemplates().addAll(List.of(
-                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;"),
-                        new DatasourceStructure.Template("INSERT", "INSERT INTO " + tableName
-                                + " (" + String.join(", ", columnNames) + ")\n"
-                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
-                        new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
-                                + setFragments + "\n"
-                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
-                        new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
-                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
-                ));
-            }
+            return MySqlDatasourceUtils.validateDatasource(datasourceConfiguration);
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(Connection connection, DatasourceConfiguration datasourceConfiguration) {
+        public Mono<DatasourceStructure> getStructure(ConnectionPool connectionPool,
+                                                      DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
-            return Mono.from(connection.validate(ValidationDepth.REMOTE))
+            return Mono.usingWhen(
+                    connectionPool.create(),
+                    connection -> {
+                        return Mono.from(connection.validate(ValidationDepth.REMOTE))
+                                .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                                .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
+                                .flatMapMany(isValid -> {
+                                    if (isValid) {
+                                        return connection.createStatement(COLUMNS_QUERY).execute();
+                                    } else {
+                                        return Flux.error(new StaleConnectionException());
+                                    }
+                                })
+                                .flatMap(result -> {
+                                    return result.map((row, meta) -> {
+                                        getTableInfo(row, meta, tablesByName);
+
+                                        return result;
+                                    });
+                                })
+                                .collectList()
+                                .thenMany(Flux.from(connection.createStatement(KEYS_QUERY).execute()))
+                                .flatMap(result -> {
+                                    return result.map((row, meta) -> {
+                                        getKeyInfo(row, meta, tablesByName, keyRegistry);
+
+                                        return result;
+                                    });
+                                })
+                                .collectList()
+                                .map(list -> {
+                                    /* Get templates for each table and put those in. */
+                                    getTemplates(tablesByName);
+                                    structure.setTables(new ArrayList<>(tablesByName.values()));
+                                    for (DatasourceStructure.Table table : structure.getTables()) {
+                                        table.getKeys().sort(Comparator.naturalOrder());
+                                    }
+
+                                    return structure;
+                                })
+                                .onErrorMap(e -> {
+                                    if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
+                                        return new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_ERROR,
+                                                e.getMessage()
+                                        );
+                                    }
+
+                                    return e;
+                                });
+                    },
+                    Connection::close
+                    )
                     .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
                     .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
-                    .flatMapMany(isValid -> {
-                        if (isValid) {
-                            return connection.createStatement(COLUMNS_QUERY).execute();
-                        } else {
-                            return Flux.error(new StaleConnectionException());
-                        }
-                    })
-                    .flatMap(result -> {
-                        return result.map((row, meta) -> {
-                            getTableInfo(row, meta, tablesByName);
-
-                            return result;
-                        });
-                    })
-                    .collectList()
-                    .thenMany(Flux.from(connection.createStatement(KEYS_QUERY).execute()))
-                    .flatMap(result -> {
-                        return result.map((row, meta) -> {
-                            getKeyInfo(row, meta, tablesByName, keyRegistry);
-
-                            return result;
-                        });
-                    })
-                    .collectList()
-                    .map(list -> {
-                        /* Get templates for each table and put those in. */
-                        getTemplates(tablesByName);
-                        structure.setTables(new ArrayList<>(tablesByName.values()));
-                        for (DatasourceStructure.Table table : structure.getTables()) {
-                            table.getKeys().sort(Comparator.naturalOrder());
-                        }
-
-                        return structure;
-                    })
-                    .onErrorMap(e -> {
-                        if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
-                            return new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    e.getMessage()
-                            );
-                        }
-
-                        return e;
-                    })
+                    .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException())
                     .subscribeOn(scheduler);
         }
     }
