@@ -18,7 +18,7 @@ const useBrandingTheme = () => {
       "brand-hover": config.brandColors.hover,
       "brand-text": config.brandColors.font,
       "brand-disabled": config.brandColors.disabled,
-      "brand-light": `#${tinycolor(`hsl ${hue} ${saturation} ${98}}`).toHex()}`,
+      "brand-light": `#${tinycolor(`hsl ${hue} ${saturation} ${90}}`).toHex()}`,
     };
 
     // Create a CSS variable for each color
