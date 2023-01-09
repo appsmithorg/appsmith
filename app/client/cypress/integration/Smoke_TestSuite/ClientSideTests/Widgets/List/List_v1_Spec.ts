@@ -19,21 +19,12 @@ describe("List widget v1 spec", () => {
     });
   });
 
-  it("1. Validate if the 'items' property is present in the property pane", () => {
+  it("1. Validate if the 'items', 'server-side pagination', 'Visible', 'Animate Loading' and 'OnListItemClick' properties are present in the property pane", () => {
     ee.SelectEntityByName("List1", "Widgets");
     agHelper.AssertElementVisible(locator._listWidgetItemsDatalabel);
-  });
-  it("2. Validate if the 'server-side pagination' property is present in the property pane", () => {
-    // ee.SelectEntityByName("List1", "Widgets");
     agHelper.AssertElementVisible(locator._listWidgetPaginationlabel);
-  });
-  it("3. Validate if the 'Visible' property is present in the property pane", () => {
     agHelper.AssertElementVisible(locator._listWidgetVisiblelabel);
-  });
-  it("4. Validate if the 'Animate Loading' property is present in the property pane", () => {
     agHelper.AssertElementVisible(locator._listWidgetAnimateLoadinglabel);
-  });
-  it("4. Validate if the 'OnListItemClick' property is present in the property pane", () => {
     agHelper.AssertElementVisible(locator._listWidgetClickEventlabel);
   });
 });
