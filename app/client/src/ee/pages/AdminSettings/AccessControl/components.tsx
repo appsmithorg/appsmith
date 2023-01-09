@@ -157,6 +157,7 @@ export function SaveButtonBar({
         <StyledSaveButton
           category={Category.primary}
           className="t--admin-settings-save-button"
+          data-testid="t--admin-settings-save-button"
           disabled={false}
           isLoading={isLoading || false}
           onClick={() => {
@@ -168,6 +169,7 @@ export function SaveButtonBar({
         <StyledClearButton
           category={Category.secondary}
           className="t--admin-settings-reset-button"
+          data-testid="t--admin-settings-reset-button"
           disabled={false}
           onClick={() => {
             onClear();

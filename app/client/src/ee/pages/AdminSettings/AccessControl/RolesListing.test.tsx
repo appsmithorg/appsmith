@@ -1,13 +1,13 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "test/testUtils";
+import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { RolesListing } from "./RolesListing";
 import { rolesTableData } from "./mocks/RolesListingMock";
-import userEvent from "@testing-library/user-event";
 import { MenuItemProps } from "design-system";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { RoleProps } from "./types";
+import userEvent from "@testing-library/user-event";
 
 let container: any = null;
 
@@ -66,7 +66,7 @@ describe("<RoleListing />", () => {
   it("should navigate to role edit page on click of role name", async () => {
     renderComponent();
     const roleEditLink = await screen.getAllByTestId("t--roles-cell");
-    await userEvent.click(roleEditLink[0]);
+    await fireEvent.click(roleEditLink[0]);
     expect(window.location.pathname).toBe(
       `/settings/roles/${rolesTableData[0].id}`,
     );
@@ -91,16 +91,10 @@ describe("<RoleListing />", () => {
       }
     });
   });
-  it("should test new group gets created on Add group button click", () => {
-    renderComponent();
-    const button = screen.getAllByTestId("t--acl-page-header-input");
-    button[0].click();
-    /* expect(window.location.pathname).toEqual(`/settings/roles/10102`); */
-  });
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
     const options = listMenuItems.map(
       (menuItem: MenuItemProps) => menuItem.text,
     );
@@ -114,9 +108,9 @@ describe("<RoleListing />", () => {
   it("should navigate to role edit page when Edit list menu option is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
-    const editOption = document.getElementsByClassName("edit-menu-item");
-    await userEvent.click(editOption[0]);
+    await fireEvent.click(moreMenu[0]);
+    const editOption = getAllByTestId("t--edit-menu-item");
+    await fireEvent.click(editOption[0]);
     expect(window.location.pathname).toEqual(
       `/settings/roles/${rolesTableData[0].id}`,
     );
@@ -129,7 +123,7 @@ describe("<RoleListing />", () => {
     const groups = screen.queryAllByText("HR_Appsmith");
     expect(groups).toHaveLength(1);
 
-    await userEvent.type(searchInput[0], "devops");
+    await fireEvent.change(searchInput[0], { target: { value: "devops" } });
     expect(searchInput[0]).toHaveValue("devops");
 
     const searched = screen.queryAllByText("devops_design");
@@ -140,17 +134,17 @@ describe("<RoleListing />", () => {
       return expect(filtered).toHaveLength(0);
     });
   });
-  it("should delete the group when Delete list menu item is clicked", async () => {
+  it("should delete the role when Delete list menu item is clicked", async () => {
     const { getAllByTestId, queryByText } = renderComponent();
     let role = queryByText(rolesTableData[0].name);
     expect(role).toBeInTheDocument();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
-    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
-    const confirmText = document.getElementsByClassName("delete-menu-item");
+    const confirmText = getAllByTestId("t--delete-menu-item");
     expect(confirmText[0]).toHaveTextContent("Are you sure?");
     await userEvent.dblClick(deleteOption[0]);
     role = queryByText(rolesTableData[0].name);
@@ -170,9 +164,9 @@ describe("<RoleListing />", () => {
     expect(role).toBeInTheDocument();
     const moreMenu = queryAllByTestId("actions-cell-menu-icon");
     expect(moreMenu).toHaveLength(5);
-    await userEvent.click(moreMenu[2]);
-    const deleteOption = document.getElementsByClassName("delete-menu-item");
-    const editOption = document.getElementsByClassName("edit-menu-item");
+    await fireEvent.click(moreMenu[2]);
+    const deleteOption = queryAllByTestId("t--delete-menu-item");
+    const editOption = queryAllByTestId("t--edit-menu-item");
 
     expect(deleteOption).toHaveLength(0);
     expect(editOption).toHaveLength(1);

@@ -60,7 +60,10 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getGroupPermissions } from "@appsmith/selectors/aclSelectors";
+import {
+  getAclIsEditing,
+  getGroupPermissions,
+} from "@appsmith/selectors/aclSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const ListUsers = styled.div`
@@ -138,7 +141,7 @@ const NoUsersText = styled.div`
 `;
 
 export function GroupAddEdit(props: GroupEditProps) {
-  const { isEditing, isLoading, selected } = props;
+  const { isLoading, selected } = props;
   const { isNew = false } = selected;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
@@ -159,6 +162,7 @@ export function GroupAddEdit(props: GroupEditProps) {
   const dispatch = useDispatch();
   const params = useParams() as any;
 
+  const isEditing = useSelector(getAclIsEditing);
   const userPermissions = useSelector(getGroupPermissions);
 
   const canAddUsersToGroup = isPermitted(

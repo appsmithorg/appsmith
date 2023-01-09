@@ -1,12 +1,12 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "test/testUtils";
+import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { allUsers } from "./mocks/UserListingMock";
-import userEvent from "@testing-library/user-event";
 import { UserEdit } from "./UserEdit";
 import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockUserPermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
+import userEvent from "@testing-library/user-event";
 
 let container: any = null;
 
@@ -19,7 +19,6 @@ const props = {
   searchPlaceholder: "Search users",
   selectedUser,
   isLoading: false,
-  isEditing: false,
 };
 
 function renderComponent() {
@@ -48,21 +47,19 @@ describe("<UserEdit />", () => {
   it("should show delete option on click of more action icon", () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    userEvent.click(moreMenu[0]);
-    const menu = document.getElementsByClassName("delete-menu-item");
+    fireEvent.click(moreMenu[0]);
+    const menu = getAllByTestId("t--delete-menu-item");
     expect(menu).toHaveLength(1);
   });
   it("should show confirmation message when the delete user option is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
-    const menu = document.getElementsByClassName("delete-menu-item");
+    const menu = getAllByTestId("t--delete-menu-item");
     expect(menu[0]).toHaveTextContent("Delete");
     expect(menu[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(menu[0]);
-    const confirmationText = document.getElementsByClassName(
-      "delete-menu-item",
-    );
+    const confirmationText = getAllByTestId("t--delete-menu-item");
     expect(confirmationText[0]).toHaveTextContent("Are you sure?");
     await userEvent.dblClick(menu[0]);
     expect(props.onDelete).toHaveBeenCalledWith(selectedUser.id);
@@ -83,7 +80,7 @@ describe("<UserEdit />", () => {
     const groups = screen.queryAllByText("Administrator");
     expect(groups).toHaveLength(1);
 
-    await userEvent.type(searchInput[0], "test");
+    await fireEvent.change(searchInput[0], { target: { value: "test" } });
     expect(searchInput[0]).toHaveValue("test");
 
     const searched = screen.queryAllByText("Test_Admin");
@@ -106,7 +103,7 @@ describe("<UserEdit />", () => {
     const groups = screen.queryAllByText("Administrator-PG");
     expect(groups).toHaveLength(1);
 
-    await userEvent.type(searchInput[0], "test");
+    await fireEvent.change(searchInput[0], { target: { value: "test" } });
     expect(searchInput[0]).toHaveValue("test");
 
     const searched = screen.queryAllByText("Test_Admin-PG");
@@ -120,10 +117,84 @@ describe("<UserEdit />", () => {
   it("should mark group to be removed", () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
-    tabs[1].click();
+    tabs[0].click();
     const activeGroups = screen.getAllByTestId("t--active-group-row");
-    userEvent.click(activeGroups[0]);
+    fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
+  });
+  it("should mark group to be added", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    tabs[0].click();
+    const allGroups = screen.getAllByTestId("t--all-group-row");
+    fireEvent.click(allGroups[0]);
+    expect(allGroups[0]).toHaveClass("added");
+  });
+  it("should mark role to be removed", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    tabs[1].click();
+    const activeRoles = screen.getAllByTestId("t--active-group-row");
+    fireEvent.click(activeRoles[0]);
+    expect(activeRoles[0]).toHaveClass("removed");
+  });
+  it("should mark role to be added", () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    tabs[1].click();
+    const allRoles = screen.getAllByTestId("t--all-group-row");
+    fireEvent.click(allRoles[0]);
+    expect(allRoles[0]).toHaveClass("added");
+  });
+  it("should show save bottom bar on changing data", async () => {
+    renderComponent();
+    let saveButton = screen.queryAllByTestId(
+      "t--admin-settings-save-button",
+    )?.[0];
+    expect(saveButton).toBeUndefined();
+    const tabs = screen.getAllByRole("tab");
+    tabs[0].click();
+    const activeGroups = screen.getAllByTestId("t--active-group-row");
+    await fireEvent.click(activeGroups[0]);
+    expect(activeGroups[0]).toHaveClass("removed");
+    const allGroups = screen.getAllByTestId("t--all-group-row");
+    await fireEvent.click(allGroups[0]);
+    expect(allGroups[0]).toHaveClass("added");
+    saveButton = screen.queryAllByTestId("t--admin-settings-save-button")?.[0];
+    expect(saveButton).toBeInTheDocument();
+    await userEvent.click(saveButton);
+    setTimeout(() => {
+      saveButton = screen.queryAllByTestId(
+        "t--admin-settings-save-button",
+      )?.[0];
+      expect(saveButton).toBeUndefined();
+    }, 5000);
+  });
+  it("should hide save bottom bar on clicking clear", async () => {
+    renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    tabs[0].click();
+    const activeGroups = screen.getAllByTestId("t--active-group-row");
+    fireEvent.click(activeGroups[0]);
+    expect(activeGroups[0]).toHaveClass("removed");
+    const allGroups = screen.getAllByTestId("t--all-group-row");
+    fireEvent.click(allGroups[0]);
+    expect(allGroups[0]).toHaveClass("added");
+    let saveButton = screen.queryAllByTestId(
+      "t--admin-settings-save-button",
+    )?.[0];
+    expect(saveButton).toBeInTheDocument();
+    const clearButton = screen.queryAllByTestId(
+      "t--admin-settings-reset-button",
+    )?.[0];
+    expect(clearButton).toBeInTheDocument();
+    await clearButton?.click();
+    setTimeout(() => {
+      saveButton = screen.queryAllByTestId(
+        "t--admin-settings-save-button",
+      )?.[0];
+      expect(saveButton).toBeUndefined();
+    }, 5000);
   });
   it("should not display more option if the user doesn't have edit and delete permissions", () => {
     jest
@@ -148,15 +219,13 @@ describe("<UserEdit />", () => {
     const tabs = screen.getAllByRole("tab");
     tabs[1].click();
     const activeGroups = queryAllByTestId("t--active-group-row");
-    userEvent.click(activeGroups[0]);
+    fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
     let saveButton;
     waitFor(() => {
-      saveButton = document.getElementsByClassName(
-        "t--admin-settings-save-button",
-      );
+      saveButton = screen.getAllByTestId("t--admin-settings-save-button")[0];
       expect(saveButton).toHaveLength(1);
-      userEvent.click(saveButton[0]);
+      fireEvent.click(saveButton);
       const errorMessage = document.getElementsByClassName("cs-text");
       expect(errorMessage).toHaveLength(1);
       expect(errorMessage[0]).toHaveTextContent(

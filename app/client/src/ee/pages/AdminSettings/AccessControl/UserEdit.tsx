@@ -38,12 +38,13 @@ import {
   UserEditProps,
 } from "./types";
 import { getFilteredData } from "./utils/getFilteredData";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   updateGroupsInUser,
   updateRolesInUser,
 } from "@appsmith/actions/aclActions";
+import { getAclIsEditing } from "@appsmith/selectors/aclSelectors";
 
 const Header = styled.div`
   display: flex;
@@ -133,7 +134,9 @@ export function UserEdit(props: UserEditProps) {
     [],
   );
   const dispatch = useDispatch();
-  const { isEditing, isLoading, searchPlaceholder, selectedUser } = props;
+  const { isLoading, searchPlaceholder, selectedUser } = props;
+
+  const isEditing = useSelector(getAclIsEditing);
 
   useEffect(() => {
     if (searchValue) {

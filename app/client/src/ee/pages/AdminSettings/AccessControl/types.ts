@@ -74,7 +74,6 @@ export type GroupEditProps = {
   selected: GroupProps;
   onDelete: any;
   isLoading: boolean;
-  isEditing: boolean;
 };
 
 export type Permissions = {
@@ -133,7 +132,6 @@ export type UserEditProps = {
   onDelete: (id: string) => void;
   searchPlaceholder: string;
   isLoading: boolean;
-  isEditing: boolean;
 };
 
 export type UpdateRoleData = {

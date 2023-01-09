@@ -1,13 +1,13 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "test/testUtils";
+import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { UserListing } from "./UserListing";
 import { allUsers } from "./mocks/UserListingMock";
-import userEvent from "@testing-library/user-event";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { MenuItemProps } from "design-system";
 import * as userSelectors from "selectors/usersSelectors";
+import userEvent from "@testing-library/user-event";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -67,7 +67,7 @@ describe("<UserListing />", () => {
   it("should navigate to user edit page on click of username", async () => {
     renderComponent();
     const userEditLink = await screen.queryAllByTestId("user-listing-userCell");
-    await userEvent.click(userEditLink[0]);
+    await fireEvent.click(userEditLink[0]);
     expect(window.location.pathname).toBe(`/settings/users/${allUsers[0].id}`);
   });
   it("should expand on show more and collapse on show less", () => {
@@ -79,10 +79,10 @@ describe("<UserListing />", () => {
       expect(showMore[0]).toHaveTextContent(`show 1 more`);
       expect(showLess).toHaveLength(0);
       expect(showMore).not.toHaveLength(0);
-      userEvent.click(showMore[0]);
+      fireEvent.click(showMore[0]);
       showLess = screen.queryAllByTestId("t--show-less");
       expect(showLess).toHaveLength(1);
-      userEvent.click(showLess[0]);
+      fireEvent.click(showLess[0]);
       showMore = screen.queryAllByTestId("t--show-more");
       showLess = screen.queryAllByTestId("t--show-less");
       expect(showLess).toHaveLength(0);
@@ -92,7 +92,7 @@ describe("<UserListing />", () => {
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
     const options = listMenuItems.map(
       (menuItem: MenuItemProps) => menuItem.text,
     );
@@ -106,43 +106,43 @@ describe("<UserListing />", () => {
   it("should navigate to edit page when Edit menu option is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
-    const editOption = document.getElementsByClassName("edit-menu-item");
-    await userEvent.click(editOption[0]);
+    await fireEvent.click(moreMenu[0]);
+    const editOption = getAllByTestId("t--edit-menu-item");
+    await fireEvent.click(editOption[0]);
     expect(window.location.pathname).toEqual(
       `/settings/users/${allUsers[0].id}`,
     );
   });
-  /*it("should search and filter users on search", async () => {
+  it("should search and filter users on search", async () => {
     renderComponent();
     const searchInput = screen.getAllByTestId("t--acl-search-input");
     expect(searchInput).toHaveLength(1);
 
-    const groups = screen.queryAllByText("Ankita Kinger");
+    const groups = screen.queryAllByText("techak@appsmith.com");
     expect(groups).toHaveLength(1);
 
-    await userEvent.type(searchInput[0], "sivan");
-    expect(searchInput[0]).toHaveValue("sivan");
+    await fireEvent.change(searchInput[0], { target: { value: "sangy123" } });
+    expect(searchInput[0]).toHaveValue("sangy123");
 
-    const searched = screen.queryAllByText("SS Sivan");
+    const searched = screen.queryAllByText("sangy123@appsmith.com");
     expect(searched).toHaveLength(1);
 
     waitFor(() => {
-      const filtered = screen.queryAllByText("Ankita Kinger");
+      const filtered = screen.queryAllByText("techak@appsmith.com");
       return expect(filtered).toHaveLength(0);
     });
-  });*/
+  });
   it("should delete the user when Delete menu option is clicked", async () => {
     const { getAllByTestId, queryByText } = renderComponent();
     let user = queryByText(allUsers[0].username);
     expect(user).toBeInTheDocument();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
-    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
-    const confirmText = document.getElementsByClassName("delete-menu-item");
+    const confirmText = getAllByTestId("t--delete-menu-item");
     expect(confirmText[0]).toHaveTextContent("Are you sure?");
     await userEvent.dblClick(deleteOption[0]);
     user = queryByText(allUsers[0].username);
@@ -162,9 +162,9 @@ describe("<UserListing />", () => {
     expect(user).toBeInTheDocument();
     const moreMenu = queryAllByTestId("actions-cell-menu-icon");
     expect(moreMenu).toHaveLength(3);
-    await userEvent.click(moreMenu[1]);
-    const deleteOption = document.getElementsByClassName("delete-menu-item");
-    const editOption = document.getElementsByClassName("edit-menu-item");
+    await fireEvent.click(moreMenu[1]);
+    const deleteOption = queryAllByTestId("t--delete-menu-item");
+    const editOption = queryAllByTestId("t--edit-menu-item");
 
     expect(deleteOption).toHaveLength(1);
     expect(editOption).toHaveLength(1);

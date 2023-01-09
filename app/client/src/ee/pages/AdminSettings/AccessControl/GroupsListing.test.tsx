@@ -1,11 +1,11 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "test/testUtils";
+import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { GroupListing } from "./GroupsListing";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
-import userEvent from "@testing-library/user-event";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
+import userEvent from "@testing-library/user-event";
 
 let container: any = null;
 
@@ -66,21 +66,15 @@ describe("<GroupListing />", () => {
   it("should navigate to user edit page on click of group name", async () => {
     renderComponent();
     const userGroupEditLink = await screen.getAllByTestId("t--usergroup-cell");
-    await userEvent.click(userGroupEditLink[0]);
+    await fireEvent.click(userGroupEditLink[0]);
     expect(window.location.pathname).toBe(
       `/settings/groups/${userGroupTableData[0].id}`,
     );
   });
-  it("should test new group gets created on Add group button click", () => {
-    renderComponent();
-    const button = screen.getAllByTestId("t--acl-page-header-input");
-    button[0].click();
-    /* expect(window.location.pathname).toEqual(`/settings/groups/10109`); */
-  });
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
     const options = listMenuItems.map((menuItem) => menuItem.text);
     const menuElements = options.map((option) => getAllByText(option)).flat();
     options.forEach((option, index) => {
@@ -90,9 +84,9 @@ describe("<GroupListing />", () => {
   it("should navigate to edit page when Edit list menu item is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
-    const editOption = document.getElementsByClassName("edit-menu-item");
-    await userEvent.click(editOption[0]);
+    await fireEvent.click(moreMenu[0]);
+    const editOption = getAllByTestId("t--edit-menu-item");
+    await fireEvent.click(editOption[0]);
     expect(window.location.pathname).toEqual(
       `/settings/groups/${userGroupTableData[0].id}`,
     );
@@ -105,7 +99,7 @@ describe("<GroupListing />", () => {
     const groups = screen.queryAllByText("Eng_New");
     expect(groups).toHaveLength(1);
 
-    await userEvent.type(searchInput[0], "Design");
+    await fireEvent.change(searchInput[0], { target: { value: "Design" } });
     expect(searchInput[0]).toHaveValue("Design");
 
     const searched = screen.queryAllByText("Design");
@@ -122,11 +116,11 @@ describe("<GroupListing />", () => {
     expect(userGroup).toBeInTheDocument();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
-    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
-    const confirmText = document.getElementsByClassName("delete-menu-item");
+    const confirmText = getAllByTestId("t--delete-menu-item");
     expect(confirmText[0]).toHaveTextContent("Are you sure?");
     await userEvent.dblClick(deleteOption[0]);
     userGroup = queryByText(userGroupTableData[0].name);
@@ -146,9 +140,9 @@ describe("<GroupListing />", () => {
     expect(userGroup).toBeInTheDocument();
     const moreMenu = queryAllByTestId("actions-cell-menu-icon");
     expect(moreMenu).toHaveLength(2);
-    await userEvent.click(moreMenu[1]);
-    const deleteOption = document.getElementsByClassName("delete-menu-item");
-    const editOption = document.getElementsByClassName("edit-menu-item");
+    await fireEvent.click(moreMenu[1]);
+    const deleteOption = queryAllByTestId("t--delete-menu-item");
+    const editOption = queryAllByTestId("t--edit-menu-item");
 
     expect(deleteOption).toHaveLength(0);
     expect(editOption).toHaveLength(1);
@@ -160,7 +154,7 @@ describe("<GroupListing />", () => {
     const moreMenu = queryAllByTestId("actions-cell-menu-icon");
     expect(moreMenu).toHaveLength(2);
   });
-  it("should disable 'Add group' CTA if the tenat level manage group permission is absent", () => {
+  it("should disable 'Add group' CTA if the tenant level manage group permission is absent", () => {
     renderComponent();
     const button = screen.getAllByTestId("t--acl-page-header-input");
     expect(button[0]).toHaveAttribute("disabled");

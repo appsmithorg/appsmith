@@ -78,4 +78,12 @@ export const rolesTableData: RoleProps[] = [
     isSaving: false,
     isEditing: false,
   },
+  {
+    id: "7",
+    name: "Default Role For All Users",
+    autoCreated: false,
+    userPermissions: [],
+    isSaving: false,
+    isEditing: false,
+  },
 ];
