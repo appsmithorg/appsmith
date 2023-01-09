@@ -551,6 +551,7 @@ export class AggregateHelper {
     return locator
       .eq(index)
       .focus()
+      .wait(100)
       .type(value, {
         parseSpecialCharSequences: parseSpecialCharSeq,
         //delay: 3,
