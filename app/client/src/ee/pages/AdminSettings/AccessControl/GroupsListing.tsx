@@ -60,7 +60,6 @@ export function GroupListing() {
   const [selectedUserGroup, setSelectedUserGroup] = useState<GroupProps | null>(
     null,
   );
-  const [isNewGroup, setIsNewGroup] = useState(false);
 
   const selectedUserGroupId = params?.selected;
 
@@ -88,7 +87,6 @@ export function GroupListing() {
       dispatch(getGroupById({ id: selectedUserGroupId }));
     } else if (!selectedUserGroupId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUPS });
-      setIsNewGroup(false);
     }
   }, [selectedUserGroupId]);
 
@@ -168,7 +166,6 @@ export function GroupListing() {
         name: newGroupName,
       }),
     );
-    setIsNewGroup(true);
   };
 
   const onSearch = debounce((search: string) => {
@@ -202,7 +199,6 @@ export function GroupListing() {
         <GroupAddEdit
           isEditing={isEditing}
           isLoading={isLoading}
-          isNew={isNewGroup}
           onDelete={onDeleteHandler}
           selected={selectedUserGroup}
         />

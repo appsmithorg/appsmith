@@ -32,7 +32,6 @@ const props: GroupEditProps = {
   onDelete: jest.fn(),
   isLoading: false,
   isEditing: false,
-  isNew: false,
 };
 
 function renderComponent() {

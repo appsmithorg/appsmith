@@ -16,7 +16,7 @@ import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -91,7 +91,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .exchange()
                             .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .flatMap(stringResponseEntity -> {
-                                HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
                                     return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
                                             generateErrorMessage(stringResponseEntity)));
@@ -158,7 +158,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .exchange()
                             .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .flatMap(stringResponseEntity -> {
-                                HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
                                     return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
                                             generateErrorMessage(stringResponseEntity)));
@@ -309,7 +309,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                 HttpHeaders headers = stringResponseEntity.getHeaders();
                                 // Find the media type of the response to parse the body as required.
                                 MediaType contentType = headers.getContentType();
-                                HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
                                     return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
                                             generateErrorMessage(stringResponseEntity)));
@@ -361,7 +361,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .exchange()
                             .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .flatMap(stringResponseEntity -> {
-                                HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
                                     return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
                                             generateErrorMessage(stringResponseEntity)));
@@ -380,7 +380,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
         String errorMessage = "";
 
         byte[] body = stringResponseEntity.getBody();
-        if (body!=null) {
+        if (body != null) {
             String bodyString = new String(body, StandardCharsets.UTF_8);
             errorMessage = bodyString;
 
@@ -551,7 +551,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .exchange()
                             .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .flatMap(stringResponseEntity -> {
-                                HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
 
                                 if (!statusCode.is2xxSuccessful()) {
                                     return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
@@ -608,7 +608,7 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                 HttpHeaders headers = stringResponseEntity.getHeaders();
                                 // Find the media type of the response to parse the body as required.
                                 MediaType contentType = headers.getContentType();
-                                HttpStatus statusCode = stringResponseEntity.getStatusCode();
+                                HttpStatusCode statusCode = stringResponseEntity.getStatusCode();
 
                                 if (!statusCode.is2xxSuccessful()) {
                                     return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,

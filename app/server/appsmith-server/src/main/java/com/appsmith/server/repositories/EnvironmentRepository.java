@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Environment;
+import com.appsmith.external.models.Environment;
 import org.springframework.stereotype.Repository;
 
 @Repository

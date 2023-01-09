@@ -19,6 +19,7 @@ import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserGroupRepository;
+import jakarta.validation.Validator;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -31,7 +32,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuples;
 
-import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -453,6 +453,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         return repository.findAllByUsersIn(Set.of(userId))
                 .map(userGroup -> new UserGroupCompactDTO(userGroup.getId(), userGroup.getName()));
     }
+
     private UserGroupCompactDTO generateUserGroupCompactDTO(UserGroup userGroup) {
         if (userGroup == null) {
             throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "user group can't be null");

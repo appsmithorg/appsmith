@@ -2,7 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.appsmith.server.domains.Environment;
+import com.appsmith.external.models.Environment;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;

@@ -111,7 +111,7 @@ async function createGitStorageArchive(destFolder) {
 }
 
 async function createManifestFile(path) {
-  const version = await getCurrentVersion()
+  const version = await utils.getCurrentAppsmithVersion()
   const manifest_data = { "appsmithVersion": version }
   await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
@@ -211,10 +211,7 @@ function checkAvailableBackupSpace(availSpaceInBytes) {
   }
 }
 
-async function getCurrentVersion() {
-  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', { encoding: 'utf8' });
-  return content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
-}
+
 
 module.exports = {
   run,
@@ -226,7 +223,6 @@ module.exports = {
   executeMongoDumpCMD,
   getGitRoot,
   executeCopyCMD,
-  getCurrentVersion,
   removeEncryptionEnvData,
   getBackupArchiveLimit,
   removeOldBackups

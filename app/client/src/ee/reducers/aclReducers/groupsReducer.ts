@@ -31,7 +31,10 @@ export const groupsReducers = {
     action: any,
   ) => ({
     ...state,
-    selectedGroup: action.payload,
+    selectedGroup: {
+      ...action.payload,
+      isNew: false,
+    },
     isLoading: false,
   }),
   [ReduxActionTypes.CREATE_ACL_GROUP]: (state: any) => ({
@@ -44,7 +47,10 @@ export const groupsReducers = {
   }),
   [ReduxActionTypes.CREATE_ACL_GROUP_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    selectedGroup: action.payload,
+    selectedGroup: {
+      ...action.payload,
+      isNew: true,
+    },
     isLoading: false,
   }),
   [ReduxActionTypes.CLONE_ACL_GROUP]: (state: any) => ({
@@ -76,6 +82,7 @@ export const groupsReducers = {
     selectedGroup: {
       ...state.selectedGroup,
       name: action.payload.name,
+      isNew: false,
     },
     isLoading: false,
   }),
@@ -121,6 +128,7 @@ export const groupsReducers = {
       users: Array.isArray(action.payload)
         ? action.payload[0].users
         : action.payload.users,
+      isNew: false,
     },
     isLoading: false,
   }),
@@ -142,6 +150,7 @@ export const groupsReducers = {
       users: Array.isArray(action.payload)
         ? action.payload[0].users
         : action.payload.users,
+      isNew: false,
     },
     isLoading: false,
   }),

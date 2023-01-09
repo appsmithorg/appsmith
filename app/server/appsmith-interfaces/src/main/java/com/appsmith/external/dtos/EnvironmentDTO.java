@@ -1,11 +1,11 @@
-package com.appsmith.server.dtos;
+package com.appsmith.external.dtos;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
-import com.appsmith.server.domains.EnvironmentVariable;
+import com.appsmith.external.models.EnvironmentVariable;
 
 import java.util.HashSet;
 import java.util.List;

@@ -17,9 +17,12 @@ COPY ./app/keycloak-docker-config/launch.sh /tmp/keycloak/launch.sh
 RUN apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl cron certbot nginx gnupg netcat openssh-client \
-    software-properties-common gettext openjdk-11-jdk \
+    supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
+    software-properties-common gettext \
     python3-pip python-setuptools git ca-certificates-java \
+  && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | apt-key add - \
+  && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
+  && apt-get update && apt-get install --no-install-recommends --yes temurin-17-jdk \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && apt-get remove --yes git python3-pip
 
@@ -83,7 +86,7 @@ COPY ./deploy/docker/templates/nginx/* \
   templates/
 
 # Add bootstrapfile
-COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* ./scripts/start-backend.sh ./
+COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* ./
 
 # Add util tools
 COPY ./deploy/docker/utils ./utils
@@ -97,7 +100,7 @@ COPY ./deploy/docker/templates/supervisord/ templates/supervisord/
 COPY ./deploy/docker/templates/cron.d /etc/cron.d/
 RUN chmod 0644 /etc/cron.d/*
 
-RUN chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh start-backend.sh
+RUN chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh
 
 # Disable setuid/setgid bits for the files inside container.
 RUN find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true

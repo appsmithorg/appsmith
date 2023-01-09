@@ -7,6 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface AuthenticationConfigurationService {
 
-    Mono<EnvChangesResponseDTO> configure(AuthenticationConfigurationDTO configuration, ServerWebExchange exchange);
+    Mono<EnvChangesResponseDTO> configure(AuthenticationConfigurationDTO configuration, String origin);
 
 }

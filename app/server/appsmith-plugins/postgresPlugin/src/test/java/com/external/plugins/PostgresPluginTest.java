@@ -1518,7 +1518,7 @@ public class PostgresPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
-                            new String[] {
+                            new String[]{
                                     "numeric_string"
                             },
                             new ObjectMapper()

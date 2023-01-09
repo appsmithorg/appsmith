@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.1</version>
+        <version>3.0.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -17,6 +17,8 @@
     <name>Integrated Appsmith</name>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
         <deploy.disabled>true</deploy.disabled>
         <source.disabled>true</source.disabled>
@@ -24,13 +26,18 @@
         <project.version>1.0-SNAPSHOT</project.version>
         <!-- By default skip the dockerization step. Only activate if necessary -->
         <skipDockerBuild>true</skipDockerBuild>
-        <spring-security.version>5.8.0</spring-security.version>
+        <spring-boot.version>3.0.1</spring-boot.version>
+        <!-- Required because Spring Boot v3.0.1 does not come with this version that solves a High priority CVE -->
+        <netty.version>4.1.86.Final</netty.version>
         <log4j2.version>2.17.1</log4j2.version>
         <h2.version>2.1.210</h2.version>
         <testcontainers.version>1.17.3</testcontainers.version>
         <mockito.version>4.4.0</mockito.version>
         <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
         <okhttp3.version>4.10.0</okhttp3.version>
+        <reactor-test.version>3.5.1</reactor-test.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <build>
@@ -55,7 +62,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.4.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

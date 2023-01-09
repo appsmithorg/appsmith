@@ -106,6 +106,7 @@ const StyledSettingsSubHeader = styled(SettingsSubHeader)`
       &.bp3-editable-text-editing {
         padding: 5px;
         width: 100%;
+        height: 100% !important;
       }
     }
 
@@ -234,11 +235,9 @@ export function PageHeader(props: PageHeaderProps) {
           >
             <EditableText
               className="t--editable-description"
-              customErrorTooltip="Invalid description"
               defaultValue={description}
               editInteractionKind={EditInteractionKind.SINGLE}
               isEditingDefault={isEditingDesc}
-              isInvalid={(desc) => !desc || desc.trim().length === 0}
               maxLength={140}
               maxLines={3}
               minLines={1}

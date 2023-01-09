@@ -25,7 +25,8 @@ import { LoaderContainer } from "pages/Settings/components";
 import { Spinner } from "@blueprintjs/core";
 
 export function RoleAddEdit(props: RoleEditProps) {
-  const { isLoading = false, isNew = false, selected } = props;
+  const { isLoading = false, selected } = props;
+  const { isNew = false } = selected;
   const [searchValue, setSearchValue] = useState("");
   const history = useHistory();
   const dispatch = useDispatch();
@@ -133,11 +134,7 @@ export function RoleAddEdit(props: RoleEditProps) {
         searchValue={searchValue}
         title={selected.name || ""}
       />
-      <RoleTabs
-        isLoading={isLoading}
-        searchValue={searchValue}
-        selected={selected}
-      />
+      <RoleTabs searchValue={searchValue} selected={selected} />
     </div>
   );
 }

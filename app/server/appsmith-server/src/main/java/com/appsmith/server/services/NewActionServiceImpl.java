@@ -21,6 +21,7 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -28,7 +29,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
 import java.util.Map;
 
 @Service
@@ -97,6 +97,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     /**
      * To send action related general analytics events
      * Mainly used to send events that are originated frontend or backend
+     *
      * @param analyticEventDTO
      * @return
      */

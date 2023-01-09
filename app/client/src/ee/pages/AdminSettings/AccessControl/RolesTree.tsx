@@ -1053,11 +1053,10 @@ export function EachTab(
 }
 
 export default function RoleTabs(props: {
-  isLoading: boolean;
   selected: RoleProps;
   searchValue: string;
 }) {
-  const { isLoading, searchValue, selected } = props;
+  const { searchValue, selected } = props;
   const isEditing = useSelector(getAclIsEditing);
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -1071,7 +1070,7 @@ export default function RoleTabs(props: {
           selected,
           showSaveModal,
           setShowSaveModal,
-          isLoading,
+          false,
           selectedTabIndex === index,
         ),
       )

@@ -6,7 +6,6 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.constants.EnvVariables;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
@@ -31,12 +30,11 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.mail.MessagingException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.bson.types.Binary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -52,16 +50,13 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -80,8 +75,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_BASE_URL;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_ENABLED;
@@ -93,6 +88,7 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_SMTP_AUTH
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_USERNAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SECRET_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SITE_KEY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
@@ -192,10 +188,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      *
      * @param envContent String content of an env file.
      * @param changes    A map with variable name to new value.
+     * @param origin
      * @return List of string lines for updated env file content.
      */
     @Override
-    public List<String> transformEnvContent(String envContent, Map<String, String> changes) {
+    public List<String> transformEnvContent(String envContent, Map<String, String> changes, String origin) {
         final Set<String> variablesNotInWhitelist = new HashSet<>(changes.keySet());
         final Set<String> tenantConfigWhitelist = allowedTenantConfiguration();
 
@@ -220,6 +217,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     APPSMITH_MAIL_SMTP_AUTH.name(),
                     Boolean.toString(StringUtils.hasText(changes.get(APPSMITH_MAIL_USERNAME.name())))
             );
+        }
+
+        if (changes.containsKey(APPSMITH_OAUTH2_OIDC_CLIENT_ID.name()) && origin != null) {
+            changes.put(APPSMITH_BASE_URL.name(), org.apache.commons.lang3.StringUtils.stripEnd(origin, "/"));
         }
 
         final Set<String> remainingChangedNames = new HashSet<>(changes.keySet());
@@ -378,6 +379,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     @Override
     public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
+        return applyChanges(changes, "");
+    }
+
+    @Override
+    public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes, String origin) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant configuration
         return verifyCurrentUserIsSuper().
                 flatMap(user -> validateChanges(user, changes).thenReturn(user))
@@ -401,7 +407,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             envFileChanges.remove(key);
                         }
                     }
-                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
+                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges, origin);
 
                     try {
                         Files.write(envFilePath, changedContent);
@@ -490,12 +496,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<EnvChangesResponseDTO> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
+    public Mono<EnvChangesResponseDTO> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String origin) {
         return Flux.fromIterable(formData.entrySet())
                 .flatMap(entry -> {
                     final String key = entry.getKey();
                     final List<Part> parts = entry.getValue();
-                    final boolean isFile = parts.size() > 0 && parts.get(0) instanceof FilePart;
+                    final boolean isFile = CollectionUtils.isNullOrEmpty(parts) && parts.get(0) instanceof FilePart;
 
                     if (isFile) {
                         return handleFileUpload(key, parts);
@@ -515,7 +521,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             });
                 })
                 .collectMap(Map.Entry::getKey, Map.Entry::getValue)
-                .flatMap(this::applyChanges);
+                .flatMap(changes -> applyChanges(changes, origin));
     }
 
     @Override
@@ -675,19 +681,19 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 });
     }
 
-  /**
-   * A filter function on getAll that returns env variables which are having non-empty values
-   */
+    /**
+     * A filter function on getAll that returns env variables which are having non-empty values
+     */
     @Override
     public Mono<Map<String, String>> getAllNonEmpty() {
         return getAll().flatMap(map -> {
-              Map<String, String> nonEmptyValuesMap = new HashMap<>();
-              for (Map.Entry<String, String> entry: map.entrySet()) {
-                  if (StringUtils.hasText(entry.getValue())) {
-                      nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
-                  }
-              }
-              return Mono.just(nonEmptyValuesMap);
+            Map<String, String> nonEmptyValuesMap = new HashMap<>();
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                if (StringUtils.hasText(entry.getValue())) {
+                    nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+            return Mono.just(nonEmptyValuesMap);
         });
     }
 

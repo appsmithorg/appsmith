@@ -21,10 +21,14 @@ import useWorkspace from "utils/hooks/useWorkspace";
 import TooltipWrapper from "pages/Applications/EmbedSnippet/TooltipWrapper";
 import {
   createMessage,
+  INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   MAKE_APPLICATION_PUBLIC,
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 const ShareToggle = styled.div`
   flex-basis: 46px;
@@ -85,6 +89,7 @@ function AppInviteUsersForm(props: any) {
       {canInviteToWorkspace && (
         <WorkspaceInviteUsersForm
           isApplicationInvite
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
           workspaceId={props.workspaceId}
         />
       )}

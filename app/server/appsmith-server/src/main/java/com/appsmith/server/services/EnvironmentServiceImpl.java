@@ -4,16 +4,17 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Environment;
-import com.appsmith.server.domains.EnvironmentVariable;
+import com.appsmith.external.models.Environment;
+import com.appsmith.external.models.EnvironmentVariable;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.EnvironmentDTO;
+import com.appsmith.external.dtos.EnvironmentDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.EnvironmentServiceCEImpl;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -24,7 +25,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
 import java.util.List;
 import java.util.Set;
 

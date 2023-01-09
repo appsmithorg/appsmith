@@ -1,8 +1,8 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.QEnvironmentVariable;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.EnvironmentVariable;
-import com.appsmith.server.domains.QEnvironmentVariable;
+import com.appsmith.external.models.EnvironmentVariable;
 import com.appsmith.server.repositories.ce.CustomEnvironmentVariableRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -10,13 +10,13 @@ export type RoleProps = BaseAclProps & {
   userPermissions?: string[];
   isSaving: boolean;
   isEditing?: boolean;
+  isNew?: boolean;
 };
 
 export type RoleEditProps = {
   selected: RoleProps;
   onDelete: any;
   isLoading: boolean;
-  isNew: boolean;
 };
 
 export type RoleTableResponse = {
@@ -67,6 +67,7 @@ export type GroupProps = BaseAclProps & {
   roles: BaseAclProps[];
   allRoles: BaseAclProps[];
   userPermissions?: string[];
+  isNew?: boolean;
 };
 
 export type GroupEditProps = {
@@ -74,7 +75,6 @@ export type GroupEditProps = {
   onDelete: any;
   isLoading: boolean;
   isEditing: boolean;
-  isNew: boolean;
 };
 
 export type Permissions = {

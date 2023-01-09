@@ -2,18 +2,18 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.NewActionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import com.appsmith.server.dtos.AnalyticEventDTO;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(Url.ANALYTICS_URL)
