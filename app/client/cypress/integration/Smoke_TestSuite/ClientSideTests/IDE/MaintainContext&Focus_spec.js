@@ -208,7 +208,7 @@ describe("MaintainContext&Focus", function() {
     cy.get(".t--form-control-SWITCH input").should("be.focused");
     cy.SearchEntityandOpen("S3_Query");
     agHelper.Sleep();
-    agHelper.GetNClick(dataSources._queryResponse("SETTINGS"));
+    cy.get(queryLocators.querySettingsTab).click();
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 });
