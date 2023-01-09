@@ -50,9 +50,15 @@ describe("Fork a template to the current app", () => {
     cy.wait(6000);
     cy.get("body").then(($ele) => {
       if ($ele.find(widgetLocators.toastAction).length <= 0) {
-        cy.get(template.templateViewForkButton).click();
+        if ($ele.find(template.templateViewForkButton).length> 0) {
+          cy.get(template.templateViewForkButton).click();
+          }
       }
     });
+    cy.get(widgetLocators.toastAction).should(
+      "contain",
+      "template added successfully",
+    );
     cy.commitAndPush();
   });
   it("2. Bug #17262 On forking template to a child branch of git connected app is throwing Page not found error ", function() {
