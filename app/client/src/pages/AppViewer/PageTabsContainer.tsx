@@ -7,7 +7,6 @@ import {
 import { Icon, IconSize } from "design-system";
 import Navigation from "./Navigation";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
-import { Colors } from "constants/Colors";
 import {
   NavigationSettingsColorStyle,
   NAVIGATION_SETTINGS,
@@ -15,7 +14,7 @@ import {
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getMenuContainerBackgroundColor } from "./utils";
+import { getMenuContainerBackgroundColor, getMenuItemTextColor } from "./utils";
 
 const Container = styled.div<{
   primaryColor: string;
@@ -25,19 +24,25 @@ const Container = styled.div<{
   align-items: center;
   background-color: ${({ navColorStyle, primaryColor }) =>
     getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
+  border-bottom: 1px solid
+    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 
   & {
     svg path,
     svg:hover path {
-      fill: ${Colors.BLACK};
-      stroke: ${(props) => props.theme.colors.header.tabText};
+      fill: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+      stroke: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
     }
   }
-  border-bottom: 1px solid
-    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
 
-const ScrollBtnContainer = styled.div<{ visible: boolean }>`
+const ScrollBtnContainer = styled.div<{
+  visible: boolean;
+  primaryColor: string;
+  navColorStyle: NavigationSettingsColorStyle;
+}>`
   cursor: pointer;
   display: flex;
   position: absolute;
@@ -45,7 +50,8 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
   padding: 0 10px;
 
   & > span {
-    background: white;
+    background: ${({ navColorStyle, primaryColor }) =>
+      getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
     position: relative;
     z-index: 1;
   }
@@ -75,7 +81,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   // TODO - @Dhruvik - ImprovedAppNav
   // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -157,11 +163,13 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
     >
       <ScrollBtnContainer
         className="left-0"
+        navColorStyle={navColorStyle}
         onMouseDown={() => startScrolling(true)}
         onMouseLeave={stopScrolling}
         onMouseUp={stopScrolling}
         onTouchEnd={stopScrolling}
         onTouchStart={() => startScrolling(true)}
+        primaryColor={primaryColor}
         visible={shouldShowLeftArrow}
       >
         <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
@@ -175,11 +183,13 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
       />
       <ScrollBtnContainer
         className="right-0"
+        navColorStyle={navColorStyle}
         onMouseDown={() => startScrolling(false)}
         onMouseLeave={stopScrolling}
         onMouseUp={stopScrolling}
         onTouchEnd={stopScrolling}
         onTouchStart={() => startScrolling(false)}
+        primaryColor={primaryColor}
         visible={shouldShowRightArrow}
       >
         <Icon name="right-arrow-2" size={IconSize.MEDIUM} />

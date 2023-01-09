@@ -43,8 +43,12 @@ import {
   NavigationSettingsColorStyle,
   NAVIGATION_SETTINGS,
 } from "constants/AppConstants";
-import { getMenuContainerBackgroundColor, getMenuItemTextColor } from "./utils";
+import {
+  getApplicationNameTextColor,
+  getMenuContainerBackgroundColor,
+} from "./utils";
 import { get } from "lodash";
+import { Icon } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -89,14 +93,14 @@ const StyledApplicationName = styled.div<{
   navColorStyle: NavigationSettingsColorStyle;
 }>`
   color: ${({ navColorStyle, primaryColor }) =>
-    getMenuItemTextColor(primaryColor, navColorStyle)};
+    getApplicationNameTextColor(primaryColor, navColorStyle)};
 `;
 
 export function AppViewerHeader(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   // TODO - @Dhruvik - ImprovedAppNav
   // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -167,7 +171,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             </div>
             <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
-                <div className="hidden space-x-3 md:flex">
+                <div className="hidden space-x-1 md:flex">
                   <FormDialogComponent
                     Form={AppInviteUsersForm}
                     applicationId={currentApplicationDetails.id}
@@ -188,21 +192,31 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                         borderRadius={
                           selectedTheme.properties.borderRadius.appBorderRadius
                         }
-                        boxShadow="none"
-                        buttonColor={
-                          selectedTheme.properties.colors.primaryColor
-                        }
-                        buttonVariant="SECONDARY"
                         className="h-8"
                         data-cy="viewmode-share"
-                        text="Share"
-                      />
+                        navColorStyle={navColorStyle}
+                        primaryColor={primaryColor}
+                      >
+                        <Icon
+                          fillColor={getApplicationNameTextColor(
+                            primaryColor,
+                            navColorStyle,
+                          )}
+                          name="share-line"
+                          size="extraLarge"
+                        />
+                      </Button>
                     }
                     workspaceId={currentWorkspaceId}
                   />
 
                   <HeaderRightItemContainer>
-                    <PrimaryCTA className="t--back-to-editor" url={editorURL} />
+                    <PrimaryCTA
+                      className="t--back-to-editor"
+                      navColorStyle={navColorStyle}
+                      primaryColor={primaryColor}
+                      url={editorURL}
+                    />
                   </HeaderRightItemContainer>
                 </div>
               )}

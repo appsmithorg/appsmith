@@ -4,6 +4,7 @@ import {
 } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import tinycolor from "tinycolor2";
+import { calulateHoverColor } from "widgets/WidgetUtils";
 
 // Menu Item Background Color - Active
 export const getMenuItemBackgroundColorWhenActive = (
@@ -14,9 +15,11 @@ export const getMenuItemBackgroundColorWhenActive = (
   const colorHsl = tinycolor(color).toHsl();
 
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-    colorHsl.l += 0.3;
+    colorHsl.l += 0.35;
   } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
-    colorHsl.l -= 0.2;
+    colorHsl.l = tinycolor(color).isLight()
+      ? colorHsl.l + 0.2
+      : colorHsl.l - 0.2;
   }
 
   return tinycolor(colorHsl).toHexString();
@@ -33,7 +36,9 @@ export const getMenuItemBackgroundColorOnHover = (
   } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
     const colorHsl = tinycolor(color).toHsl();
 
-    colorHsl.l += 0.1;
+    colorHsl.l = tinycolor(color).isLight()
+      ? colorHsl.l - 0.1
+      : colorHsl.l + 0.1;
 
     return tinycolor(colorHsl).toHexString();
   }
@@ -47,15 +52,12 @@ export const getMenuItemTextColor = (
   isDefaultState = false,
 ) => {
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-    return isDefaultState ? Colors.GREY_9 : color;
-  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
     const colorHsl = tinycolor(color).toHsl();
+    colorHsl.l -= 0.13;
 
-    if (colorHsl) {
-      return colorHsl.l < 0.5 ? Colors.BLACK : Colors.WHITE;
-    } else {
-      return Colors.BLACK;
-    }
+    return isDefaultState ? Colors.GREY_9 : tinycolor(colorHsl).toHexString();
+  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+    return tinycolor(color).isLight() ? Colors.BLACK : Colors.WHITE;
   }
 };
 
@@ -70,4 +72,41 @@ export const getMenuContainerBackgroundColor = (
   } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
     return color;
   }
+};
+
+export const getApplicationNameTextColor = (
+  color: string,
+  navColorStyle: NavigationSettingsColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE
+    .LIGHT,
+) => {
+  if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+    return Colors.GREY_9;
+  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+    return tinycolor(color).isLight() ? Colors.BLACK : Colors.WHITE;
+  }
+};
+
+export const getSignInButtonStyles = (
+  color: string,
+  navColorStyle: NavigationSettingsColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE
+    .LIGHT,
+) => {
+  const styles = {
+    background: Colors.WHITE,
+    backgroundOnHover: Colors.GRAY_100,
+    color: Colors.BLACK,
+  };
+  const isLight = tinycolor(color).isLight();
+
+  styles.backgroundOnHover = calulateHoverColor(styles.background, false);
+
+  if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+    styles.background = color;
+    styles.color = isLight ? Colors.BLACK : Colors.WHITE;
+  } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+    styles.background = isLight ? Colors.BLACK : Colors.WHITE;
+    styles.color = isLight ? Colors.WHITE : color;
+  }
+
+  return styles;
 };

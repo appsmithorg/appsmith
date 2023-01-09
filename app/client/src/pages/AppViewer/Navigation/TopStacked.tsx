@@ -159,7 +159,7 @@ const MenuItem = ({ page, query }: MenuItemProps) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
   // TODO - @Dhruvik - ImprovedAppNav
   // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -209,7 +209,7 @@ const TopStacked = (props: TopStackedProps) => {
 
   return (
     <div
-      className="flex w-full hidden-scrollbar gap-x-4"
+      className="flex w-full hidden-scrollbar gap-x-2"
       ref={props.measuredTabsRef}
     >
       {appPages.map((page) => {

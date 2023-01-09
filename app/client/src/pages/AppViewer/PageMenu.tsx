@@ -29,6 +29,8 @@ import {
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { get } from "lodash";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -52,6 +54,14 @@ export function PageMenu(props: AppViewerHeaderProps) {
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
   const { hideWatermark } = getAppsmithConfigs();
+  // TODO - @Dhruvik - ImprovedAppNav
+  // Fetch nav color style from the application's nav settings
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const primaryColor = get(
+    selectedTheme,
+    "properties.colors.primaryColor",
+    "inherit",
+  );
 
   // hide menu on click outside
   useOnClickOutside(
@@ -140,7 +150,12 @@ export function PageMenu(props: AppViewerHeaderProps) {
               workspaceId={workspaceID}
             />
           )}
-          <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
+          <PrimaryCTA
+            className="t--back-to-editor--mobile"
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+            url={props.url}
+          />
           {!hideWatermark && (
             <a
               className="flex hover:no-underline"

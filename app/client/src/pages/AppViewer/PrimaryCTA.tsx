@@ -25,6 +25,9 @@ import { getAllApplications } from "actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
+import { NavigationSettingsColorStyle } from "constants/AppConstants";
+import { Icon } from "design-system";
+import { getApplicationNameTextColor } from "./utils";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -34,6 +37,8 @@ import { useHref } from "pages/Editor/utils";
 type Props = {
   url?: string;
   className?: string;
+  primaryColor: string;
+  navColorStyle: NavigationSettingsColorStyle;
 };
 
 /**
@@ -43,7 +48,7 @@ type Props = {
  */
 
 function PrimaryCTA(props: Props) {
-  const { className, url } = props;
+  const { className, navColorStyle, primaryColor, url } = props;
   const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
   const currentPageID = useSelector(getCurrentPageId);
@@ -83,14 +88,19 @@ function PrimaryCTA(props: Props) {
       return (
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          buttonColor={selectedTheme.properties.colors.primaryColor}
-          buttonVariant="PRIMARY"
           className={`w-full md:w-auto ${className}`}
+          navColorStyle={navColorStyle}
           onClick={() => {
             history.push(url);
           }}
-          text={createMessage(EDIT_APP)}
-        />
+          primaryColor={primaryColor}
+        >
+          <Icon
+            fillColor={getApplicationNameTextColor(primaryColor, navColorStyle)}
+            name="edit-line"
+            size="extraLarge"
+          />
+        </Button>
       );
     }
 
@@ -102,13 +112,13 @@ function PrimaryCTA(props: Props) {
       return (
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          buttonColor={selectedTheme.properties.colors.primaryColor}
-          buttonVariant="PRIMARY"
           className="t--fork-app"
           icon="fork"
+          navColorStyle={navColorStyle}
           onClick={() => {
             history.push(forkURL);
           }}
+          primaryColor={primaryColor}
           text={createMessage(FORK_APP)}
         />
       );
@@ -124,11 +134,11 @@ function PrimaryCTA(props: Props) {
                 borderRadius={
                   selectedTheme.properties.borderRadius.appBorderRadius
                 }
-                buttonColor={selectedTheme.properties.colors.primaryColor}
-                buttonVariant="PRIMARY"
                 className="t--fork-app"
                 icon="fork"
+                navColorStyle={navColorStyle}
                 onClick={() => dispatch(getAllApplications())}
+                primaryColor={primaryColor}
                 text={createMessage(FORK_APP)}
               />
             }
@@ -144,12 +154,13 @@ function PrimaryCTA(props: Props) {
       return (
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          buttonColor={selectedTheme.properties.colors.primaryColor}
-          buttonVariant="PRIMARY"
           className="t--sign-in"
+          isSignInButton
+          navColorStyle={navColorStyle}
           onClick={() => {
             window.location.href = LOGIN_URL;
           }}
+          primaryColor={primaryColor}
           text={createMessage(SIGN_IN)}
         />
       );
