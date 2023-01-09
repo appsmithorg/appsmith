@@ -1,4 +1,4 @@
-name: Test, build and push Docker Image Fat migration minimum
+name: Fat migration minimum
 
 on:
   # This line enables manual triggering of this workflow.
