@@ -27,6 +27,7 @@ import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
+import io.r2dbc.spi.R2dbcNonTransientResourceException;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -344,6 +345,7 @@ public class MySqlPlugin extends BasePlugin {
             .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
             .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
             .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException())
+            .onErrorMap(R2dbcNonTransientResourceException.class, error -> new StaleConnectionException())
             .subscribeOn(scheduler);
         }
 

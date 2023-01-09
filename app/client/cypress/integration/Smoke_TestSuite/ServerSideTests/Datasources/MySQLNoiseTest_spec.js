@@ -64,9 +64,7 @@ describe("MySQL noise test", function() {
     });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("5000");
-      expect(response.body.data.title).to.eq(
-        "Datasource configuration is invalid",
-      );
+      expect(response.body.data.title).to.eq("Query execution error");
     });
   });
 });
