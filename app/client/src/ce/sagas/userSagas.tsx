@@ -169,6 +169,9 @@ export function* getCurrentUserSaga() {
         }
       }
 
+      //To make sure that we're not tracking from previous session.
+      UsagePulse.stopTrackingActivity();
+
       if (
         //@ts-expect-error: response is of type unknown
         !response.data.isAnonymous &&
@@ -186,8 +189,6 @@ export function* getCurrentUserSaga() {
         }
       }
 
-      //To make sure that we're not tracking from previous session.
-      UsagePulse.stopTrackingActivity();
       UsagePulse.startTrackingActivity();
 
       yield put(initAppLevelSocketConnection());
