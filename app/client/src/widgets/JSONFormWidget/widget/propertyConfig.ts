@@ -197,7 +197,7 @@ export const contentConfig = [
       {
         propertyName: "useSourceData",
         helpText: "Use source data for hidden fields to show them in form data",
-        label: "Hidden fields in Data",
+        label: "Hidden Fields in Data",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
