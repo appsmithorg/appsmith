@@ -1,5 +1,5 @@
-import React, { useEffect, ReactNode, useCallback } from "react";
-import { Switch, Route } from "react-router-dom";
+import React, { ReactNode, useCallback, useEffect } from "react";
+import { Route, Switch } from "react-router-dom";
 import { useLocation, useRouteMatch } from "react-router";
 import ApiEditor from "./APIEditor";
 import IntegrationEditor from "./IntegrationEditor";
@@ -9,16 +9,17 @@ import GeneratePage from "./GeneratePage";
 import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
-  INTEGRATION_EDITOR_PATH,
   API_EDITOR_ID_PATH,
-  QUERIES_EDITOR_ID_PATH,
+  BUILDER_CHECKLIST_PATH,
+  BUILDER_CUSTOM_PATH,
+  CURL_IMPORT_PAGE_PATH,
+  GENERATE_TEMPLATE_FORM_PATH,
+  INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
-  CURL_IMPORT_PAGE_PATH,
-  PROVIDER_TEMPLATE_PATH,
-  GENERATE_TEMPLATE_FORM_PATH,
   matchBuilderPath,
-  BUILDER_CHECKLIST_PATH,
+  PROVIDER_TEMPLATE_PATH,
+  QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -28,7 +29,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
-const SentryRoute = Sentry.withSentryRouting(Route);
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { builderURL } from "RouteBuilder";
@@ -36,6 +36,11 @@ import history from "utils/history";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
+import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
+import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -65,6 +70,8 @@ function EditorsRouter() {
     () => !matchBuilderPath(pathname),
   );
   const pageId = useSelector(getCurrentPageId);
+  const isMultiPane = useSelector(isMultiPaneActive);
+  const paneCount = useSelector(getPaneCount);
 
   useEffect(() => {
     const isOnBuilder = matchBuilderPath(pathname);
@@ -88,10 +95,21 @@ function EditorsRouter() {
     e.stopPropagation();
   }, []);
 
+  const showPropertyPane = isMultiPane
+    ? paneCount === PaneLayoutOptions.TWO_PANE
+    : false;
+
   return (
     <Wrapper isVisible={isVisible} onClick={handleClose}>
       <PaneDrawer isVisible={isVisible} onClick={preventClose}>
         <Switch key={path}>
+          {showPropertyPane && (
+            <SentryRoute
+              component={PropertyPaneContainer}
+              exact
+              path={BUILDER_CUSTOM_PATH}
+            />
+          )}
           <SentryRoute
             component={IntegrationEditor}
             exact
@@ -165,27 +183,38 @@ type PaneDrawerProps = {
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };
+
 function PaneDrawer(props: PaneDrawerProps) {
   const showPropertyPane = useShowPropertyPane();
   const { focusWidget, selectWidget } = useWidgetSelection();
+  const isMultiPane = useSelector(isMultiPaneActive);
   const dispatch = useDispatch();
   useEffect(() => {
-    // This pane drawer is only open when NOT on canvas.
-    // De-select all widgets
-    // Un-focus all widgets
-    // Hide property pane
-    // Close all modals
-    if (props.isVisible) {
-      showPropertyPane();
-      dispatch(closeAllModals());
-      // delaying setting select and focus state,
-      // so that the focus history has time to store the selected values
-      setTimeout(() => {
-        selectWidget(undefined);
-        focusWidget(undefined);
-      }, 0);
+    if (!isMultiPane) {
+      // This pane drawer is only open when NOT on canvas.
+      // De-select all widgets
+      // Un-focus all widgets
+      // Hide property pane
+      // Close all modals
+      if (props.isVisible) {
+        showPropertyPane();
+        dispatch(closeAllModals());
+        // delaying setting select and focus state,
+        // so that the focus history has time to store the selected values
+        setTimeout(() => {
+          selectWidget(undefined);
+          focusWidget(undefined);
+        }, 0);
+      }
     }
-  }, [dispatch, props.isVisible, selectWidget, showPropertyPane, focusWidget]);
+  }, [
+    dispatch,
+    props.isVisible,
+    selectWidget,
+    showPropertyPane,
+    focusWidget,
+    isMultiPane,
+  ]);
   return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;
 }
 

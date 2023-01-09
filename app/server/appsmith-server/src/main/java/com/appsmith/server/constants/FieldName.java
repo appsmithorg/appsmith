@@ -168,4 +168,6 @@ public class FieldName {
     public static final String IS_FORCE_REMOVE = "forceRemove";
     public static final String UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "unpublishedCustomJSLibs";
     public static final String PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "publishedCustomJSLibs";
+    public static final String ANONYMOUS_USER_ID = "anonymousUserId";
+    public static final String VIEW_MODE = "viewMode";
 }
