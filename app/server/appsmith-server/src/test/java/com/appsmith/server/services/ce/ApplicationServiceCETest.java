@@ -2210,6 +2210,7 @@ public class ApplicationServiceCETest {
         String appName = "ApplicationServiceTest Publish Application";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
@@ -2241,6 +2242,7 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getUnpublishedPage().getLayouts().get(0).getDsl()).isEqualTo(newPage.getPublishedPage().getLayouts().get(0).getDsl());
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
+                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
                 })
                 .verifyComplete();
     }
@@ -2264,6 +2266,7 @@ public class ApplicationServiceCETest {
         String appName = "Publish Application With Archived Page";
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
         Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -2364,6 +2367,7 @@ public class ApplicationServiceCETest {
     public void publishApplication_withGitConnectedApp_success() {
         GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        gitConnectedApp.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
 
         Mono<Application> applicationMono = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
                 .flatMap(updatedApp -> applicationPageService.publish(updatedApp.getId(), gitData.getBranchName(), true))
@@ -2394,6 +2398,7 @@ public class ApplicationServiceCETest {
                     assertThat(newPage.getDefaultResources()).isNotNull();
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
+                    assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
                 })
                 .verifyComplete();
     }
@@ -3297,5 +3302,93 @@ public class ApplicationServiceCETest {
                 })
                 .verifyComplete();
 
+    }
+
+
+    /**
+     * Test case which proves the non-dependency of isPublic Field in Update Application API Response
+     * on the deprecated Application collection isPublic field for a public application
+     * The following steps are followed:
+     *  1. Create a new app
+     *  2. Invoke the changeViewAccess method to set the App "Public"
+     *  3. Invoke the update method and assert the "isPublic" field in the response
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validPublicAppUpdateApplication() {
+        Application application = new Application();
+        application.setName("validPublicAppUpdateApplication-Test");
+
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        /**
+         * Making the App public using changeViewAccess method which changes the permission groups of the app to allow public access
+         */
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+        Application publicAccessApplication = applicationService.changeViewAccess(createdApplication.getId(), applicationAccessDTO).block();
+
+        /**
+         * setIsPublic to False, purposely set to prove non-dependency on this field of the output
+         */
+        publicAccessApplication.setIsPublic(false);
+
+        /**
+         * Using the Update App method and asserting the response to verify the isPublic field in the response is True
+         * which proves it's non-dependency on the deprecated Application collection isPublic field
+         * and shows it dependency on the actual app permissions and state of the app which has been set public in this case
+        **/
+        Mono<Application> updatedApplication = applicationService.update(createdApplication.getId(), publicAccessApplication);
+        StepVerifier.create(updatedApplication)
+                .assertNext(t -> {
+                    assertThat(t).isNotNull();
+                    assertThat(t.getId()).isNotNull();
+                    assertThat(t.getIsPublic()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Test case which proves the non-dependency of isPublic Field in Update Application API Response
+     * on the deprecated Application collection isPublic field for a public application
+     * The following steps are followed:
+     *  1. Create a new app
+     *  2. Invoke the changeViewAccess method to set the App "Public"
+     *  3. Invoke the update method and assert the "isPublic" field in the response
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validPrivateAppUpdateApplication() {
+        Application application = new Application();
+        application.setName("validPrivateAppUpdateApplication-Test");
+
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        /**
+         * Making the App private using changeViewAccess method which changes the permission groups of the app to restrict public access
+         */
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(false);
+
+        Application privateAccessApplication = applicationService.changeViewAccess(createdApplication.getId(), applicationAccessDTO).block();
+
+        /**
+         * setIsPublic to True, purposely set to prove non-dependency on this field of the output
+         */
+        privateAccessApplication.setIsPublic(true);
+
+        /**
+         * Using the Update App method and asserting the response to verify the isPublic field in the response is False
+         * which proves it's non-dependency on the deprecated Application collection isPublic field
+         * and shows it dependency on the actual app permissions and state of the app which has been set private in this case
+         **/
+        Mono<Application> updatedApplication = applicationService.update(createdApplication.getId(), privateAccessApplication);
+        StepVerifier.create(updatedApplication)
+                .assertNext(t -> {
+                    assertThat(t).isNotNull();
+                    assertThat(t.getId()).isNotNull();
+                    assertThat(t.getIsPublic()).isFalse();
+                })
+                .verifyComplete();
     }
 }

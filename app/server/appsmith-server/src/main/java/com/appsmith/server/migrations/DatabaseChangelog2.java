@@ -20,6 +20,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
@@ -2766,150 +2767,161 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongoTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
     }
 
-    // This migration was performed to convert schema version from v1 to v2
-//    @ChangeSet(order = "039", id = "deprecate-queryabletext-encryption", author = "")
-//    public void deprecateQueryableTextEncryption(MongoTemplate mongoTemplate,
-//                                                 @NonLockGuarded EncryptionConfig encryptionConfig,
-//                                                 EncryptionService encryptionService) {
-//        Stopwatch stopwatch = new Stopwatch("Instance Schema migration to v2");
-//
-//        Config encryptionVersion = mongoTemplate.findOne(
-//                query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
-//                Config.class);
-//
-//        if (encryptionVersion != null && (Integer) encryptionVersion.getConfig().get("value") < 2) {
-//            String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
-//            TextEncryptor textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(), saltInHex);
-//
-//            /**
-//             * - List of attributes in datasources that need to be encoded.
-//             * - Each path represents where the attribute exists in mongo db document.
-//             */
-//            List<String> datasourcePathList = new ArrayList<>();
-//            datasourcePathList.add("datasourceConfiguration.connection.ssl.keyFile.base64Content");
-//            datasourcePathList.add("datasourceConfiguration.connection.ssl.certificateFile.base64Content");
-//            datasourcePathList.add("datasourceConfiguration.connection.ssl.caCertificateFile.base64Content");
-//            datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.file.base64Content");
-//            datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.password");
-//            datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
-//            datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.password");
-//            datasourcePathList.add("datasourceConfiguration.authentication.value");
-//            datasourcePathList.add("datasourceConfiguration.authentication.password");
-//            datasourcePathList.add("datasourceConfiguration.authentication.bearerToken");
-//            datasourcePathList.add("datasourceConfiguration.authentication.clientSecret");
-//            datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.token");
-//            datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.refreshToken");
-//            datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.tokenResponse");
-//            List<Bson> datasourcePathListExists = datasourcePathList
-//                    .stream()
-//                    .map(Filters::exists)
-//                    .collect(Collectors.toList());
-//
-//            List<Bson> gitDeployKeysPathListExists = new ArrayList<>();
-//            ArrayList<String> gitDeployKeysPathList = new ArrayList<>();
-//            gitDeployKeysPathList.add("gitAuth.privateKey");
-//            gitDeployKeysPathListExists.add(Filters.exists("gitAuth.privateKey"));
-//
-//            List<Bson> applicationPathListExists = new ArrayList<>();
-//            ArrayList<String> applicationPathList = new ArrayList<>();
-//            applicationPathList.add("gitApplicationMetadata.gitAuth.privateKey");
-//            applicationPathListExists.add(Filters.exists("gitApplicationMetadata.gitAuth.privateKey"));
-//
-//            mongoTemplate.execute("datasource", getNewEncryptionCallback(textEncryptor, encryptionService, datasourcePathListExists, datasourcePathList, stopwatch));
-//            mongoTemplate.execute("gitDeployKeys", getNewEncryptionCallback(textEncryptor, encryptionService, gitDeployKeysPathListExists, gitDeployKeysPathList, stopwatch));
-//            mongoTemplate.execute("application", getNewEncryptionCallback(textEncryptor, encryptionService, applicationPathListExists, applicationPathList, stopwatch));
-//
-//            mongoTemplate.upsert(
-//                    query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
-//                    update("config.value", 2),
-//                    Config.class);
-//        }
-//        stopwatch.stopAndLogTimeInMillis();
-//    }
-//
-//    private CollectionCallback<String> getNewEncryptionCallback(
-//            TextEncryptor textEncryptor,
-//            EncryptionService encryptionService,
-//            Iterable<Bson> collectionFilterIterable,
-//            List<String> pathList,
-//            Stopwatch stopwatch) {
-//        return new CollectionCallback<String>() {
-//            @Override
-//            public String doInCollection(MongoCollection<Document> collection) {
-//                MongoCursor<Document> cursor = collection
-//                        .find(
-//                                Filters.and(
-//                                        Filters.or(collectionFilterIterable),
-//                                        Filters.not(Filters.exists("encryptionVersion"))))
-//                        .cursor();
-//
-//                log.debug("collection callback start: {}ms", stopwatch.getExecutionTime());
-//
-//                List<List<Bson>> documentPairList = new ArrayList<>();
-//                while (cursor.hasNext()) {
-//                    Document old = cursor.next();
-//                    BasicDBObject query = new BasicDBObject();
-//                    query.put("_id", old.getObjectId("_id"));
-//                    // This document will have the encrypted values.
-//                    BasicDBObject updated = new BasicDBObject();
-//                    updated.put("$set", new BasicDBObject("encryptionVersion", 2));
-//                    updated.put("$unset", new BasicDBObject());
-//                    // Encrypt attributes
-//                    pathList.stream()
-//                            .forEach(path -> reapplyNewEncryptionToPathValueIfExists(old, updated, path, encryptionService, textEncryptor));
-//                    documentPairList.add(List.of(query, updated));
-//                }
-//
-//                log.debug("collection callback processing end: {}ms", stopwatch.getExecutionTime());
-//                log.debug("update will be run for {} documents", documentPairList.size());
-//
-//                /**
-//                 * - Replace old document with the updated document that has encrypted values.
-//                 * - Replacing here instead of the while loop above makes sure that we attempt replacement only if
-//                 * the encryption step succeeded without error for each selected document.
-//                 */
-//                documentPairList.stream().parallel()
-//                        .forEach(docPair -> collection.updateOne(docPair.get(0), docPair.get(1)));
-//
-//                log.debug("collection callback update end: {}ms", stopwatch.getExecutionTime());
-//
-//                return null;
-//            }
-//        };
-//    }
-//
-//    private void reapplyNewEncryptionToPathValueIfExists(Document document, BasicDBObject update, String path,
-//                                                         EncryptionService encryptionService,
-//                                                         TextEncryptor textEncryptor) {
-//        String[] pathKeys = path.split("\\.");
-//        /**
-//         * - For attribute path "datasourceConfiguration.connection.ssl.keyFile.base64Content", first get the parent
-//         * document that contains the attribute 'base64Content' i.e. fetch the document corresponding to path
-//         * "datasourceConfiguration.connection.ssl.keyFile"
-//         */
-//        String parentDocumentPath = org.apache.commons.lang.StringUtils.join(ArrayUtils.subarray(pathKeys, 0, pathKeys.length - 1), ".");
-//        Document parentDocument = DatabaseChangelog1.getDocumentFromPath(document, parentDocumentPath);
-//
-//        if (parentDocument != null) {
-//            if (parentDocument.containsKey(pathKeys[pathKeys.length - 1])) {
-//                String oldEncryptedValue = parentDocument.getString(pathKeys[pathKeys.length - 1]);
-//                if (StringUtils.hasLength(String.valueOf(oldEncryptedValue))) {
-//                    String decryptedValue = null;
-//                    try {
-//                        decryptedValue = textEncryptor.decrypt(String.valueOf(oldEncryptedValue));
-//                    } catch (IllegalArgumentException e) {
-//                        // This happens on release DB for some creds that are malformed
-//                        if ("Hex-encoded string must have an even number of characters".equals(e.getMessage())) {
-//                            decryptedValue = String.valueOf(oldEncryptedValue);
-//                        }
-//                    }
-//                    String newEncryptedValue = encryptionService.encryptString(decryptedValue);
-//                    ((BasicDBObject) update.get("$set")).put(path, newEncryptedValue);
-//                    if (path.startsWith("datasourceConfiguration.authentication")) {
-//                        ((BasicDBObject) update.get("$unset")).put("datasourceConfiguration.authentication.isEncrypted", 1);
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @ChangeSet(order = "038", id = "add-unique-index-for-uidstring", author = "")
+    public void addUniqueIndexOnUidString(MongoTemplate mongoTemplate) {
+        Index uidStringUniqueness = makeIndex("uidString").unique()
+                .named("customjslibs_uidstring_index");
+        ensureIndexes(mongoTemplate, CustomJSLib.class, uidStringUniqueness);
+    }
+
+    // @ChangeSet(order = "039", id = "deprecate-queryabletext-encryption", author = "")
+    // public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate,
+    //                                              @NonLockGuarded EncryptionConfig encryptionConfig,
+    //                                              EncryptionService encryptionService) {
+    //     Stopwatch stopwatch = new Stopwatch("Instance Schema migration to v2");
+
+    //     Config encryptionVersion = mongockTemplate.findOne(
+    //             query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
+    //             Config.class);
+
+    //     if (encryptionVersion != null && (Integer) encryptionVersion.getConfig().get("value") < 2) {
+    //         String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
+    //         TextEncryptor textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(), saltInHex);
+
+    //         /**
+    //          * - List of attributes in datasources that need to be encoded.
+    //          * - Each path represents where the attribute exists in mongo db document.
+    //          */
+    //         List<String> datasourcePathList = new ArrayList<>();
+    //         datasourcePathList.add("datasourceConfiguration.connection.ssl.keyFile.base64Content");
+    //         datasourcePathList.add("datasourceConfiguration.connection.ssl.certificateFile.base64Content");
+    //         datasourcePathList.add("datasourceConfiguration.connection.ssl.caCertificateFile.base64Content");
+    //         datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.file.base64Content");
+    //         datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.password");
+    //         datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
+    //         datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.password");
+    //         datasourcePathList.add("datasourceConfiguration.authentication.value");
+    //         datasourcePathList.add("datasourceConfiguration.authentication.password");
+    //         datasourcePathList.add("datasourceConfiguration.authentication.bearerToken");
+    //         datasourcePathList.add("datasourceConfiguration.authentication.clientSecret");
+    //         datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.token");
+    //         datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.refreshToken");
+    //         datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.tokenResponse");
+    //         List<Bson> datasourcePathListExists = datasourcePathList
+    //                 .stream()
+    //                 .map(Filters::exists)
+    //                 .collect(Collectors.toList());
+
+    //         List<Bson> gitDeployKeysPathListExists = new ArrayList<>();
+    //         ArrayList<String> gitDeployKeysPathList = new ArrayList<>();
+    //         gitDeployKeysPathList.add("gitAuth.privateKey");
+    //         gitDeployKeysPathListExists.add(Filters.exists("gitAuth.privateKey"));
+
+    //         List<Bson> applicationPathListExists = new ArrayList<>();
+    //         ArrayList<String> applicationPathList = new ArrayList<>();
+    //         applicationPathList.add("gitApplicationMetadata.gitAuth.privateKey");
+    //         applicationPathListExists.add(Filters.exists("gitApplicationMetadata.gitAuth.privateKey"));
+
+    //         mongockTemplate.execute("datasource", getNewEncryptionCallback(textEncryptor, encryptionService, datasourcePathListExists, datasourcePathList, stopwatch));
+    //         mongockTemplate.execute("gitDeployKeys", getNewEncryptionCallback(textEncryptor, encryptionService, gitDeployKeysPathListExists, gitDeployKeysPathList, stopwatch));
+    //         mongockTemplate.execute("application", getNewEncryptionCallback(textEncryptor, encryptionService, applicationPathListExists, applicationPathList, stopwatch));
+
+    //         mongockTemplate.upsert(
+    //                 query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
+    //                 update("config.value", 2),
+    //                 Config.class);
+    //     }
+    //     stopwatch.stopAndLogTimeInMillis();
+    // }
+
+    // private CollectionCallback<String> getNewEncryptionCallback(
+    //         TextEncryptor textEncryptor,
+    //         EncryptionService encryptionService,
+    //         Iterable<Bson> collectionFilterIterable,
+    //         List<String> pathList,
+    //         Stopwatch stopwatch) {
+    //     return new CollectionCallback<String>() {
+    //         @Override
+    //         public String doInCollection(MongoCollection<Document> collection) {
+    //             MongoCursor<Document> cursor = collection
+    //                     .find(
+    //                             Filters.and(
+    //                                     Filters.or(collectionFilterIterable),
+    //                                     Filters.not(Filters.exists("encryptionVersion"))))
+    //                     .cursor();
+
+    //             log.debug("collection callback start: {}ms", stopwatch.getExecutionTime());
+
+    //             List<List<Bson>> documentPairList = new ArrayList<>();
+    //             while (cursor.hasNext()) {
+    //                 Document old = cursor.next();
+    //                 BasicDBObject query = new BasicDBObject();
+    //                 query.put("_id", old.getObjectId("_id"));
+    //                 // This document will have the encrypted values.
+    //                 BasicDBObject updated = new BasicDBObject();
+    //                 updated.put("$set", new BasicDBObject("encryptionVersion", 2));
+    //                 updated.put("$unset", new BasicDBObject());
+    //                 // Encrypt attributes
+    //                 pathList.stream()
+    //                         .forEach(path -> reapplyNewEncryptionToPathValueIfExists(old, updated, path, encryptionService, textEncryptor));
+    //                 // Since empty unset values are only allowed since Mongo v5+,
+    //                 // Remove the operation if there is nothing to unset
+    //                 if (((BasicDBObject) updated.get("$unset")).isEmpty()) {
+    //                     updated.remove("$unset");
+    //                 }
+    //                 documentPairList.add(List.of(query, updated));
+    //             }
+
+    //             log.debug("collection callback processing end: {}ms", stopwatch.getExecutionTime());
+    //             log.debug("update will be run for {} documents", documentPairList.size());
+
+    //             /**
+    //              * - Replace old document with the updated document that has encrypted values.
+    //              * - Replacing here instead of the while loop above makes sure that we attempt replacement only if
+    //              * the encryption step succeeded without error for each selected document.
+    //              */
+    //             documentPairList.stream().parallel()
+    //                     .forEach(docPair -> collection.updateOne(docPair.get(0), docPair.get(1)));
+
+    //             log.debug("collection callback update end: {}ms", stopwatch.getExecutionTime());
+
+    //             return null;
+    //         }
+    //     };
+    // }
+
+    // private void reapplyNewEncryptionToPathValueIfExists(Document document, BasicDBObject update, String path,
+    //                                                      EncryptionService encryptionService,
+    //                                                      TextEncryptor textEncryptor) {
+    //     String[] pathKeys = path.split("\\.");
+    //     /**
+    //      * - For attribute path "datasourceConfiguration.connection.ssl.keyFile.base64Content", first get the parent
+    //      * document that contains the attribute 'base64Content' i.e. fetch the document corresponding to path
+    //      * "datasourceConfiguration.connection.ssl.keyFile"
+    //      */
+    //     String parentDocumentPath = org.apache.commons.lang.StringUtils.join(ArrayUtils.subarray(pathKeys, 0, pathKeys.length - 1), ".");
+    //     Document parentDocument = DatabaseChangelog1.getDocumentFromPath(document, parentDocumentPath);
+
+    //     if (parentDocument != null) {
+    //         if (parentDocument.containsKey(pathKeys[pathKeys.length - 1])) {
+    //             String oldEncryptedValue = parentDocument.getString(pathKeys[pathKeys.length - 1]);
+    //             if (StringUtils.hasLength(String.valueOf(oldEncryptedValue))) {
+    //                 String decryptedValue = null;
+    //                 try {
+    //                     decryptedValue = textEncryptor.decrypt(String.valueOf(oldEncryptedValue));
+    //                 } catch (IllegalArgumentException e) {
+    //                     // This happens on release DB for some creds that are malformed
+    //                     if ("Hex-encoded string must have an even number of characters".equals(e.getMessage())) {
+    //                         decryptedValue = String.valueOf(oldEncryptedValue);
+    //                     }
+    //                 }
+    //                 String newEncryptedValue = encryptionService.encryptString(decryptedValue);
+    //                 ((BasicDBObject) update.get("$set")).put(path, newEncryptedValue);
+    //                 if (path.startsWith("datasourceConfiguration.authentication")) {
+    //                     ((BasicDBObject) update.get("$unset")).put("datasourceConfiguration.authentication.isEncrypted", 1);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
