@@ -85,6 +85,9 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_AUDITLOG_ENABLED=true \
             appsmith/appsmith-ce:release
+            
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
