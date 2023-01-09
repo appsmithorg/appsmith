@@ -9,7 +9,11 @@ import {
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { FLEXBOX_PADDING } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import {
+  getFlexGapOfContainer,
+  getSnapColumnSpace,
+  updateWidgetPositions,
+} from "utils/autoLayout/positionUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
   const container = widgets[containerId];
@@ -199,7 +203,16 @@ export function updateFlexChildColumns(
   );
   if (!fillChildren.length) return widgets;
 
-  const columnsPerFillChild = (64 - hugChildrenColumns) / fillChildren.length;
+  const snapColumnSpace = getSnapColumnSpace(allWidgets[parentId], allWidgets);
+  const flexGap = getFlexGapOfContainer(allWidgets[parentId], allWidgets);
+
+  const columnsPerFillChild =
+    (64 -
+      hugChildrenColumns -
+      (layer.children?.length && snapColumnSpace
+        ? Math.ceil(((layer.children?.length - 1) * flexGap) / snapColumnSpace)
+        : 0)) /
+    fillChildren.length;
 
   for (const child of fillChildren) {
     widgets[child.widgetId] = {

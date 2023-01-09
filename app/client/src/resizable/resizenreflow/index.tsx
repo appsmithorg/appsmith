@@ -71,6 +71,7 @@ type ResizableHandleProps = {
     x: number;
     y: number;
   };
+  widgetId: string;
   direction?: ReflowDirection;
 };
 
@@ -517,6 +518,7 @@ export function ReflowResizable(props: ResizableProps) {
         onStop={onResizeStop}
         scrollParent={resizableRef.current}
         snapGrid={props.snapGrid}
+        widgetId={props.widgetId}
       />
     );
   });
@@ -555,7 +557,8 @@ export function ReflowResizable(props: ResizableProps) {
           style={_props}
         >
           {props.children}
-          {props.enableHorizontalResize && renderHandles}
+          {(props.enableHorizontalResize || props.enableVerticalResize) &&
+            renderHandles}
         </ResizeWrapper>
       )}
     </Spring>

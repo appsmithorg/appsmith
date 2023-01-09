@@ -1,7 +1,19 @@
-import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
+import {
+  FlexGap,
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "components/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  getDragArenaName,
+  getSlidingArenaName,
+} from "constants/componentClassNameConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   getBottomRow,
@@ -44,6 +56,8 @@ export function updateWidgetPositions(
     const parent = widgets[parentId];
     if (!parent) return widgets;
 
+    const flexGap = getFlexGapOfContainer(parent, widgets);
+    const snapColumnSpace = getSnapColumnSpace(parent, widgets);
     let height = 0;
     if (parent.flexLayers && parent.flexLayers?.length) {
       /**
@@ -54,10 +68,22 @@ export function updateWidgetPositions(
         const payload: {
           height: number;
           widgets: CanvasWidgetsReduxState;
-        } = calculateWidgetPositions(widgets, layer, height, isMobile);
+        } = calculateWidgetPositions(
+          widgets,
+          layer,
+          height,
+          flexGap,
+          isMobile,
+          snapColumnSpace,
+        );
         widgets = payload.widgets;
         height += payload.height;
       }
+
+      height += Math.ceil(
+        (((parent.flexLayers.length || 1) - 1) * flexGap) /
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      );
     } else if (parent.children?.length) {
       // calculate the total height required by all widgets.
       height = getHeightOfFixedCanvas(widgets, parent, isMobile);
@@ -107,11 +133,35 @@ export function updateWidgetPositions(
   }
 }
 
+export function getSnapColumnSpace(
+  canvasWidget: WidgetProps,
+  allWidgets: CanvasWidgetsReduxState,
+) {
+  //const containerId = getContainerIdForCanvas(canvasWidget.widgetId, true);
+  const containerWidget = allWidgets[canvasWidget.parentId || "-1"]
+    ? allWidgets[canvasWidget.parentId || "-1"]
+    : undefined;
+  //const containerWidget = allWidgets[containerId];
+  const canvasDOM =
+    document.querySelector(`#${getSlidingArenaName(canvasWidget.widgetId)}`) ||
+    document.querySelector(`#${getDragArenaName(canvasWidget.widgetId)}`);
+
+  if (!canvasDOM || !containerWidget) return undefined;
+
+  const rect = canvasDOM.getBoundingClientRect();
+
+  // get Grid values such as snapRowSpace and snapColumnSpace
+  const { snapGrid } = getSnappedGrid(containerWidget, rect.width);
+
+  return snapGrid.snapColumnSpace;
+}
 function calculateWidgetPositions(
   allWidgets: CanvasWidgetsReduxState,
   layer: FlexLayer,
   topRow: number,
+  flexGap: number,
   isMobile = false,
+  snapColumnSpace: number | undefined,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   /**
    * Get information break down on each alignment within the layer.
@@ -122,6 +172,8 @@ function calculateWidgetPositions(
     allWidgets,
     layer,
     isMobile,
+    flexGap,
+    snapColumnSpace,
   );
   /**
    * Check if this layer is wrapped by css flex.
@@ -264,6 +316,8 @@ function extractAlignmentInfo(
   widgets: CanvasWidgetsReduxState,
   layer: FlexLayer,
   isMobile: boolean,
+  flexGap: number,
+  snapColumnSpace: number | undefined,
 ): { info: AlignmentInfo[]; fillWidgetLength: number } {
   const startChildren = [],
     centerChildren = [],
@@ -293,7 +347,10 @@ function extractAlignmentInfo(
     GridDefaults.DEFAULT_GRID_COLUMNS -
     startColumns -
     centerColumns -
-    endColumns;
+    endColumns -
+    (layer.children?.length && snapColumnSpace
+      ? Math.ceil(((layer.children?.length - 1) * flexGap) / snapColumnSpace)
+      : 0);
   // Fill widgets are designed to take up parent's entire width on mobile viewport.
   const fillWidgetLength: number = isMobile
     ? GridDefaults.DEFAULT_GRID_COLUMNS
@@ -585,4 +642,21 @@ export function getTotalRowsOfAllChildren(
     bottom = Math.max(bottom, getBottomRow(child, isMobile) / divisor);
   }
   return bottom - top;
+}
+
+export function getFlexGapOfContainer(
+  canvasWidget: WidgetProps & { children?: string[] | undefined },
+  widgets: { [x: string]: WidgetProps & { children?: string[] | undefined } },
+) {
+  if (
+    canvasWidget.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+    !widgets[canvasWidget.parentId || "-1"]
+  )
+    return FlexGap.None;
+
+  const parentWidget = widgets[canvasWidget.parentId || "-1"];
+
+  return parentWidget.flexGap === undefined
+    ? FlexGap.None
+    : parentWidget.flexGap;
 }

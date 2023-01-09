@@ -47,6 +47,7 @@ import {
   getStickyCanvasName,
   getSlidingArenaName,
   POSITIONED_WIDGET,
+  getDraggingCanvasName,
 } from "constants/componentClassNameConstants";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
@@ -792,10 +793,12 @@ export function getDefaultCanvas(canvasWidgets: CanvasWidgetsReduxState) {
  * @param canvasId
  * @returns
  */
-export function getContainerIdForCanvas(canvasId: string) {
+export function getContainerIdForCanvas(canvasId: string, isDragging = false) {
   if (canvasId === MAIN_CONTAINER_WIDGET_ID) return canvasId;
 
-  const selector = `#${getStickyCanvasName(canvasId)}`;
+  const selector = `#${
+    isDragging ? getDraggingCanvasName(canvasId) : getStickyCanvasName(canvasId)
+  }`;
   const canvasDOM = document.querySelector(selector);
   if (!canvasDOM) return "";
   //check for positionedWidget parent

@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { FlexGap } from "components/constants";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
@@ -58,6 +59,7 @@ export const useCanvasDragging = (
     canExtend,
     direction,
     dropDisabled,
+    flexGap,
     noPad,
     snapColumnSpace,
     snapRows,
@@ -126,6 +128,7 @@ export const useCanvasDragging = (
     isCurrentDraggedCanvas,
     isDragging,
     useAutoLayout,
+    flexGap: flexGap || FlexGap.None,
   });
   const dispatch = useDispatch();
 
@@ -618,22 +621,21 @@ export const useCanvasDragging = (
           let { columnWidth, height, left, rowHeight, top, width } = block;
 
           if (
-            (isNewLayer &&
-              block.columnWidth === GridDefaults.DEFAULT_GRID_COLUMNS) ||
-            (!isNewLayer &&
-              block.columnWidth !== GridDefaults.DEFAULT_GRID_COLUMNS)
+            isNewLayer &&
+            block.columnWidth === GridDefaults.DEFAULT_GRID_COLUMNS
           )
             return block;
 
           if (isNewLayer) {
-            columnWidth = GridDefaults.DEFAULT_GRID_COLUMNS;
+            columnWidth = 20; //GridDefaults.DEFAULT_GRID_COLUMNS;
             width = columnWidth * snapColumnSpace;
             rowHeight = 4;
             height = rowHeight * snapRowSpace;
           } else {
             rowHeight = Math.floor(layerHeight / snapRowSpace);
             height = rowHeight * snapRowSpace;
-            columnWidth = 4;
+            if (isNewLayer || columnWidth === GridDefaults.DEFAULT_GRID_COLUMNS)
+              columnWidth = 4;
             width = columnWidth * snapColumnSpace;
           }
           left = e.offsetX - 20 - parentDiff.left;
@@ -645,6 +647,8 @@ export const useCanvasDragging = (
             rowHeight,
             height,
             width,
+            left,
+            top,
           };
         };
         const onMouseMove = (e: any, firstMove = false) => {

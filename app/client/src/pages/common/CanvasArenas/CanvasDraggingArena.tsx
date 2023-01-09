@@ -1,4 +1,4 @@
-import { LayoutDirection } from "components/constants";
+import { FlexGap, LayoutDirection } from "components/constants";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
@@ -19,6 +19,7 @@ export interface CanvasDraggingArenaProps {
   detachFromLayout?: boolean;
   direction?: LayoutDirection;
   dropDisabled?: boolean;
+  flexGap?: number;
   noPad?: boolean;
   snapColumnSpace: number;
   snapRows: number;
@@ -34,6 +35,7 @@ export function CanvasDraggingArena({
   canExtend,
   direction,
   dropDisabled = false,
+  flexGap = FlexGap.None,
   noPad,
   parentId = "",
   snapColumnSpace,
@@ -54,6 +56,7 @@ export function CanvasDraggingArena({
     canExtend,
     direction,
     dropDisabled,
+    flexGap,
     noPad,
     parentId,
     snapColumnSpace,

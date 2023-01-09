@@ -111,13 +111,21 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
 
+      if (props.type === "SPACING_WIDGET") {
+        if (widgetProps.orientation === "vertical") {
+          widgetProps.disableHorizontalResize = true;
+        } else {
+          widgetProps.disableVerticalResize = true;
+        }
+      }
+
       widgetProps.children = children;
 
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
     }
     //merging with original props
-    widgetProps = { ...props, ...widgetProps, renderMode };
+    widgetProps = { ...props, ...widgetProps, renderMode, isPreviewMode };
 
     // isVisible prop defines whether to render a detached widget
     if (widgetProps.detachFromLayout && !widgetProps.isVisible) {

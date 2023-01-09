@@ -35,6 +35,7 @@ export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
   canvasId: string;
   direction?: LayoutDirection;
+  flexGap: number;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
   useAutoLayout?: boolean;
@@ -50,6 +51,7 @@ export const useAutoLayoutHighlights = ({
   blocksToDraw,
   canvasId,
   direction,
+  flexGap,
   isCurrentDraggedCanvas,
   isDragging,
   useAutoLayout,
@@ -74,6 +76,8 @@ export const useAutoLayoutHighlights = ({
   const checkForFillWidget = (): boolean => {
     let flag = false;
     if (!blocksToDraw?.length) return flag;
+    if (blocksToDraw.length === 1 && blocksToDraw[0].type === "SPACING_WIDGET")
+      return true;
     for (const block of blocksToDraw) {
       const widget = allWidgets[block.widgetId];
       if (widget) {
@@ -102,6 +106,7 @@ export const useAutoLayoutHighlights = ({
       highlights = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
+        flexGap,
         canvasWidth,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,
@@ -146,6 +151,7 @@ export const useAutoLayoutHighlights = ({
       highlights = deriveHighlightsFromLayers(
         allWidgets,
         canvasId,
+        flexGap,
         canvasWidth,
         blocksToDraw.map((block) => block?.widgetId),
         isFillWidget,

@@ -171,6 +171,13 @@ export enum FlexGap {
   XtraLarge = 32,
 }
 
+export enum FlexSpace {
+  Small = 4,
+  Medium = 6,
+  Large = 8,
+  XtraLarge = 10,
+}
+
 export enum Overflow {
   Wrap = "wrap",
   NoWrap = "nowrap",

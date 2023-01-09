@@ -32,6 +32,7 @@ import { getTotalRowsOfAllChildren, Widget } from "./positionUtils";
 export function deriveHighlightsFromLayers(
   allWidgets: CanvasWidgetsReduxState,
   canvasId: string,
+  flexGap: number,
   mainCanvasWidth = 0,
   draggedWidgets: string[] = [],
   hasFillWidget = false,
@@ -80,6 +81,7 @@ export function deriveHighlightsFromLayers(
         columnSpace,
         draggedWidgets,
         isMobile,
+        flexGap,
       });
 
       if (!isEmpty) {
@@ -95,13 +97,15 @@ export function deriveHighlightsFromLayers(
             canvasWidth,
             canvasId,
             hasFillWidget,
+            flexGap,
           ),
         );
 
         highlights.push(...payload.highlights);
         layerIndex += 1;
       }
-      offsetTop += childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT || 0;
+      offsetTop +=
+        childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT || 0 + flexGap;
       childCount += payload.childCount;
     }
     // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
@@ -113,6 +117,7 @@ export function deriveHighlightsFromLayers(
         canvasWidth,
         canvasId,
         hasFillWidget,
+        flexGap,
       ),
     );
     return highlights;
@@ -142,6 +147,7 @@ function generateVerticalHighlights(data: {
   columnSpace: number;
   draggedWidgets: string[];
   isMobile: boolean;
+  flexGap: number;
 }): VerticalHighlightsPayload {
   const {
     canvasId,
@@ -149,6 +155,7 @@ function generateVerticalHighlights(data: {
     childCount,
     columnSpace,
     draggedWidgets,
+    flexGap,
     isMobile,
     layer,
     layerIndex,
@@ -199,6 +206,7 @@ function generateVerticalHighlights(data: {
         canvasWidth,
         columnSpace,
         isMobile,
+        flexGap,
       }),
       ...generateHighlightsForAlignment({
         arr: centerChildren,
@@ -214,6 +222,7 @@ function generateVerticalHighlights(data: {
         columnSpace,
         avoidInitialHighlight: startColumns > 25 || endColumns > 25,
         isMobile,
+        flexGap,
       }),
       ...generateHighlightsForAlignment({
         arr: endChildren,
@@ -228,6 +237,7 @@ function generateVerticalHighlights(data: {
         canvasWidth,
         columnSpace,
         isMobile,
+        flexGap,
       }),
     ],
     childCount: count,
@@ -255,6 +265,7 @@ function generateHighlightsForAlignment(data: {
   columnSpace: number;
   avoidInitialHighlight?: boolean;
   isMobile: boolean;
+  flexGap: number;
 }): HighlightInfo[] {
   const {
     alignment,
@@ -264,6 +275,7 @@ function generateHighlightsForAlignment(data: {
     canvasWidth,
     childCount,
     columnSpace,
+    flexGap,
     isMobile,
     layerIndex,
     maxHeight,
@@ -280,8 +292,14 @@ function generateHighlightsForAlignment(data: {
       layerIndex,
       rowIndex: count,
       alignment,
-      posX: left * parentColumnSpace + FLEXBOX_PADDING / 2,
-      posY: getTopRow(child, isMobile) * child.parentRowSpace + FLEXBOX_PADDING,
+      posX:
+        left * parentColumnSpace +
+        FLEXBOX_PADDING / 2 +
+        (count > 0 ? (count - 1) * flexGap : 0),
+      posY:
+        getTopRow(child, isMobile) * child.parentRowSpace +
+        FLEXBOX_PADDING +
+        layerIndex * flexGap,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height: isMobile
         ? getWidgetHeight(child, isMobile) * child.parentRowSpace
@@ -301,22 +319,24 @@ function generateHighlightsForAlignment(data: {
       layerIndex,
       rowIndex: count,
       alignment,
-      posX: getPositionForInitialHighlight(
-        res,
-        alignment,
-        arr && arr.length
-          ? getRightColumn(lastChild, isMobile) * parentColumnSpace +
-              FLEXBOX_PADDING / 2
-          : 0,
-        canvasWidth,
-        canvasId,
-        columnSpace,
-      ),
+      posX:
+        getPositionForInitialHighlight(
+          res,
+          alignment,
+          arr && arr.length
+            ? getRightColumn(lastChild, isMobile) * parentColumnSpace +
+                FLEXBOX_PADDING / 2
+            : 0,
+          canvasWidth,
+          canvasId,
+          columnSpace,
+        ) + (count > 0 ? (count - 1) * flexGap : 0),
       posY:
         lastChild === null
           ? offsetTop
           : getTopRow(lastChild, isMobile) * lastChild?.parentRowSpace +
-            FLEXBOX_PADDING,
+            FLEXBOX_PADDING +
+            layerIndex * flexGap,
       width: DEFAULT_HIGHLIGHT_SIZE,
       height:
         isMobile && lastChild !== null
@@ -379,6 +399,7 @@ function generateHorizontalHighlights(
   containerWidth: number,
   canvasId: string,
   hasFillWidget: boolean,
+  flexGap: number,
 ): HighlightInfo[] {
   const width = containerWidth / 3;
   const arr: HighlightInfo[] = [];
@@ -398,7 +419,7 @@ function generateHorizontalHighlights(
           ? 0
           : containerWidth
         : width * index,
-      posY: offsetTop,
+      posY: offsetTop + layerIndex * flexGap,
       width: hasFillWidget
         ? alignment === FlexLayerAlignment.Start
           ? containerWidth

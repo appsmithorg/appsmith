@@ -185,21 +185,29 @@ function* reorderAutolayoutChildren(params: {
     widgets[movedWidgets[0]].type === "SPACING_WIDGET"
   ) {
     const widgetId = movedWidgets[0];
-    const { leftColumn, topRow } = widgets[widgetId];
-    if (isNewLayer) {
-      widgets[widgetId] = {
-        ...widgets[widgetId],
-        rightColumn: leftColumn + GridDefaults.DEFAULT_GRID_COLUMNS,
-        bottomRow: 4 + topRow,
-      };
-    } else {
-      widgets[widgetId] = {
-        ...widgets[widgetId],
-        bottomRow:
-          topRow +
-          Math.floor(layerHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
-        rightColumn: 4 + leftColumn,
-      };
+    const { leftColumn, rightColumn, topRow } = widgets[widgetId];
+    const columnWidth = rightColumn - leftColumn;
+    if (!(isNewLayer && columnWidth === GridDefaults.DEFAULT_GRID_COLUMNS)) {
+      if (isNewLayer) {
+        widgets[widgetId] = {
+          ...widgets[widgetId],
+          orientation: "vertical",
+          rightColumn: leftColumn + GridDefaults.DEFAULT_GRID_COLUMNS,
+          bottomRow: 4 + topRow,
+        };
+      } else {
+        widgets[widgetId] = {
+          ...widgets[widgetId],
+          orientation: "horizontal",
+          bottomRow:
+            topRow +
+            Math.floor(layerHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
+          rightColumn:
+            !isNewLayer && columnWidth !== GridDefaults.DEFAULT_GRID_COLUMNS
+              ? rightColumn
+              : 4 + leftColumn,
+        };
+      }
     }
   }
   let updatedWidgets: CanvasWidgetsReduxState = updateRelationships(
@@ -243,7 +251,6 @@ function* reorderAutolayoutChildren(params: {
           updatedWidgets,
           parentId,
           filteredLayers,
-          index,
           layerIndex,
           rowIndex,
         );
@@ -372,7 +379,6 @@ function updateExistingLayer(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   layers: FlexLayer[],
-  index = 0,
   layerIndex = 0,
   rowIndex: number,
 ): CanvasWidgetsReduxState {
@@ -420,7 +426,7 @@ function updateExistingLayer(
     const updatedWidgets = { ...widgets, [parentId]: updatedCanvas };
     return updatedWidgets;
   } catch (e) {
-    console.error("#### update existing layer error", e);
+    log.error("#### update existing layer error", e);
     return allWidgets;
   }
 }

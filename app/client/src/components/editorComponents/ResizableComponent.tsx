@@ -130,8 +130,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       width: newDimensions.width - dimensions.width,
     };
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
-    let canResizeVertically = true;
-    let canResizeHorizontally = true;
+    let canResizeVertically = props.disableVerticalResize ? false : true;
+    let canResizeHorizontally = props.disableHorizontalResize ? false : true;
 
     // this is required for list widget so that template have no collision
     if (props.ignoreCollision || props.isFlexChild)
@@ -325,8 +325,17 @@ export const ResizableComponent = memo(function ResizableComponent(
   );
 
   const isVerticalResizeEnabled = useMemo(() => {
-    return !isAutoHeightEnabledForWidget(props) && isEnabled;
+    return (
+      !props.disableVerticalResize &&
+      //!isAutoHeightEnabledForWidget(props) &&
+      isEnabled
+    );
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
+
+  const isHorizontalResizeEnabled = useMemo(() => {
+    return props.disableHorizontalResize ? false : isEnabled;
+  }, [props, isEnabled]);
+
   const allowResize: boolean =
     !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
     !props.isFlexChild;
@@ -336,7 +345,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       direction={props.direction}
-      enableHorizontalResize={isEnabled}
+      enableHorizontalResize={isHorizontalResizeEnabled}
       enableVerticalResize={isVerticalResizeEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}

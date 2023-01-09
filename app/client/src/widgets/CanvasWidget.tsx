@@ -96,6 +96,7 @@ class CanvasWidget extends ContainerWidget {
               canExtend={props.canExtend}
               direction={direction}
               dropDisabled={!!props.dropDisabled}
+              flexGap={props.flexGap || FlexGap.None}
               noPad={this.props.noPad}
               parentId={props.parentId}
               snapRows={snapRows}
