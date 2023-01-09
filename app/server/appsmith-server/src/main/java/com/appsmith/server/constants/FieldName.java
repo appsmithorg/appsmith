@@ -152,16 +152,6 @@ public class FieldName {
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
-    public static final String INVITED_USERS_TO_USER_GROUPS = "invitedUsers";
-    public static final String REMOVED_USERS_FROM_USER_GROUPS = "removedUsers";
-    public static final String REMOVE_USERS_FROM_USER_GROUPS = "removeUsers";
-    public static final String INVITE_USERS_TO_USER_GROUPS = "inviteUsers";
-    public static final String ASSIGNED_USERS_TO_PERMISSION_GROUPS = "assignedUsers";
-    public static final String UNASSIGNED_USERS_FROM_PERMISSION_GROUPS = "unAssignedUsers";
-    public static final String ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS = "assignedGroups";
-    public static final String UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS = "unAssignedGroups";
-    public static final String ASSIGNED_TO_PERMISSION_GROUPS = "assignedUserAndGroups";
-    public static final String UNASSIGNED_FROM_PERMISSION_GROUPS = "unAssignedUsersAndGroups";
     public static final String ENVIRONMENT_NAME ="environmentName";
 
     public static final String IS_FORCE_INSTALL = "forceInstall";
