@@ -24,7 +24,9 @@ function EndTour() {
   };
 
   return (
-    <EndTutorial onClick={endTour}>{createMessage(END_TUTORIAL)}</EndTutorial>
+    <EndTutorial className="mr-3" onClick={endTour}>
+      {createMessage(END_TUTORIAL)}
+    </EndTutorial>
   );
 }
 
