@@ -78,6 +78,7 @@ import {
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { AppThemingMode } from "selectors/appThemingSelectors";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -213,15 +214,21 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
-        if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-        //TODO Identify the updated widgets and pass the values
+
         yield put(
           updateAndSaveLayout(replayEntity.widgets, {
             isRetry: false,
             shouldReplay: false,
           }),
         );
-        if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+
+        if (isPropertyUpdate) {
+          yield call(openPropertyPaneSaga, replay);
+        }
+        if (!isPropertyUpdate) {
+          yield call(postUndoRedoSaga, replay);
+        }
+        yield put(generateAutoHeightLayoutTreeAction(true, false));
         break;
       }
       case ENTITY_TYPE.ACTION:

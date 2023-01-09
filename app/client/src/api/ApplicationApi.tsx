@@ -28,6 +28,7 @@ export interface ApplicationPagePayload {
   slug: string;
   isHidden?: boolean;
   customSlug?: string;
+  userPermissions?: string;
 }
 
 export type GitApplicationMetadata =
@@ -110,6 +111,7 @@ export type UpdateApplicationPayload = {
   currentApp?: boolean;
   appLayout?: AppLayoutConfig;
   applicationVersion?: number;
+  embedSetting?: AppEmbedSetting;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
@@ -164,6 +166,42 @@ export interface ImportApplicationRequest {
   applicationFile?: File;
   progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
+}
+
+export interface AppEmbedSetting {
+  height?: string;
+  width?: string;
+  showNavigationBar?: boolean;
+}
+
+export interface UpdateApplicationResponse {
+  id: string;
+  modifiedBy: string;
+  userPermissions: string[];
+  name: string;
+  workspaceId: string;
+  isPublic: boolean;
+  pages: PageDefaultMeta[];
+  appIsExample: boolean;
+  unreadCommentThreads: number;
+  color: string;
+  icon: AppIconName;
+  slug: string;
+  lastDeployedAt: Date;
+  evaluationVersion: number;
+  applicationVersion: number;
+  isManualUpdate: boolean;
+  appLayout: AppLayoutConfig;
+  new: boolean;
+  modifiedAt: Date;
+  embedSetting: AppEmbedSetting;
+}
+
+export interface PageDefaultMeta {
+  id: string;
+  isDefault: boolean;
+  defaultPageId: string;
+  default: boolean;
 }
 
 class ApplicationApi extends Api {
@@ -243,7 +281,7 @@ class ApplicationApi extends Api {
 
   static updateApplication(
     request: UpdateApplicationRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): AxiosPromise<ApiResponse<UpdateApplicationResponse>> {
     const { id, ...rest } = request;
     return Api.put(ApplicationApi.baseURL + "/" + id, rest);
   }

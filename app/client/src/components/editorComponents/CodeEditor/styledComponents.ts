@@ -50,9 +50,10 @@ export const EditorWrapper = styled.div<{
   isRawView?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
-  fill?: boolean;
+  fillUp?: boolean;
   className?: string;
   codeEditorVisibleOverflow?: boolean;
+  ctrlPressed: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -143,7 +144,7 @@ export const EditorWrapper = styled.div<{
           ? `border-bottom: 1px solid ${Colors.NERO}`
           : `border: 1px solid ${Colors.NERO}`};
       background: ${(props) =>
-        props.isFocused || props.fill ? Colors.NERO : "#262626"};
+        props.isFocused || props.fillUp ? Colors.NERO : "#262626"};
       color: ${Colors.LIGHT_GREY};
     }
     .cm-s-duotone-light .CodeMirror-linenumber,
@@ -159,6 +160,12 @@ export const EditorWrapper = styled.div<{
           ? props.theme.colors.bindingTextDark
           : props.theme.colors.bindingText};
       font-weight: 700;
+    }
+    .navigable-entity-highlight {
+      cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
+      &:hover {
+        text-decoration: underline;
+      }
     }
     .CodeMirror-matchingbracket {
       text-decoration: none;
@@ -283,7 +290,7 @@ export const EditorWrapper = styled.div<{
     &&&&&&&& .CodeMirror-scroll {
       overflow: visible;
     }
-   
+
     & .CodeEditorTarget {
       height: ${props.isFocused ? "auto" : "35px"};
     }
@@ -291,7 +298,7 @@ export const EditorWrapper = styled.div<{
 
   ${(props) =>
     props.isReadOnly &&
-    ` 
+    `
       &&&&&&&&&& .cm-m-javascript.cm-number {
         color: ${props.isRawView ? "#000" : "#268bd2"};
 

@@ -1,6 +1,9 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/datePicker2dsl.json");
 const datedsl = require("../../../../../fixtures/datePickerdsl.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
+const publishPage = require("../../../../../locators/publishWidgetspage.json");
+
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
@@ -202,5 +205,24 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(10000);
+    cy.get(publishPage.backToEditor).click({ force: true });
+  });
+});
+
+describe("DatePicker Widget Property tests onFocus and onBlur", function() {
+  it("onBlur and onFocus should be triggered from the datePicker widget", () => {
+    cy.Createpage("New Page");
+    cy.dragAndDropToCanvas("datepickerwidget2", { x: 300, y: 600 });
+    cy.openPropertyPane("datepickerwidget2");
+
+    cy.get(widgetsPage.toggleOnFocus).click({ force: true });
+    cy.testJsontext("onfocus", "{{showAlert('Focused','success')}}");
+    cy.get(widgetsPage.toggleOnBlur).click({ force: true });
+    cy.testJsontext("onblur", "{{showAlert('Blurred','success')}}");
+
+    cy.get(widgetsPage.datepickerInput).click({ force: true });
+    cy.validateToastMessage("Focused");
+    agHelper.PressEscape();
+    cy.validateToastMessage("Blurred");
   });
 });

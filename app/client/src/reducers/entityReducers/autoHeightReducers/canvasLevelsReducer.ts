@@ -14,7 +14,7 @@ export type CanvasLevelsReduxState = {
 const initialState: CanvasLevelsReduxState = {};
 
 const canvasLevelsReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.SET_CANVAS_LEVELS_MAP]: (
+  [ReduxActionTypes.SET_AUTO_HEIGHT_LAYOUT_TREE]: (
     state: CanvasLevelsReduxState,
     action: ReduxAction<AutoHeightLayoutTreePayload>,
   ) => {

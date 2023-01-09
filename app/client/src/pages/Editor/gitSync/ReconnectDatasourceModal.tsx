@@ -99,12 +99,19 @@ const TabsContainer = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  height: calc(100% - 76px);
+  height: calc(100% - 96px);
   display: flex;
   margin-left: -${(props) => props.theme.spaces[8]}px;
 
   .t--json-to-form-wrapper {
     width: 100%;
+
+    .t--json-to-form-body {
+      padding: 0 20px;
+      .t--collapse-section-container {
+        margin-top: 20px;
+      }
+    }
 
     .t--close-editor {
       display: none;
@@ -226,7 +233,6 @@ const TooltipWrapper = styled.div`
 `;
 
 const DBFormWrapper = styled.div`
-  padding: 10px;
   width: calc(100% - 206px);
   overflow: auto;
 
@@ -310,6 +316,13 @@ function ReconnectDatasourceModal() {
   const [datasource, setDatasource] = useState<Datasource | null>(null);
   const [isImport, setIsImport] = useState(queryIsImport);
   const [isTesting, setIsTesting] = useState(false);
+  const queryDS = datasources.find((ds) => ds.id === queryDatasourceId);
+  const dsName = queryDS?.name;
+  const orgId = queryDS?.workspaceId;
+  let pluginName = "";
+  if (!!queryDS?.pluginId) {
+    pluginName = pluginNames[queryDS.pluginId];
+  }
 
   // when redirecting from oauth, processing the status
   if (isImport) {
@@ -324,6 +337,13 @@ function ReconnectDatasourceModal() {
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
       Toaster.show({ text: display_message || message, variant });
+      const oAuthStatus = status;
+      AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
+        dsName,
+        oAuthStatus,
+        orgId,
+        pluginName,
+      });
     } else if (queryDatasourceId) {
       dispatch(getOAuthAccessToken(queryDatasourceId));
     }
@@ -578,7 +598,7 @@ function ReconnectDatasourceModal() {
             position="bottom-right"
           >
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               className="t--skip-to-application-btn"
               href={appURL}
               onClick={() => {

@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Property;
 import org.assertj.core.api.AbstractCollectionAssert;
 import org.assertj.core.api.ObjectAssert;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.MustacheHelper.extractMustacheKeys;
 import static com.appsmith.external.helpers.MustacheHelper.extractMustacheKeysFromFields;
@@ -29,15 +31,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 )
 public class MustacheHelperTest {
 
-    private void checkTokens(String template, List<String> expected) {
+    private void checkTokens(String template, List<MustacheBindingToken> expected) {
         assertThat(tokenize(template)).isEqualTo(expected);
     }
 
-    private void checkKeys(String template, Set<String> expected) {
+    private void checkKeys(String template, Set<MustacheBindingToken> expected) {
         assertThat(extractMustacheKeys(template)).isEqualTo(expected);
     }
 
-    private void check(String template, List<String> expectedTokens, Set<String> expectedKeys) {
+    private void check(String template, List<MustacheBindingToken> expectedTokens, Set<MustacheBindingToken> expectedKeys) {
         if (expectedTokens != null) {
             checkTokens(template, expectedTokens);
         }
@@ -46,7 +48,7 @@ public class MustacheHelperTest {
         }
     }
 
-    private AbstractCollectionAssert<?, Collection<? extends String>, String, ObjectAssert<String>>
+    private AbstractCollectionAssert<?, Collection<? extends MustacheBindingToken>, MustacheBindingToken, ObjectAssert<MustacheBindingToken>>
     assertKeys(Object object) {
         return assertThat(extractMustacheKeysFromFields(object));
     }
@@ -58,20 +60,20 @@ public class MustacheHelperTest {
 
     @Test
     public void justSingleMustache() {
-        checkTokens("{{A}}", Arrays.asList("{{A}}"));
-        checkKeys("{{A}}", Set.of("A"));
-        checkKeys("{{A + B / C}}", Set.of("A + B / C"));
+        checkTokens("{{A}}", Arrays.asList(new MustacheBindingToken("{{A}}", 0, true)));
+        checkKeys("{{A}}", Set.of(new MustacheBindingToken("A", 2, false)));
+        checkKeys("{{A + B / C}}", Set.of(new MustacheBindingToken("A + B / C", 2, false)));
     }
 
     @Test
     public void textAndMustache() {
-        checkKeys("Hello {{name}}", Set.of("name"));
-        checkKeys("Hello {{url.hash}}", Set.of("url.hash"));
+        checkKeys("Hello {{name}}", Set.of(new MustacheBindingToken("name", 8, false)));
+        checkKeys("Hello {{url.hash}}", Set.of(new MustacheBindingToken("url.hash", 8, false)));
     }
 
     @Test
     public void mustacheAndText() {
-        checkKeys("{{name}} is approved!", Set.of("name"));
+        checkKeys("{{name}} is approved!", Set.of(new MustacheBindingToken("name", 2, false)));
     }
 
     @Test
@@ -79,20 +81,20 @@ public class MustacheHelperTest {
         checkTokens(
                 "Hello {{Customer.Name}}, the status for your order id {{orderId}} is {{status}}",
                 Arrays.asList(
-                        "Hello ",
-                        "{{Customer.Name}}",
-                        ", the status for your order id ",
-                        "{{orderId}}",
-                        " is ",
-                        "{{status}}"
+                        new MustacheBindingToken("Hello ", 0, false),
+                        new MustacheBindingToken("{{Customer.Name}}", 6, true),
+                        new MustacheBindingToken(", the status for your order id ", 6, false),
+                        new MustacheBindingToken("{{orderId}}", 54, true),
+                        new MustacheBindingToken(" is ", 54, false),
+                        new MustacheBindingToken("{{status}}", 69, true)
                 )
         );
         checkKeys(
                 "Hello {{Customer.Name}}, the status for your order id {{orderId}} is {{status}}",
                 Set.of(
-                        "Customer.Name",
-                        "orderId",
-                        "status"
+                        new MustacheBindingToken("Customer.Name", 8, false),
+                        new MustacheBindingToken("orderId", 56, false),
+                        new MustacheBindingToken("status", 71, false)
                 )
         );
     }
@@ -101,11 +103,11 @@ public class MustacheHelperTest {
     public void realWorldText2() {
         checkTokens(
                 "{{data.map(datum => {return {id: datum}})}}",
-                Arrays.asList("{{data.map(datum => {return {id: datum}})}}")
+                Arrays.asList(new MustacheBindingToken("{{data.map(datum => {return {id: datum}})}}", 0, true))
         );
         checkKeys(
                 "{{data.map(datum => {return {id: datum}})}}",
-                Set.of("data.map(datum => {return {id: datum}})")
+                Set.of(new MustacheBindingToken("data.map(datum => {return {id: datum}})", 2, false))
         );
     }
 
@@ -113,35 +115,39 @@ public class MustacheHelperTest {
     public void braceDances1() {
         check(
                 "{{}}{{}}}",
-                Arrays.asList("{{}}", "{{}}", "}"),
-                Set.of("")
+                Arrays.asList(
+                        new MustacheBindingToken("{{}}", 0, true),
+                        new MustacheBindingToken("{{}}", 4, true),
+                        new MustacheBindingToken("}", 4, false)),
+                Set.of(new MustacheBindingToken("", 2, false),
+                        new MustacheBindingToken("", 6, false))
         );
 
-        check("{{{}}", Arrays.asList("{{{}}"), Set.of("{"));
+        check("{{{}}", Arrays.asList(new MustacheBindingToken("{{{}}", 0, false)), Set.of(new MustacheBindingToken("{", 2, false)));
 
-        check("{{ {{", Arrays.asList("{{ {{"), Set.of());
+        check("{{ {{", Arrays.asList(new MustacheBindingToken("{{ {{", 0, false)), Set.of());
 
-        check("}} }}", Arrays.asList("}} }}"), Set.of());
+        check("}} }}", Arrays.asList(new MustacheBindingToken("}} }}", 0, false)), Set.of());
 
-        check("}} {{", Arrays.asList("}} ", "{{"), Set.of());
+        check("}} {{", Arrays.asList(new MustacheBindingToken("}} ", 0, false), new MustacheBindingToken("{{", 3, false)), Set.of());
     }
 
     @Test
     public void quotedStrings() {
         check(
                 "{{ 'abc def'.toUpperCase() }}",
-                Arrays.asList("{{ 'abc def'.toUpperCase() }}"),
-                Set.of("'abc def'.toUpperCase()")
+                Arrays.asList(new MustacheBindingToken("{{ 'abc def'.toUpperCase() }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 'abc def'.toUpperCase() ", 2, false))
         );
         check(
                 "{{ \"abc def\".toUpperCase() }}",
-                Arrays.asList("{{ \"abc def\".toUpperCase() }}"),
-                Set.of("\"abc def\".toUpperCase()")
+                Arrays.asList(new MustacheBindingToken("{{ \"abc def\".toUpperCase() }}", 0, true)),
+                Set.of(new MustacheBindingToken(" \"abc def\".toUpperCase() ", 2, false))
         );
         check(
                 "{{ `abc def`.toUpperCase() }}",
-                Arrays.asList("{{ `abc def`.toUpperCase() }}"),
-                Set.of("`abc def`.toUpperCase()")
+                Arrays.asList(new MustacheBindingToken("{{ `abc def`.toUpperCase() }}", 0, true)),
+                Set.of(new MustacheBindingToken(" `abc def`.toUpperCase() ", 2, false))
         );
     }
 
@@ -149,38 +155,38 @@ public class MustacheHelperTest {
     public void singleQuotedStringsWithBraces() {
         check(
                 "{{ 'The { char is a brace' }}",
-                Arrays.asList("{{ 'The { char is a brace' }}"),
-                Set.of("'The { char is a brace'")
+                Arrays.asList(new MustacheBindingToken("{{ 'The { char is a brace' }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 'The { char is a brace' ", 2, false))
         );
         check(
                 "{{ 'I have {{ two braces' }}",
-                Arrays.asList("{{ 'I have {{ two braces' }}"),
-                Set.of("'I have {{ two braces'")
+                Arrays.asList(new MustacheBindingToken("{{ 'I have {{ two braces' }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 'I have {{ two braces' ", 2, false))
         );
         check(
                 "{{ 'I have {{{ three braces' }}",
-                Arrays.asList("{{ 'I have {{{ three braces' }}"),
-                Set.of("'I have {{{ three braces'")
+                Arrays.asList(new MustacheBindingToken("{{ 'I have {{{ three braces' }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 'I have {{{ three braces' ", 2, false))
         );
         check(
                 "{{ 'The } char is a brace' }}",
-                Arrays.asList("{{ 'The } char is a brace' }}"),
-                Set.of("'The } char is a brace'")
+                Arrays.asList(new MustacheBindingToken("{{ 'The } char is a brace' }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 'The } char is a brace' ", 2, false))
         );
         check(
                 "{{ 'I have }} two braces' }}",
-                Arrays.asList("{{ 'I have }} two braces' }}"),
-                Set.of("'I have }} two braces'")
+                Arrays.asList(new MustacheBindingToken("{{ 'I have }} two braces' }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 'I have }} two braces' ", 2, false))
         );
         check(
                 "{{ 'I have }}} three braces' }}",
-                Arrays.asList("{{ 'I have }}} three braces' }}"),
-                Set.of("'I have }}} three braces'")
+                Arrays.asList(new MustacheBindingToken("{{ 'I have }}} three braces' }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 'I have }}} three braces' ", 2, false))
         );
         check(
                 "{{ 'Interpolation uses {{ and }} delimiters' }}",
-                Arrays.asList("{{ 'Interpolation uses {{ and }} delimiters' }}"),
-                Set.of("'Interpolation uses {{ and }} delimiters'")
+                Arrays.asList(new MustacheBindingToken("{{ 'Interpolation uses {{ and }} delimiters' }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 'Interpolation uses {{ and }} delimiters' ", 2, false))
         );
     }
 
@@ -188,38 +194,38 @@ public class MustacheHelperTest {
     public void doubleQuotedStringsWithBraces() {
         check(
                 "{{ \"The { char is a brace\" }}",
-                Arrays.asList("{{ \"The { char is a brace\" }}"),
-                Set.of("\"The { char is a brace\"")
+                Arrays.asList(new MustacheBindingToken("{{ \"The { char is a brace\" }}", 0, true)),
+                Set.of(new MustacheBindingToken(" \"The { char is a brace\" ", 2, false))
         );
         check(
                 "{{ \"I have {{ two braces\" }}",
-                Arrays.asList("{{ \"I have {{ two braces\" }}"),
-                Set.of("\"I have {{ two braces\"")
+                Arrays.asList(new MustacheBindingToken("{{ \"I have {{ two braces\" }}", 0, true)),
+                Set.of(new MustacheBindingToken(" \"I have {{ two braces\" ", 2, false))
         );
         check(
                 "{{ \"I have {{{ three braces\" }}",
-                Arrays.asList("{{ \"I have {{{ three braces\" }}"),
-                Set.of("\"I have {{{ three braces\"")
+                Arrays.asList(new MustacheBindingToken("{{ \"I have {{{ three braces\" }}", 0, true)),
+                Set.of(new MustacheBindingToken(" \"I have {{{ three braces\" ", 2, false))
         );
         check(
                 "{{ \"The } char is a brace\" }}",
-                Arrays.asList("{{ \"The } char is a brace\" }}"),
-                Set.of("\"The } char is a brace\"")
+                Arrays.asList(new MustacheBindingToken("{{ \"The } char is a brace\" }}", 0, true)),
+                Set.of(new MustacheBindingToken(" \"The } char is a brace\" ", 2, false))
         );
         check(
                 "{{ \"I have }} two braces\" }}",
-                Arrays.asList("{{ \"I have }} two braces\" }}"),
-                Set.of("\"I have }} two braces\"")
+                Arrays.asList(new MustacheBindingToken("{{ \"I have }} two braces\" }}", 0, true)),
+                Set.of(new MustacheBindingToken(" \"I have }} two braces\" ", 2, false))
         );
         check(
                 "{{ \"I have }}} three braces\" }}",
-                Arrays.asList("{{ \"I have }}} three braces\" }}"),
-                Set.of("\"I have }}} three braces\"")
+                Arrays.asList(new MustacheBindingToken("{{ \"I have }}} three braces\" }}", 0, true)),
+                Set.of(new MustacheBindingToken(" \"I have }}} three braces\" ", 2, false))
         );
         check(
                 "{{ \"Interpolation uses {{ and }} delimiters\" }}",
-                Arrays.asList("{{ \"Interpolation uses {{ and }} delimiters\" }}"),
-                Set.of("\"Interpolation uses {{ and }} delimiters\"")
+                Arrays.asList(new MustacheBindingToken("{{ \"Interpolation uses {{ and }} delimiters\" }}", 0, true)),
+                Set.of(new MustacheBindingToken(" \"Interpolation uses {{ and }} delimiters\" ", 2, false))
         );
     }
 
@@ -227,38 +233,38 @@ public class MustacheHelperTest {
     public void backQuotedStringsWithBraces() {
         check(
                 "{{ `The { char is a brace` }}",
-                Arrays.asList("{{ `The { char is a brace` }}"),
-                Set.of("`The { char is a brace`")
+                Arrays.asList(new MustacheBindingToken("{{ `The { char is a brace` }}", 0, true)),
+                Set.of(new MustacheBindingToken(" `The { char is a brace` ", 2, false))
         );
         check(
                 "{{ `I have {{ two braces` }}",
-                Arrays.asList("{{ `I have {{ two braces` }}"),
-                Set.of("`I have {{ two braces`")
+                Arrays.asList(new MustacheBindingToken("{{ `I have {{ two braces` }}", 0, true)),
+                Set.of(new MustacheBindingToken(" `I have {{ two braces` ", 2, false))
         );
         check(
                 "{{ `I have {{{ three braces` }}",
-                Arrays.asList("{{ `I have {{{ three braces` }}"),
-                Set.of("`I have {{{ three braces`")
+                Arrays.asList(new MustacheBindingToken("{{ `I have {{{ three braces` }}", 0, true)),
+                Set.of(new MustacheBindingToken(" `I have {{{ three braces` ", 2, false))
         );
         check(
                 "{{ `The } char is a brace` }}",
-                Arrays.asList("{{ `The } char is a brace` }}"),
-                Set.of("`The } char is a brace`")
+                Arrays.asList(new MustacheBindingToken("{{ `The } char is a brace` }}", 0, true)),
+                Set.of(new MustacheBindingToken(" `The } char is a brace` ", 2, false))
         );
         check(
                 "{{ `I have }} two braces` }}",
-                Arrays.asList("{{ `I have }} two braces` }}"),
-                Set.of("`I have }} two braces`")
+                Arrays.asList(new MustacheBindingToken("{{ `I have }} two braces` }}", 0, true)),
+                Set.of(new MustacheBindingToken(" `I have }} two braces` ", 2, false))
         );
         check(
                 "{{ `I have }}} three braces` }}",
-                Arrays.asList("{{ `I have }}} three braces` }}"),
-                Set.of("`I have }}} three braces`")
+                Arrays.asList(new MustacheBindingToken("{{ `I have }}} three braces` }}", 0, true)),
+                Set.of(new MustacheBindingToken(" `I have }}} three braces` ", 2, false))
         );
         check(
                 "{{ `Interpolation uses {{ and }} delimiters` }}",
-                Arrays.asList("{{ `Interpolation uses {{ and }} delimiters` }}"),
-                Set.of("`Interpolation uses {{ and }} delimiters`")
+                Arrays.asList(new MustacheBindingToken("{{ `Interpolation uses {{ and }} delimiters` }}", 0, true)),
+                Set.of(new MustacheBindingToken(" `Interpolation uses {{ and }} delimiters` ", 2, false))
         );
     }
 
@@ -266,18 +272,18 @@ public class MustacheHelperTest {
     public void quotedStringsWithExtras() {
         check(
                 "{{ 2 + ' hello ' + 3 }}",
-                Arrays.asList("{{ 2 + ' hello ' + 3 }}"),
-                Set.of("2 + ' hello ' + 3")
+                Arrays.asList(new MustacheBindingToken("{{ 2 + ' hello ' + 3 }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 2 + ' hello ' + 3 ", 2, false))
         );
         check(
                 "{{ 2 + \" hello \" + 3 }}",
-                Arrays.asList("{{ 2 + \" hello \" + 3 }}"),
-                Set.of("2 + \" hello \" + 3")
+                Arrays.asList(new MustacheBindingToken("{{ 2 + \" hello \" + 3 }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 2 + \" hello \" + 3 ", 2, false))
         );
         check(
                 "{{ 2 + ` hello ` + 3 }}",
-                Arrays.asList("{{ 2 + ` hello ` + 3 }}"),
-                Set.of("2 + ` hello ` + 3")
+                Arrays.asList(new MustacheBindingToken("{{ 2 + ` hello ` + 3 }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 2 + ` hello ` + 3 ", 2, false))
         );
     }
 
@@ -285,18 +291,18 @@ public class MustacheHelperTest {
     public void quotedStringsWithEscapes() {
         check(
                 "{{ 'Escaped \\' character' }}",
-                Arrays.asList("{{ 'Escaped \\' character' }}"),
-                Set.of("'Escaped \\' character'")
+                Arrays.asList(new MustacheBindingToken("{{ 'Escaped \\' character' }}", 0, true)),
+                Set.of(new MustacheBindingToken(" 'Escaped \\' character' ", 2, false))
         );
         check(
                 "{{ \"Escaped \\\" character\" }}",
-                Arrays.asList("{{ \"Escaped \\\" character\" }}"),
-                Set.of("\"Escaped \\\" character\"")
+                Arrays.asList(new MustacheBindingToken("{{ \"Escaped \\\" character\" }}", 0, true)),
+                Set.of(new MustacheBindingToken(" \"Escaped \\\" character\" ", 2, false))
         );
         check(
                 "{{ `Escaped \\` character` }}",
-                Arrays.asList("{{ `Escaped \\` character` }}"),
-                Set.of("`Escaped \\` character`")
+                Arrays.asList(new MustacheBindingToken("{{ `Escaped \\` character` }}", 0, true)),
+                Set.of(new MustacheBindingToken(" `Escaped \\` character` ", 2, false))
         );
     }
 
@@ -304,8 +310,10 @@ public class MustacheHelperTest {
     public void conditionalExpression() {
         check(
                 "Conditional: {{ 2 + 4 ? trueVal : falseVal }}",
-                Arrays.asList("Conditional: ", "{{ 2 + 4 ? trueVal : falseVal }}"),
-                Set.of("2 + 4 ? trueVal : falseVal")
+                Arrays.asList(
+                        new MustacheBindingToken("Conditional: ", 0, false),
+                        new MustacheBindingToken("{{ 2 + 4 ? trueVal : falseVal }}", 13, true)),
+                Set.of(new MustacheBindingToken(" 2 + 4 ? trueVal : falseVal ", 15, false))
         );
     }
 
@@ -313,8 +321,8 @@ public class MustacheHelperTest {
     public void jsonInMustache() {
         check(
                 "{{{\"foo\": \"bar\"}}}",
-                Arrays.asList("{{{\"foo\": \"bar\"}}}"),
-                Set.of("{\"foo\": \"bar\"}")
+                Arrays.asList(new MustacheBindingToken("{{{\"foo\": \"bar\"}}}", 0, true)),
+                Set.of(new MustacheBindingToken("{\"foo\": \"bar\"}", 2, false))
         );
     }
 
@@ -339,11 +347,24 @@ public class MustacheHelperTest {
         ));
 
         configuration.setProperties(Arrays.asList(
-                new Property("name1", "Hello {{ propertyValue1 }}!"),
-                new Property("name2", "Hello {{ propertyValue2 }}!")
+                new Property("name1", "{{   propertyValue1   }}!"),
+                new Property("name2", "{{ propertyValue2 }}!")
         ));
 
         Map<String, String> context = Map.of(
+                " dbName ", "rendered dbName",
+                " url ", "rendered url",
+                " headerValue1 ", "rendered headerValue1",
+                " headerValue2 ", "rendered headerValue2",
+                " host1 ", "rendered host1",
+                " host2 ", "rendered host2",
+                "   propertyValue1   ", "rendered propertyValue1",
+                " propertyValue2 ", "rendered propertyValue2"
+        );
+
+        assertKeys(configuration).hasSameElementsAs(context.keySet().stream().map(keys -> new MustacheBindingToken(keys, 2, false)).collect(Collectors.toSet()));
+
+        Map<String, String> context2 = Map.of(
                 "dbName", "rendered dbName",
                 "url", "rendered url",
                 "headerValue1", "rendered headerValue1",
@@ -354,9 +375,7 @@ public class MustacheHelperTest {
                 "propertyValue2", "rendered propertyValue2"
         );
 
-        assertKeys(configuration).hasSameElementsAs(context.keySet());
-
-        renderFieldValues(configuration, context);
+        renderFieldValues(configuration, context2);
 
         assertThat(configuration.getConnection().getDefaultDatabaseName()).isEqualTo("rendered dbName");
         assertThat(configuration.getUrl()).isEqualTo("rendered url");
@@ -372,8 +391,8 @@ public class MustacheHelperTest {
         );
 
         assertThat(configuration.getProperties()).containsOnly(
-                new Property("name1", "Hello rendered propertyValue1!"),
-                new Property("name2", "Hello rendered propertyValue2!")
+                new Property("name1", "rendered propertyValue1!"),
+                new Property("name2", "rendered propertyValue2!")
         );
     }
 
@@ -408,6 +427,30 @@ public class MustacheHelperTest {
         ));
 
         final Map<String, String> context = new HashMap<>(Map.of(
+                " body ", "rendered body",
+                " path ", "rendered path",
+                " next ", "rendered next",
+                " headerValue2 ", "rendered headerValue2",
+                " headerValue1 ", "rendered headerValue1",
+                " bodyParam1 ", "rendered bodyParam1",
+                " bodyParam2 ", "rendered bodyParam2",
+                " queryParam1 ", "rendered queryParam1",
+                " queryParam2 ", "rendered queryParam2"
+        ));
+
+        context.putAll(Map.of(
+                " pluginSpecifiedProp1 ", "rendered pluginSpecifiedProp1",
+                " pluginSpecifiedProp2 ", "rendered pluginSpecifiedProp2"
+        ));
+
+        assertKeys(configuration)
+                .hasSameElementsAs(context
+                        .keySet()
+                        .stream()
+                        .map(keys -> new MustacheBindingToken(keys, 2, false))
+                        .collect(Collectors.toSet()));
+
+        final Map<String, String> context2 = new HashMap<>(Map.of(
                 "body", "rendered body",
                 "path", "rendered path",
                 "next", "rendered next",
@@ -418,15 +461,11 @@ public class MustacheHelperTest {
                 "queryParam1", "rendered queryParam1",
                 "queryParam2", "rendered queryParam2"
         ));
-
-        context.putAll(Map.of(
+        context2.putAll(Map.of(
                 "pluginSpecifiedProp1", "rendered pluginSpecifiedProp1",
                 "pluginSpecifiedProp2", "rendered pluginSpecifiedProp2"
         ));
-
-        assertKeys(configuration).hasSameElementsAs(context.keySet());
-
-        renderFieldValues(configuration, context);
+        renderFieldValues(configuration, context2);
 
         assertThat(configuration.getBody()).isEqualTo("rendered body");
         assertThat(configuration.getPath()).isEqualTo("rendered path");
@@ -462,7 +501,7 @@ public class MustacheHelperTest {
         property.setKey("name");
         property.setValue("Hello {{ \"there\" }}!");
         configuration.setProperties(Arrays.asList(property));
-        assertKeys(configuration).isEqualTo(Set.of("\"there\""));
+        assertKeys(configuration).containsExactlyInAnyOrder(new MustacheBindingToken(" \"there\" ", 8, false));
     }
 
     @Test
@@ -472,7 +511,7 @@ public class MustacheHelperTest {
         property.setKey("name");
         property.setValue("Hello {{ \"th\\\\ere\" }}!");
         configuration.setProperties(Arrays.asList(property));
-        assertKeys(configuration).isEqualTo(Set.of("\"th\\\\ere\""));
+        assertKeys(configuration).containsExactlyInAnyOrder(new MustacheBindingToken(" \"th\\\\ere\" ", 8, false));
     }
 
     @Test
@@ -483,14 +522,14 @@ public class MustacheHelperTest {
         // The `\n` should be interpreted by Javascript, not Java. So we put an extra `\` before it.
         property.setValue("Hello {{ \"line 1\" + \"\\n\" + \"line 2\" }}!");
         configuration.setProperties(Arrays.asList(property));
-        assertKeys(configuration).isEqualTo(Set.of("\"line 1\" + \"\\n\" + \"line 2\""));
+        assertKeys(configuration).containsExactlyInAnyOrder(new MustacheBindingToken(" \"line 1\" + \"\\n\" + \"line 2\" ", 8, false));
     }
 
     @Test
     public void bodyInMustaches() {
         ActionConfiguration configuration = new ActionConfiguration();
-        configuration.setBody("outside {{ab}} outside");
-        assertKeys(configuration).isEqualTo(Set.of("ab"));
+        configuration.setBody("outside {{ ab }} outside");
+        assertKeys(configuration).containsExactlyInAnyOrder(new MustacheBindingToken(" ab ", 10, false));
 
         renderFieldValues(configuration, Map.of("ab", "rendered"));
         assertThat(configuration.getBody()).isEqualTo("outside rendered outside");
@@ -500,7 +539,7 @@ public class MustacheHelperTest {
     public void bodyWithNewlineInMustaches() {
         ActionConfiguration configuration = new ActionConfiguration();
         configuration.setBody("outside {{a\nb}} outside");
-        assertKeys(configuration).isEqualTo(Set.of("a\nb"));
+        assertKeys(configuration).isEqualTo(Set.of(new MustacheBindingToken("a\nb", 10, false)));
 
         renderFieldValues(configuration, Map.of("a\nb", "{\"more\": \"json\"}"));
         assertThat(configuration.getBody()).isEqualTo("outside {\"more\": \"json\"} outside");
@@ -510,21 +549,21 @@ public class MustacheHelperTest {
     public void bodyWithTabInMustaches() {
         ActionConfiguration configuration = new ActionConfiguration();
         configuration.setBody("outside {{a\tb}} outside");
-        assertKeys(configuration).isEqualTo(Set.of("a\tb"));
+        assertKeys(configuration).containsExactlyInAnyOrder(new MustacheBindingToken("a\tb", 10, false));
     }
 
     @Test
     public void bodyWithMultilineJavascriptInMustaches() {
         ActionConfiguration configuration = new ActionConfiguration();
         configuration.setBody("outside {{\n\ttrue\n\t\t? \"yes\\n\"\n\t\t: \"no\\n\"\n}} outside");
-        assertKeys(configuration).isEqualTo(Set.of("true\n\t\t? \"yes\\n\"\n\t\t: \"no\\n\""));
+        assertKeys(configuration).containsExactlyInAnyOrder(new MustacheBindingToken("\n\ttrue\n\t\t? \"yes\\n\"\n\t\t: \"no\\n\"\n", 10, false));
     }
 
     @Test
     public void renderBodyWithMultilineJavascriptInMustaches() {
         ActionConfiguration configuration = new ActionConfiguration();
         configuration.setBody("outside {{\n\ttrue\n\t\t \"yes\\n\"\n\t\t \"no\\n\"\n}} outside");
-        assertKeys(configuration).isEqualTo(Set.of("true\n\t\t \"yes\\n\"\n\t\t \"no\\n\""));
+        assertKeys(configuration).containsExactlyInAnyOrder(new MustacheBindingToken("\n\ttrue\n\t\t \"yes\\n\"\n\t\t \"no\\n\"\n", 10, false));
 
         renderFieldValues(configuration, Map.of("true\n\t\t \"yes\\n\"\n\t\t \"no\\n\"", "{\"more\": \"json\"}"));
         assertThat(configuration.getBody()).isEqualTo("outside {\"more\": \"json\"} outside");

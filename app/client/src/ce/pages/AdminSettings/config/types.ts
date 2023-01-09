@@ -2,8 +2,32 @@ import React from "react";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Dispatch } from "react";
 import { EventName } from "utils/AnalyticsUtil";
+import { RadioProps } from "pages/Settings/FormGroup/Radio";
+
+type ControlType = {
+  [K in keyof ControlPropsType]: {
+    controlType: K;
+    controlTypeProps?: ControlPropsType[K];
+  };
+}[keyof ControlPropsType];
+
+type ControlPropsType = {
+  [SettingTypes.RADIO]: RadioProps;
+  [SettingTypes.TEXTINPUT]: unknown;
+  [SettingTypes.TOGGLE]: unknown;
+  [SettingTypes.LINK]: unknown;
+  [SettingTypes.BUTTON]: unknown;
+  [SettingTypes.GROUP]: unknown;
+  [SettingTypes.TEXT]: unknown;
+  [SettingTypes.UNEDITABLEFIELD]: unknown;
+  [SettingTypes.ACCORDION]: unknown;
+  [SettingTypes.TAGINPUT]: unknown;
+  [SettingTypes.DROPDOWN]: unknown;
+  [SettingTypes.CHECKBOX]: unknown;
+};
 
 export enum SettingTypes {
+  RADIO = "RADIO",
   TEXTINPUT = "TEXTINPUT",
   TOGGLE = "TOGGLE",
   LINK = "LINK",
@@ -25,11 +49,12 @@ export enum SettingSubtype {
   PASSWORD = "password",
 }
 
-export interface Setting {
+export type Setting = ControlType & {
   id: string;
   category?: string;
-  controlType: SettingTypes;
   controlSubType?: SettingSubtype;
+  format?: (value: string) => any;
+  parse?: (value: any) => any;
   helpText?: string;
   label?: string;
   name?: string;
@@ -60,7 +85,7 @@ export interface Setting {
   needsUpgrade?: boolean;
   upgradeLogEventName?: EventName;
   upgradeIntercomMessage?: string;
-}
+};
 
 export interface Category {
   title: string;
@@ -82,6 +107,8 @@ export const SettingCategories = {
   GOOGLE_AUTH: "google-auth",
   GITHUB_AUTH: "github-auth",
   AUDIT_LOGS: "audit-logs",
+  ACCESS_CONTROL: "access-control",
+  BRANDING: "branding",
 };
 
 export const SettingSubCategories = {
@@ -101,4 +128,5 @@ export type AdminConfigType = {
   canSave: boolean;
   isConnected?: boolean;
   icon?: string;
+  needsUpgrade?: boolean;
 };

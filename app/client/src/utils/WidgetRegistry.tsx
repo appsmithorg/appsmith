@@ -162,7 +162,7 @@ import CodeScannerWidget, {
   CONFIG as CODE_SCANNER_WIDGET_CONFIG,
 } from "widgets/CodeScannerWidget";
 
-export const ALL_WIDGETS_AND_CONFIG = [
+export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
   [SkeletonWidget, SKELETON_WIDGET_CONFIG],
   [ContainerWidget, CONTAINER_WIDGET_CONFIG],

@@ -85,13 +85,13 @@ describe("Number Slider spec", () => {
     propPane.UpdatePropertyFieldValue("Default Value", "-10");
 
     agHelper.VerifyEvaluatedErrorMessage(
-      "This value must be greater than min value",
+      "This value must be greater than or equal to the min value",
     );
 
     propPane.UpdatePropertyFieldValue("Default Value", "110");
 
     agHelper.VerifyEvaluatedErrorMessage(
-      "This value must be less than max value",
+      "This value must be less than or equal to the max value",
     );
 
     propPane.UpdatePropertyFieldValue("Default Value", "asd");
@@ -119,7 +119,10 @@ describe("Number Slider spec", () => {
     agHelper
       .GetElement(locator._sliderThumb)
       .focus()
-      .type("{rightArrow}");
+      .type("{rightArrow}")
+      .wait(500);
+
+    agHelper.Sleep(2000); //for the changes to reflect in text widget
 
     // Assert the Text widget has value 20
     agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
@@ -133,8 +136,7 @@ describe("Number Slider spec", () => {
       .type("{leftArrow}")
       .type("{leftArrow}");
 
-    agHelper.Sleep(200);
-
+    agHelper.Sleep(2000); //for the changes to reflect in text widget
     // Assert the Text widget has value 0
     agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
       expect($label).to.eq("0");

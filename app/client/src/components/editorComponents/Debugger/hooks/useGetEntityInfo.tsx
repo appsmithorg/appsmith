@@ -12,7 +12,7 @@ import {
   isAction,
   isJSAction,
   isWidget,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { doesEntityHaveErrors } from "../helpers";
 import React from "react";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";

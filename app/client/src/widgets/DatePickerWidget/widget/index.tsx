@@ -11,7 +11,7 @@ import {
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import moment from "moment";
 import { DatePickerType } from "../constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 function defaultDateValidation(
   value: unknown,

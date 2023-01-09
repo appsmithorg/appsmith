@@ -81,7 +81,7 @@ class ColumnActionSelectorControl extends BaseControl<
           })}
 
         <StyledPropertyPaneButton
-          category={Category.tertiary}
+          category={Category.secondary}
           icon="plus"
           onClick={this.addColumnAction}
           size={Size.medium}

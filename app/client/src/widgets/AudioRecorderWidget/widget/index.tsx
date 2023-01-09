@@ -8,6 +8,7 @@ import AudioRecorderComponent from "../component";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   accentColor: string;
@@ -146,6 +147,14 @@ class AudioRecorderWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

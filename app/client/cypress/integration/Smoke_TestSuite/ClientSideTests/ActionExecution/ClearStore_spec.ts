@@ -1,17 +1,9 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const {
-  AggregateHelper: agHelper,
-  DeployMode: deployMode,
-  EntityExplorer: ee,
-  JSEditor: jsEditor,
-  PropertyPane: propPane,
-} = ObjectsRegistry;
+import * as _objects from "../../../../support/Objects/ObjectsCore"
 
 describe("clearStore Action test", () => {
   before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    ee.NavigateToSwitcher("explorer");
+    _objects.ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    _objects.ee.NavigateToSwitcher("explorer");
   });
 
   it("1. Feature 11639 : Clear all store value", function() {
@@ -24,7 +16,7 @@ describe("clearStore Action test", () => {
                 storeValue('val3', 'value 3'),
               ];
             await Promise.all(values);
-            await showAlert(JSON.stringify(appsmith.store)); 
+            await showAlert(JSON.stringify(appsmith.store));
         },
         clearStore: async () => {
             await clearStore();
@@ -33,7 +25,7 @@ describe("clearStore Action test", () => {
     }`;
 
     // Create js object
-    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+    _objects.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,
       toRun: false,
@@ -41,40 +33,40 @@ describe("clearStore Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "Widgets");
-    propPane.UpdatePropertyFieldValue("Label", "");
-    propPane.TypeTextIntoField("Label", "StoreValue");
+    _objects.ee.SelectEntityByName("Button1", "Widgets");
+    _objects.propPane.UpdatePropertyFieldValue("Label", "");
+    _objects.propPane.TypeTextIntoField("Label", "StoreValue");
     cy.get("@jsObjName").then((jsObj: any) => {
-      propPane.SelectJSFunctionToExecute(
+      _objects.propPane.SelectJSFunctionToExecute(
         "onClick",
         jsObj as string,
         "storeValue",
       );
     });
 
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    ee.SelectEntityByName("Button2", "Widgets");
-    propPane.UpdatePropertyFieldValue("Label", "");
-    propPane.TypeTextIntoField("Label", "ClearStore");
+    _objects.ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    _objects.ee.SelectEntityByName("Button2", "Widgets");
+    _objects.propPane.UpdatePropertyFieldValue("Label", "");
+    _objects.propPane.TypeTextIntoField("Label", "ClearStore");
     cy.get("@jsObjName").then((jsObj: any) => {
-      propPane.SelectJSFunctionToExecute(
+      _objects.propPane.SelectJSFunctionToExecute(
         "onClick",
         jsObj as string,
         "clearStore",
       );
     });
 
-    deployMode.DeployApp();
-    agHelper.ClickButton("StoreValue");
-    agHelper.AssertContains(
+    _objects.deployMode.DeployApp();
+    _objects.agHelper.ClickButton("StoreValue");
+    _objects.agHelper.AssertContains(
       JSON.stringify({
         val1: "value 1",
         val2: "value 2",
         val3: "value 3",
       }),
     );
-    agHelper.ClickButton("ClearStore");
-    agHelper.AssertContains(JSON.stringify({}));
-    deployMode.NavigateBacktoEditor();
+    _objects.agHelper.ClickButton("ClearStore");
+    _objects.agHelper.AssertContains(JSON.stringify({}));
+    _objects.deployMode.NavigateBacktoEditor();
   });
 });

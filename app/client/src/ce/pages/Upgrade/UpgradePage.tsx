@@ -6,18 +6,13 @@ import { FooterComponent as Footer } from "./Footer";
 import { UpgradePageProps } from "./types";
 
 export const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1;
   border-left: thin solid var(--appsmith-color-black-50);
   background-color: var(--ads-color-black-50);
-  align-items: center;
-  justify-items: center;
-  height: calc(100vh - 50px - 112px);
-  min-width: 1180px;
+  height: auto;
   min-height: 0;
   overflow: auto;
-  gap: 32px;
+  height: calc(100vh - 50px - 112px);
+  width: 100%;
 `;
 
 export default function UpgradePage(props: UpgradePageProps) {

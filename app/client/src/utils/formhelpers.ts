@@ -1,5 +1,5 @@
 const PASSWORD_MIN_LENGTH = 6;
-const PASSWORD_MAX_LENGTH = 48;
+const PASSWORD_MAX_LENGTH = 256;
 
 export const hashPassword = (password: string) => {
   return password;
@@ -13,7 +13,7 @@ export const isStrongPassword = (value: string) => {
   const passwordLength = value.trim().length;
   return (
     passwordLength >= PASSWORD_MIN_LENGTH &&
-    passwordLength < PASSWORD_MAX_LENGTH
+    passwordLength <= PASSWORD_MAX_LENGTH
   );
 };
 

@@ -21,7 +21,7 @@ export const TableIconWrapper = styled.div<{
   background: var(--wds-color-bg);
   border-radius: ${(props) => props.borderRadius || "0"};
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
-  cursor: ${(props) => props.disabled && "pointer"};
+  cursor: ${(props) => !props.disabled && "pointer"};
   color: ${(props) => (props.selected ? Colors.CODE_GRAY : Colors.GRAY)};
   position: relative;
   margin-left: 8px;

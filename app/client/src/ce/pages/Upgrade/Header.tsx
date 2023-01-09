@@ -4,10 +4,9 @@ import { HeaderProps } from "./types";
 import { FontWeight, Text, TextType } from "design-system";
 
 export const HeaderContainer = styled.div`
-  width: 496px;
+  padding: 32px 32px 20px;
+  margin: auto;
   text-align: center;
-  height: 120px;
-  padding: 32px;
 
   & .header-heading-container {
     & .cs-text {
@@ -17,6 +16,8 @@ export const HeaderContainer = styled.div`
   }
 
   & .header-subHeadings-container {
+    margin: 8px auto;
+    max-width: 720px;
     & .header-subHeading-container {
       & .cs-text {
         font-size: 16px;

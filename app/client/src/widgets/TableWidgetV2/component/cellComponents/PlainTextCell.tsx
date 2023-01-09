@@ -1,4 +1,11 @@
-import React, { memo, useMemo, useRef } from "react";
+import React, {
+  memo,
+  RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { isNumber, isNil } from "lodash";
 
 import {
@@ -16,6 +23,7 @@ import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
 import { BasicCell } from "./BasicCell";
 import { InlineCellEditor } from "./InlineCellEditor";
 import styled from "styled-components";
+import fastdom from "fastdom";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;
@@ -81,6 +89,13 @@ export function getCellText(
   }
 
   return text;
+}
+
+function getContentHeight(ref: RefObject<HTMLDivElement>) {
+  return (
+    !!ref.current?.offsetHeight &&
+    ref.current?.offsetHeight / CELL_WRAPPER_LINE_HEIGHT > 1
+  );
 }
 
 function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
@@ -158,15 +173,17 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
 
   let editor;
 
-  if (isCellEditMode) {
-    /*
-     * TODO(Balaji): remove synchronously accessing offsetHeight, which leads
-     * to layout thrashing
-     */
-    const isMultiline =
-      !!contentRef.current?.offsetHeight &&
-      contentRef.current?.offsetHeight / CELL_WRAPPER_LINE_HEIGHT > 1;
+  const [isMultiline, setIsMultiline] = useState(false);
 
+  useEffect(() => {
+    if (isCellEditMode) {
+      fastdom.measure(() => {
+        setIsMultiline(getContentHeight(contentRef));
+      });
+    }
+  }, [value, isCellEditMode]);
+
+  if (isCellEditMode) {
     editor = (
       <InlineCellEditor
         accentColor={accentColor}

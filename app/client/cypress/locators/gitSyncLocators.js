@@ -58,4 +58,6 @@ export default {
   regenerateSSHKeyECDSA: "[data-cy='t--regenerate-sshkey-ECDSA']",
   regenerateSSHKeyRSA: "[data-cy='t--regenerate-sshkey-RSA']",
   confirmButton: "//span[text()='Yes']",
+  mergeConflicts:
+    "//span[contains(text(), 'There are uncommitted changes present in your local branch master. Please commit them first and try again')]",
 };

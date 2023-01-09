@@ -89,10 +89,6 @@
               "value": "DEFAULT"
             },
             {
-              "label": "Preferred",
-              "value": "PREFERRED"
-            },
-            {
               "label": "Required",
               "value": "REQUIRED"
             },

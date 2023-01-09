@@ -56,6 +56,7 @@ export class EntityExplorer {
     "//div[contains(@class, 't--entity-name')][text()='" +
     modalName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
+  private _newPageOptions = (option: string) => `[data-cy='${option}']`;
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -90,10 +91,8 @@ export class EntityExplorer {
       | "generate-page"
       | "add-page-from-template" = "add-page",
   ) {
-    cy.get(this.locator._newPage)
-      .first()
-      .click();
-    cy.get(`[data-cy='${option}']`).click();
+    this.agHelper.GetNClick(this.locator._newPage);
+    this.agHelper.GetNClick(this._newPageOptions(option));
     if (option === "add-page") {
       this.agHelper.ValidateNetworkStatus("@createPage", 201);
     }
@@ -229,5 +228,14 @@ export class EntityExplorer {
           this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
         else this.agHelper.Sleep(200); //do nothing
       });
+  }
+
+  public RenameEntityFromExplorer(entityName: string, renameVal: string) {
+    cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
+    cy.xpath(this.locator._entityNameEditing(entityName)).type(
+      renameVal + "{enter}",
+    );
+    this.AssertEntityPresenceInExplorer(renameVal);
+    this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 }

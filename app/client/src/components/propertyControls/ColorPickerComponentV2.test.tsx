@@ -31,6 +31,13 @@ const store = mockStore({
       },
     },
   },
+  tenant: {
+    userPermissions: [],
+    tenantConfiguration: {
+      brandColors: {},
+    },
+    new: false,
+  },
 });
 
 const getTestComponent = (handleOnChange: any = undefined) => (

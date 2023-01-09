@@ -4,8 +4,6 @@ import UpgradePage from "./UpgradePage";
 import DebuggingImage from "assets/svg/upgrade/audit-logs/debugging.svg";
 import IncidentManagementImage from "assets/svg/upgrade/audit-logs/incident-management.svg";
 import SecurityAndComplianceImage from "assets/svg/upgrade/audit-logs/security-and-compliance.svg";
-import AnalyticsUtil from "../../../utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "../../configs";
 import { createMessage } from "design-system/build/constants/messages";
 import {
   AUDIT_LOGS,
@@ -19,12 +17,17 @@ import {
   SECURITY_AND_COMPLIANCE,
   SECURITY_AND_COMPLIANCE_DETAIL1,
   SECURITY_AND_COMPLIANCE_DETAIL2,
-  UPGRADE,
-} from "../../constants/messages";
-
-const { intercomAppID } = getAppsmithConfigs();
+  UPGRADE_TO_EE_FEATURE,
+} from "@appsmith/constants/messages";
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
 export function AuditLogsUpgradePage() {
+  const { onUpgrade } = useOnUpgrade({
+    logEventName: "ADMIN_SETTINGS_UPGRADE_HOOK",
+    logEventData: { source: "AuditLogs" },
+    intercomMessage: createMessage(UPGRADE_TO_EE_FEATURE, "Audit Logs"),
+  });
+
   const header: Header = {
     heading: createMessage(INTRODUCING, createMessage(AUDIT_LOGS)),
     subHeadings: [createMessage(AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING)],
@@ -68,12 +71,7 @@ export function AuditLogsUpgradePage() {
 
   const footer = {
     onClick: () => {
-      AnalyticsUtil.logEvent("ADMIN_SETTINGS_UPGRADE_HOOK", {
-        source: "AuditLogs",
-      });
-      if (intercomAppID && window.Intercom) {
-        window.Intercom("showNewMessage", createMessage(UPGRADE));
-      }
+      onUpgrade();
     },
     message: createMessage(EXCLUSIVE_TO_BUSINESS, ["audit logs"]),
   };

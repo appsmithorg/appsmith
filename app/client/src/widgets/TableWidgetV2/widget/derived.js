@@ -550,6 +550,54 @@ export default {
     return finalTableData;
   },
   //
+  getUpdatedRow: (props, moment, _) => {
+    let index = -1;
+    const parsedUpdatedRowIndex = parseInt(props.updatedRowIndex);
+
+    if (!_.isNaN(parsedUpdatedRowIndex)) {
+      index = parsedUpdatedRowIndex;
+    }
+
+    const rows = props.filteredTableData || props.processedTableData || [];
+    const primaryColumns = props.primaryColumns;
+    let updatedRow;
+
+    if (index > -1) {
+      const row = rows.find((row) => row.__originalIndex__ === index);
+      updatedRow = { ...row };
+    } else {
+      /*
+       *  If updatedRowIndex is not a valid index, updatedRow should
+       *  have proper row structure with empty string values
+       */
+      updatedRow = {};
+      if (rows && rows[0]) {
+        Object.keys(rows[0]).forEach((key) => {
+          updatedRow[key] = "";
+        });
+      }
+    }
+
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
+
+    const keysToBeOmitted = [
+      "__originalIndex__",
+      "__primaryKey__",
+      ...nonDataColumnAliases,
+    ];
+    return _.omit(updatedRow, keysToBeOmitted);
+  },
+  //
   getUpdatedRows: (props, moment, _) => {
     const primaryColumns = props.primaryColumns;
     const nonDataColumnTypes = [
@@ -771,6 +819,19 @@ export default {
     });
 
     return validationMap;
+  },
+  //
+  getTableHeaders: (props, moment, _) => {
+    const columns = props.primaryColumns
+      ? Object.values(props.primaryColumns)
+      : [];
+    return columns
+      .sort((a, b) => a.index - b.index)
+      .map((column) => ({
+        id: column?.id,
+        label: column?.label,
+        isVisible: column?.isVisible,
+      }));
   },
   //
 };

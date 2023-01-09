@@ -6,6 +6,13 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import get from "lodash/get";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
+
+export enum ExplorerPinnedState {
+  PINNED,
+  UNPINNED,
+  HIDDEN, // used to reopen explorer when settings pane is closed
+}
 
 export interface ExplorerReduxState {
   entity: {
@@ -13,8 +20,8 @@ export interface ExplorerReduxState {
     updateEntityError?: string;
     editingEntityName?: string;
   };
-  pinned: boolean;
-  width: number | undefined;
+  pinnedState: ExplorerPinnedState;
+  width: number;
   active: boolean;
   entityInfo: {
     show: boolean;
@@ -25,9 +32,9 @@ export interface ExplorerReduxState {
 }
 
 const initialState: ExplorerReduxState = {
-  pinned: true,
+  pinnedState: ExplorerPinnedState.PINNED,
   entity: {},
-  width: undefined,
+  width: DEFAULT_ENTITY_EXPLORER_WIDTH,
   active: true,
   entityInfo: {
     show: false,
@@ -159,8 +166,13 @@ const explorerReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_EXPLORER_PINNED]: (
     state: ExplorerReduxState,
     action: ReduxAction<{ shouldPin: boolean }>,
-  ) => {
-    return { ...state, pinned: action.payload.shouldPin };
+  ): ExplorerReduxState => {
+    return {
+      ...state,
+      pinnedState: action.payload.shouldPin
+        ? ExplorerPinnedState.PINNED
+        : ExplorerPinnedState.UNPINNED,
+    };
   },
   [ReduxActionTypes.UPDATE_EXPLORER_WIDTH]: (
     state: ExplorerReduxState,
@@ -175,6 +187,29 @@ const explorerReducer = createReducer(initialState, {
     return {
       ...state,
       active: action.payload,
+    };
+  },
+  [ReduxActionTypes.OPEN_APP_SETTINGS_PANE]: (
+    state: ExplorerReduxState,
+  ): ExplorerReduxState => {
+    return {
+      ...state,
+      pinnedState:
+        state.pinnedState === ExplorerPinnedState.PINNED
+          ? ExplorerPinnedState.HIDDEN
+          : state.pinnedState,
+      active: false,
+    };
+  },
+  [ReduxActionTypes.CLOSE_APP_SETTINGS_PANE]: (
+    state: ExplorerReduxState,
+  ): ExplorerReduxState => {
+    return {
+      ...state,
+      pinnedState:
+        state.pinnedState === ExplorerPinnedState.HIDDEN
+          ? ExplorerPinnedState.PINNED
+          : state.pinnedState,
     };
   },
 });

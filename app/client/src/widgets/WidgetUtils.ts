@@ -8,10 +8,11 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   TextSizes,
+  WidgetHeightLimits,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
-import { WidgetPositionProps } from "./BaseWidget";
+import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { Theme } from "constants/DefaultTheme";
 import {
   ButtonStyleTypes,
@@ -30,6 +31,7 @@ import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 import { isArray } from "lodash";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import { getLocale } from "utils/helpers";
@@ -646,6 +648,10 @@ export const parseSchemaItem = (
   }
 };
 
+export interface DynamicnHeightEnabledComponentProps {
+  isDynamicHeightEnabled?: boolean;
+}
+
 export const getMainCanvas = () =>
   document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
 
@@ -728,3 +734,118 @@ export const flat = (array: DropdownOption[]) => {
   });
   return result;
 };
+
+/**
+ * A utility function to check whether a widget has dynamic height enabled?
+ * @param props: Widget properties
+ * @param shouldCheckIfEnabledWithLimits: Should we check specifically for auto height with limits.
+ */
+export const isAutoHeightEnabledForWidget = (
+  props: WidgetProps,
+  shouldCheckIfEnabledWithLimits = false,
+) => {
+  if (shouldCheckIfEnabledWithLimits) {
+    return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+  }
+  return (
+    props.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
+    props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+  );
+};
+
+/**
+ * Gets the max possible height for the widget
+ * @param props: WidgetProperties
+ * @returns: The max possible height of the widget (in rows)
+ */
+export function getWidgetMaxAutoHeight(props: WidgetProps) {
+  if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT) {
+    return WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+  } else if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+    return props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+  }
+}
+
+/**
+ * Gets the min possible height for the widget
+ * @param props: WidgetProperties
+ * @returns: The min possible height of the widget (in rows)
+ */
+export function getWidgetMinAutoHeight(props: WidgetProps) {
+  if (props.dynamicHeight !== DynamicHeight.FIXED)
+    return props.minDynamicHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+}
+
+/**
+ * A function which considers a widget's props and computes if it needs an auto height update
+ * @param expectedHeightInPixels: number
+ * @param props: WidgetProps
+ * @returns boolean
+ */
+export function shouldUpdateWidgetHeightAutomatically(
+  expectedHeightInPixels: number,
+  props: WidgetProps,
+): boolean {
+  // The current height in rows of the widget
+  const currentHeightInRows = props.bottomRow - props.topRow;
+
+  // The expected height in rows for the widget
+  const expectedHeightInRows = Math.ceil(
+    expectedHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+
+  // Does this widget have dynamic height enabled
+  const isAutoHeightEnabled = isAutoHeightEnabledForWidget(props);
+
+  // Run the following pieces of code only if dynamic height is enabled
+  if (!isAutoHeightEnabled) return false;
+
+  const maxAutoHeightInRows = getWidgetMaxAutoHeight(props);
+  const minAutoHeightInRows = getWidgetMinAutoHeight(props);
+
+  // If current height is less than the expected height
+  // We're trying to see if we can increase the height
+  if (currentHeightInRows < expectedHeightInRows) {
+    // If our attempt to reduce does not go above the max possible height
+    // And the difference in expected and current is atleast 1 row
+    // We can safely reduce the height
+    if (
+      maxAutoHeightInRows >= currentHeightInRows &&
+      Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
+    ) {
+      return true;
+    }
+  }
+
+  // If current height is greater than expected height
+  // We're trying to see if we can reduce the height
+  if (currentHeightInRows > expectedHeightInRows) {
+    // If our attempt to reduce does not go below the min possible height
+    // And the difference in expected and current is atleast 1 row
+    // We can safely reduce the height
+    if (
+      minAutoHeightInRows < currentHeightInRows &&
+      currentHeightInRows - expectedHeightInRows >= 1
+    ) {
+      return true;
+    }
+  }
+
+  // If current height is more than the maxDynamicHeightInRows
+  // Then we need to update height in any case, the call to update comes
+  // at a good time. This usually happens when we change the max value from the
+  // property pane.
+  if (currentHeightInRows > maxAutoHeightInRows) {
+    return true;
+  }
+
+  // The widget height should always be at least minDynamicHeightInRows
+  // Same case as above, this time if minheight goes below the current.
+  if (currentHeightInRows !== minAutoHeightInRows) {
+    return true;
+  }
+
+  // Since the conditions to change height already return true
+  // If we reach this point, we don't have to change height
+  return false;
+}

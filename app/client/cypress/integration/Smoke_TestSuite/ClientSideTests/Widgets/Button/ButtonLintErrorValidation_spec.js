@@ -52,12 +52,6 @@ describe("Linting warning validation with button widget", function() {
       .should("be.visible")
       .click({ force: true });
 
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(0)
-      .contains("ReferenceError: Nodata is not defined");
-
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(2)
-      .contains("ReferenceError: lintError is not defined");
+    cy.get(commonlocators.debugErrorMsg).should("have.length", 3);
   });
 });

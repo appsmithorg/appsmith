@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
 
 export const updateWidgetName = (widgetId: string, newName: string) => {
   return {
@@ -29,10 +30,19 @@ export const resetSnipingMode = () => ({
   type: ReduxActionTypes.RESET_SNIPING_MODE,
 });
 
-export const setPropertySectionState = (key: string, isOpen: boolean) => {
+export const setPropertyPaneWidthAction = (width: number) => ({
+  type: ReduxActionTypes.SET_PROPERTY_PANE_WIDTH,
+  payload: width,
+});
+
+export const setPropertySectionState = (
+  key: string,
+  isOpen: boolean,
+  panelPropertyPath?: string,
+) => {
   return {
     type: ReduxActionTypes.SET_PROPERTY_SECTION_STATE,
-    payload: { key, isOpen },
+    payload: { key, isOpen, panelPropertyPath },
   };
 };
 export const setAllPropertySectionState = (payload: {
@@ -50,16 +60,36 @@ export const setSelectedPropertyTabIndex = (selectedIndex: number) => {
   };
 };
 
-export const generateKeyAndSetFocusablePropertyPaneField = (path?: string) => {
-  return {
-    type: ReduxActionTypes.GENERATE_KEY_AND_SET_FOCUSABLE_PROPERTY_FIELD,
-    payload: { path },
-  };
-};
-
 export const setFocusablePropertyPaneField = (path?: string) => {
   return {
     type: ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD,
     payload: { path },
+  };
+};
+
+export const setSelectedPropertyPanel = (
+  path: string | undefined,
+  index: number,
+) => {
+  return {
+    type: ReduxActionTypes.SET_SELECTED_PANEL_PROPERTY,
+    payload: {
+      path,
+      index,
+    },
+  };
+};
+
+export const unsetSelectedPropertyPanel = (path: string | undefined) => {
+  return {
+    type: ReduxActionTypes.UNSET_SELECTED_PANEL_PROPERTY,
+    payload: path,
+  };
+};
+
+export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
+  return {
+    type: ReduxActionTypes.SET_SELECTED_PANELS,
+    payload,
   };
 };

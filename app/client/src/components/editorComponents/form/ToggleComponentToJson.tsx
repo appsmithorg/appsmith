@@ -12,7 +12,9 @@ import { connect, useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { change } from "redux-form";
-import { JSToggleButton } from "design-system";
+import { JSToggleButton, TooltipComponent } from "design-system";
+import { get } from "lodash";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 
 type Props = {
   viewType: ViewTypes;
@@ -37,22 +39,40 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
   );
 
   const viewType = getViewType(formValues, props.configProperty);
+  // variable to control
+  let configPropertyPathJsonValue = "";
+
+  if (viewType === ViewTypes.JSON) {
+    // if viewType is json mode
+    // get the value of the json field and store it in configPropertyPathJsonValue.
+    configPropertyPathJsonValue = get(formValues, props.configProperty);
+  }
 
   const handleViewTypeSwitch = () => {
-    switchViewType(
-      formValues,
-      props.configProperty,
-      viewType,
-      props.formName,
-      props.change,
-    );
+    // only allow switching when the json value is an empty string or undefined.
+    // capitalizing on falsy nature of empty strings/undefined vals.
+    if (!configPropertyPathJsonValue) {
+      switchViewType(
+        formValues,
+        props.configProperty,
+        viewType,
+        props.formName,
+        props.change,
+      );
+    }
   };
+
   return (
-    <JSToggleButton
-      cypressSelector={`t--${props.configProperty}-JS`}
-      handleClick={handleViewTypeSwitch}
-      isActive={viewType === ViewTypes.JSON}
-    />
+    <TooltipComponent
+      content={!!configPropertyPathJsonValue ? JS_TOGGLE_DISABLED_MESSAGE : ""}
+    >
+      <JSToggleButton
+        cypressSelector={`t--${props.configProperty}-JS`}
+        handleClick={handleViewTypeSwitch}
+        isActive={viewType === ViewTypes.JSON}
+        isToggleDisabled={!!configPropertyPathJsonValue}
+      />
+    </TooltipComponent>
   );
 }
 

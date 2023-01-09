@@ -9,6 +9,7 @@ import {
   DatasourceStructure,
   MockDatasource,
 } from "entities/Datasource";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export interface DatasourceDataState {
   list: Datasource[];
@@ -23,6 +24,8 @@ export interface DatasourceDataState {
   executingDatasourceQuery: boolean;
   isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
   unconfiguredList: Datasource[];
+  isDatasourceBeingSaved: boolean;
+  isDatasourceBeingSavedFromPopup: boolean;
 }
 
 const initialState: DatasourceDataState = {
@@ -38,6 +41,8 @@ const initialState: DatasourceDataState = {
   executingDatasourceQuery: false,
   isReconnectingModalOpen: false,
   unconfiguredList: [],
+  isDatasourceBeingSaved: false,
+  isDatasourceBeingSavedFromPopup: false,
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -242,6 +247,8 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       loading: false,
       list: state.list.concat(action.payload),
+      isDatasourceBeingSaved: false,
+      isDatasourceBeingSavedFromPopup: false,
     };
   },
   [ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS]: (
@@ -282,6 +289,21 @@ const datasourceReducer = createReducer(initialState, {
       }),
     };
   },
+  [ReduxActionTypes.SAVE_DATASOURCE_NAME]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ id: string; name: string }>,
+  ) => {
+    const list = state.list.map((datasource) => {
+      if (datasource.id === action.payload.id) {
+        return { ...datasource, name: action.payload.name };
+      }
+      return datasource;
+    });
+    return {
+      ...state,
+      list: list,
+    };
+  },
   [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource>,
@@ -302,6 +324,8 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       loading: false,
+      isDatasourceBeingSaved: false,
+      isDatasourceBeingSavedFromPopup: false,
     };
   },
   [ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR]: (
@@ -403,6 +427,32 @@ const datasourceReducer = createReducer(initialState, {
       ...state,
       isListing: true,
       unconfiguredList: [],
+    };
+  },
+  [ReduxActionTypes.REMOVE_TEMP_DATASOURCE_SUCCESS]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      isDeleting: false,
+      list: state.list.filter(
+        (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
+      ),
+    };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_SAVE_ACTION_FLAG]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ isDSSaved: boolean }>,
+  ) => {
+    return { ...state, isDatasourceBeingSaved: action.payload.isDSSaved };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_SAVE_ACTION_FROM_POPUP_FLAG]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ isDSSavedFromPopup: boolean }>,
+  ) => {
+    return {
+      ...state,
+      isDatasourceBeingSavedFromPopup: action.payload.isDSSavedFromPopup,
     };
   },
 });

@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
   InlineEditingSaveOptions,
   TableWidgetProps,
@@ -11,6 +11,7 @@ import {
   updateColumnOrderHook,
   updateInlineEditingSaveOptionHook,
   updateInlineEditingOptionDropdownVisibilityHook,
+  updateCustomColumnAliasOnLabelChange,
 } from "../propertyUtils";
 import {
   createMessage,
@@ -50,6 +51,7 @@ export default [
         updateHook: composePropertyUpdateHook([
           updateColumnOrderHook,
           updateInlineEditingOptionDropdownVisibilityHook,
+          updateCustomColumnAliasOnLabelChange,
         ]),
         dependencies: [
           "columnOrder",

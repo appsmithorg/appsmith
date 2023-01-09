@@ -1,8 +1,7 @@
 import {
-  ActionTriggerType,
   CloseModalActionDescription,
   ShowModalActionDescription,
-} from "entities/DataTree/actionTriggers";
+} from "@appsmith/entities/DataTree/actionTriggers";
 import { put } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
@@ -12,7 +11,7 @@ export function* openModalSaga(action: ShowModalActionDescription) {
   const { modalName } = action.payload;
   if (typeof modalName !== "string") {
     throw new ActionValidationError(
-      ActionTriggerType.SHOW_MODAL_BY_NAME,
+      "SHOW_MODAL_BY_NAME",
       "name",
       Types.STRING,
       getType(modalName),
@@ -28,7 +27,7 @@ export function* closeModalSaga(action: CloseModalActionDescription) {
   const { modalName } = action.payload;
   if (typeof modalName !== "string") {
     throw new ActionValidationError(
-      ActionTriggerType.CLOSE_MODAL,
+      "CLOSE_MODAL",
       "name",
       Types.STRING,
       getType(modalName),

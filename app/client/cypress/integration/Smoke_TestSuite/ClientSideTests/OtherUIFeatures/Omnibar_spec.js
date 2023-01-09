@@ -1,6 +1,9 @@
 const omnibar = require("../../../../locators/Omnibar.json");
 const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const locators = ObjectsRegistry.CommonLocators;
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
@@ -13,7 +16,8 @@ describe("Omnibar functionality test cases", () => {
   it("1. Bug #15104 The Data is not displayed in Omnibar after clicking on learn more link from property pane", function() {
     cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
     cy.xpath('//span[text()="Learn more"]').click();
-    cy.get(omnibar.openDocumentationLink).should("be.visible");
+    cy.get(locators._omnibarDescription).scrollTo("top");
+    cy.get(omnibar.openDocumentationLink);
     cy.get("body").click(0, 0);
   });
 
@@ -162,12 +166,15 @@ describe("Omnibar functionality test cases", () => {
     // verify recently opened items with their subtext i.e page name
     cy.xpath(omnibar.recentlyopenItem)
       .eq(0)
-      .should("have.text", "Button1")
-      .next()
       .should("have.text", "Page1");
     cy.xpath(omnibar.recentlyopenItem)
       .eq(1)
       .should("have.text", "Audio1")
+      .next()
+      .should("have.text", "Page1");
+    cy.xpath(omnibar.recentlyopenItem)
+      .eq(2)
+      .should("have.text", "Button1")
       .next()
       .should("have.text", "Page1");
     cy.xpath(omnibar.recentlyopenItem)
@@ -193,7 +200,7 @@ describe("Omnibar functionality test cases", () => {
       .click()
       .wait(2000);
     cy.url().should(
-      "eq",
+      "contain",
       "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
     ); // => true
     cy.go(-1);

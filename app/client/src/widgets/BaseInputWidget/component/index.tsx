@@ -20,20 +20,19 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { InputTypes } from "../constants";
+import { InputTypes, NumberInputStepButtonPosition } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import {
-  Icon,
-  LabelWithTooltip,
-  labelLayoutStyles,
-  LABEL_CONTAINER_CLASS,
-} from "design-system";
+import { Icon } from "design-system";
 import { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
 import { lightenColor } from "widgets/WidgetUtils";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "widgets/components/LabelWithTooltip";
 import { getLocale } from "utils/helpers";
 
 /**
@@ -60,6 +59,7 @@ const InputComponentWrapper = styled((props) => (
       "borderRadius",
       "boxShadow",
       "accentColor",
+      "isDynamicHeightEnabled",
     ])}
   />
 ))<{
@@ -74,6 +74,7 @@ const InputComponentWrapper = styled((props) => (
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   ${labelLayoutStyles}
 
@@ -115,12 +116,17 @@ const InputComponentWrapper = styled((props) => (
           return "flex: 1; margin-right: 5px; label { margin-right: 5px; margin-bottom: 0;}";
         }
       }}
-      align-items: centert;
+      align-items: center;
       ${({ compactMode, labelPosition }) => {
         if (!labelPosition && !compactMode) {
           return "max-height: 20px; .bp3-popover-wrapper {max-height: 20px}";
         }
       }};
+
+      ${({ isDynamicHeightEnabled }) =>
+        isDynamicHeightEnabled
+          ? "{ max-height: none; .bp3-popover-wrapper {max-height: none; } }"
+          : ""};
     }
     .currency-type-filter,
     .country-type-filter {
@@ -298,6 +304,9 @@ const InputComponentWrapper = styled((props) => (
       return "flex-start";
     }};
   }
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&&&& { align-items: stretch; }" : ""};
 `;
 
 const StyledNumericInput = styled(NumericInput)`
@@ -308,7 +317,8 @@ const StyledNumericInput = styled(NumericInput)`
       min-width: 24px;
       width: 24px;
       border-radius: 0;
-      &:hover {
+      &:hover,
+      &:focus {
         background: ${Colors.GREY_2};
         span {
           color: ${Colors.GREY_10};
@@ -333,6 +343,7 @@ const TextInputWrapper = styled.div<{
   accentColor?: string;
   hasError?: boolean;
   disabled?: boolean;
+  isDynamicHeightEnabled?: boolean;
 }>`
   width: 100%;
   display: flex;
@@ -383,6 +394,9 @@ const TextInputWrapper = styled.div<{
 
   ${({ inputHtmlType }) =>
     inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto; }" : ""};
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -517,6 +531,7 @@ class BaseInputComponent extends React.Component<
       <StyledNumericInput
         allowNumericCharactersOnly
         autoFocus={this.props.autoFocus}
+        buttonPosition={this.props.buttonPosition}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         inputRef={(el) => {
@@ -631,6 +646,7 @@ class BaseInputComponent extends React.Component<
       errorMessage,
       inputHTMLType,
       inputType,
+      isDynamicHeightEnabled,
       isInvalid,
       isLoading,
       label,
@@ -654,6 +670,7 @@ class BaseInputComponent extends React.Component<
         fill
         hasError={isInvalid}
         inputType={inputType}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
@@ -672,6 +689,7 @@ class BaseInputComponent extends React.Component<
             fontSize={labelTextSize}
             fontStyle={labelStyle}
             helpText={tooltip}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
             text={label}
@@ -687,6 +705,7 @@ class BaseInputComponent extends React.Component<
           disabled={this.props.disabled}
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           labelPosition={labelPosition}
         >
           <ErrorTooltip
@@ -715,6 +734,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   inputHTMLType?: InputHTMLType;
   disabled?: boolean;
   intent?: Intent;
+  isDynamicHeightEnabled?: boolean;
   defaultValue?: string | number;
   label: string;
   labelAlignment?: Alignment;
@@ -765,6 +785,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   accentColor?: string;
   errorTooltipBoundary?: string;
   shouldUseLocale?: boolean;
+  buttonPosition?: NumberInputStepButtonPosition;
 }
 
 export default BaseInputComponent;

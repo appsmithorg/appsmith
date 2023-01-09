@@ -80,10 +80,7 @@ import {
   CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import {
-  ActionTriggerType,
-  RunPluginActionDescription,
-} from "entities/DataTree/actionTriggers";
+import { RunPluginActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
@@ -99,15 +96,18 @@ import { JSCollection } from "entities/JSCollection";
 import {
   executeAppAction,
   TriggerMeta,
-} from "sagas/ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
-import { matchBasePath } from "pages/Editor/Explorer/helpers";
-import { isTrueObject, findDatatype } from "workers/Evaluation/evaluationUtils";
+import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
+import {
+  isTrueObject,
+  findDatatype,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
@@ -332,7 +332,7 @@ export default function* executePluginActionTriggerSaga(
   const { actionId, onError, onSuccess, params } = pluginAction;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
-      ActionTriggerType.RUN_PLUGIN_ACTION,
+      "RUN_PLUGIN_ACTION",
       "params",
       Types.OBJECT,
       getType(params),
@@ -384,28 +384,32 @@ export default function* executePluginActionTriggerSaga(
   const { isError, payload } = executePluginActionResponse;
 
   if (isError) {
-    AppsmithConsole.addError({
-      id: actionId,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: `Execution failed with status ${payload.statusCode}`,
-      source: {
-        type: ENTITY_TYPE.ACTION,
-        name: action.name,
-        id: actionId,
-      },
-      state: payload.request,
-      messages: [
-        {
-          // Need to stringify cause this gets rendered directly
-          // and rendering objects can crash the app
-          message: !isString(payload.body)
-            ? JSON.stringify(payload.body)
-            : payload.body,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-          subType: payload.errorType,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: `Execution failed with status ${payload.statusCode}`,
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: action.name,
+            id: actionId,
+          },
+          state: payload.request,
+          messages: [
+            {
+              // Need to stringify cause this gets rendered directly
+              // and rendering objects can crash the app
+              message: !isString(payload.body)
+                ? JSON.stringify(payload.body)
+                : payload.body,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+              subType: payload.errorType,
+            },
+          ],
         },
-      ],
-    });
+      },
+    ]);
     if (onError) {
       yield call(executeAppAction, {
         event: { type: eventType },
@@ -627,20 +631,24 @@ function* runActionSaga(
       });
     }
 
-    AppsmithConsole.addError({
-      id: actionId,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: `Execution failed${
-        payload.statusCode ? ` with status ${payload.statusCode}` : ""
-      }`,
-      source: {
-        type: ENTITY_TYPE.ACTION,
-        name: actionObject.name,
-        id: actionId,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: `Execution failed${
+            payload.statusCode ? ` with status ${payload.statusCode}` : ""
+          }`,
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: actionObject.name,
+            id: actionId,
+          },
+          messages: appsmithConsoleErrorMessageList,
+          state: payload.request,
+        },
       },
-      messages: appsmithConsoleErrorMessageList,
-      state: payload.request,
-    });
+    ]);
 
     Toaster.show({
       text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
@@ -782,24 +790,28 @@ function* executePageLoadAction(pageAction: PageAction) {
     }
 
     if (isError) {
-      AppsmithConsole.addError({
-        id: pageAction.id,
-        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-        text: `Execution failed with status ${payload.statusCode}`,
-        source: {
-          type: ENTITY_TYPE.ACTION,
-          name: pageAction.name,
-          id: pageAction.id,
-        },
-        state: payload.request,
-        messages: [
-          {
-            message: error,
-            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-            subType: payload.errorType,
+      AppsmithConsole.addErrors([
+        {
+          payload: {
+            id: pageAction.id,
+            logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+            text: `Execution failed with status ${payload.statusCode}`,
+            source: {
+              type: ENTITY_TYPE.ACTION,
+              name: pageAction.name,
+              id: pageAction.id,
+            },
+            state: payload.request,
+            messages: [
+              {
+                message: error,
+                type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+                subType: payload.errorType,
+              },
+            ],
           },
-        ],
-      });
+        },
+      ]);
 
       yield put(
         executePluginActionError({

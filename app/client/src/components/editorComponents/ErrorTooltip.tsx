@@ -26,7 +26,7 @@ const TooltipStyles = createGlobalStyle`
 const Wrapper = styled.div`
   position: relative;
   flex: 1;
-  height: 100%;
+  height: auto;
   .bp3-popover-target {
     width: 100%;
     height: 100%;

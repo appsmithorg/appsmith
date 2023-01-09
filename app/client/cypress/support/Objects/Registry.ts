@@ -12,6 +12,13 @@ import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
 import { DebuggerHelper } from "../Pages/DebuggerHelper";
+import { LibraryInstaller } from "../Pages/LibraryInstaller";
+import { InviteModal } from "../Pages/InviteModal";
+import { AppSettings } from "../Pages/AppSettings/AppSettings";
+import { GeneralSettings } from "../Pages/AppSettings/GeneralSettings";
+import { PageSettings } from "../Pages/AppSettings/PageSettings";
+import { ThemeSettings } from "../Pages/AppSettings/ThemeSettings";
+import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -118,12 +125,68 @@ export class ObjectsRegistry {
     return ObjectsRegistry.fakerHelper__;
   }
 
-  private static DebuggerHelper__: DebuggerHelper;
+  private static debuggerHelper__: DebuggerHelper;
   static get DebuggerHelper(): DebuggerHelper {
-    if (ObjectsRegistry.DebuggerHelper__ === undefined) {
-      ObjectsRegistry.DebuggerHelper__ = new DebuggerHelper();
+    if (ObjectsRegistry.debuggerHelper__ === undefined) {
+      ObjectsRegistry.debuggerHelper__ = new DebuggerHelper();
     }
-    return ObjectsRegistry.DebuggerHelper__;
+    return ObjectsRegistry.debuggerHelper__;
+  }
+
+  private static appSettings__: AppSettings;
+  static get AppSettings(): AppSettings {
+    if (ObjectsRegistry.appSettings__ === undefined) {
+      ObjectsRegistry.appSettings__ = new AppSettings();
+    }
+    return ObjectsRegistry.appSettings__;
+  }
+
+  private static generalSettings__: GeneralSettings;
+  static get GeneralSettings(): GeneralSettings {
+    if (ObjectsRegistry.generalSettings__ === undefined) {
+      ObjectsRegistry.generalSettings__ = new GeneralSettings();
+    }
+    return ObjectsRegistry.generalSettings__;
+  }
+
+  private static pageSettings__: PageSettings;
+  static get PageSettings(): PageSettings {
+    if (ObjectsRegistry.pageSettings__ === undefined) {
+      ObjectsRegistry.pageSettings__ = new PageSettings();
+    }
+    return ObjectsRegistry.pageSettings__;
+  }
+
+  private static themeSettings__: ThemeSettings;
+  static get ThemeSettings(): ThemeSettings {
+    if (ObjectsRegistry.themeSettings__ === undefined) {
+      ObjectsRegistry.themeSettings__ = new ThemeSettings();
+    }
+    return ObjectsRegistry.themeSettings__;
+  }
+
+  private static embedSettings__: EmbedSettings;
+  static get EmbedSettings(): EmbedSettings {
+    if (ObjectsRegistry.embedSettings__ === undefined) {
+      ObjectsRegistry.embedSettings__ = new EmbedSettings();
+    }
+    return ObjectsRegistry.embedSettings__;
+  }
+
+  private static LibraryInstaller__: LibraryInstaller;
+  static get LibraryInstaller(): LibraryInstaller {
+    if (ObjectsRegistry.LibraryInstaller__ === undefined) {
+      ObjectsRegistry.LibraryInstaller__ = new LibraryInstaller();
+    }
+    return ObjectsRegistry.LibraryInstaller__;
+  }
+
+  private static inviteModal__: InviteModal;
+  static get InviteModal(): InviteModal {
+    if (ObjectsRegistry.inviteModal__ === undefined) {
+      ObjectsRegistry.inviteModal__ = new InviteModal();
+    }
+    return ObjectsRegistry.inviteModal__;
   }
 }
 

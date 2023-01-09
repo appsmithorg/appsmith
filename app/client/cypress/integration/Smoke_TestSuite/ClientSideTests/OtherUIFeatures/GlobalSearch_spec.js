@@ -4,7 +4,6 @@ const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
-const appPage = require("../../../../locators/PgAdminlocators.json");
 
 describe("GlobalSearch", function() {
   before(() => {
@@ -87,7 +86,7 @@ describe("GlobalSearch", function() {
 
   it("4. navigatesToDatasourceHavingAQuery", () => {
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       const expectedDatasource = httpResponse.response.body.data;
 
       cy.NavigateToActiveDSQueryPane(expectedDatasource.name);
@@ -147,16 +146,14 @@ describe("GlobalSearch", function() {
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(globalSearchLocators.blankDatasource).click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
-    cy.wait("@createDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
     cy.get(datasourceLocators.datasourceTitleLocator).click();
     cy.get(`${datasourceLocators.datasourceTitleLocator} input`)
       .clear()
       .type("omnibarApiDatasource", { force: true })
       .blur();
+
+    cy.fillAuthenticatedAPIForm();
+    cy.saveDatasource();
 
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.contains(
@@ -169,25 +166,19 @@ describe("GlobalSearch", function() {
       .then((title) => expect(title).includes("Api"));
   });
 
+  // since now datasource will only be saved once user clicks on save button explicitly,
+  // updated test so that when user clicks on google sheet and searches for the same datasource, no
+  // results found will be shown
   it("8. navigatesToGoogleSheetsQuery does not break again: Bug 15012", () => {
     cy.createGoogleSheetsDatasource();
     cy.renameDatasource("XYZ");
     cy.wait(4000);
-    cy.get(appPage.dropdownChevronLeft).click();
 
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000); // modal open transition should be deterministic
     cy.get(commonlocators.globalSearchInput).type("XYZ");
-    cy.get("body").type("{enter}");
 
-    cy.get(".t--save-datasource")
-      .contains("Save and Authorize")
-      .should("be.visible");
-
-    cy.deleteDatasource("XYZ");
-
-    // this should be called at the end of the last test case in this spec file.
-    cy.NavigateToHome();
+    cy.get(".no-data-title").should("be.visible");
   });
 });

@@ -5,7 +5,7 @@ import * as chartWidgetReskinningMigrations from "./migrations/ChartWidgetReskin
 import * as tableMigrations from "./migrations/TableWidget";
 import * as IncorrectDynamicBindingPathLists from "./migrations/IncorrectDynamicBindingPathLists";
 import * as TextStyleFromTextWidget from "./migrations/TextWidget";
-import * as MenuButtonWidgetButtonProperties from "./migrations/MenuButtonWidget";
+import * as menuButtonWidgetMigrations from "./migrations/MenuButtonWidget";
 import * as modalMigration from "./migrations/ModalWidget";
 import * as mapWidgetMigration from "./migrations/MapWidget";
 import * as checkboxMigration from "./migrations/CheckboxGroupWidget";
@@ -21,6 +21,8 @@ import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 import { originalDSLForDSLMigrations } from "./testDSLs";
 import * as rateWidgetMigrations from "./migrations/RateWidgetMigrations";
 import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigrations";
+import * as migrateLabelPosition from "./migrations/MigrateLabelPosition";
+import * as migrateAutoHeight from "./migrations/autoHeightMigrations";
 
 type Migration = {
   functionLookup: {
@@ -350,7 +352,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: MenuButtonWidgetButtonProperties,
+        moduleObj: menuButtonWidgetMigrations,
         functionName: "migrateMenuButtonWidgetButtonProperties",
       },
     ],
@@ -652,6 +654,78 @@ const migrations: Migration[] = [
       },
     ],
     version: 66,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateLabelPosition,
+        functionName: "migrateLabelPosition",
+      },
+    ],
+    version: 67,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateAutoHeight,
+        functionName: "migratePropertiesForDynamicHeight",
+      },
+    ],
+    version: 68,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: menuButtonWidgetMigrations,
+        functionName: "migrateMenuButtonDynamicItems",
+      },
+    ],
+    version: 69,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: themingMigration,
+        functionName: "migrateChildStylesheetFromDynamicBindingPathList",
+      },
+    ],
+    version: 70,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetV2SelectOption",
+      },
+    ],
+    version: 71,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateAutoHeight,
+        functionName: "migrateListWidgetChildrenForAutoHeight",
+      },
+    ],
+    version: 72,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: inputCurrencyMigration,
+        functionName: "migrateInputWidgetShowStepArrows",
+      },
+    ],
+    version: 73,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateMenuButtonDynamicItemsInsideTableWidget",
+      },
+    ],
+    version: 74,
   },
 ];
 

@@ -4,12 +4,14 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.util.WebClientUtils;
+import com.external.constants.ErrorMessages;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -63,6 +65,12 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
         JsonNode bodyNode;
         try {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
+        } catch (IllegalArgumentException e) {
+            if (!StringUtils.hasLength(methodConfig.getRowObjects())) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        ErrorMessages.EMPTY_UPDATE_ROW_OBJECTS_MESSAGE);
+            }
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
@@ -71,7 +79,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
         if (!bodyNode.isArray()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR, "Request body was not an array.");
+                    AppsmithPluginError.PLUGIN_ERROR, ErrorMessages.REQUEST_BODY_NOT_ARRAY);
         }
         return true;
     }
@@ -239,10 +247,16 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
     private Map<Integer, RowObject> getRowObjectMapFromBody(JsonNode body) {
 
-        if (!body.isArray() || body.isEmpty()) {
+        if (!body.isArray()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected an array of row objects");
+                    ErrorMessages.EXPECTED_ARRAY_OF_ROW_OBJECT_MESSAGE);
         }
+
+        if (body.isEmpty()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    ErrorMessages.EMPTY_UPDATE_ROW_OBJECTS_MESSAGE);
+        }
+
         return StreamSupport
                 .stream(body.spliterator(), false)
                 .map(rowJson -> new RowObject(

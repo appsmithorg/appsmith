@@ -19,7 +19,6 @@ export const QUERIES_EDITOR_ID_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId`;
 export const JS_COLLECTION_EDITOR_PATH = `/jsObjects`;
 export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId`;
 export const CURL_IMPORT_PAGE_PATH = `/api/curl/curl-import`;
-export const PAGE_LIST_EDITOR_PATH = `/pages`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const PROVIDER_TEMPLATE_PATH = `/provider/:providerId`;
 export const GEN_TEMPLATE_URL = "generate-page";
@@ -29,6 +28,8 @@ export const GENERATE_TEMPLATE_FORM_PATH = `${GENERATE_TEMPLATE_PATH}${GEN_TEMPL
 export const BUILDER_CHECKLIST_PATH = `/checklist`;
 export const ADMIN_SETTINGS_PATH = "/settings";
 export const ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH = "/settings/general";
+export const ADMIN_SETTINGS_CATEGORY_ACL_PATH = "/settings/groups";
+export const ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH = "/settings/audit-logs";
 export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:selected?";
 export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
@@ -38,10 +39,13 @@ export const matchApiPath = match(API_EDITOR_ID_PATH);
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
 export const matchQueryBasePath = match(QUERIES_EDITOR_BASE_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
-export const matchBuilderPath = (pathName: string) =>
-  match(BUILDER_PATH)(pathName) ||
-  match(BUILDER_PATH_DEPRECATED)(pathName) ||
-  match(BUILDER_CUSTOM_PATH)(pathName);
+export const matchBuilderPath = (
+  pathName: string,
+  options?: { end?: boolean },
+) =>
+  match(BUILDER_PATH, options)(pathName) ||
+  match(BUILDER_PATH_DEPRECATED, options)(pathName) ||
+  match(BUILDER_CUSTOM_PATH, options)(pathName);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>
   match(VIEWER_PATH)(pathName) ||

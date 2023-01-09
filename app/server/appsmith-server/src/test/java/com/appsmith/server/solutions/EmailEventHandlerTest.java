@@ -53,6 +53,8 @@ public class EmailEventHandlerTest {
     private PolicyUtils policyUtils;
     @MockBean
     UserWorkspaceService userWorkspaceService;
+    @MockBean
+    ApplicationPermission applicationPermission;
 
     EmailEventHandler emailEventHandler;
 
@@ -69,7 +71,8 @@ public class EmailEventHandlerTest {
     public void setUp() {
 
         emailEventHandler = new EmailEventHandlerImpl(applicationEventPublisher, emailSender, workspaceRepository,
-                applicationRepository, newPageRepository, policyUtils, emailConfig, userWorkspaceService);
+                applicationRepository, newPageRepository, policyUtils, emailConfig, userWorkspaceService,
+                applicationPermission);
 
         application = new Application();
         application.setName("Test application for comment");

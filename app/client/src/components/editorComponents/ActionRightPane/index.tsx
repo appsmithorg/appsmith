@@ -39,8 +39,10 @@ import { Colors } from "constants/Colors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -250,8 +252,12 @@ function ActionSidebar({
   }, [pageId]);
   const hasWidgets = Object.keys(widgets).length > 1;
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canEditPage = hasManagePagePermission(pagePermissions);
+
   const showSuggestedWidgets =
-    hasResponse && suggestedWidgets && !!suggestedWidgets.length;
+    canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
 
   if (!hasConnections && !showSuggestedWidgets && !showSnipingMode) {
@@ -276,12 +282,12 @@ function ActionSidebar({
           entityDependencies={entityDependencies}
         />
       )}
-      {hasResponse && Object.keys(widgets).length > 1 && (
+      {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
         <Collapsible label="Connect Widget">
           {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               className={"t--select-in-canvas"}
               onClick={handleBindData}
               size={Size.medium}

@@ -114,30 +114,36 @@ const RESET_OPTIONS = {
   keepErrors: true,
 };
 
-function Form<TValues = any>({
-  backgroundColor,
-  children,
-  disabledWhenInvalid,
-  fixedFooter,
-  getFormData,
-  hideFooter,
-  isSubmitting,
-  isWidgetMounting,
-  onFormValidityUpdate,
-  onSubmit,
-  registerResetObserver,
-  resetButtonLabel,
-  resetButtonStyles,
-  schema,
-  scrollContents,
-  showReset,
-  stretchBodyVertically,
-  submitButtonLabel,
-  submitButtonStyles,
-  title,
-  unregisterResetObserver,
-  updateFormData,
-}: FormProps<TValues>) {
+function Form<TValues = any>(
+  {
+    backgroundColor,
+    children,
+    disabledWhenInvalid,
+    fixedFooter,
+    getFormData,
+    hideFooter,
+    isSubmitting,
+    isWidgetMounting,
+    onFormValidityUpdate,
+    onSubmit,
+    registerResetObserver,
+    resetButtonLabel,
+    resetButtonStyles,
+    schema,
+    scrollContents,
+    showReset,
+    stretchBodyVertically,
+    submitButtonLabel,
+    submitButtonStyles,
+    title,
+    unregisterResetObserver,
+    updateFormData,
+  }: FormProps<TValues>,
+  ref:
+    | ((instance: HTMLDivElement | null) => void)
+    | React.MutableRefObject<HTMLDivElement | null>
+    | null,
+) {
   const valuesRef = useRef({});
   const methods = useForm();
   const { formState, reset, watch } = methods;
@@ -150,6 +156,7 @@ function Form<TValues = any>({
   >({
     activeClassName: FOOTER_SCROLL_ACTIVE_CLASS_NAME,
     fixedFooter,
+    ref: ref as React.MutableRefObject<HTMLDivElement>,
   });
 
   const onReset = (
@@ -221,6 +228,8 @@ function Form<TValues = any>({
          * race condition in ReactHookForm.
          */
         setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           reset(convertedFormData, RESET_OPTIONS);
         }, 0);
       }
@@ -256,7 +265,7 @@ function Form<TValues = any>({
     <FormProvider {...methods}>
       <StyledForm
         fixedFooter={fixedFooter}
-        ref={bodyRef}
+        ref={bodyRef as React.RefObject<HTMLFormElement>}
         scrollContents={scrollContents}
       >
         <StyledFormBody
@@ -298,4 +307,4 @@ function Form<TValues = any>({
   );
 }
 
-export default Form;
+export default React.forwardRef<HTMLDivElement, FormProps<any>>(Form);

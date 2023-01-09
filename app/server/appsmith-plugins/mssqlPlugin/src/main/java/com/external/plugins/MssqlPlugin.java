@@ -14,6 +14,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
@@ -98,7 +99,7 @@ public class MssqlPlugin extends BasePlugin {
     @Extension
     public static class MssqlPluginExecutor implements PluginExecutor<HikariDataSource>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
@@ -156,7 +157,7 @@ public class MssqlPlugin extends BasePlugin {
 
             //Prepared Statement
             // First extract all the bindings in order
-            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
             actionConfiguration.setBody(updatedQuery);
@@ -166,7 +167,7 @@ public class MssqlPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> executeCommon(HikariDataSource hikariDSConnection,
                                                          ActionConfiguration actionConfiguration,
                                                          Boolean preparedStatement,
-                                                         List<String> mustacheValuesInOrder,
+                                                         List<MustacheBindingToken> mustacheValuesInOrder,
                                                          ExecuteActionDTO executeActionDTO) {
 
             final Map<String, Object> requestData = new HashMap<>();
@@ -370,12 +371,12 @@ public class MssqlPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private  Set<String> populateHintMessages(List<String> columnNames) {
+        private Set<String> populateHintMessages(List<String> columnNames) {
 
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
-            if(!CollectionUtils.isEmpty(identicalColumns)) {
+            if (!CollectionUtils.isEmpty(identicalColumns)) {
                 messages.add("Your MsSQL query result may not have all the columns because duplicate column names " +
                         "were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use the " +
                         "SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
@@ -567,26 +568,28 @@ public class MssqlPlugin extends BasePlugin {
                     .append(";");
         }
 
-        if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+        if (StringUtils.hasLength(authentication.getDatabaseName())) {
             urlBuilder
                     .append("database=")
                     .append(authentication.getDatabaseName())
                     .append(";");
         }
 
-        if (!StringUtils.isEmpty(authentication.getUsername())) {
+        if (StringUtils.hasLength(authentication.getUsername())) {
             urlBuilder
                     .append("user=")
                     .append(authentication.getUsername())
                     .append(";");
         }
 
-        if (!StringUtils.isEmpty(authentication.getPassword())) {
+        if (StringUtils.hasLength(authentication.getPassword())) {
             urlBuilder
                     .append("password=")
                     .append(authentication.getPassword())
                     .append(";");
         }
+
+        urlBuilder.append("encrypt=false");
 
         hikariConfig.setJdbcUrl(urlBuilder.toString());
 

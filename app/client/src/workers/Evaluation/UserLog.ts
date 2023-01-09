@@ -3,7 +3,9 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
 import { klona } from "klona/lite";
 import moment from "moment";
-import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import { sendMessage, MessageType } from "utils/MessageUtil";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { _internalClearTimeout, _internalSetTimeout } from "./TimeoutOverride";
 
 class UserLog {
@@ -11,13 +13,11 @@ class UserLog {
   private logs: LogObject[] = [];
   private flushLogTimerId: number | undefined;
   private requestInfo: {
-    requestId?: string;
     eventType?: EventType;
     triggerMeta?: TriggerMeta;
   } | null = null;
 
   public setCurrentRequestInfo(requestInfo: {
-    requestId?: string;
     eventType?: EventType;
     triggerMeta?: TriggerMeta;
   }) {
@@ -28,14 +28,16 @@ class UserLog {
     if (this.flushLogTimerId) _internalClearTimeout(this.flushLogTimerId);
     this.flushLogTimerId = _internalSetTimeout(() => {
       const logs = this.flushLogs();
-      self.postMessage({
-        promisified: true,
-        responseData: {
-          logs,
-          eventType: this.requestInfo?.eventType,
-          triggerMeta: this.requestInfo?.triggerMeta,
+      sendMessage.call(self, {
+        messageType: MessageType.DEFAULT,
+        body: {
+          data: {
+            logs,
+            eventType: this.requestInfo?.eventType,
+            triggerMeta: this.requestInfo?.triggerMeta,
+          },
+          method: MAIN_THREAD_ACTION.PROCESS_LOGS,
         },
-        requestId: this.requestInfo?.requestId,
       });
     }, this.flushLogsTimerDelay);
   }

@@ -127,6 +127,7 @@ export interface BaseAction {
   confirmBeforeExecute?: boolean;
   eventData?: any;
   messages: string[];
+  userPermissions?: string[];
   errorReports?: Array<LayoutOnLoadActionErrors>;
 }
 

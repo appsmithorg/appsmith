@@ -91,7 +91,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
         text="CONNECT DATA"
       />
       <Button
-        category={Category.tertiary}
+        category={Category.secondary}
         onClick={openHelpModal}
         tabIndex={0}
         tag="button"

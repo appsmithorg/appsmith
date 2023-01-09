@@ -144,7 +144,7 @@ class RefactoringSolutionCETest {
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
 
         if (testApp == null && testPage == null) {
@@ -267,7 +267,7 @@ class RefactoringSolutionCETest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
@@ -334,7 +334,7 @@ class RefactoringSolutionCETest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         LayoutDTO firstLayout = layoutActionService.updateLayout(gitConnectedPage.getId(), testApp.getId(), layout.getId(), layout, branchName).block();
 
@@ -387,7 +387,7 @@ class RefactoringSolutionCETest {
 
         Layout layout = testPage.getLayouts().get(0);
 
-        ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO firstAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
@@ -398,7 +398,7 @@ class RefactoringSolutionCETest {
 
         // Create another action with the same name as the erstwhile deleted action
         action.setId(null);
-        ActionDTO secondAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO secondAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
         refactorActionNameDTO.setPageId(testPage.getId());
@@ -445,7 +445,7 @@ class RefactoringSolutionCETest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout).block();
 
@@ -495,7 +495,7 @@ class RefactoringSolutionCETest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO firstAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ActionDTO duplicateName = new ActionDTO();
         duplicateName.setName(name);

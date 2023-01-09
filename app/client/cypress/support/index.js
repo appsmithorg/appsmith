@@ -70,6 +70,16 @@ before(function() {
         Cypress.env("TESTPASSWORD2"),
       );
       cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME3"),
+        Cypress.env("TESTPASSWORD3"),
+      );
+      cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME4"),
+        Cypress.env("TESTPASSWORD4"),
+      );
+      cy.LogOut();
     }
   });
 });

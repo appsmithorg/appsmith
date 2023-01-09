@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
@@ -14,7 +14,6 @@ import {
 } from "@appsmith/constants/messages";
 import { SuggestedWidget } from "api/ActionAPI";
 
-import { useSelector } from "store";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";

@@ -20,7 +20,7 @@ export default function* handleAppLevelSocketEvents(event: any) {
     // notification on release version
     case APP_LEVEL_SOCKET_EVENTS.RELEASE_VERSION_NOTIFICATION: {
       const { appVersion } = getAppsmithConfigs();
-      if (appVersion.id != event.payload[0]) {
+      if (appVersion.id && appVersion.id != event.payload[0]) {
         Toaster.show({
           text: createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST),
           variant: Variant.info,

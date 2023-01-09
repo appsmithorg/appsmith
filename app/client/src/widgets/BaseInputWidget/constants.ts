@@ -6,3 +6,9 @@ export enum InputTypes {
   PASSWORD = "PASSWORD",
   CURRENCY = "CURRENCY",
 }
+
+export enum NumberInputStepButtonPosition {
+  LEFT = "left",
+  RIGHT = "right",
+  NONE = "none",
+}

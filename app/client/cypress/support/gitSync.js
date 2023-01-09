@@ -32,6 +32,7 @@ Cypress.Commands.add("revokeAccessGit", (appName) => {
       expect(id).to.eq("");
     });
 });
+
 Cypress.Commands.add(
   "connectToGitRepo",
   (repo, shouldCommit = true, assertConnectFailure) => {
@@ -123,6 +124,7 @@ Cypress.Commands.add(
     });
   },
 );
+
 Cypress.Commands.add("latestDeployPreview", () => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");

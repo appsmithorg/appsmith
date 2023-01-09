@@ -20,6 +20,7 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { Stylesheet } from "entities/AppTheming";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -147,6 +148,13 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
@@ -224,14 +232,16 @@ class ContainerWidget extends BaseWidget<
                 snapRows={snapRows}
                 widgetId={props.widgetId}
               />
+
+              <WidgetsMultiSelectBox
+                {...this.getSnapSpaces()}
+                noContainerOffset={!!props.noContainerOffset}
+                widgetId={this.props.widgetId}
+                widgetType={this.props.type}
+              />
             </>
           )}
-        <WidgetsMultiSelectBox
-          {...this.getSnapSpaces()}
-          noContainerOffset={!!props.noContainerOffset}
-          widgetId={this.props.widgetId}
-          widgetType={this.props.type}
-        />
+
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

@@ -58,7 +58,7 @@ class ButtonControl extends BaseControl<
 
     return (
       <StyledButton
-        category={Category.tertiary}
+        category={Category.secondary}
         disabled={isDisabled?.(widgetProperties)}
         isLoading={this.state.isLoading}
         onClick={this.onCTAClick}

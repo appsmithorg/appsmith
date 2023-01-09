@@ -13,6 +13,7 @@ import _, {
   isEmpty,
   union,
   isObject,
+  orderBy,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -58,6 +59,7 @@ import {
   getCellProperties,
   isColumnTypeEditable,
   getColumnType,
+  getBooleanPropertyValue,
 } from "./utilities";
 import {
   ColumnProperties,
@@ -84,6 +86,8 @@ import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
+import { Stylesheet } from "entities/AppTheming";
+import { MenuItem, MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -121,6 +125,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         order: null,
       },
       transientTableData: {},
+      updatedRowIndex: -1,
       editableCell: defaultEditableCell,
       columnEditableCellValue: {},
       selectColumnFilterText: {},
@@ -142,9 +147,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
       updatedRows: `{{(()=>{ ${derivedProperties.getUpdatedRows}})()}}`,
       updatedRowIndices: `{{(()=>{ ${derivedProperties.getUpdatedRowIndices}})()}}`,
-      updatedRow: `{{this.triggeredRow}}`,
+      updatedRow: `{{(()=>{ ${derivedProperties.getUpdatedRow}})()}}`,
       pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
       isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
+      tableHeaders: `{{(()=>{${derivedProperties.getTableHeaders}})()}}`,
     };
   }
 
@@ -158,6 +164,38 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getLoadingProperties(): Array<RegExp> | undefined {
     return [/\.tableData$/];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        menuButton: {
+          menuColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        iconButton: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        editActions: {
+          saveButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+          saveBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          discardButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+          discardBorderRadius:
+            "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+      },
+    };
   }
 
   /*
@@ -572,7 +610,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.filteredTableData,
       );
 
-      this.resetWidgetDefault();
+      this.props.updateWidgetMetaProperty("triggeredRowIndex", -1);
 
       const newColumnIds: string[] = getAllTableColumnKeys(
         this.props.tableData,
@@ -587,6 +625,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         if (newTableColumns) {
           this.updateColumnProperties(newTableColumns);
         }
+
+        this.props.updateWidgetMetaProperty("filters", defaultFilter);
       }
     }
 
@@ -595,6 +635,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      */
     if (isTableDataModified) {
       this.props.updateWidgetMetaProperty("transientTableData", {});
+      // reset updatedRowIndex whenever transientTableData is flushed.
+      this.props.updateWidgetMetaProperty("updatedRowIndex", -1);
+
       this.clearEditableCell(true);
       this.props.updateWidgetMetaProperty("selectColumnFilterText", {});
     }
@@ -684,24 +727,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty("selectedRowIndices", []);
       }
     }
-  };
-
-  /*
-   *  Function to reset filter and triggeredRowIndex when
-   *  component props change
-   */
-  resetWidgetDefault = () => {
-    const defaultFilter = [
-      {
-        column: "",
-        operator: OperatorTypes.OR,
-        value: "",
-        condition: "",
-      },
-    ];
-
-    this.props.updateWidgetMetaProperty("filters", defaultFilter);
-    this.props.updateWidgetMetaProperty("triggeredRowIndex", -1);
   };
 
   /*
@@ -1208,6 +1233,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ...transientData,
       },
     });
+
+    this.props.updateWidgetMetaProperty("updatedRowIndex", __originalIndex__);
   };
 
   removeRowFromTransientTableData = (index: number) => {
@@ -1221,6 +1248,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         newTransientTableData,
       );
     }
+    this.props.updateWidgetMetaProperty("updatedRowIndex", -1);
   };
 
   getRowOriginalIndex = (index: number) => {
@@ -1511,7 +1539,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onFilterChangeActionString={column.onFilterUpdate}
             onItemSelect={this.onOptionSelect}
             onOptionSelectActionString={column.onOptionChange}
-            options={column.selectOptions}
+            options={cellProperties.selectOptions}
             placeholderText={cellProperties.placeholderText}
             resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
             rowIndex={rowIndex}
@@ -1560,6 +1588,70 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       case ColumnTypes.MENU_BUTTON:
+        const getVisibleItems = (rowIndex: number) => {
+          const {
+            configureMenuItems,
+            menuItems,
+            menuItemsSource,
+            sourceData,
+          } = cellProperties;
+
+          if (menuItemsSource === MenuItemsSource.STATIC && menuItems) {
+            const visibleItems = Object.values(menuItems)?.filter((item) =>
+              getBooleanPropertyValue(item.isVisible, rowIndex),
+            );
+
+            return visibleItems?.length
+              ? orderBy(visibleItems, ["index"], ["asc"])
+              : [];
+          } else if (
+            menuItemsSource === MenuItemsSource.DYNAMIC &&
+            isArray(sourceData) &&
+            sourceData?.length &&
+            configureMenuItems?.config
+          ) {
+            const { config } = configureMenuItems;
+
+            const getValue = (
+              propertyName: keyof MenuItem,
+              index: number,
+              rowIndex: number,
+            ) => {
+              const value = config[propertyName];
+
+              if (isArray(value) && isArray(value[rowIndex])) {
+                return value[rowIndex][index];
+              } else if (isArray(value)) {
+                return value[index];
+              }
+
+              return value ?? null;
+            };
+
+            const visibleItems = sourceData
+              .map((item, index) => ({
+                ...item,
+                id: index.toString(),
+                isVisible: getValue("isVisible", index, rowIndex),
+                isDisabled: getValue("isDisabled", index, rowIndex),
+                index: index,
+                widgetId: "",
+                label: getValue("label", index, rowIndex),
+                onClick: config?.onClick,
+                textColor: getValue("textColor", index, rowIndex),
+                backgroundColor: getValue("backgroundColor", index, rowIndex),
+                iconAlign: getValue("iconAlign", index, rowIndex),
+                iconColor: getValue("iconColor", index, rowIndex),
+                iconName: getValue("iconName", index, rowIndex),
+              }))
+              .filter((item) => item.isVisible === true);
+
+            return visibleItems;
+          }
+
+          return [];
+        };
+
         return (
           <MenuButtonCell
             allowCellWrapping={cellProperties.allowCellWrapping}
@@ -1569,7 +1661,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             boxShadow={cellProperties.boxShadow}
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            configureMenuItems={cellProperties.configureMenuItems}
             fontStyle={cellProperties.fontStyle}
+            getVisibleItems={getVisibleItems}
             horizontalAlignment={cellProperties.horizontalAlignment}
             iconAlign={cellProperties.iconAlign}
             iconName={cellProperties.menuButtoniconName || undefined}
@@ -1584,17 +1678,34 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               cellProperties.menuColor || this.props.accentColor || Colors.GREEN
             }
             menuItems={cellProperties.menuItems}
+            menuItemsSource={cellProperties.menuItemsSource}
             menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
-            onCommandClick={(action: string, onComplete?: () => void) =>
-              this.onColumnEvent({
+            onCommandClick={(
+              action: string,
+              index?: number,
+              onComplete?: () => void,
+            ) => {
+              const additionalData: Record<
+                string,
+                string | number | Record<string, unknown>
+              > = {};
+
+              if (cellProperties?.sourceData && _.isNumber(index)) {
+                additionalData.currentItem = cellProperties.sourceData[index];
+                additionalData.currentIndex = index;
+              }
+
+              return this.onColumnEvent({
                 rowIndex,
                 action,
                 onComplete,
                 triggerPropertyName: "onClick",
                 eventType: EventType.ON_CLICK,
-              })
-            }
+                additionalData,
+              });
+            }}
             rowIndex={originalIndex}
+            sourceData={cellProperties.sourceData}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}

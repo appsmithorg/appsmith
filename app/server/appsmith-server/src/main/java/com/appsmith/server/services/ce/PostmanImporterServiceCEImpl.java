@@ -10,6 +10,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.BaseApiImporter;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
@@ -24,11 +25,14 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
 
     private final NewPageService newPageService;
     private final ResponseUtils responseUtils;
+    private final PagePermission pagePermission;
 
     public PostmanImporterServiceCEImpl(NewPageService newPageService,
-                                        ResponseUtils responseUtils) {
+                                        ResponseUtils responseUtils,
+                                        PagePermission pagePermission) {
         this.newPageService = newPageService;
         this.responseUtils = responseUtils;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(pageId);
         action.setName(name);
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission())
                 .map(branchedPage -> {
                     action.setDefaultResources(branchedPage.getDefaultResources());
                     return action;

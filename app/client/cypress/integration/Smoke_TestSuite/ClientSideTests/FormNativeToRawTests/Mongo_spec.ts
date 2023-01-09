@@ -6,7 +6,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Mongo Form to Native conversion works", () => {
   beforeEach(() => {
-    dataSources.startRoutesForDatasource();
+    dataSources.StartDataSourceRoutes();
   });
 
   it("Form to Native conversion works.", () => {

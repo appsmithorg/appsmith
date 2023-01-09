@@ -1,7 +1,7 @@
 import { Alignment } from "@blueprintjs/core";
 
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
@@ -155,6 +155,7 @@ export const contentConfig = [
           "schema",
           "fieldLimitExceeded",
           "childStylesheet",
+          "dynamicPropertyPathList",
         ],
         evaluatedDependencies: ["sourceData"],
       },
@@ -187,6 +188,16 @@ export const contentConfig = [
         propertyName: "isVisible",
         helpText: "Controls the visibility of the widget",
         label: "Visible",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        propertyName: "useSourceData",
+        helpText: "Use source data when form has hidden fields",
+        label: "Use Source Data",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,

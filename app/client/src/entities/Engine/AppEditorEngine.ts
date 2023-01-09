@@ -32,7 +32,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import { all, call, put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
@@ -47,6 +47,11 @@ import AppEngine, {
   PluginFormConfigsNotFoundError,
   PluginsNotFoundError,
 } from ".";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
+import { waitForSegmentInit } from "ce/sagas/userSagas";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -71,6 +76,7 @@ export default class AppEditorEngine extends AppEngine {
   public *setupEngine(payload: AppEnginePayload): any {
     yield* super.setupEngine.call(this, payload);
     yield put(resetEditorSuccess());
+    CodemirrorTernService.resetServer();
   }
 
   public startPerformanceTracking() {
@@ -113,6 +119,12 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_PAGE_ERROR,
     ];
 
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    if (featureFlags.CUSTOM_JS_LIBRARY) {
+      initActionsCalls.push(fetchJSLibraries(applicationId));
+      successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
+    }
+
     const allActionCalls: boolean = yield call(
       failFastApiCalls,
       initActionsCalls,
@@ -124,6 +136,8 @@ export default class AppEditorEngine extends AppEngine {
       throw new ActionsNotFoundError(
         `Unable to fetch actions for the application: ${applicationId}`,
       );
+
+    yield call(waitForSegmentInit, true);
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 
@@ -172,10 +186,8 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    yield all([
-      call(this.loadPageThemesAndActions, toLoadPageId, applicationId),
-      call(this.loadPluginsAndDatasources),
-    ]);
+    yield call(this.loadPageThemesAndActions, toLoadPageId, applicationId);
+    yield call(this.loadPluginsAndDatasources);
   }
 
   public *completeChore() {

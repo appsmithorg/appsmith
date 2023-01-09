@@ -8,6 +8,10 @@ import { Colors } from "constants/Colors";
 const EmptySearchResultWrapper = styled.div`
   color: ${Colors.GRAY_700};
 
+  span {
+    cursor: default;
+  }
+
   svg {
     fill: ${Colors.GRAY_400};
   }
@@ -15,7 +19,7 @@ const EmptySearchResultWrapper = styled.div`
 
 export function EmptySearchResult() {
   return (
-    <EmptySearchResultWrapper className="mt-12 p-3">
+    <EmptySearchResultWrapper className="mt-12 p-3 t--property-pane-no-search-results">
       <Icon
         className="flex justify-center"
         name={IconNames.SEARCH}

@@ -17,6 +17,7 @@ describe("Preview mode functionality", function() {
 
   it("checks if widgets can be selected or not", function() {
     // in preview mode, entity explorer and property pane are not visible
+    // Also, draggable and resizable components are not available.
     const selector = `.t--draggable-buttonwidget`;
     cy.wait(500);
     cy.get(selector)

@@ -14,7 +14,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { generateTemplateFormURL } from "RouteBuilder";
 import { useParams } from "react-router";
-import { ExplorerURLParams } from "../Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { showTemplatesModal as showTemplatesModalAction } from "actions/templateActions";
 import {
   createMessage,
@@ -96,6 +96,16 @@ function CanvasTopSection() {
 
   const showTemplatesModal = () => {
     dispatch(showTemplatesModalAction(true));
+    AnalyticsUtil.logEvent("CANVAS_BLANK_PAGE_CTA_CLICK", {
+      item: "ADD_PAGE_FROM_TEMPLATE",
+    });
+  };
+
+  const onGeneratePageClick = () => {
+    goToGenPageForm({ applicationSlug, pageSlug, pageId });
+    AnalyticsUtil.logEvent("CANVAS_BLANK_PAGE_CTA_CLICK", {
+      item: "GENERATE_PAGE",
+    });
   };
 
   return (
@@ -116,7 +126,7 @@ function CanvasTopSection() {
       <Card
         centerAlign={!featureFlags.TEMPLATES_PHASE_2}
         data-cy="generate-app"
-        onClick={() => goToGenPageForm({ applicationSlug, pageSlug, pageId })}
+        onClick={onGeneratePageClick}
       >
         <Database />
         <Content>

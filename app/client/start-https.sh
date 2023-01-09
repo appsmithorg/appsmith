@@ -22,13 +22,19 @@ if [[ ${1-} =~ ^-*h(elp)?$ ]]; then
 
         If neither of the above ar set, then we check if mkcert is available, and use https if yes, or http otherwise.
 
+--https-port: Port to use for https. Default: 443.
+ --http-port: Port to use for http. Default: 80.
+
+        If neither of the above are set, then we use 443 for https, and 80 for http.
+
 --env-file: Specify an alternate env file. Defaults to '.env' at the root of the project.
 
 A single positional argument can be given to set the backend server proxy address. Example:
 
 '"$0"' https://localhost:8080
 '"$0"' https://host.docker.internal:8080
-'"$0"' https://release.app.appsmith.com:8080
+'"$0"' https://release.app.appsmith.com
+'"$0"' release  # This is identical to the one above
 ' >&2
     exit
 fi
@@ -51,6 +57,14 @@ while [[ $# -gt 0 ]]; do
             use_https=0
             shift
             ;;
+        --https-port)
+            https_listen_port=$2
+            shift 2
+            ;;
+        --http-port)
+            http_listen_port=$2
+            shift 2
+            ;;
         --env-file)
             env_file=$2
             shift
@@ -66,6 +80,11 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+if [[ ${backend-} == release ]]; then
+  # Special shortcut for release environment.
+  backend=https://release.app.appsmith.com
+fi
 
 if [[ -z ${run_as-} ]]; then
     if type nginx; then
@@ -130,6 +149,9 @@ rts_port=${rts_port-8091}
 backend="${backend-http://$backend_host:$backend_port}"
 frontend="http://$frontend_host:$frontend_port"
 rts="http://$rts_host:$rts_port"
+
+http_listen_port="${http_listen_port-80}"
+https_listen_port="${https_listen_port-443}"
 
 
 if [[ -n ${env_file-} && ! -f $env_file ]]; then
@@ -210,20 +232,20 @@ http {
 
 $(if [[ $use_https == 1 ]]; then echo "
     server {
-        listen 80 default_server;
+        listen $http_listen_port default_server;
         server_name $domain;
-        return 301 https://\$host\$request_uri;
+        return 301 https://\$host$(if [[ $https_listen_port != 443 ]]; then echo ":$https_listen_port"; fi)\$request_uri;
     }
 "; fi)
 
     server {
 $(if [[ $use_https == 1 ]]; then echo "
-        listen 443 ssl http2 default_server;
+        listen $https_listen_port ssl http2 default_server;
         server_name $domain;
         ssl_certificate '$cert_file';
         ssl_certificate_key '$key_file';
 "; else echo "
-        listen 80 default_server;
+        listen $http_listen_port default_server;
         server_name _;
 "; fi)
 
@@ -333,6 +355,19 @@ else
 
 fi
 
+url_to_open=""
+if [[ $use_https == 1 ]]; then
+    url_to_open="https://$domain"
+    if [[ $https_listen_port != 443 ]]; then
+        url_to_open="$url_to_open:$https_listen_port"
+    fi
+else
+    url_to_open="http://localhost"
+    if [[ $http_listen_port != 80 ]]; then
+        url_to_open="$url_to_open:$http_listen_port"
+    fi
+fi
+
 echo '✅ Started NGINX'
 echo "ℹ️  Stop with: $stop_cmd"
-echo "🎉 $(if [[ $use_https == 1 ]]; then echo "https://$domain"; else echo "http://localhost"; fi)"
+echo "🎉 $url_to_open"

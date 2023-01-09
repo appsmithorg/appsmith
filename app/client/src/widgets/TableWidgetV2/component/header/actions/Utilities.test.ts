@@ -1,5 +1,6 @@
 import { transformTableDataIntoCsv } from "./Utilities";
 import { TableColumnProps } from "../../Constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 describe("TransformTableDataIntoArrayOfArray", () => {
   const columns: TableColumnProps[] = [
@@ -12,7 +13,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       draggable: true,
       metaProperties: {
         isHidden: false,
-        type: "string",
+        type: ColumnTypes.TEXT,
       },
       columnProperties: {
         id: "id",

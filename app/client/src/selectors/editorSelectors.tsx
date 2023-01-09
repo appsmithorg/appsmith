@@ -18,6 +18,7 @@ import {
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
+  WidgetType,
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
@@ -34,7 +35,12 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+import WidgetFactory, {
+  NonSerialisableWidgetConfigs,
+} from "utils/WidgetFactory";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -124,6 +130,21 @@ export const getPageById = (pageId: string) =>
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
+export const getCurrentPagePermissions = createSelector(
+  getCurrentPageId,
+  getPageList,
+  (pageId, pages) => {
+    pages.find((page) => page.pageId === pageId);
+  },
+);
+
+export const getPagePermissions = (state: AppState) => {
+  const pageId = getCurrentPageId(state);
+  const page = find(state.entities.pageList.pages, { pageId });
+
+  return page?.userPermissions || [];
+};
+
 export const selectCurrentPageSlug = createSelector(
   getCurrentPageId,
   getPageList,
@@ -143,8 +164,8 @@ export const getCurrentApplication = (state: AppState) =>
   state.ui.applications.currentApplication;
 
 export const getCurrentApplicationId = (state: AppState) =>
-  state.entities.pageList.applicationId ||
-  ""; /** this is set during init can assume it to be defined */
+  state.entities.pageList.applicationId || "";
+/** this is set during init can assume it to be defined */
 
 export const selectCurrentApplicationSlug = (state: AppState) =>
   state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
@@ -172,10 +193,11 @@ export const selectURLSlugs = createSelector(
   },
 );
 
-export const getRenderMode = (state: AppState) =>
-  state.entities.app.mode === APP_MODE.EDIT
+export const getRenderMode = (state: AppState) => {
+  return state.entities.app.mode === APP_MODE.EDIT
     ? RenderModes.CANVAS
     : RenderModes.PAGE;
+};
 
 export const getViewModePageList = createSelector(
   getPageList,
@@ -201,6 +223,7 @@ export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
+export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
 
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
@@ -210,6 +233,33 @@ export const getCurrentPageName = createSelector(
     pageList.pages.find((page) => page.pageId === pageList.currentPageId)
       ?.pageName,
 );
+
+/**
+ * This returns the number of rows which is not occupied by a Canvas Widget within
+ * a parent container like widget of type widgetType
+ * For example, the Tabs Widget takes 4 rows for the tabs
+ * @param widgetType Type of widget
+ * @param props Widget properties
+ * @returns the offset in rows
+ */
+export const getCanvasHeightOffset = (
+  widgetType: WidgetType,
+  props: WidgetProps,
+) => {
+  // Get the non serialisable configs for the widget type
+  const config:
+    | Record<NonSerialisableWidgetConfigs, unknown>
+    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
+  let offset = 0;
+  // If this widget has a registered canvasHeightOffset function
+  if (config?.canvasHeightOffset) {
+    // Run the function to get the offset value
+    offset = (config.canvasHeightOffset as (props: WidgetProps) => number)(
+      props,
+    );
+  }
+  return offset;
+};
 
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
@@ -238,6 +288,7 @@ export const getWidgetCards = createSelector(
         displayName,
         icon: iconSVG,
         searchTags,
+        isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -347,6 +398,10 @@ const getWidgetSpacesForContainer = (
   widgets: FlattenedWidgetProps[],
 ): WidgetSpace[] => {
   return widgets.map((widget) => {
+    const hasAutoHeight = isAutoHeightEnabledForWidget(widget);
+    const fixedHeight = hasAutoHeight
+      ? widget.bottomRow - widget.topRow
+      : undefined;
     const occupiedSpace: WidgetSpace = {
       id: widget.widgetId,
       parentId: containerWidgetId,
@@ -355,6 +410,8 @@ const getWidgetSpacesForContainer = (
       bottom: widget.bottomRow,
       right: widget.rightColumn,
       type: widget.type,
+      isDropTarget: checkIsDropTarget(widget.type),
+      fixedHeight,
     };
     return occupiedSpace;
   });
@@ -370,9 +427,9 @@ const getWidgetSpacesForContainer = (
 const generateOccupiedSpacesMap = (
   widgets: CanvasWidgetsReduxState,
   fetchNow = true,
-): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
+): { [containerWidgetId: string]: WidgetSpace[] } | undefined => {
   const occupiedSpaces: {
-    [containerWidgetId: string]: OccupiedSpace[];
+    [containerWidgetId: string]: WidgetSpace[];
   } = {};
   if (!fetchNow) return;
   // Get all widgets with type "CONTAINER_WIDGET" and has children
@@ -393,7 +450,7 @@ const generateOccupiedSpacesMap = (
       );
       // Get the occupied spaces in this container
       // Assign it to the containerWidgetId key in occupiedSpaces
-      occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
+      occupiedSpaces[containerWidgetId] = getWidgetSpacesForContainer(
         containerWidgetId,
         childWidgets.map((widgetId) => widgets[widgetId]),
       );
@@ -406,7 +463,121 @@ const generateOccupiedSpacesMap = (
 // returns occupied spaces
 export const getOccupiedSpaces = createSelector(
   getWidgets,
-  generateOccupiedSpacesMap,
+  (
+    widgets: CanvasWidgetsReduxState,
+  ): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
+    const occupiedSpaces: {
+      [containerWidgetId: string]: OccupiedSpace[];
+    } = {};
+    // Get all widgets with type "CONTAINER_WIDGET" and has children
+    const containerWidgets: FlattenedWidgetProps[] = Object.values(
+      widgets,
+    ).filter((widget) => widget.children && widget.children.length > 0);
+
+    // If we have any container widgets
+    if (containerWidgets) {
+      containerWidgets.forEach((containerWidget: FlattenedWidgetProps) => {
+        const containerWidgetId = containerWidget.widgetId;
+        // Get child widgets for the container
+        // TODO: PERF_FIX (abhinav): This is iterating over all widgets for every widget which has children
+        // We can optimise this by iterating through the children for each widget which has children
+        const childWidgets = Object.keys(widgets).filter(
+          (widgetId) =>
+            containerWidget.children &&
+            containerWidget.children.indexOf(widgetId) > -1 &&
+            !widgets[widgetId].detachFromLayout,
+        );
+        // Get the occupied spaces in this container
+        // Assign it to the containerWidgetId key in occupiedSpaces
+        occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
+          containerWidgetId,
+          childWidgets.map((widgetId) => widgets[widgetId]),
+        );
+      });
+    }
+
+    // Return undefined if there are no occupiedSpaces.
+    return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+  },
+);
+
+export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
+  getWidgets,
+  (
+    widgets: CanvasWidgetsReduxState,
+  ): {
+    occupiedSpaces: {
+      [parentCanvasWidgetId: string]: Array<
+        OccupiedSpace & { originalTop: number; originalBottom: number }
+      >;
+    };
+    canvasLevelMap: Record<string, number>;
+  } => {
+    const occupiedSpaces: {
+      [parentCanvasWidgetId: string]: Array<
+        OccupiedSpace & { originalTop: number; originalBottom: number }
+      >;
+    } = {};
+    // Get all widgets with type "CANVAS_WIDGET" and has children
+    // What we're really doing is getting all widgets inside a drop target
+    const canvasWidgets: FlattenedWidgetProps[] = Object.values(widgets).filter(
+      (widget) => widget.type === "CANVAS_WIDGET",
+    );
+
+    // Levels signify how deeply nested a canvas is.
+    // For example, the main canvas is always at level 0, if a container exists on the canvas
+    // Then the canvas within this container will be level 1, and so on.
+    const canvasLevelMap: Record<string, number> = {};
+
+    // If we have any canvas widgets
+    if (canvasWidgets) {
+      // Iterate through the list of canvas widgets
+      canvasWidgets.forEach((canvasWidget: FlattenedWidgetProps) => {
+        // Set the canvas widget id
+        const canvasWidgetId = canvasWidget.widgetId;
+
+        // Get the nesting level of this Canvas:
+        let parentId = canvasWidget.parentId;
+        let level = 0;
+        while (parentId) {
+          const parent = widgets[parentId];
+          if (parent.type === "CANVAS_WIDGET") level++;
+          parentId = parent.parentId;
+        }
+        canvasLevelMap[canvasWidget.widgetId] = level;
+        // Initialise the occupied spaces with an empty array
+        occupiedSpaces[canvasWidgetId] = [];
+        // If this canvas widget has children
+        if (canvasWidget.children && canvasWidget.children.length > 0) {
+          // Iterate through all children
+          canvasWidget.children.forEach((childWidgetId: string) => {
+            // Get the widget props
+            const widget = widgets[childWidgetId];
+            // If the widget is not detached from layout, which means
+            // They actually exist by being displayed within the canvas
+            // (unlike a modal widget or another canvas widget)
+            if (!widget.detachFromLayout) {
+              // Add the occupied space co-ordinates to the initialised array
+              occupiedSpaces[canvasWidgetId].push({
+                id: widget.widgetId,
+                parentId: canvasWidgetId,
+                left: widget.leftColumn,
+                top: widget.topRow,
+                bottom: widget.bottomRow,
+                right: widget.rightColumn,
+                originalTop: widget.originalTopRow,
+                originalBottom: widget.originalBottomRow,
+              });
+            }
+          });
+        }
+      });
+    }
+
+    // Return the occupied spaces and the canvas levels.
+    // In an empty canvas occupied spaces will be like so: { "0": [] }
+    return { occupiedSpaces, canvasLevelMap };
+  },
 );
 
 // returns occupied spaces only while dragging or moving
@@ -535,6 +706,7 @@ export function getContainerWidgetSpacesSelectorWhileMoving(
     },
   );
 }
+
 export const getActionById = createSelector(
   [getActions, (state: any, props: any) => props.match.params.apiId],
   (actions, id) => {

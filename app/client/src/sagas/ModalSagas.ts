@@ -140,13 +140,6 @@ export function* showModalSaga(
 
   if (appMode === APP_MODE.EDIT) navigateToCanvas(pageId);
 
-  if (action.payload.shouldSelectModal) {
-    yield put({
-      type: ReduxActionTypes.SELECT_WIDGET_INIT,
-      payload: { widgetId: action.payload.modalId },
-    });
-  }
-
   yield put(focusWidget(action.payload.modalId));
 
   const metaProps: Record<string, unknown> = yield select(

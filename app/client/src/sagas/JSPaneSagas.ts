@@ -29,7 +29,7 @@ import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeFunction } from "./EvaluationsSaga";
-import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
   JSUpdate,
@@ -286,7 +286,9 @@ function* updateJSCollection(data: {
           );
           // delete all execution error logs for deletedActions if present
           deletedActions.forEach((action) =>
-            AppsmithConsole.deleteError(`${jsCollection.id}-${action.id}`),
+            AppsmithConsole.deleteErrors([
+              { id: `${jsCollection.id}-${action.id}` },
+            ]),
           );
         }
 
@@ -377,7 +379,6 @@ export function* handleExecuteJSFunctionSaga(data: {
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
-        results: result,
         collectionId,
         actionId,
         isDirty,
@@ -392,6 +393,20 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
+    if (!action.actionConfiguration.isAsync) {
+      yield put({
+        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+        payload: {
+          [collectionId]: [
+            {
+              data: result,
+              collectionId,
+              actionId,
+            },
+          ],
+        },
+      });
+    }
     appMode === APP_MODE.EDIT &&
       !isDirty &&
       Toaster.show({
@@ -399,22 +414,26 @@ export function* handleExecuteJSFunctionSaga(data: {
         variant: Variant.success,
       });
   } catch (error) {
-    AppsmithConsole.addError({
-      id: actionId,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: createMessage(JS_EXECUTION_FAILURE),
-      source: {
-        type: ENTITY_TYPE.JSACTION,
-        name: collectionName + "." + action.name,
-        id: collectionId,
-      },
-      messages: [
-        {
-          message: (error as Error).message,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: createMessage(JS_EXECUTION_FAILURE),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: collectionName + "." + action.name,
+            id: collectionId,
+          },
+          messages: [
+            {
+              message: (error as Error).message,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            },
+          ],
         },
-      ],
-    });
+      },
+    ]);
     Toaster.show({
       text:
         (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),

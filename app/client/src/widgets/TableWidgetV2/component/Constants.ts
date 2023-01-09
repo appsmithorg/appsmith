@@ -8,6 +8,13 @@ import {
   ButtonVariant,
 } from "components/constants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
+import {
+  ConfigureMenuItems,
+  MenuItem,
+  MenuItems,
+  MenuItemsSource,
+} from "widgets/MenuButtonWidget/constants";
+import { ColumnTypes } from "../constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -17,6 +24,7 @@ export type TableSizes = {
   VERTICAL_PADDING: number;
   EDIT_ICON_TOP: number;
   ROW_VIRTUAL_OFFSET: number;
+  VERTICAL_EDITOR_PADDING: number;
 };
 
 export enum CompactModeTypes {
@@ -50,6 +58,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
     VERTICAL_PADDING: 6,
+    VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 10,
     ROW_VIRTUAL_OFFSET: 3,
   },
@@ -59,6 +68,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 30,
     ROW_FONT_SIZE: 12,
     VERTICAL_PADDING: 0,
+    VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 5,
     ROW_VIRTUAL_OFFSET: 1,
   },
@@ -68,6 +78,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 18,
     VERTICAL_PADDING: 16,
+    VERTICAL_EDITOR_PADDING: 16,
     EDIT_ICON_TOP: 21,
     ROW_VIRTUAL_OFFSET: 3,
   },
@@ -150,6 +161,9 @@ export interface MenuButtonCellProperties {
   menuColor?: string;
   menuButtoniconName?: IconName;
   onItemClicked?: (onClick: string | undefined) => void;
+  menuItemsSource: MenuItemsSource;
+  configureMenuItems: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
 }
 
 export interface URLCellProperties {
@@ -161,6 +175,7 @@ export interface SelectCellProperties {
   serverSideFiltering?: boolean;
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
+  selectOptions?: DropdownOption[];
 }
 
 export interface ImageCellProperties {
@@ -193,29 +208,11 @@ export interface CellLayoutProperties
     ImageCellProperties,
     BaseCellProperties {}
 
-export type MenuItems = Record<
-  string,
-  {
-    widgetId: string;
-    id: string;
-    index: number;
-    isVisible?: boolean;
-    isDisabled?: boolean;
-    label?: string;
-    backgroundColor?: string;
-    textColor?: string;
-    iconName?: IconName;
-    iconColor?: string;
-    iconAlign?: Alignment;
-    onClick?: string;
-  }
->;
-
 export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
   inputFormat?: string;
-  type: string;
+  type: ColumnTypes;
 }
 
 export interface TableColumnProps {
@@ -303,7 +300,7 @@ export interface EditActionColumnProperties {
   serverSideFiltering?: boolean;
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
-  selectOptions?: DropdownOption[];
+  selectOptions?: DropdownOption[] | DropdownOption[][];
 }
 
 export interface ColumnProperties
@@ -333,6 +330,10 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
+  getVisibleItems?: () => Array<MenuItem>;
+  menuItemsSource?: MenuItemsSource;
+  configureMenuItems?: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
 }
 
 export const ConditionFunctions: {

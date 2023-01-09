@@ -8,6 +8,7 @@ import styleConfig from "./propertyConfig/styleConfig";
 import SliderComponent, {
   SliderComponentProps,
 } from "../../NumberSliderWidget/component/Slider";
+import { Stylesheet } from "entities/AppTheming";
 
 export type SliderOption = {
   label: string;
@@ -62,7 +63,7 @@ class CategorySliderWidget extends BaseWidget<
     }
   }
 
-  static getDefaultPropertiesMap(): Record<string, unknown> {
+  static getDefaultPropertiesMap(): Record<string, string> {
     return {
       value: "defaultOptionValue",
     };
@@ -72,6 +73,12 @@ class CategorySliderWidget extends BaseWidget<
     return {
       value: undefined,
       isDirty: false,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
     };
   }
 
@@ -140,6 +147,7 @@ class CategorySliderWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         marks={sliderOptions}

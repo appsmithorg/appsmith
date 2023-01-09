@@ -21,8 +21,10 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                                               UserRepository userRepository,
                                               AnalyticsService analyticsService,
                                               UserService userService,
-                                              EmailSender emailSender) {
+                                              EmailSender emailSender,
+                                              PermissionGroupPermission permissionGroupPermission) {
 
-        super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService, userService, emailSender);
+        super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService, userService, emailSender,
+                permissionGroupPermission);
     }
 }

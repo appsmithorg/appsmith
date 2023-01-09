@@ -14,7 +14,7 @@ import {
 import { getGrandParentPropertyPath, getParentPropertyPath } from "../helper";
 import { JSONFormWidgetProps } from "..";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
-import { AppTheme } from "entities/AppTheming";
+import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
 import { processSchemaItemAutocomplete } from "components/propertyControls/JSONFormComputeControl";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
@@ -103,7 +103,7 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
 export const getStylesheetValue = (
   props: JSONFormWidgetProps,
   propertyPath: string,
-  widgetStylesheet?: AppTheme["stylesheet"][string],
+  widgetStylesheet?: Stylesheet<ButtonStyles & ChildStylesheet>,
 ) => {
   return getSchemaItem(props, propertyPath).compute(
     (schemaItem, propertyName) => {

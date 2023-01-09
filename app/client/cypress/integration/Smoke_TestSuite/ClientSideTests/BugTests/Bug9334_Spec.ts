@@ -4,14 +4,13 @@ let dsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
-  homePage = ObjectsRegistry.HomePage,
   locator = ObjectsRegistry.CommonLocators,
-  table = ObjectsRegistry.Table;
+  table = ObjectsRegistry.Table,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Bug 9334: The Select widget value is sent as null when user switches between the pages", function() {
   before(() => {
-    propPane.ChangeTheme("Pampas");
+    appSettings.OpenPaneAndChangeTheme("Pampas");
   });
 
   it("1. Create Postgress DS", function() {

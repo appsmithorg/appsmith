@@ -3,7 +3,7 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
-import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { DataTreeWidget } from "../entities/DataTree/dataTreeFactory";
 
 export interface UpdateWidgetMetaPropertyPayload {
@@ -29,12 +29,12 @@ export const updateWidgetMetaPropAndEval = (
 
 export type ResetWidgetMetaPayload = {
   widgetId: string;
-  evaluatedWidget: DataTreeWidget;
+  evaluatedWidget: DataTreeWidget | undefined;
 };
 
 export const resetWidgetMetaProperty = (
   widgetId: string,
-  evaluatedWidget: DataTreeWidget,
+  evaluatedWidget: DataTreeWidget | undefined,
 ): BatchAction<ResetWidgetMetaPayload> => {
   return batchAction({
     type: ReduxActionTypes.RESET_WIDGET_META,

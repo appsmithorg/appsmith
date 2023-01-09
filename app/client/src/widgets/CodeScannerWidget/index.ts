@@ -33,6 +33,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

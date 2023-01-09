@@ -17,6 +17,12 @@ export type TriggerActionPayload = {
   values: ConditionalOutput;
 };
 
+export type TriggerActionLoadingPayload = {
+  formId: string;
+  keys: string[]; // keys that need their loading states set.
+  value: boolean;
+};
+
 const initialState: TriggerValuesEvaluationState = {};
 
 const triggers = createReducer(initialState, {
@@ -45,6 +51,32 @@ const triggers = createReducer(initialState, {
       [action.payload.formId]: {
         ...triggers,
         ...action.payload.values,
+      },
+    };
+  },
+  [ReduxActionTypes.SET_TRIGGER_VALUES_LOADING]: (
+    state: FormEvaluationState,
+    action: ReduxAction<TriggerActionLoadingPayload>,
+  ) => {
+    const triggers = state[action.payload.formId];
+
+    const triggersToBeFetched: FormEvalOutput = {};
+    Object.entries(triggers).forEach(([key, value]) => {
+      if (action.payload.keys.includes(key)) {
+        const newValue = {
+          ...value,
+          fetchDynamicValues: {
+            ...value.fetchDynamicValues,
+            isLoading: action.payload.value,
+          },
+        };
+        triggersToBeFetched[key] = newValue as FormEvalOutput;
+      }
+    });
+    return {
+      [action.payload.formId]: {
+        ...triggers,
+        ...triggersToBeFetched,
       },
     };
   },

@@ -232,26 +232,6 @@ export const unEvalTree = {
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     privateWidgets: {},
   },
-  pageList: [
-    {
-      pageName: "Page1",
-      pageId: "6200d1a2b5bfc0392b959cae",
-      isDefault: true,
-      isHidden: false,
-    },
-    {
-      pageName: "Page2",
-      pageId: "621e22cf2b75295c1c165fa6",
-      isDefault: false,
-      isHidden: false,
-    },
-    {
-      pageName: "Page3",
-      pageId: "6220c268c48234070f8ac65a",
-      isDefault: false,
-      isHidden: false,
-    },
-  ],
   appsmith: {
     user: {
       email: "rathod@appsmith.com",
@@ -505,15 +485,6 @@ export const asyncTagUnevalTree: DataTree = {
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     privateWidgets: {},
   } as unknown) as DataTreeWidget,
-  pageList: [
-    {
-      pageName: "Page1",
-      pageId: "6272179d8a368d6f1efcd0d2",
-      isDefault: true,
-      isHidden: false,
-      slug: "page1",
-    },
-  ],
   appsmith: ({
     user: {
       email: "anand@appsmith.com",
@@ -1126,16 +1097,6 @@ export const lintingUnEvalTree = {
     ENTITY_TYPE: "WIDGET",
     privateWidgets: {},
   },
-  pageList: [
-    {
-      pageName: "Page1",
-      pageId: "62bf3730174c17103179d18c",
-      isDefault: true,
-      isHidden: false,
-      slug: "page1",
-      latest: false,
-    },
-  ],
   appsmith: {
     user: {
       email: "favour@appsmith.com",

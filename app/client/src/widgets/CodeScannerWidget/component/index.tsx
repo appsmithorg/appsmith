@@ -10,7 +10,7 @@ import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { ReactComponent as CameraOfflineIcon } from "assets/icons/widget/camera/camera-offline.svg";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import log from "loglevel";
 import { Popover2 } from "@blueprintjs/popover2";
 import Interweave from "interweave";
@@ -78,7 +78,7 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
       right: -36px;
     }
   }
-  
+
   @keyframes scan {
     from {top: 0%}
     to {top: calc(100% - 4px);}

@@ -4,18 +4,17 @@ let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("DateTime Datatype tests", function() {
   before(() => {
     cy.fixture("Datatypes/DateTimeDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeThemeColor(22, "Primary");
-    propPane.ChangeThemeColor(32, "Background");
+    appSettings.OpenPaneAndChangeThemeColors(22, 32);
   });
 
   it("1. Create Postgress DS", function() {

@@ -149,6 +149,16 @@ export const ActionColumnTypes = [
   ColumnTypes.EDIT_ACTIONS,
 ];
 
+export const FilterableColumnTypes = [
+  ColumnTypes.TEXT,
+  ColumnTypes.URL,
+  ColumnTypes.NUMBER,
+  ColumnTypes.DATE,
+  ColumnTypes.SELECT,
+  ColumnTypes.CHECKBOX,
+  ColumnTypes.SWITCH,
+];
+
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
 
 export const DEFAULT_BUTTON_LABEL = "Action";

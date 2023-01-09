@@ -42,21 +42,6 @@ const TAB_CONTAINER_HEIGHT = "44px";
 const CHILDREN_WRAPPER_HEIGHT_WITH_TABS = `calc(100% - ${TAB_CONTAINER_HEIGHT})`;
 const CHILDREN_WRAPPER_HEIGHT_WITHOUT_TABS = "100%";
 
-// const scrollNavControlContainerBaseStyle = css`
-//   display: flex;
-//   position: absolute;
-//   top: 0;
-//   bottom: 0;
-//   z-index: 2;
-//   background: white;
-
-//   button {
-//     z-index: 1;
-//     border-radius: 0px;
-//     border-bottom: ${(props) => `1px solid ${props.theme.colors.bodyBG}`};
-//   }
-// `;
-
 const scrollContents = css`
   overflow-y: auto;
   position: absolute;
@@ -111,39 +96,6 @@ export interface TabsContainerProps {
   isScrollable: boolean;
 }
 
-// const TabsContainer = styled.div<TabsContainerProps>`
-//   position: absolute;
-//   top: 0;
-//   overflow-x: auto;
-//   overflow-y: hidden;
-//   display: flex;
-//   height: ${TAB_CONTAINER_HEIGHT};
-//   background: ${(props) => props.theme.colors.builderBodyBG};
-//   overflow: hidden;
-//   border-bottom: ${(props) => `1px solid ${props.theme.colors.bodyBG}`};
-
-//   overflow-x: scroll;
-//   &::-webkit-scrollbar {
-//     display: none;
-//   }
-//   /* Hide scrollbar for IE, Edge and Firefox */
-//   -ms-overflow-style: none; /* IE and Edge */
-//   scrollbar-width: none; /* Firefox */
-
-//   && {
-//     width: 100%;
-//     display: flex;
-//     justify-content: flex-start;
-//     align-items: flex-end;
-//   }
-// `;
-
-// type TabProps = {
-//   selected?: boolean;
-//   onClick: (e: React.MouseEvent<HTMLDivElement>) => void;
-//   primaryColor: string;
-// };
-
 const Container = styled.div`
   width: 100%;
   align-items: flex-end;
@@ -194,19 +146,6 @@ export interface ScrollNavControlProps {
   className?: string;
 }
 
-// function ScrollNavControl(props: ScrollNavControlProps) {
-//   const { className, disabled, icon, onClick } = props;
-//   return (
-//     <Button
-//       className={className}
-//       disabled={disabled}
-//       icon={icon}
-//       minimal
-//       onClick={onClick}
-//     />
-//   );
-// }
-
 function TabsComponent(props: TabsComponentProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { onTabChange, tabs, width, ...remainingProps } = props;
@@ -251,14 +190,6 @@ function TabsComponent(props: TabsComponentProps) {
     },
     [tabsRef.current],
   );
-  // eslint-disable-next-line
-  // const [_intervalRef, _rafRef, requestAF] = useThrottledRAF(scroll, 10);
-
-  // useEffect(() => {
-  //   if (!props.shouldScrollContents) {
-  //     tabContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  //   }
-  // }, [props.shouldScrollContents]);
 
   return (
     <TabsContainerWrapper

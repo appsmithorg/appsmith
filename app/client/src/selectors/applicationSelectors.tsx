@@ -11,10 +11,7 @@ import {
 import Fuse from "fuse.js";
 import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import { GitApplicationMetadata } from "api/ApplicationApi";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name"],
@@ -128,6 +125,12 @@ export const getIsFetchingApplications = createSelector(
     applications.isFetchingApplications,
 );
 
+export const getIsChangingViewAccess = createSelector(
+  getApplicationsState,
+  (applications: ApplicationsReduxState): boolean =>
+    applications.isChangingViewAccess,
+);
+
 export const getIsCreatingApplication = createSelector(
   getApplicationsState,
   (applications: ApplicationsReduxState): creatingApplicationMap =>
@@ -178,10 +181,7 @@ export const getWorkspaceCreateApplication = createSelector(
   getUserApplicationsWorkspaces,
   (userWorkspaces) => {
     return userWorkspaces.filter((userWorkspace) =>
-      isPermitted(
-        userWorkspace.workspace.userPermissions || [],
-        PERMISSION_TYPE.CREATE_APPLICATION,
-      ),
+      hasCreateNewAppPermission(userWorkspace.workspace.userPermissions ?? []),
     );
   },
 );

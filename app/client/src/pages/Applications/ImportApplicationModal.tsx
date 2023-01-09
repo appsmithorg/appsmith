@@ -1,7 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
-import { useSelector } from "store";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   importApplication,
   setWorkspaceIdForImport,

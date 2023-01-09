@@ -1,4 +1,7 @@
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
+const appSettings = ObjectsRegistry.AppSettings;
 
 describe("Git with Theming:", function() {
   const backgroudColorMaster = "rgb(85, 61, 233)";
@@ -29,6 +32,8 @@ describe("Git with Theming:", function() {
     });
   });
   it("Bug #13860 Theming is not getting applied on view mode when the app is connected to Git", function() {
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     // apply theme on master branch and deploy
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
@@ -45,6 +50,7 @@ describe("Git with Theming:", function() {
       .then((text) => {
         cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
       });
+    appSettings.ClosePane();
     // drag a widget and assert theme is applied
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 700 });
     //cy.get('.t--draggable-buttonwidget').closest("div").should('have.css' , 'background-color', backgroudColorChildBranch)
@@ -59,6 +65,8 @@ describe("Git with Theming:", function() {
     cy.wait(1000);
     cy.get("body").click(300, 300);
     // change theme on tempBranch
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     // select a theme
@@ -75,6 +83,7 @@ describe("Git with Theming:", function() {
       .then((text) => {
         cy.get(commonlocators.toastmsg).contains(`Theme ${text} Applied`);
       });
+    appSettings.ClosePane();
 
     cy.xpath("(//button[@type='button'])").should(
       "have.css",

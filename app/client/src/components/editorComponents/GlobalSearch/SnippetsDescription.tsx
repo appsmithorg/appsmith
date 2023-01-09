@@ -21,7 +21,7 @@ import {
   setGlobalSearchFilterContext,
   unsetEvaluatedArgument,
 } from "actions/globalSearchActions";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";

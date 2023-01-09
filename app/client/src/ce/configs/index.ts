@@ -148,7 +148,6 @@ const getConfig = (fromENV: string, fromWindow = "") => {
 export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const { APPSMITH_FEATURE_CONFIGS } = window;
   const ENV_CONFIG = getConfigsFromEnvVars();
-
   // const sentry = getConfig(ENV_CONFIG.sentry, APPSMITH_FEATURE_CONFIGS.sentry);
   const sentryDSN = getConfig(
     ENV_CONFIG.sentry.dsn,
@@ -240,8 +239,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     algolia: {
       enabled: true,
       apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
-      apiKey: algoliaAPIKey.value || "d113611dccb80ac14aaa72a6e3ac6d10",
-      indexName: algoliaIndex.value || "test_appsmith",
+      apiKey: algoliaAPIKey.value || "dfde934d9bdc2e0b14830f1dd3cb240f",
+      indexName: algoliaIndex.value || "omnibar_docusaurus_index",
       snippetIndex: algoliaSnippetIndex.value || "snippet",
     },
     google: {

@@ -155,10 +155,10 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
 
     //Save source
     cy.get(".t--save-datasource").click();
-    cy.wait("@createDatasource");
+    cy.wait("@saveDatasource");
 
     //Verify page after save clicked
-    // cy.get("@createDatasource").then((httpResponse) => {
+    // cy.get("@saveDatasource").then((httpResponse) => {
     //   datasourceName = httpResponse.response.body.data.name;
     // });
 

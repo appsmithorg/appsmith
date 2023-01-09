@@ -1,9 +1,11 @@
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
+  PropertyPaneSectionConfig,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { isFunction } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { ALL_WIDGETS_AND_CONFIG, registerWidgets } from "./WidgetRegistry";
 
@@ -12,6 +14,10 @@ function validatePropertyPaneConfig(
   isWidgetHidden: boolean,
 ) {
   for (const sectionOrControlConfig of config) {
+    const sectionConfig = sectionOrControlConfig as PropertyPaneSectionConfig;
+    if (sectionConfig.sectionName && isFunction(sectionConfig.sectionName)) {
+      return ` SectionName should be a string and not a function. Search won't work for functions at the moment`;
+    }
     if (sectionOrControlConfig.children) {
       for (const propertyControlConfig of sectionOrControlConfig.children) {
         const propertyControlValidation = validatePropertyControl(
@@ -33,6 +39,10 @@ function validatePropertyControl(
 ): boolean | string {
   const _config = config as PropertyPaneControlConfig;
   const controls = ["INPUT_TEXT"];
+
+  if (_config.label && isFunction(_config.label)) {
+    return `${_config.propertyName}: Label should be a string and not a function. Search won't work for functions at the moment`;
+  }
 
   if (
     !isWidgetHidden &&

@@ -17,14 +17,14 @@ import {
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { XYCord } from "./hooks/useCanvasDragging";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getAbsolutePixels } from "utils/helpers";
 import {
-  getSlidingCanvasName,
   getStickyCanvasName,
+  getSlidingArenaName,
 } from "constants/componentClassNameConstants";
 
 export interface SelectedArenaDimensions {
@@ -482,10 +482,10 @@ export function CanvasSelectionArena({
   return shouldShow ? (
     <StickyCanvasArena
       canExtend={canExtend}
-      canvasId={getSlidingCanvasName(widgetId)}
+      canvasId={getStickyCanvasName(widgetId)}
       canvasPadding={canvasPadding}
       getRelativeScrollingParent={getNearestParentCanvas}
-      id={getStickyCanvasName(widgetId)}
+      id={getSlidingArenaName(widgetId)}
       ref={canvasRef}
       showCanvas={shouldShow}
       snapColSpace={snapColumnSpace}

@@ -4,6 +4,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -178,6 +179,13 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     return {
       message: undefined,
       messageMetadata: undefined,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
   }
 

@@ -4,10 +4,10 @@ let dsName: any, query: string, imageNameToUpload: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Binary Datatype tests", function() {
   before(() => {
@@ -22,8 +22,7 @@ describe("Binary Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeThemeColor(24, "Primary");
-    propPane.ChangeThemeColor(-37, "Background");
+    appSettings.OpenPaneAndChangeThemeColors(24, -37);
   });
 
   it("1. Creating table query - binarytype", () => {
@@ -34,6 +33,7 @@ describe("Binary Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
+    ee.ExpandCollapseEntity("Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer("public.binarytype"),
