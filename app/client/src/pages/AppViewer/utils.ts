@@ -98,8 +98,6 @@ export const getSignInButtonStyles = (
   };
   const isLight = tinycolor(color).isLight();
 
-  styles.backgroundOnHover = calulateHoverColor(styles.background, false);
-
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     styles.background = color;
     styles.color = isLight ? Colors.BLACK : Colors.WHITE;
@@ -107,6 +105,8 @@ export const getSignInButtonStyles = (
     styles.background = isLight ? Colors.BLACK : Colors.WHITE;
     styles.color = isLight ? Colors.WHITE : color;
   }
+
+  styles.backgroundOnHover = calulateHoverColor(styles.background, false);
 
   return styles;
 };

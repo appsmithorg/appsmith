@@ -190,7 +190,7 @@ function PageTabItem({ page, query }: { page: Page; query: string }) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   // TODO - @Dhruvik - ImprovedAppNav
   // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
 
   return (
     <PageTab

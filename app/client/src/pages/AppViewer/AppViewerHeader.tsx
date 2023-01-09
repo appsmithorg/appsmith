@@ -100,7 +100,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   // TODO - @Dhruvik - ImprovedAppNav
   // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",

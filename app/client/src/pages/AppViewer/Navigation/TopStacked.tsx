@@ -63,6 +63,7 @@ const StyledMenuItemText = styled.div<{
   color: ${({ navColorStyle, primaryColor }) =>
     getMenuItemTextColor(primaryColor, navColorStyle, true)};
   height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
+  transition: all 0.3s ease-in-out;
 
   & span {
     height: 100%;
@@ -159,7 +160,7 @@ const MenuItem = ({ page, query }: MenuItemProps) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
   // TODO - @Dhruvik - ImprovedAppNav
   // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",

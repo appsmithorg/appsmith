@@ -56,7 +56,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
   const { hideWatermark } = getAppsmithConfigs();
   // TODO - @Dhruvik - ImprovedAppNav
   // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
