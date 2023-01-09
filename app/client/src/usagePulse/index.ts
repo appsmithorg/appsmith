@@ -10,10 +10,10 @@ const PULSE_INTERVAL = 60; /* 1 hour in seconds */
 const USER_ACTIVITY_LISTENER_EVENT = "pointerdown";
 class UsagePulse {
   static userAnonymousId: string;
+  static Timer: number;
+  static unlistenRouteChange: () => void;
 
-  static isTrackableUrl() {
-    const url = window.location.href;
-
+  static isTrackableUrl(url: string) {
     return (
       url.includes(BUILDER_VIEWER_PATH_PREFIX) ||
       VIEWER_PATH_DEPRECATED_REGEX.test(url)
@@ -22,7 +22,7 @@ class UsagePulse {
 
   static sendPulse() {
     const data = {
-      anonymousUserId: UsagePulse.userAnonymousId,
+      // anonymousUserId: "anonymousUser",
       viewMode: !window.location.href.endsWith("/edit"),
     };
 
@@ -33,28 +33,27 @@ class UsagePulse {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-      keepalive: true,
     }).catch(noop);
   }
 
   static registerActivityListener() {
     window.document.body.addEventListener(
       USER_ACTIVITY_LISTENER_EVENT,
-      UsagePulse.trackActivity,
+      UsagePulse.startTrackingActivity,
     );
   }
 
   static deregisterActivityListener() {
     window.document.body.removeEventListener(
       USER_ACTIVITY_LISTENER_EVENT,
-      UsagePulse.trackActivity,
+      UsagePulse.startTrackingActivity,
     );
   }
 
   static watchForTrackableUrl(callback: () => void) {
-    const unlisten = history.listen(() => {
-      if (UsagePulse.isTrackableUrl()) {
-        unlisten();
+    UsagePulse.unlistenRouteChange = history.listen(() => {
+      if (UsagePulse.isTrackableUrl(window.location.href)) {
+        UsagePulse.unlistenRouteChange();
         setTimeout(callback, 0);
       }
     });
@@ -66,24 +65,30 @@ class UsagePulse {
   static scheduleNextActivityListeners() {
     UsagePulse.deregisterActivityListener();
 
-    setTimeout(UsagePulse.registerActivityListener, PULSE_INTERVAL * 1000);
+    UsagePulse.Timer = setTimeout(
+      UsagePulse.registerActivityListener,
+      PULSE_INTERVAL * 1000,
+    );
 
     showTime(PULSE_INTERVAL);
   }
 
-  static trackActivity() {
-    if (UsagePulse.isTrackableUrl()) {
+  static startTrackingActivity() {
+    if (UsagePulse.isTrackableUrl(window.location.href)) {
       UsagePulse.sendPulse();
       UsagePulse.scheduleNextActivityListeners();
     } else {
-      UsagePulse.watchForTrackableUrl(UsagePulse.trackActivity);
+      UsagePulse.watchForTrackableUrl(UsagePulse.startTrackingActivity);
     }
+  }
+
+  static stopTrackingActivity() {
+    clearTimeout(UsagePulse.Timer);
+    UsagePulse.unlistenRouteChange && UsagePulse.unlistenRouteChange();
   }
 }
 
 export default UsagePulse;
-
-window.addEventListener("DOMContentLoaded", UsagePulse.trackActivity);
 
 function showTime(time: number) {
   if (time > 0) {

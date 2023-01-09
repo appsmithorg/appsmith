@@ -64,6 +64,7 @@ import {
 } from "actions/analyticsActions";
 import { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import FeatureFlags from "entities/FeatureFlags";
+import UsagePulse from "usagePulse";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -164,6 +165,10 @@ export function* getCurrentUserSaga() {
       if (response.data.emptyInstance) {
         history.replace(SETUP);
       }
+
+      UsagePulse.stopTrackingActivity(); //To make sure that we're not tracking from previous session.
+      UsagePulse.startTrackingActivity();
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.USER_ME_API,
       );
@@ -421,6 +426,7 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
     const response: ApiResponse = yield call(UserApi.logoutUser);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      UsagePulse.stopTrackingActivity();
       AnalyticsUtil.reset();
       const currentUser: User | undefined = yield select(getCurrentUser);
       yield put(logoutUserSuccess(!!currentUser?.emptyInstance));

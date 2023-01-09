@@ -506,6 +506,12 @@ class AnalyticsUtil {
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
     window.zipy && window.zipy.anonymize();
   }
+
+  static removeAnalytics() {
+    const windowDoc: any = window;
+
+    windowDoc.analytics = undefined;
+  }
 }
 
 export default AnalyticsUtil;
