@@ -5,7 +5,7 @@ import { klona } from "klona/lite";
 import moment from "moment";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { sendMessage, MessageType } from "utils/MessageUtil";
-import { MAIN_THREAD_ACTION } from "./evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { _internalClearTimeout, _internalSetTimeout } from "./TimeoutOverride";
 
 class UserLog {

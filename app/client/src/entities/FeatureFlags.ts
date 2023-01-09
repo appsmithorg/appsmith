@@ -9,6 +9,7 @@ type FeatureFlags = {
   USAGE?: boolean;
   DATASOURCE_ENVIRONMENTS?: boolean;
   CUSTOM_JS_LIBRARY?: boolean;
+  MULTIPLE_PANES?: boolean;
 };
 
 export default FeatureFlags;

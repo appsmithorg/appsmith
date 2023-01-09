@@ -18,10 +18,13 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "ce/configs";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
 export const axiosConnectionAbortedCode = "ECONNABORTED";
+const appsmithConfig = getAppsmithConfigs();
 
 const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
   ...response.data,
@@ -40,6 +43,7 @@ const is404orAuthPath = () => {
 // this will be used to calculate the time taken for an action
 // execution request
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
+  config.headers = config.headers ?? {};
   const branch =
     getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
   if (branch && config.headers) {
@@ -48,6 +52,11 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   if (config.url?.indexOf("/git/") !== -1) {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
+
+  const anonymousId = AnalyticsUtil.getAnonymousId();
+  appsmithConfig.segment.enabled &&
+    anonymousId &&
+    (config.headers["x-anonymous-user-id"] = anonymousId);
 
   return { ...config, timer: performance.now() };
 };
