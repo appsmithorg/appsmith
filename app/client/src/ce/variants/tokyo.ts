@@ -1,20 +1,22 @@
 import { EndpointGroups, EnvKeys, ConfigurationEnvKeys } from "./config";
 
 const endpointProduction: EndpointGroups = {
-  gRPC: "https://web-api.prod.tokyo.manabie.io:31400",
-  bobGraphQL: "https://admin.prod.tokyo.manabie.io:31600",
-  mastermgmtGraphQL: "https://admin.prod.tokyo.manabie.io:31600/mastermgmt",
-  eurekaGraphQL: "https://admin.prod.tokyo.manabie.io:31600/eureka",
-  fatimaGraphQL: "https://admin.prod.tokyo.manabie.io:31600/fatima",
-  invoicemgmtGraphQL: "https://admin.prod.tokyo.manabie.io:31600/invoicemgmt",
-  entryexitmgmtGraphQL:
-    "https://admin.prod.tokyo.manabie.io:31600/entryexitmgmt",
-  timesheetGraphQL: "https://admin.prod.tokyo.manabie.io:31600/timesheet",
-  calendarGraphQL: "https://admin.prod.tokyo.manabie.io:31600/calendar",
+  gRPC: "https://web-api.prod.tokyo.manabie.io",
+  bobGraphQL: "https://admin.prod.tokyo.manabie.io",
+  mastermgmtGraphQL: "https://admin.prod.tokyo.manabie.io/mastermgmt",
+  eurekaGraphQL: "https://admin.prod.tokyo.manabie.io/eureka",
+  fatimaGraphQL: "https://admin.prod.tokyo.manabie.io/fatima",
+  invoicemgmtGraphQL: "https://admin.prod.tokyo.manabie.io/invoicemgmt",
+  entryexitmgmtGraphQL: "https://admin.prod.tokyo.manabie.io/entryexitmgmt",
+  timesheetGraphQL: "https://admin.prod.tokyo.manabie.io/timesheet",
+  calendarGraphQL: "https://admin.prod.tokyo.manabie.io/calendar",
   OCR: "https://asia-east2-content-management-syste-c40d1.cloudfunctions.net",
-  unleash: "https://admin.prod.tokyo.manabie.io:31600/unleash",
+  unleash: "https://admin.prod.tokyo.manabie.io/unleash",
   unleashKey:
     "ce4ed2eba3a72d6b5be23c7aa9b71178753f5908cf2dcbbca29442b5b81d397f",
+  draft: "https://admin.prod.tokyo.manabie.io/draftv2",
+  zeus: "https://admin.prod.tokyo.manabie.io/zeusv2",
+  grpcTranscode: "https://api.prod.tokyo.manabie.io",
 };
 
 const endpointUAT: EndpointGroups = {
@@ -31,6 +33,9 @@ const endpointUAT: EndpointGroups = {
   unleash: "https://admin.uat.manabie.io/unleash",
   unleashKey:
     "ce4ed2eba3a72d6b5be23c7aa9b71178753f5908cf2dcbbca29442b5b81d397f",
+  draft: "https://admin.uat.manabie.io/draftv2",
+  zeus: "https://admin.uat.manabie.io/zeusv2",
+  grpcTranscode: "https://api.uat.manabie.io",
 };
 
 const endpointStaging: EndpointGroups = {
@@ -47,6 +52,9 @@ const endpointStaging: EndpointGroups = {
   unleash: "https://admin.staging-green.manabie.io/unleash",
   unleashKey:
     "ce4ed2eba3a72d6b5be23c7aa9b71178753f5908cf2dcbbca29442b5b81d397f",
+  draft: "https://admin.staging.manabie.io/draftv2",
+  zeus: "https://admin.staging.manabie.io/zeusv2",
+  grpcTranscode: "https://api.staging-green.manabie.io",
 };
 
 const configs: ConfigurationEnvKeys = {
