@@ -15,10 +15,8 @@ import { JSFunctionProxy, JSProxy } from "./JSObject/JSProxy";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
-import {
-  PLATFORM_FUNCTIONS,
-  addDataTreeToContext,
-} from "@appsmith/workers/Evaluation/Actions";
+import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import { PLATFORM_FUNCTIONS } from "@appsmith/workers/Evaluation/PlatformFunctions";
 
 export type EvalResult = {
   result: any;
