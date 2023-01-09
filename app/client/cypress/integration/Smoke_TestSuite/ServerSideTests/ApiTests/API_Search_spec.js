@@ -2,9 +2,11 @@ const testdata = require("../../../../fixtures/testdata.json");
 import ApiEditor from "../../../../locators/ApiEditor";
 let APIName;
 const testUrl1 =
-  "http://localhost:5001/v1/dynamicrecords/generaterecords?records=10";
-const testUrl2 = "http://localhost:5001/v1/dynamicrecords/getstudents";
-const testUrl3 = "http://localhost:5001//v1/dynamicrecords/getrecordsArray";
+  "http://host.docker.internal:5001/v1/dynamicrecords/generaterecords?records=10";
+const testUrl2 =
+  "http://host.docker.internal:5001/v1/dynamicrecords/getstudents";
+const testUrl3 =
+  "http://host.docker.internal:5001//v1/dynamicrecords/getrecordsArray";
 describe("API Panel Test Functionality ", function() {
   it("Test Search API fetaure", function() {
     cy.log("Login Successful");
