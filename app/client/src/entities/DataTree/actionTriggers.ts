@@ -14,6 +14,7 @@ export enum ActionTriggerType {
   DOWNLOAD = "DOWNLOAD",
   COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD",
   RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
+  FOCUS_INPUT_WIDGET_META_RECURSIVE_BY_NAME = "FOCUS_INPUT_WIDGET_META_RECURSIVE_BY_NAME",
   SET_INTERVAL = "SET_INTERVAL",
   CLEAR_INTERVAL = "CLEAR_INTERVAL",
   GET_CURRENT_LOCATION = "GET_CURRENT_LOCATION",
@@ -31,6 +32,8 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.DOWNLOAD]: "download",
   [ActionTriggerType.NAVIGATE_TO]: "navigateTo",
   [ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME]: "resetWidget",
+  [ActionTriggerType.FOCUS_INPUT_WIDGET_META_RECURSIVE_BY_NAME]:
+    "focusInputWidget",
   [ActionTriggerType.RUN_PLUGIN_ACTION]: "action.run",
   [ActionTriggerType.SET_INTERVAL]: "setInterval",
   [ActionTriggerType.SHOW_ALERT]: "showAlert",
@@ -135,6 +138,13 @@ export type ResetWidgetDescription = {
     resetChildren: boolean;
   };
 };
+export type FocusInputWidgetDescription = {
+  type: ActionTriggerType.FOCUS_INPUT_WIDGET_META_RECURSIVE_BY_NAME;
+  payload: {
+    widgetName: string;
+    resetChildren: boolean;
+  };
+};
 
 export type SetIntervalDescription = {
   type: ActionTriggerType.SET_INTERVAL;
@@ -206,6 +216,7 @@ export type ActionDescription =
   | DownloadActionDescription
   | CopyToClipboardDescription
   | ResetWidgetDescription
+  | FocusInputWidgetDescription
   | SetIntervalDescription
   | ClearIntervalDescription
   | GetCurrentLocationDescription

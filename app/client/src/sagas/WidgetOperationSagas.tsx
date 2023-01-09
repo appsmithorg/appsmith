@@ -44,7 +44,10 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import _, { cloneDeep, isString, set, uniq } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
-import { resetWidgetMetaProperty } from "actions/metaActions";
+import {
+  focusInputWidgetMetaProperty,
+  resetWidgetMetaProperty,
+} from "actions/metaActions";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -825,6 +828,28 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
       childIndex
     ];
     yield put(resetWidgetMetaProperty(childId, childWidget));
+  }
+}
+function* focusInputChildrenMetaSaga(
+  action: ReduxAction<{ widgetId: string }>,
+) {
+  const { widgetId: parentWidgetId } = action.payload;
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const evaluatedDataTree: DataTree = yield select(getDataTree);
+  const childrenList = getWidgetChildren(
+    canvasWidgets,
+    parentWidgetId,
+    evaluatedDataTree,
+  );
+
+  (document.querySelector(
+    "#" + parentWidgetId + " .bp3-input",
+  ) as HTMLInputElement)?.focus();
+  for (const childIndex in childrenList) {
+    const { evaluatedWidget: childWidget, id: childId } = childrenList[
+      childIndex
+    ];
+    yield put(focusInputWidgetMetaProperty(childId, childWidget));
   }
 }
 
@@ -1883,6 +1908,10 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
       resetChildrenMetaSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.FOCUS_INPUT_CHILDREN_WIDGET_META,
+      focusInputChildrenMetaSaga,
     ),
     takeEvery(
       ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY,

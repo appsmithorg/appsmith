@@ -23,6 +23,7 @@ import storeValueLocally, {
 import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
 import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
+import focusInputWidgetActionSaga from "sagas/ActionExecution/FocusInputWidgetActionSaga";
 import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
 import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
 import {
@@ -113,6 +114,9 @@ export function* executeActionTriggers(
       break;
     case ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME:
       yield call(resetWidgetActionSaga, trigger.payload);
+      break;
+    case ActionTriggerType.FOCUS_INPUT_WIDGET_META_RECURSIVE_BY_NAME:
+      yield call(focusInputWidgetActionSaga, trigger.payload);
       break;
     case ActionTriggerType.SET_INTERVAL:
       yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);

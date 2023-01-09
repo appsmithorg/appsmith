@@ -756,6 +756,11 @@ export const GLOBAL_FUNCTIONS = {
     "!type":
       "fn(widgetName: string, resetChildren: boolean) -> +Promise[:t=[!0.<i>.:t]]",
   },
+  focusInputWidget: {
+    "!doc": "Reset widget values",
+    "!type":
+      "fn(widgetName: string, resetChildren: boolean) -> +Promise[:t=[!0.<i>.:t]]",
+  },
   setInterval: {
     "!doc": "Execute triggers at a given interval",
     "!type": "fn(callback: fn, interval: number, id?: string) -> void",

@@ -4,6 +4,7 @@ import {
   FILE_TYPE_OPTIONS,
   NAVIGATION_TARGET_FIELD_OPTIONS,
   RESET_CHILDREN_OPTIONS,
+  FOCUS_INPUT_CHILDREN_OPTIONS,
   ViewTypes,
 } from "./constants";
 import { ALERT_STYLE_OPTIONS } from "@appsmith/constants/messages";
@@ -66,6 +67,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
           defaultParams = "(location) => { \n\t // add code here \n  }";
           break;
         case AppsmithFunction.resetWidget:
+          defaultParams = `"",true`;
+          break;
+        case AppsmithFunction.focusInputWidget:
           defaultParams = `"",true`;
           break;
         case AppsmithFunction.postMessage:
@@ -259,6 +263,18 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.RESET_CHILDREN_FIELD]: {
     label: () => "Reset Children",
     options: () => RESET_CHILDREN_OPTIONS,
+    defaultText: "true",
+    getter: (value: any) => {
+      return enumTypeGetter(value, 1);
+    },
+    setter: (option: any, currentValue: string) => {
+      return enumTypeSetter(option.value, currentValue, 1);
+    },
+    view: ViewTypes.SELECTOR_VIEW,
+  },
+  [FieldType.FOCUS_INPUT_CHILDREN_FIELD]: {
+    label: () => "focus Children",
+    options: () => FOCUS_INPUT_CHILDREN_OPTIONS,
     defaultText: "true",
     getter: (value: any) => {
       return enumTypeGetter(value, 1);

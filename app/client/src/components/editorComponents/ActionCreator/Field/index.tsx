@@ -101,6 +101,7 @@ export function Field(props: FieldProps) {
     case FieldType.DOWNLOAD_FILE_TYPE_FIELD:
     case FieldType.NAVIGATION_TARGET_FIELD:
     case FieldType.RESET_CHILDREN_FIELD:
+    case FieldType.FOCUS_INPUT_CHILDREN_FIELD:
     case FieldType.WIDGET_NAME_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: options as TreeDropdownOption[],

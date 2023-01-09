@@ -963,6 +963,12 @@ Cypress.Commands.add("selectResetWidget", () => {
     .contains("Reset widget")
     .click();
 });
+Cypress.Commands.add("selectFocusInputWidget", () => {
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Focus Input")
+    .click();
+});
 
 Cypress.Commands.add("selectWidgetForReset", (value) => {
   cy.get(commonlocators.chooseWidget)

@@ -9,6 +9,7 @@ export const APPSMITH_GLOBAL_FUNCTIONS = {
   download: "download",
   copyToClipboard: "copyToClipboard",
   resetWidget: "resetWidget",
+  focusInputWidget: "focusInputWidget",
   setInterval: "setInterval",
   clearInterval: "clearInterval",
   postMessage: "postWindowMessage",
@@ -29,6 +30,10 @@ export const AppsmithFunction = {
 };
 
 export const RESET_CHILDREN_OPTIONS = [
+  { label: "true", value: "true", id: "true" },
+  { label: "false", value: "false", id: "false" },
+];
+export const FOCUS_INPUT_CHILDREN_OPTIONS = [
   { label: "true", value: "true", id: "true" },
   { label: "false", value: "false", id: "false" },
 ];
@@ -92,6 +97,7 @@ export enum FieldType {
   NAVIGATION_TARGET_FIELD = "NAVIGATION_TARGET_FIELD",
   WIDGET_NAME_FIELD = "WIDGET_NAME_FIELD",
   RESET_CHILDREN_FIELD = "RESET_CHILDREN_FIELD",
+  FOCUS_INPUT_CHILDREN_FIELD = "FOCUS_INPUT_CHILDREN_FIELD",
   ARGUMENT_KEY_VALUE_FIELD = "ARGUMENT_KEY_VALUE_FIELD",
   CALLBACK_FUNCTION_FIELD = "CALLBACK_FUNCTION_FIELD",
   DELAY_FIELD = "DELAY_FIELD",

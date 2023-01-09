@@ -191,6 +191,11 @@ abstract class BaseWidget<
     if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
 
+  focusInputChildrenMetaProperty(widgetId: string) {
+    const { resetChildrenMetaProperty } = this.context;
+    if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
+  }
+
   /*
     This method calls the action to update widget height
     We're not using `updateWidgetProperty`, because, the workflow differs

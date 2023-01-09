@@ -31,6 +31,10 @@ export type ResetWidgetMetaPayload = {
   widgetId: string;
   evaluatedWidget: DataTreeWidget;
 };
+export type FocusInputMetaPayload = {
+  widgetId: string;
+  evaluatedWidget: DataTreeWidget;
+};
 
 export const resetWidgetMetaProperty = (
   widgetId: string,
@@ -45,12 +49,37 @@ export const resetWidgetMetaProperty = (
     postEvalActions: [{ type: ReduxActionTypes.RESET_WIDGET_META_EVALUATED }],
   });
 };
+export const focusInputWidgetMetaProperty = (
+  widgetId: string,
+  evaluatedWidget: DataTreeWidget,
+): BatchAction<FocusInputMetaPayload> => {
+  return batchAction({
+    type: ReduxActionTypes.FOCUS_INPUT_WIDGET_META,
+    payload: {
+      widgetId,
+      evaluatedWidget,
+    },
+    postEvalActions: [
+      { type: ReduxActionTypes.FOCUS_INPUT_WIDGET_META_EVALUATED },
+    ],
+  });
+};
 
 export const resetChildrenMetaProperty = (
   widgetId: string,
 ): ReduxAction<{ widgetId: string }> => {
   return {
     type: ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
+    payload: {
+      widgetId,
+    },
+  };
+};
+export const focusInputChildrenMetaProperty = (
+  widgetId: string,
+): ReduxAction<{ widgetId: string }> => {
+  return {
+    type: ReduxActionTypes.FOCUS_INPUT_CHILDREN_WIDGET_META,
     payload: {
       widgetId,
     },

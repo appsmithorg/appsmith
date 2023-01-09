@@ -76,6 +76,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.SET_META_PROP_AND_EVAL,
   ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,
   ReduxActionTypes.RESET_WIDGET_META,
+  ReduxActionTypes.FOCUS_INPUT_WIDGET_META,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
   // App Theme

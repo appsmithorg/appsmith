@@ -21,6 +21,10 @@ const BATCH_PRIORITY = {
     priority: 0,
     needsSaga: false,
   },
+  [ReduxActionTypes.FOCUS_INPUT_WIDGET_META]: {
+    priority: 0,
+    needsSaga: false,
+  },
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: {
     priority: 0,
     needsSaga: false,
