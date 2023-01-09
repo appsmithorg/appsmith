@@ -96,7 +96,7 @@ public class GitFileUtils {
         try {
             Mono<Path> repoPathMono = fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName).cache();
             return Mono.zip(repoPathMono, sessionUserService.getCurrentUser())
-                    .map(tuple -> {
+                    .flatMap(tuple -> {
                         stopwatch.stopTimer();
                         Path repoPath = tuple.getT1();
                         // Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/
@@ -106,8 +106,8 @@ public class GitFileUtils {
                                 FieldName.FLOW_NAME, stopwatch.getFlow(),
                                 "executionTime", stopwatch.getExecutionTime()
                         );
-                        analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
-                        return repoPath;
+                        return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data)
+                                .thenReturn(repoPath);
                     });
         } catch (IOException | GitAPIException e) {
             log.error("Error occurred while saving files to local git repo: ", e);
@@ -249,7 +249,7 @@ public class GitFileUtils {
         Mono<ApplicationGitReference> appReferenceMono = fileUtils
                 .reconstructApplicationReferenceFromGitRepo(workspaceId, defaultApplicationId, repoName, branchName);
         return Mono.zip(appReferenceMono, sessionUserService.getCurrentUser())
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     ApplicationGitReference applicationReference = tuple.getT1();
                     // Extract application metadata from the json
                     ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
@@ -262,8 +262,8 @@ public class GitFileUtils {
                             FieldName.FLOW_NAME, stopwatch.getFlow(),
                             "executionTime", stopwatch.getExecutionTime()
                     );
-                    analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
-                    return applicationJson;
+                    return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data)
+                            .thenReturn(applicationJson);
                 });
     }
 
