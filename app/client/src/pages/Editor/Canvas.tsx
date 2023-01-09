@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/react";
 import styled from "styled-components";
 import { CanvasWidgetStructure } from "widgets/constants";
 import WidgetFactory from "utils/WidgetFactory";
-import React, { memo } from "react";
+import React from "react";
 
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
