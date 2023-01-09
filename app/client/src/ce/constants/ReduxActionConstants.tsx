@@ -760,6 +760,8 @@ export const ReduxActionTypes = {
     "RESET_DATASOURCE_DEFAULT_KEY_VALUE_PAIR_SET",
   SEGMENT_INITIALIZED: "SEGMENT_INITIALIZED",
   SEGMENT_INIT_UNCERTAIN: "SEGMENT_INIT_UNCERTAIN",
+  SET_TABS_PANE_WIDTH: "SET_TABS_PANE_WIDTH",
+  SET_PANE_COUNT: "SET_PANE_COUNT",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

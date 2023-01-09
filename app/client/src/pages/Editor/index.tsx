@@ -50,6 +50,8 @@ import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
+import MultiPaneContainer from "pages/Editor/MultiPaneContainer";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -72,6 +74,7 @@ type EditorProps = {
   collabStartSharingPointerEvent: (pageId: string) => void;
   collabStopSharingPointerEvent: (pageId?: string) => void;
   pageLevelSocketRoomId: string;
+  isMultiPane: boolean;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -219,7 +222,11 @@ class Editor extends Component<Props> {
               </title>
             </Helmet>
             <GlobalHotKeys>
-              <MainContainer />
+              {this.props.isMultiPane ? (
+                <MultiPaneContainer />
+              ) : (
+                <MainContainer />
+              )}
               <GitSyncModal />
               <DisconnectGitModal />
               <GuidedTourModal />
@@ -249,6 +256,7 @@ const mapStateToProps = (state: AppState) => ({
   currentPageId: getCurrentPageId(state),
   isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
   loadingGuidedTour: loading(state),
+  isMultiPane: isMultiPaneActive(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
