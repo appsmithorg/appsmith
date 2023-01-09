@@ -18,7 +18,6 @@ import log from "loglevel";
 import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { updateFlexChildColumns } from "sagas/AutoLayoutUtils";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
@@ -60,19 +59,8 @@ function* addWidgetAndReorderSaga(
         isMobile,
       },
     );
-    let updatedWidgetsAfterResizing = updatedWidgetsOnMove;
-    if (
-      !isNewLayer &&
-      direction === LayoutDirection.Vertical &&
-      layerIndex !== undefined
-    )
-      updatedWidgetsAfterResizing = updateFlexChildColumns(
-        updatedWidgetsOnMove,
-        layerIndex,
-        parentId,
-      );
 
-    yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
+    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
     // console.error(e);

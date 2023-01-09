@@ -79,10 +79,12 @@ export function* updateFillChildInfo(
     const start = performance.now();
     const { responsiveBehavior, widgetId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const isMobile: boolean = yield select(getIsMobile);
     const updatedWidgets: CanvasWidgetsReduxState = updateFillChildStatus(
       allWidgets,
       widgetId,
       responsiveBehavior === ResponsiveBehavior.Fill,
+      isMobile,
     );
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("updating fill child info took", performance.now() - start, "ms");

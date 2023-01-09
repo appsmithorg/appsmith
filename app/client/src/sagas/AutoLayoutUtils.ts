@@ -124,130 +124,32 @@ export function* updateFlexLayersOnDelete(
   if (layerIndex === -1) return widgets;
   return updateWidgetPositions(widgets, parentId, isMobile);
 }
-// TODO: refactor these implementations
+
 export function updateFillChildStatus(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   fill: boolean,
+  isMobile: boolean,
 ) {
-  const widgets = { ...allWidgets };
+  let widgets = { ...allWidgets };
   const widget = widgets[widgetId];
   if (!widget || !widget.parentId) return widgets;
-  let canvas = getCanvas(widgets, widget.parentId);
+  const canvas = getCanvas(widgets, widget.parentId);
   if (!canvas) return widgets;
 
   const flexLayers: FlexLayer[] = canvas.flexLayers || [];
-  let layerIndex = -1;
   if (!flexLayers.length) return widgets;
-
-  const updatedLayers = flexLayers?.map((layer, index: number) => {
-    const children = layer.children || [];
-    const selectedWidgetIndex: number = children.findIndex(
-      (each: LayerChild) => each.id === widgetId,
-    );
-    if (selectedWidgetIndex === -1) return layer;
-    layerIndex = index;
-    return {
-      ...layer,
-      hasFillChild: children.reduce((acc, each, index) => {
-        const widget = widgets[each.id];
-        if (index === selectedWidgetIndex) return acc || fill;
-        return acc || widget?.responsiveBehavior === ResponsiveBehavior.Fill;
-      }, false),
-    };
-  });
-
-  canvas = {
-    ...canvas,
-    flexLayers: updatedLayers,
+  widgets = {
+    ...widgets,
+    [widgetId]: {
+      ...widget,
+      ResponsiveBehavior: fill
+        ? ResponsiveBehavior.Fill
+        : ResponsiveBehavior.Hug,
+    },
   };
-  widgets[canvas.widgetId] = canvas;
 
-  if (layerIndex === -1) return widgets;
-  return updateFlexChildColumns(widgets, layerIndex, canvas.widgetId);
-}
-
-export function updateFlexChildColumns(
-  allWidgets: CanvasWidgetsReduxState,
-  layerIndex: number,
-  parentId: string,
-): CanvasWidgetsReduxState {
-  const widgets = Object.assign({}, allWidgets);
-  const canvas = widgets[parentId];
-  const children = canvas.children;
-  if (!children || !children.length) return widgets;
-
-  const layer = canvas.flexLayers[layerIndex];
-  if (!layer || !layer?.children?.length || !layer.hasFillChild) return widgets;
-
-  const fillChildren: any[] = [];
-  const hugChildrenColumns = layer?.children?.reduce(
-    (acc: number, child: LayerChild) => {
-      const widget = widgets[child.id];
-      if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
-        fillChildren.push(widget);
-        return acc;
-      }
-      return (
-        acc +
-        (widget.columns
-          ? widget.columns
-          : widget.rightColumn - widget.leftColumn)
-      );
-    },
-    0,
-  );
-  if (!fillChildren.length) return widgets;
-
-  const columnsPerFillChild = (64 - hugChildrenColumns) / fillChildren.length;
-
-  for (const child of fillChildren) {
-    widgets[child.widgetId] = {
-      ...child,
-      rightColumn: child.leftColumn + columnsPerFillChild,
-    };
-  }
-  return widgets;
-}
-
-export function updateChildrenSize(
-  allWidgets: CanvasWidgetsReduxState,
-  parentId: string,
-  widgetId: string,
-): CanvasWidgetsReduxState {
-  const widgets = Object.assign({}, allWidgets);
-  const parent = widgets[parentId];
-  if (!parent || !parent?.flexLayers || !parent?.flexLayers?.length)
-    return widgets;
-
-  const layerIndex = parent.flexLayers.reduce(
-    (acc: number, layer: FlexLayer, index: number) => {
-      if (layer.children.some((child: LayerChild) => child.id === widgetId)) {
-        return index;
-      }
-      return acc;
-    },
-    -1,
-  );
-
-  return updateFlexChildColumns(widgets, layerIndex, parentId);
-}
-
-export function updateSizeOfAllChildren(
-  allWidgets: CanvasWidgetsReduxState,
-  parentId: string,
-): CanvasWidgetsReduxState {
-  let widgets = Object.assign({}, allWidgets);
-  const parent = widgets[parentId];
-
-  if (!parent || !parent?.flexLayers || !parent?.flexLayers?.length)
-    return widgets;
-
-  for (let i = 0; i < parent.flexLayers.length; i++) {
-    widgets = updateFlexChildColumns(widgets, i, parentId);
-  }
-
-  return widgets;
+  return updateWidgetPositions(widgets, canvas.widgetId, isMobile);
 }
 
 export function alterLayoutForMobile(
