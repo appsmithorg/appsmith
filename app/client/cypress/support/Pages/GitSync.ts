@@ -133,7 +133,7 @@ export class GitSync {
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
-        //this.ReplaceForForGit("cypress/fixtures/Bugs/GitConnectResponse.json");
+        this.ReplaceForGit("cypress/fixtures/Bugs/GitConnectResponse.json", remoteUrl);
         //cy.get('@connectGitLocalRepo').its('response.statusCode').should('equal', 200);
         //this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
 
@@ -154,29 +154,28 @@ export class GitSync {
     });
   }
 
-  //Not used:
-  // private ReplaceForForGit(fixtureFile: any) {
-  //   let currentAppId, currentURL;
-  //   cy.readFile(
-  //     fixtureFile,
-  //     // (err: string) => {
-  //     // if (err) {
-  //     //   return console.error(err);
-  //     // }}
-  //   ).then((data) => {
-  //     cy.url().then((url) => {
-  //       currentURL = url;
-  //       const myRegexp = /page-1(.*)/;
-  //       const match = myRegexp.exec(currentURL);
-  //       cy.log(currentURL + "currentURL from intercept is");
-  //       currentAppId = match ? match[1].split("/")[1] : null;
-  //       data.data.id = currentAppId;
-  //       data.data.gitApplicationMetadata.defaultApplicationId = currentAppId;
-
-  //       cy.writeFile(fixtureFile, JSON.stringify(data));
-  //     });
-  //   });
-  // }
+  private ReplaceForGit(fixtureFile: any, remoteUrl: string) {
+    let currentAppId, currentURL;
+    cy.readFile(
+      fixtureFile,
+      // (err: string) => {
+      // if (err) {
+      //   return console.error(err);
+      // }}
+    ).then((data) => {
+      cy.url().then((url) => {
+        currentURL = url;
+        const myRegexp = /page-1(.*)/;
+        const match = myRegexp.exec(currentURL);
+        cy.log(currentURL + "currentURL from intercept is");
+        currentAppId = match ? match[1].split("/")[1] : null;
+        data.data.id = currentAppId;
+        data.data.gitApplicationMetadata.defaultApplicationId = currentAppId;
+        data.data.gitApplicationMetadata.remoteUrl = remoteUrl;
+        cy.writeFile(fixtureFile, JSON.stringify(data));
+      });
+    });
+  }
 
   private CreateTestGithubRepo(repo: string, privateFlag = false) {
     cy.request({
