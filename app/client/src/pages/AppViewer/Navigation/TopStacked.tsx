@@ -7,7 +7,7 @@ import {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { isEllipsisActive, trimQueryString } from "utils/helpers";
-import { getTypographyByKey, TooltipComponent } from "design-system";
+import { getTypographyByKey, Icon, TooltipComponent } from "design-system";
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -18,6 +18,7 @@ import {
   getMenuItemBackgroundColorWhenActive,
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
+  getApplicationNameTextColor,
 } from "../utils";
 import {
   NavigationSettingsColorStyle,
@@ -29,7 +30,7 @@ const StyledMenuItem = styled(NavLink)<{
   navColorStyle: NavigationSettingsColorStyle;
 }>`
   display: flex;
-  max-width: 170px;
+  max-width: 220px;
   align-self: flex-end;
   cursor: pointer;
   text-decoration: none;
@@ -67,7 +68,7 @@ const StyledMenuItemText = styled.div<{
 
   & span {
     height: 100%;
-    max-width: 138px;
+    max-width: 162px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -166,6 +167,8 @@ const MenuItem = ({ page, query }: MenuItemProps) => {
     "properties.colors.primaryColor",
     "inherit",
   );
+  // Remove LOC below
+  const showIcon = true;
 
   return (
     <StyledMenuItem
@@ -178,6 +181,14 @@ const MenuItem = ({ page, query }: MenuItemProps) => {
         search: query,
       }}
     >
+      {showIcon && (
+        <Icon
+          className="mr-2"
+          fillColor={getApplicationNameTextColor(primaryColor, navColorStyle)}
+          name="file-line"
+          size="large"
+        />
+      )}
       <MenuText
         name={page.pageName}
         navColorStyle={navColorStyle}
