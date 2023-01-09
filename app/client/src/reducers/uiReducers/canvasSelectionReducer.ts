@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 
 const initialState: CanvasSelectionState = {
   isDraggingForSelection: false,
