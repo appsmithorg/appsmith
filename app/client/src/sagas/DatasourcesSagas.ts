@@ -536,7 +536,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     id: actionPayload.payload.id as any,
   };
 
-  if (!equal(initialValues, values)) {
+  // when datasource is not yet saved by user, datasource id is temporary
+  // for temporary datasource, we do not need to pass datasource id in test api call
+  if (!equal(initialValues, values) || datasource?.id === TEMP_DATASOURCE_ID) {
     delete payload.id;
   }
 

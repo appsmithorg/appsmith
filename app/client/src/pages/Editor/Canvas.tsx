@@ -15,19 +15,23 @@ interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
   pageId: string;
   canvasWidth: number;
+  canvasScale?: number;
 }
 
 const Container = styled.section<{
   background: string;
   width: number;
+  $canvasScale: number;
 }>`
   background: ${({ background }) => background};
   width: ${(props) => props.width}px;
+  transform: scale(${(props) => props.$canvasScale});
+  transformOrigin: "0 0 
 `;
 
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
-  const { canvasWidth } = props;
+  const { canvasScale = 1, canvasWidth, pageId } = props;
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
 
@@ -47,6 +51,7 @@ const Canvas = memo((props: CanvasProps) => {
   try {
     return (
       <Container
+        $canvasScale={canvasScale}
         background={backgroundForCanvas}
         className="relative mx-auto t--canvas-artboard pb-52"
         data-testid="t--canvas-artboard"
