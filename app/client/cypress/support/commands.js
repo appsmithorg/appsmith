@@ -1172,7 +1172,9 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess).should("exist", { timeout: 40000 });
+  cy.get(commonlocators.saveStatusContainer).should("not.exist", {
+    timeout: 40000,
+  });
 });
 
 Cypress.Commands.add(
