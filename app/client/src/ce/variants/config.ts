@@ -11,6 +11,9 @@ export interface EndpointGroups {
   entryexitmgmtGraphQL: string;
   unleash: string;
   unleashKey: string;
+  draft: string;
+  zeus: string;
+  grpcTranscode: string;
 }
 
 export enum EnvKeys {

@@ -14,6 +14,9 @@ const endpointProduction: EndpointGroups = {
   unleash: "https://admin.prod.aic.manabie.io:31600/unleash",
   unleashKey:
     "ce4ed2eba3a72d6b5be23c7aa9b71178753f5908cf2dcbbca29442b5b81d397f",
+  draft: "https://prod.manabie-vn.manabie.io:31600/draftv2",
+  zeus: "https://prod.manabie-vn.manabie.io:31600/zeusv2",
+  grpcTranscode: "https://api.prod.manabie-vn.manabie.io:31400",
 };
 
 const endpointUAT: EndpointGroups = {
@@ -30,6 +33,9 @@ const endpointUAT: EndpointGroups = {
   unleash: "https://admin.uat.manabie.io/unleash",
   unleashKey:
     "ce4ed2eba3a72d6b5be23c7aa9b71178753f5908cf2dcbbca29442b5b81d397f",
+  draft: "https://admin.uat.manabie.io/draftv2",
+  zeus: "https://admin.uat.manabie.io/zeusv2",
+  grpcTranscode: "https://api.uat.manabie.io",
 };
 
 const endpointStaging: EndpointGroups = {
@@ -46,6 +52,9 @@ const endpointStaging: EndpointGroups = {
   unleash: "https://admin.staging.manabie.io/unleash",
   unleashKey:
     "ce4ed2eba3a72d6b5be23c7aa9b71178753f5908cf2dcbbca29442b5b81d397f",
+  draft: "https://admin.staging.manabie.io/draftv2",
+  zeus: "https://admin.staging.manabie.io/zeusv2",
+  grpcTranscode: "https://api.staging-green.manabie.io",
 };
 
 const configs: ConfigurationEnvKeys = {
