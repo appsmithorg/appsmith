@@ -21,7 +21,7 @@ export const defaultBrandingConfig = {
   brandLogoUrl: "https://assets.appsmith.com/appsmith-logo.svg",
 };
 
-export const initialState: TenantReduxState<unknown> = {
+export const initialState: TenantReduxState<any> = {
   userPermissions: [],
   tenantConfiguration: {
     brandColors: {
@@ -34,14 +34,14 @@ export const initialState: TenantReduxState<unknown> = {
 
 export const handlers = {
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG]: (
-    state: TenantReduxState<unknown>,
+    state: TenantReduxState<any>,
   ) => ({
     ...state,
     isLoading: true,
   }),
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
-    state: TenantReduxState<unknown>,
-    action: ReduxAction<TenantReduxState<unknown>>,
+    state: TenantReduxState<any>,
+    action: ReduxAction<TenantReduxState<any>>,
   ) => ({
     ...state,
     userPermissions: action.payload.userPermissions || [],
@@ -52,7 +52,7 @@ export const handlers = {
     isLoading: false,
   }),
   [ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR]: (
-    state: TenantReduxState<unknown>,
+    state: TenantReduxState<any>,
   ) => ({
     ...state,
     isLoading: false,
