@@ -4,43 +4,27 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
+export type SelectionRequest = string | string[];
+
 export type SelectWidgetActionPayload = {
-  widgetId?: string;
+  selectionRequest: SelectionRequest;
   isMultiSelect?: boolean;
   selectSiblings?: boolean;
 };
 
-export type SelectMultipleWidgetsActionPayload = { widgetIds?: string[] };
-
 // Use to select a widget programmatically via platform action
 export const selectWidgetInitAction = (
-  widgetId?: string,
+  selectionRequest: SelectionRequest,
   isMultiSelect?: boolean,
   selectSiblings?: boolean,
 ): ReduxAction<SelectWidgetActionPayload> => ({
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
-  payload: { widgetId, isMultiSelect, selectSiblings },
+  payload: { selectionRequest, isMultiSelect, selectSiblings },
 });
-
-export const selectMultipleWidgetsAction = (
-  widgetIds?: string[],
-): ReduxAction<SelectMultipleWidgetsActionPayload> => {
-  return {
-    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
-    payload: { widgetIds },
-  };
-};
 
 export const selectAllWidgetsInCanvasInitAction = () => {
   return {
     type: ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
-  };
-};
-
-export const selectMultipleWidgetsInitAction = (widgetIds: string[]) => {
-  return {
-    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
-    payload: { widgetIds },
   };
 };
 

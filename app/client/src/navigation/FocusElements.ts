@@ -37,7 +37,7 @@ import {
   getSelectedWidgets,
   isDatasourceInViewMode,
 } from "selectors/ui";
-import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { FocusEntity } from "navigation/FocusEntity";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -180,7 +180,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     {
       name: FocusElement.SelectedWidgets,
       selector: getSelectedWidgets,
-      setter: selectMultipleWidgetsInitAction,
+      setter: selectWidgetInitAction,
       defaultValue: [],
     },
     {

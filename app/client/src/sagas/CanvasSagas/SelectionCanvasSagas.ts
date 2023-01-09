@@ -1,4 +1,4 @@
-import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   ReduxAction,
@@ -26,6 +26,7 @@ interface StartingSelectionState {
       }
     | undefined;
 }
+
 function* selectAllWidgetsInAreaSaga(
   StartingSelectionState: StartingSelectionState,
   action: ReduxAction<any>,
@@ -99,7 +100,7 @@ function* selectAllWidgetsInAreaSaga(
     const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
 
     if (!equal(filteredWidgetsToSelect, currentSelectedWidgets)) {
-      yield put(selectMultipleWidgetsAction(filteredWidgetsToSelect));
+      yield put(selectWidgetInitAction(filteredWidgetsToSelect));
     }
   }
 }

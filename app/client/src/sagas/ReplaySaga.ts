@@ -16,10 +16,7 @@ import {
   getCurrentWidgetId,
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
-import {
-  selectMultipleWidgetsInitAction,
-  selectWidgetInitAction,
-} from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -155,7 +152,7 @@ export function* postUndoRedoSaga(replay: any) {
     const widgetIds = Object.keys(replay.widgets);
 
     if (widgetIds.length > 1) {
-      yield put(selectMultipleWidgetsInitAction(widgetIds));
+      yield put(selectWidgetInitAction(widgetIds));
     } else {
       yield put(selectWidgetInitAction(widgetIds[0], false));
     }
@@ -268,7 +265,7 @@ function* replayThemeSaga(replayEntity: Canvas, replay: any) {
     yield put(setAppThemingModeStackAction([]));
   }
 
-  yield put(selectWidgetInitAction());
+  yield put(selectWidgetInitAction([]));
 
   // todo(pawan): check with arun/rahul on how we can get rid of this check
   // better way to do is set shouldreplay = false when evaluating tree

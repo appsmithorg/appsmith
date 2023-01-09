@@ -1,4 +1,3 @@
-import { areArraysEqual } from "utils/AppsmithUtils";
 import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
@@ -78,20 +77,6 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     action: ReduxAction<{ lastSelectedWidget: string }>,
   ) => {
     state.lastSelectedWidget = action.payload.lastSelectedWidget;
-  },
-  [ReduxActionTypes.SELECT_MULTIPLE_WIDGETS]: (
-    state: WidgetDragResizeState,
-    action: ReduxAction<{ widgetIds?: string[] }>,
-  ) => {
-    const { widgetIds } = action.payload;
-    if (widgetIds && !areArraysEqual(widgetIds, state.selectedWidgets)) {
-      state.selectedWidgets = widgetIds || [];
-      if (widgetIds.length > 1) {
-        state.lastSelectedWidget = "";
-      } else {
-        state.lastSelectedWidget = widgetIds[0];
-      }
-    }
   },
   [ReduxActionTypes.FOCUS_WIDGET]: (
     state: WidgetDragResizeState,

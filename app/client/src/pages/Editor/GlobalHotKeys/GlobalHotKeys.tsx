@@ -406,7 +406,7 @@ const mapDispatchToProps = (dispatch: any) => {
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
-    deselectAllWidgets: () => dispatch(selectWidgetInitAction()),
+    deselectAllWidgets: () => dispatch(selectWidgetInitAction("")),
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),

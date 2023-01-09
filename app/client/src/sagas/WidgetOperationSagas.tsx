@@ -60,7 +60,7 @@ import {
   getContainerWidgetSpacesSelector,
   getCanvasHeightOffset,
 } from "selectors/editorSelectors";
-import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
@@ -592,6 +592,7 @@ export function* getIsContainerLikeWidget(widget: FlattenedWidgetProps) {
   }
   return false;
 }
+
 export function* getPropertiesUpdatedWidget(
   updatesObj: UpdateWidgetPropertyPayload,
 ) {
@@ -1723,7 +1724,7 @@ function* pasteWidgetSaga(
     flashElementsById(newlyCreatedWidgetIds, 100);
   }
 
-  yield put(selectMultipleWidgetsInitAction(newlyCreatedWidgetIds));
+  yield put(selectWidgetInitAction(newlyCreatedWidgetIds));
 }
 
 function* cutWidgetSaga() {

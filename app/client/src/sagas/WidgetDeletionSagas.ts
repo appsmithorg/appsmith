@@ -41,6 +41,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -242,7 +243,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
-          yield put(selectWidgetInitAction(undefined));
+          yield put(selectWidgetInitAction([]));
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
       }
