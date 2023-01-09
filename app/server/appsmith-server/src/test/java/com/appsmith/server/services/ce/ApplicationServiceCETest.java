@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
@@ -44,6 +44,19 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
+import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -118,13 +131,13 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class ApplicationServiceTest {
+public class ApplicationServiceCETest {
 
     @Autowired
     ApplicationService applicationService;
 
     @Autowired
-    ApplicationPageService applicationPageService;
+    ApplicationPageServiceCE applicationPageService;
 
     @Autowired
     UserService userService;
@@ -3284,5 +3297,93 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+
+    /**
+     * Test case which proves the non-dependency of isPublic Field in Update Application API Response
+     * on the deprecated Application collection isPublic field for a public application
+     * The following steps are followed:
+     *  1. Create a new app
+     *  2. Invoke the changeViewAccess method to set the App "Public"
+     *  3. Invoke the update method and assert the "isPublic" field in the response
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validPublicAppUpdateApplication() {
+        Application application = new Application();
+        application.setName("validPublicAppUpdateApplication-Test");
+
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        /**
+         * Making the App public using changeViewAccess method which changes the permission groups of the app to allow public access
+         */
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+        Application publicAccessApplication = applicationService.changeViewAccess(createdApplication.getId(), applicationAccessDTO).block();
+
+        /**
+         * setIsPublic to False, purposely set to prove non-dependency on this field of the output
+         */
+        publicAccessApplication.setIsPublic(false);
+
+        /**
+         * Using the Update App method and asserting the response to verify the isPublic field in the response is True
+         * which proves it's non-dependency on the deprecated Application collection isPublic field
+         * and shows it dependency on the actual app permissions and state of the app which has been set public in this case
+        **/
+        Mono<Application> updatedApplication = applicationService.update(createdApplication.getId(), publicAccessApplication);
+        StepVerifier.create(updatedApplication)
+                .assertNext(t -> {
+                    assertThat(t).isNotNull();
+                    assertThat(t.getId()).isNotNull();
+                    assertThat(t.getIsPublic()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Test case which proves the non-dependency of isPublic Field in Update Application API Response
+     * on the deprecated Application collection isPublic field for a public application
+     * The following steps are followed:
+     *  1. Create a new app
+     *  2. Invoke the changeViewAccess method to set the App "Public"
+     *  3. Invoke the update method and assert the "isPublic" field in the response
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void validPrivateAppUpdateApplication() {
+        Application application = new Application();
+        application.setName("validPrivateAppUpdateApplication-Test");
+
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        /**
+         * Making the App private using changeViewAccess method which changes the permission groups of the app to restrict public access
+         */
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(false);
+
+        Application privateAccessApplication = applicationService.changeViewAccess(createdApplication.getId(), applicationAccessDTO).block();
+
+        /**
+         * setIsPublic to True, purposely set to prove non-dependency on this field of the output
+         */
+        privateAccessApplication.setIsPublic(true);
+
+        /**
+         * Using the Update App method and asserting the response to verify the isPublic field in the response is False
+         * which proves it's non-dependency on the deprecated Application collection isPublic field
+         * and shows it dependency on the actual app permissions and state of the app which has been set private in this case
+         **/
+        Mono<Application> updatedApplication = applicationService.update(createdApplication.getId(), privateAccessApplication);
+        StepVerifier.create(updatedApplication)
+                .assertNext(t -> {
+                    assertThat(t).isNotNull();
+                    assertThat(t.getId()).isNotNull();
+                    assertThat(t.getIsPublic()).isFalse();
+                })
+                .verifyComplete();
     }
 }

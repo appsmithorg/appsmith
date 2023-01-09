@@ -99,7 +99,7 @@ outline: none;
 padding: 0px 10px;
 gap: 8px;
 
-&:hover, &:active {
+&:hover, &:active, &:focus {
   ${buttonHoverActiveStyles}
  }
 

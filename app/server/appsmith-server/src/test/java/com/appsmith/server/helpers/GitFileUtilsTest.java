@@ -45,20 +45,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class GitFileUtilsTest {
 
+    private static final Path localRepoPath = Path.of("localRepoPath");
+    private static final String filePath = "test_assets/ImportExportServiceTest/valid-application.json";
     @MockBean
     FileInterface fileInterface;
-
     @Autowired
     GitFileUtils gitFileUtils;
-
     @Autowired
     AnalyticsService analyticsService;
-
     @Autowired
     SessionUserService userService;
-
-    private static String filePath = "test_assets/ImportExportServiceTest/valid-application.json";
-    private static final Path localRepoPath = Path.of("localRepoPath");
+    @Autowired
+    Gson gson;
 
     private Mono<ApplicationJson> createAppJson(String filePath) {
         FilePart filePart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
@@ -82,7 +80,6 @@ public class GitFileUtilsTest {
 
         return stringifiedFile
                 .map(data -> {
-                    Gson gson = new Gson();
                     return gson.fromJson(data, ApplicationJson.class);
                 })
                 .map(JsonSchemaMigration::migrateApplicationToLatestSchema);

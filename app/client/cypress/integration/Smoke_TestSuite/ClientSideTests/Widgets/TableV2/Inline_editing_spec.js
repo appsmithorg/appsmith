@@ -307,26 +307,26 @@ describe("Table widget inline editing functionality", () => {
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--button-tab-CUSTOM").click({ force: true });
+    cy.get(".t--button-group-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("task");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--button-tab-ROW_LEVEL").click({ force: true });
+    cy.get(".t--button-group-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--button-tab-CUSTOM").click({ force: true });
+    cy.get(".t--button-group-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("step");
     cy.makeColumnEditable("task");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--button-tab-ROW_LEVEL").click({ force: true });
+    cy.get(".t--button-group-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
   });
 
@@ -787,7 +787,7 @@ describe("Table widget inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
 
     cy.makeColumnEditable("step");
-    cy.get(".t--button-tab-CUSTOM").click({ force: true });
+    cy.get(".t--button-group-CUSTOM").click({ force: true });
     cy.wait(1000);
 
     // case 1: check if updatedRowIndex is 0, when cell at row 0 is updated.

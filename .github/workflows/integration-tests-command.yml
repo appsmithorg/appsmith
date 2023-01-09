@@ -151,12 +151,12 @@ jobs:
         run: echo ${{ steps.run_result.outputs.run_result }}
 
       # Setup Java
-      - name: Set up JDK 1.11
+      - name: Set up JDK 17
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-java@v3
         with:
-          java-version: "11.0.10"
-          distribution: adopt
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Download the client build artifact
         uses: actions/download-artifact@v3
@@ -226,6 +226,7 @@ jobs:
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_AUDITLOG_ENABLED=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            --add-host=host.docker.internal:host-gateway \
             fatcontainer
 
       - name: Use Node.js 16.14.0
@@ -584,6 +585,13 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
+
+        # Setup Java
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
