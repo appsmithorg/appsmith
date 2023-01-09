@@ -222,22 +222,170 @@ describe("Test JSToString", () => {
 });
 
 describe("Test modalSetter", () => {
-  const result = modalSetter("Modal1", "{{closeModal()}}");
-  expect(result).toStrictEqual("{{closeModal('Modal1');}}");
+  const cases = [
+    {
+      index: 1,
+      input: "{{showModal('')}}",
+      expected: "{{showModal('Modal1');}}",
+      value: "Modal1",
+    },
+    {
+      index: 2,
+      input: "{{showModal('Modal1')}}",
+      expected: "{{showModal('Modal2');}}",
+      value: "Modal2",
+    },
+    {
+      index: 3,
+      input: "{{closeModal('')}}",
+      expected: "{{closeModal('Modal1');}}",
+      value: "Modal1",
+    },
+    {
+      index: 4,
+      input: "{{closeModal('Modal1')}}",
+      expected: "{{closeModal('Modal2');}}",
+      value: "Modal2",
+    },
+  ];
+  test.each(cases.map((x) => [x.index, x.input, x.expected, x.value]))(
+    "test case %d",
+    (index, input, expected, value) => {
+      const result = modalSetter(value as string, input as string);
+      expect(result).toStrictEqual(expected);
+    },
+  );
 });
 
 describe("Test modalGetter", () => {
-  const result = modalGetter("{{showModal('Modal1')}}");
-  expect(result).toStrictEqual("Modal1");
+  const cases = [
+    {
+      index: 1,
+      input: "{{showModal('')}}",
+      expected: "",
+    },
+    {
+      index: 2,
+      input: "{{showModal('Modal1')}}",
+      expected: "Modal1",
+    },
+    {
+      index: 3,
+      input: "{{closeModal('')}}",
+      expected: "",
+    },
+    {
+      index: 4,
+      input: "{{closeModal('Modal1')}}",
+      expected: "Modal1",
+    },
+  ];
+  test.each(cases.map((x) => [x.index, x.input, x.expected]))(
+    "test case %d",
+    (index, input, expected) => {
+      const result = modalGetter(input as string);
+      expect(result).toStrictEqual(expected);
+    },
+  );
 });
 
 describe("Test textSetter", () => {
-  const result = textSetter(
-    "google.com",
-    "{{navigateTo('', {}, NEW_WINDOW)}}",
-    0,
-  );
-  expect(result).toStrictEqual("{{navigateTo('google.com', {}, NEW_WINDOW);}}");
+  const cases = [
+    {
+      index: 0,
+      input: '{{navigateTo("", {}, NEW_WINDOW)}}',
+      expected: '{{navigateTo("google.com", {}, NEW_WINDOW);}}',
+      argNum: 0,
+      value: "google.com",
+    },
+    {
+      index: 1,
+      input: '{{download("image", "", "")}}',
+      expected: '{{download("image", "img.png", "");}}',
+      argNum: 1,
+      value: "img.png",
+    },
+    {
+      index: 2,
+      input: "{{showAlert(1, 'info')}}",
+      expected: "{{showAlert(true, 'info');}}",
+      argNum: 0,
+      value: "{{true}}",
+    },
+    {
+      index: 3,
+      input: '{{showAlert("hi", "info")}}',
+      expected: '{{showAlert("bye", "info");}}',
+      argNum: 0,
+      value: "bye",
+    },
+    {
+      index: 4,
+      input: '{{showAlert("hi", "")}}',
+      expected: '{{showAlert("", "");}}',
+      argNum: 0,
+      value: "",
+    },
+    {
+      index: 5,
+      input: "{{showAlert('', '')}}",
+      expected: "{{showAlert(1, '');}}",
+      argNum: 0,
+      value: "{{1}}",
+    },
+    {
+      index: 6,
+      input: "{{showAlert(true, '')}}",
+      expected: "{{showAlert(appsmith.mode, '');}}",
+      argNum: 0,
+      value: "{{appsmith.mode}}",
+    },
+    {
+      index: 7,
+      input: "{{showAlert(appsmith.mode, '')}}",
+      expected: "{{showAlert(\"\", '');}}",
+      argNum: 0,
+      value: "",
+    },
+    {
+      index: 8,
+      input: "{{showAlert(JSobj1.myText, '')}}",
+      expected: "{{showAlert(JSobj1.myText, '');}}",
+      argNum: 0,
+      value: "{{JSobj1.myText}}",
+    },
+    {
+      index: 9,
+      input: '{{showAlert("", "");}}',
+      expected: '{{showAlert("r" + "p" + "rdpp", "");}}',
+      argNum: 0,
+      value: '{{"r" + "p" + "rdpp"}}',
+    },
+    {
+      index: 10,
+      input: '{{showAlert("", "");}}',
+      expected: '{{showAlert(JSObject1.myVar1 + "dfd", "");}}',
+      argNum: 0,
+      value: '{{JSObject1.myVar1 + "dfd"}}',
+    },
+    {
+      index: 11,
+      input: '{{showAlert(true, "");}}',
+      expected: '{{showAlert(() => {\n  return "hi";\n}, "");}}',
+      argNum: 0,
+      value: '{{() => {\n  return "hi";\n}}}',
+    },
+  ];
+  test.each(
+    cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),
+  )("test case %d", (index, input, expected, value, argNum) => {
+    const result = textSetter(
+      value as string,
+      input as string,
+      argNum as number,
+    );
+    expect(result).toStrictEqual(expected);
+  });
 });
 
 describe("Test textGetter", () => {
@@ -246,17 +394,91 @@ describe("Test textGetter", () => {
       index: 0,
       input: "{{navigateTo('google.com', {}, NEW_WINDOW)}}",
       expected: "google.com",
+      argNum: 0,
     },
     {
       index: 1,
       input: "{{navigateTo('google.com', {}, NEW_WINDOW)}}",
       expected: "{{{}}}",
+      argNum: 1,
+    },
+    {
+      index: 2,
+      input: "{{showAlert('', 'info')}}",
+      expected: "",
+      argNum: 0,
+    },
+    {
+      index: 3,
+      input: "{{showAlert('hi', 'info')}}",
+      expected: "hi",
+      argNum: 0,
+    },
+    {
+      index: 4,
+      input: "{{showAlert('hi', '')}}",
+      expected: "hi",
+      argNum: 0,
+    },
+    {
+      index: 5,
+      input: "{{showAlert(1, '')}}",
+      expected: "{{1}}",
+      argNum: 0,
+    },
+    {
+      index: 6,
+      input: "{{showAlert(true, '')}}",
+      expected: "{{true}}",
+      argNum: 0,
+    },
+    {
+      index: 7,
+      input: "{{showAlert(appsmith.mode, '')}}",
+      expected: "{{appsmith.mode}}",
+      argNum: 0,
+    },
+    {
+      index: 8,
+      input: "{{showAlert(JSobj1.myText, '')}}",
+      expected: "{{JSobj1.myText}}",
+      argNum: 0,
+    },
+    {
+      index: 9,
+      input: '{{showAlert("r" + "p" + "rdpp", "");}}',
+      expected: '{{"r" + "p" + "rdpp"}}',
+      argNum: 0,
+    },
+    {
+      index: 10,
+      input: '{{showAlert(JSObject1.myVar1 + "dfd", "");}}',
+      expected: '{{JSObject1.myVar1 + "dfd"}}',
+      argNum: 0,
+    },
+    {
+      index: 11,
+      input: '{{showAlert(() =>{return "hi"}, "");}}',
+      expected: '{{() => {\n  return "hi";\n}}}',
+      argNum: 0,
+    },
+    {
+      index: 12,
+      input: '{{storeValue("a", 1).then(showAlert("yo"))}}',
+      expected: "a",
+      argNum: 0,
+    },
+    {
+      index: 13,
+      input: '{{storeValue("a", 1).then(() => showAlert("yo"))}}',
+      expected: "a",
+      argNum: 0,
     },
   ];
-  test.each(cases.map((x) => [x.index, x.input, x.expected]))(
+  test.each(cases.map((x) => [x.index, x.input, x.expected, x.argNum]))(
     "test case %d",
-    (index, input, expected) => {
-      const result = textGetter(input as string, index as number);
+    (index, input, expected, argNum) => {
+      const result = textGetter(input as string, argNum as number);
       expect(result).toStrictEqual(expected);
     },
   );
@@ -316,36 +538,30 @@ describe("Test enumTypeGetter", () => {
   const cases = [
     {
       index: 0,
-      value: "success",
       input: "{{showAlert('hi','info')}}",
-      expected: "{{showAlert('hi','info')}}",
+      expected: "'info'",
       argNum: 1,
     },
     {
       index: 1,
-      value: "info",
-      input: "{{showAlert(,'error')}}",
-      expected: "{{showAlert(,'error')}}",
+      input: "{{showAlert('','error')}}",
+      expected: "'error'",
       argNum: 1,
     },
     {
       index: 2,
-      value: "info",
-      input: "{{showAlert()}}",
-      expected: "{{showAlert()}}",
-      argNum: 1,
+      input: "{{navigateTo('Page1', {}, 'SAME_WINDOW');}}",
+      expected: "'Page1'",
+      argNum: 0,
     },
   ];
-  test.each(
-    cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),
-  )("test case %d", (index, input, expected, value, argNum) => {
-    const result = enumTypeGetter(
-      value as string,
-      argNum as number,
-      input as string,
-    );
-    expect(result).toStrictEqual(expected);
-  });
+  test.each(cases.map((x) => [x.index, x.input, x.expected, x.argNum]))(
+    "test case %d",
+    (index, input, expected, argNum) => {
+      const result = enumTypeGetter(input as string, argNum as number);
+      expect(result).toStrictEqual(expected);
+    },
+  );
 });
 
 describe("Test isValueValidURL", () => {
