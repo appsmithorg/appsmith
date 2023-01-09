@@ -25,10 +25,6 @@ import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
 import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
 import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
-import {
-  ActionDescription,
-  ActionTriggerType,
-} from "@appsmith/entities/DataTree/actionTriggers";
 import { clearActionResponse } from "actions/pluginActionActions";
 import {
   closeModalSaga,
@@ -53,6 +49,7 @@ import {
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -73,7 +70,7 @@ export function* executeActionTriggers(
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
   switch (trigger.type) {
-    case ActionTriggerType.RUN_PLUGIN_ACTION:
+    case "RUN_PLUGIN_ACTION":
       response = yield call(
         executePluginActionTriggerSaga,
         trigger.payload,
@@ -81,46 +78,46 @@ export function* executeActionTriggers(
         triggerMeta,
       );
       break;
-    case ActionTriggerType.CLEAR_PLUGIN_ACTION:
+    case "CLEAR_PLUGIN_ACTION":
       yield put(clearActionResponse(trigger.payload.actionId));
       break;
-    case ActionTriggerType.NAVIGATE_TO:
+    case "NAVIGATE_TO":
       yield call(navigateActionSaga, trigger.payload);
       break;
-    case ActionTriggerType.SHOW_ALERT:
+    case "SHOW_ALERT":
       yield call(showAlertSaga, trigger.payload);
       break;
-    case ActionTriggerType.SHOW_MODAL_BY_NAME:
+    case "SHOW_MODAL_BY_NAME":
       yield call(openModalSaga, trigger);
       break;
-    case ActionTriggerType.CLOSE_MODAL:
+    case "CLOSE_MODAL":
       yield call(closeModalSaga, trigger);
       break;
-    case ActionTriggerType.STORE_VALUE:
+    case "STORE_VALUE":
       yield call(storeValueLocally, trigger.payload);
       break;
-    case ActionTriggerType.REMOVE_VALUE:
+    case "REMOVE_VALUE":
       yield call(removeLocalValue, trigger.payload);
       break;
-    case ActionTriggerType.CLEAR_STORE:
+    case "CLEAR_STORE":
       yield call(clearLocalStore);
       break;
-    case ActionTriggerType.DOWNLOAD:
+    case "DOWNLOAD":
       yield call(downloadSaga, trigger.payload);
       break;
-    case ActionTriggerType.COPY_TO_CLIPBOARD:
+    case "COPY_TO_CLIPBOARD":
       yield call(copySaga, trigger.payload);
       break;
-    case ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME:
+    case "RESET_WIDGET_META_RECURSIVE_BY_NAME":
       yield call(resetWidgetActionSaga, trigger.payload);
       break;
-    case ActionTriggerType.SET_INTERVAL:
+    case "SET_INTERVAL":
       yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
       break;
-    case ActionTriggerType.CLEAR_INTERVAL:
+    case "CLEAR_INTERVAL":
       yield call(clearIntervalSaga, trigger.payload);
       break;
-    case ActionTriggerType.GET_CURRENT_LOCATION:
+    case "GET_CURRENT_LOCATION":
       response = yield call(
         getCurrentLocationSaga,
         trigger.payload,
@@ -129,7 +126,7 @@ export function* executeActionTriggers(
       );
       break;
 
-    case ActionTriggerType.WATCH_CURRENT_LOCATION:
+    case "WATCH_CURRENT_LOCATION":
       response = yield call(
         watchCurrentLocation,
         trigger.payload,
@@ -138,10 +135,10 @@ export function* executeActionTriggers(
       );
       break;
 
-    case ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION:
+    case "STOP_WATCHING_CURRENT_LOCATION":
       response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
       break;
-    case ActionTriggerType.CONFIRMATION_MODAL:
+    case "CONFIRMATION_MODAL":
       const payloadInfo = {
         name: trigger?.payload?.funName,
         modalOpen: true,
@@ -152,7 +149,7 @@ export function* executeActionTriggers(
         throw new UserCancelledActionExecutionError();
       }
       break;
-    case ActionTriggerType.POST_MESSAGE:
+    case "POST_MESSAGE":
       yield call(postMessageSaga, trigger.payload, triggerMeta);
       break;
     default:

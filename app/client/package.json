@@ -46,7 +46,7 @@
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system": "npm:@appsmithorg/design-system@1.0.42",
+    "design-system": "npm:@appsmithorg/design-system@1.0.44",
     "downloadjs": "^1.4.7",
     "draft-js": "^0.11.7",
     "exceljs-lightweight": "^1.14.0",
@@ -241,7 +241,6 @@
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
     "babel-plugin-module-resolver": "^4.1.0",
-    "babel-plugin-styled-components": "^2.0.7",
     "chalk": "^4.1.1",
     "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
@@ -302,8 +301,8 @@
     "focus-trap-react/**/tabbable": "5.2.1",
     "json-schema": "0.4.0",
     "node-fetch": "2.6.7",
-    "babel-plugin-styled-components": "2.0.7",
     "minimatch": "^5.0.0",
-    "loader-utils": "^2.0.4"
+    "loader-utils": "^2.0.4",
+    "json5": "2.2.3"
   }
 }
