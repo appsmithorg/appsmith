@@ -5,8 +5,8 @@ import lombok.Setter;
 import org.springframework.util.StringUtils;
 
 /**
- * This class is for generating keys for dscontext.
- * The object of this class will be used as keys for dscontext
+ * This class is for generating keys for dsContext.
+ * The object of this class will be used as keys for dsContext
  */
 @Getter
 @Setter
@@ -32,7 +32,7 @@ public class DsContextMapKey {
             return true;
         }
 
-        if (!(obj instanceof DsContextMapKey) || obj == null) {
+        if (!(obj instanceof DsContextMapKey)) {
             return false;
         }
         DsContextMapKey keyObj = (DsContextMapKey)  obj;

@@ -312,7 +312,6 @@ public class DatasourceContextServiceTest {
         assertTrue(((UpdatableConnection) dsc2.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof BasicAuth);
     }
 
-
     @Test
     public void verifyDsMapKeyEquality() {
         String dsId = new ObjectId().toHexString();

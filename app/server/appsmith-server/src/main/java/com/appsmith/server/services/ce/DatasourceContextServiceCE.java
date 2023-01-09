@@ -20,7 +20,8 @@ public interface DatasourceContextServiceCE {
      * @param dsContextMapKey
      * @return DatasourceContext
      */
-    Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey, Map<String, BaseDomain> environmentMap);
+    Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey,
+                                                    Map<String, BaseDomain> environmentMap);
 
     Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, Datasource datasource);
 

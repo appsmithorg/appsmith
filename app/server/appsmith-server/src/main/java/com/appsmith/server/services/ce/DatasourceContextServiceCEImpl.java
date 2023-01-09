@@ -29,10 +29,10 @@ import java.util.function.Function;
 @Slf4j
 public class DatasourceContextServiceCEImpl implements DatasourceContextServiceCE {
 
-    //This is DatasourceId mapped to the DatasourceContext
-    private final Map<DsContextMapKey, Mono<? extends DatasourceContext<?>>> datasourceContextMonoMap;
-    private final Map<DsContextMapKey, Object> datasourceContextSynchronizationMonitorMap;
-    private final Map<DsContextMapKey, DatasourceContext<?>> datasourceContextMap;
+    //DsContextMapKey contains datasourceId & environmentId which is mapped to  DatasourceContext
+    protected final Map<DsContextMapKey, Mono<? extends DatasourceContext<?>>> datasourceContextMonoMap;
+    protected final Map<DsContextMapKey, Object> datasourceContextSynchronizationMonitorMap;
+    protected final Map<DsContextMapKey, DatasourceContext<?>> datasourceContextMap;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -163,7 +163,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             return Mono.just(datasource);
         }
     }
-    Mono<DatasourceContext<?>> createNewDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey) {
+    protected Mono<DatasourceContext<?>> createNewDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey) {
         log.debug("Datasource context doesn't exist. Creating connection.");
         String datasourceId = datasource.getId();
         Mono<Datasource> datasourceMono = retrieveDatasourceFromDB(datasource, dsContextMapKey);
@@ -213,7 +213,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 && datasource.getUpdatedAt().isAfter(datasourceContextMap.get(dsContextMapKey).getCreationTime());
     }
 
-    boolean isValidDatasourceContextAvailable(Datasource datasource, DsContextMapKey dsContextMapKey) {
+    protected  boolean isValidDatasourceContextAvailable(Datasource datasource, DsContextMapKey dsContextMapKey) {
         boolean isStale = getIsStale(datasource, dsContextMapKey);
         return datasourceContextMap.get(dsContextMapKey) != null
                 // The following condition happens when there's a timeout in the middle of destroying a connection and
