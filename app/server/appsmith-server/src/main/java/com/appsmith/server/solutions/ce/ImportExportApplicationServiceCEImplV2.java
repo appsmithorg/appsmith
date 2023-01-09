@@ -1193,7 +1193,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                             })
                             .thenReturn(true);
                 })
-                .then(installedJSLibMono)
+                .flatMap(ignored -> installedJSLibMono)
                 .flatMap(ignored -> {
                     // Don't update gitAuth as we are using @Encrypted for private key
                     importedApplication.setGitApplicationMetadata(null);
