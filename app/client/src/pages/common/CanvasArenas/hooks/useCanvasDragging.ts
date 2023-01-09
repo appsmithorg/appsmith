@@ -1,3 +1,4 @@
+import React from "react";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
@@ -9,6 +10,7 @@ import {
   ReflowedSpaceMap,
   SpaceMap,
 } from "reflow/reflowTypes";
+import { getCanvasScale } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
@@ -31,6 +33,7 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
+import { useSelector } from "react-redux";
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
@@ -45,12 +48,15 @@ export const useCanvasDragging = (
     widgetId,
   }: CanvasDraggingArenaProps,
 ) => {
+  const canvasScale = useSelector(getCanvasScale);
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
-  const { devicePixelRatio: scale = 1 } = window;
+  let { devicePixelRatio: scale = 1 } = window;
+  scale *= canvasScale;
   const {
     blocksToDraw,
     defaultHandlePositions,
     draggingSpaces,
+
     getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
