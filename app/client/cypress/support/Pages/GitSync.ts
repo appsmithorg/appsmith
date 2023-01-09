@@ -137,17 +137,9 @@ export class GitSync {
         //cy.get('@connectGitLocalRepo').its('response.statusCode').should('equal', 200);
         //this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
 
-        // cy.intercept(
-        //   {
-        //     method: "POST",
-        //     url: "/api/v1/git/connect/app/*",
-        //     hostname: window.location.host,
-        //   },
-        //   (req) => {
-        //     req.headers["origin"] = "Cypress";
-        //   },
-        // );
-
+        cy.intercept("POST", "/api/v1/git/connect/app/*", {
+          fixture: "/Bugs/GitConnectResponse.json",
+        });
         this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
       }
       this.CloseGitSyncModal();
