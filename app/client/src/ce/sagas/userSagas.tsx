@@ -55,7 +55,10 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
+import {
+  initializeAnalyticsAndTrackers,
+  initializeSegment,
+} from "utils/AppsmithUtils";
 import { getAppsmithConfigs } from "ce/configs";
 import { getSegmentState } from "selectors/analyticsSelectors";
 import {
@@ -135,19 +138,37 @@ export function* getCurrentUserSaga() {
     if (isValidResponse) {
       //@ts-expect-error: response is of type unknown
       const { enableTelemetry } = response.data;
+
       if (enableTelemetry) {
         const promise = initializeAnalyticsAndTrackers();
+
         if (promise instanceof Promise) {
           const result: boolean = yield promise;
+
           if (result) {
             yield put(segmentInitSuccess());
           } else {
             yield put(segmentInitUncertain());
           }
         }
+      } else if (
+        //@ts-expect-error: response is of type unknown
+        response.data.isAnonymous &&
+        //@ts-expect-error: response is of type unknown
+        response.data.username === ANONYMOUS_USERNAME
+      ) {
+        /*
+         * We're initializing the segment api regardless of the enableTelemetry flag
+         * So we can use segement Id to fingerprint anonymous user in usage pulse call
+         */
+        AnalyticsUtil.blockTrackEvent = true;
+        const result = initializeSegment();
+
+        if (result instanceof Promise) {
+          yield result;
+        }
       }
-      yield put(initAppLevelSocketConnection());
-      yield put(initPageLevelSocketConnection());
+
       if (
         //@ts-expect-error: response is of type unknown
         !response.data.isAnonymous &&
@@ -156,18 +177,30 @@ export function* getCurrentUserSaga() {
       ) {
         //@ts-expect-error: response is of type unknown
         enableTelemetry && AnalyticsUtil.identifyUser(response.data);
+      } else {
+        UsagePulse.userAnonymousId = AnalyticsUtil.getAnonymousId();
+
+        if (!enableTelemetry) {
+          AnalyticsUtil.blockTrackEvent = false;
+          (window as any).analytics = undefined;
+        }
       }
+
+      //To make sure that we're not tracking from previous session.
+      UsagePulse.stopTrackingActivity();
+      UsagePulse.startTrackingActivity();
+
+      yield put(initAppLevelSocketConnection());
+      yield put(initPageLevelSocketConnection());
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
       });
+
       //@ts-expect-error: response is of type unknown
       if (response.data.emptyInstance) {
         history.replace(SETUP);
       }
-
-      UsagePulse.stopTrackingActivity(); //To make sure that we're not tracking from previous session.
-      UsagePulse.startTrackingActivity();
 
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.USER_ME_API,

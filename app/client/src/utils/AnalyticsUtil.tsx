@@ -317,6 +317,7 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
+  static blockTrackEvent: boolean | undefined;
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -388,6 +389,10 @@ class AnalyticsUtil {
   }
 
   static logEvent(eventName: EventName, eventData: any = {}) {
+    if (AnalyticsUtil.blockTrackEvent) {
+      return;
+    }
+
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
@@ -462,6 +467,8 @@ class AnalyticsUtil {
           userProperties,
         );
       }
+
+      AnalyticsUtil.blockTrackEvent = false;
     }
 
     if (sentry.enabled) {
