@@ -318,6 +318,7 @@ function shouldStoreStateForCanvas(
     (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
   );
 }
+
 export default function* rootSaga() {
   yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
   yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);
