@@ -63,6 +63,7 @@ import {
   segmentInitSuccess,
 } from "actions/analyticsActions";
 import { SegmentState } from "reducers/uiReducers/analyticsReducer";
+import FeatureFlags from "entities/FeatureFlags";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -469,10 +470,11 @@ export function* updatePhoto(
 
 export function* fetchFeatureFlags() {
   try {
-    const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
+    const response: ApiResponse<FeatureFlags> = yield call(
+      UserApi.fetchFeatureFlags,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      // @ts-expect-error: response.data is of type unknown
       yield put(fetchFeatureFlagsSuccess(response.data));
     }
   } catch (error) {
