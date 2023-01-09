@@ -1,36 +1,40 @@
-import { BUILDER_VIEWER_PATH_PREFIX } from "constants/routes";
+import {
+  BUILDER_VIEWER_PATH_PREFIX,
+  VIEWER_PATH_DEPRECATED_REGEX,
+} from "constants/routes";
 import { noop } from "lodash";
-import watchForRouteChange from "./routeWatcher";
+import history from "utils/history";
 
 const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
 const PULSE_INTERVAL = 60; /* 1 hour in seconds */
-
-/* TODO: This offset is too early and might lead to incorrect tracking. needs to be revised */
-const PULSE_INTERVAL_OFFSET = 2; /* offset seconds to subtract from interval */
 const USER_ACTIVITY_LISTENER_EVENT = "pointerdown";
 class UsagePulse {
-  static lastPulseTimestamp: number;
-  static nextPulseTriggerRegisterationTimestamp: number;
-  static canSendPulse: boolean;
-
-  static getCurrentUTCTimestamp() {
-    return Date.now() / 1000;
-  }
+  static userAnonymousId: string;
 
   static isTrackableUrl() {
-    /* TODO: need to check for older url structure as well */
-    return window.location.href.includes(BUILDER_VIEWER_PATH_PREFIX);
-  }
+    const url = window.location.href;
 
-  static sendHTTPPulse() {
-    fetch(PULSE_API_ENDPOINT, {
-      method: "POST",
-      credentials: "same-origin",
-    }).catch(noop);
+    return (
+      url.includes(BUILDER_VIEWER_PATH_PREFIX) ||
+      VIEWER_PATH_DEPRECATED_REGEX.test(url)
+    );
   }
 
   static sendPulse() {
-    navigator.sendBeacon(PULSE_API_ENDPOINT, "") || UsagePulse.sendHTTPPulse();
+    const data = {
+      anonymousUserId: UsagePulse.userAnonymousId,
+      viewMode: !window.location.href.endsWith("/edit"),
+    };
+
+    fetch(PULSE_API_ENDPOINT, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      keepalive: true,
+    }).catch(noop);
   }
 
   static registerActivityListener() {
@@ -48,9 +52,9 @@ class UsagePulse {
   }
 
   static watchForTrackableUrl(callback: () => void) {
-    const stopWatching = watchForRouteChange(() => {
+    const unlisten = history.listen(() => {
       if (UsagePulse.isTrackableUrl()) {
-        stopWatching();
+        unlisten();
         setTimeout(callback, 0);
       }
     });
@@ -60,19 +64,11 @@ class UsagePulse {
   }
 
   static scheduleNextActivityListeners() {
-    UsagePulse.lastPulseTimestamp = UsagePulse.getCurrentUTCTimestamp();
-    UsagePulse.nextPulseTriggerRegisterationTimestamp =
-      UsagePulse.lastPulseTimestamp + PULSE_INTERVAL;
-    const startListentingIn =
-      UsagePulse.nextPulseTriggerRegisterationTimestamp -
-      UsagePulse.lastPulseTimestamp -
-      PULSE_INTERVAL_OFFSET;
-
     UsagePulse.deregisterActivityListener();
 
-    setTimeout(UsagePulse.registerActivityListener, startListentingIn * 1000);
+    setTimeout(UsagePulse.registerActivityListener, PULSE_INTERVAL * 1000);
 
-    showTime(startListentingIn);
+    showTime(PULSE_INTERVAL);
   }
 
   static trackActivity() {
