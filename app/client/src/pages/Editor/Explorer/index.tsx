@@ -1,7 +1,5 @@
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { Switcher } from "design-system";
-import { Colors } from "constants/Colors";
 import { tailwindLayers } from "constants/Layers";
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +11,6 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { trimQueryString } from "utils/helpers";
 import history from "utils/history";
-import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
@@ -84,12 +81,6 @@ function ExplorerContent() {
     <div
       className={`flex-1 flex flex-col overflow-hidden ${tailwindLayers.entityExplorer}`}
     >
-      <div
-        className={`flex-shrink-0 px-3 mt-1 py-2 border-t border-b border-[${Colors.Gallery}]`}
-      >
-        <Switcher activeObj={switches[activeSwitchIndex]} switches={switches} />
-      </div>
-      <WidgetSidebar isActive={switches[activeSwitchIndex].id === "widgets"} />
       <EntityExplorer
         isActive={switches[activeSwitchIndex].id === "explorer"}
       />
