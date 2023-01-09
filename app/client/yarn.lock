@@ -4665,7 +4665,7 @@ babel-plugin-polyfill-regenerator@^0.3.0:
   dependencies:
     "@babel/helper-define-polyfill-provider" "^0.3.1"
 
-"babel-plugin-styled-components@>= 1":
+"babel-plugin-styled-components@>= 1.12.0":
   version "2.0.7"
   resolved "https://registry.yarnpkg.com/babel-plugin-styled-components/-/babel-plugin-styled-components-2.0.7.tgz#c81ef34b713f9da2b7d3f5550df0d1e19e798086"
   integrity sha512-i7YhvPgVqRKfoQ66toiZ06jPNA3p6ierpfUuEWxNF+fV27Uv5gxBkf8KZLHUCc1nFA9j6+80pYoIpqCeyW3/bA==
@@ -6259,10 +6259,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.44-alpha.0":
-  version "1.0.44-alpha.0"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.44-alpha.0.tgz#c12be90ddc758c267b28f7e7b736867c6587e490"
-  integrity sha512-+zbyPSCznSBdk6jLcKJNQ97EdR6I+qDo34cCnI+pUlRbPmF8fgMhWwAR0wiFf0M3XNcjRIc00H9WzlToFS3ZdA==
+"design-system@npm:@appsmithorg/design-system@1.0.45":
+  version "1.0.45"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.45.tgz#c3156581397beff0b4edc2bbc48ec2f17d51afd4"
+  integrity sha512-QrrtpQKhR719H6i9cp9OS0zr4lmjwheZcMrInOCllZ8BRr22eT7BFPpRgENzWQqq4deIWWFqD+qFDstImNhPUQ==
   dependencies:
     emoji-mart "3.0.1"
 
