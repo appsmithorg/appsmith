@@ -45,11 +45,12 @@ import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { Toaster } from "design-system";
-import { deselectAllInitAction } from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -216,7 +217,7 @@ export function* closeModalSaga(
       );
     }
     if (modalName) {
-      yield put(deselectAllInitAction());
+      yield put(selectWidgetInitAction());
       yield put(focusWidget(MAIN_CONTAINER_WIDGET_ID));
     }
   } catch (error) {

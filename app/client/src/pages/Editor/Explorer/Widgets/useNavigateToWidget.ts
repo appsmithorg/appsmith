@@ -15,10 +15,7 @@ export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
 
   const dispatch = useDispatch();
-  const {
-    selectWidget,
-    shiftSelectWidgetEntityExplorer,
-  } = useWidgetSelection();
+  const { selectWidget } = useWidgetSelection();
   const guidedTourEnabled = useSelector(inGuidedTour);
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
     navigateToCanvas(pageId);
@@ -56,7 +53,6 @@ export const useNavigateToWidget = () => {
       isWidgetSelected?: boolean,
       isMultiSelect?: boolean,
       isShiftSelect?: boolean,
-      widgetsInStep?: string[],
     ) => {
       const allWidgets = getCurrentPageWidgets(store.getState());
       // restrict multi-select across pages
@@ -64,7 +60,7 @@ export const useNavigateToWidget = () => {
         return;
 
       if (isShiftSelect) {
-        shiftSelectWidgetEntityExplorer(widgetId, widgetsInStep || []);
+        selectWidget(widgetId, false, true);
       } else if (isMultiSelect) {
         multiSelectWidgets(widgetId, pageId);
       } else {

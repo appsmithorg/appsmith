@@ -18,7 +18,7 @@ import {
 import { closePropertyPane } from "actions/widgetActions";
 import {
   selectMultipleWidgetsInitAction,
-  selectWidgetAction,
+  selectWidgetInitAction,
 } from "actions/widgetSelectionActions";
 import {
   ReduxAction,
@@ -99,7 +99,7 @@ export default function* undoRedoListenerSaga() {
 export function* openPropertyPaneSaga(replay: any) {
   try {
     if (Object.keys(replay.widgets).length > 1) {
-      yield put(selectWidgetAction(replay.widgets[0], false));
+      yield put(selectWidgetInitAction(replay.widgets[0], false));
     }
 
     const replayWidgetId = Object.keys(replay.widgets)[0];
@@ -116,7 +116,7 @@ export function* openPropertyPaneSaga(replay: any) {
 
     //if property pane is not visible, select the widget and force open property pane
     if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {
-      yield put(selectWidgetAction(replayWidgetId, false));
+      yield put(selectWidgetInitAction(replayWidgetId, false));
     }
 
     flashElementsById(
@@ -157,7 +157,7 @@ export function* postUndoRedoSaga(replay: any) {
     if (widgetIds.length > 1) {
       yield put(selectMultipleWidgetsInitAction(widgetIds));
     } else {
-      yield put(selectWidgetAction(widgetIds[0], false));
+      yield put(selectWidgetInitAction(widgetIds[0], false));
     }
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
@@ -268,7 +268,7 @@ function* replayThemeSaga(replayEntity: Canvas, replay: any) {
     yield put(setAppThemingModeStackAction([]));
   }
 
-  yield put(selectWidgetAction());
+  yield put(selectWidgetInitAction());
 
   // todo(pawan): check with arun/rahul on how we can get rid of this check
   // better way to do is set shouldreplay = false when evaluating tree

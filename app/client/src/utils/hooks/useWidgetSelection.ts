@@ -3,7 +3,6 @@ import { focusWidget } from "actions/widgetActions";
 import {
   selectMultipleWidgetsAction,
   selectWidgetInitAction,
-  shiftSelectWidgetsEntityExplorerInitAction,
 } from "actions/widgetSelectionActions";
 
 import { useCallback } from "react";
@@ -12,15 +11,13 @@ export const useWidgetSelection = () => {
   const dispatch = useDispatch();
   return {
     selectWidget: useCallback(
-      (widgetId?: string, isMultiSelect?: boolean) => {
-        dispatch(selectWidgetInitAction(widgetId, isMultiSelect));
-      },
-      [dispatch],
-    ),
-    shiftSelectWidgetEntityExplorer: useCallback(
-      (widgetId: string, siblingWidgets: string[]) => {
+      (
+        widgetId?: string,
+        isMultiSelect?: boolean,
+        selectSiblings?: boolean,
+      ) => {
         dispatch(
-          shiftSelectWidgetsEntityExplorerInitAction(widgetId, siblingWidgets),
+          selectWidgetInitAction(widgetId, isMultiSelect, selectSiblings),
         );
       },
       [dispatch],

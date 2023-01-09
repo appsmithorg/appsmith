@@ -7,55 +7,26 @@ import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvas
 export type SelectWidgetActionPayload = {
   widgetId?: string;
   isMultiSelect?: boolean;
+  selectSiblings?: boolean;
 };
 
 export type SelectMultipleWidgetsActionPayload = { widgetIds?: string[] };
 
-export const selectWidgetAction = (
-  widgetId?: string,
-  isMultiSelect?: boolean,
-): ReduxAction<SelectWidgetActionPayload> => ({
-  type: ReduxActionTypes.SELECT_WIDGET,
-  payload: { widgetId, isMultiSelect },
-});
-
+// Use to select a widget programmatically via platform action
 export const selectWidgetInitAction = (
   widgetId?: string,
   isMultiSelect?: boolean,
+  selectSiblings?: boolean,
 ): ReduxAction<SelectWidgetActionPayload> => ({
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
-  payload: { widgetId, isMultiSelect },
+  payload: { widgetId, isMultiSelect, selectSiblings },
 });
-
-export const deselectAllInitAction = () => {
-  return {
-    type: ReduxActionTypes.DESELECT_MULTIPLE_WIDGETS_INIT,
-  };
-};
 
 export const selectMultipleWidgetsAction = (
   widgetIds?: string[],
 ): ReduxAction<SelectMultipleWidgetsActionPayload> => {
   return {
     type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
-    payload: { widgetIds },
-  };
-};
-
-export const silentAddSelectionsAction = (
-  widgetIds?: string[],
-): ReduxAction<SelectMultipleWidgetsActionPayload> => {
-  return {
-    type: ReduxActionTypes.SELECT_WIDGETS,
-    payload: { widgetIds },
-  };
-};
-
-export const deselectMultipleWidgetsAction = (
-  widgetIds?: string[],
-): ReduxAction<SelectMultipleWidgetsActionPayload> => {
-  return {
-    type: ReduxActionTypes.DESELECT_WIDGETS,
     payload: { widgetIds },
   };
 };
@@ -83,14 +54,6 @@ export const deselectModalWidgetAction = (
   };
 };
 
-export const shiftSelectWidgetsEntityExplorerInitAction = (
-  widgetId: string,
-  siblingWidgets: string[],
-): ReduxAction<{ widgetId: string; siblingWidgets: string[] }> => ({
-  type: ReduxActionTypes.SHIFT_SELECT_WIDGET_INIT,
-  payload: { widgetId, siblingWidgets },
-});
-
 export const appendSelectedWidgetToUrl = (selectedWidgets: string[]) => {
   return {
     type: ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
@@ -98,9 +61,24 @@ export const appendSelectedWidgetToUrl = (selectedWidgets: string[]) => {
   };
 };
 
+// To be used to collect selected widget state from url and set on state
 export const setSelectedWidgets = (widgetIds: string[]) => {
   return {
     type: ReduxActionTypes.SET_SELECTED_WIDGETS,
     payload: { widgetIds },
+  };
+};
+
+export const setLastSelectedWidget = (widgetId: string) => {
+  return {
+    type: ReduxActionTypes.SET_LAST_SELECTED_WIDGET,
+    payload: { lastSelectedWidget: widgetId },
+  };
+};
+
+export const setSelectedWidgetAncestry = (widgetIds: string[]) => {
+  return {
+    type: ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTRY,
+    payload: widgetIds,
   };
 };

@@ -13,8 +13,8 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import {
-  deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
+  selectWidgetInitAction,
 } from "actions/widgetSelectionActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { isMacOrIOS } from "utils/helpers";
@@ -406,7 +406,7 @@ const mapDispatchToProps = (dispatch: any) => {
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
-    deselectAllWidgets: () => dispatch(deselectAllInitAction()),
+    deselectAllWidgets: () => dispatch(selectWidgetInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
