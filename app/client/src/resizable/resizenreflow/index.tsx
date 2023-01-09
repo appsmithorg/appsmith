@@ -264,7 +264,7 @@ export function ReflowResizable(props: ResizableProps) {
 
         if (resizedPositions) {
           //calling reflow to update movements of reflowing widgets and get movementLimit of current resizing widget
-          ({ bottomMostRow, movementLimitMap } = reflow(
+          ({ bottomMostRow, movementLimitMap } = reflow.reflowSpaces(
             [resizedPositions],
             direction,
             true,

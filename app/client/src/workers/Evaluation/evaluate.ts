@@ -11,7 +11,10 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { JSFunctionProxy, JSProxy } from "./JSObject/JSProxy";
+import {
+  JSFunctionProxy,
+  JSProxy,
+} from "@appsmith/workers/Evaluation/JSObject/JSProxy";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
@@ -255,11 +258,11 @@ export default function evaluateSync(
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
+
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
-    if (!skipLogsOperations) {
-      userLogs.resetLogs();
-    }
+    if (!skipLogsOperations) userLogs.resetLogs();
+
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
@@ -333,13 +336,19 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
     let logs;
+
+    /**** JSObject function proxy method ****/
     const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
-    /**** Setting the eval context ****/
+
+    /**** console logs setup ****/
     userLogs.resetLogs();
     userLogs.setCurrentRequestInfo({
       eventType: context?.eventType,
       triggerMeta: context?.triggerMeta,
     });
+
+    /**** Setting the eval context ****/
+
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
@@ -348,6 +357,7 @@ export async function evaluateAsync(
       JSFunctionProxy,
       isTriggerBased: true,
     });
+
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     evalContext.ALLOW_ASYNC = true;
 

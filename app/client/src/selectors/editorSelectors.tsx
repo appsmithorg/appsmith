@@ -167,8 +167,8 @@ export const getCurrentApplication = (state: AppState) =>
   state.ui.applications.currentApplication;
 
 export const getCurrentApplicationId = (state: AppState) =>
-  state.entities.pageList.applicationId ||
-  ""; /** this is set during init can assume it to be defined */
+  state.entities.pageList.applicationId || "";
+/** this is set during init can assume it to be defined */
 
 export const selectCurrentApplicationSlug = (state: AppState) =>
   state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
@@ -260,6 +260,7 @@ export const getCurrentApplicationLayout = createSelector(
 );
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
+export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
 
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
@@ -324,6 +325,7 @@ export const getWidgetCards = createSelector(
         displayName,
         icon: iconSVG,
         searchTags,
+        isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -445,6 +447,7 @@ const getWidgetSpacesForContainer = (
       bottom: widget.bottomRow,
       right: widget.rightColumn,
       type: widget.type,
+      isDropTarget: checkIsDropTarget(widget.type),
       fixedHeight,
     };
     return occupiedSpace;
@@ -461,9 +464,9 @@ const getWidgetSpacesForContainer = (
 const generateOccupiedSpacesMap = (
   widgets: CanvasWidgetsReduxState,
   fetchNow = true,
-): { [containerWidgetId: string]: OccupiedSpace[] } | undefined => {
+): { [containerWidgetId: string]: WidgetSpace[] } | undefined => {
   const occupiedSpaces: {
-    [containerWidgetId: string]: OccupiedSpace[];
+    [containerWidgetId: string]: WidgetSpace[];
   } = {};
   if (!fetchNow) return;
   // Get all widgets with type "CONTAINER_WIDGET" and has children
@@ -484,7 +487,7 @@ const generateOccupiedSpacesMap = (
       );
       // Get the occupied spaces in this container
       // Assign it to the containerWidgetId key in occupiedSpaces
-      occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
+      occupiedSpaces[containerWidgetId] = getWidgetSpacesForContainer(
         containerWidgetId,
         childWidgets.map((widgetId) => widgets[widgetId]),
       );
@@ -740,6 +743,7 @@ export function getContainerWidgetSpacesSelectorWhileMoving(
     },
   );
 }
+
 export const getActionById = createSelector(
   [getActions, (state: any, props: any) => props.match.params.apiId],
   (actions, id) => {

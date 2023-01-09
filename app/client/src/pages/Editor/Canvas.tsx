@@ -26,6 +26,7 @@ interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
   pageId: string;
   canvasWidth: number;
+  canvasScale?: number;
 }
 
 type PointerEventDataType = {
@@ -37,7 +38,7 @@ const Container = styled.section<{
   background: string;
 }>`
   background: ${({ background }) => background};
-  }
+}
 `;
 
 const getPointerData = (
@@ -74,7 +75,7 @@ const useShareMousePointerEvent = () => {
 
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
-  const { canvasWidth, pageId } = props;
+  const { canvasScale = 1, canvasWidth, pageId } = props;
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
 
@@ -124,6 +125,8 @@ const Canvas = memo((props: CanvasProps) => {
         ref={focusRef}
         style={{
           width: canvasWidth,
+          transform: `scale(${canvasScale})`,
+          transformOrigin: "0 0",
         }}
       >
         {props.widgetsStructure.widgetId &&

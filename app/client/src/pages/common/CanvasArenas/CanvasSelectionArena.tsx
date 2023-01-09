@@ -23,7 +23,7 @@ import {
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import { XYCord } from "./hooks/useCanvasDragging";
+import { XYCord } from "./hooks/useRenderBlocksOnCanvas";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 
