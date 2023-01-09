@@ -7,7 +7,7 @@ import {
   LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { MAIN_THREAD_ACTION } from "workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import {
   JSHINT as jshint,
   LintError as JSHintError,
