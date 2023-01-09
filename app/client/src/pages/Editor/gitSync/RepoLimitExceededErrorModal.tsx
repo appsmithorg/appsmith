@@ -164,12 +164,12 @@ function RepoLimitExceededErrorModal() {
   const theme = useTheme() as Theme;
 
   useEffect(() => {
-    if (isOpen && !userWorkspaces.length) {
+    if (isOpen) {
       dispatch({
         type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
       });
     }
-  }, [isOpen, userWorkspaces.length]);
+  }, [isOpen]);
 
   const openIntercom = () => {
     if (window.Intercom) {
