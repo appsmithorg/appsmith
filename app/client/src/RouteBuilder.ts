@@ -2,6 +2,8 @@ import {
   ADMIN_SETTINGS_PATH,
   GEN_TEMPLATE_FORM_ROUTE,
   GEN_TEMPLATE_URL,
+  getViewerCustomPath,
+  getViewerPath,
   TEMPLATES_PATH,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
@@ -26,8 +28,9 @@ export const fillPathname = (
   page: Page,
 ) => {
   const replaceValue = page.customSlug
-    ? `/app/${page.customSlug}-${page.pageId}`
-    : `/app/${application.slug}/${page.slug}-${page.pageId}`;
+    ? getViewerCustomPath(page.customSlug, page.pageId)
+    : getViewerPath(application.slug, page.slug, page.pageId);
+
   return pathname.replace(
     `/applications/${application.id}/pages/${page.pageId}`,
     replaceValue,

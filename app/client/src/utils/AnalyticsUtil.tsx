@@ -317,9 +317,15 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
+  static blockTrackEvent: boolean | undefined;
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
+  }
+
+  static initializeSegmentWithoutTracking(key: string) {
+    AnalyticsUtil.blockTrackEvent = true;
+    return AnalyticsUtil.initializeSegment(key);
   }
 
   static initializeSegment(key: string) {
@@ -388,6 +394,10 @@ class AnalyticsUtil {
   }
 
   static logEvent(eventName: EventName, eventData: any = {}) {
+    if (AnalyticsUtil.blockTrackEvent) {
+      return;
+    }
+
     const windowDoc: any = window;
     let finalEventData = eventData;
     const userData = AnalyticsUtil.user;
@@ -485,6 +495,8 @@ class AnalyticsUtil {
         username: userData.username,
       });
     }
+
+    AnalyticsUtil.blockTrackEvent = false;
   }
 
   static getAnonymousId() {
@@ -505,6 +517,11 @@ class AnalyticsUtil {
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
     window.zipy && window.zipy.anonymize();
+  }
+
+  static removeAnalytics() {
+    AnalyticsUtil.blockTrackEvent = false;
+    (window as any).analytics = undefined;
   }
 }
 
