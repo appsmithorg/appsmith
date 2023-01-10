@@ -48,6 +48,7 @@ import {
   showReconnectDatasourceModal,
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
+  updateCurrentApplicationPublishedNavigationSetting,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -383,6 +384,13 @@ export function* updateApplicationSaga(
         if (request.embedSetting) {
           yield put(
             updateCurrentApplicationEmbedSetting(response.data.embedSetting),
+          );
+        }
+        if (request.publishedNavigationSetting) {
+          yield put(
+            updateCurrentApplicationPublishedNavigationSetting(
+              response.data.publishedNavigationSetting,
+            ),
           );
         }
       }

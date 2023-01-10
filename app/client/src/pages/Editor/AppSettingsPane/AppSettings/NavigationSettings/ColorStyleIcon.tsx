@@ -7,17 +7,19 @@ import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
-const ColorStyleIcon = (props: { style: NavigationSettingsColorStyle }) => {
+const ColorStyleIcon = (props: {
+  colorStyle: NavigationSettingsColorStyle;
+}) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
 
   let backgroundColor = Colors.WHITE;
 
-  if (props.style === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
+  if (props.colorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.SOLID) {
     backgroundColor =
       selectedTheme?.properties?.colors?.primaryColor || Colors.WHITE;
-  } else if (props.style === NAVIGATION_SETTINGS.COLOR_STYLE.DARK) {
+  } else if (props.colorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.DARK) {
     backgroundColor = Colors.GREY_900;
-  } else if (props.style === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
+  } else if (props.colorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     backgroundColor = Colors.WHITE;
   }
 

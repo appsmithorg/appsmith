@@ -49,7 +49,7 @@ export const NAVIGATION_SETTINGS = {
     TOP: "top",
     SIDE: "side",
   },
-  STYLE: {
+  NAV_STYLE: {
     STACKED: "stacked",
     INLINE: "inline",
     SIDEBAR: "sidebar",
@@ -78,7 +78,7 @@ export const NAVIGATION_SETTINGS = {
 };
 
 export type NavigationSettingsOrientation = typeof NAVIGATION_SETTINGS.ORIENTATION[keyof typeof NAVIGATION_SETTINGS.ORIENTATION];
-export type NavigationSettingsStyle = typeof NAVIGATION_SETTINGS.STYLE[keyof typeof NAVIGATION_SETTINGS.STYLE];
+export type NavigationSettingsStyle = typeof NAVIGATION_SETTINGS.NAV_STYLE[keyof typeof NAVIGATION_SETTINGS.NAV_STYLE];
 export type NavigationSettingsPosition = typeof NAVIGATION_SETTINGS.POSITION[keyof typeof NAVIGATION_SETTINGS.POSITION];
 export type NavigationSettingsItemStyle = typeof NAVIGATION_SETTINGS.ITEM_STYLE[keyof typeof NAVIGATION_SETTINGS.ITEM_STYLE];
 export type NavigationSettingsColorStyle = typeof NAVIGATION_SETTINGS.COLOR_STYLE[keyof typeof NAVIGATION_SETTINGS.COLOR_STYLE];
@@ -90,7 +90,7 @@ export type NavigationSettingsShowShareApp = boolean;
 export type PublishedNavigationSetting = {
   showNavbar: NavigationSettingsShowNavbar;
   orientation: NavigationSettingsOrientation;
-  style: NavigationSettingsStyle;
+  navStyle: NavigationSettingsStyle;
   position: NavigationSettingsPosition;
   itemStyle: NavigationSettingsItemStyle;
   colorStyle: NavigationSettingsColorStyle;

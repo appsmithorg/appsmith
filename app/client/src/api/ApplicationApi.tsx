@@ -198,6 +198,7 @@ export interface UpdateApplicationResponse {
   new: boolean;
   modifiedAt: Date;
   embedSetting: AppEmbedSetting;
+  publishedNavigationSetting: PublishedNavigationSetting;
 }
 
 export interface PageDefaultMeta {
