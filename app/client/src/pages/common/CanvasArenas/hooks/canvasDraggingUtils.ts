@@ -1,6 +1,5 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { current } from "immer";
 import {
   HORIZONTAL_RESIZE_MIN_LIMIT,
   MovementLimitMap,

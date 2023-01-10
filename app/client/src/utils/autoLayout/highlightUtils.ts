@@ -127,7 +127,7 @@ export function deriveHighlightsFromLayers(
     return [];
   }
 }
-interface VerticalHighlightsPayload {
+export interface VerticalHighlightsPayload {
   childCount: number;
   highlights: HighlightInfo[];
 }
@@ -137,7 +137,7 @@ interface VerticalHighlightsPayload {
  * - Breakdown each layer into component alignments.
  * - generate highlight information for each alignment.
  */
-function generateVerticalHighlights(data: {
+export function generateVerticalHighlights(data: {
   widgets: CanvasWidgetsReduxState;
   layer: FlexLayer;
   childCount: number;
@@ -236,7 +236,8 @@ function generateVerticalHighlights(data: {
       if (item.alignment === FlexLayerAlignment.Center) {
         const { centerSize } = getAlignmentSizeInfo(each);
         avoidInitialHighlight =
-          startColumns > 25 || endColumns > 25 || centerSize === 0;
+          ((startColumns > 25 || endColumns > 25) && centerColumns === 0) ||
+          centerSize === 0;
         if (each.length === 2)
           startPosition =
             index === 0
@@ -258,9 +259,7 @@ function generateVerticalHighlights(data: {
           offsetTop,
           canvasId,
           parentColumnSpace: columnSpace,
-          parentRowSpace: widgets[canvasId].parentRowSpace,
           canvasWidth,
-          columnSpace,
           isMobile,
           avoidInitialHighlight,
           startPosition,
@@ -279,7 +278,7 @@ function generateVerticalHighlights(data: {
  * - Add another highlight at the end position of the last widget in the alignment.
  * - If the alignment has no children, then add an initial highlight to mark the start of the alignment.
  */
-function generateHighlightsForAlignment(data: {
+export function generateHighlightsForAlignment(data: {
   arr: Widget[];
   childCount: number;
   layerIndex: number;
@@ -288,9 +287,7 @@ function generateHighlightsForAlignment(data: {
   offsetTop: number;
   canvasId: string;
   parentColumnSpace: number;
-  parentRowSpace: number;
   canvasWidth: number;
-  columnSpace: number;
   avoidInitialHighlight?: boolean;
   isMobile: boolean;
   startPosition: number | undefined;
@@ -302,7 +299,6 @@ function generateHighlightsForAlignment(data: {
     canvasId,
     canvasWidth,
     childCount,
-    columnSpace,
     isMobile,
     layerIndex,
     maxHeight,
@@ -350,7 +346,7 @@ function generateHighlightsForAlignment(data: {
           : 0,
         canvasWidth,
         canvasId,
-        columnSpace,
+        parentColumnSpace,
         startPosition,
       ),
       posY:
@@ -473,7 +469,7 @@ function getCanvasDimensions(
   return { canvasWidth: canvasWidth, columnSpace };
 }
 
-function getCanvasWidth(
+export function getCanvasWidth(
   canvas: Widget,
   widgets: CanvasWidgetsReduxState,
   mainCanvasWidth: number,
