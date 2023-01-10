@@ -1,10 +1,15 @@
 
 describe("Validating Mobile Views", function() {
-    let phones = ["iphone-3", "iphone-4", "iphone-5", "iphone-6", "iphone-6+", "iphone-7",
-                  "iphone-8", "iphone-x", "samsung-note9", "samsung-s10"]
+    let phones = ["iphone-3","iphone-4", "iphone-5", "iphone-6", "iphone-6+", "iphone-7",
+    "iphone-8", "iphone-x", "samsung-note9", "samsung-s10",[1024, 768]]
     phones.forEach((phone) => {
         it(`${phone} port execution`, function() {
-            cy.viewport(phone);
+
+            if (Cypress._.isArray(phone)) {
+                cy.viewport(phone[0], phone[1])
+              } else {
+                cy.viewport(phone)
+              }
             cy.visit("https://appsmith-git-mobile-v1main-get-appsmith.vercel.app/app/untitled-application-109/page1-63b7e7d1d5c5dd3ca41fcbd0");
             cy.xpath("//span[text()='Form']").scrollIntoView().should("be.visible");
             cy.xpath("//label[text()='Label']").should("be.visible");
