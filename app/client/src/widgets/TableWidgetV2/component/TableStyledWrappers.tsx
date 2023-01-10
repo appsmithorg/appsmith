@@ -10,18 +10,14 @@ import {
   TABLE_SIZES,
   CellAlignment,
   VerticalAlignment,
-  scrollbarOnHoverCSS,
   ImageSize,
   ImageSizes,
   MULTISELECT_CHECKBOX_WIDTH,
+  TABLE_SCROLLBAR_HEIGHT,
+  TABLE_SCROLLBAR_WIDTH,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
-import {
-  tableScrollBars,
-  hideScrollbar,
-  invisible,
-  thinScrollbar,
-} from "constants/DefaultTheme";
+import { hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
@@ -61,21 +57,20 @@ export const TableWrapper = styled.div<{
   justify-content: space-between;
   flex-direction: column;
   overflow: hidden;
+  .simplebar-track.simplebar-horizontal {
+    height: ${TABLE_SCROLLBAR_HEIGHT}px;
+  }
+  .simplebar-track.simplebar-vertical {
+    width: ${TABLE_SCROLLBAR_WIDTH}px;
+  }
   .tableWrap {
     height: 100%;
     display: block;
     position: relative;
     width: 100%;
     overflow-x: auto;
-    ${tableScrollBars};
     &.virtual {
       ${hideScrollbar};
-    }
-    ${scrollbarOnHoverCSS};
-    .thumb-horizontal {
-      height: 4px !important;
-      border-radius: ${(props) => props.theme.radii[3]}px;
-      background: ${(props) => props.theme.colors.scrollbarLight} !important;
     }
   }
   .table {
@@ -90,8 +85,7 @@ export const TableWrapper = styled.div<{
         props.isHeaderVisible
           ? props.height - OFFSET_WITH_HEADER
           : props.height - OFFSET_WITHOUT_HEADER}px;
-      width: 100%;
-      ${hideScrollbar};
+      width: fit-content;
     }
     .tr {
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
@@ -180,11 +174,12 @@ export const TableWrapper = styled.div<{
       position: sticky;
       top: 0;
       z-index: 1;
+      width: fit-content;
     }
   }
 
   .virtual-list {
-    ${tableScrollBars};
+    ${hideScrollbar};
   }
 
   .column-freeze {
@@ -651,11 +646,6 @@ export const TableHeaderInnerWrapper = styled.div<{
   border-bottom: ${(props) =>
     props.variant !== "VARIANT2" &&
     `1px solid var(--wds-color-border-onaccent)`};
-  overflow-x: scroll;
-  ${thinScrollbar};
-  ::-webkit-scrollbar {
-    height: 3px;
-  }
 `;
 
 export const CommonFunctionsMenuWrapper = styled.div<{

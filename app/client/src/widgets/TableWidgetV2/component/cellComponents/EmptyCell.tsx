@@ -51,17 +51,19 @@ export const renderEmptyRows = (
           {multiRowSelection &&
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
           {tableColumns.map((column: any, colIndex: number) => {
+            const stickyAttributes =
+              column.sticky !== StickyType.NONE
+                ? {
+                    ["data-sticky-td"]: true,
+                    [`data-sticky-${
+                      column.sticky === StickyType.LEFT ? "last" : "first"
+                    }-${column.sticky}-td`]: true,
+                  }
+                : {};
             return (
               <EmptyCell
                 className="td"
-                {...(column.sticky !== StickyType.NONE
-                  ? {
-                      ["data-sticky-td"]: true,
-                      [`data-sticky-${
-                        column.sticky === StickyType.LEFT ? "last" : "first"
-                      }-${column.sticky}-td`]: true,
-                    }
-                  : {})}
+                {...stickyAttributes}
                 key={colIndex}
                 sticky={column.sticky}
                 width={column.width}

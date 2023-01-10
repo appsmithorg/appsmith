@@ -82,7 +82,7 @@ type BodyPropsType = {
 };
 
 const TableVirtualBodyComponent = React.forwardRef(
-  (props: BodyPropsType, ref: Ref<HTMLDivElement>) => {
+  (props: BodyPropsType & { innerRef?: any; outerRef?: any }) => {
     return (
       <FixedSizeList
         className="virtual-list"
@@ -90,16 +90,17 @@ const TableVirtualBodyComponent = React.forwardRef(
           props.height -
           props.tableSizes.TABLE_HEADER_HEIGHT -
           2 * WIDGET_PADDING -
-          TABLE_SCROLLBAR_HEIGHT / 2
+          TABLE_SCROLLBAR_HEIGHT
         }
         innerElementType={props.innerElementType}
+        innerRef={props.innerRef}
         itemCount={Math.max(props.rows.length, props.pageSize)}
         itemData={props.rows}
         itemSize={
           props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
         }
-        outerRef={ref}
-        width={props.width || `calc(100% + ${2 * WIDGET_PADDING}px)`}
+        outerRef={props.outerRef}
+        width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
       >
         {rowRenderer}
       </FixedSizeList>
@@ -124,7 +125,8 @@ const TableBodyComponent = React.forwardRef(
 
 export const TableBody = React.forwardRef(
   (
-    props: BodyPropsType & BodyContextType & { useVirtual: boolean },
+    props: BodyPropsType &
+      BodyContextType & { useVirtual: boolean; innerRef?: any; outerRef?: any },
     ref: Ref<HTMLDivElement>,
   ) => {
     const {

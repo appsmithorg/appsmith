@@ -35,7 +35,8 @@ import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell, TableVariant } from "../constants";
 import { TableBody } from "./TableBody";
 import { areEqual } from "react-window";
-
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
 interface TableProps {
   width: number;
   height: number;
@@ -328,7 +329,7 @@ export function Table(props: TableProps) {
   }, [props.isAddRowInProgress]);
 
   const MemoizedInnerElement = useMemo(
-    () => ({ children, style, ...rest }: any) => (
+    () => ({ children, innerRef, outerRef, style, ...rest }: any) => (
       <>
         <HeaderComponent
           handleAllRowSelectClick={handleAllRowSelectClick}
@@ -345,22 +346,31 @@ export function Table(props: TableProps) {
           subPage={subPage}
           {...props}
         />
-        <div
-          className="tbody body"
-          style={{
-            height: props.height,
-            width: props.multiRowSelection
-              ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
-              : totalColumnsWidth,
-          }}
-        >
-          <div {...getTableBodyProps()} {...rest} style={style}>
-            {children}
+        <div className="simplebar-content-wrapper" ref={outerRef}>
+          <div className="simplebar-content" ref={innerRef}>
+            <div
+              className="tbody body"
+              style={{
+                width: props.multiRowSelection
+                  ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
+                  : totalColumnsWidth,
+              }}
+            >
+              <div {...getTableBodyProps()} {...rest} style={style}>
+                {children}
+              </div>
+            </div>
           </div>
         </div>
       </>
     ),
-    [areEqual, columns, props.multiRowSelection, rowSelectionState],
+    [
+      areEqual,
+      columns,
+      props.multiRowSelection,
+      rowSelectionState,
+      shouldUseVirtual,
+    ],
   );
   return (
     <TableWrapper
@@ -381,57 +391,63 @@ export function Table(props: TableProps) {
       width={props.width}
     >
       {isHeaderVisible && (
-        <TableHeaderWrapper
-          backgroundColor={Colors.WHITE}
-          ref={tableHeaderWrapperRef}
-          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-          tableSizes={tableSizes}
-          width={props.width}
+        <SimpleBar
+          style={{
+            maxHeight: tableSizes.TABLE_HEADER_HEIGHT,
+          }}
         >
-          <TableHeaderInnerWrapper
+          <TableHeaderWrapper
             backgroundColor={Colors.WHITE}
+            ref={tableHeaderWrapperRef}
             serverSidePaginationEnabled={props.serverSidePaginationEnabled}
             tableSizes={tableSizes}
-            variant={props.variant}
             width={props.width}
           >
-            <TableHeader
-              accentColor={props.accentColor}
-              allowAddNewRow={props.allowAddNewRow}
-              applyFilter={props.applyFilter}
-              borderRadius={props.borderRadius}
-              boxShadow={props.boxShadow}
-              columns={tableHeadercolumns}
-              currentPageIndex={currentPageIndex}
-              delimiter={props.delimiter}
-              disableAddNewRow={!!props.editableCell.column}
-              disabledAddNewRowSave={props.disabledAddNewRowSave}
-              filters={props.filters}
-              isAddRowInProgress={props.isAddRowInProgress}
-              isVisibleDownload={props.isVisibleDownload}
-              isVisibleFilters={props.isVisibleFilters}
-              isVisiblePagination={props.isVisiblePagination}
-              isVisibleSearch={props.isVisibleSearch}
-              nextPageClick={props.nextPageClick}
-              onAddNewRow={props.onAddNewRow}
-              onAddNewRowAction={props.onAddNewRowAction}
-              pageCount={pageCount}
-              pageNo={props.pageNo}
-              pageOptions={pageOptions}
-              prevPageClick={props.prevPageClick}
-              searchKey={props.searchKey}
-              searchTableData={props.searchTableData}
+            <TableHeaderInnerWrapper
+              backgroundColor={Colors.WHITE}
               serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-              tableColumns={columns}
-              tableData={data}
               tableSizes={tableSizes}
-              totalRecordsCount={props.totalRecordsCount}
-              updatePageNo={props.updatePageNo}
-              widgetId={props.widgetId}
-              widgetName={props.widgetName}
-            />
-          </TableHeaderInnerWrapper>
-        </TableHeaderWrapper>
+              variant={props.variant}
+              width={props.width}
+            >
+              <TableHeader
+                accentColor={props.accentColor}
+                allowAddNewRow={props.allowAddNewRow}
+                applyFilter={props.applyFilter}
+                borderRadius={props.borderRadius}
+                boxShadow={props.boxShadow}
+                columns={tableHeadercolumns}
+                currentPageIndex={currentPageIndex}
+                delimiter={props.delimiter}
+                disableAddNewRow={!!props.editableCell.column}
+                disabledAddNewRowSave={props.disabledAddNewRowSave}
+                filters={props.filters}
+                isAddRowInProgress={props.isAddRowInProgress}
+                isVisibleDownload={props.isVisibleDownload}
+                isVisibleFilters={props.isVisibleFilters}
+                isVisiblePagination={props.isVisiblePagination}
+                isVisibleSearch={props.isVisibleSearch}
+                nextPageClick={props.nextPageClick}
+                onAddNewRow={props.onAddNewRow}
+                onAddNewRowAction={props.onAddNewRowAction}
+                pageCount={pageCount}
+                pageNo={props.pageNo}
+                pageOptions={pageOptions}
+                prevPageClick={props.prevPageClick}
+                searchKey={props.searchKey}
+                searchTableData={props.searchTableData}
+                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+                tableColumns={columns}
+                tableData={data}
+                tableSizes={tableSizes}
+                totalRecordsCount={props.totalRecordsCount}
+                updatePageNo={props.updatePageNo}
+                widgetId={props.widgetId}
+                widgetName={props.widgetName}
+              />
+            </TableHeaderInnerWrapper>
+          </TableHeaderWrapper>
+        </SimpleBar>
       )}
       <div
         className={
@@ -444,39 +460,75 @@ export function Table(props: TableProps) {
         ref={tableWrapperRef}
       >
         <div {...getTableProps()} className="table column-freeze">
-          {!shouldUseVirtual && (
-            <HeaderComponent
-              handleAllRowSelectClick={handleAllRowSelectClick}
-              headerGroups={headerGroups}
-              isResizingColumn={isResizingColumn}
-              prepareRow={prepareRow}
-              renderHeaderCheckBoxCell={renderHeaderCheckBoxCell}
-              rowSelectionState={rowSelectionState}
-              subPage={subPage}
-              {...props}
-            />
-          )}
-          <TableBody
-            accentColor={props.accentColor}
-            borderRadius={props.borderRadius}
-            columns={props.columns}
-            getTableBodyProps={getTableBodyProps}
-            height={props.height}
-            innerElementType={MemoizedInnerElement}
-            isAddRowInProgress={props.isAddRowInProgress}
-            multiRowSelection={!!props.multiRowSelection}
-            pageSize={props.pageSize}
-            prepareRow={prepareRow}
-            primaryColumnId={props.primaryColumnId}
-            ref={tableBodyRef}
-            rows={subPage}
-            selectTableRow={props.selectTableRow}
-            selectedRowIndex={props.selectedRowIndex}
-            selectedRowIndices={props.selectedRowIndices}
-            tableSizes={tableSizes}
-            useVirtual={shouldUseVirtual}
-            width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
-          />
+          <SimpleBar
+            style={{
+              height: props.height - tableSizes.TABLE_HEADER_HEIGHT - 11,
+            }}
+          >
+            {({ contentNodeRef, scrollableNodeRef }) => {
+              return !shouldUseVirtual ? (
+                <div className="simplebar-content-wrapper">
+                  <div className="simplebar-content">
+                    <HeaderComponent
+                      handleAllRowSelectClick={handleAllRowSelectClick}
+                      headerGroups={headerGroups}
+                      isResizingColumn={isResizingColumn}
+                      prepareRow={prepareRow}
+                      renderHeaderCheckBoxCell={renderHeaderCheckBoxCell}
+                      rowSelectionState={rowSelectionState}
+                      subPage={subPage}
+                      {...props}
+                    />
+                    <TableBody
+                      accentColor={props.accentColor}
+                      borderRadius={props.borderRadius}
+                      columns={props.columns}
+                      getTableBodyProps={getTableBodyProps}
+                      height={props.height}
+                      innerElementType={MemoizedInnerElement}
+                      isAddRowInProgress={props.isAddRowInProgress}
+                      multiRowSelection={!!props.multiRowSelection}
+                      pageSize={props.pageSize}
+                      prepareRow={prepareRow}
+                      primaryColumnId={props.primaryColumnId}
+                      ref={tableBodyRef}
+                      rows={subPage}
+                      selectTableRow={props.selectTableRow}
+                      selectedRowIndex={props.selectedRowIndex}
+                      selectedRowIndices={props.selectedRowIndices}
+                      tableSizes={tableSizes}
+                      useVirtual={shouldUseVirtual}
+                      width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <TableBody
+                  accentColor={props.accentColor}
+                  borderRadius={props.borderRadius}
+                  columns={props.columns}
+                  getTableBodyProps={getTableBodyProps}
+                  height={props.height}
+                  innerElementType={MemoizedInnerElement}
+                  innerRef={contentNodeRef}
+                  isAddRowInProgress={props.isAddRowInProgress}
+                  multiRowSelection={!!props.multiRowSelection}
+                  outerRef={scrollableNodeRef}
+                  pageSize={props.pageSize}
+                  prepareRow={prepareRow}
+                  primaryColumnId={props.primaryColumnId}
+                  ref={tableBodyRef}
+                  rows={subPage}
+                  selectTableRow={props.selectTableRow}
+                  selectedRowIndex={props.selectedRowIndex}
+                  selectedRowIndices={props.selectedRowIndices}
+                  tableSizes={tableSizes}
+                  useVirtual={shouldUseVirtual}
+                  width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
+                />
+              );
+            }}
+          </SimpleBar>
         </div>
       </div>
     </TableWrapper>
