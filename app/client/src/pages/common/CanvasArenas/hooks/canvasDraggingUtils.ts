@@ -317,19 +317,28 @@ export const updateRectanglesPostReflow = (
 };
 
 export function getInterpolatedMoveDirection(
-  deltas: { deltaX: number; deltaY: number }[],
+  spaces: OccupiedSpace[],
   currentPosition: OccupiedSpace,
   direction: ReflowDirection,
 ): ReflowDirection {
-  const lastPosition = deltas.reduce(
+  const accumulatedPositions = spaces.reduce(
     (acc, curr) => {
       return {
         ...acc,
-        top: acc.top + curr.deltaY,
-        right: acc.right + curr.deltaX,
+        top: acc.top + curr.top,
+        right: acc.right + curr.right,
+        bottom: acc.bottom + curr.bottom,
+        left: acc.left + curr.left,
       };
     },
-    { ...currentPosition, top: 0, right: 0 },
+    { top: 0, right: 0, bottom: 0, left: 0, id: currentPosition.id },
   );
+  const lastPosition = {
+    ...accumulatedPositions,
+    top: accumulatedPositions.top / spaces.length,
+    right: accumulatedPositions.right / spaces.length,
+    bottom: accumulatedPositions.bottom / spaces.length,
+    left: accumulatedPositions.left / spaces.length,
+  };
   return getMoveDirection(lastPosition, currentPosition, direction);
 }

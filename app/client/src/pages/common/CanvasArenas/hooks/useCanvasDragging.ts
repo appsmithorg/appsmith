@@ -13,7 +13,10 @@ import {
   ReflowedSpaceMap,
   SpaceMap,
 } from "reflow/reflowTypes";
-import { getCanvasScale } from "selectors/editorSelectors";
+import {
+  getCanvasScale,
+  getCurrentAppPositioningType,
+} from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
@@ -42,6 +45,7 @@ import {
   HighlightInfo,
   useAutoLayoutHighlights,
 } from "./useAutoLayoutHighlights";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
@@ -63,11 +67,11 @@ export const useCanvasDragging = (
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   let { devicePixelRatio: scale = 1 } = window;
   scale *= canvasScale;
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
   const {
     blocksToDraw,
     defaultHandlePositions,
     draggingSpaces,
-
     getSnappedXY,
     isChildOfCanvas,
     isCurrentDraggedCanvas,
@@ -193,7 +197,7 @@ export const useCanvasDragging = (
         bottom: 0,
         id: "",
       };
-      let lastSnappedPositionDeltas: { deltaX: number; deltaY: number }[] = [];
+      let lastSnappedPositionDeltas: OccupiedSpace[] = [];
 
       const resetCanvasState = () => {
         throttledStopReflowing();
@@ -299,7 +303,9 @@ export const useCanvasDragging = (
 
         const triggerReflow = (e: any, firstMove: boolean) => {
           const canReflow =
-            !currentRectanglesToDraw[0].detachFromLayout && !dropDisabled;
+            !currentRectanglesToDraw[0].detachFromLayout &&
+            !dropDisabled &&
+            appPositioningType === AppPositioningTypes.FIXED;
           const isReflowing =
             !isEmpty(currentReflowParams.movementMap) ||
             (!isEmpty(currentReflowParams.movementLimitMap) &&
@@ -440,13 +446,10 @@ export const useCanvasDragging = (
                 currentDirection.current,
               );
               lastSnappedPositionDeltas = [
-                {
-                  deltaX:
-                    currentSnappedPosition.right - lastSnappedPosition.right,
-                  deltaY: currentSnappedPosition.top - lastSnappedPosition.top,
-                },
+                currentSnappedPosition,
                 ...lastSnappedPositionDeltas.slice(0, 4),
               ];
+
               triggerReflow(e, firstMove);
               if (
                 useAutoLayout &&

@@ -45,6 +45,7 @@ import {
 } from "utils/widgetRenderUtils";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
 

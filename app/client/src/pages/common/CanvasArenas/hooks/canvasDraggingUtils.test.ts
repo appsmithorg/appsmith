@@ -78,6 +78,7 @@ describe("test canvasDraggingUtils Methods", () => {
       rowHeight: 90,
       widgetId: "id",
       isNotColliding: true,
+      type: "CANVAS_WIDGET",
     };
     const spaceMap = {
       id: {
@@ -174,6 +175,7 @@ describe("test canvasDraggingUtils Methods", () => {
         rowHeight: 90,
         widgetId: "id",
         isNotColliding: true,
+        type: "CANVAS_WIDGET",
       };
       const modifiedBlock = {
         left: 0,
@@ -200,6 +202,7 @@ describe("test canvasDraggingUtils Methods", () => {
         rowHeight: 72,
         widgetId: "id",
         isNotColliding: true,
+        type: "CANVAS_WIDGET",
       };
       const modifiedBlock = {
         left: -10,
@@ -226,6 +229,7 @@ describe("test canvasDraggingUtils Methods", () => {
         rowHeight: 90,
         widgetId: "id",
         isNotColliding: true,
+        type: "CANVAS_WIDGET",
       };
       const modifiedBlock = {
         left: 400,
@@ -253,6 +257,7 @@ describe("test canvasDraggingUtils Methods", () => {
         widgetId: "id",
         isNotColliding: true,
         fixedHeight: 90,
+        type: "CANVAS_WIDGET",
       };
       const modifiedBlock = {
         left: 630,
@@ -283,6 +288,7 @@ describe("test canvasDraggingUtils Methods", () => {
           rowHeight: 90,
           widgetId: "1",
           isNotColliding: true,
+          type: "CANVAS_WIDGET",
         },
         {
           left: 100,
@@ -293,6 +299,7 @@ describe("test canvasDraggingUtils Methods", () => {
           rowHeight: 95,
           widgetId: "2",
           isNotColliding: true,
+          type: "CANVAS_WIDGET",
         },
         {
           left: 300,
@@ -303,6 +310,7 @@ describe("test canvasDraggingUtils Methods", () => {
           rowHeight: 34,
           widgetId: "3",
           isNotColliding: true,
+          type: "CANVAS_WIDGET",
         },
         {
           left: 400,
@@ -313,6 +321,7 @@ describe("test canvasDraggingUtils Methods", () => {
           rowHeight: 12,
           widgetId: "4",
           isNotColliding: true,
+          type: "CANVAS_WIDGET",
         },
       ];
 
