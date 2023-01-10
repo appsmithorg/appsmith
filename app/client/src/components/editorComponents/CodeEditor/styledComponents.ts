@@ -39,6 +39,7 @@ const editorBackground = (theme?: EditorTheme) => {
 
 export const EditorWrapper = styled.div<{
   editorTheme?: EditorTheme;
+  theme: Theme;
   hasError: boolean;
   isFocused: boolean;
   disabled?: boolean;
@@ -202,13 +203,14 @@ export const EditorWrapper = styled.div<{
     }
     .CodeMirror,
     .pretty-json-container {
-      font-family: ${(props) => props.theme.font.code};
+      font-family: ${(props) => props.theme.fonts.code};
       font-size: 0.75rem;
     }
 
     .CodeMirror-wrap pre.CodeMirror-line,
     .CodeMirror-wrap pre.CodeMirror-line-like {
-      font-smoothing: initial;
+      font-smooth: auto;
+      -webkit-font-smoothing: auto;
     }
 
     /* var names, js utility func names, func names */
