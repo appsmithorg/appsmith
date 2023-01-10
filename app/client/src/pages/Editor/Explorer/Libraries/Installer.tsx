@@ -201,7 +201,7 @@ const StatusIconWrapper = styled.div<{
 `;
 
 function isValidJSFileURL(url: string) {
-  const JS_FILE_REGEX = /^https?:\/\/.*\.js$/;
+  const JS_FILE_REGEX = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
   return JS_FILE_REGEX.test(url);
 }
 

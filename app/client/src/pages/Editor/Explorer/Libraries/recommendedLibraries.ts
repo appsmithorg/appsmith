@@ -51,15 +51,6 @@ export default [
     icon: "https://github.com/segmentio.png?s=20",
   },
   {
-    name: "mixpanel-browser",
-    description: "The official Mixpanel JavaScript browser client library",
-    author: "mixpanel",
-    docsURL: "https://developer.mixpanel.com/docs/javascript",
-    version: "2.1.0",
-    url: `https://cdn.jsdelivr.net/npm/mixpanel-browser@2.45.0/dist/mixpanel.umd.js`,
-    icon: "https://github.com/mixpanel.png?s=20",
-  },
-  {
     name: "fast-csv",
     description: "CSV parser and writer",
     author: "C2FO",
