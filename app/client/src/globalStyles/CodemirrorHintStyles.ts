@@ -15,7 +15,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     list-style: none;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: 0px 0px;
-    font-family: monospace;
+    font-family: ui-monospace, "Menlo", "Monaco", "Cascadia Code",
+    "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", 
+    "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
     max-height: 20em;
     overflow-y: auto;
     background: ${(props) =>
@@ -33,7 +35,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     min-width: 220px;
     width: auto;
     align-items: center;
-    font-size: 12px;
+    font-size: 11px;
     line-height: 15px;
     letter-spacing: -0.24px;
     &:hover {

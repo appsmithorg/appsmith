@@ -59,7 +59,7 @@ export const testLocators = {
 
 export const CodeEditorWithGutterStyles = css`
   .${RUN_GUTTER_ID} {
-    width: 0.5em;
+    width: 1em;
     background: #f0f0f0;
     margin-left: 5px;
   }

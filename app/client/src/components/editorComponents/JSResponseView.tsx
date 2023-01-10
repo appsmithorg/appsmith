@@ -66,7 +66,7 @@ const ResponseContainer = styled.div`
   min-height: ${TAB_MIN_HEIGHT};
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
   height: ${ActionExecutionResizerHeight}px;
-
+  border-top: 1px solid #e8e8e8;
   .react-tabs__tab-panel {
     ${CodeEditorWithGutterStyles}
     overflow-y: auto;

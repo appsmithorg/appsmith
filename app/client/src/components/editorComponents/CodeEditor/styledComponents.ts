@@ -110,20 +110,23 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
       border-radius: 0px;
-      border: 1px solid ${(props) => {
-        switch (true) {
-          case props.border === "none":
-            return "transparent";
-          case props.border === "bottom-side":
-            return Colors.MERCURY;
-          case props.hasError:
-            return "red";
-          case props.isFocused:
-            return "var(--appsmith-input-focus-border-color)";
-          default:
-            return Colors.GREY_5;
-        }
-      }};
+      border: 1px solid
+        ${(props) => {
+          switch (true) {
+            case props.border === "none":
+              return "transparent";
+            case props.border === "bottom-side":
+              return Colors.MERCURY;
+            case props.hasError:
+              return "red";
+            case props.isFocused:
+              return "var(--appsmith-input-focus-border-color)";
+            default:
+              return Colors.GREY_5;
+          }
+        }};
+      ${({ className }) =>
+        className?.includes("no-border") && `border: none; padding: 0`};
       background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
       & {
@@ -183,12 +186,12 @@ export const EditorWrapper = styled.div<{
       margin-right: 2px;
     }
     .datasource-highlight-error {
-      background: #FFF0F0;
-      border: 1px solid #F22B2B;
+      background: #fff0f0;
+      border: 1px solid #f22b2b;
     }
     .datasource-highlight-success {
-      background: #E3FFF3;
-      border: 1px solid #03B365;
+      background: #e3fff3;
+      border: 1px solid #03b365;
     }
     .CodeMirror {
       flex: 1;
@@ -196,6 +199,53 @@ export const EditorWrapper = styled.div<{
       z-index: 0;
       border-radius: 4px;
       height: auto;
+    }
+    .CodeMirror,
+    .pretty-json-container {
+      font-family: ui-monospace, "Menlo", "Monaco", "Cascadia Code",
+        "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono",
+        "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono",
+        "Courier New", monospace;
+      font-size: 0.75rem;
+    }
+
+    /* var names, js utility func names, func names */
+    .cm-s-duotone-light span.cm-property,
+    .cm-s-duotone-light .cm-string.cm-property {
+      color: #e15c15; /* our new accessible brand color */
+    }
+
+    /* eg: export, default, async keywords */
+    span.cm-keyword {
+      color: brown;
+    }
+
+    /* gutter arrow to collapse or expand code */
+    .CodeMirror-guttermarker-subtle {
+      color: #442334;
+    }
+
+    /* Text selection */
+    .cm-s-duotone-light div.CodeMirror-selected {
+      background: #d8e8fd !important;
+    }
+
+    .cm-s-duotone-light span.cm-string {
+      color: #1659df;
+    }
+
+    /* +, =>, -, etc. operators */
+    .cm-s-duotone-light span.cm-operator {
+      color: #364252; /* This is gray-7 from our new shades of gray */
+    }
+
+    .cm-s-duotone-light span.cm-positive,
+    .cm-s-duotone-light span.cm-string-2,
+    .cm-s-duotone-light span.cm-type,
+    .cm-s-duotone-light span.cm-url,
+    .cm-s-duotone-light span.cm-variable-2,
+    .cm-s-duotone-light span.cm-variable-3 {
+      color: brown;
     }
     ${(props) =>
       props.disabled &&
@@ -273,7 +323,6 @@ export const EditorWrapper = styled.div<{
         : `
           position: relative;
         `}
-    ${(props) => (props.isFocused ? `z-index: 3;` : `z-index: 0;`)}
 
     ${(props) => {
       let height = props.height || "auto";

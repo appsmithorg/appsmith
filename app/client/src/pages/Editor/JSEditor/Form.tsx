@@ -338,7 +338,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     panelComponent: (
                       <CodeEditor
                         blockCompletions={blockCompletions}
-                        className={"js-editor"}
+                        className={"js-editor no-border"}
                         customGutter={JSGutters}
                         dataTreePath={`${currentJSCollection.name}.body`}
                         disabled={!isChangePermitted}

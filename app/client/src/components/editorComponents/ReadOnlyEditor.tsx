@@ -10,6 +10,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 
 interface Props {
+  className?: string;
   input: {
     value: string;
     onChange?: (event: ChangeEvent<HTMLTextAreaElement>) => void;
@@ -41,6 +42,7 @@ function ReadOnlyEditor(props: Props) {
     isReadOnly: props.isReadOnly,
     isRawView: props.isRawView,
     containerHeight: props.containerHeight,
+    className: props.className || "no-border",
   };
   return <CodeEditor {...editorProps} />;
 }

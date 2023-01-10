@@ -236,6 +236,7 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  lineRef: React.MutableRefObject<number | null> = React.createRef();
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -685,7 +686,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
-    this.handleCustomGutter(cm.getCursor().line, true);
+    const line = cm.getCursor().line;
+    this.handleCustomGutter(line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
       return;
@@ -704,6 +706,16 @@ class CodeEditor extends Component<Props, State> {
     } else {
       cm.setOption("matchBrackets", false);
     }
+    if (!this.props.className?.includes("no-border")) return;
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+    }
+    cm.addLineClass(line, "background", "CodeMirror-activeline-background");
+    this.lineRef.current = line;
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
