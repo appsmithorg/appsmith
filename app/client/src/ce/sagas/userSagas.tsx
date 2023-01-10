@@ -184,8 +184,7 @@ export function* getCurrentUserSaga() {
         UsagePulse.userAnonymousId = AnalyticsUtil.getAnonymousId();
 
         if (!enableTelemetry) {
-          AnalyticsUtil.blockTrackEvent = false;
-          (window as any).analytics = undefined;
+          AnalyticsUtil.removeAnalytics();
         }
       }
 

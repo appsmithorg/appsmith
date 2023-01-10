@@ -6,7 +6,7 @@ import { noop } from "lodash";
 import history from "utils/history";
 
 const PULSE_API_ENDPOINT = "/api/v1/usage-pulse";
-const PULSE_INTERVAL = 60; /* 1 hour in seconds */
+const PULSE_INTERVAL = 3600; /* 1 hour in seconds */
 const USER_ACTIVITY_LISTENER_EVENTS = ["pointerdown", "keydown"];
 class UsagePulse {
   static userAnonymousId: string | undefined;
@@ -36,6 +36,7 @@ class UsagePulse {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      keepalive: true,
     }).catch(noop);
   }
 
@@ -66,7 +67,6 @@ class UsagePulse {
     });
 
     UsagePulse.deregisterActivityListener();
-    document.title = "watching for route change";
   }
 
   static scheduleNextActivityListeners() {
@@ -76,8 +76,6 @@ class UsagePulse {
       UsagePulse.registerActivityListener,
       PULSE_INTERVAL * 1000,
     );
-
-    showTime(PULSE_INTERVAL);
   }
 
   static startTrackingActivity() {
@@ -93,19 +91,7 @@ class UsagePulse {
     UsagePulse.userAnonymousId = undefined;
     clearTimeout(UsagePulse.Timer);
     UsagePulse.unlistenRouteChange && UsagePulse.unlistenRouteChange();
-    document.title = "stopped watching for activity";
   }
 }
 
 export default UsagePulse;
-
-function showTime(time: number) {
-  if (time > 0) {
-    document.title = time.toString() + "s until next listeners";
-    setTimeout(() => {
-      showTime(time - 1);
-    }, 1000);
-  } else {
-    document.title = "watching for user activity";
-  }
-}

@@ -467,8 +467,6 @@ class AnalyticsUtil {
           userProperties,
         );
       }
-
-      AnalyticsUtil.blockTrackEvent = false;
     }
 
     if (sentry.enabled) {
@@ -492,6 +490,8 @@ class AnalyticsUtil {
         username: userData.username,
       });
     }
+
+    AnalyticsUtil.blockTrackEvent = false;
   }
 
   static getAnonymousId() {
@@ -515,9 +515,8 @@ class AnalyticsUtil {
   }
 
   static removeAnalytics() {
-    const windowDoc: any = window;
-
-    windowDoc.analytics = undefined;
+    AnalyticsUtil.blockTrackEvent = false;
+    (window as any).analytics = undefined;
   }
 }
 
