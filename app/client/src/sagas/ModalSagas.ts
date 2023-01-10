@@ -217,7 +217,7 @@ export function* closeModalSaga(
       );
     }
     if (modalName) {
-      yield put(selectWidgetInitAction());
+      yield put(selectWidgetInitAction([]));
       yield put(focusWidget(MAIN_CONTAINER_WIDGET_ID));
     }
   } catch (error) {

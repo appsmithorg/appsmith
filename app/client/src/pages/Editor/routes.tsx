@@ -28,6 +28,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -165,6 +166,7 @@ type PaneDrawerProps = {
   onClick: (e: React.MouseEvent) => void;
   children: ReactNode;
 };
+
 function PaneDrawer(props: PaneDrawerProps) {
   const showPropertyPane = useShowPropertyPane();
   const { focusWidget, selectWidget } = useWidgetSelection();
@@ -181,7 +183,7 @@ function PaneDrawer(props: PaneDrawerProps) {
       // delaying setting select and focus state,
       // so that the focus history has time to store the selected values
       setTimeout(() => {
-        selectWidget(undefined);
+        selectWidget([]);
         focusWidget(undefined);
       }, 0);
     }
