@@ -768,7 +768,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         importedApplication.setPublishedPages(null);
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
-        Mono<Application> importedApplicationMono = pluginRepository.findAll()
+        Mono<Application> importedApplicationMono = installedJSLibMono
+                .flatMapMany(ignored -> pluginRepository.findAll())
                 .map(plugin -> {
                     final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
                     pluginMap.put(pluginReference, plugin.getId());
@@ -1193,7 +1194,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                             })
                             .thenReturn(true);
                 })
-                .flatMap(ignored -> installedJSLibMono)
                 .flatMap(ignored -> {
                     // Don't update gitAuth as we are using @Encrypted for private key
                     importedApplication.setGitApplicationMetadata(null);
