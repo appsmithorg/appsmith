@@ -15,6 +15,7 @@ import {
   textGetter,
   textSetter,
   isValueValidURL,
+  objectSetter,
 } from "./utils";
 
 describe("Test argStringToArray", () => {
@@ -474,6 +475,24 @@ describe("Test textGetter", () => {
       expected: "a",
       argNum: 0,
     },
+    {
+      index: 14,
+      input: "{{navigateTo('Page1', {a:1}, 'SAME_WINDOW');}}",
+      expected: "{{{\n  a: 1\n}}}",
+      argNum: 1,
+    },
+    {
+      index: 15,
+      input: "{{navigateTo('Page1', {a:1, b:3}, 'SAME_WINDOW');}}",
+      expected: "{{{\n  a: 1,\n  b: 3\n}}}",
+      argNum: 1,
+    },
+    {
+      index: 16,
+      input: "{{navigateTo('Page1', {}, 'SAME_WINDOW');}}",
+      expected: "{{{}}}",
+      argNum: 1,
+    },
   ];
   test.each(cases.map((x) => [x.index, x.input, x.expected, x.argNum]))(
     "test case %d",
@@ -562,6 +581,42 @@ describe("Test enumTypeGetter", () => {
       expect(result).toStrictEqual(expected);
     },
   );
+});
+
+describe("Test objectSetter", () => {
+  const cases = [
+    {
+      index: 0,
+      value: "{{{a:1}}}",
+      input: "{{navigateTo('', {}, 'SAME_WINDOW')}}",
+      expected: "{{navigateTo('', {a:1}, 'SAME_WINDOW');}}",
+      argNum: 1,
+    },
+    {
+      index: 1,
+      value: "{{{a:1, b:2}}}",
+      input: "{{navigateTo('', {}, 'SAME_WINDOW')}}",
+      expected: "{{navigateTo('', {a:1, b:2}, 'SAME_WINDOW');}}",
+      argNum: 1,
+    },
+    {
+      index: 2,
+      value: "{{{a:1, b:2}}}",
+      input: "{{navigateTo('', {c:6}, 'SAME_WINDOW')}}",
+      expected: "{{navigateTo('', {a:1, b:2}, 'SAME_WINDOW');}}",
+      argNum: 1,
+    },
+  ];
+  test.each(
+    cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),
+  )("test case %d", (index, input, expected, value, argNum) => {
+    const result = objectSetter(
+      value as string,
+      input as string,
+      argNum as number,
+    );
+    expect(result).toStrictEqual(expected);
+  });
 });
 
 describe("Test isValueValidURL", () => {
