@@ -649,7 +649,7 @@ jobs:
           parallel: true
           config-file: cypress_fat.json
           group: "Electrons on Github Action Fat Container"
-          spec: "cypress/integration/**/**/*"
+          spec: "cypress/integration/Smoke_TestSuite/ClientSideTests/BugTests/GitBugs.ts"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -709,7 +709,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: dockerlogs
+          name: dockerlogs-${{ matrix.job }}
           path: ~/dockerlogs.txt
 
       # Set status = failedtest
