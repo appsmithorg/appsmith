@@ -742,7 +742,7 @@ class MetaWidgetGenerator {
       : rowIndex;
     const dataBinding =
       this.serverSidePagination && this.cachedRows.curr.has(key)
-        ? this.rowDataCache[key]
+        ? `{{${JSON.stringify(this.rowDataCache[key])}}}`
         : `{{${this.widgetName}.listData[${currentIndex}]}}`;
     const currentItem = dataBinding;
     const currentRowCache = this.getRowCacheGroupByTemplateWidgetName(key);
