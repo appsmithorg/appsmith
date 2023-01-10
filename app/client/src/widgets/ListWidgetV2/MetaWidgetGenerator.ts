@@ -875,7 +875,7 @@ class MetaWidgetGenerator {
 
     const dataBinding =
       this.serverSidePagination && this.cachedRows.curr.has(key)
-        ? this.rowDataCache[key]
+        ? `{{${JSON.stringify(this.rowDataCache[key])}}}`
         : `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
 
     metaWidget.currentItem = dataBinding;
