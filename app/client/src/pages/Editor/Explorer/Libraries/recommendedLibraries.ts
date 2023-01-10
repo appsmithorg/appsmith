@@ -37,6 +37,7 @@ export default [
     url: "https://unpkg.com/@supabase/supabase-js@2.2.3/dist/umd/supabase.js",
     icon: "https://github.com/supabase.png?s=20",
   },
+  // We'll be enabling support for segment soon
   // {
   //   name: "@segment/analytics-next",
   //   url:
