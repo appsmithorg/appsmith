@@ -21,9 +21,12 @@ import {
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getCurrentAppPositioningType } from "./editorSelectors";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
+import { getCurrentAppPositioningType } from "./editorSelectors";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { Positioning } from "components/constants";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -71,18 +74,27 @@ const getCurrentWidgetName = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  getCurrentAppPositioningType,
+  getWidgets,
   getDataTree,
   (
     widget: WidgetProps | undefined,
-    appPositioningType,
+    widgets,
     evaluatedTree: DataTree,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
+    const appPositioningType =
+      widgets && widgets[MAIN_CONTAINER_WIDGET_ID]
+        ? widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical
+          ? AppPositioningTypes.AUTO
+          : AppPositioningTypes.FIXED
+        : AppPositioningTypes.FIXED;
     const evaluatedWidget = find(evaluatedTree, {
       widgetId: widget.widgetId,
     }) as DataTreeWidget;
-    const widgetProperties = { ...widget, appPositioningType };
+    const widgetProperties = {
+      ...widget,
+      appPositioningType,
+    };
 
     if (evaluatedWidget) {
       widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];

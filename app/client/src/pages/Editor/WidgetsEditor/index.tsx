@@ -30,6 +30,7 @@ import CanvasContainer from "./CanvasContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import PageTabs from "./PageTabs";
 import PropertyPaneContainer from "./PropertyPaneContainer";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -41,6 +42,8 @@ function WidgetsEditor() {
   const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
+  const isMultiPane = useSelector(isMultiPaneActive);
+
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
@@ -110,6 +113,7 @@ function WidgetsEditor() {
   );
 
   PerformanceTracker.stopTracking();
+
   return (
     <EditorContextProvider>
       {showOnboardingTasks ? (
@@ -133,7 +137,7 @@ function WidgetsEditor() {
                 <Debugger />
               </div>
             </div>
-            <PropertyPaneContainer />
+            {!isMultiPane && <PropertyPaneContainer />}
           </div>
         </>
       )}
