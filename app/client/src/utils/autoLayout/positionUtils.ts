@@ -22,7 +22,7 @@ export interface AlignmentInfo {
   children: Widget[];
 }
 
-interface Row extends AlignmentInfo {
+export interface Row extends AlignmentInfo {
   height: number;
 }
 
@@ -81,26 +81,26 @@ export function updateWidgetPositions(
         isMobile,
       );
       widgets = { ...widgets, [parent.widgetId]: updatedParent };
+
+      const shouldUpdateHeight =
+        parent.parentId &&
+        ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
+          allWidgets[parent.parentId].type,
+        );
+      // console.log(
+      //   "#### update height",
+      //   parent.widgetName,
+      //   "parentHeight",
+      //   parentHeight,
+      //   "height",
+      //   height,
+      //   shouldUpdateHeight,
+      //   parent.parentId ? widgets[parent.parentId].widgetName : "no parent",
+      // );
+      if (shouldUpdateHeight && parent.parentId)
+        return updateWidgetPositions(widgets, parent.parentId, isMobile);
     }
 
-    const shouldUpdateHeight =
-      parent.parentId &&
-      ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
-        allWidgets[parent.parentId].type,
-      ) &&
-      parentHeight <= height;
-    // console.log(
-    //   "#### update height",
-    //   parent.widgetName,
-    //   "parentHeight",
-    //   parent.parent,
-    //   "height",
-    //   height,
-    //   shouldUpdateHeight,
-    //   parent.parentId ? widgets[parent.parentId].widgetName : "no parent",
-    // );
-    if (shouldUpdateHeight && parent.parentId)
-      return updateWidgetPositions(widgets, parent.parentId, isMobile);
     return widgets;
   } catch (e) {
     // console.error(e);
@@ -163,7 +163,7 @@ function calculateWidgetPositions(
  * @param totalHeight | number : total height assumed by the widgets in this row.
  * @returns { height: number; widgets: CanvasWidgetsReduxState }
  */
-function placeWidgetsWithoutWrap(
+export function placeWidgetsWithoutWrap(
   allWidgets: CanvasWidgetsReduxState,
   arr: AlignmentInfo[],
   topRow: number,
@@ -439,7 +439,7 @@ function updatePositionsForFlexWrap(
   return { height: top - topRow, widgets };
 }
 
-function getStartingPosition(
+export function getStartingPosition(
   alignment: FlexLayerAlignment,
   startSize: number,
   centerSize: number,
@@ -469,7 +469,7 @@ function getStartingPosition(
  * @param isMobile | boolean: is mobile viewport.
  * @returns { height: number; widgets: CanvasWidgetsReduxState }
  */
-function placeWrappedWidgets(
+export function placeWrappedWidgets(
   allWidgets: CanvasWidgetsReduxState,
   alignment: AlignmentInfo,
   topRow: number,
@@ -515,7 +515,7 @@ function placeWrappedWidgets(
  * @param isMobile | boolean: is mobile viewport.
  * @returns Row[]
  */
-function getWrappedRows(
+export function getWrappedRows(
   arr: AlignmentInfo,
   rows: Row[],
   isMobile = false,
