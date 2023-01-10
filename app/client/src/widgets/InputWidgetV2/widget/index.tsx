@@ -349,6 +349,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                   allowedValues: ICON_NAMES,
                 },
               },
+              hidden: (props: InputWidgetProps) =>
+                props.inputType === InputTypes.MULTI_LINE_TEXT,
             },
             {
               propertyName: "iconAlign",
@@ -369,7 +371,9 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isBindProperty: false,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: InputWidgetProps) => !props.iconName,
+              hidden: (props: InputWidgetProps) =>
+                props.inputType === InputTypes.MULTI_LINE_TEXT ||
+                !props.iconName,
               dependencies: ["iconName"],
             },
           ],
