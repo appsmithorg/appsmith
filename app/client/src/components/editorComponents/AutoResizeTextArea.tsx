@@ -1,12 +1,12 @@
 import { debounce } from "lodash";
 import React, {
-  MutableRefObject,
   TextareaHTMLAttributes,
   useEffect,
   useLayoutEffect,
   useRef,
 } from "react";
 import styled from "styled-components";
+import useComposedRef from "utils/UseComposeRef";
 
 interface AutoResizeTextAreaStyledProps {
   autoResize: boolean;
@@ -15,10 +15,8 @@ interface AutoResizeTextAreaStyledProps {
 type AutoResizeTextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> &
   AutoResizeTextAreaStyledProps;
 
-const PADDING = 10;
-
 const StyledTextArea = styled.textarea<AutoResizeTextAreaStyledProps>`
-  padding: ${PADDING}px;
+  padding: 10px;
   box-sizing: border-box;
   width: 100%;
   height: ${(props) => (!props.autoResize ? "100%" : "auto")};
@@ -35,28 +33,41 @@ const ProxyTextArea = styled(StyledTextArea)`
   resize: none;
 `;
 
-const AutoResizeTextArea: React.ForwardRefRenderFunction<
-  HTMLTextAreaElement,
-  AutoResizeTextAreaProps
-> = (props, ref) => {
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  const proxyTextAreaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  function updateHeight() {
-    if (props.autoResize) {
-      const height = proxyTextAreaRef.current?.scrollHeight;
-      if (height) {
-        if (textAreaRef.current !== null) {
-          textAreaRef.current.style.height = `${height}px`;
-        }
+function updateHeight<T extends HTMLElement | null>({
+  autoResize,
+  elementRef,
+  proxyElementRef,
+}: {
+  autoResize: boolean;
+  elementRef: React.MutableRefObject<T>;
+  proxyElementRef: React.MutableRefObject<T>;
+}) {
+  if (autoResize) {
+    const height = proxyElementRef.current?.scrollHeight;
+    if (height) {
+      if (elementRef.current !== null) {
+        elementRef.current.style.height = `${height}px`;
       }
     }
   }
+}
+
+const AutoResizeTextArea: React.ForwardRefRenderFunction<
+  HTMLTextAreaElement,
+  AutoResizeTextAreaProps
+> = (props, userRef) => {
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const proxyTextAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const ref = useComposedRef(textAreaRef, userRef);
 
   const observer = React.useRef(
     new ResizeObserver(
       debounce(() => {
-        updateHeight();
+        updateHeight({
+          autoResize: props.autoResize,
+          proxyElementRef: proxyTextAreaRef,
+          elementRef: textAreaRef,
+        });
       }, 100),
     ),
   );
@@ -74,25 +85,16 @@ const AutoResizeTextArea: React.ForwardRefRenderFunction<
   }, []);
 
   useLayoutEffect(() => {
-    updateHeight();
+    updateHeight({
+      autoResize: props.autoResize,
+      proxyElementRef: proxyTextAreaRef,
+      elementRef: textAreaRef,
+    });
   }, [props.value, props.autoResize]);
-
-  function assignRef(element: HTMLTextAreaElement) {
-    try {
-      const mutableForwardRef = ref as MutableRefObject<HTMLTextAreaElement>;
-      if (mutableForwardRef) {
-        mutableForwardRef.current = element;
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-    }
-    textAreaRef.current = element;
-  }
 
   return (
     <>
-      <StyledTextArea {...props} ref={assignRef} />
+      <StyledTextArea {...props} ref={ref} />
       {// This is added to get the correct scroll height of a similar
       // textarea which is not displayed on the screen whose height
       // is always auto.
