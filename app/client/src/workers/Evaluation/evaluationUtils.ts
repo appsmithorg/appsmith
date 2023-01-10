@@ -18,7 +18,7 @@ import {
   DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 
-import _, { get, set } from "lodash";
+import _, { find, get, isEmpty, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -764,15 +764,30 @@ export const overrideWidgetProperties = (params: {
   value: unknown;
   currentTree: DataTree;
   evalMetaUpdates: EvalMetaUpdates;
+  isNewWidget: boolean;
 }) => {
-  const { currentTree, entity, evalMetaUpdates, propertyPath, value } = params;
+  const {
+    currentTree,
+    entity,
+    evalMetaUpdates,
+    isNewWidget,
+    propertyPath,
+    value,
+  } = params;
   const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
       entity.overridingPropertyPaths[propertyPath];
 
+    const pathsNotToOverride = widgetPathsNotToOverride(
+      isNewWidget,
+      entity,
+      propertyPath,
+    );
+
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
+      if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
       _.set(
         currentTree,
         [entity.widgetName, ...overriddenPropertyPathArray],
@@ -831,4 +846,38 @@ export const isATriggerPath = (
   propertyPath: string,
 ) => {
   return isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
+};
+
+export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
+  return !!find(updates, {
+    event: DataTreeDiffEvent.NEW,
+    payload: { propertyPath: entityName },
+  });
+};
+
+export const widgetPathsNotToOverride = (
+  isNewWidget: boolean,
+  entity: DataTreeWidget,
+  propertyPath: string,
+) => {
+  let pathsNotToOverride: string[] = [];
+  const overridingPropertyPaths = entity.overridingPropertyPaths[propertyPath];
+
+  const parsedMetaObj = JSON.parse(JSON.stringify(entity.meta));
+
+  if (isNewWidget && !isEmpty(parsedMetaObj)) {
+    const metaPaths = overridingPropertyPaths.filter(
+      (path) => path.split(".")[0] === "meta",
+    );
+    pathsNotToOverride = [...metaPaths];
+    metaPaths.forEach((path) => {
+      if (entity.overridingPropertyPaths.hasOwnProperty(path)) {
+        pathsNotToOverride = [
+          ...pathsNotToOverride,
+          ...entity.overridingPropertyPaths[path],
+        ];
+      }
+    });
+  }
+  return pathsNotToOverride;
 };

@@ -14,6 +14,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
 import { createUnEvalTreeForEval } from "../dataTreeUtils";
+import { APP_MODE } from "entities/App";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -347,7 +348,7 @@ describe("DataTreeEvaluator", () => {
   );
   const unEvalTree: UnEvalTree = {
     appsmith: {
-      mode: "EDIT",
+      mode: APP_MODE.EDIT,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
@@ -449,9 +450,14 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates,
     } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
 
-    evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      unEvalUpdates,
+    );
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Text2.text", "Hey there");
     expect(dataTree).toHaveProperty("Text3.text", "Hey there");
@@ -468,8 +474,13 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates,
     } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
-    evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      unEvalUpdates,
+    );
 
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
@@ -490,8 +501,13 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates,
     } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
-    evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      unEvalUpdates,
+    );
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Input1.text", "Default value");
   });
@@ -534,8 +550,13 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates,
     } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
-    evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      unEvalUpdates,
+    );
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Dropdown2.options.0.label", "newValue");
   });
@@ -559,8 +580,13 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates,
     } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
-    evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      unEvalUpdates,
+    );
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Table1.tableData", [
@@ -609,8 +635,13 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates,
     } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
-    evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      nonDynamicFieldValidationOrder,
+      unEvalUpdates,
+    );
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
     expect(dataTree).toHaveProperty("Table1.tableData", [
@@ -662,12 +693,14 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
+      unEvalUpdates,
     } = evaluator.setupUpdateTree(
       createUnEvalTreeForEval((updatedTree1 as unknown) as UnEvalTree),
     );
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder2,
+      unEvalUpdates,
     );
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Api2.config.pluginSpecifiedTemplates[0].value",
@@ -691,12 +724,14 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder: newEvalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates: unEvalUpdates2,
     } = evaluator.setupUpdateTree(
       createUnEvalTreeForEval((updatedTree2 as unknown) as UnEvalTree),
     );
     evaluator.evalAndValidateSubTree(
       newEvalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates2,
     );
     const dataTree = evaluator.evalTree;
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
@@ -726,12 +761,14 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder: newEvalOrder2,
       nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
+      unEvalUpdates: unEvalUpdates3,
     } = evaluator.setupUpdateTree(
       createUnEvalTreeForEval((updatedTree3 as unknown) as UnEvalTree),
     );
     evaluator.evalAndValidateSubTree(
       newEvalOrder2,
       nonDynamicFieldValidationOrder3,
+      unEvalUpdates3,
     );
     const dataTree3 = evaluator.evalTree;
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([

@@ -130,10 +130,12 @@ function eventRequestHandler({
       const {
         evalOrder,
         nonDynamicFieldValidationOrder,
+        unEvalUpdates,
       } = dataTreeEvaluator.setupUpdateTree(unEvalTree);
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
+        unEvalUpdates,
       );
       const evalTree = dataTreeEvaluator.evalTree;
       const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
@@ -359,6 +361,7 @@ function eventRequestHandler({
           const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
             evalOrder,
             nonDynamicFieldValidationOrder,
+            unEvalUpdates,
           );
           dataTree = makeEntityConfigsAsObjProperties(
             dataTreeEvaluator.evalTree,

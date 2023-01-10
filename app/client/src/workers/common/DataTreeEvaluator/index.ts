@@ -40,6 +40,7 @@ import {
   trimDependantChangePaths,
   overrideWidgetProperties,
   isValidEntity,
+  isNewEntity,
 } from "workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -538,6 +539,7 @@ export default class DataTreeEvaluator {
   evalAndValidateSubTree(
     evaluationOrder: string[],
     nonDynamicFieldValidationOrder: string[],
+    unevalUpdates: DataTreeDiff[],
   ): {
     evalMetaUpdates: EvalMetaUpdates;
     staleMetaIds: string[];
@@ -551,7 +553,7 @@ export default class DataTreeEvaluator {
       this.evalTree,
       this.resolvedFunctions,
       evaluationOrder,
-      { skipRevalidation: false },
+      { skipRevalidation: false, isFirstTree: false, unevalUpdates },
     );
     const evaluationEndTime = performance.now();
     const reValidateStartTime = performance.now();
@@ -675,7 +677,11 @@ export default class DataTreeEvaluator {
     oldUnevalTree: DataTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
-    option = { skipRevalidation: true },
+    options: {
+      skipRevalidation: boolean;
+      isFirstTree: boolean;
+      unevalUpdates: DataTreeDiff[];
+    } = { skipRevalidation: true, isFirstTree: true, unevalUpdates: [] },
   ): {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
@@ -683,6 +689,7 @@ export default class DataTreeEvaluator {
   } {
     const tree = klona(oldUnevalTree);
     const evalMetaUpdates: EvalMetaUpdates = [];
+    const { isFirstTree, skipRevalidation, unevalUpdates } = options;
     let staleMetaIds: string[] = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
@@ -743,6 +750,8 @@ export default class DataTreeEvaluator {
             evalPropertyValue = unEvalPropertyValue;
           }
           if (isWidget(entity) && !isATriggerPath) {
+            const isNewWidget =
+              isFirstTree || isNewEntity(unevalUpdates, entityName);
             if (propertyPath) {
               const parsedValue = validateAndParseWidgetProperty({
                 fullPropertyPath,
@@ -761,9 +770,10 @@ export default class DataTreeEvaluator {
                 parsedValue,
                 propertyPath,
                 evalPropertyValue,
+                isNewWidget,
               });
 
-              if (!option.skipRevalidation) {
+              if (!skipRevalidation) {
                 this.reValidateWidgetDependentProperty({
                   fullPropertyPath,
                   widget: entity,
@@ -1096,6 +1106,7 @@ export default class DataTreeEvaluator {
     evalMetaUpdates,
     evalPropertyValue,
     fullPropertyPath,
+    isNewWidget,
     parsedValue,
     propertyPath,
   }: {
@@ -1103,6 +1114,7 @@ export default class DataTreeEvaluator {
     entity: DataTreeWidget;
     evalMetaUpdates: EvalMetaUpdates;
     fullPropertyPath: string;
+    isNewWidget: boolean;
     parsedValue: unknown;
     propertyPath: string;
     evalPropertyValue: unknown;
@@ -1113,6 +1125,7 @@ export default class DataTreeEvaluator {
       value: parsedValue,
       currentTree,
       evalMetaUpdates,
+      isNewWidget,
     });
 
     if (overwriteObj && overwriteObj.overwriteParsedValue) {
