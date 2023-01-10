@@ -148,19 +148,27 @@ export function getMoveDirection(
   currentDirection: ReflowDirection,
 ) {
   if (!prevPosition || !currentPosition) return currentDirection;
+  const deltaX = Math.max(
+    Math.abs(currentPosition.left - prevPosition.left),
+    Math.abs(currentPosition.right - prevPosition.right),
+  );
+  const deltaY = Math.max(
+    Math.abs(currentPosition.top - prevPosition.top),
+    Math.abs(currentPosition.bottom - prevPosition.bottom),
+  );
+  if (deltaX >= deltaY) {
+    if (
+      currentPosition.right - prevPosition.right > 0 ||
+      currentPosition.left - prevPosition.left > 0
+    )
+      return ReflowDirection.RIGHT;
 
-  if (
-    currentPosition.right - prevPosition.right > 0 ||
-    currentPosition.left - prevPosition.left > 0
-  )
-    return ReflowDirection.RIGHT;
-
-  if (
-    currentPosition.right - prevPosition.right < 0 ||
-    currentPosition.left - prevPosition.left < 0
-  )
-    return ReflowDirection.LEFT;
-
+    if (
+      currentPosition.right - prevPosition.right < 0 ||
+      currentPosition.left - prevPosition.left < 0
+    )
+      return ReflowDirection.LEFT;
+  }
   if (
     currentPosition.bottom - prevPosition.bottom > 0 ||
     currentPosition.top - prevPosition.top > 0

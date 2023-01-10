@@ -240,7 +240,10 @@ export function pasteWidgetInFlexLayers(
    * If the new parent is not the same as the original parent,
    * then add a new flex layer.
    */
-  if (widgets[originalWidgetId].parentId !== parentId) {
+  if (
+    !widgets[originalWidgetId] ||
+    widgets[originalWidgetId].parentId !== parentId
+  ) {
     flexLayers = [
       ...flexLayers,
       {
