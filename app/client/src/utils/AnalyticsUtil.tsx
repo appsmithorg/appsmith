@@ -323,6 +323,11 @@ class AnalyticsUtil {
     smartlookClient.init(id);
   }
 
+  static initializeSegmentWithoutTracking(key: string) {
+    AnalyticsUtil.blockTrackEvent = true;
+    return AnalyticsUtil.initializeSegment(key);
+  }
+
   static initializeSegment(key: string) {
     const initPromise = new Promise<boolean>((resolve) => {
       (function init(window: any) {

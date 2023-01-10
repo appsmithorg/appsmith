@@ -13,6 +13,10 @@ class UsagePulse {
   static Timer: number;
   static unlistenRouteChange: () => void;
 
+  /*
+   * Function to check if the given URL is trakable or not.
+   * app builder and viewer urls are trackable
+   */
   static isTrackableUrl(url: string) {
     return (
       url.includes(BUILDER_VIEWER_PATH_PREFIX) ||
@@ -58,6 +62,10 @@ class UsagePulse {
     });
   }
 
+  /*
+   * Function to register a history change event and trigger
+   * a callback and unlisten when the user goes to a trackable URL
+   */
   static watchForTrackableUrl(callback: () => void) {
     UsagePulse.unlistenRouteChange = history.listen(() => {
       if (UsagePulse.isTrackableUrl(window.location.href)) {
@@ -69,6 +77,10 @@ class UsagePulse {
     UsagePulse.deregisterActivityListener();
   }
 
+  /*
+   * Function that suspends active tracking listeners
+   * and schedules when next listeners should be registered.
+   */
   static scheduleNextActivityListeners() {
     UsagePulse.deregisterActivityListener();
 
@@ -78,6 +90,11 @@ class UsagePulse {
     );
   }
 
+  /*
+   * Point of entry for the user tracking
+   * triggers a pulse and schedules the pulse , if user is on a trackable url, otherwise
+   * registers listeners to wait for the user to go to a trackable url
+   */
   static startTrackingActivity() {
     if (UsagePulse.isTrackableUrl(window.location.href)) {
       UsagePulse.sendPulse();
@@ -87,10 +104,14 @@ class UsagePulse {
     }
   }
 
+  /*
+   * Function to cleanup states and listeners
+   */
   static stopTrackingActivity() {
     UsagePulse.userAnonymousId = undefined;
     clearTimeout(UsagePulse.Timer);
     UsagePulse.unlistenRouteChange && UsagePulse.unlistenRouteChange();
+    UsagePulse.deregisterActivityListener();
   }
 }
 

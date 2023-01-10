@@ -57,7 +57,7 @@ import {
 } from "utils/storage";
 import {
   initializeAnalyticsAndTrackers,
-  initializeSegment,
+  initializeSegmentWithoutTracking,
 } from "utils/AppsmithUtils";
 import { getAppsmithConfigs } from "ce/configs";
 import { getSegmentState } from "selectors/analyticsSelectors";
@@ -161,12 +161,7 @@ export function* getCurrentUserSaga() {
          * We're initializing the segment api regardless of the enableTelemetry flag
          * So we can use segement Id to fingerprint anonymous user in usage pulse call
          */
-        AnalyticsUtil.blockTrackEvent = true;
-        const result = initializeSegment();
-
-        if (result instanceof Promise) {
-          yield result;
-        }
+        yield initializeSegmentWithoutTracking();
       }
 
       //To make sure that we're not tracking from previous session.
