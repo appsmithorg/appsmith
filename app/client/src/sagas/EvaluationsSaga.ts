@@ -110,12 +110,9 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
-import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
-import { MessageType, TMessage } from "utils/MessageUtil";
 import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
-const evalWorker = new GracefulWorkerService(
+export const evalWorker = new GracefulWorkerService(
   new Worker(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
     {
@@ -333,67 +330,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   return response;
 }
 
-export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
-  while (true) {
-    const request: TMessage<any> = yield take(listenerChannel);
-    yield spawn(handleEvalWorkerMessage, request);
-  }
-}
-
-export function* handleEvalWorkerMessage(message: TMessage<any>) {
-  const { body, messageType } = message;
-  const { data, method } = body;
-  switch (method) {
-    case MAIN_THREAD_ACTION.LINT_TREE: {
-      yield put({
-        type: ReduxActionTypes.LINT_TREE,
-        payload: {
-          pathsToLint: data.lintOrder,
-          unevalTree: data.unevalTree,
-        },
-      });
-      break;
-    }
-    case MAIN_THREAD_ACTION.PROCESS_LOGS: {
-      const { logs = [], triggerMeta, eventType } = data;
-      yield call(
-        storeLogs,
-        logs,
-        triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
-        eventType === EventType.ON_JS_FUNCTION_EXECUTE
-          ? ENTITY_TYPE.JSACTION
-          : ENTITY_TYPE.WIDGET,
-        triggerMeta?.source?.id || "",
-      );
-      break;
-    }
-    case MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION: {
-      const sortedData: BatchedJSExecutionData = yield sortJSExecutionDataByCollectionId(
-        data.JSData as Record<string, unknown>,
-      );
-      yield put({
-        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
-        payload: sortedData,
-      });
-      break;
-    }
-    case MAIN_THREAD_ACTION.PROCESS_TRIGGER: {
-      const { eventType, trigger, triggerMeta } = data;
-      log.debug({ trigger: data.trigger });
-      const result: ResponsePayload = yield call(
-        executeTriggerRequestSaga,
-        trigger,
-        eventType,
-        triggerMeta,
-      );
-      if (messageType === MessageType.REQUEST)
-        yield call(evalWorker.respond, message.messageId, result);
-      break;
-    }
-  }
-  yield call(evalErrorHandler, data?.errors || []);
-}
-interface ResponsePayload {
+export interface ResponsePayload {
   data: {
     reason?: string;
     resolve?: unknown;
@@ -406,7 +343,7 @@ interface ResponsePayload {
  * It is necessary to respond back as the worker is waiting with a pending promise and wanting to know if it should
  * resolve or reject it with the data the execution has provided
  */
-function* executeTriggerRequestSaga(
+export function* executeTriggerRequestSaga(
   trigger: ActionDescription,
   eventType: EventType,
   triggerMeta: TriggerMeta,
