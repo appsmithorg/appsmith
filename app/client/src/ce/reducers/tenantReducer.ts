@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
+import localStorage from "utils/localStorage";
 import { createReducer } from "utils/ReducerUtils";
 
 export interface TenantReduxState<T> {
@@ -23,11 +24,7 @@ export const defaultBrandingConfig = {
 
 export const initialState: TenantReduxState<any> = {
   userPermissions: [],
-  tenantConfiguration: {
-    brandColors: {
-      ...createBrandColorsFromPrimaryColor("#000"),
-    },
-  },
+  tenantConfiguration: {},
   new: false,
   isLoading: true,
 };
@@ -42,15 +39,22 @@ export const handlers = {
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
     state: TenantReduxState<any>,
     action: ReduxAction<TenantReduxState<any>>,
-  ) => ({
-    ...state,
-    userPermissions: action.payload.userPermissions || [],
-    tenantConfiguration: {
+  ) => {
+    const tenantConfig = {
       ...defaultBrandingConfig,
       ...action.payload.tenantConfiguration,
-    },
-    isLoading: false,
-  }),
+    };
+
+    // cache the tenant config
+    localStorage.setItem("tenantConfig", JSON.stringify(tenantConfig));
+
+    return {
+      ...state,
+      userPermissions: action.payload.userPermissions || [],
+      tenantConfiguration: tenantConfig,
+      isLoading: false,
+    };
+  },
   [ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR]: (
     state: TenantReduxState<any>,
   ) => ({

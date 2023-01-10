@@ -1,4 +1,6 @@
 import { AppState } from "@appsmith/reducers";
+import localStorage from "utils/localStorage";
+import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
 
 export const getTenantPermissions = (state: AppState) => {
   return state.tenant?.userPermissions;
@@ -11,7 +13,23 @@ export const getTenantPermissions = (state: AppState) => {
  * @returns
  */
 export const getTenantConfig = (state: AppState) => {
-  return state.tenant?.tenantConfiguration;
+  const cachedTenantConfig = localStorage.getItem("tenantConfig");
+  let cachedTenantConfigParsed = {
+    brandColors: {
+      ...createBrandColorsFromPrimaryColor("#000"),
+    },
+  };
+
+  try {
+    if (cachedTenantConfig) {
+      cachedTenantConfigParsed = JSON.parse(cachedTenantConfig);
+    }
+  } catch (e) {}
+
+  return {
+    ...cachedTenantConfigParsed,
+    ...(state.tenant?.tenantConfiguration || {}),
+  } as Record<string, any>;
 };
 
 /**
