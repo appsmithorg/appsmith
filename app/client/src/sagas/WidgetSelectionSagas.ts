@@ -173,7 +173,6 @@ function* selectAllWidgetsInCanvasSaga() {
 function* selectWidgetSaga(action: ReduxAction<SelectWidgetActionPayload>) {
   try {
     const { isMultiSelect, selectionRequest, selectSiblings } = action.payload;
-    console.log("SELECTION REQUESTED");
     const newSelection: string[] = Array.isArray(selectionRequest)
       ? selectionRequest
       : [selectionRequest];
@@ -182,6 +181,7 @@ function* selectWidgetSaga(action: ReduxAction<SelectWidgetActionPayload>) {
       !newSelection[0] ||
       newSelection[0] === ""
     ) {
+      yield put(setLastSelectedWidget(""));
       yield put(setSelectedWidgets([]));
       return;
     }
@@ -252,6 +252,7 @@ function* selectWidgetSaga(action: ReduxAction<SelectWidgetActionPayload>) {
         }
         // Shift select siblings Entity Explorer
         if (selectSiblings) {
+          debugger;
           if (!alreadySelected && isASiblingSelected > -1) {
             const selectedWidgetIndex = siblingWidgets.indexOf(widgetId);
             const start =
@@ -262,7 +263,7 @@ function* selectWidgetSaga(action: ReduxAction<SelectWidgetActionPayload>) {
               isASiblingSelected < selectedWidgetIndex
                 ? selectedWidgetIndex
                 : isASiblingSelected;
-            const unSelectedSiblings = siblingWidgets.slice(start, end);
+            const unSelectedSiblings = siblingWidgets.slice(start, end + 1);
             if (unSelectedSiblings && unSelectedSiblings.length) {
               selectedWidgets = [...selectedWidgets, ...unSelectedSiblings];
             }
@@ -417,8 +418,7 @@ function isWidgetPartOfChildren(
 
 export function* widgetSelectionSagas() {
   yield all([
-    throttle(
-      1000,
+    takeLatest(
       ReduxActionTypes.SELECT_WIDGET_INIT,
       canPerformSelectionSaga,
       selectWidgetSaga,

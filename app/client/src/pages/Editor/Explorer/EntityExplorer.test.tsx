@@ -221,7 +221,16 @@ describe("Entity Explorer tests", () => {
         <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
       </MockPageDSL>,
     );
+
+    const checkboxWidget: any = component.queryByText(children[0].widgetName);
     const buttonWidget: any = component.queryByText(children[2].widgetName);
+
+    act(() => {
+      fireEvent.click(checkboxWidget, {
+        shiftKey: true,
+      });
+      jest.runAllTimers();
+    });
 
     act(() => {
       fireEvent.click(buttonWidget, {
