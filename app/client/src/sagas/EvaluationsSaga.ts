@@ -195,7 +195,7 @@ export function* evaluateTreeSaga(
   const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
-
+  // Replace empty object below with list of current metaWidgets present in the viewport
   yield put(resetWidgetsMetaState(difference(staleMetaIds, Object.keys({}))));
   yield put(setEvaluatedTree(updates));
   PerformanceTracker.stopAsyncTracking(
