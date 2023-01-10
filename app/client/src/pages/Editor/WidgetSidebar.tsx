@@ -67,9 +67,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   };
 
   return (
-    <div
-      className={`flex flex-col overflow-hidden ${isActive ? "" : "hidden"}`}
-    >
+    <div className={`flex flex-col overflow-hidden`}>
       <ExplorerSearch
         autoFocus
         clear={clearSearchInput}

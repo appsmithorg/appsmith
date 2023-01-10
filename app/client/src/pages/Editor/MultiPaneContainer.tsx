@@ -53,6 +53,10 @@ const MultiPaneContainer = () => {
         <EntityExplorerSidebar width={250} />
         <SideNav />
         <TabsPane onWidthChange={updatePaneWidth} width={tabsPaneWidth} />
+        <div
+          className="widget-pane"
+          style={{ width: "300px", height: "200px", backgroundColor: "red" }}
+        />
         <CanvasPane />
         {showPropertyPane && (
           <PropertyPanePane>

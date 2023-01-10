@@ -31,6 +31,10 @@ import PropertyPaneContainer from "./PropertyPaneContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { Button } from "design-system";
+import { Popover } from "@blueprintjs/core";
+import WidgetSidebar from "../WidgetSidebar";
+import WidgetPaneTrigger from "./WidgetPaneCTA";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -123,6 +127,7 @@ function WidgetsEditor() {
           {guidedTourEnabled && <Guide />}
           <div className="relative flex flex-row w-full overflow-hidden">
             <div className="relative flex flex-col w-full overflow-hidden">
+              <WidgetPaneTrigger />
               <CanvasTopSection />
               <div
                 className="relative flex flex-row w-full overflow-hidden"
