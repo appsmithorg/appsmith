@@ -20,6 +20,7 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { Positioning } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -139,7 +140,9 @@ export class ContainerWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
+    return {
+      positioning: `{{ this.appPositioningType === ${AppPositioningTypes.AUTO} ? ${Positioning.Vertical} : ${Positioning.Fixed} }}`,
+    };
   }
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
