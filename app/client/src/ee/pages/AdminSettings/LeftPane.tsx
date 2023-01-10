@@ -9,8 +9,8 @@ import {
   StyledHeader,
   Wrapper,
 } from "ce/pages/AdminSettings/LeftPane";
-import { AclFactory } from "./config";
-import { getCurrentUser } from "selectors/usersSelectors";
+import { AclFactory, OthersFactory } from "./config";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import { Category } from "./config/types";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import {
@@ -22,16 +22,23 @@ function getAclCategory() {
   return Array.from(AclFactory.categories);
 }
 
+function getOthersCategory() {
+  return Array.from(OthersFactory.categories);
+}
+
 export default function LeftPane() {
   const categories = getSettingsCategory();
   const aclCategories = getAclCategory();
   /** otherCategories will be built from its own factory in future;
    * The last value in `categories` (ATM) is AuditLogs.
    * */
-  const othersCategories: Category[] = [categories.splice(-1, 1)[0]];
+  // const othersCategories: Category[] = [categories.splice(-1, 1)[0]];
+  const othersCategories = getOthersCategory();
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;
+  const isUsageandBillingEnabled = useSelector(selectFeatureFlags)
+    ?.USAGE_AND_BILLING;
 
   const tenantPermissions = useSelector(getTenantPermissions);
   const isAuditLogsEnabled = isPermitted(
@@ -42,6 +49,15 @@ export default function LeftPane() {
   const filteredAclCategories = aclCategories
     ?.map((category) => {
       if (category.title === "Users" && !isSuperUser) {
+        return null;
+      }
+      return category;
+    })
+    .filter(Boolean) as Category[];
+
+  const filteredOthersCategories = othersCategories
+    ?.map((category) => {
+      if (category.title === "Billing" && !isUsageandBillingEnabled) {
         return null;
       }
       return category;
@@ -72,7 +88,7 @@ export default function LeftPane() {
         <HeaderContainer>
           <StyledHeader>Others</StyledHeader>
           <Categories
-            categories={othersCategories}
+            categories={filteredOthersCategories}
             currentCategory={category}
             currentSubCategory={subCategory}
           />

@@ -17,6 +17,7 @@ const EE_SettingCategories = {
   ROLES_LISTING: "roles",
   AUDIT_LOGS: "audit-logs",
   AUDIT_LOGS_SETTINGS: "audit-logs-settings",
+  BILLING: "billing",
 };
 const EE_SettingSubCategories = {
   SAML: "saml signup",

@@ -1,6 +1,6 @@
 export * from "ce/pages/AdminSettings/Main";
 import React from "react";
-import AdminConfig, { AclFactory } from "./config";
+import AdminConfig, { AclFactory, OthersFactory } from "./config";
 import { Redirect, useParams } from "react-router";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import SettingsForm from "pages/Settings/SettingsForm";
@@ -17,8 +17,11 @@ const Main = () => {
   const wrapperCategory =
     AdminConfig.wrapperCategories[subCategory ?? category];
   const aclWrapperCategory = AclFactory.wrapperCategories[category];
-
-  if (!!aclWrapperCategory?.component) {
+  const otherWrapperCategory = OthersFactory.wrapperCategories[category];
+  if (!!otherWrapperCategory?.component) {
+    const { component: WrapperCategoryComponent } = otherWrapperCategory;
+    return <WrapperCategoryComponent />;
+  } else if (!!aclWrapperCategory?.component) {
     const { component: WrapperCategoryComponent } = aclWrapperCategory;
     return <WrapperCategoryComponent />;
   } else if (!!wrapperCategory?.component) {

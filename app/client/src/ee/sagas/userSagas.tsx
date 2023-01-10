@@ -5,7 +5,6 @@ import {
   forgotPasswordSaga,
   resetPasswordSaga,
   verifyResetPasswordTokenSaga,
-  logoutSaga,
   verifyUserInviteSaga,
   invitedUserSignupSaga,
   updateUserDetailsSaga,
@@ -16,11 +15,12 @@ import {
   updateFirstTimeUserOnboardingSage,
 } from "ce/sagas/userSagas";
 import {
+  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithPromise,
 } from "@appsmith/constants/ReduxActionConstants";
-import { takeLatest, all, call, put } from "redux-saga/effects";
+import { takeLatest, all, call, put, select } from "redux-saga/effects";
 import { ApiResponse } from "api/ApiResponses";
 import {
   callAPI,
@@ -30,6 +30,13 @@ import {
 import UserApi from "@appsmith/api/UserApi";
 import { reset } from "redux-form";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
+import { User } from "@sentry/react";
+import { flushErrorsAndRedirect } from "actions/errorActions";
+import { logoutUserSuccess, logoutUserError } from "actions/userActions";
+import { AUTH_LOGIN_URL } from "constants/routes";
+import log from "loglevel";
+import { getCurrentUser } from "selectors/usersSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function* inviteUsers(
   action: ReduxActionWithPromise<{
@@ -84,6 +91,25 @@ export function* inviteUsers(
         error,
       },
     });
+  }
+}
+
+export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
+  try {
+    const redirectURL = action.payload?.redirectURL;
+    const response: ApiResponse = yield call(UserApi.logoutUser);
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      AnalyticsUtil.reset();
+      const currentUser: User | undefined = yield select(getCurrentUser);
+      yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
+      yield put({ type: ReduxActionTypes.CANCEL_LICENSE_VALIDATION });
+      localStorage.clear();
+      yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
+    }
+  } catch (error) {
+    log.error(error);
+    yield put(logoutUserError(error));
   }
 }
 
