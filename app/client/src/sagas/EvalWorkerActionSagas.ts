@@ -15,7 +15,7 @@ import {
   evalWorker,
   executeTriggerRequestSaga,
 } from "../sagas/EvaluationsSaga";
-import { logJSFunctionExecution } from "../ce/sagas/JSFunctionExecutionSaga";
+import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 
 /*
  * Used to evaluate and execute dynamic trigger end to end
