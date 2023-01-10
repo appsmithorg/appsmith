@@ -136,20 +136,6 @@ export default {
         return !isColumnTypeEditable(columnType) || isDerived;
       },
     },
-    {
-      propertyName: "shortcuts",
-      label: "Show Shortcuts",
-      helpText: "Choose to show shortcut menu",
-      controlType: "SWITCH",
-      isJSConvertible: false,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: { type: ValidationTypes.BOOLEAN },
-      dependencies: ["primaryColumns", "columnType"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.DATE]);
-      },
-    },
   ],
 };
 
