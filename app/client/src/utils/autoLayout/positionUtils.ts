@@ -261,7 +261,7 @@ function getAlignmentSizes(
  * @param isMobile | boolean
  * @returns { info: AlignmentInfo[]; fillWidgetLength: number }
  */
-function extractAlignmentInfo(
+export function extractAlignmentInfo(
   widgets: CanvasWidgetsReduxState,
   layer: FlexLayer,
   isMobile: boolean,
