@@ -1,5 +1,8 @@
-import { all, call, fork, put, select, takeEvery } from "redux-saga/effects";
-import { setFocusHistory } from "actions/focusHistoryActions";
+import { call, fork, put, select } from "redux-saga/effects";
+import {
+  RouteChangeActionPayload,
+  setFocusHistory,
+} from "actions/focusHistoryActions";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import { FocusElementsConfig } from "navigation/FocusElements";
@@ -21,10 +24,7 @@ import history, {
 } from "utils/history";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
@@ -38,8 +38,8 @@ function* appBackgroundHandler() {
   changeAppBackground(currentTheme);
 }
 
-function* handleRouteChange(
-  action: ReduxAction<{ location: Location<AppsmithLocationState> }>,
+export function* handleRouteChange(
+  action: ReduxAction<RouteChangeActionPayload>,
 ) {
   const { hash, pathname, state } = action.payload.location;
   try {
@@ -84,7 +84,7 @@ function* logNavigationAnalytics(payload: {
   });
 }
 
-function* handlePageChange(
+export function* handlePageChange(
   action: ReduxAction<{
     pageId: string;
     currPath: string;
@@ -317,9 +317,4 @@ function shouldStoreStateForCanvas(
     currFocusEntity !== FocusEntity.PROPERTY_PANE &&
     (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
   );
-}
-
-export default function* rootSaga() {
-  yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
-  yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);
 }
