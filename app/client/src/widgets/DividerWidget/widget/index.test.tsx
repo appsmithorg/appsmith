@@ -5,10 +5,6 @@ import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { ThemeProvider, theme, dark } from "constants/DefaultTheme";
 
-jest.mock("react-dnd", () => ({
-  useDrag: jest.fn().mockReturnValue([{ isDragging: false }, jest.fn()]),
-}));
-
 describe("<DividerWidget />", () => {
   const initialState = {
     ui: {

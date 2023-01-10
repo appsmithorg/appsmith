@@ -45,7 +45,7 @@ type DraggableComponentProps = WidgetProps;
 /* eslint-disable react/display-name */
 
 /**
- * can drag helper function for react-dnd hook
+ * can drag helper function to know if drag and drop should apply
  *
  * @param isResizingOrDragging
  * @param isDraggingDisabled
