@@ -239,6 +239,7 @@ function eventRequestHandler({
       let userLogs: UserLogObject[] = [];
       let dependencies: DependencyMap = {};
       let evalMetaUpdates: EvalMetaUpdates = [];
+      let staleMetaIds: string[] = [];
 
       const {
         allActionValidationConfig,
@@ -284,6 +285,7 @@ function eventRequestHandler({
               evalProps: dataTreeEvaluator.evalProps,
             },
           );
+          staleMetaIds = dataTreeResponse.staleMetaIds;
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -326,6 +328,7 @@ function eventRequestHandler({
               evalProps: dataTreeEvaluator.evalProps,
             },
           );
+          staleMetaIds = dataTreeResponse.staleMetaIds;
         } else {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             dataTreeEvaluator.setAllActionValidationConfig(
@@ -366,6 +369,7 @@ function eventRequestHandler({
           evalMetaUpdates = JSON.parse(
             JSON.stringify(updateResponse.evalMetaUpdates),
           );
+          staleMetaIds = updateResponse.staleMetaIds;
         }
         dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
         dependencies = dataTreeEvaluator.inverseDependencyMap;
@@ -405,7 +409,7 @@ function eventRequestHandler({
         unEvalUpdates = [];
       }
 
-      return {
+      const evalTreeResponse: EvalTreeResponseData = {
         dataTree,
         dependencies,
         errors,
@@ -413,10 +417,13 @@ function eventRequestHandler({
         evaluationOrder: evalOrder,
         jsUpdates,
         logs,
+        staleMetaIds,
         userLogs,
         unEvalUpdates,
         isCreateFirstTree,
-      } as EvalTreeResponseData;
+      };
+
+      return evalTreeResponse;
     }
     default: {
       console.error("Action not registered on evalWorker", method);

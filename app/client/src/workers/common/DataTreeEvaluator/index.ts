@@ -104,6 +104,10 @@ import {
   validateAndParseWidgetProperty,
 } from "./validationUtils";
 import { APP_MODE } from "../../../entities/App";
+import {
+  isMetaWidgetTemplate,
+  isWidgetDefaultPropertyPath,
+} from "entities/DataTree/utils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -298,10 +302,11 @@ export default class DataTreeEvaluator {
   evalAndValidateFirstTree(): {
     evalTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
+    staleMetaIds: string[];
   } {
     const evaluationStartTime = performance.now();
     // Evaluate
-    const { evalMetaUpdates, evaluatedTree } = this.evaluateTree(
+    const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
       this.oldUnEvalTree,
       this.resolvedFunctions,
       this.sortedDependencies,
@@ -332,6 +337,7 @@ export default class DataTreeEvaluator {
     return {
       evalTree: this.getEvalTree(),
       evalMetaUpdates,
+      staleMetaIds,
     };
   }
 
@@ -534,11 +540,13 @@ export default class DataTreeEvaluator {
     nonDynamicFieldValidationOrder: string[],
   ): {
     evalMetaUpdates: EvalMetaUpdates;
+    staleMetaIds: string[];
   } {
     const evaluationStartTime = performance.now();
     const {
       evalMetaUpdates,
       evaluatedTree: newEvalTree,
+      staleMetaIds,
     } = this.evaluateTree(
       this.evalTree,
       this.resolvedFunctions,
@@ -563,6 +571,7 @@ export default class DataTreeEvaluator {
     this.logs.push({ timeTakenForEvalAndValidateSubTree });
     return {
       evalMetaUpdates,
+      staleMetaIds,
     };
   }
 
@@ -670,9 +679,11 @@ export default class DataTreeEvaluator {
   ): {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
+    staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
     const evalMetaUpdates: EvalMetaUpdates = [];
+    let staleMetaIds: string[] = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
@@ -759,6 +770,9 @@ export default class DataTreeEvaluator {
                   currentTree,
                 });
               }
+              staleMetaIds = staleMetaIds.concat(
+                this.getStaleMetaStateIds(entity, propertyPath),
+              );
 
               return currentTree;
             }
@@ -825,13 +839,13 @@ export default class DataTreeEvaluator {
         },
         tree,
       );
-      return { evaluatedTree, evalMetaUpdates };
+      return { evaluatedTree, evalMetaUpdates, staleMetaIds };
     } catch (error) {
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      return { evaluatedTree: tree, evalMetaUpdates };
+      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds };
     }
   }
 
@@ -1378,6 +1392,13 @@ export default class DataTreeEvaluator {
         },
       );
     });
+  }
+
+  getStaleMetaStateIds(entity: DataTreeWidget, propertyPath: string) {
+    return isWidgetDefaultPropertyPath(entity, propertyPath) &&
+      isMetaWidgetTemplate(entity)
+      ? (entity.siblingMetaWidgets as string[])
+      : [];
   }
 
   clearErrors() {

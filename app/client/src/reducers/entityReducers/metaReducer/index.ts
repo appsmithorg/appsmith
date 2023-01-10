@@ -114,6 +114,18 @@ export const metaReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS]: () => {
     return initialState;
   },
+  [ReduxActionTypes.RESET_WIDGETS_META_STATE]: (
+    state: MetaState,
+    action: ReduxAction<{ widgetIdsToClear: string[] }>,
+  ) => {
+    const next = { ...state };
+    for (const metaWidgetId of action.payload.widgetIdsToClear) {
+      if (metaWidgetId && next[metaWidgetId]) {
+        delete next[metaWidgetId];
+      }
+    }
+    return next;
+  },
 });
 
 interface TableFilterPanePositionConfig {

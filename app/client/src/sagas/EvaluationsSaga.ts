@@ -55,7 +55,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isUndefined } from "lodash";
+import { difference, get, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -92,7 +92,7 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { updateMetaState } from "actions/metaActions";
+import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 import {
   DataTree,
@@ -168,6 +168,7 @@ function* evaluateTreeSaga(
     userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
+    staleMetaIds,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -178,6 +179,10 @@ function* evaluateTreeSaga(
   const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
+
+  yield put(
+    resetWidgetsMetaState(difference(staleMetaIds, Object.keys(metaWidgets))),
+  );
 
   yield put(setEvaluatedTree(updates));
   PerformanceTracker.stopAsyncTracking(
