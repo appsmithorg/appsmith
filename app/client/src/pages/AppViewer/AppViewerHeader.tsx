@@ -174,43 +174,54 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
                 <div className="hidden space-x-1 md:flex">
-                  <FormDialogComponent
-                    Form={AppInviteUsersForm}
-                    applicationId={currentApplicationDetails.id}
-                    canOutsideClickClose
-                    headerIcon={{
-                      name: "right-arrow",
-                      bgColor: "transparent",
-                    }}
-                    isOpen={showAppInviteUsersDialog}
-                    message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
-                    placeholder={createMessage(
-                      INVITE_USERS_PLACEHOLDER,
-                      cloudHosting,
-                    )}
-                    title={currentApplicationDetails.name}
-                    trigger={
-                      <Button
-                        borderRadius={
-                          selectedTheme.properties.borderRadius.appBorderRadius
-                        }
-                        className="h-8"
-                        data-cy="viewmode-share"
-                        navColorStyle={navColorStyle}
-                        primaryColor={primaryColor}
-                      >
-                        <Icon
-                          fillColor={getApplicationNameTextColor(
-                            primaryColor,
-                            navColorStyle,
-                          )}
-                          name="share-line"
-                          size="extraLarge"
-                        />
-                      </Button>
-                    }
-                    workspaceId={currentWorkspaceId}
-                  />
+                  {/* Since the Backend doesn't have publishedNavigationSetting field by default
+                  and we are creating the default values only when any nav settings via the
+                  settings pane has changed, we need to hide the share button ONLY when the showShareApp
+                  setting is explicitly set to false by the user via the settings pane. */}
+                  {currentApplicationDetails?.publishedNavigationSetting
+                    ?.showShareApp !== false && (
+                    <FormDialogComponent
+                      Form={AppInviteUsersForm}
+                      applicationId={currentApplicationDetails.id}
+                      canOutsideClickClose
+                      headerIcon={{
+                        name: "right-arrow",
+                        bgColor: "transparent",
+                      }}
+                      isOpen={showAppInviteUsersDialog}
+                      message={createMessage(
+                        INVITE_USERS_MESSAGE,
+                        cloudHosting,
+                      )}
+                      placeholder={createMessage(
+                        INVITE_USERS_PLACEHOLDER,
+                        cloudHosting,
+                      )}
+                      title={currentApplicationDetails.name}
+                      trigger={
+                        <Button
+                          borderRadius={
+                            selectedTheme.properties.borderRadius
+                              .appBorderRadius
+                          }
+                          className="h-8"
+                          data-cy="viewmode-share"
+                          navColorStyle={navColorStyle}
+                          primaryColor={primaryColor}
+                        >
+                          <Icon
+                            fillColor={getApplicationNameTextColor(
+                              primaryColor,
+                              navColorStyle,
+                            )}
+                            name="share-line"
+                            size="extraLarge"
+                          />
+                        </Button>
+                      }
+                      workspaceId={currentWorkspaceId}
+                    />
+                  )}
 
                   <HeaderRightItemContainer>
                     <PrimaryCTA

@@ -86,7 +86,7 @@ const StyledMenuItemText = styled.div<{
   ${getTypographyByKey("h6")}
   color: ${({ navColorStyle, primaryColor }) =>
     getMenuItemTextColor(primaryColor, navColorStyle, true)};
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
+  height: ${(props) => `calc(${props.theme.pageTabsHeight})`};
   transition: all 0.3s ease-in-out;
 
   & span {
@@ -217,8 +217,9 @@ const MenuItem = ({
         NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (
         <Icon
           className={`page-icon ${
+            !publishedNavigationSetting ||
             publishedNavigationSetting?.itemStyle ===
-            NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON
+              NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON
               ? "mr-2"
               : ""
           }`}

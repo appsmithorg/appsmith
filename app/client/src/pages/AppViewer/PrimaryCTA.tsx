@@ -150,7 +150,13 @@ function PrimaryCTA(props: Props) {
     if (
       currentApplication?.isPublic &&
       currentUser?.username === ANONYMOUS_USERNAME &&
-      currentApplication?.publishedNavigationSetting?.showSignIn
+      /**
+       * Since the Backend doesn't have publishedNavigationSetting field by default
+       * and we are creating the default values only when any nav settings via the
+       * settings pane has changed, we need to hide the sign in button ONLY when the
+       * showSignIn setting is explicitly set to false by the user via the settings pane.
+       */
+      currentApplication?.publishedNavigationSetting?.showSignIn !== false
     ) {
       return (
         <Button

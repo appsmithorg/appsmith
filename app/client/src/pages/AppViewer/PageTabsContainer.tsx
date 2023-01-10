@@ -158,7 +158,14 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   }, [isScrolling, isScrollingLeft]);
 
   return appPages.length > 1 &&
-    currentApplicationDetails?.publishedNavigationSetting?.showNavbar ? (
+    /**
+     * Since the Backend doesn't have publishedNavigationSetting field by default
+     * and we are creating the default values only when any nav settings via the
+     * settings pane has changed, we need to hide the navbar ONLY when the showNavbar
+     * setting is explicitly set to false by the user via the settings pane.
+     */
+    currentApplicationDetails?.publishedNavigationSetting?.showNavbar !==
+      false ? (
     <Container
       className="relative hidden px-6 h-11 md:flex"
       navColorStyle={navColorStyle}
