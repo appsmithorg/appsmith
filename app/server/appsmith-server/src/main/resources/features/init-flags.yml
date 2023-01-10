@@ -107,3 +107,12 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com
+
+    - uid: USAGE_AND_BILLING
+      enable: true
+      description: Enable usage and billing
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emails
+            value: demo@appsmith.com

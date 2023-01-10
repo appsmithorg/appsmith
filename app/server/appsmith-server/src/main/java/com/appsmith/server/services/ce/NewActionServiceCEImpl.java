@@ -366,7 +366,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             } else {
                 // TODO: check if datasource should be fetched with edit during action create or update.
                 //Data source already exists. Find the same.
-                datasourceMono = datasourceService.findById(action.getDatasource().getId(), datasourcePermission.getEditPermission())
+                datasourceMono = datasourceService.findById(action.getDatasource().getId())
                         .switchIfEmpty(Mono.defer(() -> {
                             action.setIsValid(false);
                             invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));

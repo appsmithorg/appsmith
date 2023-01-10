@@ -1,9 +1,11 @@
 import homePage from "../../../../locators/HomePage";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Update a user's name", function() {
   let username;
 
   it("1. Update a user's name", function() {
+    _.homePage.NavigateToHome();
     cy.get(homePage.profileMenu).click();
     cy.get(".t--edit-profile").click({ force: true });
 
