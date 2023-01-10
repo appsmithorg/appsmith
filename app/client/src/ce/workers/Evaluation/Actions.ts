@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import { set } from "lodash";
+import set from "lodash/set";
 import {
   ActionDescription,
   ActionTriggerFunctionNames,
@@ -10,12 +10,12 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
+import { initStoreFns } from "workers/Evaluation/fns/storeFns";
 import {
   ActionDescriptionWithExecutionType,
   ActionDispatcherWithExecutionType,
   PLATFORM_FUNCTIONS,
 } from "@appsmith/workers/Evaluation/PlatformFunctions";
-
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -226,8 +226,14 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    context[funcName] = pusher.bind({}, fn);
+    Object.defineProperty(context, funcName, {
+      value: pusher.bind({}, fn),
+      enumerable: false,
+      writable: true,
+      configurable: true,
+    });
   }
+  initStoreFns(context);
 };
 
 export const getAllAsyncFunctions = (dataTree: DataTree) => {
@@ -242,7 +248,7 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
     }
   }
 
-  for (const [name] of platformFunctionEntries) {
+  for (const name of Object.values(ActionTriggerFunctionNames)) {
     asyncFunctionNameMap[name] = true;
   }
 

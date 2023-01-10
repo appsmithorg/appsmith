@@ -1,4 +1,4 @@
-import { call, put, select, spawn, take } from "redux-saga/effects";
+import { call, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
@@ -16,6 +16,7 @@ import {
   executeTriggerRequestSaga,
 } from "../sagas/EvaluationsSaga";
 import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
+import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 
 /*
  * Used to evaluate and execute dynamic trigger end to end
@@ -101,6 +102,9 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     case MAIN_THREAD_ACTION.PROCESS_TRIGGER: {
       yield processTriggerHandler(message);
       break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
+      yield call(handleStoreOperations, data);
     }
     case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
       yield logJSFunctionExecution(message);
