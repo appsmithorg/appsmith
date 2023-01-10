@@ -133,12 +133,6 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         }
     }
 
-    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(Datasource datasource,
-                                                                               PluginExecutor<Object> pluginExecutor,
-                                                                               Object monitor) {
-        return getCachedDatasourceContextMono(datasource, pluginExecutor, monitor, getCustomKey(datasource));
-    }
-
     public Mono<Object>  updateDatasourceAndSetAuthentication(Object connection, Datasource datasource,
                                                               DsContextMapKey dsContextMapKey) {
         // this will have override in EE
@@ -163,9 +157,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             return Mono.just(datasource);
         }
     }
+
     protected Mono<DatasourceContext<?>> createNewDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey) {
         log.debug("Datasource context doesn't exist. Creating connection.");
-        String datasourceId = datasource.getId();
         Mono<Datasource> datasourceMono = retrieveDatasourceFromDB(datasource, dsContextMapKey);
 
         return datasourceMono

@@ -97,10 +97,12 @@ public class DatasourceContextServiceTest {
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
         datasource.setWorkspaceId("workspaceId");
 
+        DsContextMapKey dsContextMapKey = new DsContextMapKey(datasource.getId(), null);
+
         Object monitor = new Object();
         // Create one instance of datasource connection
         Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasource,
-                spyMockPluginExecutor, monitor);
+                spyMockPluginExecutor, monitor, dsContextMapKey);
 
         doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getDeletePermission());
         doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getExecutePermission());
@@ -111,7 +113,7 @@ public class DatasourceContextServiceTest {
         // Now delete the datasource and check if the cache retains the same instance of connection
         Mono<DatasourceContext<?>> dsContextMono2 = datasourceService.archiveById("id1")
                 .flatMap(deleted -> datasourceContextService.getCachedDatasourceContextMono(datasource,
-                        spyMockPluginExecutor, monitor));
+                        spyMockPluginExecutor, monitor, dsContextMapKey));
 
         StepVerifier.create(dsContextMono1)
                 .assertNext(dsContext1 -> {
@@ -237,12 +239,14 @@ public class DatasourceContextServiceTest {
         datasource.setId("id2");
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
+        DsContextMapKey dsContextMapKey = new DsContextMapKey(datasource.getId(), "envId");
+
         Object monitor = new Object();
         DatasourceContext<?> dsContext1 = (DatasourceContext<?>) datasourceContextService
-                .getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor)
+                .getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, dsContextMapKey)
                 .block();
         DatasourceContext<?> dsContext2 = (DatasourceContext<?>) datasourceContextService
-                .getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor)
+                .getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, dsContextMapKey)
                 .block();
 
         /* They can only be equal if the `datasourceCreate` method was called only once */
@@ -297,16 +301,18 @@ public class DatasourceContextServiceTest {
 
         assert createdDatasource != null;
 
+        DsContextMapKey dsContextMapKey = new DsContextMapKey(createdDatasource.getId(), "envId");
+
         Object monitor = new Object();
         final DatasourceContext<?> dsc1 = (DatasourceContext) datasourceContextService.getCachedDatasourceContextMono(createdDatasource,
-                spyMockPluginExecutor, monitor).block();
+                spyMockPluginExecutor, monitor, dsContextMapKey).block();
         assertNotNull(dsc1);
         assertTrue(dsc1.getConnection() instanceof UpdatableConnection);
         assertTrue(((UpdatableConnection) dsc1.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof DBAuth);
 
 
         final DatasourceContext<?> dsc2 = (DatasourceContext) datasourceContextService.getCachedDatasourceContextMono(createdDatasource,
-                spyMockPluginExecutor, monitor).block();
+                spyMockPluginExecutor, monitor, dsContextMapKey).block();
         assertNotNull(dsc2);
         assertTrue(dsc2.getConnection() instanceof UpdatableConnection);
         assertTrue(((UpdatableConnection) dsc2.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof BasicAuth);

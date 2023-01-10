@@ -1,24 +1,14 @@
 package com.appsmith.server.domains;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.util.StringUtils;
-
+import com.appsmith.server.domains.ce.DsContextMapKeyCE;
 /**
  * This class is for generating keys for dsContext.
  * The object of this class will be used as keys for dsContext
  */
-@Getter
-@Setter
-public class DsContextMapKey {
-
-    String datasourceId;
-
-    String environmentId;
+public class DsContextMapKey extends DsContextMapKeyCE {
 
     public DsContextMapKey(String datasourceId, String environmentId) {
-        this.datasourceId = datasourceId;
-        this.environmentId = environmentId;
+        super(datasourceId, environmentId);
     }
 
     public DsContextMapKey() {
@@ -28,34 +18,14 @@ public class DsContextMapKey {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof DsContextMapKey)) {
-            return false;
-        }
-        DsContextMapKey keyObj = (DsContextMapKey)  obj;
-        boolean areBothEnvironmentIdSameOrNull = StringUtils.hasLength(environmentId) ?
-                environmentId.equals(keyObj.environmentId) : !StringUtils.hasLength(keyObj.environmentId);
-
-        // if datasourceId is null for either of the objects then the keys can't be equal
-        return StringUtils.hasLength(datasourceId)
-                && datasourceId.equals(keyObj.datasourceId) &&
-                areBothEnvironmentIdSameOrNull;
+        // since the usage of environmentId will be mandatory in the EE version,
+        // this will have override in the EE version, which will not allow null EE values.
+        return super.equals(obj);
     }
 
     @Override
     public int hashCode() {
-        int result = 0;
-        result = StringUtils.hasLength(this.datasourceId) ? this.datasourceId.hashCode() : result;
-        result = StringUtils.hasLength(this.environmentId) ? result*31 + this.environmentId.hashCode() : result;
-        return result;
-    }
-
-    public boolean isEmpty() {
-        // this will be overridden in EE
-       return !StringUtils.hasLength(this.datasourceId);
+        return super.hashCode();
     }
 
 }
