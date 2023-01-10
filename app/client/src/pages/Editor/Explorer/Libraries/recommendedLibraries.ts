@@ -37,17 +37,27 @@ export default [
     url: "https://unpkg.com/@supabase/supabase-js@2.2.3/dist/umd/supabase.js",
     icon: "https://github.com/supabase.png?s=20",
   },
+  // {
+  //   name: "@segment/analytics-next",
+  //   url:
+  //     "https://cdn.jsdelivr.net/npm/@segment/analytics-next@1.46.1/dist/umd/index.js",
+  //   description:
+  //     "Analytics Next (aka Analytics 2.0) is the latest version of Segment’s JavaScript SDK - enabling you to send your data to any tool without having to learn, test, or use a new API every time.",
+  //   author: "segmentio",
+  //   docsURL:
+  //     "https://github.com/segmentio/analytics-next/tree/master/packages/browser#readme",
+  //   version: "1.46.1",
+  //   icon: "https://github.com/segmentio.png?s=20",
+  // },
   {
-    name: "@segment/analytics-next",
-    url:
-      "https://cdn.jsdelivr.net/npm/@segment/analytics-next@1.46.1/dist/umd/index.js",
-    description:
-      "Analytics Next (aka Analytics 2.0) is the latest version of Segment’s JavaScript SDK - enabling you to send your data to any tool without having to learn, test, or use a new API every time.",
-    author: "segmentio",
+    name: "AWS SDK",
+    url: "https://sdk.amazonaws.com/js/aws-sdk-2.410.0.min.js",
     docsURL:
-      "https://github.com/segmentio/analytics-next/tree/master/packages/browser#readme",
-    version: "1.46.1",
-    icon: "https://github.com/segmentio.png?s=20",
+      "https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/configuring-the-jssdk.html",
+    description: "AWS SDK for JavaScript",
+    icon: "https://github.com/aws.png?s=20",
+    author: "aws",
+    version: "2.410.0",
   },
   {
     name: "fast-csv",
