@@ -3,12 +3,22 @@
 // All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
 const { match } = require("path-to-regexp");
 
+export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
+export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId/edit`;
+export const BUILDER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId/edit`;
+export const VIEWER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId`;
+export const VIEWER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId`;
+export const getViewerPath = (
+  applicationSlug: string,
+  pageSlug: string,
+  pageId: string,
+) => `${BUILDER_VIEWER_PATH_PREFIX}${applicationSlug}/${pageSlug}-${pageId}`;
+export const getViewerCustomPath = (customSlug: string, pageId: string) =>
+  `${BUILDER_VIEWER_PATH_PREFIX}${customSlug}-${pageId}`;
 export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
-export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
-export const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
-export const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
-export const VIEWER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId`;
 export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
+export const VIEWER_PATH_DEPRECATED_REGEX = /\/applications\/[^/]+\/pages\/[^/]+/;
+
 export const VIEWER_FORK_PATH = `/fork`;
 export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
 export const API_EDITOR_BASE_PATH = `/api`;
