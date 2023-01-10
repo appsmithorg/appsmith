@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getRealtimeAppEditors } from "selectors/appCollabSelectors";
-import { TooltipComponent } from "design-system";
+import { getTypographyByKey, TooltipComponent } from "design-system";
 import ProfileImage from "pages/common/ProfileImage";
 import UserApi from "@appsmith/api/UserApi";
 import styled from "styled-components";
@@ -12,24 +12,32 @@ import {
 } from "actions/appCollabActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
+import { Colors } from "constants/Colors";
 
 const UserImageContainer = styled.div`
   display: flex;
-  margin-right: ${(props) => props.theme.spaces[4]}px;
+  margin-right: ${(props) => props.theme.spaces[3]}px;
 
   div {
     cursor: default;
     margin-left: ${(props) => props.theme.spaces[1]}px;
     width: 24px;
     height: 24px;
-  }
-
-  div:first-child {
     margin-left: 0px;
   }
 
-  div:last-child {
-    margin-right: 0;
+  .profile-image {
+    margin-right: -6px;
+    border: 1px solid ${Colors.WHITE};
+    span {
+      color: ${Colors.GRAY_700};
+      font-weight: normal;
+      ${getTypographyByKey("btnSmall")};
+    }
+  }
+
+  .more {
+    z-index: 1;
   }
 `;
 
@@ -64,8 +72,8 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
   useEditAppCollabEvents(applicationId);
 
   return realtimeAppEditors.length > 0 ? (
-    <UserImageContainer>
-      {realtimeAppEditors.slice(0, 5).map((el) => (
+    <UserImageContainer className="app-realtume-editors">
+      {realtimeAppEditors.slice(0, 3).map((el) => (
         <TooltipComponent
           content={
             <>
@@ -79,16 +87,16 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
           key={el.email}
         >
           <ProfileImage
-            className="app-realtime-editors"
+            className="profile-image"
             source={`/api/${UserApi.photoURL}/${el.email}`}
             userName={el.name || el.email}
           />
         </TooltipComponent>
       ))}
-      {realtimeAppEditors.length > 5 ? (
+      {realtimeAppEditors.length > 3 ? (
         <ProfileImage
-          className="app-realtime-editors"
-          commonName={`+${realtimeAppEditors.length - 5}`}
+          className="profile-image more"
+          commonName={`+${realtimeAppEditors.length - 3}`}
         />
       ) : null}
     </UserImageContainer>

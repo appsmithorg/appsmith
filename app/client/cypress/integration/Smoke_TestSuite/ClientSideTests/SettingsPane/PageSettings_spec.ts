@@ -34,15 +34,15 @@ describe("Page Settings", () => {
   });
 
   it("4. Check SetPageNavigation settings", () => {
-    _.agHelper.GetNClick(_.locators._previewModeToggle);
+    _.agHelper.GetNClick(_.locators._previewModeToggle("edit"));
     _.agHelper.AssertElementExist(_.locators._deployedPage);
-    _.agHelper.GetNClick(_.locators._editModeToggle);
+    _.agHelper.GetNClick(_.locators._previewModeToggle("preview"));
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page2");
     _.pageSettings.TogglePageNavigation();
-    _.agHelper.GetNClick(_.locators._previewModeToggle);
+    _.agHelper.GetNClick(_.locators._previewModeToggle("edit"));
     _.agHelper.AssertElementAbsence(_.locators._deployedPage);
-    _.agHelper.GetNClick(_.locators._editModeToggle);
+    _.agHelper.GetNClick(_.locators._previewModeToggle("preview"));
   });
 
   it("5. Page name allows accented character", () => {
@@ -62,10 +62,7 @@ describe("Page Settings", () => {
   it("7. Page name doesn't allow empty", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
-    _.pageSettings.AssertPageErrorMessage(
-      "",
-      "Page name cannot be empty",
-    );
+    _.pageSettings.AssertPageErrorMessage("", "Page name cannot be empty");
     _.appSettings.ClosePane();
   });
 
