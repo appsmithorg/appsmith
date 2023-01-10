@@ -133,13 +133,11 @@ export class GitSync {
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
       this.agHelper.ClickButton("CONNECT");
       if (assertConnect) {
-        this.ReplaceForGit("cypress/fixtures/Bugs/GitConnectResponse.json", remoteUrl);
+        //this.ReplaceForGit("cypress/fixtures/Bugs/GitConnectResponse.json", remoteUrl);
         //cy.get('@connectGitLocalRepo').its('response.statusCode').should('equal', 200);
-        //this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
-
-        cy.intercept("POST", "/api/v1/git/connect/app/*", {
-          fixture: "/Bugs/GitConnectResponse.json",
-        });
+        // cy.intercept("POST", "/api/v1/git/connect/app/*", {
+        //   fixture: "/Bugs/GitConnectResponse.json",
+        // });
         this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
       }
       this.CloseGitSyncModal();
