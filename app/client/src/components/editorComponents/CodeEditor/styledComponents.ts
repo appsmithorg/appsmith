@@ -206,6 +206,11 @@ export const EditorWrapper = styled.div<{
       font-size: 0.75rem;
     }
 
+    .CodeMirror-wrap pre.CodeMirror-line,
+    .CodeMirror-wrap pre.CodeMirror-line-like {
+      font-smoothing: initial;
+    }
+
     /* var names, js utility func names, func names */
     .cm-s-duotone-light span.cm-property,
     .cm-s-duotone-light .cm-string.cm-property {
