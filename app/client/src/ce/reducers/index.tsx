@@ -165,5 +165,5 @@ export interface AppState {
     [key: string]: any;
   };
   settings: SettingsReduxState;
-  tenant: TenantReduxState;
+  tenant: TenantReduxState<any>;
 }

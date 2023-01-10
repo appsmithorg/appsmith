@@ -5,6 +5,7 @@ export const WORKSPACE_URL = "/workspace";
 export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
+export const LICENSE_CHECK_PATH = "/license-check";
 
 export const TEMPLATES_PATH = "/templates";
 export const TEMPLATES_ID_PATH = "/templates/:templateId";
