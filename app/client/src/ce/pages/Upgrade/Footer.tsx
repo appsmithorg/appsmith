@@ -34,16 +34,20 @@ const FooterContainer = styled.div`
 `;
 
 export function FooterComponent(props: FooterProps) {
-  const { message, onClick } = props;
+  const { message, onClick, showHeading = true } = props;
   return (
     <FooterContainer
       className="upgrade-page-footer-container"
       data-testid="t--upgrade-page-footer-container"
     >
       <div className="left">
-        <div className="heading-container">
-          <Text type={TextType.H1}>{createMessage(AVAILABLE_ON_BUSINESS)}</Text>
-        </div>
+        {showHeading && (
+          <div className="heading-container">
+            <Text type={TextType.H1}>
+              {createMessage(AVAILABLE_ON_BUSINESS)}
+            </Text>
+          </div>
+        )}
         <div className="text-container">
           <Text type={TextType.P1}>{message}</Text>
         </div>

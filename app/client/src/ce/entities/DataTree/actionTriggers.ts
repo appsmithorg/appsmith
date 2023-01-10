@@ -106,7 +106,6 @@ export type StoreValueActionDescription = ActionDescriptionInterface<
     key: string;
     value: string;
     persist: boolean;
-    uniqueActionRequestId: string;
   },
   "STORE_VALUE"
 >;
