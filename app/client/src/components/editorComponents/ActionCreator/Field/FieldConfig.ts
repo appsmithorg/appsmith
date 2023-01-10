@@ -17,6 +17,7 @@ import {
   textSetter,
   callBackFieldSetter,
   callBackFieldGetter,
+  objectSetter,
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
@@ -114,7 +115,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       if (value === "") {
         value = undefined;
       }
-      return textSetter(value, currentValue, 1);
+      return objectSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
   },

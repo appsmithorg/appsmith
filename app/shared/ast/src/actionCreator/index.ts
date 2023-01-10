@@ -10,6 +10,7 @@ import {
     CallExpressionNode,
     isBinaryExpressionNode,
     BinaryExpressionNode,
+    isBlockStatementNode, BlockStatementNode,
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {simple} from "acorn-walk";
@@ -44,7 +45,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
                 let argument = node.arguments[argNum];
                 switch (argument.type) {
                     case NodeTypes.ObjectExpression:
-                        requiredArgument = "{{{}}}";
+                        requiredArgument = `{{${generate(argument, {comments: true}).trim()}}}`;
                         break;
                     case NodeTypes.Literal:
                         requiredArgument = typeof argument.value === "string" ? argument.value : `{{${argument.value}}}`;
@@ -126,7 +127,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     let changedValue: string = currentValue;
     let changedValueCommentArray: Array<Comment> = [];
     let currentValueCommentArray: Array<Comment> = [];
-    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode | BinaryExpressionNode | CallExpressionNode;
+    let requiredNode: ArrowFunctionExpressionNode | MemberExpressionNode | BinaryExpressionNode | CallExpressionNode | BlockStatementNode;
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
         ast = getAST(sanitizedScript, {
@@ -167,6 +168,11 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
             if(isCallExpressionNode(node)) {
                 requiredNode = node;
             }
+        },
+        BlockStatement(node) {
+            if(isBlockStatementNode(node)) {
+                requiredNode = node;
+            }
         }
     });
 
@@ -185,6 +191,45 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
         });
 
     }
+
+    return changedValue;
+}
+
+export const setObjectAtPosition = (currentValue: string, changeValue: any, argNum: number, evaluationVersion: number): string => {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let changedValue: string = currentValue;
+    let commentArray: Array<Comment> = [];
+    try {
+        const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
+        const __ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+        ast = klona(__ast);
+    } catch (error) {
+        throw error;
+    }
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    simple(astWithComments, {
+        CallExpression(node) {
+            if (isCallExpressionNode(node)) {
+                // add 1 to get the starting position of the next
+                // node to ending position of previous
+                const startPosition = node.callee.end + NEXT_POSITION;
+                node.arguments[argNum] = {
+                    type: NodeTypes.Literal,
+                    value: changeValue,
+                    raw: String.raw`${changeValue}`,
+                    start: startPosition,
+                    // add 2 for quotes
+                    end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
+                };
+                changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
+            }
+        },
+    });
 
     return changedValue;
 }

@@ -10,6 +10,7 @@ import {
   setEnumArgumentAtPosition,
   setCallbackFunctionField,
   getFuncExpressionAtPosition,
+  setObjectAtPosition,
 } from "@shared/ast";
 
 export const stringToJS = (string: string): string => {
@@ -72,6 +73,26 @@ export const modalGetter = (value: string) => {
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = stringToJS(value);
   return getModalName(requiredValue, self.evaluationVersion);
+};
+
+export const objectSetter = (
+  changeValue: any,
+  currentValue: string,
+  argNum: number,
+): string => {
+  const requiredValue = stringToJS(currentValue);
+  const changeValueWithoutBraces = stringToJS(changeValue);
+  try {
+    return setObjectAtPosition(
+      requiredValue,
+      changeValueWithoutBraces,
+      argNum,
+      self.evaluationVersion,
+    );
+  } catch (e) {
+    // showError();
+    return currentValue;
+  }
 };
 
 export const textSetter = (
