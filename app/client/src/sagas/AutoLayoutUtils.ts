@@ -56,8 +56,6 @@ export function* wrapChildren(
     if (!child) continue;
     flexLayers.push({
       children: [{ id: child.widgetId, align: FlexLayerAlignment.Start }],
-      hasFillChild:
-        child.responsiveBehavior === ResponsiveBehavior.Fill || false,
     });
   }
   canvas = { ...canvas, flexLayers };
@@ -104,11 +102,6 @@ export function* updateFlexLayersOnDelete(
     ...flexLayers.slice(0, layerIndex),
     {
       children: updatedChildren,
-      hasFillChild: updatedChildren.some(
-        (each: LayerChild) =>
-          widgets[each.id] &&
-          widgets[each.id]?.responsiveBehavior === ResponsiveBehavior.Fill,
-      ),
     },
     ...flexLayers.slice(layerIndex + 1),
   ];
@@ -253,7 +246,6 @@ export function pasteWidgetInFlexLayers(
             align: FlexLayerAlignment.Start,
           },
         ],
-        hasFillChild: widget.responsiveBehavior === ResponsiveBehavior.Fill,
       },
     ];
   } else {
@@ -281,7 +273,6 @@ export function pasteWidgetInFlexLayers(
           { id: widget.widgetId, align: alignment },
           ...selectedLayer.children.slice(rowIndex + 1),
         ],
-        hasFillChild: selectedLayer.hasFillChild,
       };
       flexLayers = [
         ...flexLayers.slice(0, flexLayerIndex),
@@ -326,7 +317,6 @@ export function addChildToPastedFlexLayers(
       }
       flexLayers[index] = {
         children,
-        hasFillChild: layer.hasFillChild,
       };
       index += 1;
     }
