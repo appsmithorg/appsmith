@@ -447,9 +447,11 @@ class ListWidget extends BaseWidget<
       spaceAvailableWithoutPaginationControls - LIST_WIDGET_PAGINATION_HEIGHT;
 
     const spaceTakenByAllContainers = spaceTakenByOneContainer * itemsCount;
+    const exceedsAvailableSpace =
+      spaceTakenByAllContainers > spaceAvailableWithoutPaginationControls;
     const paginationControlsEnabled =
-      (spaceTakenByAllContainers > spaceAvailableWithoutPaginationControls ||
-        serverSidePagination) &&
+      spaceTakenByAllContainers > 0 &&
+      (exceedsAvailableSpace || serverSidePagination) &&
       !infiniteScroll;
 
     const totalAvailableSpace = paginationControlsEnabled
@@ -466,7 +468,7 @@ class ListWidget extends BaseWidget<
   };
 
   shouldUpdatePageSize = () => {
-    return this.props.pageSize !== this.pageSize;
+    return this.props.listData?.length && this.props.pageSize !== this.pageSize;
   };
 
   isCurrPageNoGreaterThanMaxPageNo = () => {

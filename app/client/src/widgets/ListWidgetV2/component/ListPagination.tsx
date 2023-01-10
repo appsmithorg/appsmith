@@ -85,10 +85,6 @@ const paginatorCss = css<StyledPaginationProps>`
     border-color: #1890ff;
     transition: all 0.3s;
   }
-  .rc-pagination-item:focus a,
-  .rc-pagination-item:hover a {
-    color: #1890ff;
-  }
   .rc-pagination-item-active {
     font-weight: 500;
     background: #ffffff;
@@ -100,10 +96,6 @@ const paginatorCss = css<StyledPaginationProps>`
   .rc-pagination-item-active:focus,
   .rc-pagination-item-active:hover {
     border-color: #40a9ff;
-  }
-  .rc-pagination-item-active:focus a,
-  .rc-pagination-item-active:hover a {
-    color: #40a9ff;
   }
   .rc-pagination-jump-prev,
   .rc-pagination-jump-next {

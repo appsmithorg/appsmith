@@ -668,6 +668,7 @@ function* batchUpdateWidgetPropertySaga(
   };
   log.debug(
     "Batch widget property update calculations took: ",
+    action,
     performance.now() - start,
     "ms",
   );
