@@ -7,6 +7,7 @@ import {
   previewModeSelector,
   getCanvasWidth,
   showCanvasTopSectionSelector,
+  getCanvasScale,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -38,6 +39,7 @@ const Container = styled.section<{
   overflow-x: auto;
   overflow-y: auto;
   background: ${({ background }) => background};
+
   &:before {
     position: absolute;
     top: 0;
@@ -62,6 +64,7 @@ function CanvasContainer() {
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
+  const canvasScale = useSelector(getCanvasScale);
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -74,12 +77,12 @@ function CanvasContainer() {
 
   const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
 
+  let node: ReactNode;
   const pageLoading = (
     <Centered>
       <Spinner />
     </Centered>
   );
-  let node: ReactNode;
 
   if (isPageInitializing) {
     node = pageLoading;
@@ -88,6 +91,7 @@ function CanvasContainer() {
   if (!isPageInitializing && widgetsStructure) {
     node = (
       <Canvas
+        canvasScale={canvasScale}
         canvasWidth={canvasWidth}
         pageId={params.pageId}
         widgetsStructure={widgetsStructure}

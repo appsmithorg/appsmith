@@ -63,7 +63,7 @@ const StyleTabText = styled.div<{
   ${getTypographyByKey("h6")}
   color: ${({ navColorStyle, primaryColor }) =>
     getMenuItemTextColor(primaryColor, navColorStyle, true)};
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
+  height: ${(props) => `calc(${props.theme.pageTabsHeight})`};
 
   & span {
     height: 100%;
