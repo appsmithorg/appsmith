@@ -33,9 +33,8 @@ export default [
     description: "Isomorphic Javascript client for Supabase",
     author: "supabase",
     docsURL: "https://supabase.com/docs/reference/javascript",
-    version: "2.1.0",
-    url:
-      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.1.0/dist/umd/supabase.min.js",
+    version: "2.2.3",
+    url: "https://unpkg.com/@supabase/supabase-js@2.2.3/dist/umd/supabase.js",
     icon: "https://github.com/supabase.png?s=20",
   },
   {
