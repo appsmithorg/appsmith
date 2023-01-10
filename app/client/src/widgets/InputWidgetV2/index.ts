@@ -10,7 +10,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: {
       sectionIndex: 3,
-      defaultValue: DynamicHeight.FIXED,
+      defaultValue: DynamicHeight.AUTO_HEIGHT,
       active: true,
     },
   },

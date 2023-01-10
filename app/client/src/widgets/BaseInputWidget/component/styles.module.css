@@ -1,0 +1,23 @@
+.inputComponentWrapper {
+  /* background: blue; */
+  min-width: 160px;
+}
+
+@container (max-width: 360px) {
+  .inputComponentWrapper {
+    /* background: green; */
+  }
+  .label {
+    margin-bottom: 4px !important;
+  }
+  .textInputWrapper {
+    flex-basis: 36px;
+    min-height: 36px;
+  }
+}
+
+@container (min-width: 768px) {
+  .inputComponentWrapper {
+    /* background: red; */
+  }
+}

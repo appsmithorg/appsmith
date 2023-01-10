@@ -36,6 +36,8 @@ export type AutoLayoutProps = {
 
 const FlexWidget = styled.div`
   position: relative;
+  container-name: widget-container;
+  container-type: inline-size;
 `;
 
 export function FlexComponent(props: AutoLayoutProps) {

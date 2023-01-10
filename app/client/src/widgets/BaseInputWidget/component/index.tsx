@@ -21,6 +21,7 @@ import {
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
 import { InputTypes, NumberInputStepButtonPosition } from "../constants";
+import styles from "./styles.module.css";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -364,7 +365,10 @@ const TextInputWrapper = styled.div<{
   }};
   border-radius: ${({ borderRadius }) => borderRadius} !important;
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-  min-height: 32px;
+  min-height: 40px;
+  &&& {
+    flex: 0 40px;
+  }
 
   &:hover {
     border-color: ${({ disabled, hasError }) => {
@@ -664,6 +668,7 @@ class BaseInputComponent extends React.Component<
 
     return (
       <InputComponentWrapper
+        className={styles.inputComponentWrapper}
         compactMode={compactMode}
         data-testid="input-container"
         disabled={disabled}
@@ -681,7 +686,7 @@ class BaseInputComponent extends React.Component<
         {showLabelHeader && (
           <LabelWithTooltip
             alignment={labelAlignment}
-            className="t--input-widget-label"
+            className={`t--input-widget-label ${styles.label}`}
             color={labelTextColor}
             compact={compactMode}
             cyHelpTextClassName="t--input-widget-tooltip"
@@ -700,7 +705,7 @@ class BaseInputComponent extends React.Component<
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
-          className="text-input-wrapper"
+          className={`text-input-wrapper ${styles.textInputWrapper}`}
           compact={compactMode}
           disabled={this.props.disabled}
           hasError={this.props.isInvalid}
