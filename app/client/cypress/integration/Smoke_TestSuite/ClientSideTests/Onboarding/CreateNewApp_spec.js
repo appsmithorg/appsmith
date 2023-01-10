@@ -6,7 +6,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let datasources = ObjectsRegistry.DataSources;
 
 describe("Creating new app after discontinuing guided tour should not start the same", function() {
-  it("Creating new app after discontinuing guided tour should not start the same", function() {
+  it("1. Creating new app after discontinuing guided tour should not start the same", function() {
     cy.wait(4000); //internally waiting for mock db's to connect!
     // Start guided tour
     cy.get(commonlocators.homeIcon)
@@ -16,6 +16,7 @@ describe("Creating new app after discontinuing guided tour should not start the 
     cy.get(guidedTourLocators.welcomeTour)
       .click()
       .wait(2000);
+    datasources.CloseReconnectDataSourceModal();
     cy.get(guidedTourLocators.startBuilding).should("be.visible");
     // Go back to applications page
     cy.get(commonlocators.homeIcon).click({ force: true });

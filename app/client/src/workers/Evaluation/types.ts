@@ -9,7 +9,7 @@ import { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
-} from "workers/Evaluation/evalWorkerActions";
+} from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
