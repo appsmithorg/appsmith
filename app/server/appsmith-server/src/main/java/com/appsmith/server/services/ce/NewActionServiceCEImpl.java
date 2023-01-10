@@ -369,7 +369,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             } else {
                 // TODO: check if datasource should be fetched with edit during action create or update.
                 //Data source already exists. Find the same.
-                datasourceMono = datasourceService.findById(action.getDatasource().getId(), datasourcePermission.getEditPermission())
+                datasourceMono = datasourceService.findById(action.getDatasource().getId())
                         .switchIfEmpty(Mono.defer(() -> {
                             action.setIsValid(false);
                             invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
@@ -644,7 +644,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             for (Param param : params) {
                 // In case the parameter values turn out to be null, set it to empty string instead to allow
                 // the execution to go through no matter what.
-                if (!StringUtils.isEmpty(param.getKey()) && param.getValue() == null) {
+                if (StringUtils.hasLength(param.getKey()) && param.getValue() == null) {
                     param.setValue("");
                 }
             }
@@ -1118,6 +1118,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (dto.getActionId() == null) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
                     }
+
+                    final Set<String> visitedBindings = new HashSet<>();
                     /*
                         Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
                         along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
@@ -1126,8 +1128,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     params.forEach(
                             param -> {
                                 String pseudoBindingName = param.getPseudoBindingName();
-                                param.setKey(dto.getInvertParameterMap()
-                                        .get(pseudoBindingName));
+                                String bindingValue = dto.getInvertParameterMap().get(pseudoBindingName);
+                                param.setKey(bindingValue);
+                                visitedBindings.add(bindingValue);
                                 //if the type is not an array e.g. "k1": "string" or "k1": "boolean"
                                 if (dto.getParamProperties()
                                         .get(pseudoBindingName) instanceof String) {
@@ -1158,6 +1161,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                             }
                     );
+
+                    // In case there are parameters that did not receive a value in the multipart request,
+                    // initialize these bindings with empty strings
+                    if (dto.getParameterMap() != null) {
+                        dto.getParameterMap()
+                                .keySet()
+                                .stream()
+                                .forEach(parameter -> {
+                                    if (!visitedBindings.contains(parameter)) {
+                                        Param newParam = new Param(parameter, "");
+                                        params.add(newParam);
+                                    }
+                                });
+                    }
                     dto.setParams(params);
                     return Mono.just(dto);
                 });
