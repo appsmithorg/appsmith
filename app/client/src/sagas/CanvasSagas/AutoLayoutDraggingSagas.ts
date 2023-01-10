@@ -3,11 +3,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import {
-  FlexLayerAlignment,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "components/constants";
+import { FlexLayerAlignment, LayoutDirection } from "components/constants";
 import {
   FlexLayer,
   LayerChild,
@@ -344,7 +340,6 @@ function updateExistingLayer(
         ...map[FlexLayerAlignment.Center],
         ...map[FlexLayerAlignment.End],
       ],
-      hasFillChild: newLayer.hasFillChild || layers[layerIndex]?.hasFillChild,
     };
 
     const updatedCanvas = {
@@ -370,30 +365,26 @@ function updateExistingLayer(
  * @param movedWidgets
  * @param allWidgets
  * @param alignment
- * @returns hasFillChild: boolean, layerChildren: string[]
+ * @returns FlexLayer
  */
 function createFlexLayer(
   movedWidgets: string[],
   allWidgets: CanvasWidgetsReduxState,
   alignment: FlexLayerAlignment,
 ): FlexLayer {
-  let hasFillChild = false;
   const children = [];
   if (movedWidgets && movedWidgets.length) {
     for (const id of movedWidgets) {
       const widget = allWidgets[id];
       if (!widget) continue;
-      if (widget.responsiveBehavior === ResponsiveBehavior.Fill)
-        hasFillChild = true;
       children.push({ id, align: alignment });
     }
   }
-  return { children, hasFillChild };
+  return { children };
 }
 
 /**
  * Remove moved widgets from current layers.
- * and update hasFillChild property.
  * Return non-empty layers.
  * @param allWidgets
  * @param movedWidgets
@@ -414,10 +405,6 @@ export function removeWidgetsFromCurrentLayers(
       acc.push({
         ...layer,
         children,
-        hasFillChild: children.some(
-          (each: LayerChild) =>
-            allWidgets[each.id].responsiveBehavior === ResponsiveBehavior.Fill,
-        ),
       });
     }
     return acc;

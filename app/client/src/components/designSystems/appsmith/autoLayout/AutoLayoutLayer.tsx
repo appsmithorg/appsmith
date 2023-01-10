@@ -14,7 +14,6 @@ export interface AutoLayoutLayerProps {
   center?: ReactNode;
   end?: ReactNode;
   direction: LayoutDirection;
-  hasFillChild?: boolean;
   index: number;
   widgetId: string;
   isMobile?: boolean;
