@@ -7,6 +7,7 @@ import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { APP_MODE } from "entities/App";
 import { ApplicationVersion } from "actions/applicationActions";
 import { Datasource } from "entities/Datasource";
+import { PublishedNavigationSetting } from "constants/AppConstants";
 
 export type EvaluationVersion = number;
 
@@ -112,6 +113,8 @@ export type UpdateApplicationPayload = {
   appLayout?: AppLayoutConfig;
   applicationVersion?: number;
   embedSetting?: AppEmbedSetting;
+  publishedNavigationSetting?: PublishedNavigationSetting;
+  unpublishedNavigationSetting?: PublishedNavigationSetting;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {

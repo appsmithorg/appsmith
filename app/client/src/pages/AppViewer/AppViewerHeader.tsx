@@ -98,14 +98,6 @@ const StyledApplicationName = styled.div<{
 
 export function AppViewerHeader(props: AppViewerHeaderProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
-  // TODO - @Dhruvik - ImprovedAppNav
-  // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
-  const primaryColor = get(
-    selectedTheme,
-    "properties.colors.primaryColor",
-    "inherit",
-  );
   const [isMenuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const {
@@ -123,6 +115,16 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   );
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
+  // TODO - @Dhruvik - ImprovedAppNav
+  // Use published and unpublished nav settings as needed
+  const navColorStyle =
+    currentApplicationDetails?.publishedNavigationSetting?.colorStyle ||
+    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const primaryColor = get(
+    selectedTheme,
+    "properties.colors.primaryColor",
+    "inherit",
+  );
 
   if (hideHeader) return <HtmlTitle />;
 

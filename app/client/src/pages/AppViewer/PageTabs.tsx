@@ -22,6 +22,7 @@ import {
 import {
   NavigationSettingsColorStyle,
   NAVIGATION_SETTINGS,
+  PublishedNavigationSetting,
 } from "constants/AppConstants";
 
 const PageTab = styled(NavLink)<{
@@ -151,7 +152,7 @@ type Props = {
 };
 
 export function PageTabs(props: Props) {
-  const { appPages } = props;
+  const { appPages, currentApplicationDetails } = props;
   const location = useLocation();
   const { pathname } = location;
   const [query, setQuery] = useState("");
@@ -173,7 +174,13 @@ export function PageTabs(props: Props) {
             setShowScrollArrows={props.setShowScrollArrows}
             tabsScrollable={props.tabsScrollable}
           >
-            <PageTabItem page={page} query={query} />
+            <PageTabItem
+              page={page}
+              publishedNavigationSetting={
+                currentApplicationDetails?.publishedNavigationSetting
+              }
+              query={query}
+            />
           </PageTabContainer>
         );
       })}
@@ -181,7 +188,15 @@ export function PageTabs(props: Props) {
   );
 }
 
-function PageTabItem({ page, query }: { page: Page; query: string }) {
+function PageTabItem({
+  page,
+  publishedNavigationSetting,
+  query,
+}: {
+  page: Page;
+  query: string;
+  publishedNavigationSetting?: PublishedNavigationSetting;
+}) {
   const appMode = useSelector(getAppMode);
   const pageURL = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
@@ -189,8 +204,10 @@ function PageTabItem({ page, query }: { page: Page; query: string }) {
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   // TODO - @Dhruvik - ImprovedAppNav
-  // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  // Use published and unpublished nav settings as needed
+  const navColorStyle =
+    publishedNavigationSetting?.colorStyle ||
+    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
 
   return (
     <PageTab

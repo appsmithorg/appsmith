@@ -18,11 +18,11 @@ import {
   getMenuItemBackgroundColorWhenActive,
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
-  getApplicationNameTextColor,
 } from "../utils";
 import {
   NavigationSettingsColorStyle,
   NAVIGATION_SETTINGS,
+  PublishedNavigationSetting,
 } from "constants/AppConstants";
 
 const StyledMenuItem = styled(NavLink)<{
@@ -38,16 +38,39 @@ const StyledMenuItem = styled(NavLink)<{
   padding: 0 10px;
   border-radius: 4px;
   background-color: transparent;
+  min-height: 2rem;
+
+  .page-icon svg path {
+    fill: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    stroke: ${({ navColorStyle, primaryColor }) =>
+      getMenuItemTextColor(primaryColor, navColorStyle, true)};
+    transition: all 0.3s ease-in-out;
+  }
 
   &:hover {
     text-decoration: none;
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
+
+    .page-icon svg path {
+      fill: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+      stroke: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+    }
   }
 
   &.is-active {
     background-color: ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
+
+    .page-icon svg path {
+      fill: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+      stroke: ${({ navColorStyle, primaryColor }) =>
+        getMenuItemTextColor(primaryColor, navColorStyle)};
+    }
   }
 `;
 
@@ -144,15 +167,24 @@ const MenuContainer = ({
     }
   }, [isTabActive, tabsScrollable]);
 
-  return <div ref={tabContainerRef}>{children}</div>;
+  return (
+    <div className="" ref={tabContainerRef}>
+      {children}
+    </div>
+  );
 };
 
 type MenuItemProps = {
   page: Page;
   query: string;
+  publishedNavigationSetting?: PublishedNavigationSetting;
 };
 
-const MenuItem = ({ page, query }: MenuItemProps) => {
+const MenuItem = ({
+  page,
+  publishedNavigationSetting,
+  query,
+}: MenuItemProps) => {
   const appMode = useSelector(getAppMode);
   const pageURL = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
@@ -160,15 +192,15 @@ const MenuItem = ({ page, query }: MenuItemProps) => {
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   // TODO - @Dhruvik - ImprovedAppNav
-  // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  // Use published and unpublished nav settings as needed
+  const navColorStyle =
+    publishedNavigationSetting?.colorStyle ||
+    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
     "inherit",
   );
-  // Remove LOC below
-  const showIcon = true;
 
   return (
     <StyledMenuItem
@@ -181,19 +213,27 @@ const MenuItem = ({ page, query }: MenuItemProps) => {
         search: query,
       }}
     >
-      {showIcon && (
+      {publishedNavigationSetting?.itemStyle !==
+        NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (
         <Icon
-          className="mr-2"
-          fillColor={getApplicationNameTextColor(primaryColor, navColorStyle)}
+          className={`page-icon ${
+            publishedNavigationSetting?.itemStyle ===
+            NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON
+              ? "mr-2"
+              : ""
+          }`}
           name="file-line"
           size="large"
         />
       )}
-      <MenuText
-        name={page.pageName}
-        navColorStyle={navColorStyle}
-        primaryColor={primaryColor}
-      />
+      {publishedNavigationSetting?.itemStyle !==
+        NAVIGATION_SETTINGS.ITEM_STYLE.ICON && (
+        <MenuText
+          name={page.pageName}
+          navColorStyle={navColorStyle}
+          primaryColor={primaryColor}
+        />
+      )}
     </StyledMenuItem>
   );
 };
@@ -210,7 +250,7 @@ type TopStackedProps = {
 };
 
 const TopStacked = (props: TopStackedProps) => {
-  const { appPages } = props;
+  const { appPages, currentApplicationDetails } = props;
   const location = useLocation();
   const { pathname } = location;
   const [query, setQuery] = useState("");
@@ -221,7 +261,7 @@ const TopStacked = (props: TopStackedProps) => {
 
   return (
     <div
-      className="flex w-full hidden-scrollbar gap-x-2"
+      className="flex w-full hidden-scrollbar gap-x-2  items-center"
       ref={props.measuredTabsRef}
     >
       {appPages.map((page) => {
@@ -232,7 +272,13 @@ const TopStacked = (props: TopStackedProps) => {
             setShowScrollArrows={props.setShowScrollArrows}
             tabsScrollable={props.tabsScrollable}
           >
-            <MenuItem page={page} query={query} />
+            <MenuItem
+              page={page}
+              publishedNavigationSetting={
+                currentApplicationDetails?.publishedNavigationSetting
+              }
+              query={query}
+            />
           </MenuContainer>
         );
       })}

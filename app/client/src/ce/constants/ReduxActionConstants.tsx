@@ -12,6 +12,7 @@ import {
   GitApplicationMetadata,
 } from "api/ApplicationApi";
 import { ApplicationVersion } from "actions/applicationActions";
+import { PublishedNavigationSetting } from "constants/AppConstants";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -1062,6 +1063,8 @@ export interface ApplicationPayload {
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
+  publishedNavigationSetting?: PublishedNavigationSetting;
+  unpublishedNavigationSetting?: PublishedNavigationSetting;
 }
 
 export type WorkspaceDetails = {

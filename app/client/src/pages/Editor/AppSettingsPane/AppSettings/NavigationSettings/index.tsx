@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
@@ -15,11 +15,15 @@ import {
   NAVIGATION_SETTINGS,
   PublishedNavigationSetting,
 } from "constants/AppConstants";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import ButtonGroupSetting from "./ButtonGroupSetting";
 import ColorStyleIcon from "./ColorStyleIcon";
 import LogoConfiguration from "./LogoConfiguration";
 import SwitchSetting from "./SwitchSetting";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
+import equal from "fast-deep-equal";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { updateApplication } from "actions/applicationActions";
 
 export type UpdateSetting = (
   key: keyof PublishedNavigationSetting,
@@ -28,39 +32,60 @@ export type UpdateSetting = (
 
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
+  const applicationId = useSelector(getCurrentApplicationId);
   const dispatch = useDispatch();
+  const defaultNavSettings = {
+    showNavbar: application?.publishedNavigationSetting?.showNavbar ?? true,
+    orientation:
+      application?.publishedNavigationSetting?.orientation ||
+      NAVIGATION_SETTINGS.ORIENTATION.TOP,
+    style:
+      application?.publishedNavigationSetting?.style ||
+      NAVIGATION_SETTINGS.STYLE.STACKED,
+    position:
+      application?.publishedNavigationSetting?.position ||
+      NAVIGATION_SETTINGS.POSITION.STATIC,
+    itemStyle:
+      application?.publishedNavigationSetting?.itemStyle ||
+      NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
+    colorStyle:
+      application?.publishedNavigationSetting?.colorStyle ||
+      NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
+    logoConfiguration:
+      application?.publishedNavigationSetting?.logoConfiguration ||
+      NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+    showSignIn: application?.publishedNavigationSetting?.showSignIn ?? true,
+    showShareApp: application?.publishedNavigationSetting?.showShareApp ?? true,
+  };
   const [publishedNavigationSetting, setPublishedNavigationSetting] = useState<
     PublishedNavigationSetting
-  >({} as PublishedNavigationSetting);
+  >(defaultNavSettings as PublishedNavigationSetting);
 
-  useEffect(() => {
-    const defaultNavConfig = {
-      showNavbar: true,
-      orientation: NAVIGATION_SETTINGS.ORIENTATION.TOP,
-      style: NAVIGATION_SETTINGS.STYLE.STACKED,
-      position: NAVIGATION_SETTINGS.POSITION.STATIC,
-      itemStyle: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
-      colorStyle: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
-      logoConfiguration:
-        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
-      showSignIn: true,
-      showShareApp: true,
-    };
+  const updateSetting = useCallback(
+    debounce(
+      (
+        key: keyof PublishedNavigationSetting,
+        value: PublishedNavigationSetting[keyof PublishedNavigationSetting],
+      ) => {
+        const newSettings: PublishedNavigationSetting = {
+          ...publishedNavigationSetting,
+          [key]: value,
+        };
 
-    setPublishedNavigationSetting(defaultNavConfig);
-  }, []);
+        const payload: UpdateApplicationPayload = { currentApp: true };
 
-  const updateSetting = (
-    key: keyof PublishedNavigationSetting,
-    value: PublishedNavigationSetting[keyof PublishedNavigationSetting],
-  ) => {
-    const newSettings: PublishedNavigationSetting = {
-      ...publishedNavigationSetting,
-      [key]: value,
-    };
+        if (!equal(publishedNavigationSetting, newSettings)) {
+          payload.publishedNavigationSetting = newSettings;
 
-    setPublishedNavigationSetting(newSettings);
-  };
+          dispatch(updateApplication(applicationId, payload));
+        }
+
+        setPublishedNavigationSetting(newSettings);
+      },
+      50,
+    ),
+    [application, publishedNavigationSetting],
+  );
 
   return (
     <div className="px-4">

@@ -149,7 +149,8 @@ function PrimaryCTA(props: Props) {
 
     if (
       currentApplication?.isPublic &&
-      currentUser?.username === ANONYMOUS_USERNAME
+      currentUser?.username === ANONYMOUS_USERNAME &&
+      currentApplication?.publishedNavigationSetting?.showSignIn
     ) {
       return (
         <Button

@@ -55,8 +55,10 @@ export function PageMenu(props: AppViewerHeaderProps) {
   const [query, setQuery] = useState("");
   const { hideWatermark } = getAppsmithConfigs();
   // TODO - @Dhruvik - ImprovedAppNav
-  // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  // Use published and unpublished nav settings as needed
+  const navColorStyle =
+    application?.publishedNavigationSetting?.colorStyle ||
+    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -119,37 +121,38 @@ export function PageMenu(props: AppViewerHeaderProps) {
           ))}
         </div>
         <div className="p-3 space-y-3 border-t">
-          {application && (
-            <FormDialogComponent
-              Form={AppInviteUsersForm}
-              applicationId={application.id}
-              canOutsideClickClose
-              headerIcon={{
-                name: "right-arrow",
-                bgColor: "transparent",
-              }}
-              isOpen={showAppInviteUsersDialog}
-              message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
-              placeholder={createMessage(
-                INVITE_USERS_PLACEHOLDER,
-                cloudHosting,
-              )}
-              title={application.name}
-              trigger={
-                <Button
-                  borderRadius={
-                    selectedTheme.properties.borderRadius.appBorderRadius
-                  }
-                  boxShadow="none"
-                  buttonColor={selectedTheme.properties.colors.primaryColor}
-                  buttonVariant="SECONDARY"
-                  className="w-full h-8"
-                  text="Share"
-                />
-              }
-              workspaceId={workspaceID}
-            />
-          )}
+          {application &&
+            application?.publishedNavigationSetting?.showShareApp && (
+              <FormDialogComponent
+                Form={AppInviteUsersForm}
+                applicationId={application.id}
+                canOutsideClickClose
+                headerIcon={{
+                  name: "right-arrow",
+                  bgColor: "transparent",
+                }}
+                isOpen={showAppInviteUsersDialog}
+                message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
+                placeholder={createMessage(
+                  INVITE_USERS_PLACEHOLDER,
+                  cloudHosting,
+                )}
+                title={application.name}
+                trigger={
+                  <Button
+                    borderRadius={
+                      selectedTheme.properties.borderRadius.appBorderRadius
+                    }
+                    boxShadow="none"
+                    buttonColor={selectedTheme.properties.colors.primaryColor}
+                    buttonVariant="SECONDARY"
+                    className="w-full h-8"
+                    text="Share"
+                  />
+                }
+                workspaceId={workspaceID}
+              />
+            )}
           <PrimaryCTA
             className="t--back-to-editor--mobile"
             navColorStyle={navColorStyle}

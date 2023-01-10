@@ -28,8 +28,8 @@ const Container = styled.div<{
     ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 
   & {
-    svg path,
-    svg:hover path {
+    .scroll-arrows svg path,
+    .scroll-arrows svg:hover path {
       fill: ${({ navColorStyle, primaryColor }) =>
         getMenuItemTextColor(primaryColor, navColorStyle)};
       stroke: ${({ navColorStyle, primaryColor }) =>
@@ -80,8 +80,10 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, pages } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
   // TODO - @Dhruvik - ImprovedAppNav
-  // Fetch nav color style from the application's nav settings
-  const navColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE.SOLID;
+  // Use published and unpublished nav settings as needed
+  const navColorStyle =
+    currentApplicationDetails?.publishedNavigationSetting?.colorStyle ||
+    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -155,14 +157,15 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
     return clear;
   }, [isScrolling, isScrollingLeft]);
 
-  return appPages.length > 1 ? (
+  return appPages.length > 1 &&
+    currentApplicationDetails?.publishedNavigationSetting?.showNavbar ? (
     <Container
       className="relative hidden px-6 h-11 md:flex"
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
     >
       <ScrollBtnContainer
-        className="left-0"
+        className="left-0 scroll-arrows"
         navColorStyle={navColorStyle}
         onMouseDown={() => startScrolling(true)}
         onMouseLeave={stopScrolling}
@@ -182,7 +185,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
         tabsScrollable={tabsScrollable}
       />
       <ScrollBtnContainer
-        className="right-0"
+        className="right-0 scroll-arrows"
         navColorStyle={navColorStyle}
         onMouseDown={() => startScrolling(false)}
         onMouseLeave={stopScrolling}
