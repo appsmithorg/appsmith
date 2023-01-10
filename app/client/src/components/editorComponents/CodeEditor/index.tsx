@@ -754,7 +754,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
@@ -767,6 +767,12 @@ class CodeEditor extends Component<Props, State> {
         line: cursor.line,
       },
     });
+    cm.removeLineClass(
+      this.lineRef.current,
+      "background",
+      "CodeMirror-activeline-background",
+    );
+    this.lineRef.current = null;
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
