@@ -48,6 +48,7 @@ function NavigationSettings() {
     showSignIn: true,
     showShareApp: true,
   };
+  const doesntWorkRightNowLabel = "- [Doesn't work (...right now)]";
 
   useEffect(() => {
     // Set default values
@@ -109,7 +110,10 @@ function NavigationSettings() {
       />
 
       <ButtonGroupSetting
-        heading={createMessage(APP_NAVIGATION_SETTING.orientationLabel)}
+        heading={
+          createMessage(APP_NAVIGATION_SETTING.orientationLabel) +
+          doesntWorkRightNowLabel
+        }
         keyName="orientation"
         options={[
           {
@@ -128,7 +132,10 @@ function NavigationSettings() {
       />
 
       <ButtonGroupSetting
-        heading={createMessage(APP_NAVIGATION_SETTING.navStyleLabel)}
+        heading={
+          createMessage(APP_NAVIGATION_SETTING.navStyleLabel) +
+          doesntWorkRightNowLabel
+        }
         keyName="navStyle"
         options={[
           {

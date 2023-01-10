@@ -41,6 +41,7 @@ const LogoConfiguration = (props: {
         NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE,
     },
   ];
+  const doesntWorkRightNowLabel = "- [Doesn't work (...right now)]";
 
   const handleOnSelect = (value?: { label: string; value: string }) => {
     props.updateSetting("logoConfiguration", value?.value || "");
@@ -49,7 +50,10 @@ const LogoConfiguration = (props: {
   return (
     <div className="pt-4">
       <StyledPropertyHelpLabel
-        label={createMessage(APP_NAVIGATION_SETTING.showNavbarLabel)}
+        label={
+          createMessage(APP_NAVIGATION_SETTING.showNavbarLabel) +
+          doesntWorkRightNowLabel
+        }
         lineHeight="1.17"
         maxWidth="270px"
       />
