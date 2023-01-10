@@ -294,18 +294,18 @@ function* selectWidgetSaga(action: ReduxAction<SelectWidgetActionPayload>) {
  * @param action
  */
 function* appendSelectedWidgetToUrlSaga(
-  action: ReduxAction<{ selectedWidgets: string[] }>,
+  action: ReduxAction<{ widgetIds: string[] }>,
 ) {
   const { hash, pathname } = window.location;
-  const { selectedWidgets } = action.payload;
+  const { widgetIds } = action.payload;
   const currentPageId: string = yield select(getCurrentPageId);
 
   const currentURL = hash ? `${pathname}${hash}` : pathname;
   let canvasEditorURL;
-  if (selectedWidgets.length === 1) {
+  if (widgetIds.length === 1) {
     canvasEditorURL = `${builderURL({
       pageId: currentPageId,
-      hash: selectedWidgets[0],
+      hash: widgetIds[0],
       persistExistingParams: true,
     })}`;
   } else {
@@ -420,6 +420,11 @@ export function* widgetSelectionSagas() {
       openOrCloseModalSaga,
     ),
     takeLatest(
+      ReduxActionTypes.SET_SELECTED_WIDGETS,
+      canPerformSelectionSaga,
+      appendSelectedWidgetToUrlSaga,
+    ),
+    takeLatest(
       ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
       canPerformSelectionSaga,
       selectAllWidgetsInCanvasSaga,
@@ -427,10 +432,6 @@ export function* widgetSelectionSagas() {
     takeLatest(
       ReduxActionTypes.DESELECT_MODAL_WIDGETS,
       deselectModalWidgetSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
-      appendSelectedWidgetToUrlSaga,
     ),
   ]);
 }

@@ -11,13 +11,18 @@ export type SelectWidgetActionPayload = {
   isMultiSelect?: boolean;
   selectSiblings?: boolean;
 };
-
-// Use to select a widget programmatically via platform action
-export const selectWidgetInitAction = (
+export type WidgetSelectionRequest = (
   selectionRequest: SelectionRequest,
   isMultiSelect?: boolean,
   selectSiblings?: boolean,
-): ReduxAction<SelectWidgetActionPayload> => ({
+) => ReduxAction<SelectWidgetActionPayload>;
+
+// Use to select a widget programmatically via platform action
+export const selectWidgetInitAction: WidgetSelectionRequest = (
+  selectionRequest,
+  isMultiSelect,
+  selectSiblings,
+) => ({
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
   payload: { selectionRequest, isMultiSelect, selectSiblings },
 });
@@ -35,13 +40,6 @@ export const deselectModalWidgetAction = (
   return {
     type: ReduxActionTypes.DESELECT_MODAL_WIDGETS,
     payload: { modalId, modalWidgetChildren },
-  };
-};
-
-export const appendSelectedWidgetToUrl = (selectedWidgets: string[]) => {
-  return {
-    type: ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
-    payload: { selectedWidgets },
   };
 };
 

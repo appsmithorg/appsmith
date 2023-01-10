@@ -13,10 +13,8 @@ import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { AppState } from "@appsmith/reducers";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
-import { deselectModalWidgetAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { Stylesheet } from "entities/AppTheming";
 
 const minSize = 100;
@@ -156,9 +154,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
-    setTimeout(() => {
-      this.props.deselectModalWidget(this.props.widgetId, this.props.children);
-    }, 0);
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -184,10 +179,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   closeModal = (e: any) => {
-    this.props.showPropertyPane(undefined);
+    this.props.updateWidgetMetaProperty("isVisible", false);
+    this.props.selectWidgetRequest([]);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
-    this.props.updateWidgetMetaProperty("isVisible", false);
     e.stopPropagation();
     e.preventDefault();
   };
@@ -320,12 +315,6 @@ const mapDispatchToProps = (dispatch: any) => ({
           : ReduxActionTypes.HIDE_PROPERTY_PANE,
       payload: { widgetId, callForDragOrResize, force },
     });
-  },
-  deselectModalWidget: (
-    modalId: string,
-    modalWidgetChildren?: CanvasWidgetsStructureReduxState[],
-  ) => {
-    dispatch(deselectModalWidgetAction(modalId, modalWidgetChildren));
   },
 });
 
