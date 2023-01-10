@@ -15,9 +15,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     list-style: none;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: 0px 0px;
-    font-family: ui-monospace, "Menlo", "Monaco", "Cascadia Code",
-    "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", 
-    "Source Code Pro", "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+    font-family: ${(props) => props.theme.fonts.code};
     max-height: 20em;
     overflow-y: auto;
     background: ${(props) =>
@@ -261,15 +259,14 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
     padding: 7px 12px;
     border-radius: 0;
-
+    display: flex;
+    align-items: center;
     &.${LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS}{
     transform: translate(-100%);
   }
 
   }
   .CodeMirror-lint-message {
-    margin-top: 5px;
-    margin-bottom: 5px;
     font-family: ${(props) => props.theme.fonts.text};
     color: #4B4848;
   }

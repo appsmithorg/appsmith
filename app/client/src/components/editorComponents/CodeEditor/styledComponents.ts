@@ -202,10 +202,7 @@ export const EditorWrapper = styled.div<{
     }
     .CodeMirror,
     .pretty-json-container {
-      font-family: ui-monospace, "Menlo", "Monaco", "Cascadia Code",
-        "Cascadia Mono", "Segoe UI Mono", "Roboto Mono", "Oxygen Mono",
-        "Ubuntu Monospace", "Source Code Pro", "Fira Mono", "Droid Sans Mono",
-        "Courier New", monospace;
+      font-family: ${(props) => props.theme.font.code};
       font-size: 0.75rem;
     }
 
