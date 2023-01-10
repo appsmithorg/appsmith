@@ -4,15 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  takeLatest,
-  throttle,
-} from "redux-saga/effects";
+import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
@@ -252,7 +244,6 @@ function* selectWidgetSaga(action: ReduxAction<SelectWidgetActionPayload>) {
         }
         // Shift select siblings Entity Explorer
         if (selectSiblings) {
-          debugger;
           if (!alreadySelected && isASiblingSelected > -1) {
             const selectedWidgetIndex = siblingWidgets.indexOf(widgetId);
             const start =
