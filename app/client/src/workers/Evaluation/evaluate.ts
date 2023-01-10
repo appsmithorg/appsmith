@@ -11,7 +11,10 @@ import userLogs from "./fns/console";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { JSFunctionProxy, JSProxy } from "./JSObject/JSProxy";
+import {
+  JSFunctionProxy,
+  JSProxy,
+} from "@appsmith/workers/Evaluation/JSObject/JSProxy";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
@@ -249,6 +252,7 @@ export default function evaluateSync(
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
+
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
     /**** Setting the eval context ****/
@@ -322,9 +326,21 @@ export async function evaluateAsync(
     resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
+    let logs;
+
+    /**** JSObject function proxy method ****/
     const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
-    /**** Setting the eval context ****/
+
+    /**** console logs setup ****/
     userLogs.setupConsole(context?.eventType, context?.triggerMeta);
+    // userLogs.resetLogs();
+    // userLogs.setCurrentRequestInfo({
+    //   eventType: context?.eventType,
+    //   triggerMeta: context?.triggerMeta,
+    // });
+
+    /**** Setting the eval context ****/
+
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
@@ -333,6 +349,7 @@ export async function evaluateAsync(
       JSFunctionProxy,
       isTriggerBased: true,
     });
+
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     evalContext.ALLOW_ASYNC = true;
 

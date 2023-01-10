@@ -1059,7 +1059,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private Mono<CRUDPageResponseDTO> sendGenerateCRUDPageAnalyticsEvent(CRUDPageResponseDTO crudPage, Datasource datasource, String pluginName) {
         PageDTO page = crudPage.getPage();
         return sessionUserService.getCurrentUser()
-                .map(currentUser -> {
+                .flatMap(currentUser -> {
                     try {
                         final Map<String, Object> data = Map.of(
                                 "applicationId", page.getApplicationId(),
@@ -1069,13 +1069,13 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 "datasourceId", datasource.getId(),
                                 "organizationId", datasource.getWorkspaceId()
                         );
-                        analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data);
+                        return analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data)
+                                .thenReturn(crudPage);
                     } catch (Exception e) {
                         log.warn("Error sending generate CRUD DB table page data point", e);
                     }
-                    return crudPage;
+                    return Mono.just(crudPage);
                 });
     }
-
 
 }

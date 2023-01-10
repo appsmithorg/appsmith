@@ -93,10 +93,7 @@ const appReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      store: {
-        ...state.store,
-        ...action.payload,
-      },
+      store: action.payload,
     };
   },
   [ReduxActionTypes.SET_USER_CURRENT_GEO_LOCATION]: (

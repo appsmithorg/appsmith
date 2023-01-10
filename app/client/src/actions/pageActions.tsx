@@ -24,7 +24,6 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { GenerateTemplatePageRequest } from "api/PageApi";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
-import { StoreValueActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -348,21 +347,12 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   };
 };
 
-export const updateAppStoreEvaluated = (
-  storeValueAction?: StoreValueActionDescription["payload"],
-) => ({
-  type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
-  payload: storeValueAction,
-});
-
 export const updateAppStore = (
   payload: Record<string, unknown>,
-  storeValueAction?: StoreValueActionDescription["payload"],
 ): EvaluationReduxAction<Record<string, unknown>> => {
   return {
     type: ReduxActionTypes.UPDATE_APP_STORE,
     payload,
-    postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
   };
 };
 

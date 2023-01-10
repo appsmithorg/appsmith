@@ -116,6 +116,9 @@ beforeEach(function() {
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer
   cy.DeleteEntityStateLocalStorage();
+  cy.intercept("api/v1/admin/env", (req) => {
+    req.headers["origin"] = Cypress.config("baseUrl");
+  });
 });
 
 after(function() {

@@ -1,8 +1,3 @@
-import {
-  ActionTriggerType,
-  RemoveValueActionDescription,
-  StoreValueActionDescription,
-} from "ce/entities/DataTree/actionTriggers";
 import set from "lodash/set";
 import { addFn } from "./utils/fnGuard";
 import { TriggerEmitter } from "./utils/TriggerEmitter";
@@ -10,8 +5,8 @@ import { TriggerEmitter } from "./utils/TriggerEmitter";
 export function initStoreFns(ctx: typeof globalThis) {
   const triggerEmitter = TriggerEmitter.getInstance();
   function storeValue(key: string, value: string, persist = true) {
-    const requestPayload: StoreValueActionDescription = {
-      type: ActionTriggerType.STORE_VALUE,
+    const requestPayload = {
+      type: "STORE_VALUE",
       payload: {
         key,
         value,
@@ -24,8 +19,8 @@ export function initStoreFns(ctx: typeof globalThis) {
   }
 
   function removeValue(key: string) {
-    const requestPayload: RemoveValueActionDescription = {
-      type: ActionTriggerType.REMOVE_VALUE,
+    const requestPayload = {
+      type: "REMOVE_VALUE",
       payload: {
         key,
       },
@@ -40,7 +35,7 @@ export function initStoreFns(ctx: typeof globalThis) {
     //@ts-expect-error no types for store
     self.appsmith.store = {};
     triggerEmitter.emit("process_store_updates", {
-      type: ActionTriggerType.CLEAR_STORE,
+      type: "CLEAR_STORE",
       payload: null,
     });
     return Promise.resolve({});

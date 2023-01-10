@@ -32,7 +32,7 @@ import {
 import {
   EVAL_WORKER_ACTIONS,
   MAIN_THREAD_ACTION,
-} from "workers/Evaluation/evalWorkerActions";
+} from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
@@ -87,7 +87,6 @@ import {
   UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
-import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -111,6 +110,7 @@ import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import { MessageType, TMessage } from "utils/MessageUtil";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(

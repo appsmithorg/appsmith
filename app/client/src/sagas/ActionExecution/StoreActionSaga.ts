@@ -5,7 +5,6 @@ import { updateAppStore } from "actions/pageActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "selectors/entitiesSelector";
 import {
-  ActionTriggerType,
   ClearStoreActionDescription,
   RemoveValueActionDescription,
   StoreValueActionDescription,
@@ -31,19 +30,19 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
   const logs: string[] = [];
   for (const t of triggers) {
     const { type } = t;
-    if (type === ActionTriggerType.STORE_VALUE) {
+    if (type === "STORE_VALUE") {
       const { key, persist, value } = t.payload;
       if (persist) {
         parsedLocalStore[key] = value;
       }
       currentStore[key] = value;
       logs.push(`storeValue('${key}', '${value}', ${persist})`);
-    } else if (type === ActionTriggerType.REMOVE_VALUE) {
+    } else if (type === "REMOVE_VALUE") {
       const { key } = t.payload;
       delete parsedLocalStore[key];
       delete currentStore[key];
       logs.push(`removeValue('${key}')`);
-    } else if (type === ActionTriggerType.CLEAR_STORE) {
+    } else if (type === "CLEAR_STORE") {
       parsedLocalStore = {};
       currentStore = {};
       logs.push(`clearStore()`);
