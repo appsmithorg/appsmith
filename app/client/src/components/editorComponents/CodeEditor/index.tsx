@@ -767,12 +767,14 @@ class CodeEditor extends Component<Props, State> {
         line: cursor.line,
       },
     });
-    cm.removeLineClass(
-      this.lineRef.current,
-      "background",
-      "CodeMirror-activeline-background",
-    );
-    this.lineRef.current = null;
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+      this.lineRef.current = null;
+    }
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
