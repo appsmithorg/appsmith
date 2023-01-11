@@ -153,6 +153,7 @@ describe("Slug URLs", () => {
   it("Checks redirect url", () => {
     cy.url().then((url) => {
       cy.LogOut();
+      cy.wait(3000);
       cy.visit(url + "?embed=true&a=b");
       cy.location().should((loc) => {
         expect(loc.search).to.eq(
