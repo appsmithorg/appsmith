@@ -6,7 +6,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.DsContextMapKey;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -49,7 +49,7 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
 
     Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
-    Mono<Tuple3<Datasource, DsContextMapKey, Map<String, BaseDomain>>>
+    Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
     getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName);
 
 }

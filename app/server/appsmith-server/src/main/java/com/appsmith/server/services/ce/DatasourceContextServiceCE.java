@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.DatasourceContext;
-import com.appsmith.server.domains.DsContextMapKey;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import reactor.core.publisher.Mono;
 
@@ -20,19 +20,19 @@ public interface DatasourceContextServiceCE {
      * map, create a new datasource context and return that.
      * The environmentMap parameter is not being Used in the CE version. it's specific to EE version
      * @param datasource
-     * @param dsContextMapKey
+     * @param datasourceContextIdentifier
      * @param environmentMap
      * @return DatasourceContext
      */
-    Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey,
+    Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier,
                                                     Map<String, BaseDomain> environmentMap);
 
     Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, Datasource datasource);
 
-    <T> Mono<T> retryOnce(Datasource datasource, DsContextMapKey dsContextMapKey,
+    <T> Mono<T> retryOnce(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier,
                           Map<String, BaseDomain> environmentMap, Function<DatasourceContext<?>, Mono<T>> task);
 
-    Mono<DatasourceContext<?>> deleteDatasourceContext(DsContextMapKey dsContextMapKey);
+    Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceContextIdentifier datasourceContextIdentifier);
 
-    DsContextMapKey getCustomKey(Datasource datasource);
+    DatasourceContextIdentifier getCustomKey(Datasource datasource);
 }

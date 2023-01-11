@@ -11,7 +11,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.DsContextMapKey;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -91,10 +91,10 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                         .getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, null)
                         .flatMap(tuple3 -> {
                             Datasource datasource2 = tuple3.getT1();
-                            DsContextMapKey dsContextMapKey = tuple3.getT2();
+                            DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
                             Map<String, BaseDomain> environmentMap = tuple3.getT3();
                             return datasourceContextService
-                                    .retryOnce(datasource2, dsContextMapKey, environmentMap,
+                                    .retryOnce(datasource2, datasourceContextIdentifier, environmentMap,
                                                resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
                                                        .getStructure(resourceContext.getConnection(),
                                                                      datasource.getDatasourceConfiguration()));

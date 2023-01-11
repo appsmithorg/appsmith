@@ -33,7 +33,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
-import com.appsmith.server.domains.DsContextMapKey;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -767,22 +767,21 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                                          PluginExecutor pluginExecutor,
                                                                          String environmentName) {
 
-        DsContextMapKey mapKey = new DsContextMapKey();
+        DatasourceContextIdentifier dsContextIdentifier = new DatasourceContextIdentifier();
 
         Mono<ActionExecutionResult> executionMono =
                 datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
                         .flatMap( tuple3 -> {
                             Datasource datasource1 = tuple3.getT1();
-                            DsContextMapKey dsContextMapKey = tuple3.getT2();
+                            DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
                             Map<String, BaseDomain> environmentMap = tuple3.getT3();
 
-                            mapKey.setDatasourceId(dsContextMapKey.getDatasourceId());
-                            mapKey.setEnvironmentId(dsContextMapKey.getEnvironmentId());
+                            dsContextIdentifier.setDatasourceId(datasourceContextIdentifier.getDatasourceId());
+                            dsContextIdentifier.setEnvironmentId(datasourceContextIdentifier.getEnvironmentId());
 
                             return getValidatedDatasourceForActionExecution(datasource1, environmentName)
                                     .zipWhen(validatedDatasource -> getDsContextForActionExecution(validatedDatasource,
-                                                                                                   plugin,
-                                                                                                   dsContextMapKey,
+                                                                                                   plugin, datasourceContextIdentifier,
                                                                                                    environmentMap))
                                     .flatMap(tuple2 -> {
                                         Datasource validatedDatasource = tuple2.getT1();
@@ -812,28 +811,28 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return executionMono.onErrorResume(StaleConnectionException.class, error -> {
             log.info("Looks like the connection is stale. Retrying with a fresh context.");
-            return deleteDatasourceContextForRetry(mapKey).then(executionMono);
+            return deleteDatasourceContextForRetry(dsContextIdentifier).then(executionMono);
         });
     }
 
     /**
-     * This is a composite method for fetching authenticated datasource, dsContextMapKey and environmentMap
+     * This is a composite method for fetching authenticated datasource, datasourceContextIdentifier, and environmentMap
      * @param datasource
      * @param environmentName
      * @return
      */
-    protected Mono<Tuple3 <Datasource, DsContextMapKey, Map<String, BaseDomain>>>
+    protected Mono<Tuple3 <Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
     getValidatedDatasourceWithDsContextKeyAndEnvMap(Datasource datasource, String environmentName) {
         // see EE override for complete usage.
         return datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
                 .flatMap(tuple3 -> {
                     Datasource datasource1 = tuple3.getT1();
-                    DsContextMapKey dsContextMapKey = tuple3.getT2();
+                    DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
                     Map<String, BaseDomain> environmentMap = tuple3.getT3();
 
                     return getValidatedDatasourceForActionExecution(datasource1, environmentName)
                             .flatMap(datasource2 -> Mono.zip(Mono.just(datasource2),
-                                                             Mono.just(dsContextMapKey),
+                                                             Mono.just(datasourceContextIdentifier),
                                                              Mono.just(environmentMap))
                             );
                 });
@@ -855,28 +854,28 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      *
      * @param validatedDatasource
      * @param plugin
-     * @param dsContextMapKey
+     * @param datasourceContextIdentifier
      * @param environmentMap
      * @return datasourceContextMono
      */
     protected Mono<DatasourceContext<?>> getDsContextForActionExecution (Datasource validatedDatasource, Plugin plugin,
-                                                                         DsContextMapKey dsContextMapKey,
+                                                                         DatasourceContextIdentifier datasourceContextIdentifier,
                                                                          Map<String, BaseDomain> environmentMap) {
         if (plugin.isRemotePlugin()) {
             return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource);
         }
-        return datasourceContextService.getDatasourceContext(validatedDatasource, dsContextMapKey, environmentMap);
+        return datasourceContextService.getDatasourceContext(validatedDatasource, datasourceContextIdentifier, environmentMap);
     }
 
     /**
      * Deletes the datasourceContext for the given datasource
-     * @param dsContextMapKey
+     * @param datasourceContextIdentifier
      * @return datasourceContextMono
      */
-    protected Mono<DatasourceContext<?>> deleteDatasourceContextForRetry(DsContextMapKey dsContextMapKey) {
+    protected Mono<DatasourceContext<?>> deleteDatasourceContextForRetry(DatasourceContextIdentifier datasourceContextIdentifier) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
-        return datasourceContextService.deleteDatasourceContext(dsContextMapKey);
+        return datasourceContextService.deleteDatasourceContext(datasourceContextIdentifier);
     }
 
     protected Mono<ActionExecutionResult> handleExecutionErrors(Mono<ActionExecutionResult> actionExecutionResultMono,

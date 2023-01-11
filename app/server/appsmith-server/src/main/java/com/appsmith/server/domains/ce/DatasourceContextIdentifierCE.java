@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DsContextMapKeyCE {
+public class DatasourceContextIdentifierCE {
 
     protected String datasourceId;
     protected String environmentId;
@@ -25,11 +25,11 @@ public class DsContextMapKeyCE {
             return true;
         }
 
-        if (!(obj instanceof DsContextMapKeyCE)) {
+        if (!(obj instanceof DatasourceContextIdentifierCE)) {
             return false;
         }
 
-        DsContextMapKeyCE keyObj = (DsContextMapKeyCE)  obj;
+        DatasourceContextIdentifierCE keyObj = (DatasourceContextIdentifierCE)  obj;
         boolean areBothEnvironmentIdSameOrNull = this.hasLength(this.getEnvironmentId()) ?
                 this.getEnvironmentId().equals(keyObj.getEnvironmentId()) : !this.hasLength(keyObj.getEnvironmentId());
 

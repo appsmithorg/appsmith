@@ -7,7 +7,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.domains.DsContextMapKey;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.constants.FieldName.DISPLAY_TYPE;
 import static com.appsmith.server.constants.FieldName.REQUEST_TYPE;
 
@@ -91,10 +90,9 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                                     return datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource1, null)
                                             .flatMap(tuple3 -> {
                                                 Datasource datasource2 = tuple3.getT1();
-                                                DsContextMapKey dsContextMapKey = tuple3.getT2();
+                                                DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
                                                 Map<String, BaseDomain> environmentMap = tuple3.getT3();
-                                                return datasourceContextService.getDatasourceContext(datasource2,
-                                                                                                     dsContextMapKey,
+                                                return datasourceContextService.getDatasourceContext(datasource2, datasourceContextIdentifier,
                                                                                                      environmentMap);
                                             });
                                 }

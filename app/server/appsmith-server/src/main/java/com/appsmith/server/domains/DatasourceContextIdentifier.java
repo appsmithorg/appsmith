@@ -1,6 +1,6 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.server.domains.ce.DsContextMapKeyCE;
+import com.appsmith.server.domains.ce.DatasourceContextIdentifierCE;
 import lombok.NoArgsConstructor;
 
 /**
@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
  * The object of this class will be used as keys for dsContext
  */
 @NoArgsConstructor
-public class DsContextMapKey extends DsContextMapKeyCE {
+public class DatasourceContextIdentifier extends DatasourceContextIdentifierCE {
 
-    public DsContextMapKey (String datasourceId, String environmentId) {
+    public DatasourceContextIdentifier(String datasourceId, String environmentId) {
         super(datasourceId, environmentId);
     }
 

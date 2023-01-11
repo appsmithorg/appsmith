@@ -16,7 +16,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.DsContextMapKey;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -557,21 +557,21 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     /**
-     * This is a composite method for retrieving datasource, dsContextMapKey and environmentMap
+     * This is a composite method for retrieving datasource, datasourceContextIdentifier and environmentMap
      * See EE override for complete usage
      * @param datasource
      * @param environmentName
      * @return
      */
     @Override
-    public Mono<Tuple3<Datasource, DsContextMapKey, Map<String, BaseDomain>>>
+    public Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
     getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName) {
         // see EE override for complete usage.
-        Mono<DsContextMapKey> dsContextMapKeyMono = Mono.just(datasourceContextService.getCustomKey(datasource));
+        Mono<DatasourceContextIdentifier> datasourceContextIdentifierMono = Mono.just(datasourceContextService.getCustomKey(datasource));
 
         // see EE override for complete usage,
         // Here just returning an empty map, this map is not used here
         Mono<Map<String, BaseDomain>> environmentMapMono = Mono.just(new HashMap<>());
-        return Mono.zip(Mono.just(datasource), dsContextMapKeyMono, environmentMapMono);
+        return Mono.zip(Mono.just(datasource), datasourceContextIdentifierMono, environmentMapMono);
     }
 }
