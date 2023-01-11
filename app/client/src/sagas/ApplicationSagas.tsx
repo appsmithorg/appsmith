@@ -198,12 +198,8 @@ export function* getAllApplicationSaga() {
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
         payload: workspaceApplication,
       });
-      const { newReleasesCount, releaseItems } = response.data || {};
-      yield put({
-        type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
-        payload: { newReleasesCount, releaseItems },
-      });
     }
+    yield call(fetchReleases);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
@@ -751,7 +747,7 @@ export function* importApplicationSaga(
 function* fetchReleases() {
   try {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
-      ApplicationApi.getAllApplication,
+      ApplicationApi.getReleaseItems,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
