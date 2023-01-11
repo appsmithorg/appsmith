@@ -435,6 +435,7 @@ export const entityDefinitions = {
       widget.selectedItemView,
       extraDefsToDefine,
     ),
+    triggeredItem: generateTypeDef(widget.triggeredItem, extraDefsToDefine),
     triggeredItemView: generateTypeDef(
       widget.triggeredItemView,
       extraDefsToDefine,

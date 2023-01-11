@@ -20,6 +20,26 @@ export default {
     return selectedItem;
   },
   //
+  getTriggeredItem: (props, moment, _) => {
+    const triggeredItemIndex =
+      props.triggeredItemIndex === undefined ||
+      Number.isNaN(parseInt(props.triggeredItemIndex))
+        ? -1
+        : parseInt(props.triggeredItemIndex);
+    const items = props.listData || [];
+
+    if (triggeredItemIndex === -1) {
+      const emptyRow = { ...items[0] };
+      Object.keys(emptyRow).forEach((key) => {
+        emptyRow[key] = "";
+      });
+      return emptyRow;
+    }
+
+    const triggeredItem = { ...items[triggeredItemIndex] };
+    return triggeredItem;
+  },
+  //
   getChildAutoComplete: (props, moment, _) => {
     const currentItem = props.listData?.[0] ?? {};
     const currentView = props.currentItemsView?.[0];
