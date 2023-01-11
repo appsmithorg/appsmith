@@ -133,9 +133,7 @@ public class FileUtilsImpl implements FileInterface {
         page1
             canvas.json
             queries
-                Query1
-                    Query1.txt
-                    metadata.json
+                Query1.json
             jsobjects
                 JSObject1
                     JSObject1.js
