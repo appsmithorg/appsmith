@@ -231,6 +231,7 @@ jobs:
           env: "NODE_ENV=development"
           
       - name: Setup tmate session
+        if: always()
         uses: mxschmitt/action-tmate@v3
 
       # Incase of second attemtp only run failed specs
