@@ -48,7 +48,7 @@ function NavigationSettings() {
     showSignIn: true,
     showShareApp: true,
   };
-  const doesntWorkRightNowLabel = "- [Doesn't work (...right now)]";
+  const doesntWorkRightNowLabel = " - [Doesn't work (...right now)]";
 
   useEffect(() => {
     // Set default values
@@ -154,7 +154,10 @@ function NavigationSettings() {
       />
 
       <ButtonGroupSetting
-        heading={createMessage(APP_NAVIGATION_SETTING.positionLabel)}
+        heading={
+          createMessage(APP_NAVIGATION_SETTING.positionLabel) +
+          doesntWorkRightNowLabel
+        }
         keyName="position"
         options={[
           {
