@@ -13,19 +13,27 @@ describe("Entity explorer context menu should hide on scrolling", function() {
     ee.ExpandCollapseEntity("Datasources");
     agHelper.ContainsNClick("Libraries");
     dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Users"));
+    agHelper.GetNClick(dataSources._mockDB("users"));
     cy.wait("@getMockDb").then(($createdMock) => {
       mockDBNameUsers = $createdMock.response?.body.data.name;
+      cy.wrap($createdMock.response?.body.data.name).as('usersDB')
       dataSources.CreateQuery(mockDBNameUsers);
-    });
+    })
     dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("Movies"));
+    agHelper.GetNClick(dataSources._mockDB("movies"));
     cy.wait("@getMockDb").then(($createdMock) => {
       mockDBNameMovies = $createdMock.response?.body.data.name;
+      cy.wrap($createdMock.response?.body.data.name).as('moviesDB')
       dataSources.CreateQuery(mockDBNameMovies);
     });
-    ee.ExpandCollapseEntity("Users");
-    ee.ExpandCollapseEntity("Movies");
+    cy.get('@usersDB').then((dbName)=> {
+      cy.log(dbName)
+      ee.ExpandCollapseEntity(dbName);
+    })
+    cy.get('@moviesDB').then((dbName)=> {
+      cy.log(dbName)
+      ee.ExpandCollapseEntity(dbName);
+    })
     ee.ExpandCollapseEntity("public.users");
     agHelper.GetNClick(locator._createNew);
     agHelper.AssertElementVisible(ee._createNewPopup);
