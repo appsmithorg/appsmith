@@ -3,6 +3,7 @@ import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
+import "./usagePulse";
 import { ThemeProvider } from "constants/DefaultTheme";
 import { appInitializer } from "utils/AppUtils";
 import { Slide } from "react-toastify";
