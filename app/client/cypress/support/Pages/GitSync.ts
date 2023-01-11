@@ -123,7 +123,7 @@ export class GitSync {
         },
         //form: true,
         headers: {
-          //"Content-Type": "multipart/form-data"
+          "Content-Type": "application/x-www-form-urlencoded"
         },
       }).then((response) => {
         expect(response.status).to.equal(200);
