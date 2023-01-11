@@ -4,12 +4,14 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -37,7 +39,24 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
 
     @Override
     public Mono<OidcUser> loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-        Mono<OidcUser> oidcUserMono = super.loadUser(userRequest);
+        OidcUserRequest requestForUserInfo = userRequest;
+
+        if (CollectionUtils.isNullOrEmpty(userRequest.getAccessToken().getScopes())) {
+            // This condition block won't be necessary, once https://github.com/spring-projects/spring-security/pull/12513 is addressed.
+            requestForUserInfo = new OidcUserRequest(
+                    userRequest.getClientRegistration(),
+                    new OAuth2AccessToken(
+                            userRequest.getAccessToken().getTokenType(),
+                            userRequest.getAccessToken().getTokenValue(),
+                            userRequest.getAccessToken().getIssuedAt(),
+                            userRequest.getAccessToken().getExpiresAt(),
+                            userRequest.getClientRegistration().getScopes()
+                    ),
+                    userRequest.getIdToken()
+            );
+        }
+
+        Mono<OidcUser> oidcUserMono = super.loadUser(requestForUserInfo);
 
         return oidcUserMono.flatMap(oidcUser -> checkAndCreateUser(oidcUser, userRequest));
     }
