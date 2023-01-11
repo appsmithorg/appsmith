@@ -818,9 +818,20 @@ class ListWidget extends BaseWidget<
     const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
       metaWidgetId,
     );
-    const widgetId = templateWidgetId || metaWidgetId;
-
-    this.context?.batchUpdateWidgetProperty?.(widgetId, updates, shouldReplay);
+    const widgetId = metaWidgetId || templateWidgetId;
+    if (!templateWidgetId) {
+      this.context?.batchUpdateWidgetProperty?.(
+        widgetId,
+        updates,
+        shouldReplay,
+      );
+    } else {
+      this.context?.updateMetaWidgetProperty?.({
+        updates,
+        widgetId,
+        creatorId: this.props.widgetId,
+      });
+    }
   };
 
   overrideUpdateWidget = (

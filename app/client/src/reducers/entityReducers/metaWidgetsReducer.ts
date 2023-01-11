@@ -1,4 +1,4 @@
-import { set, split } from "lodash";
+import { set, split, unset } from "lodash";
 
 import { createImmerReducer } from "utils/ReducerUtils";
 import {
@@ -6,6 +6,7 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import {
   getMetaWidgetChildrenIds,
   getMetaWidgetCreatorIds,
@@ -26,6 +27,12 @@ export type ModifyMetaWidgetPayload = {
   deleteIds: string[];
   propertyUpdates?: MetaWidgetPropertyUpdate[];
   creatorId?: string;
+};
+
+export type UpdateMetaWidgetPropertyPayload = {
+  updates: BatchPropertyUpdatePayload;
+  widgetId: string;
+  creatorId: string;
 };
 export type DeleteMetaWidgetsPayload = {
   creatorIds: string[];
@@ -93,6 +100,28 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
       }
     });
 
+    return state;
+  },
+  [ReduxActionTypes.UPDATE_META_WIDGET_PROPERTY]: (
+    state: MetaWidgetsReduxState,
+    action: ReduxAction<UpdateMetaWidgetPropertyPayload>,
+  ) => {
+    const { creatorId, updates, widgetId } = action.payload;
+    const { modify = {}, remove = [] } = updates;
+
+    const metaWidget = state[widgetId];
+
+    if (metaWidget.creatorId === creatorId) {
+      Object.entries(modify).forEach(([propertyPath, propertyValue]) => {
+        set(metaWidget, propertyPath, propertyValue);
+      });
+
+      remove.forEach((propertyPath) => {
+        unset(metaWidget, propertyPath);
+      });
+    }
+
+    state[widgetId] = metaWidget;
     return state;
   },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
