@@ -14,7 +14,10 @@ export function initStoreFns(ctx: typeof globalThis) {
       },
     };
     set(self, ["appsmith", "store", key], value);
-    triggerEmitter.emit("process_store_updates", requestPayload);
+    triggerEmitter.emit("process_store_updates", {
+      trigger: requestPayload,
+      metaData: self["$metaData"],
+    });
     return Promise.resolve({});
   }
 

@@ -1,7 +1,6 @@
-import { ActionTriggerType } from "ce/entities/DataTree/actionTriggers";
 import { isTrueObject } from "ce/workers/Evaluation/evaluationUtils";
-import { createEvaluationContext } from "../evaluate";
-import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
+import { createEvaluationContext, setupMetadata } from "../evaluate";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { WorkerMessenger } from "./utils/Messenger";
 
@@ -15,22 +14,24 @@ export default async function run(
     ? onSuccessOrParams
     : params;
 
+  const metaData = self["$metaData"];
+
   const response: any = await WorkerMessenger.request({
     method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
     data: {
       trigger: {
-        type: ActionTriggerType.RUN_PLUGIN_ACTION,
+        type: "RUN_PLUGIN_ACTION",
         payload: {
           actionId: this.actionId,
           params: actionParams,
         },
       },
-      eventType: self["$eventType"],
+      metaData,
     },
   });
 
   const { data: messageData } = response;
-  const { data, eventType, success } = messageData;
+  const { data, success } = messageData;
 
   if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
 
@@ -40,12 +41,11 @@ export default async function run(
     dataTree: dataTreeEvaluator.evalTree,
     resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
     isTriggerBased: true,
-    context: {
-      eventType,
-    },
   });
 
   Object.assign(self, evalContext);
+
+  setupMetadata(metaData);
 
   if (!success) {
     if (typeof onError === "function") {

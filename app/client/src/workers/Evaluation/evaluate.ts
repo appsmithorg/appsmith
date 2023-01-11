@@ -163,7 +163,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     EVAL_CONTEXT,
     dataTree,
     skipEntityFunctions: !!skipEntityFunctions,
-    eventType: context?.eventType,
     isTriggerBased,
   });
 
@@ -250,6 +249,10 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
+    setupMetadata({
+      eventType: context?.eventType,
+      triggerMeta: context?.triggerMeta,
+    });
     const errors: EvaluationError[] = [];
     let result;
 
@@ -324,23 +327,17 @@ export async function evaluateAsync(
 ) {
   return (async function() {
     resetWorkerGlobalScope();
+    setupMetadata({
+      eventType: context?.eventType,
+      triggerMeta: context?.triggerMeta,
+    });
     const errors: EvaluationError[] = [];
     let result;
-    let logs;
 
     /**** JSObject function proxy method ****/
     const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
 
-    /**** console logs setup ****/
-    userLogs.setupConsole(context?.eventType, context?.triggerMeta);
-    // userLogs.resetLogs();
-    // userLogs.setCurrentRequestInfo({
-    //   eventType: context?.eventType,
-    //   triggerMeta: context?.triggerMeta,
-    // });
-
     /**** Setting the eval context ****/
-
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
@@ -384,4 +381,13 @@ export async function evaluateAsync(
       };
     }
   })();
+}
+
+export function setupMetadata(
+  metaData: {
+    eventType?: EventType;
+    triggerMeta?: TriggerMeta;
+  } = {},
+) {
+  self["$metaData"] = metaData;
 }

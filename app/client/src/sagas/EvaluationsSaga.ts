@@ -345,6 +345,22 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
       yield call(handleStoreOperations, data);
+      break;
+    }
+    case MAIN_THREAD_ACTION.PROCESS_TRIGGERS: {
+      const batchedTriggers = data;
+      yield all(
+        batchedTriggers.map((data: any) => {
+          const { eventType, trigger, triggerMeta } = data;
+          return call(
+            executeTriggerRequestSaga,
+            trigger,
+            eventType,
+            triggerMeta,
+          );
+        }),
+      );
+      break;
     }
   }
   yield call(evalErrorHandler, data?.errors || []);

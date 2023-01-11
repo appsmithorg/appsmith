@@ -6,27 +6,18 @@ import moment from "moment";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { ENTITY_TYPE } from "entities/DataTree/types";
 import { TriggerEmitter } from "./utils/TriggerEmitter";
+import { EventEmitter } from "events";
 
 class UserLog {
   private source: any = {};
-  public setupConsole(eventType?: EventType, triggerMeta?: TriggerMeta) {
-    const type =
-      eventType === EventType.ON_JS_FUNCTION_EXECUTE
-        ? ENTITY_TYPE.JSACTION
-        : ENTITY_TYPE.WIDGET;
-    const name =
-      triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "";
-    const id = triggerMeta?.source?.id || "";
-    this.setSource({ type, name, id });
-  }
-
-  public setSource(source: any) {
-    this.source = source;
-  }
+  constructor(private emitter: EventEmitter) {}
 
   private saveLog(method: Methods, data: any[]) {
     const parsed = this.parseLogs(method, data);
-    TriggerEmitter.getInstance().emit("process_logs", parsed);
+    this.emitter.emit("process_logs", {
+      trigger: parsed,
+      metaData: self["$metaData"],
+    });
   }
 
   public overrideConsoleAPI() {
@@ -108,6 +99,16 @@ class UserLog {
   }
 }
 
-const userLogs = new UserLog();
+function setupConsole(eventType?: EventType, triggerMeta?: TriggerMeta) {
+  const type =
+    eventType === EventType.ON_JS_FUNCTION_EXECUTE
+      ? ENTITY_TYPE.JSACTION
+      : ENTITY_TYPE.WIDGET;
+  const name =
+    triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "";
+  const id = triggerMeta?.source?.id || "";
+}
+
+const userLogs = new UserLog(TriggerEmitter.getInstance());
 
 export default userLogs;

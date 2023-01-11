@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { MAIN_THREAD_ACTION } from "workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import { _internalClearTimeout, _internalSetTimeout } from "../timeout";
 

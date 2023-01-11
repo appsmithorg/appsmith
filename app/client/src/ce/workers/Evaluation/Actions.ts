@@ -5,19 +5,18 @@ import {
   ActionDescription,
   ActionTriggerFunctionNames,
 } from "@appsmith/entities/DataTree/actionTriggers";
-import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
-import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 import { initStoreFns } from "workers/Evaluation/fns/storeFns";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { initIntervalFns } from "workers/Evaluation/fns/interval";
 import {
-  ActionDescriptionWithExecutionType,
-  ActionDispatcherWithExecutionType,
   PLATFORM_FUNCTIONS,
+  promisifiedFnFactory,
 } from "@appsmith/workers/Evaluation/PlatformFunctions";
+import { TriggerMeta } from "ce/sagas/ActionExecution/ActionExecutionSagas";
+import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -27,7 +26,10 @@ declare global {
   interface Window {
     $allowAsync: boolean;
     $isAsync: boolean;
-    $eventType: EventType;
+    $metaData: {
+      eventType?: EventType;
+      triggerMeta?: TriggerMeta;
+    };
     $evaluationVersion: EvaluationVersion;
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
@@ -184,13 +186,11 @@ export const addDataTreeToContext = (args: {
   EVAL_CONTEXT: EvalContext;
   dataTree: Readonly<DataTree>;
   skipEntityFunctions?: boolean;
-  eventType?: EventType;
   isTriggerBased: boolean;
 }) => {
   const {
     dataTree,
     EVAL_CONTEXT,
-    eventType,
     isTriggerBased,
     skipEntityFunctions = false,
   } = args;
@@ -207,16 +207,7 @@ export const addDataTreeToContext = (args: {
       if (!funcCreator.qualifier(entity)) continue;
       const func = funcCreator.func(entity);
       const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
-      set(
-        entityFunctionCollection,
-        fullPath,
-        pusher.bind(
-          {
-            EVENT_TYPE: eventType,
-          },
-          func,
-        ),
-      );
+      set(entityFunctionCollection, fullPath, func);
     }
   }
 
@@ -232,10 +223,7 @@ export const addDataTreeToContext = (args: {
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const [funcName, fn] of platformFunctionEntries) {
-    Object.defineProperty(context, funcName, {
-      value: pusher.bind({}, fn),
-      enumerable: false,
-    });
+    addFn(context, funcName, promisifiedFnFactory(funcName, fn));
   }
   initStoreFns(context);
   initIntervalFns(context);
@@ -258,44 +246,4 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
   }
 
   return asyncFunctionNameMap;
-};
-
-/**
- * The Pusher function is created to decide the proper execution method
- * and payload of a platform action. It is bound to the platform functions and
- * get a requestId and TriggerCollector array in its "this" context.
- * Depending on the executionType of an action, it will add the action trigger description
- * in the correct place.
- *
- * For old trigger based functions, it will add it to the trigger collector to be executed in parallel
- * like the old way of action execution and end the evaluation.
- *
- * For new promise based functions, it will promisify the action so that it can wait for an execution
- * before resolving and moving on with the promise workflow
- *
- * **/
-export const pusher = function(
-  this: {
-    EVENT_TYPE?: EventType;
-  },
-  action: ActionDispatcherWithExecutionType,
-  ...args: any[]
-) {
-  const actionDescription = action(...args);
-  if (!self.ALLOW_ASYNC) {
-    self.IS_ASYNC = true;
-    const actionName = ActionTriggerFunctionNames[actionDescription.type];
-    throw new ActionCalledInSyncFieldError(actionName);
-  }
-  const { executionType, payload, type } = actionDescription;
-  const actionPayload = {
-    type,
-    payload,
-  } as ActionDescription;
-
-  if (executionType && executionType === ExecutionType.TRIGGER) {
-    self.TRIGGER_COLLECTOR.push(actionPayload);
-  } else {
-    return promisifyAction(actionPayload, this.EVENT_TYPE);
-  }
 };

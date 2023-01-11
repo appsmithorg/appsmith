@@ -1,4 +1,5 @@
-import { createEvaluationContext } from "../evaluate";
+import { klona } from "klona/lite";
+import { createEvaluationContext, setupMetadata } from "../evaluate";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import { addFn } from "./utils/fnGuard";
 
@@ -24,11 +25,7 @@ export function initIntervalFns(context: typeof globalThis) {
     delay = 100,
     ...args: any[]
   ) {
-    const evalContext = createEvaluationContext({
-      dataTree: dataTreeEvaluator?.evalTree || {},
-      resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
-      isTriggerBased: true,
-    });
+    const metaData = klona(self["$metaData"]);
     const runningIntervalId = intervalIdMap.get(args[0]);
     if (runningIntervalId) {
       _internalClearInterval(runningIntervalId);
@@ -36,8 +33,14 @@ export function initIntervalFns(context: typeof globalThis) {
     }
     const _internalIntervalId = _internalSetInterval(
       (...args: any[]) => {
+        const evalContext = createEvaluationContext({
+          dataTree: dataTreeEvaluator?.evalTree || {},
+          resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
+          isTriggerBased: true,
+        });
         self.ALLOW_ASYNC = true;
         Object.assign(self, evalContext);
+        setupMetadata(metaData);
         callback(...args);
       },
       delay,

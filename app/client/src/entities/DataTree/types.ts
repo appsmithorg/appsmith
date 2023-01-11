@@ -10,9 +10,7 @@ import {
 import { Variable } from "entities/JSCollection";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 
-export type ActionDispatcher = (
-  ...args: any[]
-) => Promise<unknown> | ActionDescription;
+export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",

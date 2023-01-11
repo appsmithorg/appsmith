@@ -13,8 +13,6 @@ export function addFn(
       }
       return fn(...args);
     },
-    configurable: true,
-    writable: true,
     enumerable: false,
   });
 }
