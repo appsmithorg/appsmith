@@ -171,8 +171,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     _.ee.ActionContextMenuByEntityName(
       "JSObject1Renamed",
       "Delete",
-      "Are you sure?",
-      true,
+      "Are you sure?"
     );
     _.ee.ActionContextMenuByEntityName(
       "RefactorAPIRenamed",
