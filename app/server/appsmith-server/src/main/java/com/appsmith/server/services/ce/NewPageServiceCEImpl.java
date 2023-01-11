@@ -272,7 +272,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         }
                     }
                     if(!StringUtils.hasLength(defaultPageId) && !CollectionUtils.isEmpty(applicationPages)) {
-                        log.debug("application {} has no default page, returning first page as default", application.getId());
+                        log.error("application {} has no default page, returning first page as default", application.getId());
                         defaultPageId = applicationPages.get(0).getId();
                     }
                     return defaultPageId;
