@@ -8,7 +8,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactTableColumnProps, ReactTableFilter } from "../../../Constants";
 import TableFilterPaneContent from "./FilterPaneContent";
-import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
+import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
 import { Layers } from "constants/Layers";
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
@@ -17,6 +17,7 @@ import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const DragBlock = styled.div`
   height: 40px;
@@ -137,14 +138,14 @@ const mapDispatchToProps = (dispatch: any) => {
           position,
         },
       });
-      dispatch(selectWidgetInitAction(widgetId));
+      dispatch(selectWidgetInitAction(SelectionRequestType.ONE, [widgetId]));
     },
     hideFilterPane: (widgetId: string) => {
       dispatch({
         type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
         payload: { widgetId },
       });
-      dispatch(selectWidgetInitAction(widgetId));
+      dispatch(selectWidgetInitAction(SelectionRequestType.ONE, [widgetId]));
     },
   };
 };

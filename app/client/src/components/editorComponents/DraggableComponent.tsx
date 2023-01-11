@@ -18,6 +18,7 @@ import {
   isCurrentWidgetFocused,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -156,7 +157,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       if (!isFocused) return;
 
       if (!isSelected) {
-        selectWidget(props.widgetId);
+        selectWidget(SelectionRequestType.ONE, [props.widgetId]);
       }
       const widgetHeight = props.bottomRow - props.topRow;
       const widgetWidth = props.rightColumn - props.leftColumn;

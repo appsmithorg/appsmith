@@ -10,6 +10,7 @@ import {
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
 import equal from "fast-deep-equal/es6";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export function ClickContentToOpenPropPane({
   children,
@@ -74,16 +75,24 @@ export const useClickToSelectWidget = (widgetId: string) => {
       // 2. If table filter property pane is open.
       if (shouldIgnoreClicks) return;
       if ((!isPropPaneVisible && isSelected) || !isSelected) {
-        const isMultiSelect = e.metaKey || e.ctrlKey || e.shiftKey;
+        let type: SelectionRequestType = SelectionRequestType.ONE;
+        if (e.metaKey || e.ctrlKey) {
+          type = SelectionRequestType.APPEND;
+        } else if (e.shiftKey) {
+          type = SelectionRequestType.SHIFT_SELECT;
+        }
 
         if (parentWidgetToOpen) {
-          selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
+          selectWidget(type, [parentWidgetToOpen.widgetId]);
         } else {
-          selectWidget(widgetId, isMultiSelect);
+          selectWidget(type, [widgetId]);
           focusWidget(widgetId);
         }
 
-        if (isMultiSelect) {
+        if (
+          type === SelectionRequestType.APPEND ||
+          type === SelectionRequestType.SHIFT_SELECT
+        ) {
           e.stopPropagation();
         }
       }

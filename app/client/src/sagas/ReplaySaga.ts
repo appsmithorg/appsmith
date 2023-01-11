@@ -1,19 +1,19 @@
 import {
-  takeEvery,
+  all,
+  call,
+  delay,
   put,
   select,
-  call,
+  takeEvery,
   takeLatest,
-  all,
-  delay,
 } from "redux-saga/effects";
 
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 
 import {
-  getIsPropertyPaneVisible,
   getCurrentWidgetId,
+  getIsPropertyPaneVisible,
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -24,11 +24,11 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
-  scrollWidgetIntoView,
-  processUndoRedoToasts,
-  highlightReplayElement,
-  switchTab,
   expandAccordion,
+  highlightReplayElement,
+  processUndoRedoToasts,
+  scrollWidgetIntoView,
+  switchTab,
 } from "utils/replayHelpers";
 import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -76,6 +76,7 @@ import {
 } from "actions/appThemingActions";
 import { AppThemingMode } from "selectors/appThemingSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -96,7 +97,9 @@ export default function* undoRedoListenerSaga() {
 export function* openPropertyPaneSaga(replay: any) {
   try {
     if (Object.keys(replay.widgets).length > 1) {
-      yield put(selectWidgetInitAction(replay.widgets[0], false));
+      yield put(
+        selectWidgetInitAction(SelectionRequestType.ONE, replay.widgets),
+      );
     }
 
     const replayWidgetId = Object.keys(replay.widgets)[0];
@@ -113,7 +116,9 @@ export function* openPropertyPaneSaga(replay: any) {
 
     //if property pane is not visible, select the widget and force open property pane
     if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {
-      yield put(selectWidgetInitAction(replayWidgetId, false));
+      yield put(
+        selectWidgetInitAction(SelectionRequestType.ONE, [replayWidgetId]),
+      );
     }
 
     flashElementsById(
@@ -151,11 +156,7 @@ export function* postUndoRedoSaga(replay: any) {
 
     const widgetIds = Object.keys(replay.widgets);
 
-    if (widgetIds.length > 1) {
-      yield put(selectWidgetInitAction(widgetIds));
-    } else {
-      yield put(selectWidgetInitAction(widgetIds[0], false));
-    }
+    yield put(selectWidgetInitAction(SelectionRequestType.MULTIPLE, widgetIds));
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
     log.error(e);
@@ -265,7 +266,7 @@ function* replayThemeSaga(replayEntity: Canvas, replay: any) {
     yield put(setAppThemingModeStackAction([]));
   }
 
-  yield put(selectWidgetInitAction([]));
+  yield put(selectWidgetInitAction(SelectionRequestType.EMPTY));
 
   // todo(pawan): check with arun/rahul on how we can get rid of this check
   // better way to do is set shouldreplay = false when evaluating tree

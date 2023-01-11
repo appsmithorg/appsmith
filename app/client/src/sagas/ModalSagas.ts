@@ -50,6 +50,7 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -217,7 +218,7 @@ export function* closeModalSaga(
       );
     }
     if (modalName) {
-      yield put(selectWidgetInitAction([]));
+      yield put(selectWidgetInitAction(SelectionRequestType.EMPTY));
       yield put(focusWidget(MAIN_CONTAINER_WIDGET_ID));
     }
   } catch (error) {

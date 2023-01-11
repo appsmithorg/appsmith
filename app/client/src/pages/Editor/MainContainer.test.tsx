@@ -26,6 +26,7 @@ import { getAbsolutePixels } from "utils/helpers";
 import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
+import { screen } from "@testing-library/dom";
 
 const renderNestedComponent = () => {
   const initialState = (store.getState() as unknown) as Partial<AppState>;

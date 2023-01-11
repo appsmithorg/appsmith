@@ -10,6 +10,7 @@ import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import store from "store";
 import { NavigationMethod } from "utils/history";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
@@ -20,7 +21,7 @@ export const useNavigateToWidget = () => {
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
     navigateToCanvas(pageId);
     flashElementsById(widgetId);
-    selectWidget(widgetId, true);
+    selectWidget(SelectionRequestType.APPEND, [widgetId]);
   };
 
   const selectSingleWidget = (
@@ -29,7 +30,7 @@ export const useNavigateToWidget = () => {
     pageId: string,
     navigationMethod?: NavigationMethod,
   ) => {
-    selectWidget(widgetId, false);
+    selectWidget(SelectionRequestType.ONE, [widgetId]);
     navigateToCanvas(pageId, widgetId, navigationMethod);
     quickScrollToWidget(widgetId);
     // Navigating to a widget from query pane seems to make the property pane
@@ -60,7 +61,7 @@ export const useNavigateToWidget = () => {
         return;
 
       if (isShiftSelect) {
-        selectWidget(widgetId, false, true);
+        selectWidget(SelectionRequestType.SHIFT_SELECT, [widgetId]);
       } else if (isMultiSelect) {
         multiSelectWidgets(widgetId, pageId);
       } else {

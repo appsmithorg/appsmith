@@ -29,6 +29,7 @@ import { stopReflowAction } from "actions/reflowActions";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -331,7 +332,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
-      selectWidget(updateWidgetParams.payload.newWidgetId);
+      selectWidget(SelectionRequestType.ONE, [
+        updateWidgetParams.payload.newWidgetId,
+      ]);
     }, 100);
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: dragDetails.newWidget.type,

@@ -17,10 +17,9 @@ import {
   selectWidgetInitAction,
 } from "actions/widgetSelectionActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { isMacOrIOS } from "utils/helpers";
+import { getSelectedText, isMacOrIOS } from "utils/helpers";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
@@ -29,8 +28,8 @@ import { showDebugger } from "actions/debuggerActions";
 import { runActionViaShortcut } from "actions/pluginActionActions";
 import {
   filterCategories,
-  SearchCategory,
   SEARCH_CATEGORY_ID,
+  SearchCategory,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
 import { Toaster, Variant } from "design-system";
@@ -50,6 +49,7 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -406,7 +406,8 @@ const mapDispatchToProps = (dispatch: any) => {
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
-    deselectAllWidgets: () => dispatch(selectWidgetInitAction("")),
+    deselectAllWidgets: () =>
+      dispatch(selectWidgetInitAction(SelectionRequestType.EMPTY)),
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),

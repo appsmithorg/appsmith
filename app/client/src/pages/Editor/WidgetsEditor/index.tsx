@@ -1,10 +1,10 @@
-import React, { useEffect, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
-  getIsFetchingPage,
   getCurrentPageId,
   getCurrentPageName,
+  getIsFetchingPage,
 } from "selectors/editorSelectors";
 import PageTabs from "./PageTabs";
 import PerformanceTracker, {
@@ -69,8 +69,6 @@ function WidgetsEditor() {
     ) {
       const widgetIdFromURLHash = window.location.hash.slice(1);
       quickScrollToWidget(widgetIdFromURLHash);
-      if (document.getElementById(widgetIdFromURLHash))
-        selectWidget(widgetIdFromURLHash);
     }
   }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 

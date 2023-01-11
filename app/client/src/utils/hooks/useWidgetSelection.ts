@@ -1,24 +1,16 @@
 import { useDispatch } from "react-redux";
 import { focusWidget } from "actions/widgetActions";
-import {
-  SelectionRequest,
-  selectWidgetInitAction,
-} from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { useCallback } from "react";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export const useWidgetSelection = () => {
   const dispatch = useDispatch();
   return {
     selectWidget: useCallback(
-      (
-        widgetId: SelectionRequest,
-        isMultiSelect?: boolean,
-        selectSiblings?: boolean,
-      ) => {
-        dispatch(
-          selectWidgetInitAction(widgetId, isMultiSelect, selectSiblings),
-        );
+      (type: SelectionRequestType, payload?: string[]) => {
+        dispatch(selectWidgetInitAction(type, payload));
       },
       [dispatch],
     ),
@@ -26,8 +18,9 @@ export const useWidgetSelection = () => {
       (widgetId?: string) => dispatch(focusWidget(widgetId)),
       [dispatch],
     ),
-    deselectAll: useCallback(() => dispatch(selectWidgetInitAction([])), [
-      dispatch,
-    ]),
+    deselectAll: useCallback(
+      () => dispatch(selectWidgetInitAction(SelectionRequestType.EMPTY)),
+      [dispatch],
+    ),
   };
 };

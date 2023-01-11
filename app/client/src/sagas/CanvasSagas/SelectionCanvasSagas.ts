@@ -16,6 +16,7 @@ import { areIntersecting } from "utils/boxHelpers";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 interface StartingSelectionState {
   lastSelectedWidgets: string[];
@@ -100,7 +101,12 @@ function* selectAllWidgetsInAreaSaga(
     const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
 
     if (!equal(filteredWidgetsToSelect, currentSelectedWidgets)) {
-      yield put(selectWidgetInitAction(filteredWidgetsToSelect));
+      yield put(
+        selectWidgetInitAction(
+          SelectionRequestType.MULTIPLE,
+          filteredWidgetsToSelect,
+        ),
+      );
     }
   }
 }

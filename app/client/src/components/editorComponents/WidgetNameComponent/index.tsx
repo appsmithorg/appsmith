@@ -12,8 +12,6 @@ import PerformanceTracker, {
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "utils/WidgetFactory";
-
-const WidgetTypes = WidgetFactory.widgetTypes;
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -21,6 +19,9 @@ import {
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -39,6 +40,7 @@ const ControlGroup = styled.div`
   justify-content: flex-start;
   align-items: center;
   height: 100%;
+
   & > span {
     height: 100%;
   }
@@ -109,7 +111,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      selectWidget && selectWidget(props.widgetId);
+      selectWidget && selectWidget(SelectionRequestType.ONE, [props.widgetId]);
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,

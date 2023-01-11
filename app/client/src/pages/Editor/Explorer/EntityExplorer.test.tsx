@@ -17,6 +17,7 @@ import urlBuilder from "entities/URLRedirect/URLAssembly";
 import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
 import * as permissionUtils from "@appsmith/utils/permissionHelpers";
 import userEvent from "@testing-library/user-event";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
@@ -267,7 +268,7 @@ describe("Entity Explorer tests", () => {
         type: "CONTAINER_WIDGET",
         children: canvasWidget,
         widgetId: containerId,
-        parentId: "0",
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
       { type: "CHART_WIDGET" },
     ]);

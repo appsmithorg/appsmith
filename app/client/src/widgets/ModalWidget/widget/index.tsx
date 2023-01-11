@@ -16,6 +16,7 @@ import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { Stylesheet } from "entities/AppTheming";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const minSize = 100;
 
@@ -180,7 +181,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   closeModal = (e: any) => {
     this.props.updateWidgetMetaProperty("isVisible", false);
-    this.props.selectWidgetRequest([]);
+    this.props.selectWidgetRequest(SelectionRequestType.EMPTY);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
     e.stopPropagation();

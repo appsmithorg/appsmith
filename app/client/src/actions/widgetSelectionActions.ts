@@ -3,28 +3,25 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
-export type SelectionRequest = string | string[];
-
-export type SelectWidgetActionPayload = {
-  selectionRequest: SelectionRequest;
-  isMultiSelect?: boolean;
-  selectSiblings?: boolean;
+export type WidgetSelectionRequestPayload = {
+  selectionRequestType: SelectionRequestType;
+  payload?: string[];
 };
+
 export type WidgetSelectionRequest = (
-  selectionRequest: SelectionRequest,
-  isMultiSelect?: boolean,
-  selectSiblings?: boolean,
-) => ReduxAction<SelectWidgetActionPayload>;
+  selectionRequestType: SelectionRequestType,
+  payload?: string[],
+) => ReduxAction<WidgetSelectionRequestPayload>;
 
 // Use to select a widget programmatically via platform action
 export const selectWidgetInitAction: WidgetSelectionRequest = (
-  selectionRequest,
-  isMultiSelect,
-  selectSiblings,
+  selectionRequestType,
+  payload,
 ) => ({
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
-  payload: { selectionRequest, isMultiSelect, selectSiblings },
+  payload: { selectionRequestType, payload },
 });
 
 export const selectAllWidgetsInCanvasInitAction = () => {

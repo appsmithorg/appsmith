@@ -5,7 +5,7 @@ import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import * as utilities from "selectors/editorSelectors";
-import store from "store";
+import store, { testStore } from "store";
 import {
   buildChildren,
   widgetCanvasFactory,
@@ -23,6 +23,7 @@ import { UpdatedEditor } from "test/testMockedWidgets";
 import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
+import { getSelectedWidgets } from "selectors/ui";
 
 describe("Canvas selection test cases", () => {
   jest
@@ -417,6 +418,7 @@ describe("Canvas selection test cases", () => {
         bottomRow: 3,
         leftColumn: 1,
         rightColumn: 3,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
       {
         type: "SWITCH_WIDGET",
@@ -424,6 +426,7 @@ describe("Canvas selection test cases", () => {
         bottomRow: 2,
         leftColumn: 5,
         rightColumn: 13,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({

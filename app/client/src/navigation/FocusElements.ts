@@ -5,9 +5,9 @@ import {
   getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
-  setApiPaneResponseSelectedTab,
   setApiPaneConfigSelectedTabIndex,
   setApiPaneResponsePaneHeight,
+  setApiPaneResponseSelectedTab,
   setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import { AppState } from "@appsmith/reducers";
@@ -18,8 +18,8 @@ import {
   getAllSubEntityCollapsibleStates,
   getCodeEditorHistory,
   getExplorerSwitchIndex,
-  getPropertyPanelState,
   getFocusableInputField,
+  getPropertyPanelState,
   getSelectedCanvasDebuggerTab,
   getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
@@ -28,10 +28,10 @@ import {
   setAllSubEntityCollapsibleStates,
   setCodeEditorHistory,
   setExplorerSwitchIndex,
+  setFocusableInputField,
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
-import { setFocusableInputField } from "actions/editorContextActions";
 import {
   getAllDatasourceCollapsibleState,
   getSelectedWidgets,
@@ -68,16 +68,15 @@ import {
   DEFAULT_PROPERTY_PANE_WIDTH,
 } from "constants/AppConstants";
 import {
+  getFocusablePropertyPaneField,
   getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
 import {
-  setPropertyPaneWidthAction,
-  setSelectedPropertyPanels,
-} from "actions/propertyPaneActions";
-import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
+  setPropertyPaneWidthAction,
+  setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import {
@@ -85,7 +84,7 @@ import {
   setDatasourceViewMode,
 } from "actions/datasourceActions";
 import { PluginPackageName } from "entities/Action";
-import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -180,7 +179,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     {
       name: FocusElement.SelectedWidgets,
       selector: getSelectedWidgets,
-      setter: selectWidgetInitAction,
+      setter: (widgetIds: string[]) =>
+        selectWidgetInitAction(SelectionRequestType.MULTIPLE, widgetIds),
       defaultValue: [],
     },
     {

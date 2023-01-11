@@ -8,27 +8,27 @@ import {
   UpdateCanvasPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
+  ClonePageActionPayload,
   clonePageSuccess,
+  CreatePageActionPayload,
   deletePageSuccess,
+  fetchAllPageEntityCompletion,
+  fetchPage,
   FetchPageListPayload,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
-  savePageSuccess,
-  setUrlData,
-  initCanvasLayout,
-  updateCurrentPage,
-  updateWidgetNameSuccess,
-  updateAndSaveLayout,
-  saveLayout,
-  setLastUpdatedTime,
-  ClonePageActionPayload,
-  CreatePageActionPayload,
   generateTemplateError,
   generateTemplateSuccess,
-  fetchAllPageEntityCompletion,
-  updatePageSuccess,
+  initCanvasLayout,
+  saveLayout,
+  savePageSuccess,
+  setLastUpdatedTime,
+  setUrlData,
+  updateAndSaveLayout,
+  updateCurrentPage,
   updatePageError,
-  fetchPage,
+  updatePageSuccess,
+  updateWidgetNameSuccess,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -38,6 +38,7 @@ import PageApi, {
   FetchPageRequest,
   FetchPageResponse,
   FetchPublishedPageRequest,
+  GenerateTemplatePageRequest,
   PageLayout,
   SavePageRequest,
   SavePageResponse,
@@ -84,10 +85,10 @@ import {
 import {
   executePageLoadActions,
   fetchActionsForPage,
+  fetchActionsForPageError,
+  fetchActionsForPageSuccess,
   setActionsToExecuteOnPageLoad,
   setJSActionsToExecuteOnPageLoad,
-  fetchActionsForPageSuccess,
-  fetchActionsForPageError,
 } from "actions/pluginActionActions";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
@@ -103,7 +104,6 @@ import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
-import { GenerateTemplatePageRequest } from "api/PageApi";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
@@ -111,8 +111,8 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
-  fetchJSCollectionsForPageSuccess,
   fetchJSCollectionsForPageError,
+  fetchJSCollectionsForPageSuccess,
 } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -128,6 +128,7 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -751,7 +752,7 @@ export function* clonePageSaga(
 
       yield put(fetchActionsForPage(response.data.id));
       yield put(fetchJSCollectionsForPage(response.data.id));
-      yield put(selectWidgetInitAction([]));
+      yield put(selectWidgetInitAction(SelectionRequestType.EMPTY));
 
       // TODO: Update URL params here.
 
@@ -1131,7 +1132,9 @@ function* restoreSelectedWidgetContext() {
   if (!selectedWidgets.length) return;
 
   if (selectedWidgets.length === 1) {
-    yield put(selectWidgetInitAction(selectedWidgets[0]));
+    yield put(
+      selectWidgetInitAction(SelectionRequestType.ONE, selectedWidgets),
+    );
   }
 
   quickScrollToWidget(selectedWidgets[0]);
