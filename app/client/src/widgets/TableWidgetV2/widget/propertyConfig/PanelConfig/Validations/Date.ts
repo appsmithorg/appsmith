@@ -1,5 +1,8 @@
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType } from "widgets/TableWidgetV2/widget/propertyUtils";
+import {
+  getTrimmedPropPath,
+  hideByColumnType,
+} from "widgets/TableWidgetV2/widget/propertyUtils";
 
 export default [
   {
@@ -11,11 +14,7 @@ export default [
     isBindProperty: true,
     isTriggerProperty: false,
     hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = propertyPath
-        .split(".")
-        .slice(0, 2)
-        .join(".");
-
+      const path = getTrimmedPropPath(propertyPath, 2);
       return hideByColumnType(props, path, [ColumnTypes.DATE], true);
     },
     dependencies: ["primaryColumns"],
@@ -29,11 +28,7 @@ export default [
     isBindProperty: true,
     isTriggerProperty: false,
     hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = propertyPath
-        .split(".")
-        .slice(0, 2)
-        .join(".");
-
+      const path = getTrimmedPropPath(propertyPath, 2);
       return hideByColumnType(props, path, [ColumnTypes.DATE], true);
     },
     dependencies: ["primaryColumns"],

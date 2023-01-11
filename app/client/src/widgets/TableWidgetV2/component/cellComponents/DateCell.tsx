@@ -130,34 +130,14 @@ const Wrapper = styled.div<{
     .bp3-input:focus {
       border: none;
       /*
-         * using !important since underlying
-         * component styles has !important
-         */
+        * using !important since underlying
+        * component styles has !important
+      */
       box-shadow: none !important;
       padding: 0px 5px 0px 6px;
-      min-height: 28px;
       font-size: ${(props) => props.textSize};
       background: transparent;
       color: inherit;
-    }
-    .bp3-button-group.bp3-vertical {
-      display: none;
-    }
-
-    textarea.bp3-input {
-      &,
-      &:focus {
-        line-height: 28px;
-        padding: ${(props) =>
-            TABLE_SIZES[props.compactMode].VERTICAL_EDITOR_PADDING}px
-          6px 0px 6px;
-      }
-    }
-
-    .text-input-wrapper {
-      height: calc(100% + 4px);
-      border: none;
-      box-shadow: none !important;
     }
   }
 
@@ -214,35 +194,6 @@ export const DateCell = (props: DateComponentProps) => {
   const [showRequiredError, setShowRequiredError] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const editEvents = useMemo(
-    () => ({
-      onSave: (
-        rowIndex: number,
-        alias: string,
-        formattedDate: string,
-        onDateSelectedString?: string,
-      ) => onDateSave(rowIndex, alias, formattedDate, onDateSelectedString),
-      onDiscard: () =>
-        toggleCellEditMode(
-          false,
-          rowIndex,
-          alias,
-          value,
-          "",
-          EditableCellActions.DISCARD,
-        ),
-      onEdit: () => toggleCellEditMode(true, rowIndex, alias, value),
-    }),
-    [
-      toggleCellEditMode,
-      value,
-      rowIndex,
-      alias,
-      onDateSelectedString,
-      onDateSave,
-    ],
-  );
-
   const valueInISOFormat = useMemo(() => {
     if (typeof value !== "string") return "";
 
@@ -274,7 +225,7 @@ export const DateCell = (props: DateComponentProps) => {
     setHasFocus(false);
 
     const formattedDate = date ? moment(date).format(inputFormat) : "";
-    editEvents.onSave(rowIndex, alias, formattedDate, onDateSelectedString);
+    onDateSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
 
   const onDateCellEdit = () => {
@@ -283,13 +234,20 @@ export const DateCell = (props: DateComponentProps) => {
       setIsValid(false);
       setShowRequiredError(true);
     }
-    editEvents.onEdit();
+    toggleCellEditMode(true, rowIndex, alias, value);
   };
 
   const onPopoverClosed = () => {
     setHasFocus(false);
     setIsValid(true);
-    editEvents.onDiscard();
+    toggleCellEditMode(
+      false,
+      rowIndex,
+      alias,
+      value,
+      "",
+      EditableCellActions.DISCARD,
+    );
   };
 
   const onDateOutOfRange = () => {
@@ -337,6 +295,10 @@ export const DateCell = (props: DateComponentProps) => {
             firstDayOfWeek={firstDayOfWeek}
             isDisabled={!isNewRow}
             isLoading={false}
+            /*
+             * Reason for using `undefined`
+             * https://github.com/appsmithorg/appsmith/pull/19181#discussion_r1066871100
+             **/
             isPopoverOpen={isNewRow ? undefined : true}
             labelText=""
             maxDate={maxDate || COMPONENT_DEFAULT_VALUES.maxDate}

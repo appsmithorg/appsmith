@@ -1,6 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { TableWidgetProps, ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { showByColumnType } from "widgets/TableWidgetV2/widget/propertyUtils";
+import {
+  showByColumnType,
+  getTrimmedPropPath,
+} from "widgets/TableWidgetV2/widget/propertyUtils";
 
 export default [
   {
@@ -14,10 +17,8 @@ export default [
     isTriggerProperty: false,
     validation: { type: ValidationTypes.REGEX },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = propertyPath
-        .split(".")
-        .slice(0, 2)
-        .join(".");
+      const path = getTrimmedPropPath(propertyPath, 2);
+
       return showByColumnType(props, path, [ColumnTypes.DATE], true);
     },
   },
@@ -37,10 +38,7 @@ export default [
       },
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = propertyPath
-        .split(".")
-        .slice(0, 2)
-        .join(".");
+      const path = getTrimmedPropPath(propertyPath, 2);
       return showByColumnType(props, path, [ColumnTypes.DATE], true);
     },
   },
@@ -55,10 +53,7 @@ export default [
     isTriggerProperty: false,
     validation: { type: ValidationTypes.TEXT },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = propertyPath
-        .split(".")
-        .slice(0, 2)
-        .join(".");
+      const path = getTrimmedPropPath(propertyPath, 2);
       return showByColumnType(props, path, [ColumnTypes.DATE], true);
     },
   },
