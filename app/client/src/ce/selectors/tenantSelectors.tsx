@@ -22,3 +22,11 @@ export const getTenantConfig = (state: AppState) => {
 export const getBrandColors = () => {
   return {} as Record<string, string>;
 };
+
+export const isValidLicense = () => {
+  return true;
+};
+
+export const isTenantLoading = (state: AppState) => {
+  return state.tenant?.isLoading;
+};

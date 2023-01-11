@@ -65,7 +65,7 @@ export function updateWidgetPositions(
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
     const parentHeight = getWidgetRows(parent, isMobile);
-    if (parentHeight <= height) {
+    if (parentHeight - height <= 1) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
@@ -75,7 +75,7 @@ export function updateWidgetPositions(
       const updatedParent = setDimensions(
         parent,
         parentTopRow,
-        (parentTopRow + height + 1) * divisor,
+        parentTopRow + height * divisor + 1 * divisor,
         null,
         null,
         isMobile,

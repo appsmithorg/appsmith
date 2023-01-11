@@ -5,11 +5,11 @@ import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import SettingsForm from "pages/Settings/SettingsForm";
 import { AuditLogsUpgradePage } from "../Upgrade/AuditLogsUpgradePage";
 import { AccessControlUpgradePage } from "../Upgrade/AccessControlUpgradePage";
-import { UsageUpgradePage } from "../Upgrade/UsageUpgradePage";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { UpgradeToBEPage } from "../Upgrade/businessEdition/UpgradeToBEPage";
 
 const Main = () => {
   const params = useParams() as any;
@@ -29,8 +29,9 @@ const Main = () => {
   if (category === "audit-logs") {
     return <AuditLogsUpgradePage />;
   }
-  if (category === "usage") {
-    return <UsageUpgradePage />;
+
+  if (category === "business-edition") {
+    return <UpgradeToBEPage />;
   }
 
   /* Old, still working flow; config, factory based */
