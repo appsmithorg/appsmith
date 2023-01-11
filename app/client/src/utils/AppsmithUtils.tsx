@@ -69,13 +69,17 @@ export const initializeAnalyticsAndTrackers = () => {
       AnalyticsUtil.initializeSmartLook(id);
     }
 
-    if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
+    if (appsmithConfigs.segment.enabled) {
       if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
+        return window.navigator.serviceWorker && window.navigator.cookieEnabled
+          ? AnalyticsUtil.initializeSegmentSW(appsmithConfigs.segment.apiKey)
+          : AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
       } else if (appsmithConfigs.segment.ceKey) {
         // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
+        return window.navigator.serviceWorker && window.navigator.cookieEnabled
+          ? AnalyticsUtil.initializeSegmentSW(appsmithConfigs.segment.ceKey)
+          : AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
       }
     }
   } catch (e) {

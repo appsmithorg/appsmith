@@ -393,6 +393,71 @@ class AnalyticsUtil {
     return initPromise;
   }
 
+  static initializeSegmentSW(key: string) {
+    const n = document.createElement("script");
+    n.type = "text/partytown";
+    n.innerHTML = `(function init(window) {
+      const analytics = (window.analytics = window.analytics || []);
+      if (!analytics.initialize) {
+        if (analytics.invoked) {
+          console.error("Segment snippet included twice.");
+        } else {
+          analytics.invoked = !0;
+          analytics.methods = [
+            "trackSubmit",
+            "trackClick",
+            "trackLink",
+            "trackForm",
+            "pageview",
+            "identify",
+            "reset",
+            "group",
+            "track",
+            "ready",
+            "alias",
+            "debug",
+            "page",
+            "once",
+            "off",
+            "on",
+          ];
+          analytics.factory = function(t) {
+            return function() {
+              const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
+              e.unshift(t);
+              analytics.push(e);
+              return analytics;
+            };
+          };
+        }
+        for (let t = 0; t < analytics.methods.length; t++) {
+          const e = analytics.methods[t];
+          analytics[e] = analytics.factory(e);
+        }
+        analytics.load = function(t, e) {
+          const n = document.createElement("script");
+          n.type = "text/partytown";
+          n.async = !0;
+          // Ref: https://www.notion.so/appsmith/530051a2083040b5bcec15a46121aea3
+          n.src = "https://a.appsmith.com/reroute/" + t + "/main.js";
+          const a = document.getElementsByTagName("script")[0];
+          a.parentNode.insertBefore(n, a);
+          analytics._loadOptions = e;
+        };
+        analytics.SNIPPET_VERSION = "4.15.3";
+        analytics.load("${key}");
+        analytics.page();
+      }
+    })(window);`;
+    try {
+      const a: any = document.getElementsByTagName("script")[0];
+      a.parentNode.insertBefore(n, a);
+      return Promise.resolve(true);
+    } catch (e) {
+      return Promise.resolve(false);
+    }
+  }
+
   static logEvent(eventName: EventName, eventData: any = {}) {
     if (AnalyticsUtil.blockTrackEvent) {
       return;

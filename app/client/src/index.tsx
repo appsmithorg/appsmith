@@ -21,6 +21,7 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "AppErrorBoundry";
+import { Partytown } from "@builder.io/partytown/react";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
@@ -30,13 +31,25 @@ appInitializer();
 
 function App() {
   return (
-    <Sentry.ErrorBoundary fallback={"An error has occured"}>
-      <Provider store={store}>
-        <LayersContext.Provider value={Layers}>
-          <ThemedAppWithProps />
-        </LayersContext.Provider>
-      </Provider>
-    </Sentry.ErrorBoundary>
+    <>
+      <Partytown
+        debug
+        // forward={["analytics", "analytics.push", "analytics.track", "analytics.identify"]}
+        forward={[
+          "analytics",
+          "analytics.push",
+          "analytics.track",
+          "analytics.identify",
+        ]}
+      />
+      <Sentry.ErrorBoundary fallback={"An error has occured"}>
+        <Provider store={store}>
+          <LayersContext.Provider value={Layers}>
+            <ThemedAppWithProps />
+          </LayersContext.Provider>
+        </Provider>
+      </Sentry.ErrorBoundary>
+    </>
   );
 }
 
@@ -57,6 +70,10 @@ class ThemedApp extends React.Component<{
         <GlobalStyles />
         <AppErrorBoundary>
           <AppRouter />
+          {/* <Partytown
+            debug
+            forward={["analytics", "analytics.track"]}
+          /> */}
         </AppErrorBoundary>
       </ThemeProvider>
     );

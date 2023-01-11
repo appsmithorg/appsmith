@@ -1480,6 +1480,11 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
+"@builder.io/partytown@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@builder.io/partytown/-/partytown-0.7.3.tgz#879052ca7175757eaa3e0a85b735f7231bc7c32f"
+  integrity sha512-hA6WYBFD/exyrEvs0JSvQIILfH0/Jlr5amqE3lt1nPehCus+eQm4ob3LBMRkSaFDWz9clHSLtsGwG52dUjGy3g==
+
 "@colors/colors@1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
