@@ -69,6 +69,7 @@ import {
   SelectorField,
 } from "./types";
 import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
+import { FIELD_CONFIG } from "./Field/FieldConfig";
 
 const actionList: {
   label: string;
@@ -185,13 +186,13 @@ function getActionEntityFields(
       getParentValue,
       value,
     });
+  } else {
+    fields.push({
+      field: FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD,
+      getParentValue,
+      value,
+    });
   }
-
-  fields.push({
-    field: FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD,
-    getParentValue,
-    value,
-  });
 
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
@@ -214,6 +215,7 @@ function getActionEntityFields(
     dataTree,
     true,
   );
+  console.log("** Fields **", { fields, successFields });
   successFields[0].label = "Action";
 
   // get the fields for onError
@@ -234,11 +236,9 @@ function getActionEntityFields(
   errorFields[0].label = "Action";
 
   if (activeTabApiAndQueryCallback.id === "onSuccess") {
-    successFields.forEach((field) => fields.push(field));
-    // fields.push(successFields);
+    fields.push(successFields);
   } else {
-    errorFields.forEach((field) => fields.push(field));
-    // fields.push(errorFields);
+    fields.push(errorFields);
   }
 
   return fields;
@@ -457,7 +457,7 @@ function getApiAndQueryOptions(
   );
 
   if (apiOptions) {
-    apiOptions.children = [createQueryObject];
+    apiOptions.children = [{ ...createQueryObject, label: "New API" }];
 
     apis.forEach((api) => {
       (apiOptions.children as TreeDropdownOption[]).push({
@@ -680,7 +680,10 @@ const ActionCreator = React.forwardRef(
                 defaultVal: any,
                 isUpdatedViaKeyboard: boolean,
               ) => {
-                props.onValueChange(option.value, isUpdatedViaKeyboard);
+                const fieldConfig =
+                  FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
+                const finalValueToSet = fieldConfig.setter(option.value, "");
+                props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
               }}
               options={integrationOptions}
               selectedField={fields[0]}

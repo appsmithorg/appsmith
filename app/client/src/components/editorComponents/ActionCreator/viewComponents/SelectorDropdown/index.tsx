@@ -1,10 +1,42 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { TreeDropdown, TreeDropdownOption, TextInput } from "design-system";
+import { debounce } from "lodash";
 import { ActionBlock } from "../ActionBlock";
 import { SelectorField } from "../../types";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { AppsmithFunction } from "../../constants";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
+
+function flattenOptions(
+  options: TreeDropdownOption[],
+  results: TreeDropdownOption[] = [],
+): TreeDropdownOption[] {
+  options.forEach((option) => {
+    results.push(option);
+    if (option.children) {
+      flattenOptions(option.children, results);
+    }
+  });
+  return results;
+}
+
+function filterChildren(
+  options: TreeDropdownOption[],
+  searchText: string,
+): TreeDropdownOption[] {
+  return options.filter((option) => {
+    if (option.children) {
+      return filterChildren(option.children, searchText).length > 0;
+    }
+    return option.label.toLowerCase().includes(searchText.toLowerCase());
+  });
+}
+
+function sortOnChildrenLength(options: TreeDropdownOption[]) {
+  return options.sort((a, b) => {
+    return (a.children || []).length - (b.children || []).length;
+  });
+}
 
 type Props = {
   options: TreeDropdownOption[];
@@ -23,6 +55,11 @@ export const SelectorDropdown: React.FC<Props> = ({
 }) => {
   const [isOpen, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [debouncedValue, setDebouncedValue] = useState("");
+  const debouncedSetSearchText = useMemo(
+    () => debounce(setDebouncedValue, 300),
+    [],
+  );
 
   console.log({ options });
 
@@ -35,25 +72,22 @@ export const SelectorDropdown: React.FC<Props> = ({
   console.log("selectedField", selectedField);
   console.log("fieldConfig", fieldConfig);
 
-  const filteredOptions = useMemo(() => {
-    if (!searchText) return options;
-    return options
-      .filter(({ label }) =>
-        label.toLowerCase().includes(searchText.toLowerCase()),
-      )
-      .map((option) => {
-        const filteredChildren = option.children?.filter((child) =>
-          child.label.toLowerCase().includes(searchText.toLowerCase()),
-        );
-        return {
-          ...option,
-          children: filteredChildren,
-        };
-      });
+  useEffect(() => {
+    debouncedSetSearchText(searchText);
   }, [searchText]);
+
+  const filteredOptions = useMemo(() => {
+    if (!debouncedValue) return options;
+    const optionsToFilter =
+      debouncedValue.length >= 3 ? flattenOptions(options) : options;
+    return sortOnChildrenLength(
+      filterChildren(optionsToFilter, debouncedValue),
+    );
+  }, [debouncedValue]);
 
   return (
     <TreeDropdown
+      className="right-8"
       defaultText="Some default text here"
       menuWidth={260}
       onMenuToggle={(isOpen) => {

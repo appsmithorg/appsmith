@@ -70,7 +70,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         ? `{{${value}(${defaultArgs})}}`
         : defaultParams && defaultParams.length
         ? `{{${value}(${defaultParams})}}`
-        : type === AppsmithFunction.integration
+        : [AppsmithFunction.integration, AppsmithFunction.runAPI].includes(type)
         ? `{{${value}}}`
         : `{{${value}()}}`;
     },
