@@ -97,13 +97,18 @@ function logLatestEvalPropertyErrors(
         }
       }
 
-      const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
-      const nameField = isWidget(entity) ? entity.widgetName : entityName;
+      const idField = isWidget(entity)
+        ? entity.widgetId
+        : isJSAction(entity)
+        ? entity.actionId
+        : entity.pluginId;
+      const nameField = isWidget(entity) ? entity.type : entityName;
       const entityType = isWidget(entity)
         ? ENTITY_TYPE.WIDGET
         : isAction(entity)
         ? ENTITY_TYPE.ACTION
         : ENTITY_TYPE.JSACTION;
+      const pluginTypeField = isAction(entity) ? entity.pluginType : undefined;
       const debuggerKeys = [
         {
           key: `${idField}-${propertyPath}`,
@@ -160,6 +165,7 @@ function logLatestEvalPropertyErrors(
                   name: nameField,
                   type: entityType,
                   propertyPath: logPropertyPath,
+                  pluginType: pluginTypeField,
                 },
                 state: {
                   [logPropertyPath]: evaluatedValue,

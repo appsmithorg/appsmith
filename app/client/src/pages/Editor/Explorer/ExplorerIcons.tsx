@@ -255,8 +255,8 @@ const EntityIconWrapper = styled.div<{
 
   svg,
   img {
-    height: 12px !important;
-    width: 12px !important;
+    height: 80% !important;
+    width: 80% !important;
   }
 `;
 

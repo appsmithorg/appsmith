@@ -4,6 +4,7 @@ import {
   ErrorMessage,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { PluginType } from "entities/Action";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -74,6 +75,8 @@ export interface SourceEntity {
   id: string;
   // property path of the child
   propertyPath?: string;
+  // type of plugin
+  pluginType?: PluginType | undefined;
 }
 
 export enum LOG_CATEGORY {

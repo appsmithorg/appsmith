@@ -1,12 +1,14 @@
-import { get } from "lodash";
+import React, { useState, useMemo } from "react";
+import { useSelector } from "react-redux";
+import { get, keyBy } from "lodash";
 import {
+  ENTITY_TYPE,
   Log,
   LOG_CATEGORY,
   Message,
   Severity,
   SourceEntity,
 } from "entities/AppsmithConsole";
-import React, { useState } from "react";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
@@ -19,7 +21,11 @@ import {
 } from "design-system";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
+import { getPlugins } from "selectors/entitiesSelector";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { PluginType } from "entities/Action";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -241,13 +247,25 @@ function LogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(!!props.expand);
   const { collapsable } = props;
   const theme = useTheme();
+  const plugins = useSelector(getPlugins);
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
 
   const getIcon = () => {
-    if (
-      props.logType === LOG_TYPE.LINT_ERROR ||
-      props.logType === LOG_TYPE.EVAL_ERROR
-    ) {
-      return <IconWrapper>{JsFileIconV2(12, 12)}</IconWrapper>;
+    if (props.source) {
+      if (props.source.type === ENTITY_TYPE.WIDGET) {
+        return <WidgetIcon height={12} type={props.source.name} width={12} />;
+      } else if (props.source.type === ENTITY_TYPE.JSACTION) {
+        return JsFileIconV2(12, 12);
+      } else if (props.source.type === ENTITY_TYPE.ACTION) {
+        return (
+          <EntityIcon height={"12px"} width={"12px"}>
+            <img
+              alt="entityIcon"
+              src={pluginGroups[props.source.id].iconLocation}
+            />
+          </EntityIcon>
+        );
+      }
     }
   };
   return (
@@ -297,8 +315,7 @@ function LogItem(props: LogItemProps) {
               lineHeight: "14px",
             }}
           >
-            {getIcon()}
-            {/* <IconWrapper>{props.icon}</IconWrapper> */}
+            <IconWrapper>{getIcon()}</IconWrapper>
             <EntityLink
               id={props.source.id}
               name={props.source.name}
