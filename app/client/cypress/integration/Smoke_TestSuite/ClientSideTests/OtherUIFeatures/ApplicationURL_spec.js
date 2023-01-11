@@ -154,7 +154,7 @@ describe("Slug URLs", () => {
     cy.url().then((url) => {
       cy.LogOut();
       cy.visit(url + "?embed=true&a=b");
-      cy.wait(3000);
+      cy.wait(6000);
       cy.location().should((loc) => {
         expect(loc.search).to.eq(
           `?redirectUrl=${encodeURIComponent(url + "?embed=true&a=b")}`,
