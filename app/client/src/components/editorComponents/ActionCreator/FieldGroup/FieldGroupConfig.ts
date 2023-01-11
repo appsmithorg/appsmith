@@ -45,7 +45,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   },
   [AppsmithFunction.runAPI]: {
     label: createMessage(RUN_API),
-    fields: [],
+    fields: [FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD],
     children: [{ label: "", value: "" }],
     defaultParams: "",
   },

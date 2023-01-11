@@ -67,6 +67,13 @@ export type Field = {
   index?: number;
 };
 
+export type SelectorField = {
+  field: FieldType;
+  getParentValue?: (value: string) => string;
+  value: string | undefined;
+  label?: string;
+};
+
 export type FieldProps = {
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   value: string;
@@ -81,6 +88,8 @@ export type FieldProps = {
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
   activeNavigateToTab: SwitchType;
   navigateToSwitches: Array<SwitchType>;
+  activeTabApiAndQueryCallback: SwitchType;
+  apiAndQueryCallbackTabSwitches: SwitchType[];
 };
 
 export type FieldGroupProps = Omit<FieldProps, "field"> & {
@@ -102,6 +111,7 @@ export type AppsmithFunctionConfigValues = {
   view: ViewType;
   exampleText: string;
   toolTip?: string;
+  actionType: ActionType;
 };
 
 export type AppsmithFunctionConfigType = {

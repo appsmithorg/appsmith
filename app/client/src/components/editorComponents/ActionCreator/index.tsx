@@ -65,6 +65,8 @@ import {
   ActionCreatorProps,
   GenericFunction,
   DataTreeForActionCreator,
+  Field,
+  SelectorField,
 } from "./types";
 import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
 
@@ -80,11 +82,13 @@ const actionList: {
 
 function getFieldFromValue(
   value: string | undefined,
+  activeTabApiAndQueryCallback: SwitchType,
   activeTabNavigateTo: SwitchType,
   getParentValue?: (changeValue: string) => string,
   dataTree?: DataTreeForActionCreator,
-): any[] {
-  const fields: any[] = [];
+  showActionSelector = false,
+): SelectorField[] {
+  const fields: SelectorField[] = [];
 
   // No value case - no action has been selected, show the action selector field
   if (!value) {
@@ -96,6 +100,8 @@ function getFieldFromValue(
       },
     ];
   }
+
+  console.log("Value: ", value);
 
   let entity;
 
@@ -120,7 +126,9 @@ function getFieldFromValue(
         getParentValue as (changeValue: string) => string,
         value,
         activeTabNavigateTo,
+        activeTabApiAndQueryCallback,
         dataTree as DataTreeForActionCreator,
+        showActionSelector,
       );
     }
 
@@ -131,6 +139,7 @@ function getFieldFromValue(
         getParentValue as (changeValue: string) => string,
         value,
         entity,
+        showActionSelector,
       );
     }
   }
@@ -140,6 +149,7 @@ function getFieldFromValue(
     getParentValue as (changeValue: string) => string,
     value,
     activeTabNavigateTo,
+    showActionSelector,
   );
 
   return fields;
@@ -165,11 +175,20 @@ function getActionEntityFields(
   getParentValue: (changeValue: string) => string,
   value: string,
   activeTabNavigateTo: SwitchType,
+  activeTabApiAndQueryCallback: SwitchType,
   dataTree: DataTreeForActionCreator,
+  showActionSelector = false,
 ) {
-  console.log("*** Entity Action Fields***");
+  if (showActionSelector) {
+    fields.push({
+      field: FieldType.ACTION_SELECTOR_FIELD,
+      getParentValue,
+      value,
+    });
+  }
+
   fields.push({
-    field: FieldType.ACTION_SELECTOR_FIELD,
+    field: FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD,
     getParentValue,
     value,
   });
@@ -177,6 +196,8 @@ function getActionEntityFields(
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getDynamicBindings(value).jsSnippets[0];
+
+  console.log("** Required Value **", { value, requiredValue });
 
   // get the fields for onSuccess
   const successFunction = getFuncExpressionAtPosition(
@@ -188,14 +209,12 @@ function getActionEntityFields(
   const successFields = getFieldFromValue(
     successValue,
     activeTabNavigateTo,
+    activeTabApiAndQueryCallback,
     (changeValue: string) => replaceAction(requiredValue, changeValue, 0),
     dataTree,
+    true,
   );
-  successFields[0].label = "onSuccess";
-  fields.push(successFields);
-
-  console.log({ successFunction, successValue });
-  console.log("successFields", successFields);
+  successFields[0].label = "Action";
 
   // get the fields for onError
   const errorFunction = getFuncExpressionAtPosition(
@@ -207,11 +226,21 @@ function getActionEntityFields(
   const errorFields = getFieldFromValue(
     errorValue,
     activeTabNavigateTo,
+    activeTabApiAndQueryCallback,
     (changeValue: string) => replaceAction(requiredValue, changeValue, 1),
     dataTree,
+    true,
   );
-  errorFields[0].label = "onError";
-  fields.push(errorFields);
+  errorFields[0].label = "Action";
+
+  if (activeTabApiAndQueryCallback.id === "onSuccess") {
+    successFields.forEach((field) => fields.push(field));
+    // fields.push(successFields);
+  } else {
+    errorFields.forEach((field) => fields.push(field));
+    // fields.push(errorFields);
+  }
+
   return fields;
 }
 
@@ -220,28 +249,33 @@ function getJsFunctionExecutionFields(
   getParentValue: (changeValue: string) => string,
   value: string,
   entity: any,
+  showActionSelector = false,
 ) {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length === 0) {
     // when format doesn't match, it is function from js object
-    fields.push({
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      getParentValue,
-      value,
-      args: [],
-    });
+    if (showActionSelector) {
+      fields.push({
+        field: FieldType.ACTION_SELECTOR_FIELD,
+        getParentValue,
+        value,
+        args: [],
+      });
+    }
   } else if (matches.length) {
     const entityPropertyPath = matches[0][1];
     const { propertyPath } = getEntityNameAndPropertyPath(entityPropertyPath);
     const path = propertyPath && propertyPath.replace("()", "");
     const argsProps =
       path && entity.meta && entity.meta[path] && entity.meta[path].arguments;
-    fields.push({
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      getParentValue,
-      value,
-      args: argsProps ? argsProps : [],
-    });
+    if (showActionSelector) {
+      fields.push({
+        field: FieldType.ACTION_SELECTOR_FIELD,
+        getParentValue,
+        value,
+        args: argsProps ? argsProps : [],
+      });
+    }
 
     if (argsProps && argsProps.length > 0) {
       for (const index of argsProps) {
@@ -263,16 +297,19 @@ function getFieldsForSelectedAction(
   getParentValue: (changeValue: string) => string,
   value: string,
   activeTabNavigateTo: SwitchType,
+  showActionSelector = false,
 ) {
   /*
    * if an action is present, push actions selector field
    * then push all fields specific to the action selected
    */
-  fields.push({
-    field: FieldType.ACTION_SELECTOR_FIELD,
-    getParentValue,
-    value,
-  });
+  if (showActionSelector) {
+    fields.push({
+      field: FieldType.ACTION_SELECTOR_FIELD,
+      getParentValue,
+      value,
+    });
+  }
 
   /**
    *  We need to find out if there are more than one function in the value
@@ -579,10 +616,28 @@ const ActionCreator = React.forwardRef(
       },
     ];
 
+    const apiAndQueryCallbackTabSwitches: SwitchType[] = [
+      {
+        id: "onSuccess",
+        text: "onSuccess",
+        action: () =>
+          setActiveTabApiAndQueryCallback(apiAndQueryCallbackTabSwitches[0]),
+      },
+      {
+        id: "onFailure",
+        text: "onFailure",
+        action: () =>
+          setActiveTabApiAndQueryCallback(apiAndQueryCallbackTabSwitches[1]),
+      },
+    ];
+
     const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
       NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
     );
-    const [activeTabAPICallback, setActiveTabAPICallback] = useState<0 | 1>(0);
+    const [
+      activeTabApiAndQueryCallback,
+      setActiveTabApiAndQueryCallback,
+    ] = useState<SwitchType>(apiAndQueryCallbackTabSwitches[0]);
     const dataTree = useSelector(getDataTreeForActionCreator);
     const integrationOptions = useApisQueriesAndJsActionOptions();
     const widgetOptionTree: TreeDropdownOption[] = useSelector(
@@ -592,23 +647,11 @@ const ActionCreator = React.forwardRef(
     const pageDropdownOptions = useSelector(getPageListAsOptions);
     const fields = getFieldFromValue(
       props.value,
+      activeTabApiAndQueryCallback,
       activeTabNavigateTo,
       undefined,
       dataTree as DataTreeForActionCreator,
     );
-
-    const apiCallbackTabSwitches: SwitchType[] = [
-      {
-        id: "onSuccess",
-        text: "onSuccess",
-        action: () => setActiveTabAPICallback(0),
-      },
-      {
-        id: "onFailure",
-        text: "onFailure",
-        action: () => setActiveTabAPICallback(1),
-      },
-    ];
 
     console.log({ value: props.value });
 
@@ -640,16 +683,13 @@ const ActionCreator = React.forwardRef(
                 props.onValueChange(option.value, isUpdatedViaKeyboard);
               }}
               options={integrationOptions}
-              selectedOption={props.value}
-            />
-            <TabView
-              activeObj={apiCallbackTabSwitches[activeTabAPICallback]}
-              label=""
-              switches={apiCallbackTabSwitches}
+              selectedField={fields[0]}
             />
             <FieldGroup
               activeNavigateToTab={activeTabNavigateTo}
+              activeTabApiAndQueryCallback={activeTabApiAndQueryCallback}
               additionalAutoComplete={props.additionalAutoComplete}
+              apiAndQueryCallbackTabSwitches={apiAndQueryCallbackTabSwitches}
               depth={1}
               fields={fields}
               integrationOptions={integrationOptions}

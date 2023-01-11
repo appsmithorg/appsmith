@@ -132,6 +132,14 @@ export function Field(props: FieldProps) {
         value: value,
       });
       break;
+    case FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD:
+      viewElement = (view as (props: TabViewProps) => JSX.Element)({
+        activeObj: props.activeTabApiAndQueryCallback,
+        switches: props.apiAndQueryCallbackTabSwitches,
+        label: label,
+        value: value,
+      });
+      break;
     case FieldType.ARGUMENT_KEY_VALUE_FIELD:
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: label,

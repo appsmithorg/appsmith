@@ -109,7 +109,6 @@ function FieldGroup(props: FieldGroupProps) {
     );
   } else {
     const ui = fields.map((field: any, index: number) => {
-      console.log({ fields });
       if (Array.isArray(field)) {
         if (props.depth > props.maxDepth) {
           // eslint-disable-next-line react/jsx-no-useless-fragment

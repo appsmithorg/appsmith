@@ -1,10 +1,14 @@
 import React, { useState, useMemo } from "react";
 import { TreeDropdown, TreeDropdownOption, TextInput } from "design-system";
 import { ActionBlock } from "../ActionBlock";
+import { SelectorField } from "../../types";
+import { FIELD_CONFIG } from "../../Field/FieldConfig";
+import { AppsmithFunction } from "../../constants";
+import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
 
 type Props = {
   options: TreeDropdownOption[];
-  selectedOption: TreeDropdownOption;
+  selectedField: SelectorField | undefined;
   onSelect: (
     option: TreeDropdownOption,
     defaultVal: any,
@@ -15,10 +19,21 @@ type Props = {
 export const SelectorDropdown: React.FC<Props> = ({
   onSelect,
   options,
-  selectedOption,
+  selectedField,
 }) => {
   const [isOpen, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+
+  console.log({ options });
+
+  const fieldConfig = selectedField ? FIELD_CONFIG[selectedField.field] : null;
+  const actionType = fieldConfig
+    ? fieldConfig.actionType
+    : AppsmithFunction.none;
+  const fieldTypeLabel = FIELD_GROUP_CONFIG[actionType].label;
+
+  console.log("selectedField", selectedField);
+  console.log("fieldConfig", fieldConfig);
 
   const filteredOptions = useMemo(() => {
     if (!searchText) return options;
@@ -57,7 +72,7 @@ export const SelectorDropdown: React.FC<Props> = ({
             value={searchText}
           />
         ) : (
-          <ActionBlock label={selectedOption} />
+          <ActionBlock label={fieldTypeLabel} />
         )
       }
     />
