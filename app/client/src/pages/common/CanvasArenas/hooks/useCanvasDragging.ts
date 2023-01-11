@@ -81,6 +81,7 @@ export const useCanvasDragging = (
     isResizing,
     lastDraggedCanvas,
     occSpaces,
+    occupiedSpaces,
     onDrop,
     parentDiff,
     relativeStartPoints,
@@ -197,7 +198,7 @@ export const useCanvasDragging = (
         bottom: 0,
         id: "",
       };
-      let lastSnappedPositionDeltas: OccupiedSpace[] = [];
+      let lastSnappedPositions: OccupiedSpace[] = [];
 
       const resetCanvasState = () => {
         throttledStopReflowing();
@@ -435,22 +436,31 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
+              triggerReflow(e, firstMove);
               const currentSnappedPosition = getDraggingSpacesFromBlocks(
                 currentRectanglesToDraw,
                 snapColumnSpace,
                 snapRowSpace,
               )[0];
+              const currentOccupiedSpace: any[] = occupiedSpaces[widgetId];
+              let exitContainer: OccupiedSpace | undefined = undefined;
+              if (lastDraggedCanvas.current && currentOccupiedSpace) {
+                exitContainer = currentOccupiedSpace.find(
+                  (each) => each.id === lastDraggedCanvas.current,
+                );
+              }
               currentDirection.current = getInterpolatedMoveDirection(
-                lastSnappedPositionDeltas,
+                lastSnappedPositions,
                 currentSnappedPosition,
                 currentDirection.current,
+                exitContainer,
+                getMousePositionsOnCanvas(e, gridProps),
               );
-              lastSnappedPositionDeltas = [
+              lastSnappedPositions = [
                 currentSnappedPosition,
-                ...lastSnappedPositionDeltas.slice(0, 4),
+                ...lastSnappedPositions.slice(0, 4),
               ];
 
-              triggerReflow(e, firstMove);
               if (
                 useAutoLayout &&
                 isCurrentDraggedCanvas &&
