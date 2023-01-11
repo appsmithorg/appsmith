@@ -58,7 +58,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { difference, get, isUndefined } from "lodash";
+import { difference, get, isEmpty, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -196,7 +196,11 @@ export function* evaluateTreeSaga(
 
   const updates = diff(oldDataTree, dataTree) || [];
   // Replace empty object below with list of current metaWidgets present in the viewport
-  yield put(resetWidgetsMetaState(difference(staleMetaIds, Object.keys({}))));
+  const hiddenStaleMetaIds = difference(staleMetaIds, Object.keys({}));
+  if (!isEmpty(hiddenStaleMetaIds)) {
+    yield put(resetWidgetsMetaState(hiddenStaleMetaIds));
+  }
+
   yield put(setEvaluatedTree(updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
