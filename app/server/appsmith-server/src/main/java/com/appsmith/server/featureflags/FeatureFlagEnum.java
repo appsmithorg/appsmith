@@ -36,4 +36,5 @@ public enum FeatureFlagEnum {
 
     // Put EE flags below this line, to avoid conflicts.
     RBAC,
+    USAGE_AND_BILLING,
 }
