@@ -47,8 +47,8 @@ public class DatasourceContextIdentifierCE {
         return result;
     }
 
-    public boolean isEmpty() {
-        return !this.hasLength(this.datasourceId);
+    public boolean isKeyNotValid() {
+        return !this.hasLength(this.getDatasourceId());
     }
 
     public boolean hasLength(String id) {
