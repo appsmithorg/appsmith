@@ -24,11 +24,11 @@ export const getTenantPermissions = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getTenantConfig = (state: AppState) => {
+export const getTenantConfig = (state: AppState): Record<string, any> => {
   return {
     ...defaultBrandingConfig,
     ...(state.tenant?.tenantConfiguration || {}),
-  } as Record<string, any>;
+  };
 };
 
 /**
