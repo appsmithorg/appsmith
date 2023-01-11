@@ -121,10 +121,10 @@ export class GitSync {
         body: {
           sshkey: generatedKey,
         },
-        //form: true,
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
+        form: true,
+        // headers: {
+        //   "Content-Type": "application/x-www-form-urlencoded"
+        // },
       }).then((response) => {
         expect(response.status).to.equal(200);
       });
