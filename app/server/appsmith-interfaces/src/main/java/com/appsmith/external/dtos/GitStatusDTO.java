@@ -25,22 +25,25 @@ public class GitStatusDTO {
 
         Boolean isClean;
 
-        // # of modified pages
-        Long modifiedPages;
+        // number of modified custom JS libs
+        int modifiedJSLibs;
 
-        // # of modified actions
-        Long modifiedQueries;
+        // number of modified pages
+        int modifiedPages;
 
-        // # of modified JSObjects
-        Long modifiedJSObjects;
+        // number of modified actions
+        int modifiedQueries;
 
-        // # of modified JSObjects
-        Long modifiedDatasources;
+        // number of modified JSObjects
+        int modifiedJSObjects;
 
-        // # of local commits which are not present in remote repo
+        // number of modified JSObjects
+        int modifiedDatasources;
+
+        // number of local commits which are not present in remote repo
         Integer aheadCount;
 
-        // # of remote commits which are not present in local repo
+        // number of remote commits which are not present in local repo
         Integer behindCount;
 
         // Remote tracking branch name
