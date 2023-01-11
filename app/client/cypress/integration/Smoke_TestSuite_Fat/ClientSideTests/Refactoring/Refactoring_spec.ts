@@ -26,7 +26,7 @@ const refactorInput = {
   },
 };
 
-describe.skip("Validate JS Object Refactoring does not affect the comments & variables", () => {
+describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
   before(() => {
     cy.fixture("Datatypes/RefactorDTdsl").then((val: any) => {
       _.agHelper.AddDsl(val);
@@ -80,7 +80,7 @@ describe.skip("Validate JS Object Refactoring does not affect the comments & var
     );
   });
 
-  it("3. Verify refactoring updates in JS object", () => {
+  it.skip("3. Verify refactoring updates in JS object", () => {
     //Verify JSObject refactoring in API pane
     _.ee.SelectEntityByName(refactorInput.api.newName);
     _.agHelper.Sleep(1000);
