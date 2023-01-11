@@ -118,7 +118,7 @@ export class GitSync {
         method: "POST",
         url: `http://${datasourceFormData["GITHUB_API_BASE_TED"]}:${datasourceFormData["GITHUB_API_PORT_TED"]}/v1/gitserver/addgitssh`,
         body: formdata,
-        form: true,
+        //form: true,
         headers: {
           //"Content-Type": "multipart/form-data"
         },
