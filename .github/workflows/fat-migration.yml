@@ -6,7 +6,6 @@ on:
 
 jobs:
   fat-container-test:
-    needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
