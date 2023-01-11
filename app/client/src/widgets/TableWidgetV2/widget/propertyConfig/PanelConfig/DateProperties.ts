@@ -41,11 +41,6 @@ export default {
           },
         },
       },
-      // hidden: (props: TableWidgetProps, propertyPath: string) => {
-      //   const baseProperty = getBasePropertyPath(propertyPath);
-      //   const columnType = get(props, `${baseProperty}.columnType`, "");
-      //   return columnType !== ColumnTypes.DATE;
-      // },
     },
     {
       propertyName: "shortcuts",
@@ -57,50 +52,6 @@ export default {
       isTriggerProperty: false,
       validation: { type: ValidationTypes.BOOLEAN },
       dependencies: ["primaryColumns", "columnType"],
-      // hidden: (props: TableWidgetProps, propertyPath: string) => {
-      //   return hideByColumnType(props, propertyPath, [ColumnTypes.DATE]);
-      // },
     },
-    // {
-    //   propertyName: "timePrecision",
-    //   label: "Time Precision",
-    //   controlType: "DROP_DOWN",
-    //   helpText: "Sets the different time picker or hide.",
-    //   defaultValue: TimePrecision.MINUTE,
-    //   options: [
-    //     {
-    //       label: "None",
-    //       value: TimePrecision.NONE,
-    //     },
-    //     {
-    //       label: "Minute",
-    //       value: TimePrecision.MINUTE,
-    //     },
-    //     {
-    //       label: "Second",
-    //       value: TimePrecision.SECOND,
-    //     },
-    //   ],
-    //   isJSConvertible: true,
-    //   isBindProperty: true,
-    //   isTriggerProperty: false,
-    //   validation: {
-    //     type: ValidationTypes.TEXT,
-    //     params: {
-    //       allowedValues: [
-    //         TimePrecision.NONE,
-    //         TimePrecision.MINUTE,
-    //         TimePrecision.SECOND,
-    //       ],
-    //       default: TimePrecision.MINUTE,
-    //     },
-    //   },
-    //   dependencies: ["primaryColumns", "columnType"],
-    //   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    //     const baseProperty = getBasePropertyPath(propertyPath);
-    //     const columnType = get(props, `${baseProperty}.columnType`, "");
-    //     return columnType !== ColumnTypes.DATE;
-    //   },
-    // },
   ],
 };

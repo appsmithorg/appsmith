@@ -3,8 +3,8 @@ import { hideByColumnType } from "widgets/TableWidgetV2/widget/propertyUtils";
 
 export default [
   {
-    helpText: "Sets the minimum allowed date",
     propertyName: "validation.minDate",
+    helpText: "Sets the minimum allowed date",
     label: "Min Date",
     controlType: "DATE_PICKER",
     placeholderText: "1",
@@ -21,8 +21,8 @@ export default [
     dependencies: ["primaryColumns"],
   },
   {
-    helpText: "Sets the maximum allowed value",
     propertyName: "validation.maxDate",
+    helpText: "Sets the maximum allowed value",
     label: "Max Date",
     controlType: "DATE_PICKER",
     placeholderText: "100",

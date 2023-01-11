@@ -204,6 +204,7 @@ export const DateCell = (props: DateComponentProps) => {
     toggleCellEditMode,
     updateNewRowValues,
     validationErrorMessage,
+    value,
     verticalAlignment,
     widgetId,
   } = props;
@@ -211,8 +212,7 @@ export const DateCell = (props: DateComponentProps) => {
   const [hasFocus, setHasFocus] = useState(false);
   const [isValid, setIsValid] = useState(true);
   const [showRequiredError, setShowRequiredError] = useState(false);
-
-  const { value } = props;
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const editEvents = useMemo(
     () => ({
@@ -233,10 +233,15 @@ export const DateCell = (props: DateComponentProps) => {
         ),
       onEdit: () => toggleCellEditMode(true, rowIndex, alias, value),
     }),
-    [toggleCellEditMode, value, rowIndex, alias, onDateSelectedString],
+    [
+      toggleCellEditMode,
+      value,
+      rowIndex,
+      alias,
+      onDateSelectedString,
+      onDateSave,
+    ],
   );
-
-  const contentRef = useRef<HTMLDivElement>(null);
 
   const valueInISOFormat = useMemo(() => {
     if (typeof value !== "string") return "";
@@ -255,6 +260,10 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
+    if (isNewRow) {
+      updateNewRowValues(alias, date, date);
+      return;
+    }
     if (isRequired && !date) {
       setIsValid(false);
       setShowRequiredError(true);
@@ -263,6 +272,7 @@ export const DateCell = (props: DateComponentProps) => {
     setIsValid(true);
     setShowRequiredError(false);
     setHasFocus(false);
+
     const formattedDate = date ? moment(date).format(inputFormat) : "";
     editEvents.onSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
@@ -332,11 +342,7 @@ export const DateCell = (props: DateComponentProps) => {
             maxDate={maxDate || COMPONENT_DEFAULT_VALUES.maxDate}
             minDate={minDate || COMPONENT_DEFAULT_VALUES.minDate}
             onDateOutOfRange={onDateOutOfRange}
-            onDateSelected={
-              isNewRow
-                ? (date) => updateNewRowValues(alias, date, date)
-                : onDateSelected
-            }
+            onDateSelected={onDateSelected}
             onFocus={onDateInputFocus}
             onPopoverClosed={onPopoverClosed}
             selectedDate={valueInISOFormat}
