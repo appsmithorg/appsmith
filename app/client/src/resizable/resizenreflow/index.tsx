@@ -170,7 +170,6 @@ type ResizableProps = {
   responsiveBehavior?: ResponsiveBehavior;
   direction?: LayoutDirection;
   paddingOffset: number;
-  isAffectedByDrag: boolean;
   isMobile: boolean;
 };
 
@@ -316,20 +315,12 @@ export function ReflowResizable(props: ResizableProps) {
         ...prevDimensions,
         width: props.componentWidth,
         height: props.componentHeight,
-        x:
-          !props.isAffectedByDrag && props.isFlexChild
-            ? props.paddingOffset / 4
-            : 0,
+        x: 0,
         y: 0,
         reset: true,
       };
     });
-  }, [
-    props.componentHeight,
-    props.componentWidth,
-    isResizing,
-    props.isAffectedByDrag,
-  ]);
+  }, [props.componentHeight, props.componentWidth, isResizing]);
 
   const handles = [];
 
