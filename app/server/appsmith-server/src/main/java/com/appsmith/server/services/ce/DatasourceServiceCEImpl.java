@@ -3,11 +3,13 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -508,6 +510,10 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         analyticsProperties.put("dsName", datasource.getName());
         analyticsProperties.put("dsIsTemplate", ObjectUtils.defaultIfNull(datasource.getIsTemplate(), ""));
         analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""));
+        DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
+        if (dsConfig != null && dsConfig.getAuthentication() != null && dsConfig.getAuthentication() instanceof OAuth2) {
+            analyticsProperties.put("oAuthStatus", dsConfig.getAuthentication().getAuthenticationStatus());
+        }
         return analyticsProperties;
     }
 

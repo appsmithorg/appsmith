@@ -227,7 +227,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                             configService.getInstanceId()
                                     .map(instanceId -> {
                                         log.debug("Installation setup complete.");
-                                        analyticsService.sendEvent(
+                                        analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
+                                        return analyticsService.sendEvent(
                                                 AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
                                                 instanceId,
                                                 Map.of(
@@ -238,9 +239,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                                                         "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
                                                 ),
                                                 false
-                                        );
-                                        analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
-                                        return instanceId;
+                                        ).thenReturn(instanceId);
                                     }),
                             envManager.applyChanges(Map.of(
                                     APPSMITH_DISABLE_TELEMETRY.name(),
