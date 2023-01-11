@@ -40,9 +40,10 @@ function Errors(props: { hasShortCut?: boolean }) {
         ) : (
           Object.values(errors).map((e, index) => {
             const logItemProps = getLogItemProps(e);
+            const messages = e.messages || [];
             const logItems = [];
-            if (e.messages) {
-              e.messages.forEach((message) => {
+            if (messages) {
+              messages.forEach((message) => {
                 logItemProps.messages = [message];
                 logItems.push(
                   <ErrorLogItem

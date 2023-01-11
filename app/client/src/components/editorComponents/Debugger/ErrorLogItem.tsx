@@ -1,6 +1,4 @@
-import { Collapse } from "@blueprintjs/core";
 import { get } from "lodash";
-import { isString } from "lodash";
 import {
   Log,
   LOG_CATEGORY,
@@ -9,26 +7,16 @@ import {
   SourceEntity,
 } from "entities/AppsmithConsole";
 import React, { useState } from "react";
-import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
 import {
-  AppIcon,
   Classes,
   getTypographyByKey,
   Icon,
   IconName,
   IconSize,
-  Text,
-  TextType,
-  TooltipComponent,
 } from "design-system";
-import {
-  createMessage,
-  TROUBLESHOOT_ISSUE,
-} from "@appsmith/constants/messages";
-import ContextualMenu from "./ContextualMenu";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
@@ -190,54 +178,12 @@ const IconWrapper = styled.span`
   }
   margin-right: 4px;
 `;
-//margin-left: auto;
-const StyledSearchIcon = styled(AppIcon)`
-  && {
-    margin-left: 10px;
-    padding-top: 3px;
-  }
-`;
-
-const JsonWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[1]}px;
-  svg {
-    color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
-    height: 12px !important;
-    width: 12px !important;
-    vertical-align: baseline !important;
-  }
-`;
 
 const LineNumber = styled.div`
   ${getTypographyByKey("h6")}
   font-weight: 400;
   letter-spacing: -0.195px;
   color: ${Colors.GRAY_500};
-`;
-
-const StyledCollapse = styled(Collapse)<{ category: LOG_CATEGORY }>`
-  margin-top: ${(props) =>
-    props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
-      ? " -20px"
-      : " 4px"};
-  margin-left: 120px;
-
-  .debugger-message {
-    ${getTypographyByKey("h6")}
-    font-weight: 400;
-    letter-spacing: -0.195px;
-    color: ${(props) => props.theme.colors.debugger.message};
-    text-decoration-line: underline;
-    cursor: pointer;
-  }
-
-  .${Classes.ICON} {
-    margin-left: 10px;
-  }
-`;
-
-const MessageWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[1]}px;
 `;
 
 const showToggleIcon = (e: Log) => {
@@ -293,23 +239,6 @@ type LogItemProps = {
 
 function LogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(!!props.expand);
-  const reactJsonProps = {
-    name: null,
-    enableClipboard: false,
-    displayObjectSize: false,
-    displayDataTypes: false,
-    style: {
-      fontSize: "12px",
-    },
-    collapsed: 1,
-  };
-  // The error to sent to the contextual menu
-  const errorToSearch =
-    props.messages && props.messages.length
-      ? props.messages[0]
-      : { message: props.text };
-
-  const messages = props.messages || [];
   const { collapsable } = props;
   const theme = useTheme();
 
@@ -346,7 +275,7 @@ function LogItem(props: LogItemProps) {
               {props.timestamp}
             </span>
           )}
-        {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
+        {/* {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
           <Icon
             className={`${Classes.ICON} debugger-toggle`}
             clickable={collapsable}
@@ -355,8 +284,9 @@ function LogItem(props: LogItemProps) {
             onClick={() => setIsOpen(!isOpen)}
             size={IconSize.SMALL}
           />
-        )}
-        <span className={`debugger-error-type`}>{`${props.logType}:`}</span>
+        )} */}
+        <span className={`debugger-error-type`}>{`${props.messages &&
+          props.messages[0].message.name}:`}</span>
 
         {props.source && (
           <span
@@ -395,7 +325,7 @@ function LogItem(props: LogItemProps) {
               className="debugger-label t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}
             >
-              {props.messages && props.messages[0].message}
+              {props.messages && props.messages[0].message.text}
             </span>
 
             {props.timeTaken && (
@@ -403,30 +333,6 @@ function LogItem(props: LogItemProps) {
                 {props.timeTaken}
               </span>
             )}
-            {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
-              props.severity === Severity.ERROR &&
-              props.logType !== LOG_TYPE.LINT_ERROR &&
-              props.logType !== LOG_TYPE.EVAL_ERROR && (
-                <div onClick={(e) => e.stopPropagation()}>
-                  <ContextualMenu entity={props.source} error={errorToSearch}>
-                    <TooltipComponent
-                      content={
-                        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                          {createMessage(TROUBLESHOOT_ISSUE)}
-                        </Text>
-                      }
-                      minimal
-                      position="bottom-left"
-                    >
-                      <StyledSearchIcon
-                        className={`${Classes.ICON}`}
-                        name={"help"}
-                        size={IconSize.SMALL}
-                      />
-                    </TooltipComponent>
-                  </ContextualMenu>
-                </div>
-              )}
           </div>
         )}
         {props.messages && props.messages[0].lineNumber && (
@@ -439,60 +345,6 @@ function LogItem(props: LogItemProps) {
           </LineNumber>
         )}
       </InnerWrapper>
-
-      {collapsable && isOpen && props.logType !== LOG_TYPE.LINT_ERROR && (
-        <StyledCollapse
-          category={props.category}
-          isOpen={isOpen}
-          keepChildrenMounted
-        >
-          {messages.map((e) => {
-            return (
-              <MessageWrapper
-                key={e.message}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ContextualMenu entity={props.source} error={e}>
-                  <span className="debugger-message t--debugger-message">
-                    {isString(e.message)
-                      ? e.message
-                      : JSON.stringify(e.message)}
-                  </span>
-                </ContextualMenu>
-              </MessageWrapper>
-            );
-          })}
-          {props.state && (
-            <JsonWrapper
-              className="t--debugger-log-state"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ReactJson src={props.state} {...reactJsonProps} />
-            </JsonWrapper>
-          )}
-          {props.logData &&
-            props.logData.length > 0 &&
-            props.logData.map((logDatum: any) => {
-              if (typeof logDatum === "object") {
-                return (
-                  <JsonWrapper
-                    className="t--debugger-console-log-data"
-                    key={Math.random()}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <ReactJson src={logDatum} {...reactJsonProps} />
-                  </JsonWrapper>
-                );
-              } else {
-                return (
-                  <span className="debugger-label" key={Math.random()}>
-                    {`${logDatum} `}
-                  </span>
-                );
-              }
-            })}
-        </StyledCollapse>
-      )}
     </Wrapper>
   );
 }

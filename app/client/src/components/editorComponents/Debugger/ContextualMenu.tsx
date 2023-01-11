@@ -135,7 +135,7 @@ const searchAction: Record<
         searchTerm: error.message,
         errorType: error.type,
       });
-      dispatch(setGlobalSearchQuery(error.message || ""));
+      dispatch(setGlobalSearchQuery(error.message.text || ""));
       dispatch(
         setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
       );

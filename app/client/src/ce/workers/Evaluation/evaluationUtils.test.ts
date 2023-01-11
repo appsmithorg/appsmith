@@ -799,7 +799,7 @@ describe("7. Test addErrorToEntityProperty method", () => {
   it("Add error to dataTreeEvaluator.evalProps", () => {
     const dataTreeEvaluator = new DataTreeEvaluator({});
     const error = {
-      errorMessage: "some error",
+      errorMessage: { name: "", text: "some error" },
       errorType: PropertyEvaluationErrorType.VALIDATION,
       raw: "undefined",
       severity: Severity.ERROR,

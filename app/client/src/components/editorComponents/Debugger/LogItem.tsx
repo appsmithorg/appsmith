@@ -267,7 +267,7 @@ function LogItem(props: LogItemProps) {
   const errorToSearch =
     props.messages && props.messages.length
       ? props.messages[0]
-      : { message: props.text };
+      : { message: { name: "", text: props.text } };
 
   const messages = props.messages || [];
   const { collapsable } = props;
@@ -371,7 +371,7 @@ function LogItem(props: LogItemProps) {
           {messages.map((e) => {
             return (
               <MessageWrapper
-                key={e.message}
+                key={e.message.text}
                 onClick={(e) => e.stopPropagation()}
               >
                 <ContextualMenu entity={props.source} error={e}>

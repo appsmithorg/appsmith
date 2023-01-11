@@ -127,10 +127,7 @@ function logLatestEvalPropertyErrors(
           // Reformatting eval errors here to a format usable by the debugger
           const errorMessages = errors.map((e) => {
             // Error format required for the debugger
-            return {
-              message: e.errorMessage,
-              type: e.errorType,
-            };
+            return { message: e.errorMessage, type: e.errorType };
           });
 
           const analyticsData = isWidget(entity)

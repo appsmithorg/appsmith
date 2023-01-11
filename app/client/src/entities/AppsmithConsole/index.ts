@@ -1,6 +1,9 @@
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import LOG_TYPE from "./logtype";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import {
+  ErrorMessage,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -89,7 +92,7 @@ export interface LogActionPayload {
   occurrenceCount?: number;
   // Deconstructed data of the log, this includes the whole nested objects/arrays/strings etc.
   logData?: any[];
-  messages?: Array<Message>;
+  messages?: Message[];
   // Time taken for the event to complete
   timeTaken?: string;
   // "where" source entity and propertyPsath.
@@ -102,7 +105,7 @@ export interface LogActionPayload {
 
 export interface Message {
   // More contextual message than `text`
-  message: string;
+  message: ErrorMessage;
   type?: ErrorType;
   subType?: string;
   lineNumber?: number;

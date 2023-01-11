@@ -38,8 +38,11 @@ export function defaultValueValidation(
   props: PhoneInputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const STRING_ERROR_MESSAGE = "This value must be string";
-  const EMPTY_ERROR_MESSAGE = "";
+  const STRING_ERROR_MESSAGE = {
+    name: "TypeError",
+    text: "This value must be string",
+  };
+  const EMPTY_ERROR_MESSAGE = { name: "", text: "" };
   if (_.isObject(value)) {
     return {
       isValid: false,
