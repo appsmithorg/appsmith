@@ -17,7 +17,7 @@ export const APPSMITH_BRAND_PRIMARY_COLOR = "#F86A2B";
 export const APPSMITH_BRAND_FAVICON_URL =
   "https://assets.appsmith.com/appsmith-favicon-orange.ico";
 export const APPSMITH_BRAND_LOGO_URL =
-  "https://assets.appsmith.com/appsmith-favicon-orange.ico";
+  "https://assets.appsmith.com/appsmith-logo.svg";
 
 /**
  * create brand colors from primary color
