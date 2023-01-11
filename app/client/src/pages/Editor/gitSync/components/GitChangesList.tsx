@@ -111,7 +111,7 @@ const STATUS_MAP: GitStatusMap = {
     message: `${status?.modifiedJSLibs || 0} ${
       (status?.modifiedJSLibs || 0) <= 1 ? "library" : "libraries"
     } modified`,
-    iconName: "js",
+    iconName: "package",
     hasValue: (status?.modifiedJSLibs || 0) > 0,
   }),
 };
