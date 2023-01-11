@@ -1,20 +1,18 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.server.domains.ce.DsContextMapKeyCE;
+import lombok.NoArgsConstructor;
+
 /**
  * This class is for generating keys for dsContext.
  * The object of this class will be used as keys for dsContext
  */
+@NoArgsConstructor
 public class DsContextMapKey extends DsContextMapKeyCE {
 
-    public DsContextMapKey(String datasourceId, String environmentId) {
+    public DsContextMapKey (String datasourceId, String environmentId) {
         super(datasourceId, environmentId);
     }
-
-    public DsContextMapKey() {
-        // empty constructor
-    }
-
 
     @Override
     public boolean equals(Object obj) {

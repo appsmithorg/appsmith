@@ -195,7 +195,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         monitor = datasourceContextSynchronizationMonitorMap.get(dsContextMapKey);
                     }
 
-                    return getCachedDatasourceContextMono(datasource, pluginExecutor, monitor, dsContextMapKey);
+                    return getCachedDatasourceContextMono(datasource1, pluginExecutor, monitor, dsContextMapKey);
                 });
     }
 

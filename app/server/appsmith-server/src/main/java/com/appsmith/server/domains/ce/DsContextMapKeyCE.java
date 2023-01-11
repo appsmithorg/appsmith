@@ -1,6 +1,8 @@
 package com.appsmith.server.domains.ce;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.util.StringUtils;
 
@@ -10,21 +12,12 @@ import org.springframework.util.StringUtils;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DsContextMapKeyCE {
 
     protected String datasourceId;
-
     protected String environmentId;
-
-    public DsContextMapKeyCE(String datasourceId, String environmentId) {
-        this.datasourceId = datasourceId;
-        this.environmentId = environmentId;
-    }
-
-    public DsContextMapKeyCE() {
-        // empty constructor
-    }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -37,25 +30,29 @@ public class DsContextMapKeyCE {
         }
 
         DsContextMapKeyCE keyObj = (DsContextMapKeyCE)  obj;
-        boolean areBothEnvironmentIdSameOrNull = StringUtils.hasLength(environmentId) ?
-                environmentId.equals(keyObj.environmentId) : !StringUtils.hasLength(keyObj.environmentId);
+        boolean areBothEnvironmentIdSameOrNull = this.hasLength(this.getEnvironmentId()) ?
+                this.getEnvironmentId().equals(keyObj.getEnvironmentId()) : !this.hasLength(keyObj.getEnvironmentId());
 
         // if datasourceId is null for either of the objects then the keys can't be equal
-        return StringUtils.hasLength(datasourceId)
-                && datasourceId.equals(keyObj.datasourceId) &&
+        return this.hasLength(this.getDatasourceId())
+                && this.getDatasourceId().equals(keyObj.getDatasourceId()) &&
                 areBothEnvironmentIdSameOrNull;
     }
 
     @Override
     public int hashCode() {
         int result = 0;
-        result = StringUtils.hasLength(this.datasourceId) ? this.datasourceId.hashCode() : result;
-        result = StringUtils.hasLength(this.environmentId) ? result*31 + this.environmentId.hashCode() : result;
+        result = this.hasLength(this.getDatasourceId()) ? this.getDatasourceId().hashCode() : result;
+        result = this.hasLength(this.getDatasourceId()) ? result*31 + this.getDatasourceId().hashCode() : result;
         return result;
     }
 
     public boolean isEmpty() {
-        return !StringUtils.hasLength(this.datasourceId);
+        return !this.hasLength(this.datasourceId);
+    }
+
+    public boolean hasLength(String id) {
+        return StringUtils.hasLength(id);
     }
 
 }

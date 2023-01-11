@@ -14,10 +14,14 @@ public interface DatasourceContextServiceCE {
 
     /**
      * This function is responsible for returning the datasource context stored
-     * against the datasource id. In case the datasourceId is not found in the
+     * against the DatasourceContextIdentifier object,
+     * which stores datasourceId in CE and environmentId as well in EE.
+     * In case the datasourceId is not found in the
      * map, create a new datasource context and return that.
-     *
+     * The environmentMap parameter is not being Used in the CE version. it's specific to EE version
+     * @param datasource
      * @param dsContextMapKey
+     * @param environmentMap
      * @return DatasourceContext
      */
     Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource, DsContextMapKey dsContextMapKey,

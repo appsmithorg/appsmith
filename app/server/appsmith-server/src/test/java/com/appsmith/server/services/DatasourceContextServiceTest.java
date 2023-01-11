@@ -340,6 +340,6 @@ public class DatasourceContextServiceTest {
         String envId = new ObjectId().toHexString();
         DsContextMapKey keyObj = new DsContextMapKey(null, envId);
         DsContextMapKey keyObj1 = new DsContextMapKey(null, envId);
-        assertNotEquals(keyObj,keyObj1);
+        assertNotEquals(keyObj, keyObj1);
     }
 }
