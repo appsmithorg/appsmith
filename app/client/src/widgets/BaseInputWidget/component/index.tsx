@@ -23,12 +23,10 @@ import {
 import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { Icon } from "design-system";
 import { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import { lightenColor } from "widgets/WidgetUtils";
 import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
@@ -80,6 +78,66 @@ const InputComponentWrapper = styled((props) => (
   accentColor?: string;
   isDynamicHeightEnabled?: boolean;
 }>`
+  height: 40px;
+  position: relative;
+  .label {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    z-index: 100;
+    pointer-events: none;
+    color: ${({ hasError }) =>
+      hasError ? "var(--wds-color-border-danger-focus)" : "rgb(117, 117, 117)"};
+  }
+  .label .text {
+    transition: all 0.1s ease-out;
+  }
+  .bp3-input{
+    height: 40px;
+  }
+  .bp3-input-group{
+    width: 100%;
+  }
+  .error-msg{
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    text-transform: none;
+    font-family: Roboto, sans-serif;
+    text-align: left;
+    color: var(--wds-color-border-danger-focus);
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+  }
+  
+  :focus-within{
+    .label {
+      .text{
+        font-size: 1rem;
+        transform: translate(-15px,-19px) scale(0.75);
+        background-color: white;
+        padding-left: 4px;
+        padding-right: 4px;
+      }
+      color: ${({ hasError }) =>
+        hasError ? "var(--wds-color-border-danger-focus)" : "#1976d2"};
+    }
+  }
+  ${(props) =>
+    props.value
+      ? `
+      .label .text{
+        font-size: 1rem;
+        transform: translate(-15px,-19px) scale(0.75);
+        background-color: white;
+        padding-left: 4px;
+        padding-right: 4px;
+      }`
+      : ""};
   ${labelLayoutStyles}
 
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
@@ -120,7 +178,7 @@ const InputComponentWrapper = styled((props) => (
           return "flex: 1; margin-right: 5px; label { margin-right: 5px; margin-bottom: 0;}";
         }
       }}
-      align-items: centert;
+      align-items: center;
       ${({ compactMode, labelPosition }) => {
         if (!labelPosition && !compactMode) {
           return "max-height: 20px; .bp3-popover-wrapper {max-height: 20px}";
@@ -170,6 +228,10 @@ const InputComponentWrapper = styled((props) => (
           border-color: ${({ hasError }) =>
             hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
         }
+        :focus {
+          outline: none;
+          border: 2px solid blue;
+        }
       }
     }
 
@@ -198,7 +260,7 @@ const InputComponentWrapper = styled((props) => (
     .${Classes.INPUT} {
       box-shadow: none;
       border-radius: 0;
-      height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
+      height: ${(props) => (props.multiline === "true" ? "100%" : "40px")};
       width: 100%;
 
       ::placeholder {
@@ -288,7 +350,6 @@ const InputComponentWrapper = styled((props) => (
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    height: 100%;
     align-items: ${({ compactMode, inputType, labelPosition }) => {
       if (!labelPosition && inputType !== InputTypes.TEXT) {
         return "center";
@@ -376,7 +437,7 @@ const TextInputWrapper = styled.div<{
       }
 
       if (hasError) {
-        return "var(--wds-color-border-danger-hover)";
+        return "var(--wds-color-border-danger)";
       }
 
       return "var(--wds-color-border-hover)";
@@ -385,14 +446,9 @@ const TextInputWrapper = styled.div<{
 
   &:focus-within {
     outline: 0;
+    border-width: 2px;
     border-color: ${({ accentColor, hasError }) =>
       hasError ? "var(--wds-color-border-danger-focus)" : accentColor};
-    box-shadow: ${({ accentColor, hasError }) =>
-      `0px 0px 0px 2px ${
-        hasError
-          ? "var(--wds-color-border-danger-focus-light)"
-          : lightenColor(accentColor)
-      } !important;`};
   }
 
   ${({ inputHtmlType }) =>
@@ -527,14 +583,6 @@ class BaseInputComponent extends React.Component<
     this.props.onKeyUp?.(e);
   };
 
-  translatePlaceHolder = () => {
-    return translate(
-      this.props.lang,
-      this.props.placeholder,
-      this.props.placeholderJp,
-    );
-  };
-
   private numericInputComponent = () => {
     // Get current locale only for the currency widget.
     const locale = this.props.shouldUseLocale ? getLocale() : undefined;
@@ -570,7 +618,6 @@ class BaseInputComponent extends React.Component<
         onKeyDown={this.onKeyDown}
         onKeyUp={this.onKeyUp}
         onValueChange={this.onNumberChange}
-        placeholder={this.translatePlaceHolder()}
         stepSize={this.props.stepSize}
         value={this.props.value}
         {...conditionalProps}
@@ -592,7 +639,6 @@ class BaseInputComponent extends React.Component<
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
       onKeyUp={this.onKeyUp}
-      placeholder={this.translatePlaceHolder()}
       style={{ resize: "none" }}
       value={this.props.value}
     />
@@ -619,7 +665,9 @@ class BaseInputComponent extends React.Component<
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
         onKeyUp={this.onKeyUp}
-        placeholder={this.translatePlaceHolder()}
+        autoComplete={
+          this.props.inputType === "PASSWORD" ? "new-password" : "off"
+        }
         rightElement={
           this.props.inputType === "PASSWORD" ? (
             <Icon
@@ -679,13 +727,12 @@ class BaseInputComponent extends React.Component<
       labelTextSize,
       labelWidth,
       multiline,
-      showError,
       tooltip,
       tooltipJp,
       lang,
       translationJp,
+      value,
     } = this.props;
-    const showLabelHeader = label || tooltip;
     const translateLabel = translate(lang, label, translationJp);
     const translateErrorMsg = translate(lang, errorMessage, errorMessageJp);
     const translateTooltip = translate(lang, tooltip, tooltipJp);
@@ -705,8 +752,9 @@ class BaseInputComponent extends React.Component<
         labelTextSize={labelTextSize ?? "inherit"}
         multiline={(!!multiline).toString()}
         numeric={isNumberInputType(inputHTMLType)}
+        value={value}
       >
-        {showLabelHeader && (
+        {tooltip && (
           <LabelWithTooltip
             alignment={labelAlignment}
             className="t--input-widget-label"
@@ -736,17 +784,17 @@ class BaseInputComponent extends React.Component<
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           labelPosition={labelPosition}
         >
-          <ErrorTooltip
-            boundary={this.props.errorTooltipBoundary}
-            isOpen={isInvalid && showError}
-            message={
-              translateErrorMsg ||
-              createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
-            }
-          >
-            {this.renderInputComponent(inputHTMLType, !!multiline)}
-          </ErrorTooltip>
+          <label className="label" id="label-fname">
+            <div className="text">{this.props.label}</div>
+          </label>
+          {this.renderInputComponent(inputHTMLType, !!multiline)}
         </TextInputWrapper>
+        {isInvalid && (
+          <p className="error-msg">
+            {translateErrorMsg ||
+              createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)}
+          </p>
+        )}
       </InputComponentWrapper>
     );
   }

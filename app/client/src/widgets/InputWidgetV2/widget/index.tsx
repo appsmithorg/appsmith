@@ -26,7 +26,6 @@ import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
 import { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { AppState } from "ce/reducers";
 import { connect } from "react-redux";
 import { LanguageEnums } from "entities/App";
@@ -219,6 +218,10 @@ class InputWidget extends BaseInputWidget<InputProps, WidgetState> {
                   label: "Color",
                   value: "COLOR",
                 },
+                {
+                  label: "Textarea",
+                  value: "TEXTAREA",
+                },
               ],
               isBindProperty: false,
               isTriggerProperty: false,
@@ -277,7 +280,10 @@ class InputWidget extends BaseInputWidget<InputProps, WidgetState> {
                 params: { min: 1, natural: true, passThroughOnZero: false },
               },
               hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.TEXT;
+                return (
+                  props.inputType !== InputTypes.TEXT &&
+                  props.inputType !== InputTypes.TEXTAREA
+                );
               },
               dependencies: ["inputType"],
             },
@@ -512,7 +518,11 @@ class InputWidget extends BaseInputWidget<InputProps, WidgetState> {
       conditionalProps.minNum = this.props.minNum;
     }
 
-    if (this.props.inputType === InputTypes.TEXT && this.props.maxChars) {
+    if (
+      (this.props.inputType === InputTypes.TEXT ||
+        this.props.inputType === InputTypes.TEXTAREA) &&
+      this.props.maxChars
+    ) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (
@@ -556,13 +566,6 @@ class InputWidget extends BaseInputWidget<InputProps, WidgetState> {
         );
       }
     }
-    const minInputSingleLineHeight =
-      this.props.label || this.props.tooltip
-        ? // adjust height for label | tooltip extra div
-          GRID_DENSITY_MIGRATION_V1 + 4
-        : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
-          GRID_DENSITY_MIGRATION_V1;
-
     return (
       <InputComponent
         accentColor={this.props.accentColor}
@@ -583,7 +586,7 @@ class InputWidget extends BaseInputWidget<InputProps, WidgetState> {
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
-        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
+        isDynamicHeightEnabled
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
@@ -594,11 +597,7 @@ class InputWidget extends BaseInputWidget<InputProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
-        multiline={
-          (this.props.bottomRow - this.props.topRow) /
-            minInputSingleLineHeight >
-            1 && this.props.inputType === InputTypes.TEXT
-        }
+        multiline={this.props.inputType === InputTypes.TEXTAREA}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}

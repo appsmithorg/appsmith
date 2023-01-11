@@ -114,3 +114,14 @@ div.bp3-popover-arrow {
 .bp3-overlay-backdrop {
   background-color: rgba(16, 22, 26, 0.7) !important;
 }
+
+input:autofill {
+  transition: background-color 600000s 0s, color 600000s 0s;
+  background-color: white !important;
+}
+
+input:-webkit-autofill {
+  transition: background-color 600000s 0s, color 600000s 0s;
+  background-color: white !important;
+}
+
