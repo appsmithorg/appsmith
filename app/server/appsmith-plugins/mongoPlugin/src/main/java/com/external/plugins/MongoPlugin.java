@@ -31,6 +31,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.constants.MongoSpecialDataTypes;
 import com.external.plugins.datatypes.MongoSpecificDataTypes;
+import com.external.plugins.exceptions.MongoPluginError;
 import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -1005,7 +1006,7 @@ public class MongoPlugin extends BasePlugin {
                             }
                         } catch (Exception e) {
                             throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_FORM_TO_NATIVE_TRANSLATION_ERROR,
+                                    MongoPluginError.FORM_TO_NATIVE_TRANSLATION_ERROR,
                                     e.getMessage()
                             );
                         }

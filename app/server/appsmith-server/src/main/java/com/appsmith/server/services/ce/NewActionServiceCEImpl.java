@@ -854,31 +854,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 actionDTO.getName(),
                                 timeoutDuration))
                 .onErrorMap(StaleConnectionException.class, error ->
-                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                                "Secondary stale connection error."))
+                        new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR))
                 .onErrorResume(e -> {
                     log.debug("{}: In the action execution error mode.",
                             Thread.currentThread().getName(), e);
                     ActionExecutionResult result = new ActionExecutionResult();
-                    result.setBody(e.getMessage());
+                    result.setErrorInfo(e);
                     result.setIsExecutionSuccess(false);
                     final ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                     actionExecutionRequest.setActionId(actionId);
                     actionExecutionRequest.setRequestedAt(Instant.now());
                     result.setRequest(actionExecutionRequest);
-                    // Set the status code for Appsmith plugin errors
-                    if (e instanceof AppsmithPluginException) {
-                        result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
-                        result.setTitle(((AppsmithPluginException) e).getTitle());
-                        result.setErrorType(((AppsmithPluginException) e).getErrorType());
-                    } else {
-                        result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
-
-                        if (e instanceof AppsmithException) {
-                            result.setTitle(((AppsmithException) e).getTitle());
-                            result.setErrorType(((AppsmithException) e).getErrorType());
-                        }
-                    }
                     return Mono.just(result);
                 });
 
@@ -955,10 +941,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();
                     result.setIsExecutionSuccess(false);
-                    result.setStatusCode(error.getAppErrorCode().toString());
-                    result.setBody(error.getMessage());
-                    result.setTitle(error.getTitle());
-                    result.setErrorType(error.getErrorType());
+                    result.setErrorInfo(error);
                     return Mono.just(result);
                 });
     }

@@ -89,10 +89,10 @@ public class GlobalExceptionHandler {
 
         // Do special formatting for this error to run the message string into valid jsonified string
         if (AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getAppErrorCode().equals(e.getError().getAppErrorCode())) {
-            return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), "{" + e.getMessage() + "}")));
+            return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getErrorType(), "{" + e.getMessage() + "}", e.getTitle())));
         }
 
-        return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage(), e.getErrorType(), e.getReferenceDoc())));
+        return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getErrorType(), e.getMessage(), e.getTitle(), e.getReferenceDoc())));
     }
 
     @ExceptionHandler
@@ -101,8 +101,8 @@ public class GlobalExceptionHandler {
         AppsmithError appsmithError = AppsmithError.DUPLICATE_KEY;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
-        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(e.getCause().getMessage()))));
+        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(e.getCause().getMessage()), appsmithError.getTitle())));
     }
 
     @ExceptionHandler
@@ -111,8 +111,8 @@ public class GlobalExceptionHandler {
         AppsmithError appsmithError = AppsmithError.PLUGIN_EXECUTION_TIMEOUT;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
-        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage())));
+        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(), appsmithError.getTitle())));
     }
 
     @ExceptionHandler(WebExchangeBindException.class)
@@ -130,8 +130,8 @@ public class GlobalExceptionHandler {
                             String errorMessage = error.getDefaultMessage();
                             errors.put(fieldName, errorMessage);
                         });
-        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(errors.toString()))));
+        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(errors.toString()), appsmithError.getTitle())));
     }
 
 
@@ -148,8 +148,8 @@ public class GlobalExceptionHandler {
                     + (e.getMethodParameter().getMethod() != null ? "." + e.getMethodParameter().getMethod().getName() : "");
         }
 
-        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(errorMessage))));
+        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(errorMessage), appsmithError.getTitle())));
     }
 
     @ExceptionHandler
@@ -159,7 +159,7 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                e.getMessage(), e.getErrorType(), null)));
+                e.getMessage(), e.getErrorType(), e.getTitle())));
     }
 
     @ExceptionHandler
@@ -169,7 +169,7 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage())));
+                appsmithError.getErrorType(), appsmithError.getMessage(), appsmithError.getTitle())));
     }
 
     @ExceptionHandler
@@ -178,8 +178,8 @@ public class GlobalExceptionHandler {
         AppsmithError appsmithError = AppsmithError.FILE_PART_DATA_BUFFER_ERROR;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
-        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(e.getMessage()))));
+        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(e.getMessage()), appsmithError.getTitle())));
     }
 
     /**
@@ -196,7 +196,7 @@ public class GlobalExceptionHandler {
         AppsmithError appsmithError = AppsmithError.INTERNAL_SERVER_ERROR;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
-        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage())));
+        return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+                appsmithError.getMessage(), appsmithError.getTitle())));
     }
 }

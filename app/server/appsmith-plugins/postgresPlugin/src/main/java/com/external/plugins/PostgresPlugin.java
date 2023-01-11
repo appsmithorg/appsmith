@@ -26,6 +26,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.datatypes.PostgresSpecificDataTypes;
+import com.external.plugins.exceptions.PostgresPluginError;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
@@ -344,7 +345,7 @@ public class PostgresPlugin extends BasePlugin {
                                         if (objectSize > MAX_SIZE_SUPPORTED) {
                                             log.debug("[PostgresPlugin] Result size greater than maximum supported size of {} bytes. Current size : {}",
                                                     MAX_SIZE_SUPPORTED, objectSize);
-                                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED, (float) (MAX_SIZE_SUPPORTED / (1024 * 1024))));
+                                            return Mono.error(new AppsmithPluginException(PostgresPluginError.RESPONSE_SIZE_TOO_LARGE, (float) (MAX_SIZE_SUPPORTED / (1024 * 1024))));
                                         }
                                     }
 

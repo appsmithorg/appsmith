@@ -26,6 +26,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.external.plugins.constants.AmazonS3Action;
+import com.external.plugins.constants.S3ErrorMessages;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -169,7 +170,7 @@ public class AmazonS3PluginTest {
                     assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Mandatory parameter 'Secret Key' is empty"));
+                    assertTrue(errorList.get(0).equals(S3ErrorMessages.DS_MANDATORY_PARAMETER_SECRET_KEY_MISSING_ERROR_MSG));
                 })
                 .verifyComplete();
     }
@@ -223,9 +224,7 @@ public class AmazonS3PluginTest {
                     assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Required parameter 'Endpoint URL' is empty. Did you forget " +
-                            "to edit the 'Endpoint URL' field in the datasource creation form ? You need to fill it " +
-                            "with the endpoint URL of your S3 instance."));
+                    assertTrue(errorList.get(0).equals(S3ErrorMessages.DS_MANDATORY_PARAMETER_ENDPOINT_URL_MISSING_ERROR_MSG));
                 })
                 .verifyComplete();
     }
