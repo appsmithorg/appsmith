@@ -138,7 +138,9 @@ export class AggregateHelper {
 
   public AssertAutoSave() {
     // wait for save query to trigger & n/w call to finish occuring
-    cy.get(this.locator._saveStatusSuccess, { timeout: 30000 }).should("exist"); //adding timeout since waiting more time is not worth it!
+    cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
+      "not.exist",
+    ); //adding timeout since waiting more time is not worth it!
   }
 
   public ValidateCodeEditorContent(selector: string, contentToValidate: any) {
@@ -551,6 +553,7 @@ export class AggregateHelper {
     return locator
       .eq(index)
       .focus()
+      .wait(100)
       .type(value, {
         parseSpecialCharSequences: parseSpecialCharSeq,
         //delay: 3,

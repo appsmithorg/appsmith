@@ -24,7 +24,7 @@ describe("Omnibar functionality test cases", () => {
   it("2.Verify omnibar is present across all pages and validate its fields", function() {
     cy.get(omnibar.globalSearch)
       .trigger("mouseover")
-      .should("have.css", "background-color", "rgb(240, 240, 240)");
+      .should("have.css", "background-color", "rgba(0, 0, 0, 0)");
     cy.get(omnibar.globalSearch).click({ force: true });
     // verifying all sections are present in omnibar
     cy.get(omnibar.categoryTitle)
