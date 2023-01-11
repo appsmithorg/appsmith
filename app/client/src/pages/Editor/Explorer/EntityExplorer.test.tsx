@@ -270,7 +270,7 @@ describe("Entity Explorer tests", () => {
         widgetId: containerId,
         parentId: MAIN_CONTAINER_WIDGET_ID,
       },
-      { type: "CHART_WIDGET" },
+      { type: "CHART_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
     ]);
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,
