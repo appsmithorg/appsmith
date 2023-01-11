@@ -136,7 +136,17 @@ export class AggregateHelper {
     this.Sleep();
   }
 
+  public CheckForPageSaveError()
+  {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this.locator._saveStatusError).length) {
+        cy.reload();
+      }
+    });
+  }
+
   public AssertAutoSave() {
+    this.CheckForPageSaveError()
     // wait for save query to trigger & n/w call to finish occuring
     cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
       "not.exist",
