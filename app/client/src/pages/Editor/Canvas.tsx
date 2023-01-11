@@ -26,7 +26,7 @@ const Container = styled.section<{
   background: ${({ background }) => background};
   width: ${(props) => props.width}px;
   transform: scale(${(props) => props.$canvasScale});
-  transformOrigin: "0 0 
+  transform-origin: "0 0";
 `;
 
 const Canvas = (props: CanvasProps) => {
