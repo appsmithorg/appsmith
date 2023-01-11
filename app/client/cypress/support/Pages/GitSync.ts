@@ -117,7 +117,11 @@ export class GitSync {
       cy.request({
         method: "POST",
         url: `http://${datasourceFormData["GITHUB_API_BASE_TED"]}:${datasourceFormData["GITHUB_API_PORT_TED"]}/v1/gitserver/addgitssh`,
-        body: formdata,
+        //body: formdata,
+        body: {
+          title: "sshkey",
+          key: generatedKey,
+        },
         //form: true,
         headers: {
           //"Content-Type": "multipart/form-data"
