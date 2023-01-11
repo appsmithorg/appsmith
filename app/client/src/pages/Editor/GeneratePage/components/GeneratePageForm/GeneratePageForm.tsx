@@ -469,7 +469,7 @@ function GeneratePageForm() {
       const datasourceId = queryParams.datasourceId;
       const generateNewPage = queryParams.new_page;
       if (datasourceId) {
-        if (generateNewPage) {
+        if (generateNewPage || numberOfEntities > 0) {
           currentMode.current = GENERATE_PAGE_MODE.NEW;
         } else {
           currentMode.current = GENERATE_PAGE_MODE.REPLACE_EMPTY;
@@ -482,7 +482,7 @@ function GeneratePageForm() {
         history.replace(redirectURL);
       }
     }
-  }, [querySearch, setDatasourceIdToBeSelected]);
+  }, [numberOfEntities, querySearch, setDatasourceIdToBeSelected]);
 
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");

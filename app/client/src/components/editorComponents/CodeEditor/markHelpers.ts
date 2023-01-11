@@ -96,7 +96,7 @@ const addMarksForChildren = (
   tokenEnd: number,
   editor: CodeMirror.Editor,
 ) => {
-  const childNodes = navigationData.children;
+  const childNodes = navigationData.children || {};
   if (Object.keys(childNodes).length) {
     const token = editor.getTokenAt(
       {

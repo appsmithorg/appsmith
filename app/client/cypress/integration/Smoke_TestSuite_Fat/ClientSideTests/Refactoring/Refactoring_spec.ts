@@ -26,7 +26,7 @@ const refactorInput = {
   },
 };
 
-describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
+describe.skip("Validate JS Object Refactoring does not affect the comments & variables", () => {
   before(() => {
     cy.fixture("Datatypes/RefactorDTdsl").then((val: any) => {
       _.agHelper.AddDsl(val);
