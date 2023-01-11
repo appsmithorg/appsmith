@@ -34,5 +34,5 @@ public interface DatasourceContextServiceCE {
 
     Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceContextIdentifier datasourceContextIdentifier);
 
-    DatasourceContextIdentifier getCustomKey(Datasource datasource);
+    DatasourceContextIdentifier createDsContextIdentifier(Datasource datasource);
 }

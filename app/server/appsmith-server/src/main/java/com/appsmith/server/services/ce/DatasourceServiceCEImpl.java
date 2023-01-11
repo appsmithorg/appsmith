@@ -484,7 +484,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return Mono.just(objects.getT1());
                 })
                 .flatMap(toDelete -> {
-                    return datasourceContextService.deleteDatasourceContext(datasourceContextService.getCustomKey(toDelete))
+                    return datasourceContextService.deleteDatasourceContext(datasourceContextService.createDsContextIdentifier(toDelete))
                             .then(repository.archive(toDelete))
                             .thenReturn(toDelete);
                 })
@@ -567,7 +567,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     public Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
     getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName) {
         // see EE override for complete usage.
-        Mono<DatasourceContextIdentifier> datasourceContextIdentifierMono = Mono.just(datasourceContextService.getCustomKey(datasource));
+        Mono<DatasourceContextIdentifier> datasourceContextIdentifierMono = Mono.just(datasourceContextService.createDsContextIdentifier(datasource));
 
         // see EE override for complete usage,
         // Here just returning an empty map, this map is not used here

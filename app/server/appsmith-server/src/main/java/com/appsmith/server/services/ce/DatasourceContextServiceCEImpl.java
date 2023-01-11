@@ -304,7 +304,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * @return an DatasourceContextIdentifier object
      */
     @Override
-    public DatasourceContextIdentifier getCustomKey(Datasource datasource) {
+    public DatasourceContextIdentifier createDsContextIdentifier(Datasource datasource) {
         return new DatasourceContextIdentifier(datasource.getId(), null);
     }
 }
