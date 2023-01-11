@@ -66,6 +66,7 @@ public class FileUtilsImplTest {
         applicationGitReference.setActions(new HashMap<>());
         applicationGitReference.setActionCollections(new HashMap<>());
         applicationGitReference.setDatasources(new HashMap<>());
+        applicationGitReference.setJsLibraries(new HashMap<>());
         fileUtils.saveApplicationToGitRepo(Path.of(""), applicationGitReference, "branch").block();
 
         Assertions.assertFalse(actionDirectoryPath.toFile().exists());
