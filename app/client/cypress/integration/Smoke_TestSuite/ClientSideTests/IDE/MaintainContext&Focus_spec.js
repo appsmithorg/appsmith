@@ -205,6 +205,7 @@ describe("MaintainContext&Focus", function() {
     cy.setQueryTimeout(10000);
 
     cy.SearchEntityandOpen("SQL_Query");
+    cy.get(".bp3-editable-text-content").should("contain.text", "SQL_Query");
     cy.get(".t--form-control-SWITCH input").should("be.focused");
     cy.SearchEntityandOpen("S3_Query");
     agHelper.Sleep();

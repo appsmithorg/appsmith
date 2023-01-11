@@ -199,7 +199,9 @@ class Editor extends Component<Props> {
       this.props.loadingGuidedTour
     ) {
       return (
-        <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
+        <CenteredWrapper
+          style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}
+        >
           <Spinner />
         </CenteredWrapper>
       );
