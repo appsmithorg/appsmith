@@ -84,6 +84,24 @@ export const initializeAnalyticsAndTrackers = () => {
   }
 };
 
+export const initializeSegmentWithoutTracking = () => {
+  const appsmithConfigs = getAppsmithConfigs();
+
+  if (appsmithConfigs.segment.apiKey) {
+    // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
+    return AnalyticsUtil.initializeSegmentWithoutTracking(
+      appsmithConfigs.segment.apiKey,
+    );
+  } else if (appsmithConfigs.segment.ceKey) {
+    // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+    return AnalyticsUtil.initializeSegmentWithoutTracking(
+      appsmithConfigs.segment.ceKey,
+    );
+  } else {
+    return Promise.resolve();
+  }
+};
+
 export const mapToPropList = (map: Record<string, string>): Property[] => {
   return _.map(map, (value, key) => {
     return { key: key, value: value };

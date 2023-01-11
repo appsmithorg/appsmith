@@ -110,6 +110,7 @@ public class FieldNameCE {
     public static final String PARAMETERS = "parameters";
     public static final String EXPORTED_APPLICATION = "exportedApplication";
     public static final String DATASOURCE_LIST = "datasourceList";
+    public static final String CUSTOM_JS_LIB_LIST = "customJSLibList";
     public static final String PAGE_LIST = "pageList";
     public static final String ACTION_LIST = "actionList";
     public static final String ACTION_COLLECTION_LIST = "actionCollectionList";
