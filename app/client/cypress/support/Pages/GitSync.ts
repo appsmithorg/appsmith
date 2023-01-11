@@ -119,8 +119,7 @@ export class GitSync {
         url: `http://${datasourceFormData["GITHUB_API_BASE_TED"]}:${datasourceFormData["GITHUB_API_PORT_TED"]}/v1/gitserver/addgitssh`,
         //body: formdata,
         body: {
-          title: "sshkey",
-          key: generatedKey,
+          sshkey: generatedKey,
         },
         //form: true,
         headers: {
