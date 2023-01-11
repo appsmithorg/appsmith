@@ -1,6 +1,19 @@
+import {
+  APPSMITH_BRAND_LOGO_URL,
+  APPSMITH_BRAND_FAVICON_URL,
+  APPSMITH_BRAND_PRIMARY_COLOR,
+  createBrandColorsFromPrimaryColor,
+} from "utils/BrandingUtils";
 import { AppState } from "@appsmith/reducers";
 import localStorage from "utils/localStorage";
-import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
+
+const defaultBrandingConfig = {
+  brandFaviconUrl: APPSMITH_BRAND_FAVICON_URL,
+  brandColors: {
+    ...createBrandColorsFromPrimaryColor(APPSMITH_BRAND_PRIMARY_COLOR),
+  },
+  brandLogoUrl: APPSMITH_BRAND_LOGO_URL,
+};
 
 export const getTenantPermissions = (state: AppState) => {
   return state.tenant?.userPermissions;
@@ -15,9 +28,7 @@ export const getTenantPermissions = (state: AppState) => {
 export const getTenantConfig = (state: AppState) => {
   const cachedTenantConfig = localStorage.getItem("tenantConfig");
   let cachedTenantConfigParsed = {
-    brandColors: {
-      ...createBrandColorsFromPrimaryColor("#000"),
-    },
+    ...defaultBrandingConfig,
   };
 
   try {

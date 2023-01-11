@@ -3,8 +3,6 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
-import localStorage from "utils/localStorage";
 import { createReducer } from "utils/ReducerUtils";
 
 export interface TenantReduxState<T> {
@@ -13,14 +11,6 @@ export interface TenantReduxState<T> {
   new: boolean;
   isLoading: boolean;
 }
-
-export const defaultBrandingConfig = {
-  brandFaviconUrl: "https://assets.appsmith.com/appsmith-favicon-orange.ico",
-  brandColors: {
-    ...createBrandColorsFromPrimaryColor("#F86A2B"),
-  },
-  brandLogoUrl: "https://assets.appsmith.com/appsmith-logo.svg",
-};
 
 export const initialState: TenantReduxState<any> = {
   userPermissions: [],
@@ -40,18 +30,10 @@ export const handlers = {
     state: TenantReduxState<any>,
     action: ReduxAction<TenantReduxState<any>>,
   ) => {
-    const tenantConfig = {
-      ...defaultBrandingConfig,
-      ...action.payload.tenantConfiguration,
-    };
-
-    // cache the tenant config
-    localStorage.setItem("tenantConfig", JSON.stringify(tenantConfig));
-
     return {
       ...state,
       userPermissions: action.payload.userPermissions || [],
-      tenantConfiguration: tenantConfig,
+      tenantConfiguration: {},
       isLoading: false,
     };
   },
