@@ -46,7 +46,7 @@ describe("Autocomplete tests", () => {
 
     // 2. Document view widget autocomplete verification
 
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
 
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "DocumentViewer1.");
@@ -152,7 +152,7 @@ describe("Autocomplete tests", () => {
     ApiPage.RunAPI();
     // Using same js object
     EntityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5), 0, true);
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "Api1.data.u");
