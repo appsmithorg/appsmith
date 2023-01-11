@@ -237,15 +237,18 @@ public class FileUtilsImpl implements FileInterface {
                             final String queryName = names[0].replace(".", "-");
                             final String pageName = names[1];
                             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
+                            Path actionSpecificDirectory = pageSpecificDirectory.resolve(ACTION_DIRECTORY);
 
                             if(!validActionsMap.containsKey(pageName)) {
                                 validActionsMap.put(pageName, new HashSet<>());
                             }
-                            validActionsMap.get(pageName).add(queryName + CommonConstants.JSON_EXTENSION);
+                            validActionsMap.get(pageName).add(queryName);
                             if(Boolean.TRUE.equals(isResourceUpdated)) {
-                                saveResource(
+                                saveActions(
                                         resource.getValue(),
-                                        pageSpecificDirectory.resolve(ACTION_DIRECTORY).resolve(queryName + CommonConstants.JSON_EXTENSION),
+                                        applicationGitReference.getActionBody().get(resource.getKey()),
+                                        queryName,
+                                        actionSpecificDirectory.resolve(queryName),
                                         gson
                                 );
                             }
@@ -255,7 +258,7 @@ public class FileUtilsImpl implements FileInterface {
 
                     validActionsMap.forEach((pageName, validActionNames) -> {
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                        scanAndDeleteFileForDeletedResources(validActionNames, pageSpecificDirectory.resolve(ACTION_DIRECTORY));
+                        scanAndDeleteDirectoryForDeletedResources(validActionNames, pageSpecificDirectory.resolve(ACTION_DIRECTORY));
                     });
 
                     // Save JSObjects
@@ -343,6 +346,33 @@ public class FileUtilsImpl implements FileInterface {
             writeStringToFile(body, bodyPath);
 
             // Write metadata for the jsObject
+            Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
+            return writeToFile(sourceEntity, metadataPath, gson);
+        } catch (IOException e) {
+            log.debug(e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * This method is used to write action specific resource to file system. We write the data in two steps
+     *      * 1. Actual query written by the user
+     *      * 2. Metadata of the actios
+     * @param sourceEntity the metadata of the action
+     * @param body actual query written by the user
+     * @param resourceName name of the action
+     * @param path file path where the resource will be stored
+     * @param gson
+     * @return if the file operation is successful
+     */
+    private boolean saveActions(Object sourceEntity, String body, String resourceName, Path path, Gson gson) {
+        try {
+            Files.createDirectories(path);
+            // Write the user written query to .txt file to make conflict handling easier
+            Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
+            writeStringToFile(body, bodyPath);
+
+            // Write metadata for the actions
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
             return writeToFile(sourceEntity, metadataPath, gson);
         } catch (IOException e) {

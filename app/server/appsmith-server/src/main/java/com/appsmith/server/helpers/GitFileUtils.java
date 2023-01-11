@@ -150,6 +150,7 @@ public class GitFileUtils {
 
         // Insert only active pages which will then be committed to repo as individual file
         Map<String, Object> resourceMap = new HashMap<>();
+        Map<String, String> resourceMapBody = new HashMap<>();
         applicationJson
                 .getPageList()
                 .stream()
@@ -185,14 +186,17 @@ public class GitFileUtils {
                             newAction.getUnpublishedAction().getValidName() + NAME_SEPARATOR + newAction.getUnpublishedAction().getPageId()
                             : newAction.getPublishedAction().getValidName() + NAME_SEPARATOR + newAction.getPublishedAction().getPageId();
                     removeUnwantedFieldFromAction(newAction);
+                    String body = newAction.getUnpublishedAction().getActionConfiguration().getBody() != null ? newAction.getUnpublishedAction().getActionConfiguration().getBody() : "";
+                    resourceMapBody.put(prefix, body);
                     resourceMap.put(prefix, newAction);
                 });
         applicationReference.setActions(new HashMap<>(resourceMap));
+        applicationReference.setActionBody(new HashMap<>(resourceMapBody));
         resourceMap.clear();
+        resourceMapBody.clear();
 
         // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
         // JSObjectName_pageName => nomenclature for the keys
-        Map<String, String> resourceMapBody = new HashMap<>();
         applicationJson
                 .getActionCollectionList()
                 .stream()
@@ -215,6 +219,7 @@ public class GitFileUtils {
         applicationReference.setActionCollectionBody(new HashMap<>(resourceMapBody));
         applicationReference.setUpdatedResources(updatedResources);
         resourceMap.clear();
+        resourceMapBody.clear();
 
         // Send datasources
         applicationJson
