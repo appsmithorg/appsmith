@@ -212,8 +212,6 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       ? yield select(getWidgetImmediateChildren, parentId)
       : [];
 
-    debugger;
-
     if (selectionRequestType === SelectionRequestType.ONE) {
       // Fill up the ancestry of widget
       // The following is computed to be used in the entity explorer
