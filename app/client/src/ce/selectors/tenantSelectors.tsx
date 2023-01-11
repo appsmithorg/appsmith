@@ -5,7 +5,6 @@ import {
   createBrandColorsFromPrimaryColor,
 } from "utils/BrandingUtils";
 import { AppState } from "@appsmith/reducers";
-import localStorage from "utils/localStorage";
 
 const defaultBrandingConfig = {
   brandFaviconUrl: APPSMITH_BRAND_FAVICON_URL,
@@ -26,19 +25,8 @@ export const getTenantPermissions = (state: AppState) => {
  * @returns
  */
 export const getTenantConfig = (state: AppState) => {
-  const cachedTenantConfig = localStorage.getItem("tenantConfig");
-  let cachedTenantConfigParsed = {
-    ...defaultBrandingConfig,
-  };
-
-  try {
-    if (cachedTenantConfig) {
-      cachedTenantConfigParsed = JSON.parse(cachedTenantConfig);
-    }
-  } catch (e) {}
-
   return {
-    ...cachedTenantConfigParsed,
+    ...defaultBrandingConfig,
     ...(state.tenant?.tenantConfiguration || {}),
   } as Record<string, any>;
 };

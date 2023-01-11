@@ -29,14 +29,14 @@ export const handlers = {
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
     state: TenantReduxState<any>,
     action: ReduxAction<TenantReduxState<any>>,
-  ) => {
-    return {
-      ...state,
-      userPermissions: action.payload.userPermissions || [],
-      tenantConfiguration: {},
-      isLoading: false,
-    };
-  },
+  ) => ({
+    ...state,
+    userPermissions: action.payload.userPermissions || [],
+    tenantConfiguration: {
+      ...action.payload.tenantConfiguration,
+    },
+    isLoading: false,
+  }),
   [ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR]: (
     state: TenantReduxState<any>,
   ) => ({
