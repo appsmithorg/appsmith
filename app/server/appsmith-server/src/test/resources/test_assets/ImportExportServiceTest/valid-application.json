@@ -12,7 +12,9 @@
     "appIsExample": false,
     "color": "#EA6179",
     "icon": "medical",
-    "new": true
+    "new": true,
+    "unpublishedCustomJSLibs": [{"uidString": "accessor1_url"}],
+    "publishedCustomJSLibs": [{"uidString": "accessor1_url"}]
   },
   "datasourceList": [
     {
@@ -711,5 +713,15 @@
     "new": true,
     "isSystemTheme": true
   },
-  "customJSLibList": []
+  "customJSLibList": [
+    {
+      "name": "TestLib",
+      "accessor": ["accessor1"],
+      "url": "url",
+      "docsUrl": "docsUrl",
+      "version": "1.0",
+      "defs": "defs_string",
+      "uidString": "accessor1_url"
+    }
+  ]
 }
