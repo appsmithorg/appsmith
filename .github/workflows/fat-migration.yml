@@ -229,6 +229,9 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+          
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       # Incase of second attemtp only run failed specs
       - name: Run the cypress test with failed tests
