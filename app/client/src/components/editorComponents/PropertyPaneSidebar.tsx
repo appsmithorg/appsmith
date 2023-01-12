@@ -23,10 +23,10 @@ import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors"
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
-import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 import { quickScrollToWidget } from "utils/helpers";
 import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
+import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
 
 type Props = {
   width: number;

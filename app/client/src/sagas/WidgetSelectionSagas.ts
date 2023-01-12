@@ -270,20 +270,20 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
  * @param action
  */
 function* appendSelectedWidgetToUrlSaga(
-  action: ReduxAction<{ widgetIds: string[] }>,
+  action: ReduxAction<{ selectedWidgets: string[] }>,
 ) {
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
   if (guidedTourEnabled) return;
   const { hash, pathname } = window.location;
-  const { widgetIds } = action.payload;
+  const { selectedWidgets } = action.payload;
   const currentPageId: string = yield select(getCurrentPageId);
 
   const currentURL = hash ? `${pathname}${hash}` : pathname;
   let canvasEditorURL;
-  if (widgetIds.length === 1) {
+  if (selectedWidgets.length === 1) {
     canvasEditorURL = `${builderURL({
       pageId: currentPageId,
-      hash: widgetIds[0],
+      hash: selectedWidgets[0],
       persistExistingParams: true,
     })}`;
   } else {
