@@ -153,9 +153,14 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
     overflow: hidden;
     word-break: break-all;
   }
+  .error-card.show {
+    visibility: visible;
+  }
   .error-card {
     display: flex;
+    visibility: hidden;
     padding: 10px;
+    transition: all 0.2s ease-in-out;
     flex-direction: row;
     background: #ffe9e9;
     .unsupported {
@@ -270,27 +275,30 @@ function ProgressTracker({
             <StatusIcon status={status} />
           </div>
         </div>
-        {status === InstallState.Failed && (
-          <div className="gap-2 error-card items-start">
-            <Icon name="danger" size={IconSize.XL} />
-            <div className="flex flex-col unsupported gap-1">
-              <div className="header">
-                {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
-              </div>
-              <div className="body">
-                {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
-              </div>
-              <div className="footer text-xs font-medium gap-2 flex flex-row">
-                <a onClick={(e) => openDoc(e, EXT_LINK.reportIssue)}>
-                  {createMessage(customJSLibraryMessages.REPORT_ISSUE)}
-                </a>
-                <a onClick={(e) => openDoc(e, EXT_LINK.learnMore)}>
-                  {createMessage(customJSLibraryMessages.LEARN_MORE)}
-                </a>
-              </div>
+        <div
+          className={classNames({
+            "gap-2 error-card items-start": true,
+            show: status === InstallState.Failed,
+          })}
+        >
+          <Icon name="danger" size={IconSize.XL} />
+          <div className="flex flex-col unsupported gap-1">
+            <div className="header">
+              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
+            </div>
+            <div className="body">
+              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
+            </div>
+            <div className="footer text-xs font-medium gap-2 flex flex-row">
+              <a onClick={(e) => openDoc(e, EXT_LINK.reportIssue)}>
+                {createMessage(customJSLibraryMessages.REPORT_ISSUE)}
+              </a>
+              <a onClick={(e) => openDoc(e, EXT_LINK.learnMore)}>
+                {createMessage(customJSLibraryMessages.LEARN_MORE)}
+              </a>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </InstallationProgressWrapper>
   );

@@ -29,6 +29,16 @@ export default [
     icon: "https://github.com/auth0.png?s=20",
   },
   {
+    name: "appwrite",
+    url: "https://cdn.jsdelivr.net/npm/appwrite@10.2.0/dist/iife/sdk.min.js",
+    description:
+      "Appwrite is a secure end-to-end backend server for frontend and mobile developers",
+    author: "appwrite",
+    version: "10.2.0",
+    icon: "https://github.com/appwrite.png?s=20",
+    docsURL: "https://github.com/appwrite/sdk-for-web#getting-started",
+  },
+  {
     name: "@supabase/supabase-js",
     description: "Isomorphic Javascript client for Supabase",
     author: "supabase",
@@ -61,14 +71,14 @@ export default [
     version: "2.410.0",
   },
   {
-    name: "fast-csv",
-    description: "CSV parser and writer",
-    author: "C2FO",
-    docsURL:
-      "https://c2fo.github.io/fast-csv/docs/introduction/getting-started/",
-    version: "4.3.6",
-    url: `/libraries/fast-csv@4.3.6.js`,
-    icon: "https://github.com/C2FO.png?s=20",
+    name: "Papa Parse 5",
+    description:
+      "Fast and powerful CSV (delimited text) parser that gracefully handles large files and malformed input",
+    author: "mholt",
+    docsURL: "https://www.papaparse.com/docs",
+    version: "5.3.2",
+    url: `https://unpkg.com/papaparse@5.3.2/papaparse.min.js`,
+    icon: "https://github.com/mholt.png?s=20",
   },
   {
     name: "ky",
