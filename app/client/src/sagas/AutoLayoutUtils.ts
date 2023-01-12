@@ -325,8 +325,8 @@ export function addChildToPastedFlexLayers(
             { id: widget.widgetId, align: child.align },
             ...children.slice(childIndex + 1),
           ];
-          childIndex += 1;
         }
+        childIndex += 1;
       }
       flexLayers[index] = {
         children,
@@ -348,12 +348,15 @@ export function isStack(
   allWidgets: CanvasWidgetsReduxState,
   widget: any,
 ): boolean {
-  const parent = widget.parentId ? allWidgets[widget.parentId] : undefined;
+  let parent = widget.parentId ? allWidgets[widget.parentId] : undefined;
+  if (parent && parent.type === "CANVAS_WIDGET" && parent.parentId)
+    parent = allWidgets[parent.parentId];
   return (
     widget.positioning === Positioning.Vertical ||
-    (parent && ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(parent.type)
-      ? allWidgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
-        AppPositioningTypes.AUTO
+    ((parent && ["CONTAINER_WIDGET", "TABS_WIDGET"].includes(parent.type)) ||
+    parent?.widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? allWidgets[MAIN_CONTAINER_WIDGET_ID].positioning ===
+        Positioning.Vertical
       : false)
   );
 }
