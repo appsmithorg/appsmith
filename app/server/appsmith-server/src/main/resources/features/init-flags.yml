@@ -88,6 +88,7 @@ ff4j:
         param:
           - name: emails
             value: multipanes@appsmith.com,ndx@appsmith.com
+
     - uid: AUTO_LAYOUT
       enable: true
       description: Enable auto layout editor by email domain of user.
@@ -106,3 +107,12 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com
+
+    - uid: USAGE_AND_BILLING
+      enable: true
+      description: Enable usage and billing
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emails
+            value: usage@appsmith.com

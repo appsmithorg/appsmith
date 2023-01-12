@@ -6,7 +6,7 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
   Overflow,
-} from "components/constants";
+} from "utils/autoLayout/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
@@ -33,7 +33,6 @@ export interface LayerChild {
 
 export interface FlexLayer {
   children: LayerChild[];
-  hasFillChild?: boolean;
 }
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
@@ -145,7 +144,6 @@ function FlexBoxComponent(props: FlexBoxProps) {
         center={center}
         direction={direction}
         end={end}
-        hasFillChild={layer.hasFillChild}
         index={index}
         isMobile={isMobile}
         key={index}

@@ -25,7 +25,7 @@ import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { getCurrentAppPositioningType } from "./editorSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Positioning } from "components/constants";
+import { Positioning } from "utils/autoLayout/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export type WidgetProperties = WidgetProps & {

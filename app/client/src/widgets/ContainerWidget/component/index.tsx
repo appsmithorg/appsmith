@@ -114,7 +114,6 @@ function ContainerComponent(props: ContainerComponentProps) {
         "borderWidth",
         "borderRadius",
         "boxShadow",
-        "useAutoLayout",
         "direction",
       ])}
     >

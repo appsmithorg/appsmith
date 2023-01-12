@@ -1,6 +1,5 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { current } from "immer";
 import {
   HORIZONTAL_RESIZE_MIN_LIMIT,
   MovementLimitMap,
@@ -9,6 +8,7 @@ import {
   SpaceMap,
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
+import { getContainerExitEdge } from "reflow/reflowUtils";
 import {
   getDraggingSpacesFromBlocks,
   getDropZoneOffsets,
@@ -143,35 +143,45 @@ export function modifyDrawingRectangles(
  * @returns movement direction
  */
 export function getMoveDirection(
-  prevPosition: OccupiedSpace,
+  prevPosition: OccupiedSpace | null,
   currentPosition: OccupiedSpace,
   currentDirection: ReflowDirection,
 ) {
   if (!prevPosition || !currentPosition) return currentDirection;
+  const deltaX = Math.max(
+    Math.abs(currentPosition.left - prevPosition.left),
+    Math.abs(currentPosition.right - prevPosition.right),
+  );
+  const deltaY = Math.max(
+    Math.abs(currentPosition.top - prevPosition.top),
+    Math.abs(currentPosition.bottom - prevPosition.bottom),
+  );
+  if (deltaX === deltaY) return currentDirection;
+  if (deltaX > deltaY) {
+    if (
+      currentPosition.right - prevPosition.right > 0 ||
+      currentPosition.left - prevPosition.left > 0
+    )
+      return ReflowDirection.RIGHT;
 
-  if (
-    currentPosition.right - prevPosition.right > 0 ||
-    currentPosition.left - prevPosition.left > 0
-  )
-    return ReflowDirection.RIGHT;
+    if (
+      currentPosition.right - prevPosition.right < 0 ||
+      currentPosition.left - prevPosition.left < 0
+    )
+      return ReflowDirection.LEFT;
+  } else {
+    if (
+      currentPosition.bottom - prevPosition.bottom > 0 ||
+      currentPosition.top - prevPosition.top > 0
+    )
+      return ReflowDirection.BOTTOM;
 
-  if (
-    currentPosition.right - prevPosition.right < 0 ||
-    currentPosition.left - prevPosition.left < 0
-  )
-    return ReflowDirection.LEFT;
-
-  if (
-    currentPosition.bottom - prevPosition.bottom > 0 ||
-    currentPosition.top - prevPosition.top > 0
-  )
-    return ReflowDirection.BOTTOM;
-
-  if (
-    currentPosition.bottom - prevPosition.bottom < 0 ||
-    currentPosition.top - prevPosition.top < 0
-  )
-    return ReflowDirection.TOP;
+    if (
+      currentPosition.bottom - prevPosition.bottom < 0 ||
+      currentPosition.top - prevPosition.top < 0
+    )
+      return ReflowDirection.TOP;
+  }
 
   return currentDirection;
 }
@@ -320,7 +330,18 @@ export function getInterpolatedMoveDirection(
   spaces: OccupiedSpace[],
   currentPosition: OccupiedSpace,
   direction: ReflowDirection,
+  exitContainer: OccupiedSpace | undefined,
+  mousePosition: OccupiedSpace,
 ): ReflowDirection {
+  if (!spaces.length) {
+    if (exitContainer)
+      return getLastCanvasExitDirection(
+        exitContainer,
+        mousePosition,
+        direction,
+      );
+    return getMoveDirection(null, currentPosition, direction);
+  }
   const accumulatedPositions = spaces.reduce(
     (acc, curr) => {
       return {
@@ -333,6 +354,7 @@ export function getInterpolatedMoveDirection(
     },
     { top: 0, right: 0, bottom: 0, left: 0, id: currentPosition.id },
   );
+
   const lastPosition = {
     ...accumulatedPositions,
     top: accumulatedPositions.top / spaces.length,
@@ -340,5 +362,19 @@ export function getInterpolatedMoveDirection(
     bottom: accumulatedPositions.bottom / spaces.length,
     left: accumulatedPositions.left / spaces.length,
   };
+
   return getMoveDirection(lastPosition, currentPosition, direction);
+}
+
+export function getLastCanvasExitDirection(
+  exitContainer: OccupiedSpace,
+  mousePosition: OccupiedSpace,
+  currentDirection: ReflowDirection,
+): ReflowDirection {
+  const direction: ReflowDirection | undefined = getContainerExitEdge(
+    exitContainer,
+    mousePosition,
+  );
+  if (direction) return direction;
+  return currentDirection;
 }

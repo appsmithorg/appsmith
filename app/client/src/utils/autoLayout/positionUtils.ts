@@ -1,7 +1,14 @@
-import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
+import {
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   getBottomRow,
@@ -22,7 +29,7 @@ export interface AlignmentInfo {
   children: Widget[];
 }
 
-interface Row extends AlignmentInfo {
+export interface Row extends AlignmentInfo {
   height: number;
 }
 
@@ -41,6 +48,11 @@ export function updateWidgetPositions(
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
+    if (
+      widgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
+      AppPositioningTypes.FIXED
+    )
+      return widgets;
     const parent = widgets[parentId];
     if (!parent) return widgets;
 
@@ -65,7 +77,7 @@ export function updateWidgetPositions(
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
     const parentHeight = getWidgetRows(parent, isMobile);
-    if (parentHeight <= height) {
+    if (parentHeight - height <= 1) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
@@ -75,32 +87,32 @@ export function updateWidgetPositions(
       const updatedParent = setDimensions(
         parent,
         parentTopRow,
-        (parentTopRow + height + 1) * divisor,
+        parentTopRow + height * divisor + 1 * divisor,
         null,
         null,
         isMobile,
       );
       widgets = { ...widgets, [parent.widgetId]: updatedParent };
+
+      const shouldUpdateHeight =
+        parent.parentId &&
+        ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
+          allWidgets[parent.parentId].type,
+        );
+      // console.log(
+      //   "#### update height",
+      //   parent.widgetName,
+      //   "parentHeight",
+      //   parentHeight,
+      //   "height",
+      //   height,
+      //   shouldUpdateHeight,
+      //   parent.parentId ? widgets[parent.parentId].widgetName : "no parent",
+      // );
+      if (shouldUpdateHeight && parent.parentId)
+        return updateWidgetPositions(widgets, parent.parentId, isMobile);
     }
 
-    const shouldUpdateHeight =
-      parent.parentId &&
-      ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
-        allWidgets[parent.parentId].type,
-      ) &&
-      parentHeight <= height;
-    // console.log(
-    //   "#### update height",
-    //   parent.widgetName,
-    //   "parentHeight",
-    //   parent.parent,
-    //   "height",
-    //   height,
-    //   shouldUpdateHeight,
-    //   parent.parentId ? widgets[parent.parentId].widgetName : "no parent",
-    // );
-    if (shouldUpdateHeight && parent.parentId)
-      return updateWidgetPositions(widgets, parent.parentId, isMobile);
     return widgets;
   } catch (e) {
     // console.error(e);
@@ -163,7 +175,7 @@ function calculateWidgetPositions(
  * @param totalHeight | number : total height assumed by the widgets in this row.
  * @returns { height: number; widgets: CanvasWidgetsReduxState }
  */
-function placeWidgetsWithoutWrap(
+export function placeWidgetsWithoutWrap(
   allWidgets: CanvasWidgetsReduxState,
   arr: AlignmentInfo[],
   topRow: number,
@@ -261,7 +273,7 @@ function getAlignmentSizes(
  * @param isMobile | boolean
  * @returns { info: AlignmentInfo[]; fillWidgetLength: number }
  */
-function extractAlignmentInfo(
+export function extractAlignmentInfo(
   widgets: CanvasWidgetsReduxState,
   layer: FlexLayer,
   isMobile: boolean,
@@ -439,7 +451,7 @@ function updatePositionsForFlexWrap(
   return { height: top - topRow, widgets };
 }
 
-function getStartingPosition(
+export function getStartingPosition(
   alignment: FlexLayerAlignment,
   startSize: number,
   centerSize: number,
@@ -469,7 +481,7 @@ function getStartingPosition(
  * @param isMobile | boolean: is mobile viewport.
  * @returns { height: number; widgets: CanvasWidgetsReduxState }
  */
-function placeWrappedWidgets(
+export function placeWrappedWidgets(
   allWidgets: CanvasWidgetsReduxState,
   alignment: AlignmentInfo,
   topRow: number,
@@ -515,7 +527,7 @@ function placeWrappedWidgets(
  * @param isMobile | boolean: is mobile viewport.
  * @returns Row[]
  */
-function getWrappedRows(
+export function getWrappedRows(
   arr: AlignmentInfo,
   rows: Row[],
   isMobile = false,

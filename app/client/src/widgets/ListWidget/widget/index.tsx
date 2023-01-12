@@ -1,5 +1,5 @@
 import { entityDefinitions } from "ce/utils/autocomplete/EntityDefinitions";
-import { Positioning } from "components/constants";
+import { Positioning } from "utils/autoLayout/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   GridDefaults,

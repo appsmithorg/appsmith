@@ -1490,7 +1490,7 @@ export const customJSLibraryMessages = {
   CLIENT_LOAD_FAILED: (url: string) => `Failed to load the script at ${url}.`,
   LIB_OVERRIDE_ERROR: (
     name: string,
-  ) => `The library ${name} is already installed. 
+  ) => `The library ${name} is already installed.
   If you are trying to install a different version, uninstall the library first.`,
   DEFS_FAILED_ERROR: (name: string) =>
     `Failed to generate autocomplete definitions for ${name}.`,
@@ -1500,25 +1500,6 @@ export const customJSLibraryMessages = {
     `Name collision detected: ${accessors}`,
 };
 
-export const USAGE_AND_BILLING = {
-  usage: () => "Usage",
-  billing: () => "Billing",
-  usageAndBilling: () => "Usage & Billing",
-  usageOverNDays: (days: number) => `Usage over the past ${days} days!`,
-  usageDetails: () =>
-    "This is how much you have used Appsmith to build and run apps.",
-  unit: () => "minutes/day",
-  averaged: () => "*averaged",
-  approximated: () => "*approximated",
-  sell: () => "Figure out your usage before purchasing Appsmith",
-  upgradeToBusiness: () => "UPGRADE TO BUSINESS EDITION",
-  rbacHeading: () => "Role Based Access Control",
-  rbacDetails: () =>
-    "RBAC is here to allow you to control access to appsmith as easy as you maintain your organization.",
-  ssoHeading: () => "SSO and Custom Authentication",
-  ssoDetails: () => "SSO and custom auth allow you to onboard users faster.",
-  gitHeading: () => "Unlimited private git repositories",
-  gitDetails: () => "Expand your single source of truth capability to infinite",
-  exclusive: () =>
-    "These features are exclusively available on business edition.",
-};
+// Business Edition upgrade page
+export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
+  `Move to Business Edition${trailingChar ? trailingChar : ""}`;

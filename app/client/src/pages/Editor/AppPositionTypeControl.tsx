@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
-import { LayoutDirection, Positioning } from "components/constants";
+import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
 import { Colors } from "constants/Colors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { Icon, IconName, IconSize, TooltipComponent } from "design-system";

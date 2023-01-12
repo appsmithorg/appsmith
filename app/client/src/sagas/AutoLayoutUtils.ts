@@ -2,13 +2,17 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "components/constants";
+} from "utils/autoLayout/constants";
 import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { FLEXBOX_PADDING } from "constants/WidgetConstants";
+import {
+  FLEXBOX_PADDING,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
@@ -56,8 +60,6 @@ export function* wrapChildren(
     if (!child) continue;
     flexLayers.push({
       children: [{ id: child.widgetId, align: FlexLayerAlignment.Start }],
-      hasFillChild:
-        child.responsiveBehavior === ResponsiveBehavior.Fill || false,
     });
   }
   canvas = { ...canvas, flexLayers };
@@ -71,13 +73,18 @@ export function* wrapChildren(
   return updatedWidgets;
 }
 
-export function* updateFlexLayersOnDelete(
+export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   parentId: string,
   isMobile?: boolean,
-) {
+): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
+  if (
+    widgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
+    AppPositioningTypes.FIXED
+  )
+    return widgets;
   let parent = widgets[parentId];
   if (!parent) return widgets;
 
@@ -104,11 +111,6 @@ export function* updateFlexLayersOnDelete(
     ...flexLayers.slice(0, layerIndex),
     {
       children: updatedChildren,
-      hasFillChild: updatedChildren.some(
-        (each: LayerChild) =>
-          widgets[each.id] &&
-          widgets[each.id]?.responsiveBehavior === ResponsiveBehavior.Fill,
-      ),
     },
     ...flexLayers.slice(layerIndex + 1),
   ];
@@ -240,7 +242,10 @@ export function pasteWidgetInFlexLayers(
    * If the new parent is not the same as the original parent,
    * then add a new flex layer.
    */
-  if (widgets[originalWidgetId].parentId !== parentId) {
+  if (
+    !widgets[originalWidgetId] ||
+    widgets[originalWidgetId].parentId !== parentId
+  ) {
     flexLayers = [
       ...flexLayers,
       {
@@ -250,7 +255,6 @@ export function pasteWidgetInFlexLayers(
             align: FlexLayerAlignment.Start,
           },
         ],
-        hasFillChild: widget.responsiveBehavior === ResponsiveBehavior.Fill,
       },
     ];
   } else {
@@ -278,7 +282,6 @@ export function pasteWidgetInFlexLayers(
           { id: widget.widgetId, align: alignment },
           ...selectedLayer.children.slice(rowIndex + 1),
         ],
-        hasFillChild: selectedLayer.hasFillChild,
       };
       flexLayers = [
         ...flexLayers.slice(0, flexLayerIndex),
@@ -323,7 +326,6 @@ export function addChildToPastedFlexLayers(
       }
       flexLayers[index] = {
         children,
-        hasFillChild: layer.hasFillChild,
       };
       index += 1;
     }
@@ -345,10 +347,10 @@ export function isStack(
   const parent = widget.parentId ? allWidgets[widget.parentId] : undefined;
   return (
     widget.positioning === Positioning.Vertical ||
-    (parent && parent.positioning === Positioning.Vertical) ||
-    (parent !== undefined &&
-      parent?.type === "TABS_WIDGET" &&
-      parent?.tabsObj[widget.tabId].positioning === Positioning.Vertical)
+    (parent && ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(parent.type)
+      ? allWidgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
+        AppPositioningTypes.AUTO
+      : false)
   );
 }
 
