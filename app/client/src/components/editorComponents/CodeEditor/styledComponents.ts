@@ -242,6 +242,10 @@ export const EditorWrapper = styled.div<{
       color: #364252; /* This is gray-7 from our new shades of gray */
     }
 
+    .cm-s-duotone-light span.cm-comment {
+      color: #a8a8a8;
+    }
+
     .cm-s-duotone-light span.cm-positive,
     .cm-s-duotone-light span.cm-string-2,
     .cm-s-duotone-light span.cm-type,
