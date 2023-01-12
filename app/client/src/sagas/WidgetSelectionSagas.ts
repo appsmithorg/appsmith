@@ -398,7 +398,7 @@ export function* widgetSelectionSagas() {
       openOrCloseModalSaga,
     ),
     takeLatest(
-      ReduxActionTypes.SET_SELECTED_WIDGETS,
+      ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
       canPerformSelectionSaga,
       appendSelectedWidgetToUrlSaga,
     ),
