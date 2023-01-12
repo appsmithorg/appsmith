@@ -147,7 +147,7 @@ function* reorderAutolayoutChildren(params: {
     selectedWidgets,
     widgets,
     parentId,
-    true,
+    false,
     isMobile,
   );
 
@@ -159,7 +159,6 @@ function* reorderAutolayoutChildren(params: {
 
     // Remove moved widgets from the flex layers.
     const filteredLayers = removeWidgetsFromCurrentLayers(
-      widgets,
       selectedWidgets,
       flexLayers,
     );

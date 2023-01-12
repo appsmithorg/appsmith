@@ -40,7 +40,6 @@ export function createFlexLayer(
  * @returns FlexLayer[]
  */
 export function removeWidgetsFromCurrentLayers(
-  allWidgets: CanvasWidgetsReduxState,
   movedWidgets: string[],
   flexLayers: FlexLayer[],
 ): FlexLayer[] {
@@ -72,7 +71,7 @@ export function updateRelationships(
   movedWidgets: string[],
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
-  addToNewParent = true,
+  onlyUpdateFlexLayers = false,
   isMobile = false,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
@@ -89,22 +88,25 @@ export function updateRelationships(
       if (prevParentId !== undefined) {
         prevParents.push(prevParentId);
         const prevParent = Object.assign({}, widgets[prevParentId]);
-        if (prevParent.children && isArray(prevParent.children)) {
+        if (prevParent && prevParent.children && isArray(prevParent.children)) {
           const updatedPrevParent = {
             ...prevParent,
-            children: prevParent.children.filter((each) => each !== item),
-            flexLayers: removeWidgetsFromCurrentLayers(
-              widgets,
-              movedWidgets,
-              prevParent.flexLayers,
-            ),
+            children: onlyUpdateFlexLayers
+              ? prevParent.children
+              : prevParent.children.filter((each) => each !== item),
+            flexLayers:
+              prevParent.flexLayers !== undefined &&
+              removeWidgetsFromCurrentLayers(
+                movedWidgets,
+                prevParent.flexLayers,
+              ),
           };
           widgets[prevParentId] = updatedPrevParent;
         }
       }
 
       // add to new parent
-      if (addToNewParent) {
+      if (!onlyUpdateFlexLayers) {
         widgets[item] = {
           ...widgets[item],
           parentId: parentId,

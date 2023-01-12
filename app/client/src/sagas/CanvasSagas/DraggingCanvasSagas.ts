@@ -319,9 +319,24 @@ function* moveWidgetsSaga(
     const appPositioningType: AppPositioningTypes = yield select(
       getCurrentAppPositioningType,
     );
+    let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+    if (appPositioningType === AppPositioningTypes.AUTO) {
+      /**
+       * If previous parent is an auto layout container,
+       * then update the flex layers.
+       */
+      const isMobile: boolean = yield select(getIsMobile);
+      updatedWidgets = updateRelationships(
+        draggedBlocksToUpdate.map((block) => block.widgetId),
+        updatedWidgets,
+        canvasId,
+        true,
+        isMobile,
+      );
+    }
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
       moveAndUpdateWidgets,
-      allWidgets,
+      updatedWidgets,
       draggedBlocksToUpdate,
       canvasId,
     );
@@ -336,19 +351,7 @@ function* moveWidgetsSaga(
       throw Error;
     }
 
-    let updatedWidgets: CanvasWidgetsReduxState = updatedWidgetsOnMove;
-    if (appPositioningType === AppPositioningTypes.AUTO) {
-      const isMobile: boolean = yield select(getIsMobile);
-      updatedWidgets = updateRelationships(
-        draggedBlocksToUpdate.map((block) => block.widgetId),
-        updatedWidgets,
-        canvasId,
-        false,
-        isMobile,
-      );
-    }
-
-    yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     const block = draggedBlocksToUpdate[0];

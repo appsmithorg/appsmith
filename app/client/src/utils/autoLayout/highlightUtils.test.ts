@@ -13,7 +13,6 @@ import {
   VerticalHighlightsPayload,
 } from "./highlightUtils";
 import { data } from "./testData";
-import { Widget } from "./positionUtils";
 
 describe("test HighlightUtils methods", () => {
   describe("test deriveHighlightsFromLayers method", () => {
