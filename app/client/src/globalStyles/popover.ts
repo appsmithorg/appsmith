@@ -3,8 +3,9 @@ import { Classes } from "@blueprintjs/core";
 import { Classes as PopoverClasses } from "@blueprintjs/popover2";
 import { Layers } from "constants/Layers";
 import { Colors } from "constants/Colors";
+import { Theme } from "constants/DefaultTheme";
 
-export const PopoverStyles = createGlobalStyle`
+export const PopoverStyles = createGlobalStyle<{ theme: Theme }>`
   .${Classes.POPOVER}, .${PopoverClasses.POPOVER2} {
     box-shadow: 0px 0px 2px rgb(0 0 0 / 20%), 0px 2px 10px rgb(0 0 0 / 10%);
   }
@@ -44,5 +45,9 @@ export const PopoverStyles = createGlobalStyle`
         opacity: 0.3;
       }
     }
+  }
+
+  .pretty-json-container {
+    font-family: ${(props) => props.theme.fonts.code};
   }
 `;

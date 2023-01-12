@@ -201,10 +201,9 @@ export const EditorWrapper = styled.div<{
       border-radius: 4px;
       height: auto;
     }
-    .CodeMirror,
-    .pretty-json-container {
+    .CodeMirror {
       font-family: ${(props) => props.theme.fonts.code};
-      font-size: 0.75rem;
+      font-size: 13px;
     }
 
     .CodeMirror-wrap pre.CodeMirror-line,
