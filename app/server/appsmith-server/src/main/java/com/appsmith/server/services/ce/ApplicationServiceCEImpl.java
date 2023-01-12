@@ -8,18 +8,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationMode;
-import com.appsmith.server.domains.GitApplicationMetadata;
-import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.Theme;
-import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.*;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -33,20 +22,17 @@ import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.*;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -78,9 +64,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     private final TenantService tenantService;
 
+    private final AssetService assetService;
+
     private final UserRepository userRepository;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
+
+    private static final int MAX_LOGO_SIZE_KB = 1024;
 
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
@@ -96,6 +86,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     ResponseUtils responseUtils,
                                     PermissionGroupService permissionGroupService,
                                     TenantService tenantService,
+                                    AssetService assetService,
                                     UserRepository userRepository,
                                     DatasourcePermission datasourcePermission,
                                     ApplicationPermission applicationPermission) {
@@ -108,6 +99,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.responseUtils = responseUtils;
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
+        this.assetService = assetService;
         this.userRepository = userRepository;
         this.datasourcePermission = datasourcePermission;
         this.applicationPermission = applicationPermission;
@@ -762,4 +754,60 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> findByIdAndExportWithConfiguration(String applicationId, Boolean exportWithConfiguration) {
         return repository.findByIdAndExportWithConfiguration(applicationId, exportWithConfiguration);
     }
+
+    @Override
+    public Mono<Application> saveAppNavigationLogo(String applicationId, Part filePart) {
+
+        return repository.findById(applicationId)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+                )
+                .flatMap(rootApplication -> {
+                    final Mono<String> prevAssetIdMono = Mono.just(ObjectUtils.defaultIfNull(
+                            ObjectUtils.defaultIfNull(rootApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting()).getLogoAssetId(), ""));
+
+                    final Mono<Asset> uploaderMono = assetService.upload(List.of(filePart), MAX_LOGO_SIZE_KB, true);
+
+                    return Mono.zip(prevAssetIdMono, uploaderMono)
+                            .flatMap(tuple -> {
+                                final String oldAssetId = tuple.getT1();
+                                final Asset uploadedAsset = tuple.getT2();
+                                final Application application = new Application();
+                                Application.NavigationSetting navSetting = new Application.NavigationSetting();
+                                navSetting.setLogoAssetId(uploadedAsset.getId());
+                                application.setUnpublishedNavigationSetting(navSetting);
+
+                                final Mono<Application> updateMono = this.update(applicationId, application);
+                                if (!StringUtils.hasLength(oldAssetId)){
+                                    return updateMono;
+                                } else {
+                                    return assetService.remove(oldAssetId).then(updateMono);
+                                }
+
+                            });
+
+                });
+
+    }
+
+    @Override
+    public Mono<Void> deleteAppNavigationLogo(String applicationId){
+        return repository.findById(applicationId)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+                )
+                .flatMap(rootApplication -> {
+
+                    Application.NavigationSetting unpublishedNavSetting = ObjectUtils.defaultIfNull(rootApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
+
+                    String navLogoAssetId = ObjectUtils.defaultIfNull(unpublishedNavSetting.getLogoAssetId(), "");
+
+                    unpublishedNavSetting.setLogoAssetId(null);
+                    rootApplication.setUnpublishedNavigationSetting(unpublishedNavSetting);
+
+                    return repository.save(rootApplication).thenReturn(navLogoAssetId);
+                })
+                .flatMap(assetService::remove);
+    }
 }
+
