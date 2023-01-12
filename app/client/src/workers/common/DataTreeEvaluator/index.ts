@@ -90,7 +90,8 @@ import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
-} from "workers/Evaluation/JSObject";
+  updateEvalTreeWithJSCollectionState,
+} from "workers/Evaluation/JSObject/jsUpdates";
 import { getFixedTimeDifference } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
@@ -105,6 +106,9 @@ export type EvalProps = {
   [entityName: string]: DataTreeEvaluationProps;
 };
 
+type CurrentJSCollectionState = Record<string, any>;
+type ResolvedFunctions = Record<string, any>;
+
 export default class DataTreeEvaluator {
   /**
    * dependencyMap: Maintains map of <PATH, list of paths that re-evaluates on the evaluation of the PATH>
@@ -114,6 +118,8 @@ export default class DataTreeEvaluator {
   inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
   evalTree: DataTree = {};
+  resolvedFunctions: ResolvedFunctions = {};
+  currentJSCollectionState: CurrentJSCollectionState = {};
   /**
    * This contains raw evaluated value without any validation or parsing.
    * This is used for revalidation as we do not store the raw validated value.
@@ -123,8 +129,6 @@ export default class DataTreeEvaluator {
   privateWidgets: PrivateWidgets = {};
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
-  resolvedFunctions: Record<string, any> = {};
-  currentJSCollectionState: Record<string, any> = {};
   logs: unknown[] = [];
   userLogs: UserLogObject[] = [];
   allActionValidationConfig?: {
@@ -325,18 +329,18 @@ export default class DataTreeEvaluator {
     };
   }
 
-  updateLocalUnEvalTree(dataTree: DataTree) {
+  updateLocalUnEvalTree(unevalTree: DataTree) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
-      if (!!dataTree[update]) {
+      if (!!unevalTree[update]) {
         Object.keys(updates).forEach((key) => {
-          const data = get(dataTree, `${update}.${key}.data`, undefined);
-          if (isJSObjectFunction(dataTree, update, key)) {
-            set(dataTree, `${update}.${key}`, new String(updates[key]));
-            set(dataTree, `${update}.${key}.data`, data);
+          const data = get(unevalTree, `${update}.${key}.data`, undefined);
+          if (isJSObjectFunction(unevalTree, update, key)) {
+            set(unevalTree, `${update}.${key}`, new String(updates[key]));
+            set(unevalTree, `${update}.${key}.data`, data);
           } else {
-            set(dataTree, `${update}.${key}`, updates[key]);
+            set(unevalTree, `${update}.${key}`, updates[key]);
           }
         });
       }
@@ -507,6 +511,8 @@ export default class DataTreeEvaluator {
     };
 
     this.logs.push({ timeTakenForSetupUpdateTree });
+
+    updateEvalTreeWithJSCollectionState(this.evalTree);
 
     return {
       unEvalUpdates: translatedDiffs,

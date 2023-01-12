@@ -410,15 +410,17 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
       yield call(handleStoreOperations, data);
+      break;
     }
 
     case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
-      const { workerResponse } = data;
+      const { appMode, unevalTree, workerResponse } = data;
       yield call(
         updateDataTreeHandler,
         workerResponse as EvalTreeResponseData,
-        { appMode },
+        { appMode, unevalTree },
       );
+      break;
     }
   }
   yield call(evalErrorHandler, data?.errors || []);

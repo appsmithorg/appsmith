@@ -10,7 +10,7 @@ import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
-import { parseJSActions } from "workers/Evaluation/JSObject";
+import { parseJSActions } from "workers/Evaluation/JSObject/jsUpdates";
 import { WidgetConfiguration } from "widgets/constants";
 
 const widgetConfigMap: Record<
