@@ -2,10 +2,10 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { call, put } from "redux-saga/effects"
-import { ApiResponse } from "api/ApiResponses"
-import { TenantApi } from "@appsmith/api/TenantApi"
-import { validateResponse } from "sagas/ErrorSagas"
+import { call, put } from "redux-saga/effects";
+import { ApiResponse } from "api/ApiResponses";
+import { TenantApi } from "@appsmith/api/TenantApi";
+import { validateResponse } from "sagas/ErrorSagas";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga() {
