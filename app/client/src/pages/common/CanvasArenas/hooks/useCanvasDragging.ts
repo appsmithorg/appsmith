@@ -438,11 +438,7 @@ export const useCanvasDragging = (
             } else if (!isUpdatingRows) {
               triggerReflow(e, firstMove);
 
-              if (
-                useAutoLayout &&
-                isCurrentDraggedCanvas &&
-                currentDirection.current !== ReflowDirection.UNSET
-              ) {
+              if (useAutoLayout && isCurrentDraggedCanvas) {
                 const currentSnappedPosition = getDraggingSpacesFromBlocks(
                   currentRectanglesToDraw,
                   snapColumnSpace,
@@ -466,7 +462,11 @@ export const useCanvasDragging = (
                   currentSnappedPosition,
                   ...lastSnappedPositions.slice(0, 9),
                 ];
-                highlight = highlightDropPosition(e, currentDirection.current);
+                if (currentDirection.current !== ReflowDirection.UNSET)
+                  highlight = highlightDropPosition(
+                    e,
+                    currentDirection.current,
+                  );
               }
             }
             isUpdatingRows = renderBlocks(
