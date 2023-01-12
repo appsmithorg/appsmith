@@ -276,6 +276,10 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+          
+      - name: Setup tmate session
+        if: always()
+        uses: mxschmitt/action-tmate@v3
 
       - name: Collect fat container logs
         if: always()
