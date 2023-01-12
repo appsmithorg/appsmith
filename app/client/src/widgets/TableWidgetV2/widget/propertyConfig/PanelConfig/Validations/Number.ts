@@ -2,7 +2,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import {
   hideByColumnType,
-  getTrimmedPropPath,
+  getColumnPath,
 } from "widgets/TableWidgetV2/widget/propertyUtils";
 
 export default [
@@ -19,7 +19,7 @@ export default [
       params: { default: -Infinity },
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = getTrimmedPropPath(propertyPath, 2);
+      const path = getColumnPath(propertyPath);
       return hideByColumnType(props, path, [ColumnTypes.NUMBER], true);
     },
     dependencies: ["primaryColumns"],
@@ -37,7 +37,7 @@ export default [
       params: { default: Infinity },
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = getTrimmedPropPath(propertyPath, 2);
+      const path = getColumnPath(propertyPath);
       return hideByColumnType(props, path, [ColumnTypes.NUMBER], true);
     },
     dependencies: ["primaryColumns"],

@@ -906,8 +906,8 @@ export function selectColumnOptionsValidation(
   };
 }
 
-export const getTrimmedPropPath = (propPath: string, trimPosition: number) =>
+export const getColumnPath = (propPath: string) =>
   propPath
     .split(".")
-    .slice(0, trimPosition)
+    .slice(0, 2)
     .join(".");

@@ -4,7 +4,7 @@ import {
   getBasePropertyPath,
   showByColumnType,
   hideByColumnType,
-  getTrimmedPropPath,
+  getColumnPath,
 } from "../../propertyUtils";
 
 export default {
@@ -145,7 +145,7 @@ export default {
       isTriggerProperty: true,
       dependencies: ["primaryColumns"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const path = getTrimmedPropPath(propertyPath, 2);
+        const path = getColumnPath(propertyPath);
         return hideByColumnType(props, path, [ColumnTypes.DATE], true);
       },
     },

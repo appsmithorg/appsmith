@@ -215,6 +215,7 @@ export const DateCell = (props: DateComponentProps) => {
       updateNewRowValues(alias, date, date);
       return;
     }
+
     if (isRequired && !date) {
       setIsValid(false);
       setShowRequiredError(true);
