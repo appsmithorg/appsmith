@@ -27,11 +27,12 @@ import { functionDeterminer } from "../functionDeterminer";
 export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   jsUpdates: Record<string, JSUpdate>,
   localUnEvalTree: DataTree,
+  configTree: any,
 ) => {
   if (!isEmpty(jsUpdates)) {
-    Object.keys(jsUpdates).forEach((jsEntityName) => {
-      const entity = localUnEvalTree[jsEntityName];
-      const parsedBody = jsUpdates[jsEntityName].parsedBody;
+    Object.entries(jsUpdates).forEach(([entityName, jsEntity]) => {
+      const entity = localUnEvalTree[entityName];
+      const parsedBody = jsEntity.parsedBody;
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
@@ -39,13 +40,16 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
             parsedBody,
             entity,
             localUnEvalTree,
+            configTree,
+            entityName,
           );
         } else {
           //if parse error remove functions and variables from dataTree
           localUnEvalTree = removeFunctionsAndVariableJSCollection(
             localUnEvalTree,
             entity,
-            jsEntityName,
+            entityName,
+            configTree,
           );
         }
       }
@@ -75,6 +79,7 @@ export function saveResolvedFunctionsAndJSUpdates(
   jsUpdates: Record<string, JSUpdate>,
   unEvalDataTree: DataTree,
   entityName: string,
+  configTree: any,
 ) {
   const correctFormat = regex.test(entity.body);
   if (correctFormat) {
@@ -185,7 +190,8 @@ export function saveResolvedFunctionsAndJSUpdates(
 
 export function parseJSActions(
   dataTreeEvalRef: DataTreeEvaluator,
-  unEvalDataTree: DataTree,
+  unEvalDataTree: any,
+  configTree: any,
   differences?: DataTreeDiff[],
   oldUnEvalTree?: DataTree,
 ) {
@@ -227,6 +233,7 @@ export function parseJSActions(
           jsUpdates,
           unEvalDataTree,
           entityName,
+          configTree,
         );
       }
     });
@@ -242,6 +249,7 @@ export function parseJSActions(
         jsUpdates,
         unEvalDataTree,
         entityName,
+        configTree,
       );
     });
   }
@@ -268,7 +276,7 @@ export function parseJSActions(
   });
 
   functionDeterminer.setOffEval();
-
+  console.log("** return js update", unEvalDataTree);
   return { jsUpdates };
 }
 

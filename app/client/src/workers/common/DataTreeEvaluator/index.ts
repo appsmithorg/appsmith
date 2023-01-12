@@ -122,6 +122,7 @@ export default class DataTreeEvaluator {
   allKeys: Record<string, true> = {};
   privateWidgets: PrivateWidgets = {};
   oldUnEvalTree: DataTree = {};
+  oldConfigTree: any = {};
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
@@ -182,7 +183,8 @@ export default class DataTreeEvaluator {
    * evaluation of the first tree
    */
   setupFirstTree(
-    unEvalTree: DataTree,
+    unEvalTree: any,
+    configTree: any,
   ): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
@@ -199,11 +201,13 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
+
+    const parsedCollections = parseJSActions(this, localUnEvalTree, configTree);
     jsUpdates = parsedCollections.jsUpdates;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
+      configTree,
     );
     const allKeysGenerationStartTime = performance.now();
     // set All keys
@@ -212,12 +216,13 @@ export default class DataTreeEvaluator {
 
     const createDependencyMapStartTime = performance.now();
     // Create dependency map
+    console.log("*** before dependency", localUnEvalTree, configTree);
     const {
       dependencyMap,
       invalidReferencesMap,
       triggerFieldDependencyMap,
       validationDependencyMap,
-    } = createDependencyMap(this, localUnEvalTree);
+    } = createDependencyMap(this, localUnEvalTree, configTree);
     const createDependencyMapEndTime = performance.now();
 
     this.dependencyMap = dependencyMap;
@@ -246,6 +251,7 @@ export default class DataTreeEvaluator {
 
     const secondCloneStartTime = performance.now();
     this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldConfigTree = klona(configTree);
     const secondCloneEndTime = performance.now();
 
     const totalFirstTreeSetupEndTime = performance.now();
@@ -301,9 +307,13 @@ export default class DataTreeEvaluator {
     const validationStartTime = performance.now();
     // Validate Widgets
     this.setEvalTree(
-      getValidatedTree(evaluatedTree, {
-        evalProps: this.evalProps,
-      }),
+      getValidatedTree(
+        evaluatedTree,
+        {
+          evalProps: this.evalProps,
+        },
+        this.oldConfigTree,
+      ),
     );
     const validationEndTime = performance.now();
 
@@ -325,14 +335,14 @@ export default class DataTreeEvaluator {
     };
   }
 
-  updateLocalUnEvalTree(dataTree: DataTree) {
+  updateLocalUnEvalTree(dataTree: DataTree, configTree: any) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
       if (!!dataTree[update]) {
         Object.keys(updates).forEach((key) => {
           const data = get(dataTree, `${update}.${key}.data`, undefined);
-          if (isJSObjectFunction(dataTree, update, key)) {
+          if (isJSObjectFunction(dataTree, update, key, configTree)) {
             set(dataTree, `${update}.${key}`, new String(updates[key]));
             set(dataTree, `${update}.${key}.data`, data);
           } else {
@@ -349,7 +359,8 @@ export default class DataTreeEvaluator {
    */
 
   setupUpdateTree(
-    unEvalTree: DataTree,
+    unEvalTree: any,
+    configTree: any,
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -360,10 +371,11 @@ export default class DataTreeEvaluator {
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
+    console.log("** inside update data tree");
     let jsUpdates: Record<string, JSUpdate> = {};
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
-    this.updateLocalUnEvalTree(localUnEvalTree);
+    this.updateLocalUnEvalTree(localUnEvalTree, configTree);
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
@@ -380,6 +392,7 @@ export default class DataTreeEvaluator {
     const parsedCollections = parseJSActions(
       this,
       localUnEvalTree,
+      configTree,
       jsTranslatedDiffs,
       this.oldUnEvalTree,
     );
@@ -389,6 +402,7 @@ export default class DataTreeEvaluator {
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
+      configTree,
     );
 
     const differences: Diff<DataTree, DataTree>[] =
@@ -423,6 +437,7 @@ export default class DataTreeEvaluator {
       extraPathsToLint,
       removedPaths,
     } = updateDependencyMap({
+      configTree,
       dataTreeEvalRef: this,
       translatedDiffs,
       unEvalDataTree: localUnEvalTree,
@@ -437,6 +452,7 @@ export default class DataTreeEvaluator {
       dependenciesOfRemovedPaths,
       removedPaths,
       localUnEvalTree,
+      configTree,
     );
     const calculateSortOrderEndTime = performance.now();
     // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
@@ -446,7 +462,7 @@ export default class DataTreeEvaluator {
     subTreeSortOrder.filter((propertyPath) => {
       // We are setting all values from our uneval tree to the old eval tree we have
       // So that the actual uneval value can be evaluated
-      if (isDynamicLeaf(localUnEvalTree, propertyPath)) {
+      if (isDynamicLeaf(localUnEvalTree, propertyPath, configTree)) {
         const unEvalPropValue = get(localUnEvalTree, propertyPath);
         const evalPropValue = get(this.evalTree, propertyPath);
         if (!isFunction(evalPropValue)) {
@@ -1225,13 +1241,14 @@ export default class DataTreeEvaluator {
     dependenciesOfRemovedPaths: Array<string>,
     removedPaths: Array<string>,
     unEvalTree: DataTree,
+    configTree: any,
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
       changePaths.add(convertPathToString(d.path));
       // If this is a property path change, simply add for evaluation and move on
-      if (!isDynamicLeaf(unEvalTree, convertPathToString(d.path))) {
+      if (!isDynamicLeaf(unEvalTree, convertPathToString(d.path), configTree)) {
         // A parent level property has been added or deleted
         /**
          * We want to add all pre-existing dynamic and static bindings in dynamic paths of this entity to get evaluated and validated.
@@ -1242,7 +1259,7 @@ export default class DataTreeEvaluator {
          * We want to add `Api.data` to changedPaths so that `Table1.tableData` can be discovered below.
          */
         const entityName = d.path[0];
-        const entity = unEvalTree[entityName];
+        const entity = configTree[entityName];
         if (!entity) {
           continue;
         }

@@ -56,8 +56,11 @@ export default function(request: EvalWorkerSyncRequest) {
     widgetTypeConfigMap,
   } = data as EvalTreeRequestData;
 
-  const unevalTree = createUnEvalTreeForEval(__unevalTree__);
-
+  // const unevalAndConfigTreeObject = createUnEvalTreeForEval(__unevalTree__);
+  const unevalAndConfigTreeObject = __unevalTree__;
+  const unevalTree = unevalAndConfigTreeObject.dataTree;
+  const configTree = unevalAndConfigTreeObject.configTree;
+  console.log("**** evaltree + configTree", unevalTree, configTree);
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
@@ -67,8 +70,11 @@ export default function(request: EvalWorkerSyncRequest) {
         widgetTypeConfigMap,
         allActionValidationConfig,
       );
+      console.log(" **# 1", unevalTree);
+
       const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
         unevalTree,
+        configTree,
       );
       evalOrder = setupFirstTreeResponse.evalOrder;
       lintOrder = setupFirstTreeResponse.lintOrder;
@@ -105,8 +111,10 @@ export default function(request: EvalWorkerSyncRequest) {
           allActionValidationConfig,
         );
       }
+      console.log(" **# 2");
       const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
         unevalTree,
+        configTree,
       );
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
@@ -137,6 +145,7 @@ export default function(request: EvalWorkerSyncRequest) {
       }
       const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
         unevalTree,
+        configTree,
       );
       evalOrder = setupUpdateTreeResponse.evalOrder;
       lintOrder = setupUpdateTreeResponse.lintOrder;
@@ -196,6 +205,7 @@ export default function(request: EvalWorkerSyncRequest) {
         evalProps: dataTreeEvaluator?.evalProps,
       }),
       widgetTypeConfigMap,
+      configTree,
     );
     unEvalUpdates = [];
   }

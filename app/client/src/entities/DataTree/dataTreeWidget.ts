@@ -234,7 +234,10 @@ export const generateDataTreeWidget = (
   });
 
   dataTreeWidget["meta"] = meta;
-  dataTreeWidget["__config__"] = entityConfig;
+  // dataTreeWidget["__config__"] = entityConfig;
 
-  return dataTreeWidget;
+  return {
+    unEvalEntity: dataTreeWidget,
+    configEntity: entityConfig,
+  };
 };

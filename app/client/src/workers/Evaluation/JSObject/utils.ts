@@ -27,16 +27,19 @@ export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
   jsCollection: DataTreeJSAction,
   unEvalTree: DataTree,
+  configTree: any,
+  entityName: string,
 ) => {
   // jsCollection here means unEvalTree JSObject
   const modifiedUnEvalTree = unEvalTree;
   const functionsList: Array<string> = [];
-  const varList: Array<string> = jsCollection.variables;
-  Object.keys(jsCollection.meta).forEach((action) => {
+  const varList: Array<string> = configTree[entityName]?.variables;
+  Object.keys(configTree[entityName]?.meta).forEach((action) => {
     functionsList.push(action);
   });
 
-  const oldConfig = Object.getPrototypeOf(jsCollection) as DataTreeJSAction;
+  // const oldConfig = Object.getPrototypeOf(jsCollection) as DataTreeJSAction;
+  const oldConfig = configTree[entityName];
 
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
@@ -110,14 +113,14 @@ export const updateJSCollectionInUnEvalTree = (
         delete reactivePaths[oldActionName];
 
         oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
-          (path) => path["key"] !== oldActionName,
+          (path: any) => path["key"] !== oldActionName,
         );
 
         const dependencyMap = oldConfig.dependencyMap["body"];
         const removeIndex = dependencyMap.indexOf(oldActionName);
         if (removeIndex > -1) {
           oldConfig.dependencyMap["body"] = dependencyMap.filter(
-            (item) => item !== oldActionName,
+            (item: any) => item !== oldActionName,
           );
         }
         const meta = oldConfig.meta;
@@ -173,7 +176,7 @@ export const updateJSCollectionInUnEvalTree = (
         delete reactivePaths[varListItem];
 
         oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
-          (path) => path["key"] !== varListItem,
+          (path: any) => path["key"] !== varListItem,
         );
 
         newVarList = newVarList.filter((item) => item !== varListItem);
@@ -197,20 +200,22 @@ export const updateJSCollectionInUnEvalTree = (
 export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: DataTree,
   entity: DataTreeJSAction,
-  jsEntityName: string,
+  entityName: string,
+  configTree: any,
 ) => {
-  const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
+  // const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
+  const oldConfig = configTree[entityName];
   const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
-  Object.keys(entity.meta).forEach((action) => {
+  Object.keys(configTree[entityName].meta).forEach((action) => {
     functionsList.push(action);
   });
   //removed variables
   const varList: Array<string> = entity.variables;
-  set(modifiedDataTree, `${jsEntityName}.variables`, []);
+  set(modifiedDataTree, `${entityName}.variables`, []);
   for (let i = 0; i < varList.length; i++) {
     const varName = varList[i];
-    unset(modifiedDataTree[jsEntityName], varName);
+    unset(modifiedDataTree[entityName], varName);
   }
   //remove functions
 
@@ -221,13 +226,13 @@ export const removeFunctionsAndVariableJSCollection = (
     const actionName = functionsList[i];
     delete reactivePaths[actionName];
     delete meta[actionName];
-    unset(modifiedDataTree[jsEntityName], actionName);
+    unset(modifiedDataTree[entityName], actionName);
 
     oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
       (path: any) => path["key"] !== actionName,
     );
 
-    entity.dependencyMap["body"] = entity.dependencyMap["body"].filter(
+    oldConfig.dependencyMap["body"] = entity.dependencyMap["body"].filter(
       (item: any) => item !== actionName,
     );
   }
@@ -239,8 +244,9 @@ export function isJSObjectFunction(
   dataTree: DataTree,
   jsObjectName: string,
   key: string,
+  configTree: any,
 ) {
-  const entity = dataTree[jsObjectName];
+  const entity = configTree[jsObjectName];
   if (isJSAction(entity)) {
     return entity.meta.hasOwnProperty(key);
   }

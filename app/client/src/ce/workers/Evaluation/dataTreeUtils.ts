@@ -41,7 +41,7 @@ export function createUnEvalTreeForEval(unevalTree: UnEvalTree) {
  * This is done to send back dataTree in the format expected by mainThread.
  */
 export function makeEntityConfigsAsObjProperties(
-  dataTree: DataTree,
+  dataTree: any,
   option = {} as {
     sanitizeDataTree?: boolean;
     evalProps?: EvalProps;

@@ -50,13 +50,14 @@ interface CreateDependencyMap {
 export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
+  configTree: any,
 ): CreateDependencyMap {
   let dependencyMap: DependencyMap = {};
   let triggerFieldDependencyMap: DependencyMap = {};
   let validationDependencyMap: DependencyMap = {};
   const invalidReferencesMap: DependencyMap = {};
-  Object.keys(unEvalTree).forEach((entityName) => {
-    const entity = unEvalTree[entityName];
+  Object.keys(configTree).forEach((entityName) => {
+    const entity = configTree[entityName];
     if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
       const entityListedDependencies = listEntityDependencies(
         entity,
@@ -142,6 +143,7 @@ interface UpdateDependencyMap {
   extraPathsToLint: string[];
 }
 export const updateDependencyMap = ({
+  configTree,
   dataTreeEvalRef,
   translatedDiffs,
   unEvalDataTree,
@@ -149,6 +151,7 @@ export const updateDependencyMap = ({
   dataTreeEvalRef: DataTreeEvaluator;
   translatedDiffs: Array<DataTreeDiff>;
   unEvalDataTree: DataTree;
+  configTree: any;
 }): UpdateDependencyMap => {
   const diffCalcStart = performance.now();
   let didUpdateDependencyMap = false;
@@ -166,7 +169,7 @@ export const updateDependencyMap = ({
     const { entityName } = getEntityNameAndPropertyPath(
       dataTreeDiff.payload.propertyPath,
     );
-    let entity = unEvalDataTree[entityName];
+    let entity = configTree[entityName];
     if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
       entity = dataTreeEvalRef.oldUnEvalTree[entityName];
     }
@@ -179,7 +182,11 @@ export const updateDependencyMap = ({
           // add all the internal bindings for this entity to the global dependency map
           if (
             (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
-            !isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
+            !isDynamicLeaf(
+              unEvalDataTree,
+              dataTreeDiff.payload.propertyPath,
+              configTree,
+            )
           ) {
             const entityDependencyMap: DependencyMap = listEntityDependencies(
               entity,
@@ -314,7 +321,7 @@ export const updateDependencyMap = ({
                   entityName,
                   propertyPath,
                 } = getEntityNameAndPropertyPath(path);
-                const entity = unEvalDataTree[entityName];
+                const entity = configTree[entityName];
                 if (validReferences.length) {
                   // For trigger paths, update the triggerfield dependency map
                   // For other paths, update the dependency map

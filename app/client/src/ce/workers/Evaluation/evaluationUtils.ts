@@ -532,9 +532,10 @@ export const trimDependantChangePaths = (
 export function getSafeToRenderDataTree(
   tree: DataTree,
   widgetTypeConfigMap: WidgetTypeConfigMap,
+  configTree: any,
 ) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey] as DataTreeWidget;
+    const entity = configTree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
     }
@@ -632,14 +633,18 @@ export const findDatatype = (value: unknown) => {
     .toLowerCase();
 };
 
-export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
+export const isDynamicLeaf = (
+  unEvalTree: DataTree,
+  propertyPath: string,
+  configTree: any,
+) => {
   const [entityName, ...propPathEls] = _.toPath(propertyPath);
   // Framework feature: Top level items are never leaves
   if (entityName === propertyPath) return false;
   // Ignore if this was a delete op
   if (!(entityName in unEvalTree)) return false;
 
-  const entity = unEvalTree[entityName];
+  const entity = configTree[entityName];
   if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);

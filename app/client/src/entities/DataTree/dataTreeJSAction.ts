@@ -10,9 +10,7 @@ import { MetaArgs } from "./types";
 
 const reg = /this\./g;
 
-export const generateDataTreeJSAction = (
-  js: JSCollectionData,
-): UnEvalTreeJSAction => {
+export const generateDataTreeJSAction = (js: JSCollectionData): any => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
@@ -54,14 +52,17 @@ export const generateDataTreeJSAction = (
     }
   }
   return {
-    ...variableList,
-    ...actionsData,
-    body: removeThisReference,
-    ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    __config__: {
+    unEvalEntity: {
+      ...variableList,
+      ...actionsData,
+      body: removeThisReference,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      actionId: js.config.id,
+    },
+    configEntity: {
+      actionId: js.config.id,
       meta: meta,
       name: js.config.name,
-      actionId: js.config.id,
       pluginType: js.config.pluginType,
       ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.

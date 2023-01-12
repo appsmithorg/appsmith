@@ -116,35 +116,43 @@ export class DataTreeFactory {
     widgets,
     widgetsMeta,
   }: DataTreeSeed): UnEvalTree {
-    const dataTree: UnEvalTree = {};
+    const dataTree: any = {};
+    const configTree: any = {};
     const start = performance.now();
     const startActions = performance.now();
 
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
       const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
-      dataTree[action.config.name] = generateDataTreeAction(
+      const { configEntity, unEvalEntity } = generateDataTreeAction(
         action,
         editorConfig,
         dependencyConfig,
       );
+      dataTree[action.config.name] = unEvalEntity;
+      configTree[action.config.name] = configEntity;
     });
     const endActions = performance.now();
 
     const startJsActions = performance.now();
 
     jsActions.forEach((js) => {
-      dataTree[js.config.name] = generateDataTreeJSAction(js);
+      const { configEntity, unEvalEntity } = generateDataTreeJSAction(js);
+      dataTree[js.config.name] = unEvalEntity;
+      configTree[js.config.name] = configEntity;
     });
     const endJsActions = performance.now();
 
     const startWidgets = performance.now();
 
     Object.values(widgets).forEach((widget) => {
-      dataTree[widget.widgetName] = generateDataTreeWidget(
+      const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.widgetId],
       );
+
+      dataTree[widget.widgetName] = unEvalEntity;
+      configTree[widget.widgetName] = configEntity;
     });
     const endWidgets = performance.now();
 
@@ -168,8 +176,7 @@ export class DataTreeFactory {
     };
 
     log.debug("### Create unevalTree timing", out);
-
-    return dataTree;
+    return { dataTree, configTree };
   }
 }
 
