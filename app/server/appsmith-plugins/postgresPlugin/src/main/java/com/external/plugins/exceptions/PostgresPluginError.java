@@ -9,6 +9,26 @@ import java.text.MessageFormat;
 
 @Getter
 public enum PostgresPluginError implements BasePluginError {
+    QUERY_EXECUTION_FAILED(
+            500,
+            "PE-PGS-5000",
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    POSTGRES_PLUGIN_ERROR(
+            500,
+            "PE-PGS-5001",
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
     RESPONSE_SIZE_TOO_LARGE(
             504,
             "PE-PGS-5009",

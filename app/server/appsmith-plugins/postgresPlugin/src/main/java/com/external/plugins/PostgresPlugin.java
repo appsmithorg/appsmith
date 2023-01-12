@@ -26,6 +26,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.datatypes.PostgresSpecificDataTypes;
+import com.external.plugins.exceptions.PostgresErrorMessages;
 import com.external.plugins.exceptions.PostgresPluginError;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -205,9 +206,8 @@ public class PostgresPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (query == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required " +
-                        "parameter: Query."));
+            if (! StringUtils.hasLength(query)) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, PostgresErrorMessages.MISSING_QUERY_ERROR_MSG));
             }
 
             Boolean isPreparedStatement;
@@ -229,7 +229,7 @@ public class PostgresPlugin extends BasePlugin {
                 isPreparedStatement = true;
             }
 
-            // In case of non prepared statement, simply do binding replacement and execute
+            // In case of non-prepared statement, simply do bind replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null, null);
@@ -414,12 +414,12 @@ public class PostgresPlugin extends BasePlugin {
 
                         } catch (SQLException e) {
                             log.debug("In the PostgresPlugin, got action execution error");
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(PostgresPluginError.QUERY_EXECUTION_FAILED, PostgresErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage(), "SQLSTATE: "+ e.getSQLState()));
                         } catch (IOException e) {
                             // Since postgres json type field can only hold valid json data, this exception is not expected
                             // to occur.
                             log.debug("In the PostgresPlugin, got action execution error");
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(PostgresPluginError.QUERY_EXECUTION_FAILED, PostgresErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage()));
                         } finally {
                             idleConnections = poolProxy.getIdleConnections();
                             activeConnections = poolProxy.getActiveConnections();
@@ -474,13 +474,15 @@ public class PostgresPlugin extends BasePlugin {
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
                             return Mono.error(error);
+                        } else if (!(error instanceof AppsmithPluginException)) {
+                            error = new AppsmithPluginException(PostgresPluginError.QUERY_EXECUTION_FAILED, PostgresErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
                         }
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
@@ -512,7 +514,7 @@ public class PostgresPlugin extends BasePlugin {
         @Override
         public Mono<ActionExecutionResult> execute(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(PostgresPluginError.QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -520,7 +522,7 @@ public class PostgresPlugin extends BasePlugin {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading Postgres JDBC Driver class."));
+                return Mono.error(new AppsmithPluginException(PostgresPluginError.POSTGRES_PLUGIN_ERROR, PostgresErrorMessages.POSTGRES_JDBC_DRIVER_LOADING_ERROR_MSG, e.getMessage()));
             }
 
             return Mono
@@ -543,37 +545,37 @@ public class PostgresPlugin extends BasePlugin {
             Set<String> invalids = new HashSet<>();
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add("Missing endpoint.");
+                invalids.add(PostgresErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
             } else {
                 for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                     if (StringUtils.isEmpty(endpoint.getHost())) {
-                        invalids.add("Missing hostname.");
+                        invalids.add(PostgresErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
                     } else if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
-                        invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
+                        invalids.add(String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
                     }
                 }
             }
 
             if (datasourceConfiguration.getConnection() != null
                     && datasourceConfiguration.getConnection().getMode() == null) {
-                invalids.add("Missing Connection Mode.");
+                invalids.add(PostgresErrorMessages.DS_MISSING_CONNECTION_MODE_ERROR_MSG);
             }
 
             if (datasourceConfiguration.getAuthentication() == null) {
-                invalids.add("Missing authentication details.");
+                invalids.add(PostgresErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
 
             } else {
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add("Missing username for authentication.");
+                    invalids.add(PostgresErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
                 }
 
                 if (StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add("Missing password for authentication.");
+                    invalids.add(PostgresErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
                 }
 
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
-                    invalids.add("Missing database name.");
+                    invalids.add(PostgresErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG);
                 }
 
             }
@@ -584,8 +586,7 @@ public class PostgresPlugin extends BasePlugin {
             if (datasourceConfiguration.getConnection() == null
                     || datasourceConfiguration.getConnection().getSsl() == null
                     || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-                invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                        "Please reach out to Appsmith customer support to resolve this.");
+                invalids.add(PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
             }
 
             return invalids;
@@ -762,8 +763,10 @@ public class PostgresPlugin extends BasePlugin {
 
                         } catch (SQLException throwable) {
                             return Mono.error(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR,
-                                    throwable.getMessage()
+                                    AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                    PostgresErrorMessages.GET_STRUCTURE_ERROR_MSG,
+                                    throwable.getMessage(),
+                                    "SQLSTATE: " + throwable.getSQLState()
                             ));
                         } finally {
                             idleConnections = poolProxy.getIdleConnections();
@@ -895,9 +898,7 @@ public class PostgresPlugin extends BasePlugin {
                     // In case the parameter being set is out of range, then this must be getting set in the commented part of
                     // the query. Ignore the exception
                 } else {
-                    String message = "Query preparation failed while inserting value: "
-                            + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(PostgresErrorMessages.QUERY_PREPARATION_FAILED_ERROR_MSG, value, binding), e.getMessage());
                 }
             }
 
@@ -987,9 +988,8 @@ public class PostgresPlugin extends BasePlugin {
                 || datasourceConfiguration.getConnection().getSsl() == null
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                            "Please reach out to Appsmith customer support to resolve this."
+                    PostgresPluginError.POSTGRES_PLUGIN_ERROR,
+                    PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG
             );
         }
 
@@ -1016,9 +1016,8 @@ public class PostgresPlugin extends BasePlugin {
                 break;
             default:
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_ERROR,
-                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
-                                " Appsmith customer support to resolve this."
+                        PostgresPluginError.POSTGRES_PLUGIN_ERROR,
+                        String.format(PostgresErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType)
                 );
         }
 
@@ -1026,7 +1025,7 @@ public class PostgresPlugin extends BasePlugin {
         config.setJdbcUrl(url);
 
         // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
-        // should get tracked (may be falsely for long running queries) as leaked connection
+        // should get tracked (maybe falsely for long-running queries) as leaked connection
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
 
         // Set read only mode if applicable
@@ -1049,6 +1048,7 @@ public class PostgresPlugin extends BasePlugin {
         } catch (PoolInitializationException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
                     e.getMessage()
             );
         }

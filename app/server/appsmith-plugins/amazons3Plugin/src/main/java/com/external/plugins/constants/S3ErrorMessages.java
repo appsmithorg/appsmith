@@ -75,7 +75,11 @@ public class S3ErrorMessages {
     public static final String LIST_OF_FILE_PARSING_ERROR_MSG = "Appsmith server failed to parse the list of files. Please provide the list of files in the " +
             "correct format e.g. [\"file1\", \"file2\"].";
 
-    //Error messages related to validation of datasource. Let's follow a convention like starting the constant name with 'DS' (DS for Datasource)
+    /*
+     ************************************************************************************************************************************************
+        Error messages related to validation of datasource. Let's follow a convention like starting the constant name with 'DS' (DS for Datasource)
+     ************************************************************************************************************************************************
+     */
     public static final String DS_AT_LEAST_ONE_MANDATORY_PARAMETER_MISSING_ERROR_MSG = "At least one of the mandatory fields in S3 datasource creation form is empty - " +
             "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again.";
 
