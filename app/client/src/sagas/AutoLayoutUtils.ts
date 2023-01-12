@@ -73,13 +73,18 @@ export function* wrapChildren(
   return updatedWidgets;
 }
 
-export function* updateFlexLayersOnDelete(
+export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   parentId: string,
   isMobile?: boolean,
-) {
+): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
+  if (
+    widgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
+    AppPositioningTypes.FIXED
+  )
+    return widgets;
   let parent = widgets[parentId];
   if (!parent) return widgets;
 

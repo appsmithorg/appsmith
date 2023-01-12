@@ -437,35 +437,35 @@ export const useCanvasDragging = (
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
               triggerReflow(e, firstMove);
-              const currentSnappedPosition = getDraggingSpacesFromBlocks(
-                currentRectanglesToDraw,
-                snapColumnSpace,
-                snapRowSpace,
-              )[0];
-              const currentOccupiedSpace: any[] = occupiedSpaces[widgetId];
-              let exitContainer: OccupiedSpace | undefined = undefined;
-              if (lastDraggedCanvas.current && currentOccupiedSpace) {
-                exitContainer = currentOccupiedSpace.find(
-                  (each) => each.id === lastDraggedCanvas.current,
-                );
-              }
-              currentDirection.current = getInterpolatedMoveDirection(
-                lastSnappedPositions,
-                currentSnappedPosition,
-                currentDirection.current,
-                exitContainer,
-                getMousePositionsOnCanvas(e, gridProps),
-              );
-              lastSnappedPositions = [
-                currentSnappedPosition,
-                ...lastSnappedPositions.slice(0, 9),
-              ];
 
               if (
                 useAutoLayout &&
                 isCurrentDraggedCanvas &&
                 currentDirection.current !== ReflowDirection.UNSET
               ) {
+                const currentSnappedPosition = getDraggingSpacesFromBlocks(
+                  currentRectanglesToDraw,
+                  snapColumnSpace,
+                  snapRowSpace,
+                )[0];
+                const currentOccupiedSpace: any[] = occupiedSpaces[widgetId];
+                let exitContainer: OccupiedSpace | undefined = undefined;
+                if (lastDraggedCanvas.current && currentOccupiedSpace) {
+                  exitContainer = currentOccupiedSpace.find(
+                    (each) => each.id === lastDraggedCanvas.current,
+                  );
+                }
+                currentDirection.current = getInterpolatedMoveDirection(
+                  lastSnappedPositions,
+                  currentSnappedPosition,
+                  currentDirection.current,
+                  exitContainer,
+                  getMousePositionsOnCanvas(e, gridProps),
+                );
+                lastSnappedPositions = [
+                  currentSnappedPosition,
+                  ...lastSnappedPositions.slice(0, 9),
+                ];
                 highlight = highlightDropPosition(e, currentDirection.current);
               }
             }
