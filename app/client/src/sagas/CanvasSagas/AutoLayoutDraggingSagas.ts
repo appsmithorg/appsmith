@@ -184,7 +184,6 @@ function* reorderAutolayoutChildren(params: {
           updatedWidgets,
           parentId,
           filteredLayers,
-          index,
           layerIndex,
           rowIndex,
         );
