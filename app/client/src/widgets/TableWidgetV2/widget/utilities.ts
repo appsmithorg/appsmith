@@ -14,6 +14,7 @@ import {
   ColumnTypes,
   DEFAULT_BUTTON_COLOR,
   DEFAULT_COLUMN_WIDTH,
+  LOCAL_TABLE_COLUMN_ORDER,
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
@@ -29,6 +30,7 @@ import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
 import { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
+import log from "loglevel";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -792,5 +794,21 @@ export const getSourceDataAndCaluclateKeysForEventAutoComplete = (
     return result;
   } else {
     return {};
+  }
+};
+
+export const deleteLocalTableColumnOrderByWidgetId = (widgetId: string) => {
+  try {
+    const localData = localStorage.getItem(LOCAL_TABLE_COLUMN_ORDER);
+    if (localData) {
+      const localColumnOrder = JSON.parse(localData);
+      delete localColumnOrder[widgetId];
+      localStorage.setItem(
+        LOCAL_TABLE_COLUMN_ORDER,
+        JSON.stringify(localColumnOrder),
+      );
+    }
+  } catch (e) {
+    log.debug("Error in reading local data", e);
   }
 };

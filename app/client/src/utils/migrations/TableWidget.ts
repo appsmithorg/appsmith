@@ -22,6 +22,7 @@ import { getSubstringBetweenTwoWords } from "utils/helpers";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { stringToJS } from "components/editorComponents/ActionCreator/utils";
+import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 
 export const isSortableMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -689,6 +690,24 @@ export const migrateMenuButtonDynamicItemsInsideTableWidget = (
           }
         }
       }
+    }
+  });
+};
+
+export const migrateColumnFreezeAttributes = (currentDSL: DSLWidget) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "TABLE_WIDGET_V2") {
+      const primaryColumns = widget?.primaryColumns;
+
+      // Assign default sticky value to each column
+      if (primaryColumns) {
+        for (const column in primaryColumns) {
+          primaryColumns[column].sticky = StickyType.NONE;
+        }
+      }
+
+      widget.canFreezeColumn = false;
+      widget.timestamp = Date.now();
     }
   });
 };

@@ -64,6 +64,7 @@ import {
   isColumnTypeEditable,
   getColumnType,
   getBooleanPropertyValue,
+  deleteLocalTableColumnOrderByWidgetId,
 } from "./utilities";
 import {
   ColumnProperties,
@@ -589,27 +590,37 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.widgetId,
     );
     if (localTableColumnOrder) {
-      const { columnOrder, leftOrder, rightOrder } = localTableColumnOrder;
-      const stickyLeftColumnPaths: Record<string, string> = {};
-      const stickyRightColumnPaths: Record<string, string> = {};
+      const {
+        columnOrder,
+        leftOrder,
+        rightOrder,
+        timestamp,
+      } = localTableColumnOrder;
+      if (this.props.timestamp !== timestamp) {
+        deleteLocalTableColumnOrderByWidgetId(this.props.widgetId);
+      } else {
+        const stickyLeftColumnPaths: Record<string, string> = {};
+        const stickyRightColumnPaths: Record<string, string> = {};
 
-      leftOrder &&
-        leftOrder.forEach((colName: string) => {
-          stickyLeftColumnPaths[`primaryColumns.${colName}.sticky`] = "left";
-        });
+        leftOrder &&
+          leftOrder.forEach((colName: string) => {
+            stickyLeftColumnPaths[`primaryColumns.${colName}.sticky`] = "left";
+          });
 
-      rightOrder &&
-        rightOrder.forEach((colName: string) => {
-          stickyRightColumnPaths[`primaryColumns.${colName}.sticky`] = "right";
-        });
-      const propertiesToUpdate: BatchPropertyUpdatePayload = {
-        modify: {
-          ...stickyLeftColumnPaths,
-          ...stickyRightColumnPaths,
-          columnOrder,
-        },
-      };
-      super.batchUpdateWidgetProperty(propertiesToUpdate, false);
+        rightOrder &&
+          rightOrder.forEach((colName: string) => {
+            stickyRightColumnPaths[`primaryColumns.${colName}.sticky`] =
+              "right";
+          });
+        const propertiesToUpdate: BatchPropertyUpdatePayload = {
+          modify: {
+            ...stickyLeftColumnPaths,
+            ...stickyRightColumnPaths,
+            columnOrder,
+          },
+        };
+        super.batchUpdateWidgetProperty(propertiesToUpdate, false);
+      }
     }
   };
   componentDidMount() {
@@ -645,19 +656,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       return;
     }
 
-    if (
-      this.props.renderMode === RenderModes.PAGE &&
-      !equal(prevProps.primaryColumns, this.props.primaryColumns)
-    ) {
-      const leftOrder: string[] = Object.keys(
-        pickBy(this.props.primaryColumns, (col) => col.sticky === "left"),
-      );
+    if (!equal(prevProps.primaryColumns, this.props.primaryColumns)) {
+      if (this.props.renderMode === RenderModes.CANVAS) {
+        super.updateWidgetProperty("timestamp", Date.now());
+      }
+      if (this.props.renderMode === RenderModes.PAGE) {
+        const leftOrder: string[] = Object.keys(
+          pickBy(this.props.primaryColumns, (col) => col.sticky === "left"),
+        );
 
-      const rightOrder: string[] = Object.keys(
-        pickBy(this.props.primaryColumns, (col) => col.sticky === "right"),
-      );
+        const rightOrder: string[] = Object.keys(
+          pickBy(this.props.primaryColumns, (col) => col.sticky === "right"),
+        );
 
-      this.persistColumnOrder(this.props.columnOrder, leftOrder, rightOrder);
+        this.persistColumnOrder(this.props.columnOrder, leftOrder, rightOrder);
+      }
     }
     // Check if tableData is modifed
     const isTableDataModified = !equal(
@@ -1014,11 +1027,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             columnOrder,
             leftOrder,
             rightOrder,
+            timestamp,
           } = parsedTableWidgetColumnOrder[widgetId];
           return {
             columnOrder,
             leftOrder,
             rightOrder,
+            timestamp,
           };
         }
       } catch (e) {
@@ -1070,6 +1085,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             columnOrder,
             leftOrder,
             rightOrder,
+            timestamp: this.props.timestamp,
           },
         };
 
@@ -1083,6 +1099,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           columnOrder: newColumnOrder,
           leftOrder,
           rightOrder,
+          timestamp: this.props.timestamp,
         },
       };
       newTableColumnOrder = tableWidgetColumnOrder;

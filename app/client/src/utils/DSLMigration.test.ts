@@ -727,6 +727,15 @@ const migrations: Migration[] = [
     ],
     version: 74,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateColumnFreezeAttributes",
+      },
+    ],
+    version: 75,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};

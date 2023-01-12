@@ -57,11 +57,31 @@ export const TableWrapper = styled.div<{
   justify-content: space-between;
   flex-direction: column;
   overflow: hidden;
-  .simplebar-track.simplebar-horizontal {
-    height: ${TABLE_SCROLLBAR_HEIGHT}px;
-  }
-  .simplebar-track.simplebar-vertical {
-    width: ${TABLE_SCROLLBAR_WIDTH}px;
+  .simplebar-track {
+    opacity: 0.7;
+    &.simplebar-horizontal {
+      height: ${TABLE_SCROLLBAR_HEIGHT}px;
+      .simplebar-scrollbar {
+        height: 5px;
+      }
+      &.simplebar-hover {
+        height: 10px;
+        & .simplebar-scrollbar {
+          height: 8px;
+        }
+      }
+    }
+
+    &.simplebar-vertical {
+      direction: rtl;
+      width: ${TABLE_SCROLLBAR_WIDTH}px;
+      &.simplebar-hover {
+        width: 10px;
+        & .simplebar-scrollbar {
+          width: 11px;
+        }
+      }
+    }
   }
   .tableWrap {
     height: 100%;

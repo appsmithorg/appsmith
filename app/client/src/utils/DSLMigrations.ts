@@ -25,6 +25,7 @@ import {
   migrateTableWidgetV2ValidationBinding,
   migrateMenuButtonDynamicItemsInsideTableWidget,
   migrateTableWidgetV2SelectOption,
+  migrateColumnFreezeAttributes,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -1161,6 +1162,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 74) {
     currentDSL = migrateMenuButtonDynamicItemsInsideTableWidget(currentDSL);
+    currentDSL.version = 75;
+  }
+
+  if (currentDSL.version === 75) {
+    currentDSL = migrateColumnFreezeAttributes(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
