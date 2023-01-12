@@ -55,10 +55,7 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import {
-  initializeAnalyticsAndTrackers,
-  initializeSegmentWithoutTracking,
-} from "utils/AppsmithUtils";
+import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 import { getAppsmithConfigs } from "ce/configs";
 import { getSegmentState } from "selectors/analyticsSelectors";
 import {
