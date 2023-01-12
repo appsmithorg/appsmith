@@ -129,16 +129,6 @@ export default [
     icon: "https://github.com/Donaldcwl.png?s=20",
   },
   {
-    name: "crypto-js",
-    url:
-      "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js",
-    description: "JavaScript library of crypto standards",
-    version: "4.1.1",
-    author: "brix",
-    docsURL: "https://github.com/brix/crypto-js/#crypto-js",
-    icon: "https://github.com/brix.png?s=20",
-  },
-  {
     name: "jsonpath",
     url: "https://cdn.jsdelivr.net/npm/jsonpath@1.1.1/jsonpath.min.js",
     description:

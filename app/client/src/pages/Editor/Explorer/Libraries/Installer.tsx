@@ -12,6 +12,7 @@ import {
   FormGroup,
   Icon,
   IconSize,
+  MenuDivider,
   Size,
   Spinner,
   Text,
@@ -47,6 +48,7 @@ import {
 import classNames from "classnames";
 import { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Divider } from "@blueprintjs/core";
 
 const openDoc = (e: React.MouseEvent, url: string) => {
   e.preventDefault();
@@ -60,7 +62,7 @@ const Wrapper = styled.div<{ left: number }>`
   width: 400px;
   max-height: 80vh;
   flex-direction: column;
-  padding: 0 24px 4px;
+  padding: 0 20px 4px 24px;
   position: absolute;
   background: white;
   z-index: 25;
@@ -73,32 +75,33 @@ const Wrapper = styled.div<{ left: number }>`
     justify-content: space-between;
     margin-bottom: 12px;
   }
-  .search-area {
-    margin-bottom: 16px;
-    .left-icon {
-      margin-left: 14px;
-      .cs-icon {
-        margin-right: 0;
-      }
-    }
-    .bp3-form-group {
-      margin: 0;
-      .remixicon-icon {
-        cursor: initial;
-      }
-    }
-    .bp3-label {
-      font-size: 12px;
-    }
-    display: flex;
-    flex-direction: column;
-    .search-bar {
-      margin-bottom: 8px;
-    }
-  }
   .search-body {
     display: flex;
+    padding-right: 4px;
     flex-direction: column;
+    .search-area {
+      margin-bottom: 16px;
+      .left-icon {
+        margin-left: 14px;
+        .cs-icon {
+          margin-right: 0;
+        }
+      }
+      .bp3-form-group {
+        margin: 0;
+        .remixicon-icon {
+          cursor: initial;
+        }
+      }
+      .bp3-label {
+        font-size: 12px;
+      }
+      display: flex;
+      flex-direction: column;
+      .search-bar {
+        margin-bottom: 8px;
+      }
+    }
     .search-CTA {
       margin-bottom: 16px;
       display: flex;
@@ -314,6 +317,10 @@ function InstallationProgress() {
   );
 }
 
+const SectionDivider = styled(MenuDivider)`
+  margin: 0 0 16px 0;
+`;
+
 const EXT_LINK = {
   learnMore:
     "https://docs.appsmith.com/core-concepts/writing-code/ext-libraries",
@@ -412,37 +419,36 @@ export function Installer(props: { left: number }) {
           size={IconSize.XXL}
         />
       </div>
-      <div className="search-area t--library-container">
-        <div className="flex flex-row gap-2 justify-between items-end">
-          <FormGroup className="flex-1" label={"Library URL"}>
-            <TextInput
-              $padding="12px"
-              autoFocus
-              data-testid="library-url"
-              height="30px"
-              label={"Library URL"}
-              leftIcon="link-2"
-              onChange={updateURL}
-              padding="12px"
-              placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
-              validator={validate}
-              width="100%"
-            />
-          </FormGroup>
-          <Button
-            category={Category.primary}
-            data-testid="install-library-btn"
-            disabled={!(URL && isValid)}
-            icon="download"
-            onClick={() => installLibrary()}
-            size={Size.medium}
-            tag="button"
-            text="INSTALL"
-            type="button"
-          />
-        </div>
-      </div>
       <div className="search-body overflow-auto">
+        <div className="search-area t--library-container">
+          <div className="flex flex-row gap-2 justify-between items-end">
+            <FormGroup className="flex-1" label={"Library URL"}>
+              <TextInput
+                $padding="12px"
+                data-testid="library-url"
+                height="30px"
+                label={"Library URL"}
+                leftIcon="link-2"
+                onChange={updateURL}
+                padding="12px"
+                placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
+                validator={validate}
+                width="100%"
+              />
+            </FormGroup>
+            <Button
+              category={Category.primary}
+              data-testid="install-library-btn"
+              disabled={!(URL && isValid)}
+              icon="download"
+              onClick={() => installLibrary()}
+              size={Size.medium}
+              tag="button"
+              text="INSTALL"
+              type="button"
+            />
+          </div>
+        </div>
         <div className="search-CTA mb-3 text-xs">
           <span>
             Explore libraries on{" "}
@@ -463,6 +469,7 @@ export function Installer(props: { left: number }) {
             {"."}
           </span>
         </div>
+        <SectionDivider color="red" />
         <InstallationProgress />
         <div className="pb-2 sticky top-0 z-2 bg-white">
           <Text type={TextType.P1} weight={"600"}>
