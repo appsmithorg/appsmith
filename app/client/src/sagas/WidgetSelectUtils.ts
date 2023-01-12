@@ -6,7 +6,6 @@ export enum SelectionRequestType {
   ONE = "ONE",
   MULTIPLE = "MULTIPLE",
   APPEND = "APPEND",
-  REMOVE = "REMOVE",
   ALL = "ALL",
   SHIFT_SELECT = "SHIFT_SELECT",
 }
@@ -107,10 +106,13 @@ export const appendSelectWidget = (
 
   if (alreadySelected) {
     return {
-      lastWidgetSelected: alreadySelected ? "" : widgetId,
+      lastWidgetSelected: "",
       widgets: currentlySelectedWidgets.filter((each) => each !== widgetId),
     };
   } else if (!!widgetId) {
-    return { widgets: [...currentlySelectedWidgets, widgetId] };
+    return {
+      widgets: [...currentlySelectedWidgets, widgetId],
+      lastWidgetSelected: widgetId,
+    };
   }
 };

@@ -12,10 +12,7 @@ import {
   groupWidgets,
   pasteWidget,
 } from "actions/widgetActions";
-import {
-  selectAllWidgetsInCanvasInitAction,
-  selectWidgetInitAction,
-} from "actions/widgetSelectionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { getSelectedText, isMacOrIOS } from "utils/helpers";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
@@ -405,7 +402,8 @@ const mapDispatchToProps = (dispatch: any) => {
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
-    selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
+    selectAllWidgetsInit: () =>
+      dispatch(selectWidgetInitAction(SelectionRequestType.ALL)),
     deselectAllWidgets: () =>
       dispatch(selectWidgetInitAction(SelectionRequestType.EMPTY)),
     executeAction: () => dispatch(runActionViaShortcut()),

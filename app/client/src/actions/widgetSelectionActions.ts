@@ -2,7 +2,6 @@ import {
   ReduxActionTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export type WidgetSelectionRequestPayload = {
@@ -23,22 +22,6 @@ export const selectWidgetInitAction: WidgetSelectionRequest = (
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
   payload: { selectionRequestType, payload },
 });
-
-export const selectAllWidgetsInCanvasInitAction = () => {
-  return {
-    type: ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
-  };
-};
-
-export const deselectModalWidgetAction = (
-  modalId: string,
-  modalWidgetChildren?: CanvasWidgetsStructureReduxState[],
-) => {
-  return {
-    type: ReduxActionTypes.DESELECT_MODAL_WIDGETS,
-    payload: { modalId, modalWidgetChildren },
-  };
-};
 
 // To be used to collect selected widget state from url and set on state
 export const setSelectedWidgets = (widgetIds: string[]) => {

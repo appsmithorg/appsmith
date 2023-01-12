@@ -181,7 +181,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   closeModal = (e: any) => {
     this.props.updateWidgetMetaProperty("isVisible", false);
-    this.props.selectWidgetRequest(SelectionRequestType.EMPTY);
+    this.selectWidgetRequest(SelectionRequestType.EMPTY);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
     e.stopPropagation();

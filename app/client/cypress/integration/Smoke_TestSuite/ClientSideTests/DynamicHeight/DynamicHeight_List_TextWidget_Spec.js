@@ -1,6 +1,7 @@
 const dsl = require("../../../../fixtures/DynamicHeightListTextDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
 const explorer = require("../../../../locators/explorerlocators.json");
 
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -69,6 +70,9 @@ describe("Dynamic Height Width validation list widget", function() {
         );
         cy.wait(2000);
         cy.get("#switcher--explorer").click({ force: true });
+        cy.get(
+          ".t--entity-item:contains('List1') .t--entity-collapse-toggle",
+        ).click({ force: true });
         cy.get(
           ".t--entity-item:contains('Container1') .t--entity-collapse-toggle",
         ).click({ force: true });
