@@ -3,7 +3,10 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import { FlexLayerAlignment, LayoutDirection } from "components/constants";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+} from "utils/autoLayout/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";

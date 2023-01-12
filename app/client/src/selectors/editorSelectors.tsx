@@ -14,7 +14,7 @@ import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ApplicationVersion } from "actions/applicationActions";
-import { Positioning } from "components/constants";
+import { Positioning } from "utils/autoLayout/constants";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import {

@@ -1,4 +1,4 @@
-import { FlexLayerAlignment } from "components/constants";
+import { FlexLayerAlignment } from "utils/autoLayout/constants";
 import {
   DEFAULT_HIGHLIGHT_SIZE,
   FlexLayer,

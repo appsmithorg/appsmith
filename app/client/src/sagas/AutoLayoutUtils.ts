@@ -2,7 +2,7 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "components/constants";
+} from "utils/autoLayout/constants";
 import {
   FlexLayer,
   LayerChild,

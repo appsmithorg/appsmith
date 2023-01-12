@@ -6,7 +6,7 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
   Overflow,
-} from "components/constants";
+} from "utils/autoLayout/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";

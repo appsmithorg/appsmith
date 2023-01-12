@@ -17,7 +17,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { Positioning } from "components/constants";
+import { Positioning } from "utils/autoLayout/constants";
 import { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";

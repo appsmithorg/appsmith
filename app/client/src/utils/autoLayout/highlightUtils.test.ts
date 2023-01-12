@@ -1,4 +1,7 @@
-import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
+import {
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
 import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { getWidgetHeight } from "./flexWidgetUtils";

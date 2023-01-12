@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Positioning, ResponsiveBehavior } from "components/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,

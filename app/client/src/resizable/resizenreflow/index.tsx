@@ -1,4 +1,7 @@
-import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import {
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";

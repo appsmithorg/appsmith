@@ -1,7 +1,7 @@
 import { AppState } from "@appsmith/reducers";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
-import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { GridDefaults } from "constants/WidgetConstants";
 import { get, omit } from "lodash";

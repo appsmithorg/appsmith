@@ -1,4 +1,7 @@
-import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
+import {
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   GridDefaults,

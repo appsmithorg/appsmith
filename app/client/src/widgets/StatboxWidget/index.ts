@@ -1,5 +1,6 @@
-import { ButtonVariantTypes, Positioning } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
+import { Positioning } from "utils/autoLayout/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

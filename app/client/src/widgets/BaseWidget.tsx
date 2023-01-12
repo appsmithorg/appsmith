@@ -11,7 +11,7 @@ import {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
-} from "components/constants";
+} from "utils/autoLayout/constants";
 import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import DraggableComponent from "components/editorComponents/DraggableComponent";

@@ -2,7 +2,7 @@ import {
   FlexLayerAlignment,
   LayoutDirection,
   ResponsiveBehavior,
-} from "components/constants";
+} from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
