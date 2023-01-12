@@ -798,18 +798,16 @@ class MetaWidgetGenerator {
     metaWidget.level = this.level + 1;
   };
 
-  private updateWidgetNameInDynamicBinding = (
+  updateWidgetNameInDynamicBinding = (
     binding: string,
     metaWidgetName: string,
     templateWidgetName: string,
   ) => {
     if (metaWidgetName === templateWidgetName) return binding;
 
-    const pattern = new RegExp(`${templateWidgetName}.`, "g");
+    const pattern = new RegExp(`${templateWidgetName}\\.`, "g");
 
-    const output = binding.replace(pattern, `${metaWidgetName}.`);
-
-    return output;
+    return binding.replace(pattern, `${metaWidgetName}.`);
   };
 
   private addDynamicPathsProperties = (

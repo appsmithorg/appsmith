@@ -108,8 +108,6 @@ const CANVAS_MODE_API_METHODS: EditorContextTypeKey[] = [
   "deleteMetaWidgets",
   "deleteWidgetProperty",
   "disableDrag",
-  "modifyMetaWidgets",
-  "updateMetaWidgetProperty",
   "updateWidget",
   "updateWidgetProperty",
 ];

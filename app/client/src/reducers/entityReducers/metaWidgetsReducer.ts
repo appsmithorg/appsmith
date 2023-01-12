@@ -32,7 +32,7 @@ export type ModifyMetaWidgetPayload = {
 export type UpdateMetaWidgetPropertyPayload = {
   updates: BatchPropertyUpdatePayload;
   widgetId: string;
-  creatorId: string;
+  creatorId?: string;
 };
 export type DeleteMetaWidgetsPayload = {
   creatorIds: string[];
