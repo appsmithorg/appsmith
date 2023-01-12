@@ -7,7 +7,7 @@ import { StyledInputGroup } from "./StyledControls";
 import log from "loglevel";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { useSelector } from "react-redux";
-import { getMapsApiKey } from "../../selectors/configSelectors";
+import { getMapsApiKey } from "../../selectors/tenantConfigurationSelectors";
 
 class LocationSearchControl extends BaseControl<ControlProps> {
   searchBox: any = null;

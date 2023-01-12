@@ -1,4 +1,7 @@
-import { ReduxActionErrorTypes, ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants"
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { call, put } from "redux-saga/effects"
 import { ApiResponse } from "api/ApiResponses"
 import { TenantApi } from "@appsmith/api/TenantApi"

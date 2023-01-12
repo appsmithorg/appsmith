@@ -12,8 +12,8 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Stylesheet } from "entities/AppTheming";
 import { connect } from "react-redux";
-import { AppState } from "../../../ce/reducers";
-import { getMapsApiKey } from "../../../selectors/configSelectors";
+import { AppState } from "@appsmith/reducers";
+import { getMapsApiKey } from "../../../selectors/tenantConfigurationSelectors";
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
