@@ -161,7 +161,7 @@ export function* getCurrentUserSaga() {
          * We're initializing the segment api regardless of the enableTelemetry flag
          * So we can use segement Id to fingerprint anonymous user in usage pulse call
          */
-        yield initializeSegmentWithoutTracking();
+        // yield initializeSegmentWithoutTracking();
       }
 
       //To make sure that we're not tracking from previous session.
