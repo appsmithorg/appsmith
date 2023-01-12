@@ -239,7 +239,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     // !! This API endpoint should not be exposed !!
     @Override
     @GetMapping("")
-    public Mono<ResponseDTO<List<Application>>> getAll(@RequestParam MultiValueMap<String, String> params, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<List<Application>>> getAll(@RequestParam MultiValueMap<String, String> params,
+                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return Mono.just(
                 new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), null, AppsmithError.UNSUPPORTED_OPERATION.getMessage())
         );
