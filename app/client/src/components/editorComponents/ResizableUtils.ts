@@ -2,7 +2,7 @@ import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { ReflowDirection } from "reflow/reflowTypes";
-import { ResponsiveBehavior } from "components/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 export type UIElementSize = { height: number; width: number };
 

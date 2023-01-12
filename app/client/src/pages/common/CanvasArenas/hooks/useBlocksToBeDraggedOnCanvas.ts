@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
 import { stopReflowAction } from "actions/reflowActions";
-import { AlignItems, LayoutDirection } from "components/constants";
+import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
@@ -510,5 +510,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,
     )[0],
+    occupiedSpaces,
   };
 };

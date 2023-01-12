@@ -1,4 +1,5 @@
 import { watchActionExecutionSagas } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import NavigationSagas from "@appsmith/sagas/NavigationSagas";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
 import userSagas from "@appsmith/sagas/userSagas";
@@ -30,7 +31,6 @@ import JSLibrarySaga from "sagas/JSLibrarySaga";
 import jsPaneSagas from "sagas/JSPaneSagas";
 import LintingSaga from "sagas/LintingSagas";
 import modalSagas from "sagas/ModalSagas";
-import NavigationSagas from "sagas/NavigationSagas";
 import onboardingSagas from "sagas/OnboardingSagas";
 import pageSagas from "sagas/PageSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";

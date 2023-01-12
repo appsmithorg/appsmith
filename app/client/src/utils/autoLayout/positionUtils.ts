@@ -1,7 +1,14 @@
-import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
+import {
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   getBottomRow,
@@ -41,6 +48,11 @@ export function updateWidgetPositions(
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
+    if (
+      widgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
+      AppPositioningTypes.FIXED
+    )
+      return widgets;
     const parent = widgets[parentId];
     if (!parent) return widgets;
 
@@ -65,7 +77,7 @@ export function updateWidgetPositions(
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
     const parentHeight = getWidgetRows(parent, isMobile);
-    if (parentHeight <= height) {
+    if (parentHeight - height <= 1) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
@@ -75,7 +87,7 @@ export function updateWidgetPositions(
       const updatedParent = setDimensions(
         parent,
         parentTopRow,
-        (parentTopRow + height + 1) * divisor,
+        parentTopRow + height * divisor + 1 * divisor,
         null,
         null,
         isMobile,

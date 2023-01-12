@@ -81,6 +81,7 @@ export const useCanvasDragging = (
     isResizing,
     lastDraggedCanvas,
     occSpaces,
+    occupiedSpaces,
     onDrop,
     parentDiff,
     relativeStartPoints,
@@ -197,7 +198,7 @@ export const useCanvasDragging = (
         bottom: 0,
         id: "",
       };
-      let lastSnappedPositionDeltas: OccupiedSpace[] = [];
+      let lastSnappedPositions: OccupiedSpace[] = [];
 
       const resetCanvasState = () => {
         throttledStopReflowing();
@@ -435,28 +436,37 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              const currentSnappedPosition = getDraggingSpacesFromBlocks(
-                currentRectanglesToDraw,
-                snapColumnSpace,
-                snapRowSpace,
-              )[0];
-              currentDirection.current = getInterpolatedMoveDirection(
-                lastSnappedPositionDeltas,
-                currentSnappedPosition,
-                currentDirection.current,
-              );
-              lastSnappedPositionDeltas = [
-                currentSnappedPosition,
-                ...lastSnappedPositionDeltas.slice(0, 4),
-              ];
-
               triggerReflow(e, firstMove);
-              if (
-                useAutoLayout &&
-                isCurrentDraggedCanvas &&
-                currentDirection.current !== ReflowDirection.UNSET
-              ) {
-                highlight = highlightDropPosition(e, currentDirection.current);
+
+              if (useAutoLayout && isCurrentDraggedCanvas) {
+                const currentSnappedPosition = getDraggingSpacesFromBlocks(
+                  currentRectanglesToDraw,
+                  snapColumnSpace,
+                  snapRowSpace,
+                )[0];
+                const currentOccupiedSpace: any[] = occupiedSpaces[widgetId];
+                let exitContainer: OccupiedSpace | undefined = undefined;
+                if (lastDraggedCanvas.current && currentOccupiedSpace) {
+                  exitContainer = currentOccupiedSpace.find(
+                    (each) => each.id === lastDraggedCanvas.current,
+                  );
+                }
+                currentDirection.current = getInterpolatedMoveDirection(
+                  lastSnappedPositions,
+                  currentSnappedPosition,
+                  currentDirection.current,
+                  exitContainer,
+                  getMousePositionsOnCanvas(e, gridProps),
+                );
+                lastSnappedPositions = [
+                  currentSnappedPosition,
+                  ...lastSnappedPositions.slice(0, 9),
+                ];
+                if (currentDirection.current !== ReflowDirection.UNSET)
+                  highlight = highlightDropPosition(
+                    e,
+                    currentDirection.current,
+                  );
               }
             }
             isUpdatingRows = renderBlocks(

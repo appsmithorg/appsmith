@@ -1,9 +1,4 @@
 import { IconNames } from "@blueprintjs/icons";
-import {
-  LayoutDirection,
-  Positioning,
-  ResponsiveBehavior,
-} from "components/constants";
 import { Theme } from "constants/DefaultTheme";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
@@ -11,6 +6,11 @@ import { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
+import {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";

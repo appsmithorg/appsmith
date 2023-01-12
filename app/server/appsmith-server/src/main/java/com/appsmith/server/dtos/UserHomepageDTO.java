@@ -17,10 +17,4 @@ public class UserHomepageDTO {
     User user;
 
     List<WorkspaceApplicationsDTO> workspaceApplications;
-
-    // This is a string so that it can hold values like `10+` if there's more than 10 new versions, for example.
-    String newReleasesCount;
-
-    List<ReleaseNode> releaseItems;
-
 }

@@ -3,7 +3,6 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { createImmerReducer } from "utils/ReducerUtils";
 
@@ -168,7 +167,6 @@ export type WidgetDragResizeState = {
   isDragging: boolean;
   dragDetails: DragDetails;
   autoLayoutDragDetails: any;
-  flexHighlight?: HighlightInfo;
   isResizing: boolean;
   lastSelectedWidget?: string;
   focusedWidget?: string;

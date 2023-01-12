@@ -1,4 +1,4 @@
-import { ResponsiveBehavior } from "components/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { CameraModeTypes } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

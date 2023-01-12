@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Positioning, ResponsiveBehavior } from "components/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
@@ -34,6 +34,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isStack } from "./AutoLayoutUtils";
 import { getWidget, getWidgets } from "./selectors";
 import {
   buildWidgetBlueprint,
@@ -111,10 +112,7 @@ function* getChildWidgetProps(
     }
   }
 
-  const isAutoLayout =
-    parent?.positioning === Positioning.Vertical ||
-    (parent.parentId &&
-      widgets[parent.parentId].positioning === Positioning.Vertical);
+  const isAutoLayout = isStack(widgets, parent);
   if (
     isAutoLayout &&
     restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill

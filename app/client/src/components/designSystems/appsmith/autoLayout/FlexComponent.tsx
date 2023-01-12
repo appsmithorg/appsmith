@@ -5,7 +5,7 @@ import {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
-} from "components/constants";
+} from "utils/autoLayout/constants";
 import {
   WidgetType,
   widgetTypeClassname,

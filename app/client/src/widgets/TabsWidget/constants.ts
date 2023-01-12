@@ -1,4 +1,4 @@
-import { Alignment, Positioning, Spacing } from "components/constants";
+import { Alignment, Positioning, Spacing } from "utils/autoLayout/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 
 export interface TabContainerWidgetProps extends WidgetProps {

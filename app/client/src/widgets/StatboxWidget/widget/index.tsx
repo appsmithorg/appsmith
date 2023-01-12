@@ -4,6 +4,8 @@ import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Stylesheet } from "entities/AppTheming";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { Positioning } from "utils/autoLayout/constants";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneContentConfig() {
@@ -124,6 +126,10 @@ class StatboxWidget extends ContainerWidget {
 
   static getWidgetType(): WidgetType {
     return "STATBOX_WIDGET";
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return { positioning: Positioning.Fixed };
   }
 }
 
