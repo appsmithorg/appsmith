@@ -439,7 +439,6 @@ export const entityDefinitions = {
       widget.triggeredItemView,
       extraDefsToDefine,
     ),
-    items: generateTypeDef(widget.items, extraDefsToDefine),
     listData: generateTypeDef(widget.listData, extraDefsToDefine),
     pageNo: generateTypeDef(widget.pageNo),
     pageSize: generateTypeDef(widget.pageSize),
