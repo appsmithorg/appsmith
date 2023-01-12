@@ -208,11 +208,11 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     const snapRows = getCanvasSnapRows(props.bottomRow);
 
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
-    if (rowRef.current !== snapRows) {
+    if (rowRef.current !== snapRows && !isDragging && !isResizing) {
       rowRef.current = snapRows;
       updateHeight(dropTargetRef, snapRows, false);
     }
-  }, [props.bottomRow, isPreviewMode]);
+  }, [props.bottomRow, isDragging, isResizing]);
 
   const handleFocus = (e: any) => {
     // Making sure that we don't deselect the widget
