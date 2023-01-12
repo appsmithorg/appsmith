@@ -48,7 +48,6 @@ import {
 import classNames from "classnames";
 import { TJSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Divider } from "@blueprintjs/core";
 
 const openDoc = (e: React.MouseEvent, url: string) => {
   e.preventDefault();
