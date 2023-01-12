@@ -11,6 +11,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -48,6 +49,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.FieldName.ACTION_LIST;
+import static com.appsmith.server.constants.FieldName.CUSTOM_JS_LIB_LIST;
 import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
 import static com.appsmith.server.constants.FieldName.DECRYPTED_FIELDS;
 import static com.appsmith.server.constants.FieldName.EDIT_MODE_THEME;
@@ -68,8 +70,8 @@ public class GitFileUtils {
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-            = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS, EDIT_MODE_THEME);
-
+        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST,
+            DECRYPTED_FIELDS, EDIT_MODE_THEME, CUSTOM_JS_LIB_LIST);
     /**
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
@@ -220,6 +222,14 @@ public class GitFileUtils {
         applicationReference.setDatasources(new HashMap<>(resourceMap));
         resourceMap.clear();
 
+        applicationJson
+                .getCustomJSLibList()
+                .forEach(jsLib -> {
+                    resourceMap.put(jsLib.getUidString(), jsLib);
+                });
+        applicationReference.setJsLibraries(new HashMap<>(resourceMap));
+        resourceMap.clear();
+
         return applicationReference;
     }
 
@@ -268,7 +278,7 @@ public class GitFileUtils {
         return deserializedResources;
     }
 
-    private <T> T getApplicationResource(Object resource, Type type) {
+    public <T> T getApplicationResource(Object resource, Type type) {
         if (resource == null) {
             return null;
         }
@@ -355,6 +365,10 @@ public class GitFileUtils {
                     .forEach(applicationPage -> applicationPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
             application.setPublishedPages(applicationPages);
         }
+
+        List<CustomJSLib> customJSLibList = getApplicationResource(applicationReference.getJsLibraries(),
+                CustomJSLib.class);
+        applicationJson.setCustomJSLibList(customJSLibList);
 
         // Extract pages
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);

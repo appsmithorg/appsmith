@@ -483,10 +483,11 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setAdded(status.getAdded());
                 response.setRemoved(status.getRemoved());
 
-                long modifiedPages = 0L;
-                long modifiedQueries = 0L;
-                long modifiedJSObjects = 0L;
-                long modifiedDatasources = 0L;
+                int modifiedPages = 0;
+                int modifiedQueries = 0;
+                int modifiedJSObjects = 0;
+                int modifiedDatasources = 0;
+                int modifiedJSLibs = 0;
                 for (String x : modifiedAssets) {
                     if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
@@ -496,6 +497,8 @@ public class GitExecutorImpl implements GitExecutor {
                         modifiedJSObjects++;
                     } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
                         modifiedDatasources++;
+                    } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + "/")) {
+                        modifiedJSLibs++;
                     }
                 }
                 response.setModified(modifiedAssets);
@@ -505,6 +508,7 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setModifiedQueries(modifiedQueries);
                 response.setModifiedJSObjects(modifiedJSObjects);
                 response.setModifiedDatasources(modifiedDatasources);
+                response.setModifiedJSLibs(modifiedJSLibs);
 
                 BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
                 if (trackingStatus != null) {
