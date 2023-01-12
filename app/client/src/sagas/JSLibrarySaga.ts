@@ -68,6 +68,7 @@ function* handleInstallationFailure(
     payload: { url, show: false },
   });
   AnalyticsUtil.logEvent("INSTALL_LIBRARY", { url, success: false });
+  log.error(message);
 }
 
 export function* installLibrarySaga(lib: Partial<TJSLibrary>) {

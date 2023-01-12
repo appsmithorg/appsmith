@@ -382,7 +382,7 @@ export function Installer(props: { left: number }) {
         Toaster.show({
           text: createMessage(
             customJSLibraryMessages.INSTALLED_ALREADY,
-            libInstalled.accessor,
+            (libInstalled.accessor || []).join(", "),
           ),
           variant: Variant.info,
         });
