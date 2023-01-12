@@ -246,6 +246,10 @@ export const EditorWrapper = styled.div<{
       color: #a8a8a8;
     }
 
+    .CodeMirror-activeline-background {
+      background-color: #ececec;
+    }
+
     .cm-s-duotone-light span.cm-positive,
     .cm-s-duotone-light span.cm-string-2,
     .cm-s-duotone-light span.cm-type,
