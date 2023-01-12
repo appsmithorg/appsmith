@@ -194,25 +194,6 @@ class BaseInputWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Sets a placeholder text for the input",
-            propertyName: "placeholderText",
-            label: "Placeholder",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Placeholder",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "placeholderJp",
-            label: "Translation JP",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Translation for placeholder",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             label: "Visible",
@@ -541,8 +522,6 @@ class BaseInputWidget<
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.props.onValueChange}
-        placeholder={this.props.placeholder}
-        placeholderJp={this.props.placeholderJp}
         showError={this.props.showError}
         stepSize={1}
         tooltip={this.props.tooltip}
@@ -572,8 +551,6 @@ export interface BaseInputWidgetProps extends WidgetProps {
   regex?: string;
   errorMessage?: string;
   errorMessageJp?: string;
-  placeholderText?: string;
-  placeholderJp?: string;
   label: string;
   translationJp?: string;
   labelPosition?: LabelPosition;

@@ -6,4 +6,5 @@ export enum InputTypes {
   PASSWORD = "PASSWORD",
   CURRENCY = "CURRENCY",
   COLOR = "COLOR",
+  TEXTAREA = "TEXTAREA",
 }
