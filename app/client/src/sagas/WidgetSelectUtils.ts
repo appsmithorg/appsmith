@@ -69,11 +69,7 @@ export const selectMultipleWidgets = (
     return allWidgets[each]?.parentId === parentToMatch;
   });
   if (!areSiblings) return;
-  let newLastSelectedWidget = "";
-  if (request.length === 1) {
-    newLastSelectedWidget = request[0];
-  }
-  return { widgets: request, lastWidgetSelected: newLastSelectedWidget };
+  return { widgets: request, lastWidgetSelected: request[0] };
 };
 
 export const shiftSelectWidgets = (
