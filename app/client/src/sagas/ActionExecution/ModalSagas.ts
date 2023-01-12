@@ -1,5 +1,4 @@
 import {
-  ActionTriggerType,
   CloseModalActionDescription,
   ShowModalActionDescription,
 } from "@appsmith/entities/DataTree/actionTriggers";
@@ -12,7 +11,7 @@ export function* openModalSaga(action: ShowModalActionDescription) {
   const { modalName } = action.payload;
   if (typeof modalName !== "string") {
     throw new ActionValidationError(
-      ActionTriggerType.SHOW_MODAL_BY_NAME,
+      "SHOW_MODAL_BY_NAME",
       "name",
       Types.STRING,
       getType(modalName),
@@ -28,7 +27,7 @@ export function* closeModalSaga(action: CloseModalActionDescription) {
   const { modalName } = action.payload;
   if (typeof modalName !== "string") {
     throw new ActionValidationError(
-      ActionTriggerType.CLOSE_MODAL,
+      "CLOSE_MODAL",
       "name",
       Types.STRING,
       getType(modalName),
