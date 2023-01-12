@@ -407,6 +407,7 @@ export function Installer(props: { left: number }) {
         installLibraryInit({
           url,
           name: lib?.name,
+          version: lib?.version,
         }),
       );
     },
