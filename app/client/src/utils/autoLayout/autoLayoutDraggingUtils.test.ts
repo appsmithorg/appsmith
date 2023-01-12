@@ -4,8 +4,10 @@ import {
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
+  addNewLayer,
   createFlexLayer,
   removeWidgetsFromCurrentLayers,
+  updateExistingLayer,
   updateRelationships,
 } from "./autoLayoutDraggingUtils";
 import { FlexLayerAlignment } from "./constants";
@@ -118,6 +120,94 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         );
         expect(layerIndex).toEqual(-1);
       }
+    });
+  });
+  describe("test addNewLayer method", () => {
+    it("should add a new layer to flexLayers array at the given layerIndex", () => {
+      const widgets = { ...data };
+      const movedWidget = "pt32jvs72k";
+      const newParentId = "0";
+      const newLayer: FlexLayer = {
+        children: [{ id: movedWidget, align: FlexLayerAlignment.Center }],
+      };
+      const result: CanvasWidgetsReduxState = addNewLayer(
+        newLayer,
+        widgets,
+        newParentId,
+        widgets[newParentId].flexLayers as FlexLayer[],
+        0,
+      );
+      const updatedParent = result[newParentId];
+      expect(updatedParent.flexLayers.length).toEqual(2);
+      const layerIndex = updatedParent?.flexLayers?.findIndex(
+        (layer: FlexLayer) => {
+          return (
+            layer.children.findIndex(
+              (child: LayerChild) => child.id === "pt32jvs72k",
+            ) !== -1
+          );
+        },
+      );
+      expect(layerIndex).toEqual(0);
+    });
+    it("should add new layer at the end of the flex layers if layerIndex is invalid", () => {
+      const widgets = { ...data };
+      const movedWidget = "pt32jvs72k";
+      const newParentId = "0";
+      const newLayer: FlexLayer = {
+        children: [{ id: movedWidget, align: FlexLayerAlignment.Center }],
+      };
+      const result: CanvasWidgetsReduxState = addNewLayer(
+        newLayer,
+        widgets,
+        newParentId,
+        widgets[newParentId].flexLayers as FlexLayer[],
+        5,
+      );
+      const updatedParent = result[newParentId];
+      expect(updatedParent.flexLayers.length).toEqual(2);
+      const layerIndex = updatedParent?.flexLayers?.findIndex(
+        (layer: FlexLayer) => {
+          return (
+            layer.children.findIndex(
+              (child: LayerChild) => child.id === "pt32jvs72k",
+            ) !== -1
+          );
+        },
+      );
+      expect(layerIndex).toEqual(1);
+    });
+  });
+
+  describe("test updateExistingLayer method", () => {
+    it("should update existing layer by merging the new layer at the given layerIndex", () => {
+      const widgets = { ...data };
+      const movedWidget = "pt32jvs72k";
+      const newParentId = "0";
+      const newLayer: FlexLayer = {
+        children: [{ id: movedWidget, align: FlexLayerAlignment.Center }],
+      };
+      const result: CanvasWidgetsReduxState = updateExistingLayer(
+        newLayer,
+        widgets,
+        newParentId,
+        widgets[newParentId].flexLayers as FlexLayer[],
+        0,
+        0,
+      );
+      const updatedParent = result[newParentId];
+      expect(updatedParent.flexLayers.length).toEqual(1);
+      expect(updatedParent.flexLayers[0].children.length).toEqual(3);
+      const layerIndex = updatedParent?.flexLayers?.findIndex(
+        (layer: FlexLayer) => {
+          return (
+            layer.children.findIndex(
+              (child: LayerChild) => child.id === "pt32jvs72k",
+            ) !== -1
+          );
+        },
+      );
+      expect(layerIndex).toEqual(0);
     });
   });
 });
