@@ -105,7 +105,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
             /* Create a fresh datasource context */
             DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
-            if (!datasourceContextIdentifier.isKeyNotValid()) {
+            if (datasourceContextIdentifier.isKeyValid()) {
             /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
             the new connection in the context map. */
                 datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
@@ -127,7 +127,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         datasourceContext)
                     .cache(); /* Cache the value so that further evaluations don't result in new connections */
 
-            if (!datasourceContextIdentifier.isKeyNotValid()) {
+            if (datasourceContextIdentifier.isKeyValid()) {
                 datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
             }
             return datasourceContextMonoCache;
@@ -151,7 +151,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     Mono<Datasource> retrieveDatasourceFromDB( Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier) {
-        if (!datasourceContextIdentifier.isKeyNotValid()) {
+        if (datasourceContextIdentifier.isKeyValid()) {
             return datasourceService.findById(datasourceContextIdentifier.getDatasourceId(),
                                               datasourcePermission.getExecutePermission());
         } else {
@@ -184,7 +184,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                      * synchronized.
                      */
                     Object monitor = new Object();
-                    if (!datasourceContextIdentifier.isKeyNotValid()) {
+                    if (datasourceContextIdentifier.isKeyValid()) {
                         if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
                             synchronized (this) {
                                 if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
@@ -252,7 +252,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     public Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceContextIdentifier datasourceContextIdentifier) {
 
         String datasourceId = datasourceContextIdentifier.getDatasourceId();
-        if (datasourceContextIdentifier.isKeyNotValid()) {
+        if (!datasourceContextIdentifier.isKeyValid()) {
             return Mono.empty();
         }
 

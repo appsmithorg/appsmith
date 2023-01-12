@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.util.StringUtils;
+
+import static org.springframework.util.StringUtils.hasLength;
 
 /**
  * This class is for generating keys for dsContext.
@@ -30,11 +31,11 @@ public class DatasourceContextIdentifierCE {
         }
 
         DatasourceContextIdentifierCE keyObj = (DatasourceContextIdentifierCE)  obj;
-        boolean areBothEnvironmentIdSameOrNull = this.hasLength(this.getEnvironmentId()) ?
-                this.getEnvironmentId().equals(keyObj.getEnvironmentId()) : !this.hasLength(keyObj.getEnvironmentId());
+        boolean areBothEnvironmentIdSameOrNull = hasLength(this.getEnvironmentId()) ?
+                this.getEnvironmentId().equals(keyObj.getEnvironmentId()) : !hasLength(keyObj.getEnvironmentId());
 
         // if datasourceId is null for either of the objects then the keys can't be equal
-        return this.hasLength(this.getDatasourceId())
+        return hasLength(this.getDatasourceId())
                 && this.getDatasourceId().equals(keyObj.getDatasourceId()) &&
                 areBothEnvironmentIdSameOrNull;
     }
@@ -42,17 +43,14 @@ public class DatasourceContextIdentifierCE {
     @Override
     public int hashCode() {
         int result = 0;
-        result = this.hasLength(this.getDatasourceId()) ? this.getDatasourceId().hashCode() : result;
-        result = this.hasLength(this.getDatasourceId()) ? result*31 + this.getDatasourceId().hashCode() : result;
+        result = hasLength(this.getDatasourceId()) ? this.getDatasourceId().hashCode() : result;
+        result = hasLength(this.getDatasourceId()) ? result*31 + this.getDatasourceId().hashCode() : result;
         return result;
     }
 
-    public boolean isKeyNotValid() {
-        return !this.hasLength(this.getDatasourceId());
+    public boolean isKeyValid() {
+        return hasLength(this.getDatasourceId());
     }
 
-    public boolean hasLength(String id) {
-        return StringUtils.hasLength(id);
-    }
 
 }
