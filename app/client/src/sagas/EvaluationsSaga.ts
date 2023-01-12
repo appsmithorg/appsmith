@@ -128,51 +128,14 @@ const evalWorker = new GracefulWorkerService(
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
-/**
- * This saga is responsible for evaluating the data tree
- * @param postEvalActions
- * @param shouldReplay
- * @param requiresLinting
- * @param forceEvaluation - if true, will re-evaluate the entire tree
- * @returns
- * @example
- * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
- */
-export function* evaluateTreeSaga(
-  postEvalActions?: Array<AnyReduxAction>,
-  shouldReplay = true,
-  requiresLinting = false,
-  forceEvaluation = false,
+export function* updateDataTreeHandler(
+  data: EvalTreeResponseData,
+  extraData: {
+    unevalTree: UnEvalTree;
+    appMode?: APP_MODE;
+    postEvalActions?: Array<AnyReduxAction>;
+  },
 ) {
-  const allActionValidationConfig: {
-    [actionId: string]: ActionValidationConfigMap;
-  } = yield select(getAllActionValidationConfig);
-  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
-  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const theme: AppTheme = yield select(getSelectedAppTheme);
-  const appMode: APP_MODE | undefined = yield select(getAppMode);
-  const isEditMode = appMode === APP_MODE.EDIT;
-  log.debug({ unevalTree });
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.DATA_TREE_EVALUATION,
-  );
-  const evalTreeRequestData: EvalTreeRequestData = {
-    unevalTree,
-    widgetTypeConfigMap,
-    widgets,
-    theme,
-    shouldReplay,
-    allActionValidationConfig,
-    requiresLinting: isEditMode && requiresLinting,
-    forceEvaluation,
-  };
-
-  const workerResponse: EvalTreeResponseData = yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.EVAL_TREE,
-    evalTreeRequestData,
-  );
-
   const {
     dataTree,
     dependencies,
@@ -184,7 +147,9 @@ export function* evaluateTreeSaga(
     userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
-  } = workerResponse;
+  } = data;
+
+  const { appMode, postEvalActions, unevalTree } = extraData;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -250,6 +215,58 @@ export function* evaluateTreeSaga(
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
+}
+
+/**
+ * This saga is responsible for evaluating the data tree
+ * @param postEvalActions
+ * @param shouldReplay
+ * @param requiresLinting
+ * @param forceEvaluation - if true, will re-evaluate the entire tree
+ * @returns
+ * @example
+ * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
+ */
+export function* evaluateTreeSaga(
+  postEvalActions?: Array<AnyReduxAction>,
+  shouldReplay = true,
+  requiresLinting = false,
+  forceEvaluation = false,
+) {
+  const allActionValidationConfig: {
+    [actionId: string]: ActionValidationConfigMap;
+  } = yield select(getAllActionValidationConfig);
+  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
+  const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const theme: AppTheme = yield select(getSelectedAppTheme);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
+  const isEditMode = appMode === APP_MODE.EDIT;
+  log.debug({ unevalTree });
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
+  const evalTreeRequestData: EvalTreeRequestData = {
+    unevalTree,
+    widgetTypeConfigMap,
+    widgets,
+    theme,
+    shouldReplay,
+    allActionValidationConfig,
+    requiresLinting: isEditMode && requiresLinting,
+    forceEvaluation,
+  };
+
+  const workerResponse: EvalTreeResponseData = yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.EVAL_TREE,
+    evalTreeRequestData,
+  );
+
+  yield updateDataTreeHandler(workerResponse, {
+    unevalTree,
+    appMode,
+    postEvalActions,
+  });
 }
 
 export function* evaluateActionBindings(
@@ -393,6 +410,15 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
       yield call(handleStoreOperations, data);
+    }
+
+    case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
+      const { workerResponse } = data;
+      yield call(
+        updateDataTreeHandler,
+        workerResponse as EvalTreeResponseData,
+        { appMode },
+      );
     }
   }
   yield call(evalErrorHandler, data?.errors || []);
