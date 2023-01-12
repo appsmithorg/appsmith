@@ -296,6 +296,26 @@ export const getWidgetCards = createSelector(
   },
 );
 
+export const getCommonWidgets = createSelector(
+  getWidgetCards,
+  (widgetCards) => {
+    const commonWidgetTypes = [
+      "TEXT_WIDGET",
+      "TABLE_WIDGET_V2",
+      "BUTTON_WIDGET",
+      "INPUT_WIDGET_V2",
+      "CONTAINER_WIDGET",
+    ];
+
+    return widgetCards
+      .filter((widget) => commonWidgetTypes.includes(widget.type))
+      .sort(
+        (a, b) =>
+          commonWidgetTypes.indexOf(a.type) - commonWidgetTypes.indexOf(b.type),
+      );
+  },
+);
+
 export const computeMainContainerWidget = (
   widget: FlattenedWidgetProps,
   mainCanvasProps: MainCanvasReduxState,

@@ -1,26 +1,28 @@
 import { Popover } from "@blueprintjs/core";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
-import { Button } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { selectForceOpenWidgetPanel } from "../Explorer";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getDragDetails } from "sagas/selectors";
 import { AppState } from "@appsmith/reducers";
 import { useMouseLocation } from "../GlobalHotKeys/useMouseLocation";
-import { getExplorerWidth } from "selectors/explorerSelector";
-import { ThemeContext } from "styled-components";
+import styled from "styled-components";
 
 const WIDGET_PANE_WIDTH = 246;
 const WIDGET_PANE_HEIGHT = 600;
 
+const StyledTrigger = styled.div`
+  height: 40px;
+  width: 40px;
+`;
+
 function WidgetPaneTrigger() {
   const dispatch = useDispatch();
-  const theme = useContext(ThemeContext);
   const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
   const dragDetails = useSelector(getDragDetails);
-  const explorerWidth = useSelector(getExplorerWidth);
   const getMousePosition = useMouseLocation();
+  const ref = useRef<HTMLDivElement | null>(null);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
@@ -28,16 +30,16 @@ function WidgetPaneTrigger() {
 
   const isOverlappingWithPane = () => {
     const { x, y } = getMousePosition();
+    let ctaPosition = { left: 0, top: 0 };
 
-    const hbufferOffset = 100 * 2;
-    const vbufferOffset = 0 * 1;
-    const hOffset = explorerWidth + WIDGET_PANE_WIDTH + hbufferOffset;
-    const vOffset =
-      parseInt(theme.smallHeaderHeight.slice(0, -2)) +
-      40 +
-      WIDGET_PANE_HEIGHT +
-      vbufferOffset;
-    console.log({ x, y, hOffset, vOffset }, "offsets");
+    if (ref.current) {
+      ctaPosition = ref.current.getBoundingClientRect();
+    }
+
+    const hbufferOffset = 200;
+    const hOffset = ctaPosition.left + hbufferOffset + WIDGET_PANE_WIDTH;
+    const vOffset = ctaPosition.top + WIDGET_PANE_HEIGHT;
+
     if (x < hOffset && y < vOffset) {
       return true;
     }
@@ -86,12 +88,12 @@ function WidgetPaneTrigger() {
         isOpen={openWidgetPanel}
         onClose={() => dispatch(forceOpenWidgetPanel(false))}
       >
-        <Button
-          height={"40"}
+        <StyledTrigger
           onClick={() => dispatch(forceOpenWidgetPanel(true))}
-          tag="button"
-          text={"C"}
-        />
+          ref={ref}
+        >
+          CLICK
+        </StyledTrigger>
       </Popover>
     </div>
   );
