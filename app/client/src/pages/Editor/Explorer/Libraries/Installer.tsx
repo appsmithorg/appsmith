@@ -153,13 +153,11 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
     word-break: break-all;
   }
   .error-card.show {
-    visibility: visible;
+    display: flex;
   }
   .error-card {
-    display: flex;
-    visibility: hidden;
+    display: none;
     padding: 10px;
-    transition: all 0.2s ease-in-out;
     flex-direction: row;
     background: #ffe9e9;
     .unsupported {
