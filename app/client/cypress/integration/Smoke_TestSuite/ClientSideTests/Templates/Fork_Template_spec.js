@@ -4,7 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const { AggregateHelper, HomePage } = ObjectsRegistry;
 
 describe("Fork a template to an workspace", () => {
-  it("Fork a template to an workspace", () => {
+  it("1. Fork a template to an workspace", () => {
     cy.NavigateToHome();
     cy.get(templateLocators.templatesTab).click();
     cy.wait(1000);
@@ -21,7 +21,7 @@ describe("Fork a template to an workspace", () => {
     cy.get(templateLocators.dialogForkButton).click();
     cy.get(commonlocators.canvas).should("be.visible");
   });
-  it("Update query param on opening fork modal in template detailed view", () => {
+  it("2. Update query param on opening fork modal in template detailed view", () => {
     cy.NavigateToHome();
     cy.get(templateLocators.templatesTab).click();
     cy.get(templateLocators.templateCard)
@@ -32,14 +32,16 @@ describe("Fork a template to an workspace", () => {
       expect(location.search).to.eq("?showForkTemplateModal=true");
     });
   });
-  it("Hide template fork button if user does not have a valid workspace to fork", () => {
+  it("3. Hide template fork button if user does not have a valid workspace to fork", () => {
     HomePage.NavigateToHome();
     // Mock user with App Viewer permission
     cy.intercept("/api/v1/applications/new", {
       fixture: "Templates/MockAppViewerUser.json",
     });
     AggregateHelper.RefreshPage();
-    HomePage.SwitchToTemplatesTab();
+    HomePage.SwitchToTemplatesTab(); 
+    AggregateHelper.Sleep(2000)
+    AggregateHelper.CheckForInternalServerError()
     AggregateHelper.AssertElementExist(templateLocators.templateCard);
     AggregateHelper.AssertElementAbsence(templateLocators.templateForkButton);
 

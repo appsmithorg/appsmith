@@ -136,8 +136,7 @@ export class AggregateHelper {
     this.Sleep();
   }
 
-  public CheckForPageSaveError()
-  {
+  public CheckForPageSaveError() {
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._saveStatusError).length) {
         cy.reload();
@@ -146,7 +145,7 @@ export class AggregateHelper {
   }
 
   public AssertAutoSave() {
-    this.CheckForPageSaveError()
+    this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
     cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
       "not.exist",
@@ -937,6 +936,22 @@ export class AggregateHelper {
       .eq(index)
       .scrollIntoView()
       .should("be.visible");
+  }
+
+  public CheckForInternalServerError(selector: ElementType) {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this.locator._toastMsg).length) {
+        if (
+          $ele.find(
+            this.locator._specificToast(
+              "Internal server error while processing request",
+            ),
+          )
+        ) {
+          throw new Error("Internal server error while processing request");
+        }
+      }
+    });
   }
 
   public AssertElementExist(selector: ElementType, index = 0) {
