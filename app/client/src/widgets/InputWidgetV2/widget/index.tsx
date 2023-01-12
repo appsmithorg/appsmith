@@ -1,5 +1,5 @@
 import React from "react";
-import { WidgetState } from "widgets/BaseWidget";
+import { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, { InputComponentProps } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -31,6 +31,7 @@ import { getParsedText } from "./Utilities";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export function defaultValueValidation(
   value: any,
@@ -179,6 +180,29 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
     };
   }
 }
+
+function InputTypeUpdateHook(
+  props: WidgetProps,
+  propertyName: string,
+  propertyValue: unknown,
+) {
+  const updates = [
+    {
+      propertyPath: propertyName,
+      propertyValue: propertyValue,
+    },
+  ];
+
+  if (propertyValue === InputTypes.MULTI_LINE_TEXT) {
+    updates.push({
+      propertyPath: "dynamicHeight",
+      propertyValue: DynamicHeight.AUTO_HEIGHT,
+    });
+  }
+
+  return updates;
+}
+
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
@@ -215,6 +239,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               ],
               isBindProperty: false,
               isTriggerProperty: false,
+              updateHook: InputTypeUpdateHook,
             },
             {
               helpText:
