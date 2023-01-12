@@ -107,7 +107,7 @@ export function updateFlexLayersOnDelete(
     updatedChildren = children.filter(
       (each: LayerChild) => each.id !== widgetId,
     );
-    layerIndex += 1;
+    layerIndex = index;
     break;
   }
   if (layerIndex === -1) return widgets;
