@@ -107,6 +107,8 @@ export class GitSync {
     this.agHelper.TypeText(this._gitRepoInput, remoteUrl);
 
     this.agHelper.ClickButton("Generate key");
+    this.agHelper.Sleep(60000);
+
     cy.wait(`@generateKey`).then((result: any) => {
       generatedKey = result.response.body.data.publicKey;
       generatedKey = generatedKey.slice(0, generatedKey.length - 1);
@@ -136,6 +138,8 @@ export class GitSync {
       );
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
       this.agHelper.ClickButton("CONNECT");
+      this.agHelper.Sleep(60000);
+
       if (assertConnect) {
         //this.ReplaceForGit("cypress/fixtures/Bugs/GitConnectResponse.json", remoteUrl);
         //cy.get('@connectGitLocalRepo').its('response.statusCode').should('equal', 200);
@@ -187,6 +191,7 @@ export class GitSync {
 
   private CreateLocalGithubRepo(repo: string) {
     let remoteUrl: string = "";
+    this.agHelper.Sleep(60000);
     cy.request({
       method: "GET",
       url:
