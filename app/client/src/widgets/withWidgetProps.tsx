@@ -17,6 +17,7 @@ import {
 import {
   computeMainContainerWidget,
   getChildWidgets,
+  getCurrentAppPositioningType,
   getMainCanvasProps,
   getRenderMode,
   previewModeSelector,
@@ -51,6 +52,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
     const isMobile = useSelector(getIsMobile);
+    const appPositioningType = useSelector(getCurrentAppPositioningType);
 
     const dispatch = useDispatch();
 
@@ -74,6 +76,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps = { ...canvasWidgetProps };
 
       widgetProps.isMobile = !!isMobile;
+      widgetProps.appPositioningType = appPositioningType;
 
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.

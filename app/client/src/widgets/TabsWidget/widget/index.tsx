@@ -9,12 +9,10 @@ import {
 import { Stylesheet } from "entities/AppTheming";
 import { find } from "lodash";
 import React from "react";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import {
-  generatePositioningConfig,
-  getResponsiveLayoutConfig,
-} from "utils/layoutPropertiesUtils";
+import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetState } from "../../BaseWidget";
 import TabsComponent from "../component";
@@ -109,7 +107,6 @@ class TabsWidget extends BaseWidget<
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.BOOLEAN },
                     },
-                    { ...generatePositioningConfig(Positioning.Vertical) },
                   ],
                 },
               ],
@@ -363,11 +360,14 @@ class TabsWidget extends BaseWidget<
     const selectedTabProps = Object.values(this.props.tabsObj)?.filter(
       (item) => item.widgetId === selectedTabWidgetId,
     )[0];
-    childWidgetData.positioning = selectedTabProps?.positioning;
-    childWidgetData.useAutoLayout =
-      selectedTabProps?.positioning !== Positioning.Fixed;
+    const positioning: Positioning =
+      this.props.appPositioningType == AppPositioningTypes.AUTO
+        ? Positioning.Vertical
+        : Positioning.Fixed;
+    childWidgetData.positioning = positioning;
+    childWidgetData.useAutoLayout = positioning !== Positioning.Fixed;
     childWidgetData.direction =
-      selectedTabProps?.positioning === Positioning.Vertical
+      positioning === Positioning.Vertical
         ? LayoutDirection.Vertical
         : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;

@@ -36,6 +36,7 @@ import { Stylesheet } from "entities/AppTheming";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { get, memoize } from "lodash";
 import React, { Component, ReactNode } from "react";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import shallowequal from "shallowequal";
 import { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -649,6 +650,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
   isMobile?: boolean;
   flexVerticalAlignment?: FlexVerticalAlignment;
+  appPositioningType?: AppPositioningTypes;
 }
 
 export const WIDGET_DISPLAY_PROPS = {

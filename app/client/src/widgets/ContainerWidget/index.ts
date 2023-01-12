@@ -44,7 +44,7 @@ export const CONFIG = {
       ],
     },
     version: 1,
-    positioning: Positioning.Vertical,
+    // positioning: Positioning.Vertical,
     responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },

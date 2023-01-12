@@ -7,8 +7,12 @@ import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { FLEXBOX_PADDING } from "constants/WidgetConstants";
+import {
+  FLEXBOX_PADDING,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function getCanvas(widgets: CanvasWidgetsReduxState, containerId: string) {
@@ -338,10 +342,10 @@ export function isStack(
   const parent = widget.parentId ? allWidgets[widget.parentId] : undefined;
   return (
     widget.positioning === Positioning.Vertical ||
-    (parent && parent.positioning === Positioning.Vertical) ||
-    (parent !== undefined &&
-      parent?.type === "TABS_WIDGET" &&
-      parent?.tabsObj[widget.tabId].positioning === Positioning.Vertical)
+    (parent && ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(parent.type)
+      ? allWidgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
+        AppPositioningTypes.AUTO
+      : false)
   );
 }
 
