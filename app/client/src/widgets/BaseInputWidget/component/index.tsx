@@ -365,9 +365,9 @@ const TextInputWrapper = styled.div<{
   }};
   border-radius: ${({ borderRadius }) => borderRadius} !important;
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-  min-height: 40px;
-  &&& {
-    flex: 0 40px;
+  min-height: 32px;
+  .auto-layout & {
+    min-height: 40px;
   }
 
   &:hover {

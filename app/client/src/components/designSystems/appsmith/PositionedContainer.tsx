@@ -27,8 +27,6 @@ const PositionedWidget = styled.div<{
   zIndexOnHover: number;
   disabled?: boolean;
 }>`
-  container-name: widget-container;
-  container-type: inline-size;
   &:hover {
     z-index: ${(props) => props.zIndexOnHover} !important;
   }

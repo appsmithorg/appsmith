@@ -68,7 +68,7 @@ export const LABEL_MAX_WIDTH_RATE = 70;
 /**
  * Default margin-top or margin-right value between label, help text and input
  */
-export const LABEL_DEFAULT_GAP = "10px";
+export const LABEL_DEFAULT_GAP = "5px";
 
 /**
  * The amount of time in milliseconds the popover on the label with ellipsis
@@ -103,7 +103,6 @@ export const labelLayoutStyles = css<{
     return "flex-start";
   }};
   justify-content: flex-start;
-  min-width: 160px;
 `;
 
 export const multiSelectInputContainerStyles = css<{

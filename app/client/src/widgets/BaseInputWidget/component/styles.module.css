@@ -1,23 +1,24 @@
-.inputComponentWrapper {
-  /* background: blue; */
+:global(.auto-layout) .inputComponentWrapper {
   min-width: 160px;
 }
 
-@container (max-width: 360px) {
-  .inputComponentWrapper {
-    /* background: green; */
-  }
-  .label {
+:global(.auto-layout) .textInputWrapper {
+  flex: 0 40px !important;
+}
+
+@container canvas-container (max-width: 360px) {
+  :global(.auto-layout) .label {
     margin-bottom: 4px !important;
   }
-  .textInputWrapper {
-    flex-basis: 36px;
-    min-height: 36px;
+  :global(.auto-layout) .textInputWrapper {
+    min-height: 36px !important;
+    flex-basis: 36px !important;
   }
 }
 
-@container (min-width: 768px) {
-  .inputComponentWrapper {
-    /* background: red; */
+@container canvas-container (min-width: 361px) {
+  :global(.auto-layout) .label {
+    margin-bottom: 10px !important;
+    font-size: 15px !important;
   }
 }

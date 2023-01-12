@@ -20,6 +20,10 @@ const StyledContainerComponent = styled.div<
     ref: RefObject<HTMLDivElement>;
   }
 >`
+  &.auto-layout {
+    container-name: canvas-container;
+    container-type: inline-size;
+  }
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};
@@ -85,7 +89,9 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
       // getCanvasClassName is used to add a scrollable parent.
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
-      } ${generateClassName(props.widgetId)}`}
+      } ${generateClassName(props.widgetId)} ${
+        props.useAutoLayout && props.widgetId === "0" ? "auto-layout" : ""
+      }`}
       containerStyle={containerStyle}
       ref={containerRef}
       tabIndex={props.shouldScrollContents ? undefined : 0}
