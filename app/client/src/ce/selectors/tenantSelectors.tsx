@@ -32,4 +32,4 @@ export const isTenantLoading = (state: AppState) => {
 };
 
 export const getMapsApiKey = (state: AppState): string | undefined =>
-  state.tenant?.tenantConfiguration?.googleMapsKey as string | undefined
+  state.tenant?.tenantConfiguration?.googleMapsKey as string | undefined;
