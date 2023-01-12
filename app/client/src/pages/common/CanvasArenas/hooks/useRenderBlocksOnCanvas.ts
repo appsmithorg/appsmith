@@ -123,6 +123,7 @@ export const useRenderBlocksOnCanvas = (
     scrollParent: Element | null,
     highlight?: HighlightInfo | undefined,
     isMainContainer?: boolean,
+    parentOffsetTop?: number,
   ) => {
     let isCurrUpdatingRows = isUpdatingRows;
     const modifiedRectanglesToDraw = modifyDrawingRectangles(
@@ -156,8 +157,12 @@ export const useRenderBlocksOnCanvas = (
         canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
         const { height, posX, posY, width } = highlight;
         let val = 0;
-        if (isMainContainer && scrollParent?.scrollTop)
-          val = scrollParent.scrollTop;
+        if (scrollParent?.scrollTop)
+          val = isMainContainer
+            ? scrollParent.scrollTop
+            : parentOffsetTop && scrollParent.scrollTop > parentOffsetTop
+            ? scrollParent.scrollTop - parentOffsetTop
+            : 0;
         canvasCtx.fillRect(posX, posY - val, width, height);
         canvasCtx.save();
       }

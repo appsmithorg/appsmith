@@ -91,21 +91,26 @@ export function updateFlexLayersOnDelete(
   let flexLayers = [...(parent.flexLayers || [])];
   if (!flexLayers.length) return widgets;
   let layerIndex = -1; // Find the layer in which the deleted widget exists.
+  let index = 0;
   let updatedChildren: LayerChild[] = [];
   for (const layer of flexLayers) {
-    layerIndex += 1;
     const children = layer.children || [];
     if (!children.length) continue;
-    const index = children.findIndex(
+    const childIndex = children.findIndex(
       (each: LayerChild) => each.id === widgetId,
     );
-    if (index === -1) continue;
+    if (childIndex === -1) {
+      index += 1;
+      continue;
+    }
     // children.splice(index, 1);
     updatedChildren = children.filter(
       (each: LayerChild) => each.id !== widgetId,
     );
+    layerIndex = index;
     break;
   }
+  if (layerIndex === -1) return widgets;
 
   flexLayers = [
     ...flexLayers.slice(0, layerIndex),
@@ -123,7 +128,6 @@ export function updateFlexLayersOnDelete(
   };
   widgets[parentId] = parent;
 
-  if (layerIndex === -1) return widgets;
   return updateWidgetPositions(widgets, parentId, isMobile);
 }
 
@@ -321,8 +325,8 @@ export function addChildToPastedFlexLayers(
             { id: widget.widgetId, align: child.align },
             ...children.slice(childIndex + 1),
           ];
-          childIndex += 1;
         }
+        childIndex += 1;
       }
       flexLayers[index] = {
         children,
@@ -344,12 +348,15 @@ export function isStack(
   allWidgets: CanvasWidgetsReduxState,
   widget: any,
 ): boolean {
-  const parent = widget.parentId ? allWidgets[widget.parentId] : undefined;
+  let parent = widget.parentId ? allWidgets[widget.parentId] : undefined;
+  if (parent && parent.type === "CANVAS_WIDGET" && parent.parentId)
+    parent = allWidgets[parent.parentId];
   return (
     widget.positioning === Positioning.Vertical ||
-    (parent && ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(parent.type)
-      ? allWidgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
-        AppPositioningTypes.AUTO
+    ((parent && ["CONTAINER_WIDGET", "TABS_WIDGET"].includes(parent.type)) ||
+    parent?.widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? allWidgets[MAIN_CONTAINER_WIDGET_ID].positioning ===
+        Positioning.Vertical
       : false)
   );
 }
