@@ -13,7 +13,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Stylesheet } from "entities/AppTheming";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { getMapsApiKey } from "../../../selectors/tenantConfigurationSelectors";
+import { getMapsApiKey } from "../../../ce/selectors/tenantSelectors"
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
