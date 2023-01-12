@@ -90,7 +90,9 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} ${
-        props.useAutoLayout && props.widgetId === "0" ? "auto-layout" : ""
+        props.useAutoLayout && props.widgetId === MAIN_CONTAINER_WIDGET_ID
+          ? "auto-layout"
+          : ""
       }`}
       containerStyle={containerStyle}
       ref={containerRef}
