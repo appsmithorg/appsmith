@@ -5,12 +5,13 @@ import com.appsmith.external.exceptions.pluginExceptions.BasePluginError;
 import com.appsmith.external.models.ErrorType;
 import lombok.Getter;
 
+import java.text.MessageFormat;
 
 @Getter
-public enum S3PluginError implements BasePluginError {
-    AMAZON_S3_QUERY_EXECUTION_FAILED(
+public enum MySQLPluginError implements BasePluginError {
+    QUERY_EXECUTION_FAILED(
             500,
-            "PE-AS3-5000",
+            "PE-MYS-5000",
             "{0}",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Query execution error",
@@ -18,8 +19,47 @@ public enum S3PluginError implements BasePluginError {
             "{1}",
             "{2}"
     ),
+    MYSQL_PLUGIN_ERROR(
+            500,
+            "PE-MYS-5001",
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    IS_KEYWORD_NOT_ALLOWED_IN_PREPARED_STATEMENT(
+            500,
+            "PE-MYS-4001",
+            "{0}",
+            AppsmithErrorAction.DEFAULT,
+            "Query configuration is invalid",
+            ErrorType.ACTION_CONFIGURATION_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    INVALID_QUERY_SYNTAX(
+            400,
+            "PE-MYS-4002",
+            "Query is syntactically wrong",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Syntax error",
+            ErrorType.ACTION_CONFIGURATION_ERROR,
+            "{0}",
+            "{1}"
+    ),
+    MISSING_REQUIRED_PERMISSION(
+            403,
+            "PE-MYS-4003",
+            "Required permission is missing with the DB user",
+            AppsmithErrorAction.DEFAULT,
+            "Required permission missing",
+            ErrorType.AUTHENTICATION_ERROR,
+            "{0}",
+            "{1}"
+    ),
     ;
-
     private final Integer httpErrorCode;
     private final String appErrorCode;
     private final String message;
@@ -31,7 +71,7 @@ public enum S3PluginError implements BasePluginError {
 
     private final String downstreamErrorCode;
 
-    S3PluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
+    MySQLPluginError(Integer httpErrorCode, String appErrorCode, String message, AppsmithErrorAction errorAction,
                         String title, ErrorType errorType, String downstreamErrorMessage, String downstreamErrorCode) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
@@ -43,21 +83,17 @@ public enum S3PluginError implements BasePluginError {
         this.downstreamErrorCode = downstreamErrorCode;
     }
 
-    @Override
     public String getMessage(Object... args) {
-        return replacePlaceholderWithValue(this.message, args);
+        return new MessageFormat(this.message).format(args);
     }
 
-    @Override
+    public String getErrorType() { return this.errorType.toString(); }
+
     public String getDownstreamErrorMessage(Object... args) {
         return replacePlaceholderWithValue(this.downstreamErrorMessage, args);
     }
 
-    @Override
     public String getDownstreamErrorCode(Object... args) {
         return replacePlaceholderWithValue(this.downstreamErrorCode, args);
     }
-
-    @Override
-    public String getErrorType() { return this.errorType.toString(); }
 }
