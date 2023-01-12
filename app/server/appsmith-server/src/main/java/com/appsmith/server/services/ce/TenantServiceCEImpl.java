@@ -77,6 +77,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      */
     @Override
     public Mono<Tenant> getTenantConfiguration() {
-        return Mono.just(new Tenant());
+        final Tenant tenant = new Tenant();
+        final TenantConfiguration config = new TenantConfiguration();
+        tenant.setTenantConfiguration(config);
+
+        config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
+
+        return Mono.just(tenant);
     }
 }

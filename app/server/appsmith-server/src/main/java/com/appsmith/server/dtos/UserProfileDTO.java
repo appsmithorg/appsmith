@@ -50,8 +50,6 @@ public class UserProfileDTO {
 
     Map<String, Object> idToken = new HashMap<>();
 
-    Map<String, String> instanceConfig = new HashMap<>();
-
     public boolean isAccountNonExpired() {
         return this.isEnabled;
     }
