@@ -1,4 +1,4 @@
-import { Popover } from "@blueprintjs/core";
+import { Popover, Position } from "@blueprintjs/core";
 import React, { useEffect, useRef } from "react";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,13 +8,23 @@ import { getDragDetails } from "sagas/selectors";
 import { AppState } from "@appsmith/reducers";
 import { useMouseLocation } from "../GlobalHotKeys/useMouseLocation";
 import styled from "styled-components";
+import { Icon, IconSize } from "design-system";
 
 const WIDGET_PANE_WIDTH = 246;
 const WIDGET_PANE_HEIGHT = 600;
 
 const StyledTrigger = styled.div`
   height: 40px;
-  width: 40px;
+  width: 36px;
+
+  :hover {
+    background-color: #f1f1f1;
+  }
+  :active {
+    background-color: #e7e7e7;
+  }
+
+  cursor: pointer;
 `;
 
 function WidgetPaneTrigger() {
@@ -64,14 +74,7 @@ function WidgetPaneTrigger() {
   }, [isDragging]);
 
   return (
-    <div
-      className="widget-pane"
-      style={{
-        height: "40px",
-        width: "40px",
-        backgroundColor: "green",
-      }}
-    >
+    <div className="widget-pane">
       <Popover
         canEscapeKeyClose
         content={
@@ -87,12 +90,19 @@ function WidgetPaneTrigger() {
         }
         isOpen={openWidgetPanel}
         onClose={() => dispatch(forceOpenWidgetPanel(false))}
+        position={Position.BOTTOM_LEFT}
       >
         <StyledTrigger
+          className="flex ml-3 justify-center"
           onClick={() => dispatch(forceOpenWidgetPanel(true))}
           ref={ref}
         >
-          CLICK
+          <Icon fillColor={"#575757"} name="plus" size={IconSize.XXL} />
+          <Icon
+            fillColor={"#858282"}
+            name="arrow-down-s-fill"
+            size={IconSize.XXS}
+          />
         </StyledTrigger>
       </Popover>
     </div>
