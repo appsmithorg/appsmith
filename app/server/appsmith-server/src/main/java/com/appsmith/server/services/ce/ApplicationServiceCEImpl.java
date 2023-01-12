@@ -772,12 +772,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             .flatMap(tuple -> {
                                 final String oldAssetId = tuple.getT1();
                                 final Asset uploadedAsset = tuple.getT2();
-                                final Application application = new Application();
-                                Application.NavigationSetting navSetting = new Application.NavigationSetting();
-                                navSetting.setLogoAssetId(uploadedAsset.getId());
-                                application.setUnpublishedNavigationSetting(navSetting);
+                                Application.NavigationSetting navSetting = rootApplication.getUnpublishedNavigationSetting();
 
-                                final Mono<Application> updateMono = this.update(applicationId, application);
+                                navSetting.setLogoAssetId(uploadedAsset.getId());
+                                rootApplication.setUnpublishedNavigationSetting(navSetting);
+
+                                final Mono<Application> updateMono = this.update(applicationId, rootApplication);
                                 if (!StringUtils.hasLength(oldAssetId)){
                                     return updateMono;
                                 } else {
