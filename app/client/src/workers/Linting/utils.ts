@@ -180,7 +180,7 @@ function lintBindingPath(
           variables: [],
           raw: entity.body,
           errorMessage: {
-            name: "LinitingError",
+            name: "LintingError",
             text: INVALID_JSOBJECT_START_STATEMENT,
           },
           severity: Severity.ERROR,
@@ -459,7 +459,7 @@ function getInvalidPropertyErrorsFromScript(
         raw: script,
         severity: getLintSeverity(CustomLintErrorCode.INVALID_ENTITY_PROPERTY),
         errorMessage: {
-          name: "LinitingError",
+          name: "LintingError",
           text: CUSTOM_LINT_ERRORS[CustomLintErrorCode.INVALID_ENTITY_PROPERTY](
             object.name,
             propertyName,
