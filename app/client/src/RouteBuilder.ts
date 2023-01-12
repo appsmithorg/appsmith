@@ -28,8 +28,8 @@ export const fillPathname = (
   page: Page,
 ) => {
   const replaceValue = page.customSlug
-    ? getViewerCustomPath(page.customSlug, page.pageId)
-    : getViewerPath(application.slug, page.slug, page.pageId);
+    ? `/app/${page.customSlug}-${page.pageId}`
+    : `/app/${application.slug}/${page.slug}-${page.pageId}`;
 
   return pathname.replace(
     `/applications/${application.id}/pages/${page.pageId}`,
