@@ -458,7 +458,7 @@ export const useCanvasDragging = (
               );
               lastSnappedPositions = [
                 currentSnappedPosition,
-                ...lastSnappedPositions.slice(0, 4),
+                ...lastSnappedPositions.slice(0, 9),
               ];
 
               if (
