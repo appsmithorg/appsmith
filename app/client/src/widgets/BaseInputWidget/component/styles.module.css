@@ -1,5 +1,5 @@
 :global(.auto-layout) .inputComponentWrapper {
-  min-width: 160px;
+  min-width: 60px;
 }
 
 :global(.auto-layout) .textInputWrapper {

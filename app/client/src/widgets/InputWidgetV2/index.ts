@@ -10,7 +10,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: {
       sectionIndex: 3,
-      defaultValue: DynamicHeight.AUTO_HEIGHT,
+      defaultValue: DynamicHeight.FIXED,
       active: true,
     },
   },
@@ -21,7 +21,7 @@ export const CONFIG = {
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...BaseConfig.defaults,
-    rows: 7,
+    rows: 8,
     labelPosition: LabelPosition.Top,
     inputType: "TEXT",
     widgetName: "Input",
