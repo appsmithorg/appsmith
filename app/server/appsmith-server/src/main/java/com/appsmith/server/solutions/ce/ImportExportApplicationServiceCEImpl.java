@@ -480,7 +480,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .then(currentUserMono)
-                .map(user -> {
+                .flatMap(user -> {
                     stopwatch.stopTimer();
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID, applicationId,
@@ -490,8 +490,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             FieldName.FLOW_NAME, stopwatch.getFlow(),
                             "executionTime", stopwatch.getExecutionTime()
                     );
-                    analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
-                    return applicationJson;
+                    return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
+                            .thenReturn(applicationJson);
                 })
                 .then(allCustomJSLibListMono)
                 .map(allCustomLibList -> {
@@ -780,11 +780,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     existingDatasource.setStructure(null);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
-                                    return datasourceService.update(existingDatasource.getId(), existingDatasource)
-                                            .map(datasource1 -> {
-                                                datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                                return datasource1;
-                                            });
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
 
                                 // This is explicitly copied over from the map we created before
@@ -801,19 +797,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId)
-                                        .map(datasource1 -> {
-                                            datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                            return datasource1;
-                                        });
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId);
                             });
                 })
-                .then(
+                .collectMap(Datasource::getName, Datasource::getId)
+                .flatMap(map -> {
+
+                        datasourceMap.putAll(map);
                         // 1. Assign the policies for the imported application
                         // 2. Check for possible duplicate names,
                         // 3. Save the updated application
 
-                        Mono.just(importedApplication)
+                        return Mono.just(importedApplication)
                                 .zipWith(currUserMono)
                                 .map(objects -> {
                                     Application application = objects.getT1();
@@ -872,7 +867,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 });
                                     }
                                     return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
-                                })
+                                });
+                        }
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
                 .flatMap(savedApp -> {
@@ -1186,7 +1182,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
                             .then(sendImportExportApplicationAnalyticsEvent(importedApplication.getId(), AnalyticsEvents.IMPORT))
                             .zipWith(currUserMono)
-                            .map(tuple -> {
+                            .flatMap(tuple -> {
                                 Application application = tuple.getT1();
                                 stopwatch.stopTimer();
                                 stopwatch.stopAndLogTimeInMillis();
@@ -1199,8 +1195,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         FieldName.FLOW_NAME, stopwatch.getFlow(),
                                         "executionTime", stopwatch.getExecutionTime()
                                 );
-                                analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
-                                return application;
+                                return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data)
+                                        .thenReturn(application);
                             });
                 })
                 .onErrorResume(throwable -> {

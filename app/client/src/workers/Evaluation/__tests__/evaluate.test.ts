@@ -250,10 +250,7 @@ describe("isFunctionAsync", () => {
       if (typeof testFunc === "string") {
         testFunc = eval(testFunc);
       }
-
       functionDeterminer.setupEval({}, {});
-      addPlatformFunctionsToEvalContext(self);
-
       const actual = functionDeterminer.isFunctionAsync(testFunc);
       expect(actual).toBe(testCase.expected);
     }

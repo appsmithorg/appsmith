@@ -40,7 +40,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
 import {

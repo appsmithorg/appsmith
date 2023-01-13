@@ -5,7 +5,7 @@ import { getTemplatesSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { Classes, Text, TextType } from "design-system";
 import history from "utils/history";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, TEMPLATES } from "@appsmith/constants/messages";

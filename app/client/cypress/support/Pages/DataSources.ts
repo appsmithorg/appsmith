@@ -37,6 +37,7 @@ export class DataSources {
   _closeDataSourceModal = ".t--reconnect-close-btn";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
+  _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
@@ -140,6 +141,18 @@ export class DataSources {
 
   public AssertEditMode() {
     this.agHelper.AssertElementAbsence(this._editButton);
+  }
+
+  public GeneratePageWithMockDB() {
+    this.ee.AddNewPage("generate-page");
+    this.agHelper.GetNClick(this._selectDatasourceDropdown);
+    this.agHelper.GetNClick(this.locator._dropdownText, 1);
+    this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
+    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.GetNClick("[data-cy='t--dropdown-option-public.users']");
+    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));
   }
 
   public StartDataSourceRoutes() {
@@ -388,7 +401,9 @@ export class DataSources {
   public TestDatasource(expectedRes = true) {
     this.agHelper.GetNClick(this._testDs, 0, false, 0);
     this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
-    this.agHelper.AssertContains("datasource is valid");
+    if (expectedRes) {
+      this.agHelper.AssertContains("datasource is valid");
+    }
   }
 
   public SaveDatasource() {
