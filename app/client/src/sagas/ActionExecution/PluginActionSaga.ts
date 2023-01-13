@@ -530,8 +530,8 @@ function* runActionSaga(
   if (isSaving || isDirty || isSavingEntity) {
     if (isDirty && !isSaving) {
       yield put(updateAction({ id: actionId }));
+      yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
-    yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   }
   const actionObject = shouldBeDefined<Action>(
     yield select(getAction, actionId),
