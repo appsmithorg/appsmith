@@ -105,6 +105,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
       yield call(handleStoreOperations, data);
+      break;
     }
     case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
       yield logJSFunctionExecution(message);
