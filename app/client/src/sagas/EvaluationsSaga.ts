@@ -29,10 +29,7 @@ import {
   EvalError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import {
-  EVAL_WORKER_ACTIONS,
-  MAIN_THREAD_ACTION,
-} from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
@@ -90,7 +87,6 @@ import {
   logActionExecutionError,
   UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
-import { Channel } from "redux-saga";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
