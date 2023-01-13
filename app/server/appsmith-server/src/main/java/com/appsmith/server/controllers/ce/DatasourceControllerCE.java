@@ -62,9 +62,12 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
     }
 
     @PostMapping("/test")
-    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody Datasource datasource) {
+    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody Datasource datasource,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false)
+                                                                  String environmentName) {
+
         log.debug("Going to test the datasource with name: {} and id: {}", datasource.getName(), datasource.getId());
-        return service.testDatasource(datasource)
+        return service.testDatasource(datasource, environmentName)
                 .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
     }
 
