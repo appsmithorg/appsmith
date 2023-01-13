@@ -1,16 +1,16 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "test/testUtils";
+import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { RoleAddEdit } from "./RoleAddEdit";
 import { rolesTableData } from "./mocks/RolesListingMock";
-import userEvent from "@testing-library/user-event";
-import { response1 } from "./mocks/mockRoleTreeResponse";
+import { defaultUserResponse, response1 } from "./mocks/mockRoleTreeResponse";
 import { BaseAclProps, RoleEditProps } from "./types";
 import { makeData } from "./RolesTree";
 import { MenuItemProps } from "design-system";
 import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockGetRolePermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
+import userEvent from "@testing-library/user-event";
 
 let container: any = null;
 
@@ -20,6 +20,12 @@ const listMenuItems = [
     icon: "edit-underline",
     text: "Rename",
     label: "rename",
+  },
+  {
+    className: "rename-desc-menu-item",
+    icon: "edit-underline",
+    text: "Edit Description",
+    label: "rename-desc",
   },
   {
     className: "delete-menu-item",
@@ -64,7 +70,7 @@ describe("<RoleAddEdit />", () => {
   it("should list the correct options in the more menu", async () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
     const options = listMenuItems.map(
       (menuItem: MenuItemProps) => menuItem.text,
     );
@@ -79,34 +85,61 @@ describe("<RoleAddEdit />", () => {
     renderComponent();
     let titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
-    await userEvent.click(titleEl[0]);
+    await fireEvent.click(titleEl[0]);
     titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+    expect(titleEl[0]).not.toHaveTextContent("New Role name");
+
+    const inputEl = titleEl[0].getElementsByTagName("input")[0];
+    await userEvent.type(inputEl, "New Role name");
+    await userEvent.keyboard("{enter}");
+    titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+    expect(titleEl[0]).toHaveTextContent("New Role name");
   });
-  it("should show input box on role name on clicking rename menu item", async () => {
+  it("should show input box on role name on clicking rename menu item and save new name", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
+
     let titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
-    const renameOption = document.getElementsByClassName("rename-menu-item");
-    await userEvent.click(renameOption[0]);
+    const renameOption = getAllByTestId("t--rename-menu-item");
+    await fireEvent.click(renameOption[0]);
     titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+    expect(titleEl[0]).not.toHaveTextContent("New Role name");
+
+    const inputEl = titleEl[0].getElementsByTagName("input")[0];
+    await userEvent.type(inputEl, "New Role name");
+    await userEvent.keyboard("{enter}");
+    titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+    expect(titleEl[0]).toHaveTextContent("New Role name");
   });
   it("should show input box on role description on clicking edit description menu item", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
     let titleEl = document.getElementsByClassName("t--editable-description");
     expect(titleEl).toHaveLength(0);
-    const renameOption = document.getElementsByClassName(
-      "rename-desc-menu-item",
-    );
-    await userEvent.click(renameOption[0]);
+    const renameOption = getAllByTestId("t--rename-desc-menu-item");
+    await fireEvent.click(renameOption[0]);
     titleEl = document.getElementsByClassName("t--editable-description");
     expect(titleEl).toHaveLength(1);
     expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+    expect(titleEl[0]).not.toHaveTextContent(
+      "This is dummy description for this role.",
+    );
+
+    const inputEl = titleEl[0].getElementsByTagName("textarea")[0];
+    await userEvent.type(inputEl, "This is dummy description for this role.");
+    // await userEvent.keyboard("{Shift>}{enter}");
+    titleEl = document.getElementsByClassName("t--editable-description");
+    // expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+    expect(titleEl[0]).toHaveTextContent(
+      "This is dummy description for this role.",
+    );
   });
   it("should show tabs as per data recieved", () => {
     renderComponent();
@@ -137,7 +170,7 @@ describe("<RoleAddEdit />", () => {
     const tabCount = screen.queryAllByTestId("t--tab-count");
     expect(tabCount).toHaveLength(0);
 
-    await userEvent.type(searchInput[0], "chart");
+    await fireEvent.change(searchInput[0], { target: { value: "chart" } });
     expect(searchInput[0]).toHaveValue("chart");
 
     await waitFor(() => {
@@ -180,7 +213,7 @@ describe("<RoleAddEdit />", () => {
     tabData.hoverMap[elId].forEach((item: { id: string; p: string }) => {
       hoverEls.push(...queryAllByTestId(`${item.id}_${item.p}`));
     });
-    userEvent.hover(hoverCheckboxEl?.[0]);
+    fireEvent.mouseOver(hoverCheckboxEl?.[0]);
     expect(hoverEls?.[0]).toHaveClass("hover-state");
     /* expect(hoverEls[0]).toHaveStyle("opacity: 0.4"); styled-components 5.2.1 should solve this */
   });
@@ -215,31 +248,44 @@ describe("<RoleAddEdit />", () => {
     }
   });
   it("should show save bottom bar on changing data", async () => {
-    const { queryByText } = renderComponent();
-    let saveButton = queryByText("Save Changes");
-    expect(saveButton).not.toBeInTheDocument();
+    renderComponent();
+    let saveButton = screen.queryAllByTestId(
+      "t--admin-settings-save-button",
+    )?.[0];
+    expect(saveButton).toBeUndefined();
     const elId = "633ae5bf174013666db972c2_Create";
     const checkboxEl = document.querySelector(
       `[data-testid="${elId}"] .design-system-checkbox span`,
     ) as HTMLElement;
     await checkboxEl?.click();
-    saveButton = queryByText("Save Changes");
+    saveButton = screen.queryAllByTestId("t--admin-settings-save-button")?.[0];
     expect(saveButton).toBeInTheDocument();
+    await saveButton?.click();
+    setTimeout(() => {
+      saveButton = screen.queryAllByTestId(
+        "t--admin-settings-save-button",
+      )?.[0];
+      expect(saveButton).toBeUndefined();
+    }, 5000);
   });
   it("should hide save bottom bar on clicking clear", async () => {
-    const { queryByText } = renderComponent();
+    renderComponent();
     const elId = "633ae5bf174013666db972c2_Create";
     const checkboxEl = document.querySelector(
       `[data-testid="${elId}"] .design-system-checkbox span`,
     ) as HTMLElement;
     await checkboxEl?.click();
-    let saveButton = queryByText("Save Changes");
+    let saveButton = screen.queryAllByTestId(
+      "t--admin-settings-save-button",
+    )?.[0];
     expect(saveButton).toBeInTheDocument();
-    const clearButton = queryByText("Clear");
+    const clearButton = screen.queryAllByTestId(
+      "t--admin-settings-reset-button",
+    )?.[0];
     expect(clearButton).toBeInTheDocument();
     await clearButton?.click();
-    saveButton = queryByText("Save Changes");
-    expect(saveButton).not.toBeInTheDocument();
+    saveButton = screen.queryAllByTestId("t--admin-settings-save-button")?.[0];
+    expect(saveButton).toBeUndefined();
   });
   it("should display only the options which the user is permitted to", async () => {
     jest
@@ -250,12 +296,14 @@ describe("<RoleAddEdit />", () => {
     const { queryAllByTestId } = renderComponent();
     const moreMenu = queryAllByTestId("t--page-header-actions");
     expect(moreMenu).toHaveLength(1);
-    await userEvent.click(moreMenu[0]);
-    const deleteOption = document.getElementsByClassName("delete-menu-item");
-    const editOption = document.getElementsByClassName("rename-menu-item");
+    await fireEvent.click(moreMenu[0]);
+    const deleteOption = queryAllByTestId("t--delete-menu-item");
+    const renameOption = queryAllByTestId("t--rename-menu-item");
+    const editDescOption = queryAllByTestId("t--rename-desc-menu-item");
 
     expect(deleteOption).toHaveLength(0);
-    expect(editOption).toHaveLength(1);
+    expect(renameOption).toHaveLength(1);
+    expect(editDescOption).toHaveLength(1);
   });
   it("should not display more option if the user doesn't have edit and delete permissions", () => {
     jest
@@ -281,27 +329,59 @@ describe("<RoleAddEdit />", () => {
     expect(editIcon).toHaveLength(0);
     const editableTitle = queryAllByTestId("t--editable-title");
     expect(editableTitle).toHaveLength(0);
+    const editableDesc = queryAllByTestId("t--editable-description");
+    expect(editableDesc).toHaveLength(0);
   });
-  /*it("should delete the group when Delete menu item is clicked", async () => {
-    const { getAllByTestId, getByText } = renderComponent();
+  it("should delete the group when Delete menu item is clicked", async () => {
+    const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
-    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
-    const confirmationText = document.getElementsByClassName(
-      "delete-menu-item",
-    );
+    const confirmationText = getAllByTestId("t--delete-menu-item");
     expect(confirmationText[0]).toHaveTextContent("Are you sure?");
     await userEvent.dblClick(deleteOption[0]);
-    await waitFor(
-      () => {
-        expect(window.location.pathname).toEqual("/settings/roles");
-        const deletedGroup = screen.queryByText(props.selected.name);
-        return expect(deletedGroup).toBeFalsy();
+    expect(props.onDelete).toHaveBeenCalledWith(props.selected.id);
+    expect(window.location.pathname).toEqual("/settings/roles");
+  });
+  it("should not make title & description editable when the selected role name is Default Role For All Users", async () => {
+    const roleProps: RoleEditProps = {
+      selected: {
+        ...rolesTableData[6],
+        ...defaultUserResponse,
       },
-      { timeout: 1000 },
-    );
-  });*/
+      onDelete: jest.fn(),
+      isLoading: false,
+    };
+    const { queryAllByTestId } = render(<RoleAddEdit {...roleProps} />);
+
+    const editIcon = queryAllByTestId("t--action-name-edit-icon");
+    expect(editIcon).toHaveLength(0);
+    const editableTitle = queryAllByTestId("t--editable-title");
+    expect(editableTitle).toHaveLength(0);
+    const editableDesc = queryAllByTestId("t--editable-description");
+    expect(editableDesc).toHaveLength(0);
+
+    jest
+      .spyOn(selectors, "getRolePermissions")
+      .mockImplementation(() =>
+        mockGetRolePermissions([
+          PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
+          PERMISSION_TYPE.DELETE_PERMISSIONGROUPS,
+        ]),
+      );
+
+    const moreMenu = queryAllByTestId("t--page-header-actions");
+    expect(moreMenu).toHaveLength(1);
+    await fireEvent.click(moreMenu[0]);
+    const deleteOption = queryAllByTestId("t--delete-menu-item");
+    const renameOption = queryAllByTestId("t--rename-menu-item");
+    const editDescOption = queryAllByTestId("t--rename-desc-menu-item");
+
+    expect(deleteOption).toHaveLength(1);
+    expect(renameOption).toHaveLength(0);
+    expect(editDescOption).toHaveLength(0);
+  });
 });

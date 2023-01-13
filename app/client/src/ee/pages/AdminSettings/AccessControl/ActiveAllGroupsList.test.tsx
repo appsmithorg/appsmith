@@ -1,7 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "test/testUtils";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
@@ -111,16 +110,16 @@ describe("<ActiveAllGroupsList />", () => {
       onDelete: jest.fn(),
       onBack: jest.fn(),
       isLoading: false,
-      isEditing: false,
       isNew: false,
     };
-    const { getAllByTestId, getByText } = render(
+    const { getAllByRole, getAllByTestId } = render(
       <GroupAddEdit {...userGroupAddEditProps} />,
     );
     const searchInput = getAllByTestId("t--acl-search-input");
-    const rolesTab = getByText(`Roles`);
-    await userEvent.click(rolesTab);
-    await userEvent.type(searchInput[0], "devops");
+    const tabs = getAllByRole("tab");
+    const rolesTab = tabs[1];
+    await fireEvent.click(rolesTab);
+    await fireEvent.change(searchInput[0], { target: { value: "devops" } });
 
     await waitFor(() => {
       const activeGroups = getAllByTestId("t--active-group-row");

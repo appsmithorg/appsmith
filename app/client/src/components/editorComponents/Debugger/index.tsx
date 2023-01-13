@@ -18,6 +18,7 @@ import {
 import { matchBuilderPath } from "constants/routes";
 import { getTypographyByKey, TooltipComponent } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
+import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
 
 function Debugger() {
   const showDebugger = useSelector(
@@ -35,6 +36,8 @@ const TriggerContainer = styled.div<{
   overflow: visible;
   display: flex;
   align-items: center;
+  justify-content: center;
+  ${BottomBarCTAStyles}
 
   .debugger-count {
     color: ${Colors.WHITE};
@@ -51,8 +54,8 @@ const TriggerContainer = styled.div<{
     display: flex;
     align-items: center;
     justify-content: center;
-    top: -8px;
-    left: 100%;
+    top: 0px;
+    left: 80%;
     font-size: 10px;
     border-radius: 50%;
   }
@@ -108,7 +111,12 @@ export function DebuggerTrigger() {
           preventOverflow: { enabled: true },
         }}
       >
-        <Icon name="bug" onClick={onClick} size={IconSize.XL} />
+        <Icon
+          fillColor={Colors.GRAY_700}
+          name="bug-line"
+          onClick={onClick}
+          size={IconSize.XXXL}
+        />
       </TooltipComponent>
       {!!messageCounters.errors && (
         <div className="debugger-count t--debugger-count">

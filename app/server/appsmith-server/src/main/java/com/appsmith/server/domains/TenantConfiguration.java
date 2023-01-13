@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ce.TenantConfigurationCE;
 import com.appsmith.server.services.UserServiceImpl;
@@ -8,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
 
 @Data
 public class TenantConfiguration extends TenantConfigurationCE {
@@ -52,6 +55,11 @@ public class TenantConfiguration extends TenantConfigurationCE {
             this.whiteLabelFavicon = tenantConfiguration.getWhiteLabelFavicon();
             this.brandColors = tenantConfiguration.getBrandColors();
         }
+
+        this.license = tenantConfiguration.getLicense();
+        if (null != this.license && null != this.license.key) {
+            this.license.key = DataTypeStringUtils.maskString(this.license.key);
+        }
     }
 
     @Data
@@ -61,6 +69,20 @@ public class TenantConfiguration extends TenantConfigurationCE {
         private String font;
         private String disabled;
         private String hover;
+    }
+
+    License license;
+    @Data
+    public static class License {
+        public enum LicenseType {
+            TRIAL,
+            PAID
+        }
+        Boolean active;
+        String id;
+        String key;
+        LicenseType type;
+        Instant expiry;
     }
 
 }

@@ -12,4 +12,10 @@ public class LicenseConfig {
     @Value("${appsmith.license.key}")
     private String licenseKey;
 
+    /**
+     * To support old license validation & server shutdown work until usage and billing feature release
+     */
+    @Value("${appsmith.license.db.enabled:false}")
+    private Boolean licenseDbEnabled;
+
 }

@@ -8,14 +8,20 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -86,6 +92,14 @@ public class UserWorkspaceServiceTest {
 
     @Autowired
     UserService userService;
+    @Autowired
+    UserGroupService userGroupService;
+    @Autowired
+    UserGroupRepository userGroupRepository;
+    @Autowired
+    UserUtils userUtils;
+    @Autowired
+    PermissionGroupService permissionGroupService;
 
     private Workspace workspace;
     private User user;
@@ -144,6 +158,56 @@ public class UserWorkspaceServiceTest {
             this.workspace = policyUtils.addPoliciesToExistingObject(workspacePolicyMap, workspace);
         }
         this.workspace = workspaceRepository.save(workspace).block();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void leaveWorkspace_WhenUserExistsInUserGroup() {
+        // Make api_user SUPER ADMIN
+        User api_user = userRepository.findByEmail("api_user").block();
+        userUtils.makeSuperUser(List.of(api_user)).block();
+        PermissionGroup adminPermissionGroup = userUtils.getSuperAdminPermissionGroup().block();
+        System.out.println("Admin Permission Group");
+        System.out.println(adminPermissionGroup.getId());
+
+        // Create a new User Group
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("UserGroup - leaveWorkspace_WhenUserExistsInUserGroup");
+        UserGroup createdUserGroup = userGroupService.createGroup(userGroup)
+                .flatMap(userGroupDTO -> userGroupRepository.findById(userGroupDTO.getId()))
+                .block();
+
+        UsersForGroupDTO usersForGroupDTO = new UsersForGroupDTO();
+        usersForGroupDTO.setUsernames(Set.of("api_user"));
+        usersForGroupDTO.setGroupIds(Set.of(createdUserGroup.getId()));
+        List<UserGroupDTO> userGroupDTOList = userGroupService.inviteUsers(usersForGroupDTO, "").block();
+        assertThat(userGroupDTOList).hasSize(1);
+
+        // Create Workspace
+        Workspace workspace1 = new Workspace();
+        workspace1.setName("Workspace - leaveWorkspace_WhenUserExistsInUserGroup");
+        Workspace createdWorkspace = workspaceService.create(workspace1).block();
+        String workspaceId = createdWorkspace.getId();
+
+        PermissionGroup workspaceAdminPermissionGroup = permissionGroupRepository.findByDefaultWorkspaceId(workspaceId)
+                .filter(pg -> pg.getName().startsWith(ADMINISTRATOR))
+                .blockFirst();
+
+        // Create another user which can be made Workspace Admin
+        User user1 = new User();
+        user1.setEmail("leaveWorkspace_WhenUserExistsInUserGroup@test.com");
+        user1.setPassword("leaveWorkspace_WhenUserExistsInUserGroup");
+        User anotherWorkspaceAdmin = userService.create(user1).block();
+
+        // Assign Admin Workspace PG to User and UserGroup
+        workspaceAdminPermissionGroup = permissionGroupService.assignToUser(workspaceAdminPermissionGroup, anotherWorkspaceAdmin).block();
+        workspaceAdminPermissionGroup = permissionGroupService.assignToUserGroup(workspaceAdminPermissionGroup, createdUserGroup).block();
+
+        Mono<User> leaveWorkspaceTwiceMono = userWorkspaceService.leaveWorkspace(workspaceId).then(userWorkspaceService.leaveWorkspace(workspaceId));
+        StepVerifier.create(leaveWorkspaceTwiceMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Workspace is not assigned to the user.")))
+                .verify();
     }
 
     @Test

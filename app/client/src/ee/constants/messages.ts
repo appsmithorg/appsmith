@@ -101,3 +101,35 @@ export const REFRESH = () => "REFRESH";
 export const ADMIN_BRANDING_SETTINGS_TITLE = () => "Branding";
 export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
   "Set your organization's logo and brand colors.";
+
+// Billing
+export const ADMIN_BILLING_SETTINGS_TITLE = () => "Billing Information";
+export const ADMIN_BILLING_SETTINGS_SUBTITLE = () =>
+  "See users on this instance and billing related information";
+export const NO_ACTIVE_SUBSCRIPTION = () => "No active subscription";
+export const GET_STARTED_MESSAGE = () =>
+  "Kindly choose one of the following option to get started";
+export const LICENSE_KEY_FORM_INPUT_LABEL = () =>
+  "If you already have a license, please enter the key to continue";
+export const LICENSE_KEY_CTA_LABEL = () =>
+  "If you do not have a license key, please visit our customer portal to start trial or buy a subscription";
+export const TRIAL_EXPIRY_WARNING = (gracePeriod: number | string) =>
+  `Your trial will expire in <span>${gracePeriod}</span> days.`;
+export const CONTINUE_USING_FEATURES = () =>
+  `to continue using all the features.`;
+export const TOTAL_USERS_MESSAGE = () => `Total Users`;
+export const NUMBER_OF_SELF_HOSTED_USERS = () =>
+  ` Number of users on the self-hosted instance`;
+export const BILLING_AND_USAGE = () => `Billing & Usage`;
+export const OPEN_CUSTOMER_PORTAL = () => `Open Customer Portal`;
+export const BE_WELCOME_MESSAGE = () => "Welcome to Appsmith Business Edition";
+export const BE_TRIAL_BANNER_EXPIRY_MESSAGE = (gracePeriod: number | string) =>
+  `Trial ends in <span>${gracePeriod}</span> days`;
+export const UPGRADE_NOW = () => `Upgrade Now`;
+export const CLOSE = () => `Close`;
+export const UPGRADE_TO_BUSINESS = () => `Upgrade to Business`;
+export const ADD_KEY = () => `Add Key`;
+export const ACTIVATE_INSTANCE = () => `Activate Instance`;
+export const GET_TRIAL_LICENSE = () => `Get Trial License`;
+export const REQUIRED_LICENSE_KEY = () => `License key is required`;
+export const INVALID_LICENSE_KEY = () => `License key is invalid`;

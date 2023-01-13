@@ -1,8 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "test/testUtils";
+import { fireEvent, render, screen } from "test/testUtils";
 import { PageHeader } from "./PageHeader";
-import userEvent from "@testing-library/user-event";
 import { UserListing } from "./UserListing";
 import { allUsers } from "./mocks/UserListingMock";
 import configureStore from "redux-mock-store";
@@ -69,7 +68,7 @@ describe("<PageHeader />", () => {
   });
   it("should search and filter results for the given search query", async () => {
     const searchInput = screen.queryAllByTestId("t--acl-search-input");
-    await userEvent.type(searchInput[0], "test value");
+    await fireEvent.change(searchInput[0], { target: { value: "test value" } });
     expect(searchInput[0]).toHaveValue("test value");
   });
   it("should have a button with text Add", () => {
@@ -84,7 +83,7 @@ describe("<PageHeader />", () => {
     const users = screen.queryAllByText("sangy123@appsmith.com");
     expect(users).toHaveLength(1);
 
-    await userEvent.type(searchInput[0], "techak");
+    await fireEvent.change(searchInput[0], { target: { value: "techak" } });
     expect(searchInput[0]).toHaveValue("techak");
 
     const searched = screen.queryAllByText("techak@appsmith.com");
@@ -98,12 +97,12 @@ describe("<PageHeader />", () => {
     let menuOptions = screen.queryAllByText(/Documentation/i);
     expect(menuOptions).toHaveLength(0);
 
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
 
     menuOptions = screen.queryAllByText(/Documentation/i);
     expect(menuOptions).toHaveLength(1);
 
-    await userEvent.click(menuOptions[0]);
+    await fireEvent.click(menuOptions[0]);
     expect(pageMenuItems[0].onSelect).toHaveBeenCalled();
   });
 });

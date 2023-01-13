@@ -1,9 +1,8 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "test/testUtils";
+import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { Listing } from "./Listing";
 import { allUsers } from "./mocks/UserListingMock";
-import userEvent from "@testing-library/user-event";
 import { UserListing } from "./UserListing";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
@@ -87,7 +86,7 @@ describe("<Listing />", () => {
   });
   it("should render empty state when there is no data", () => {
     render(<Listing {...props} />);
-    const emptyState = document.getElementsByClassName("no-data-title");
+    const emptyState = screen.getAllByTestId("t--no-data-title");
     expect(emptyState).toHaveLength(1);
   });
   it("should render table with given data", () => {
@@ -102,7 +101,7 @@ describe("<Listing />", () => {
     const { getAllByTestId } = render(<Listing {...userListingProps} />);
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     expect(moreMenu[0]).not.toHaveClass("active");
-    userEvent.click(moreMenu[0]);
+    fireEvent.click(moreMenu[0]);
     expect(moreMenu[0]).toHaveClass("active");
   });
   it("should list correct options in menu", async () => {
@@ -110,7 +109,7 @@ describe("<Listing />", () => {
       <Listing {...userListingProps} />,
     );
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    await userEvent.click(moreMenu[0]);
+    await fireEvent.click(moreMenu[0]);
     const menuItems = userListingProps.listMenuItems
       .map((item: MenuItemProps) => getAllByText(item.text))
       .flat();
@@ -121,26 +120,26 @@ describe("<Listing />", () => {
     expect(menuItems[1]).toHaveTextContent(
       userListingProps.listMenuItems[1].text,
     );
-    await userEvent.click(menuItems[0]);
+    await fireEvent.click(menuItems[0]);
     expect(userListingProps.listMenuItems[0].onSelect).toHaveBeenCalled();
-    await userEvent.click(menuItems[1]);
+    await fireEvent.click(menuItems[1]);
     expect(userListingProps.listMenuItems[1].onSelect).toHaveBeenCalled();
   });
   it("should ask for confirmation when deleting", async () => {
     const { getAllByTestId, queryByText } = renderUserListing();
-    const user = queryByText(userListingProps.data[0].username);
+    let user = queryByText(userListingProps.data[0].username);
     expect(user).toBeInTheDocument();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
-    userEvent.click(moreMenu[0]);
-    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    fireEvent.click(moreMenu[0]);
+    const deleteOption = getAllByTestId("t--delete-menu-item");
     expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
-    expect(() => userEvent.click(deleteOption[0])).toThrow();
-    /* const confirmText = document.getElementsByClassName("delete-menu-item");
-      expect(confirmText[0]).toHaveTextContent("Are you sure?");
-      await userEvent.dblClick(deleteOption[0]);
-      user = queryByText(userListingProps.data[0].username);
-      expect(user).not.toBeInTheDocument();*/
+    await fireEvent.click(deleteOption[0]);
+    const confirmText = getAllByTestId("t--delete-menu-item");
+    expect(confirmText[0]).toHaveTextContent("Are you sure?");
+    await fireEvent.dblClick(deleteOption[0]);
+    user = queryByText(userListingProps.data[0].username);
+    /*expect(user).not.toBeInTheDocument();*/
     waitFor(() => {
       expect(userListingProps.listMenuItems[1].onSelect).toHaveBeenCalledTimes(
         1,

@@ -39,7 +39,6 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAclIsLoading,
-  getAclIsEditing,
   getAllAclUsers,
   getGroupsForInvite,
   getRolesForInvite,
@@ -110,7 +109,6 @@ export function UserListing() {
   const aclUsers = useSelector(getAllAclUsers);
   const selectedUser = useSelector(getSelectedUser);
   const isLoading = useSelector(getAclIsLoading);
-  const isEditing = useSelector(getAclIsEditing);
   const inviteViaRoles = useSelector(getRolesForInvite);
   const inviteViaGroups = useSelector(getGroupsForInvite);
 
@@ -454,7 +452,6 @@ export function UserListing() {
       {selectedUserId && selectedUser ? (
         <UserEdit
           data-testid="acl-user-edit"
-          isEditing={isEditing}
           isLoading={isLoading}
           onDelete={onDeleteHandler}
           searchPlaceholder="Search"

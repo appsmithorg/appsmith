@@ -93,6 +93,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     User user = tuple.getT2();
                     return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, permissionGroupPermission.getUnAssignPermission());
                 })
+                /*
+                 * The below switchIfEmpty will be invoked in 2 cases.
+                 * 1. Explicit Backend Invocation: The user actually didn't have access to the Workspace.
+                 * 2. User Interaction: User who is part of a UserGroup.
+                 */
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Workspace is not assigned to the user.")))
                 .single()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR) && permissionGroup.getAssignedToUserIds().size() == 1) {

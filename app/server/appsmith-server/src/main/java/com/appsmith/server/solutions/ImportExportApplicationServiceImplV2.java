@@ -16,6 +16,7 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.solutions.ce.ImportExportApplicationServiceCEImplV2;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ public class ImportExportApplicationServiceImplV2 extends ImportExportApplicatio
                                                 ActionCollectionService actionCollectionService,
                                                 ThemeService themeService,
                                                 AnalyticsService analyticsService,
+                                                CustomJSLibService customJSLibService,
                                                 DatasourcePermission datasourcePermission,
                                                 WorkspacePermission workspacePermission,
                                                 ApplicationPermission applicationPermission,
@@ -54,7 +56,7 @@ public class ImportExportApplicationServiceImplV2 extends ImportExportApplicatio
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
-                actionCollectionService, themeService, analyticsService, datasourcePermission,
+                actionCollectionService, themeService, analyticsService, customJSLibService, datasourcePermission,
                 workspacePermission, applicationPermission, pagePermission, actionPermission, gson);
     }
 }

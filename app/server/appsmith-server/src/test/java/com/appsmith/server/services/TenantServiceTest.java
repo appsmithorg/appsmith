@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.Workspace;
@@ -11,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -25,6 +29,9 @@ public class TenantServiceTest {
 
     @Autowired
     TenantRepository tenantRepository;
+
+    @Autowired
+    LicenseConfig licenseConfig;
 
     private Tenant tenant;
 
@@ -52,6 +59,50 @@ public class TenantServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void setTenantLicenseKey_Valid_LicenseKey() {
+        // Currently fetching the APPSMITH_LICENSE_KEY env variable to get a valid license key
+        String licenseKey = licenseConfig.getLicenseKey();
+        StepVerifier.create(tenantService.setTenantLicenseKey(licenseKey))
+                .assertNext(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    TenantConfiguration.License license = tenantConfiguration.getLicense();
+                    assertThat(license.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey));
+                    assertThat(license.getActive()).isTrue();
+                    assertThat(license.getType()).isEqualTo(TenantConfiguration.License.LicenseType.PAID);
+                    assertThat(license.getExpiry()).isAfter(Instant.now());
+                })
+                .verifyComplete();
+
+        // Verify getTenantConfiguration() has license details after setting a valid license
+        StepVerifier.create(tenantService.getTenantConfiguration())
+                .assertNext(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    TenantConfiguration.License license = tenantConfiguration.getLicense();
+                    assertThat(license.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey));
+                    assertThat(license.getActive()).isTrue();
+                    assertThat(license.getType()).isEqualTo(TenantConfiguration.License.LicenseType.PAID);
+                    assertThat(license.getExpiry()).isAfter(Instant.now());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void setTenantLicenseKey_Invalid_LicenseKey() {
+        String licenseKey = "SOME-INVALID-LICENSE-KEY";
+        Mono<Tenant> addLicenseKeyMono = tenantService.setTenantLicenseKey(licenseKey);
+        StepVerifier.create(addLicenseKeyMono)
+                .assertNext(tenant -> {
+                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                    TenantConfiguration.License license = tenantConfiguration.getLicense();
+                    assertThat(license.getKey()).isEqualTo(DataTypeStringUtils.maskString(licenseKey));
+                    assertThat(license.getActive()).isFalse();
+                })
+                .verifyComplete();
     }
 
 }
