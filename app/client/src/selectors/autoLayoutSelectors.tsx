@@ -3,8 +3,11 @@ import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
+import { getIsMobile } from "./mainCanvasSelectors";
 
 export const getFlexLayers = (parentId: string) => {
   return createSelector(getWidgets, (widgets): FlexLayer[] => {
@@ -49,3 +52,15 @@ export const isCurrentCanvasDragging = (widgetId: string) => {
     },
   );
 };
+
+export const getParentOffsetTop = (widgetId: string) =>
+  createSelector(getWidgets, getIsMobile, (widgets, isMobile): number => {
+    const widget = widgets[widgetId];
+    if (!widget || !widget.parentId) return 0;
+    const parent = widgets[widget.parentId];
+    const top =
+      isMobile && parent.mobileTopRow !== undefined
+        ? parent.mobileTopRow
+        : parent.topRow;
+    return top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
+  });

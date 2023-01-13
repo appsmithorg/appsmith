@@ -46,6 +46,7 @@ import {
   useAutoLayoutHighlights,
 } from "./useAutoLayoutHighlights";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { getParentOffsetTop } from "selectors/autoLayoutSelectors";
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
@@ -68,6 +69,7 @@ export const useCanvasDragging = (
   let { devicePixelRatio: scale = 1 } = window;
   scale *= canvasScale;
   const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const parentOffsetTop = useSelector(getParentOffsetTop(widgetId));
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -477,6 +479,7 @@ export const useCanvasDragging = (
               scrollParent,
               highlight,
               widgetId === MAIN_CONTAINER_WIDGET_ID,
+              parentOffsetTop,
             );
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,

@@ -9,8 +9,10 @@ import {
   deriveHighlightsFromLayers,
   generateHighlightsForAlignment,
   generateVerticalHighlights,
+  getCanvasWidth,
   VerticalHighlightsPayload,
 } from "./highlightUtils";
+import { data } from "./testData";
 
 describe("test HighlightUtils methods", () => {
   describe("test deriveHighlightsFromLayers method", () => {
@@ -461,6 +463,14 @@ describe("test HighlightUtils methods", () => {
           FLEXBOX_PADDING,
       );
       expect(result.childCount).toEqual(2);
+    });
+  });
+
+  describe("test getCanvasWidth method", () => {
+    it("should measure the width of canvas and account for paddings", () => {
+      expect(getCanvasWidth(data["0"], data, 1174, false)).toEqual(1166);
+      expect(getCanvasWidth(data["mglfryj65c"], data, 1174, true)).toEqual(569);
+      expect(getCanvasWidth(data["a3lldg1wg9"], data, 1174, true)).toEqual(569);
     });
   });
 });
