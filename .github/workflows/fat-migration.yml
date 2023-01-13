@@ -126,7 +126,7 @@ jobs:
         run: |
           mkdir -p `pwd`/git-server/keys
           mkdir -p `pwd`/git-server/repos
-          docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
+          docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
           -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host   \
           -v `pwd`/git-server/repos:/git-server/repos  appsmith/test-event-driver:nightly
           cd fatcontainerlocal
