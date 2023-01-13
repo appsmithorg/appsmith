@@ -103,7 +103,7 @@ const useListenToChange = (modalOpen: boolean) => {
 
   useEffect(() => {
     setListenToChange(false);
-    let timer: number;
+    let timer: ReturnType<typeof setTimeout>;
     if (modalOpen) {
       timer = setTimeout(() => setListenToChange(true), 100);
     }
