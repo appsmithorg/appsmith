@@ -1,4 +1,4 @@
-import { call, put, select, take } from "redux-saga/effects";
+import { call, put, race, select, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionWithPromise,
@@ -56,6 +56,15 @@ import {
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
+import { getAppsmithConfigs } from "ce/configs";
+import { getSegmentState } from "selectors/analyticsSelectors";
+import {
+  segmentInitUncertain,
+  segmentInitSuccess,
+} from "actions/analyticsActions";
+import { SegmentState } from "reducers/uiReducers/analyticsReducer";
+import FeatureFlags from "entities/FeatureFlags";
+import UsagePulse from "usagePulse";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -96,6 +105,25 @@ export function* createUserSaga(
   }
 }
 
+export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
+  if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
+  yield call(waitForFetchUserSuccess);
+  const currentUser: User | undefined = yield select(getCurrentUser);
+  const segmentState: SegmentState | undefined = yield select(getSegmentState);
+  const appsmithConfig = getAppsmithConfigs();
+
+  if (
+    currentUser?.enableTelemetry &&
+    appsmithConfig.segment.enabled &&
+    !segmentState
+  ) {
+    yield race([
+      take(ReduxActionTypes.SEGMENT_INITIALIZED),
+      take(ReduxActionTypes.SEGMENT_INIT_UNCERTAIN),
+    ]);
+  }
+}
+
 export function* getCurrentUserSaga() {
   try {
     PerformanceTracker.startAsyncTracking(
@@ -107,11 +135,36 @@ export function* getCurrentUserSaga() {
     if (isValidResponse) {
       //@ts-expect-error: response is of type unknown
       const { enableTelemetry } = response.data;
+
       if (enableTelemetry) {
-        initializeAnalyticsAndTrackers();
+        const promise = initializeAnalyticsAndTrackers();
+
+        if (promise instanceof Promise) {
+          const result: boolean = yield promise;
+
+          if (result) {
+            yield put(segmentInitSuccess());
+          } else {
+            yield put(segmentInitUncertain());
+          }
+        }
+      } else if (
+        //@ts-expect-error: response is of type unknown
+        response.data.isAnonymous &&
+        //@ts-expect-error: response is of type unknown
+        response.data.username === ANONYMOUS_USERNAME
+      ) {
+        /*
+         * We're initializing the segment api regardless of the enableTelemetry flag
+         * So we can use segement Id to fingerprint anonymous user in usage pulse call
+         */
+        //NOTE: commenting for now to fix a flaky cypress issue
+        // yield initializeSegmentWithoutTracking();
       }
-      yield put(initAppLevelSocketConnection());
-      yield put(initPageLevelSocketConnection());
+
+      //To make sure that we're not tracking from previous session.
+      UsagePulse.stopTrackingActivity();
+
       if (
         //@ts-expect-error: response is of type unknown
         !response.data.isAnonymous &&
@@ -120,15 +173,28 @@ export function* getCurrentUserSaga() {
       ) {
         //@ts-expect-error: response is of type unknown
         enableTelemetry && AnalyticsUtil.identifyUser(response.data);
+      } else {
+        UsagePulse.userAnonymousId = "anonymousId";
+
+        if (!enableTelemetry) {
+          AnalyticsUtil.removeAnalytics();
+        }
       }
+
+      UsagePulse.startTrackingActivity();
+
+      yield put(initAppLevelSocketConnection());
+      yield put(initPageLevelSocketConnection());
       yield put({
         type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
         payload: response.data,
       });
+
       //@ts-expect-error: response is of type unknown
       if (response.data.emptyInstance) {
         history.replace(SETUP);
       }
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.USER_ME_API,
       );
@@ -386,6 +452,7 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
     const response: ApiResponse = yield call(UserApi.logoutUser);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      UsagePulse.stopTrackingActivity();
       AnalyticsUtil.reset();
       const currentUser: User | undefined = yield select(getCurrentUser);
       yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
@@ -435,10 +502,11 @@ export function* updatePhoto(
 
 export function* fetchFeatureFlags() {
   try {
-    const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
+    const response: ApiResponse<FeatureFlags> = yield call(
+      UserApi.fetchFeatureFlags,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      // @ts-expect-error: response.data is of type unknown
       yield put(fetchFeatureFlagsSuccess(response.data));
     }
   } catch (error) {

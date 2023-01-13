@@ -11,13 +11,14 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
+import {
+  JSFunctionProxy,
+  JSProxy,
+} from "@appsmith/workers/Evaluation/JSObject/JSProxy";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
-import {
-  PLATFORM_FUNCTIONS,
-  addDataTreeToContext,
-} from "@appsmith/workers/Evaluation/Actions";
+import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 
 export type EvalResult = {
   result: any;
@@ -81,7 +82,6 @@ function resetWorkerGlobalScope() {
       continue;
     if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
     if (libraryReservedIdentifiers[key]) continue;
-    if (PLATFORM_FUNCTIONS[key]) continue;
     try {
       // @ts-expect-error: Types are not available
       delete self[key];
@@ -130,6 +130,7 @@ export interface createEvaluationContextArgs {
   evalArguments?: Array<unknown>;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
+  JSFunctionProxy?: JSFunctionProxy;
 }
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
@@ -143,6 +144,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
+    JSFunctionProxy,
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
@@ -165,7 +167,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions);
+  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, JSFunctionProxy);
 
   return EVAL_CONTEXT;
 };
@@ -173,6 +175,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
 export const assignJSFunctionsToContext = (
   EVAL_CONTEXT: EvalContext,
   resolvedFunctions: ResolvedFunctions,
+  JSFunctionProxy?: JSFunctionProxy,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
@@ -187,7 +190,9 @@ export const assignJSFunctionsToContext = (
       // Task: https://github.com/appsmithorg/appsmith/issues/13289
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
       const data = jsObject[fnName]?.data;
-      jsObjectFunction[fnName] = fn;
+      jsObjectFunction[fnName] = JSFunctionProxy
+        ? JSFunctionProxy(fn, jsObjectName + "." + fnName)
+        : fn;
       if (!!data) {
         jsObjectFunction[fnName]["data"] = data;
       }
@@ -249,11 +254,11 @@ export default function evaluateSync(
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
+
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
-    if (!skipLogsOperations) {
-      userLogs.resetLogs();
-    }
+    if (!skipLogsOperations) userLogs.resetLogs();
+
     /**** Setting the eval context ****/
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
@@ -311,7 +316,6 @@ export default function evaluateSync(
         }
       }
     }
-
     return { result, errors, logs };
   })();
 }
@@ -328,19 +332,28 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
     let logs;
-    /**** Setting the eval context ****/
+
+    /**** JSObject function proxy method ****/
+    const { JSFunctionProxy, setEvaluationEnd } = new JSProxy();
+
+    /**** console logs setup ****/
     userLogs.resetLogs();
     userLogs.setCurrentRequestInfo({
       eventType: context?.eventType,
       triggerMeta: context?.triggerMeta,
     });
+
+    /**** Setting the eval context ****/
+
     const evalContext: EvalContext = createEvaluationContext({
       dataTree,
       resolvedFunctions,
       context,
       evalArguments,
+      JSFunctionProxy,
       isTriggerBased: true,
     });
+
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     evalContext.ALLOW_ASYNC = true;
 
@@ -352,10 +365,11 @@ export async function evaluateAsync(
     try {
       result = await indirectEval(script);
       logs = userLogs.flushLogs();
-    } catch (error) {
-      const errorMessage = `UncaughtPromiseRejection: ${
-        (error as Error).message
-      }`;
+    } catch (e) {
+      const error = e as Error;
+      const errorMessage = error.name
+        ? `${error.name}: ${error.message}`
+        : `UncaughtPromiseRejection: ${error.message}`;
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
@@ -365,6 +379,7 @@ export async function evaluateAsync(
       });
       logs = userLogs.flushLogs();
     } finally {
+      setEvaluationEnd(true);
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.

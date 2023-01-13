@@ -32,7 +32,6 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { EditInteractionKind, SavingState } from "design-system";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
@@ -41,20 +40,22 @@ import {
   showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
-import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
+import { User } from "constants/userConstants";
 import {
+  Category,
+  EditInteractionKind,
+  IconPositions,
+  SavingState,
   Button,
   getTypographyByKey,
   Icon,
   IconSize,
-  Size,
   TooltipComponent,
+  Size,
 } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
-import HelpButton from "./HelpButton";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
@@ -73,6 +74,7 @@ import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
   DEPLOY_MENU_OPTION,
+  EDITOR_HEADER,
   INVITE_TAB,
   INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
@@ -99,6 +101,7 @@ import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
 import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -118,6 +121,18 @@ const HeaderWrapper = styled.div`
   & ${Profile} {
     width: 24px;
     height: 24px;
+  }
+
+  @media only screen and (max-width: 900px) {
+    & .help-bar {
+      display: none;
+    }
+  }
+
+  @media only screen and (max-width: 700px) {
+    & .app-realtume-editors {
+      display: none;
+    }
   }
 `;
 
@@ -148,31 +163,18 @@ const AppsmithLink = styled((props) => {
   // eslint-disable @typescript-eslint/no-unused-vars
   return <Link {...props} />;
 })`
-  height: 20px;
-  width: 20px;
+  height: 24px;
+  width: 24px;
   display: inline-block;
   img {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
 `;
 
 const DeploySection = styled.div`
   display: flex;
-`;
-
-const ProfileDropdownContainer = styled.div``;
-
-const StyledInviteButton = styled(Button)`
-  margin-right: ${(props) => props.theme.spaces[9]}px;
-  height: ${(props) => props.theme.smallHeaderHeight};
-  ${getTypographyByKey("btnLarge")}
-  padding: ${(props) => props.theme.spaces[2]}px;
-`;
-
-const StyledDeployButton = styled(StyledInviteButton)`
-  margin-right: 0px;
-  height: 20px;
+  align-items: center;
 `;
 
 const BindingBanner = styled.div`
@@ -197,35 +199,31 @@ const BindingBanner = styled.div`
 `;
 
 const StyledDeployIcon = styled(Icon)`
-  height: 20px;
+  height: ${(props) => props.theme.smallHeaderHeight};
   width: 20px;
   align-self: center;
-  background: var(--ads-color-brand);
   &:hover {
-    background: var(--ads-color-brand-hover);
+    background-color: ${Colors.GRAY_100};
   }
 `;
 
-const ShareButton = styled.div`
-  cursor: pointer;
-`;
-
-const StyledShareText = styled.span`
-  font-size: 12px;
-  font-weight: 600;
-  margin-left: 4px;
-`;
-
-const StyledSharedIcon = styled(Icon)`
-  display: inline-block;
-`;
-
 const HamburgerContainer = styled.div`
-  height: 34px;
+  height: ${(props) => props.theme.smallHeaderHeight};
   width: 34px;
 
   :hover {
     background-color: ${Colors.GEYSER_LIGHT};
+  }
+`;
+
+const StyledButton = styled(Button)`
+  padding: 0 6px;
+  height: ${(props) => props.theme.smallHeaderHeight};
+  color: ${Colors.GREY_900};
+
+  svg {
+    height: 18px;
+    width: 18px;
   }
 `;
 
@@ -252,10 +250,15 @@ const GlobalSearch = lazy(() => {
 
 export function ShareButtonComponent() {
   return (
-    <ShareButton className="flex items-center t--application-share-btn header__application-share-btn">
-      <StyledSharedIcon name="share-line" />
-      <StyledShareText>SHARE</StyledShareText>
-    </ShareButton>
+    <StyledButton
+      category={Category.tertiary}
+      className="t--application-share-btn"
+      icon={"share-line"}
+      iconPosition={IconPositions.left}
+      size={Size.medium}
+      tag={"button"}
+      text={createMessage(EDITOR_HEADER.share)}
+    />
   );
 }
 
@@ -275,9 +278,9 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
-  const user = useSelector(getCurrentUser);
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
+  const isMultiPane = useSelector(isMultiPaneActive);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -361,50 +364,56 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper className="pr-3" data-testid="t--appsmith-editor-header">
-        <HeaderSection className="space-x-3">
-          <HamburgerContainer
-            className={classNames({
-              "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
-              "-translate-x-full opacity-0": isPreviewMode,
-              "translate-x-0 opacity-100": !isPreviewMode,
-            })}
-          >
-            <TooltipComponent
-              content={
-                <div className="flex items-center justify-between">
-                  <span>
-                    {!pinned
-                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
-                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
-                  </span>
-                  <span className="ml-4 text-xs text-gray-300">
-                    {modText()} /
-                  </span>
-                </div>
-              }
-              position="bottom-left"
+      <HeaderWrapper
+        className="pl-1 pr-1"
+        data-testid="t--appsmith-editor-header"
+      >
+        <HeaderSection className="space-x-2">
+          {!isMultiPane && (
+            <HamburgerContainer
+              className={classNames({
+                "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
+                "-translate-x-full opacity-0": isPreviewMode,
+                "translate-x-0 opacity-100": !isPreviewMode,
+              })}
             >
-              <div
-                className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
-                onMouseEnter={onMenuHover}
+              <TooltipComponent
+                content={
+                  <div className="flex items-center justify-between">
+                    <span>
+                      {!pinned
+                        ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                        : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                    </span>
+                    <span className="ml-4 text-xs text-gray-300">
+                      {modText()} /
+                    </span>
+                  </div>
+                }
+                position="bottom-left"
               >
-                <MenuIcon className="absolute w-4 h-4 transition-opacity cursor-pointer fill-current group-hover:opacity-0" />
-                {!pinned && (
-                  <UnpinIcon
-                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                    onClick={onPin}
-                  />
-                )}
-                {pinned && (
-                  <PinIcon
-                    className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                    onClick={onPin}
-                  />
-                )}
-              </div>
-            </TooltipComponent>
-          </HamburgerContainer>
+                <div
+                  className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
+                  onMouseEnter={onMenuHover}
+                >
+                  <MenuIcon className="absolute w-3.5 h-3.5 transition-opacity cursor-pointer fill-current group-hover:opacity-0" />
+                  {!pinned && (
+                    <UnpinIcon
+                      className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                      onClick={onPin}
+                    />
+                  )}
+                  {pinned && (
+                    <PinIcon
+                      className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                      onClick={onPin}
+                    />
+                  )}
+                </div>
+              </TooltipComponent>
+            </HamburgerContainer>
+          )}
+
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
@@ -451,25 +460,25 @@ export function EditorHeader(props: EditorHeaderProps) {
               setIsPopoverOpen={setIsPopoverOpen}
             />
           </TooltipComponent>
-          <ToggleModeButton showSelectedMode={!isPopoverOpen} />
+          <EditorSaveIndicator />
         </HeaderSection>
         <HeaderSection
           className={classNames({
             "-translate-y-full opacity-0": isPreviewMode,
             "translate-y-0 opacity-100": !isPreviewMode,
             "transition-all transform duration-400": true,
+            "help-bar": "true",
           })}
         >
           <HelpBar />
-          <HelpButton />
         </HeaderSection>
-        <HeaderSection className="space-x-3">
-          <EditorSaveIndicator />
+        <HeaderSection className="gap-x-2">
           <Boxed
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
           >
             <RealtimeAppEditors applicationId={applicationId} />
+            <ToggleModeButton />
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}
@@ -506,13 +515,18 @@ export function EditorHeader(props: EditorHeaderProps) {
                 hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                 position="bottom-right"
               >
-                <StyledDeployButton
+                <StyledButton
+                  category={Category.tertiary}
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
+                  icon={"rocket"}
+                  iconPosition={IconPositions.left}
                   isLoading={isPublishing}
                   onClick={() => handleClickDeploy(true)}
-                  size={Size.small}
+                  size={Size.medium}
+                  tag={"button"}
                   text={DEPLOY_MENU_OPTION()}
+                  width={"88px"}
                 />
               </TooltipComponent>
 
@@ -520,7 +534,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 link={deployLink}
                 trigger={
                   <StyledDeployIcon
-                    fillColor="var(--ads-color-brand-text)"
+                    fill={Colors.GREY_900}
                     name={"down-arrow"}
                     size={IconSize.XXL}
                   />
@@ -528,15 +542,6 @@ export function EditorHeader(props: EditorHeaderProps) {
               />
             </DeploySection>
           </Boxed>
-          {user && user.username !== ANONYMOUS_USERNAME && (
-            <ProfileDropdownContainer>
-              <ProfileDropdown
-                name={user.name}
-                photoId={user?.photoId}
-                userName={user?.username || ""}
-              />
-            </ProfileDropdownContainer>
-          )}
         </HeaderSection>
         <Suspense fallback={<span />}>
           <GlobalSearch />

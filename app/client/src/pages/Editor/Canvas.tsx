@@ -20,11 +20,13 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import { previewModeSelector } from "selectors/editorSelectors";
+import useWidgetFocus from "utils/hooks/useWidgetFocus";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
   pageId: string;
   canvasWidth: number;
+  canvasScale?: number;
 }
 
 type PointerEventDataType = {
@@ -36,7 +38,7 @@ const Container = styled.section<{
   background: string;
 }>`
   background: ${({ background }) => background};
-  }
+}
 `;
 
 const getPointerData = (
@@ -73,7 +75,7 @@ const useShareMousePointerEvent = () => {
 
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
-  const { canvasWidth, pageId } = props;
+  const { canvasScale = 1, canvasWidth, pageId } = props;
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedTheme = useSelector(getSelectedAppTheme);
 
@@ -101,6 +103,8 @@ const Canvas = memo((props: CanvasProps) => {
     backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
   }
 
+  const focusRef = useWidgetFocus();
+
   try {
     return (
       <Container
@@ -118,8 +122,11 @@ const Canvas = memo((props: CanvasProps) => {
           );
           !!data && delayedShareMousePointer(data);
         }}
+        ref={focusRef}
         style={{
           width: canvasWidth,
+          transform: `scale(${canvasScale})`,
+          transformOrigin: "0 0",
         }}
       >
         {props.widgetsStructure.widgetId &&
