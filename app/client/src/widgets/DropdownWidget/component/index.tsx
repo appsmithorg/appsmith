@@ -1,4 +1,5 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
+import styled, { createGlobalStyle } from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import {
   MenuItem,
@@ -11,10 +12,7 @@ import { DropdownOption } from "../constants";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
-import styled, {
-  createGlobalStyle,
-  BlueprintCSSTransform,
-} from "constants/DefaultTheme";
+import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
@@ -31,12 +29,14 @@ const FUSE_OPTIONS = {
   keys: ["label", "value"],
 };
 
-const SingleDropDown = Select.ofType<DropdownOption>();
-const StyledSingleDropDown = styled(SingleDropDown)<{
+type StyledSingleDropDownProps = PropsWithChildren<{
   isSelected: boolean;
   isValid: boolean;
   hasError?: boolean;
-}>`
+}>;
+
+const SingleDropDown = Select.ofType<DropdownOption>();
+const StyledSingleDropDown = styled(SingleDropDown)<StyledSingleDropDownProps>`
   div {
     flex: 1 1 auto;
   }

@@ -1,10 +1,9 @@
 import React from "react";
+import styled from "styled-components";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { generateReactKey } from "utils/generators";
-import styled from "constants/DefaultTheme";
-import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
 import ActionCreator from "components/editorComponents/ActionCreator";
@@ -15,7 +14,7 @@ export interface ColumnAction {
   id: string;
   dynamicTrigger: string;
 }
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
+const StyledDeleteIcon = styled(FormIcons.DELETE_ICON)`
   padding: 5px 0px;
   position: absolute;
   right: 0px;
