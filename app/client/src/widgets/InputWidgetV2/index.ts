@@ -43,6 +43,9 @@ export const CONFIG = {
     defaults: {
       rows: 8,
     },
+    mobile: {
+      rows: 7,
+    },
   },
 };
 

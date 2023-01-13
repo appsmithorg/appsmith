@@ -190,6 +190,10 @@ export function alterLayoutForMobile(
     }
     widget.mobileTopRow = widget.topRow;
     widget.mobileBottomRow = widget.bottomRow;
+    if (widget.autoLayout?.mobile?.rows) {
+      widget.mobileBottomRow =
+        widget.mobileTopRow + widget.autoLayout.mobile.rows;
+    }
     widgets = alterLayoutForMobile(
       widgets,
       child,
