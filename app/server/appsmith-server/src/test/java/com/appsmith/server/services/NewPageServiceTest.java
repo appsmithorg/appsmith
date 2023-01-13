@@ -4,6 +4,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -40,6 +41,9 @@ public class NewPageServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    ApplicationService applicationService;
 
     @Test
     @WithUserDetails("api_user")
@@ -163,6 +167,33 @@ public class NewPageServiceTest {
                     assertThat(applicationPagesDTO.getApplication()).isNotNull();
                     assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo("app_" + randomId);
                     assertThat(applicationPagesDTO.getPages()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void findApplicationPagesByApplicationIdViewMode_WhenApplicationHasNoHomePage_FirstPageIsSetAsHomePage() {
+        String randomId = UUID.randomUUID().toString();
+        Workspace workspace = new Workspace();
+        workspace.setName("org_" + randomId);
+        Mono<ApplicationPagesDTO> applicationPagesDTOMono = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> {
+                    Application application = new Application();
+                    application.setName("app_" + randomId);
+                    return applicationPageService.createApplication(application, createdWorkspace.getId());
+                })
+                .flatMap(application -> {
+                    // set isDefault=false to the default page
+                    ApplicationPage applicationPage = application.getPages().get(0);
+                    applicationPage.setIsDefault(false);
+                    return applicationService.save(application).then(
+                            newPageService.findApplicationPages(null, applicationPage.getId(), null, ApplicationMode.EDIT)
+                    );
+                });
+
+        StepVerifier.create(applicationPagesDTOMono).assertNext(applicationPagesDTO -> {
+                    assertThat(applicationPagesDTO.getPages().get(0).getIsDefault()).isTrue();
                 })
                 .verifyComplete();
     }
