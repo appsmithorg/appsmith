@@ -1,5 +1,5 @@
 import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
-import interceptAndOverrideHttpRequest from "../HTTPRequestOverride";
+import initFetch from "../fns/fetch";
 import { resetJSLibraries } from "../../common/JSLibrary";
 import setupDOM from "../SetupDOM";
 import initTimeoutFns from "../fns/timeout";
@@ -23,7 +23,7 @@ export default function() {
   self.window = self;
   userLogs.overrideConsoleAPI();
   initTimeoutFns();
-  interceptAndOverrideHttpRequest();
+  initFetch();
   setupDOM();
   addPlatformFunctionsToEvalContext(self);
   return true;
