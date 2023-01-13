@@ -18,7 +18,10 @@ import { TextSize } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
-import { Icon, LabelWithTooltip, labelLayoutStyles } from "design-system";
+import { Icon } from "design-system";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "widgets/components/LabelWithTooltip";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
