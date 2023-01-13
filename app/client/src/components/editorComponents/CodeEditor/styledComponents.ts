@@ -163,7 +163,8 @@ export const EditorWrapper = styled.div<{
         props.editorTheme === EditorTheme.DARK
           ? props.theme.colors.bindingTextDark
           : props.theme.colors.bindingText};
-      font-weight: 700;
+      font-weight: 400;
+      letter-spacing: -1px;
     }
     .navigable-entity-highlight {
       cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
@@ -220,7 +221,7 @@ export const EditorWrapper = styled.div<{
 
     /* eg: export, default, async keywords */
     span.cm-keyword {
-      color: brown;
+      color: #304eaa;
     }
 
     /* gutter arrow to collapse or expand code */
@@ -256,7 +257,7 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light span.cm-url,
     .cm-s-duotone-light span.cm-variable-2,
     .cm-s-duotone-light span.cm-variable-3 {
-      color: brown;
+      color: #333;
     }
     ${(props) =>
       props.disabled &&
