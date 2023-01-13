@@ -528,7 +528,7 @@ export const Steps: StepsType = {
         dispatch(setCurrentStepInit(GUIDED_TOUR_STEPS.DEPLOY));
         setTimeout(() => {
           showIndicator(`[data-guided-tour-iid='deploy']`, "bottom", {
-            top: -6,
+            top: -15,
             left: 0,
           });
         }, 1000);
