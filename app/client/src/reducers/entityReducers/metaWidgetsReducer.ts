@@ -109,19 +109,15 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
     const { creatorId, updates, widgetId } = action.payload;
     const { modify = {}, remove = [] } = updates;
 
-    const metaWidget = state[widgetId];
-
-    if (metaWidget.creatorId === creatorId) {
+    if (state[widgetId].creatorId === creatorId) {
       Object.entries(modify).forEach(([propertyPath, propertyValue]) => {
-        set(metaWidget, propertyPath, propertyValue);
+        set(state[widgetId], propertyPath, propertyValue);
       });
 
       remove.forEach((propertyPath) => {
-        unset(metaWidget, propertyPath);
+        unset(state[widgetId], propertyPath);
       });
     }
-
-    state[widgetId] = metaWidget;
     return state;
   },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {

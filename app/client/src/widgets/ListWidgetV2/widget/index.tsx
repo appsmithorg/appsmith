@@ -818,21 +818,20 @@ class ListWidget extends BaseWidget<
     const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
       metaWidgetId,
     );
-    const widgetId = templateWidgetId || metaWidgetId;
 
     // Only update the template/canvas widget properties here.
     if (!templateWidgetId) {
       this.context?.batchUpdateWidgetProperty?.(
-        widgetId,
+        metaWidgetId,
         updates,
         shouldReplay,
       );
     }
     // All meta widget property updates goes to the MetaWidget Reducers
     else {
-      this.context?.updateMetaWidgetProperty?.({
+      this.updateMetaWidgetProperty?.({
         updates,
-        widgetId,
+        widgetId: metaWidgetId,
       });
     }
   };
