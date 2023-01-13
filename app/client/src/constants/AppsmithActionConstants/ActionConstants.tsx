@@ -115,6 +115,7 @@ export enum EventType {
   ON_CODE_DETECTED = "ON_CODE_DETECTED",
   ON_ADD_NEW_ROW_SAVE = "ON_ADD_NEW_ROW_SAVE",
   ON_ADD_NEW_ROW_DISCARD = "ON_ADD_NEW_ROW_DISCARD",
+  ON_SIGNING = "ON_SIGNING",
 }
 
 export interface PageAction {
