@@ -821,6 +821,7 @@ export const isATriggerPath = (
   return isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
 };
 
+// Checks if entity newly got added to the unevalTree
 export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
   return !!find(updates, {
     event: DataTreeDiffEvent.NEW,
@@ -834,16 +835,21 @@ export const widgetPathsNotToOverride = (
   propertyPath: string,
 ) => {
   let pathsNotToOverride: string[] = [];
-  const overridingPropertyPaths = entity.overridingPropertyPaths[propertyPath];
+  const overriddenPropertyPaths = entity.overridingPropertyPaths[propertyPath];
 
+  // To tell whether a widget has pre-existing meta values (although newly added), we stringify its meta object to get rid of undefined values
+  // An empty parsedMetaObj implies that the widget has no pre-existing meta values.
+  // MetaWidgets can have pre-existing meta values
   const parsedMetaObj = JSON.parse(JSON.stringify(entity.meta));
 
   if (isNewWidget && !isEmpty(parsedMetaObj)) {
-    const metaPaths = overridingPropertyPaths.filter(
+    const overriddenMetaPaths = overriddenPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
     );
-    pathsNotToOverride = [...metaPaths];
-    metaPaths.forEach((path) => {
+    // If widget is newly added but has pre-existing meta values, this meta values take precedence and should not be overridden
+    pathsNotToOverride = [...overriddenMetaPaths];
+    // paths which these meta values override should also not get overridden
+    overriddenMetaPaths.forEach((path) => {
       if (entity.overridingPropertyPaths.hasOwnProperty(path)) {
         pathsNotToOverride = [
           ...pathsNotToOverride,

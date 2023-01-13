@@ -1395,7 +1395,7 @@ export default class DataTreeEvaluator {
       );
     });
   }
-
+  // When a default value changes, meta values of metaWidgets not present in the unevalTree becomes stale
   getStaleMetaStateIds(entity: DataTreeWidget, propertyPath: string) {
     return isWidgetDefaultPropertyPath(entity, propertyPath) &&
       isMetaWidgetTemplate(entity)
