@@ -1,4 +1,4 @@
-import { Popover, Position } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core";
 import React, { useEffect, useRef } from "react";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,6 +9,7 @@ import { AppState } from "@appsmith/reducers";
 import { useMouseLocation } from "../GlobalHotKeys/useMouseLocation";
 import styled from "styled-components";
 import { Icon, IconSize } from "design-system";
+import { Popover2 } from "@blueprintjs/popover2";
 
 const WIDGET_PANE_WIDTH = 246;
 const WIDGET_PANE_HEIGHT = 600;
@@ -75,20 +76,21 @@ function WidgetPaneTrigger() {
 
   return (
     <div className="widget-pane">
-      <Popover
+      <Popover2
         canEscapeKeyClose
         content={
           <div
             style={{
+              display: "flex",
               width: "246px",
               height: "600px",
-              overflow: "auto",
             }}
           >
             <WidgetSidebar isActive={false} />
           </div>
         }
         isOpen={openWidgetPanel}
+        minimal
         onClose={() => dispatch(forceOpenWidgetPanel(false))}
         position={Position.BOTTOM_LEFT}
       >
@@ -104,7 +106,7 @@ function WidgetPaneTrigger() {
             size={IconSize.XXS}
           />
         </StyledTrigger>
-      </Popover>
+      </Popover2>
     </div>
   );
 }
