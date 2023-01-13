@@ -66,6 +66,11 @@ export function denormalize(
   const rootWidget = widgets[rootWidgetId];
   let children;
 
+  /**
+   * For certain widget, we do not want to denormalize further,
+   * like for the List v2, where a another inner list widget is encountered
+   * we would want to halt the recursion.
+   *  */
   if (widgetTypeForHaltingRecursion !== rootWidget?.type) {
     children = (rootWidget?.children || []).map((childId) =>
       denormalize(childId, widgets, options),

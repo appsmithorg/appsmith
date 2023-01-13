@@ -21,7 +21,7 @@ export const createCanvasWidget = (
 ) => {
   const widgetStaticProps = pick(canvasWidget, [
     ...Object.keys(WIDGET_STATIC_PROPS),
-    ...(canvasWidget.passThroughPropsKeys || []),
+    ...(canvasWidget.additionalStaticProps || []),
   ]);
 
   //Pick required only contents for specific widgets

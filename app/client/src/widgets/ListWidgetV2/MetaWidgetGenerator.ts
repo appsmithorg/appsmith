@@ -1123,7 +1123,7 @@ class MetaWidgetGenerator {
     const rowCache = this.getRowCache(key) ?? {};
     const rowIndex = this.primaryKeys?.toString().includes(key)
       ? rowCache[this.containerWidgetId].rowIndex
-      : rowCache[this.containerWidgetId].prevRowIndex ??
+      : rowCache[this.containerWidgetId]?.prevRowIndex ??
         rowCache[this.containerWidgetId].rowIndex;
     return rowIndex;
   };

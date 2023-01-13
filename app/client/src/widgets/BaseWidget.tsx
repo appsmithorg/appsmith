@@ -607,7 +607,7 @@ export interface WidgetBaseProps {
    * The keys of the props mentioned here would always be picked from the canvas widget
    * rather than the evaluated values in withWidgetProps HOC.
    *  */
-  passThroughPropsKeys?: string[];
+  additionalStaticProps?: string[];
 }
 
 export type WidgetRowCols = {

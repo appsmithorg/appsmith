@@ -50,11 +50,12 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
+    const metaWidget = useSelector(getMetaWidget(widgetId));
+
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
     );
     const renderMode = useSelector(getRenderMode);
-    const metaWidget = useSelector(getMetaWidget(widgetId));
 
     const widgetName = canvasWidget?.widgetName || metaWidget?.widgetName;
 
