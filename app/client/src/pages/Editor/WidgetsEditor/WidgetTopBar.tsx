@@ -1,7 +1,11 @@
 import { Colors } from "constants/Colors";
+import classNames from "classnames";
 import React from "react";
 import { useSelector } from "react-redux";
-import { getCommonWidgets } from "selectors/editorSelectors";
+import {
+  getCommonWidgets,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
@@ -35,6 +39,7 @@ function WidgetTopBar() {
   const widgets = useSelector(getCommonWidgets);
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
+  const isPreviewMode = useSelector(previewModeSelector);
 
   const onDragStart = (e: any, widget: WidgetCardProps) => {
     e.preventDefault();
@@ -52,12 +57,18 @@ function WidgetTopBar() {
   };
 
   return (
-    <Wrapper className="flex">
+    <Wrapper
+      className={classNames({
+        hidden: isPreviewMode,
+        flex: true,
+      })}
+    >
       <WidgetPaneTrigger />
       <div className="flex flex-1 gap-6	justify-center">
         {widgets.map((widget) => {
           return (
             <WidgetWrapper
+              draggable
               key={widget.type}
               onDragStart={(e) => onDragStart(e, widget)}
             >
