@@ -10,6 +10,9 @@ import WidgetStyleContainer, {
 } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { useSelector } from "react-redux";
+import { getCurrentAppPositioningType } from "selectors/editorSelectors";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -68,6 +71,8 @@ const StyledContainerComponent = styled.div<
 function ContainerComponentWrapper(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
+
   useEffect(() => {
     if (!props.shouldScrollContents) {
       const supportsNativeSmoothScroll =
@@ -90,7 +95,8 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} ${
-        props.useAutoLayout && props.widgetId === MAIN_CONTAINER_WIDGET_ID
+        appPositioningType === AppPositioningTypes.AUTO &&
+        props.widgetId === MAIN_CONTAINER_WIDGET_ID
           ? "auto-layout"
           : ""
       }`}
