@@ -73,6 +73,7 @@ import {
 } from "actions/editorContextActions";
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import AskChatGpt from "./ChatGpt/AskChatGpt";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -293,6 +294,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 name={currentJSCollection.name}
                 pageId={pageId}
               />
+              <AskChatGpt />
               <SearchSnippet
                 entityId={currentJSCollection?.id}
                 entityType={ENTITY_TYPE.JSACTION}
