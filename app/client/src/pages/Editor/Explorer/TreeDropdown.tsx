@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import styled from "styled-components";
 import { find, noop } from "lodash";
 import { DropdownOption } from "components/constants";
 import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
@@ -14,7 +15,6 @@ import {
   MenuItem,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { entityTooltipCSS } from "./Entity";
 import { useCloseMenuOnScroll } from "./hooks";
@@ -53,7 +53,9 @@ type TreeDropdownProps = {
   menuWidth?: number;
 };
 
-export const StyledPopover = styled(Popover)`
+export const StyledPopover = styled(Popover)<{
+  children?: React.ReactNode;
+}>`
   .${Classes.POPOVER_TARGET} {
     ${entityTooltipCSS}
   }

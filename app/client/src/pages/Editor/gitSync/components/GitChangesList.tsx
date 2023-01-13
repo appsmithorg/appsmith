@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { Classes, Icon, IconSize, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
