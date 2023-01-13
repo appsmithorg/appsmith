@@ -228,7 +228,7 @@ public class FileUtilsImpl implements FileInterface {
                                 Path jsLibSpecificFile =
                                         jsLibDirectory.resolve(fileNameWithExtension);
                                 if (isResourceUpdated) {
-                                    saveFile(jsLibEntry.getValue(), jsLibSpecificFile, gson);
+                                    saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
                                 }
                                 validJsLibs.add(fileNameWithExtension);
                             });
@@ -300,6 +300,8 @@ public class FileUtilsImpl implements FileInterface {
                                         actionCollectionSpecificDirectory.resolve(actionCollectionName),
                                         gson
                                 );
+                                // Delete the resource from the old file structure v2
+                                deleteFile(actionCollectionSpecificDirectory.resolve(actionCollectionName + CommonConstants.JSON_EXTENSION));
                             }
                         }
                     }
