@@ -1021,7 +1021,9 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.getAllApplication();
+    if (!this.props.userWorkspaces.length) {
+      this.props.getAllApplication();
+    }
     this.props.setHeaderMetaData(true, true);
   }
 

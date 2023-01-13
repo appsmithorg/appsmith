@@ -12,7 +12,6 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
-import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
@@ -124,13 +123,6 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         log.debug("Going to get all applications grouped by workspace");
         return applicationFetcher.getAllApplications()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
-    }
-
-    @GetMapping("/releaseItems")
-    public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
-        log.debug("Going to get version release items");
-        return applicationFetcher.getReleaseItems()
-                   .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 
     @PutMapping("/{defaultApplicationId}/changeAccess")
