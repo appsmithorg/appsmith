@@ -229,6 +229,7 @@ export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
+export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
 
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
