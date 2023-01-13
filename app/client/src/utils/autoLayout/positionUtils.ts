@@ -288,6 +288,7 @@ export function extractAlignmentInfo(
   // Calculate the number of columns occupied by hug widgets in each alignment.
   for (const child of layer.children) {
     const widget = widgets[child.id];
+    if (!widget) continue;
     const isFillWidget = widget.responsiveBehavior === ResponsiveBehavior.Fill;
     if (isFillWidget) fillChildren.push(child);
     if (child.align === FlexLayerAlignment.Start) {
