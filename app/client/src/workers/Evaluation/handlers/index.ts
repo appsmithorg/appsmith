@@ -1,13 +1,15 @@
+import { result } from "lodash";
 import noop from "lodash/noop";
 import {
   EVAL_WORKER_ACTIONS,
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
 } from "workers/Evaluation/evalWorkerActions";
+import { createEvaluationContext } from "../evaluate";
 import { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
 import evalActionBindings from "./evalActionBindings";
 import evalExpression from "./evalExpression";
-import evalTree, { clearCache } from "./evalTree";
+import evalTree, { clearCache, dataTreeEvaluator } from "./evalTree";
 import evalTrigger from "./evalTrigger";
 import executeSyncJS from "./executeSyncJS";
 import initFormEval from "./initFormEval";
@@ -45,6 +47,53 @@ const asyncHandlerMap: Record<
 > = {
   [EVAL_WORKER_ACTIONS.EVAL_TRIGGER]: evalTrigger,
   [EVAL_WORKER_ACTIONS.EVAL_EXPRESSION]: evalExpression,
+  [EVAL_WORKER_ACTIONS.DEBUG]: debug,
 };
+
+async function debug(request: any) {
+  const { data } = request;
+  const { code, localVariables } = data;
+
+  const dataTree = dataTreeEvaluator?.evalTree || {};
+  const resolvedFunctions = dataTreeEvaluator?.resolvedFunctions || {};
+
+  const _ctx = createEvaluationContext({
+    dataTree,
+    resolvedFunctions,
+    isTriggerBased: true,
+  });
+  self.ALLOW_ASYNC = true;
+  let debugCode = code
+    .split("\n")
+    .map((line: string, idx: number) => {
+      return `${line}
+      localVariables.forEach((variable) => {
+        debugger;
+        try {
+          temp=eval(variable)
+        } catch(e) {
+          temp = null;
+        }
+        localValues[variable] = temp;
+      })
+    _sleep(_ctx, ${idx + 1}, localValues)`;
+    })
+    .join("\n");
+  debugCode = `(async function() { const localValues = {}; const _l=localVariables; let temp; _l.forEach((variable) => {
+    localValues[variable] = undefined;
+  });
+  _sleep(_ctx, 0, localValues);
+  ${debugCode} })()`;
+
+  Object.assign(self, _ctx);
+  let result;
+  try {
+    debugger;
+    result = await eval(debugCode);
+  } catch (e) {
+    console.log(e);
+  }
+  return result;
+}
 
 export { syncHandlerMap, asyncHandlerMap };

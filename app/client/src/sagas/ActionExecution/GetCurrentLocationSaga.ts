@@ -7,14 +7,25 @@ import {
   executeAppAction,
   TriggerMeta,
 } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import { call, put, spawn, take } from "redux-saga/effects";
+import {
+  actionChannel,
+  call,
+  fork,
+  put,
+  spawn,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   logActionExecutionError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import { Channel, channel } from "redux-saga";
-
+import { ReduxAction } from "ce/constants/ReduxActionConstants";
+import ts from "typescript";
+import { EvalWorker } from "sagas/EvaluationsSaga";
+import { EVAL_WORKER_ACTIONS } from "workers/Evaluation/evalWorkerActions";
 const referenceMap = new Map();
 const inverseRefMap = new Map();
 
@@ -294,4 +305,81 @@ export function* stopWatchCurrentLocation(
   if (errorChannel) {
     errorChannel.close();
   }
+}
+
+function* startDebuggerSaga(action: ReduxAction<string>) {
+  const code = action.payload;
+
+  const sf = ts.createSourceFile(
+    "test.js",
+    code,
+    ts.ScriptTarget.ES2017,
+    true,
+    ts.ScriptKind.JS,
+  );
+  const localVariables = new Set<string>();
+  sf.forEachChild((n) => {
+    if (ts.isVariableStatement(n)) {
+      n.declarationList.declarations.forEach((decl) => {
+        const name = decl.name.getText();
+        localVariables.add(name);
+      });
+    }
+  });
+
+  const statusChannel = channel();
+  const messagePort = setupSWBridge(statusChannel);
+
+  const task1: unknown = yield fork(listenForMessageFromSW, statusChannel);
+
+  const task2: unknown = yield fork(
+    listenForMessagesFromMainThread,
+    messagePort,
+  );
+
+  //@ts-expect-error test
+  const response = yield call(EvalWorker.request, EVAL_WORKER_ACTIONS.DEBUG, {
+    code,
+    localVariables: Array.from(localVariables),
+  });
+}
+
+function* listenForMessageFromSW(channel: Channel<any>) {
+  while (true) {
+    const message: unknown = yield take(channel);
+    debugger;
+    yield put({
+      type: "DEBUGGER_MESSAGE",
+      payload: message,
+    });
+  }
+}
+
+function* listenForMessagesFromMainThread(port: MessagePort) {
+  while (true) {
+    yield take("NEXT_DEBUGGER_STEP");
+    port.postMessage({ type: "next_debugger_step" });
+  }
+}
+
+function setupSWBridge(channel: Channel<any>) {
+  const messageChannel = new MessageChannel();
+
+  navigator.serviceWorker.controller?.postMessage({ type: "start_debugger" }, [
+    messageChannel.port2,
+  ]);
+
+  const messagePort = messageChannel.port1;
+
+  messagePort.onmessage = (event) => {
+    const { data } = event;
+    console.log("Main thread", { data });
+    channel.put(data);
+  };
+
+  return messagePort;
+}
+
+export default function*() {
+  yield takeLatest("DEBUG", startDebuggerSaga);
 }

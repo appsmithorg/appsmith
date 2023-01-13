@@ -44,6 +44,7 @@ import JSLibrarySaga from "sagas/JSLibrarySaga";
 import AutoHeightSagas from "sagas/autoHeightSagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
 import LintingSaga from "sagas/LintingSagas";
+import debugSaga from "sagas/ActionExecution/GetCurrentLocationSaga";
 
 export const sagas = [
   initSagas,
@@ -92,4 +93,5 @@ export const sagas = [
   tenantSagas,
   JSLibrarySaga,
   LintingSaga,
+  debugSaga,
 ];

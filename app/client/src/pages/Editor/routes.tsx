@@ -36,6 +36,7 @@ import history from "utils/history";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DatasourceEditorRoutes } from "@appsmith/pages/routes";
+import Debugger from "./JSEditor/Debugger";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -154,6 +155,7 @@ function EditorsRouter() {
             exact
             path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
           />
+          <SentryRoute component={Debugger} exact path={`${path}/debugger`} />
         </Switch>
       </PaneDrawer>
     </Wrapper>

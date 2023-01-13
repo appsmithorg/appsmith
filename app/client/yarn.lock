@@ -2852,6 +2852,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/codemirror@*":
+  version "5.60.6"
+  resolved "https://registry.yarnpkg.com/@types/codemirror/-/codemirror-5.60.6.tgz#0511ed51d087ad2a2eedb6111fc74e739c4549f6"
+  integrity sha512-JIDPSvkYRlcv/2F0erqD+de2ni/Mz6FJMEGb0vwF6ByQOcHIKfiEfwrO4d6dSRwYeHyNUMpGjev0PyjX2M0XWw==
+  dependencies:
+    "@types/tern" "*"
+
 "@types/codemirror@^0.0.96":
   version "0.0.96"
   resolved "https://registry.npmjs.org/@types/codemirror/-/codemirror-0.0.96.tgz"
@@ -3192,6 +3199,14 @@
   version "11.0.5"
   resolved "https://registry.npmjs.org/@types/react-beautiful-dnd/-/react-beautiful-dnd-11.0.5.tgz"
   dependencies:
+    "@types/react" "*"
+
+"@types/react-codemirror@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@types/react-codemirror/-/react-codemirror-1.0.7.tgz#17badc0671dd615b186dab118f699ae3370e3ca8"
+  integrity sha512-1TgVrVyw24YVHovXUCSbGOklh/ERwRAXaFhRD1UuzednOF3Ms1kSMCsYKRJPM536dYqpUqaCw+vAE7/xUFhXiQ==
+  dependencies:
+    "@types/codemirror" "*"
     "@types/react" "*"
 
 "@types/react-custom-scrollbars@^4.0.7":
@@ -5297,6 +5312,11 @@ codemirror-graphql@^1.2.14:
   dependencies:
     graphql-language-service "^5.0.6"
 
+codemirror@^5.18.2:
+  version "5.65.11"
+  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.65.11.tgz#c818edc3274788c008f636520c5490a1f7009b4f"
+  integrity sha512-Gp62g2eKSCHYt10axmGhKq3WoJSvVpvhXmowNq7pZdRVowwtvBR/hi2LSP5srtctKkRT33T6/n8Kv1UGp7JW4A==
+
 codemirror@^5.59.2:
   version "5.59.2"
   resolved "https://registry.npmjs.org/codemirror/-/codemirror-5.59.2.tgz"
@@ -5648,6 +5668,14 @@ crc@^3.4.4:
   integrity sha512-iX3mfgcTMIq3ZKLIsVFAbv7+Mc10kxabAGQb8HvjA1o3T1PIYprbakQ65d3I+2HGHt6nSKkM9PYjgoJO2KcFBQ==
   dependencies:
     buffer "^5.1.0"
+
+create-react-class@^15.5.1:
+  version "15.7.0"
+  resolved "https://registry.yarnpkg.com/create-react-class/-/create-react-class-15.7.0.tgz#7499d7ca2e69bb51d13faf59bd04f0c65a1d6c1e"
+  integrity sha512-QZv4sFWG9S5RUvkTYWbflxeZX+JG7Cz0Tn33rQBJ+WFQTqTfUTjMjiv9tnfXazjsO5r0KhPs+AqCjyrQX6h2ng==
+  dependencies:
+    loose-envify "^1.3.1"
+    object-assign "^4.1.1"
 
 create-react-context@^0.3.0:
   version "0.3.0"
@@ -12460,6 +12488,18 @@ react-beautiful-dnd@^12.2.0:
     react-redux "^7.1.1"
     redux "^4.0.4"
     use-memo-one "^1.1.1"
+
+react-codemirror@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/react-codemirror/-/react-codemirror-1.0.0.tgz#91467b53b1f5d80d916a2fd0b4c7adb85a9001ba"
+  integrity sha512-pPvL8b1vwLyfX5f3EMLyqZVXYY/qAKdqURYxi3izYfjWbnUdqVaFBA7z78o9eEM+UzgxuKjI864BJkPIRVS2JA==
+  dependencies:
+    classnames "^2.2.5"
+    codemirror "^5.18.2"
+    create-react-class "^15.5.1"
+    lodash.debounce "^4.0.8"
+    lodash.isequal "^4.5.0"
+    prop-types "^15.5.4"
 
 react-custom-scrollbars@^4.2.1:
   version "4.2.1"

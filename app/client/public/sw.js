@@ -26,6 +26,36 @@ self.addEventListener('fetch', function (event) {
                 });
             })
         });
+        
         event.respondWith(response);
+    } else if (event.request.url.indexOf('/debug/pause') !== -1) {
+        console.log("Intercepted request for " + event.request);
+        const response = event.request.json().then((reqJSON) => {
+            return new Promise(function (resolve, reject) {
+                debugPort.onmessage = function (event) {
+                    if (event.data.error) {
+                        reject(event.data.error);
+                    } else {
+                        resolve(new Response(JSON.stringify(event.data)));
+                    }
+                    debugPort.onmessage = null;
+                }
+                debugPort.postMessage(reqJSON);
+            })
+        });
+        event.respondWith(response);
+    }
+});
+
+let debugPort = null;
+
+self.addEventListener('message', function (event) {
+    const data = event.data;
+    if (data.type === "start_debugger") {
+        debugPort = event.ports[0];
+    }
+    else if (data.type === "stop_debugger") {
+        debugPort && debugPort.close();
+        debugPort = null;
     }
 });

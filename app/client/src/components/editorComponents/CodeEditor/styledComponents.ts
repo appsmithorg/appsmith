@@ -253,6 +253,9 @@ export const EditorWrapper = styled.div<{
     text-shadow: none;
     font: inherit;
   }
+  .CodeMirror-activeline-background {
+    background: lightpink;
+  }
   .CodeEditorTarget {
     width: 100%;
 

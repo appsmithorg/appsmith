@@ -17,6 +17,11 @@ export function initWindowProxy() {
     self.document = window.document;
     self.location = window.location;
   }, 1000);
+
+  Object.defineProperty(self, "_sleep", {
+    value: sleep,
+    enumerable: false,
+  });
 }
 
 function getPropertyFromMainThread(
@@ -78,4 +83,20 @@ function proxyHandlerFactory(_referenceId: string, _referenceType: string) {
     };
   }
   return handler;
+}
+
+export function sleep(context: any, line: number, localState: any) {
+  debugger;
+  const req = new _internalXHR();
+  req.open("POST", `/debug/pause`, false);
+  req.send(
+    JSON.stringify({ context, line, localState }, function(key, value) {
+      if (typeof value === "function") {
+        return value.toString();
+      } else {
+        return value;
+      }
+    }),
+  );
+  return;
 }

@@ -30,6 +30,7 @@ module.exports = {
             resolve: { fullySpecified: false },
           },
         ],
+        noParse: /typescript/,
       },
       ignoreWarnings: [
         function ignoreSourcemapsloaderWarnings(warning) {

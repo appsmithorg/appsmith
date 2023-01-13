@@ -13,6 +13,7 @@ const initialState: DebuggerReduxState = {
   errors: {},
   expandId: "",
   hideErrors: true,
+  codeDebugger: {},
 };
 
 // check the last message from the current log and update the occurrence count
@@ -97,6 +98,10 @@ const debuggerReducer = createImmerReducer(initialState, {
   ) => {
     state.hideErrors = action.payload;
   },
+  DEBUGGER_MESSAGE: (state: DebuggerReduxState, action: ReduxAction<any>) => {
+    console.log("Inside reducer", { action });
+    state.codeDebugger = action.payload;
+  },
   // Resetting debugger state after page switch
   [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: () => {
     return {
@@ -111,6 +116,7 @@ export interface DebuggerReduxState {
   errors: Record<string, Log>;
   expandId: string;
   hideErrors: boolean;
+  codeDebugger: Record<string, any>;
 }
 
 export default debuggerReducer;
