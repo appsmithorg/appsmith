@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 
-const Wrapper = styled.section<{ isFixed?: boolean }>`
+export const Wrapper = styled.section<{ isFixed?: boolean }>`
   ${(props) =>
     props.isFixed
       ? `margin: 0;
@@ -31,7 +31,7 @@ const Wrapper = styled.section<{ isFixed?: boolean }>`
   }
 `;
 
-const PageBody = styled.div<{ isSavable?: boolean }>`
+export const PageBody = styled.div<{ isSavable?: boolean }>`
   height: calc(
     100vh - ${(props) => props.theme.homePage.header}px - ${(props) =>
   props.isSavable ? "84px" : "0px"}
@@ -47,7 +47,7 @@ const PageBody = styled.div<{ isSavable?: boolean }>`
   }
 `;
 
-type PageWrapperProps = {
+export type PageWrapperProps = {
   children?: ReactNode;
   displayName?: string;
   isFixed?: boolean;
