@@ -1,7 +1,7 @@
 import React from "react";
-import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import styled from "styled-components";
 
-import styled from "constants/DefaultTheme";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";

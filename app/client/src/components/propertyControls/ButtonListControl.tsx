@@ -1,7 +1,7 @@
 import React from "react";
+import styled from "styled-components";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
