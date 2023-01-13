@@ -1,11 +1,11 @@
 import React from "react";
-import styled, { AnyStyledComponent } from "styled-components";
+import styled from "styled-components";
 
 import { ControlIcons } from "icons/ControlIcons";
 
-const Icon = styled(
-  ControlIcons.PICK_MY_LOCATION_SELECTED_CONTROL as AnyStyledComponent,
-)<{ allowZoom?: boolean }>`
+const Icon = styled(ControlIcons.PICK_MY_LOCATION_SELECTED_CONTROL)<{
+  allowZoom?: boolean;
+}>`
   background: white;
   width: 40px;
   height: 40px;
