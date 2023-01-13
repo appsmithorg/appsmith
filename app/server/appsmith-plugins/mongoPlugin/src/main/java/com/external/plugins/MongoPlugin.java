@@ -2,10 +2,13 @@ package com.external.plugins;
 
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.PluginUtils;
@@ -18,6 +21,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.Property;
@@ -26,6 +30,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.constants.MongoSpecialDataTypes;
+import com.external.plugins.datatypes.MongoSpecificDataTypes;
 import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -157,6 +162,14 @@ public class MongoPlugin extends BasePlugin {
     private static final String MONGO_URI_REGEX = "^(mongodb(?:\\+srv)?://)(?:(.+):(.+)@)?([^/?]+)/?([^?]+)?\\??(.+)?$";
 
     /**
+     * We use this regex to identify the $regex attribute and the respective argument provided:
+     * e.g. {"code" : {$regex: value, $options: value}} / {"code" : {$regex: value}}
+     * capturing the value group for regex.
+     * e.g {"code" : {$regex: 8777}}, this whole substring will be matched and 8777 is captured for further processing.
+     */
+    private static final String mongo$regexWithNumberIdentifier = ".*\\{[\\s\\n]*\\$regex[\\s\\n]*:([\\s\\n]*(?:(?:\\\"[/]*)|(?:/[\\\"]*)|)[-]?[\\d]*\\.?[\\d]*(?:(?:[/]*\\\")|(?:[\\\"]*/)|)[\\s\\n]*)(?:,|\\})";
+
+    /**
      * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
      * e.g. "ObjectId(...)". Case for single quotes e.g. 'ObjectId(...)' is not added because the way client sends
      * back the data to the API server it would be extremely uncommon to encounter this case.
@@ -212,7 +225,7 @@ public class MongoPlugin extends BasePlugin {
     @Extension
     public static class MongoPluginExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -565,7 +578,7 @@ public class MongoPlugin extends BasePlugin {
                                            List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {
 
             // First extract all the bindings in order
-            List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(rawQuery);
+            List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(rawQuery);
             // Replace all the bindings with a ? as expected in a prepared statement.
             String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(rawQuery, mustacheKeysInOrder);
 
@@ -574,7 +587,69 @@ public class MongoPlugin extends BasePlugin {
                     params,
                     parameters);
 
+            updatedQuery = makeMongoRegexSubstitutionValid (updatedQuery);
+
             return updatedQuery;
+        }
+
+
+        private static StringBuilder makeValidForRegex(String value) {
+
+            StringBuilder valueSB = new StringBuilder(value.trim());
+
+            char quote = '\"';
+            char forwardSlash = '/';
+            if ( valueSB.charAt(0) != quote && valueSB.charAt(0) != forwardSlash) {
+                valueSB.insert(0, quote );
+                // adds quote at the end of the line
+                valueSB.append(quote);
+            }
+
+            return valueSB;
+        }
+
+        /**
+         * Smart Substitution Helper for mongo regex: Regex takes pattern as "<pattern>" or /<pattern>/,
+         * Rest are not illegal arguments to the $regex attribute in mongo.
+         * @Param: Smart substituted query string.
+         * @Returns: Updated query string.
+         */
+        private static String makeMongoRegexSubstitutionValid(String inputQuery) {
+
+            int startIndex = 0;
+            StringBuilder inputQuerySB = new StringBuilder();
+
+            Pattern mongo$regexIdentifierPattern = Pattern.compile(mongo$regexWithNumberIdentifier);
+            Matcher mongo$regexIdentifierMatcher = mongo$regexIdentifierPattern.matcher(inputQuery);
+
+            while (mongo$regexIdentifierMatcher.find()) {
+
+                StringBuilder valueSB;
+                try {
+                    valueSB = makeValidForRegex(mongo$regexIdentifierMatcher.group(1));
+
+                } catch(StringIndexOutOfBoundsException e) {
+                    // when the match group detected is of length zero this error is thrown;
+                    return inputQuery;
+                } catch (Exception e) {
+                    return inputQuery;
+                }
+
+
+                //groups are discovered in greedy manner hence it's sorted by default
+                // a sub-group within a big group could be due to the regex arguments provide by user hence will not parse that
+                if (startIndex > mongo$regexIdentifierMatcher.start()) {
+                    // the matcher walks greedily to find the pattern, if there is a group overlapping with other group means that it's a subquery, and it's not meant to be parsed.
+                    continue;
+                }
+                inputQuerySB.append(inputQuery.substring(startIndex, mongo$regexIdentifierMatcher.start(1)));
+                inputQuerySB.append(valueSB);
+                startIndex = mongo$regexIdentifierMatcher.end(1);
+            }
+
+            inputQuerySB.append(inputQuery.substring(startIndex));
+
+            return inputQuerySB.toString();
         }
 
         /**
@@ -860,8 +935,9 @@ public class MongoPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            DataType dataType = stringToKnownMongoDBDataTypeConverter(value);
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, dataType, insertedParams, this);
+            Param param = (Param) args[0];
+            DataType dataType = stringToKnownMongoDBDataTypeConverter(value, param.getClientDataType());
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, dataType, insertedParams, this, param);
         }
 
         /**
@@ -874,8 +950,9 @@ public class MongoPlugin extends BasePlugin {
          * @param replacement replacement value
          * @return identified data type of replacement value
          */
-        private DataType stringToKnownMongoDBDataTypeConverter(String replacement) {
-            DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        private DataType stringToKnownMongoDBDataTypeConverter(String replacement, ClientDataType clientDataType) {
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(clientDataType, replacement, MongoSpecificDataTypes.pluginSpecificTypes);
+            DataType dataType = appsmithType.type();
             if (dataType == DataType.STRING) {
                 for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
                     final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E",

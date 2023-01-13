@@ -3,7 +3,7 @@ const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper;
+const locators = ObjectsRegistry.CommonLocators;
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
@@ -16,14 +16,15 @@ describe("Omnibar functionality test cases", () => {
   it("1. Bug #15104 The Data is not displayed in Omnibar after clicking on learn more link from property pane", function() {
     cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
     cy.xpath('//span[text()="Learn more"]').click();
-    cy.get(omnibar.openDocumentationLink).should("be.visible");
+    cy.get(locators._omnibarDescription).scrollTo("top");
+    cy.get(omnibar.openDocumentationLink);
     cy.get("body").click(0, 0);
   });
 
   it("2.Verify omnibar is present across all pages and validate its fields", function() {
     cy.get(omnibar.globalSearch)
       .trigger("mouseover")
-      .should("have.css", "background-color", "rgb(240, 240, 240)");
+      .should("have.css", "background-color", "rgba(0, 0, 0, 0)");
     cy.get(omnibar.globalSearch).click({ force: true });
     // verifying all sections are present in omnibar
     cy.get(omnibar.categoryTitle)
@@ -90,11 +91,14 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.createNew)
       .eq(0)
       .should("have.text", "New Blank API");
-    cy.get(omnibar.createNew)
-      .eq(1)
-      .should("have.text", "New JS Object");
+
+    // 2 is the index value of the JS Object in omnibar ui
     cy.get(omnibar.createNew)
       .eq(2)
+      .should("have.text", "New JS Object");
+    // 3 is the index value of the Curl import in omnibar ui
+    cy.get(omnibar.createNew)
+      .eq(3)
       .should("have.text", "New cURL Import");
     cy.get(omnibar.createNew)
       .eq(0)
@@ -106,8 +110,9 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.categoryTitle)
       .eq(1)
       .click();
+    // 2 is the index value of the JS Object in omnibar ui
     cy.get(omnibar.createNew)
-      .eq(1)
+      .eq(2)
       .click();
     cy.wait(1000);
     cy.wait("@createNewJSCollection");
@@ -115,14 +120,14 @@ describe("Omnibar functionality test cases", () => {
     cy.get(".t--js-action-name-edit-field")
       .type(jsObjectName)
       .wait(1000);
-    agHelper.AssertContains("created successfully");
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle)
       .eq(1)
       .click();
     cy.wait(1000);
+    // 3 is the index value of the JS Object in omnibar ui
     cy.get(omnibar.createNew)
-      .eq(2)
+      .eq(3)
       .click();
     cy.wait(1000);
     cy.url().should("include", "curl-import?");
@@ -161,16 +166,24 @@ describe("Omnibar functionality test cases", () => {
     // verify recently opened items with their subtext i.e page name
     cy.xpath(omnibar.recentlyopenItem)
       .eq(0)
-      .should("have.text", "Button1")
+      .should("have.text", "Page1");
+    cy.xpath(omnibar.recentlyopenItem)
+      .eq(1)
+      .should("have.text", "Audio1")
       .next()
       .should("have.text", "Page1");
     cy.xpath(omnibar.recentlyopenItem)
       .eq(2)
-      .should("have.text", "Omnibar2")
+      .should("have.text", "Button1")
       .next()
       .should("have.text", "Page1");
     cy.xpath(omnibar.recentlyopenItem)
       .eq(3)
+      .should("have.text", "Omnibar2")
+      .next()
+      .should("have.text", "Page1");
+    cy.xpath(omnibar.recentlyopenItem)
+      .eq(4)
       .should("have.text", "Omnibar1")
       .next()
       .should("have.text", "Page1");
@@ -187,7 +200,7 @@ describe("Omnibar functionality test cases", () => {
       .click()
       .wait(2000);
     cy.url().should(
-      "eq",
+      "contain",
       "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
     ); // => true
     cy.go(-1);

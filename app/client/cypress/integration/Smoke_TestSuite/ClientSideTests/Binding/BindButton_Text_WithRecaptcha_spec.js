@@ -16,13 +16,13 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     agHelper.ClickButton("Submit");
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
-      .then(($text) => expect($text).to.be.empty);
+      .should("be.empty");
     ee.SelectEntityByName("Button1");
     agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v2");
     agHelper.ClickButton("Submit");
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
-      .then(($text) => expect($text).to.be.empty);
+      .should("be.empty");
     agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v3");
   });
 
@@ -72,14 +72,14 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     agHelper.Sleep();
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
-      .then(($text) => expect($text).to.be.empty);
+      .should("be.empty");
     ee.SelectEntityByName("Button1");
     agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v2");
     agHelper.ClickButton("Submit");
     agHelper.Sleep();
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
-      .then(($text) => expect($text).not.to.be.empty);
+      .should("not.be.empty");
     agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v3");
     agHelper.ClickButton("Submit");
     agHelper.Sleep();
@@ -93,7 +93,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     agHelper.Sleep();
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
-      .then(($text) => expect($text).not.to.be.empty);
+      .should("not.be.empty");
     ee.SelectEntityByName("Button1");
     agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v2");
     agHelper.ClickButton("Submit");

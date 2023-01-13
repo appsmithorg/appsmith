@@ -172,6 +172,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
               fillOpacity: 1,
               strokeWeight: 0,
               scale: 1,
+              // @ts-expect-error: cannot find name google
               anchor: new google.maps.Point(12, 24),
             }}
             key={index}

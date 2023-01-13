@@ -1,25 +1,23 @@
 import React, { useCallback, useState } from "react";
-import Dialog from "components/ads/DialogComponent";
 import {
   getDisconnectDocUrl,
   getDisconnectingGitApplication,
   getIsDisconnectGitModalOpen,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  disconnectGit,
-  setIsDisconnectGitModalOpen,
-} from "actions/gitSyncActions";
+import { revokeGit, setIsDisconnectGitModalOpen } from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
   Button,
   Category,
+  DialogComponent as Dialog,
   Icon,
   IconSize,
   Size,
   Text,
   TextInput,
   TextType,
+  Variant,
 } from "design-system";
 
 import styled, { useTheme } from "styled-components";
@@ -39,7 +37,6 @@ import {
 import Link from "./components/Link";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
-import { Variant } from "components/ads";
 
 const StyledDialog = styled(Dialog)`
   && .bp3-dialog-body {
@@ -86,8 +83,8 @@ function DisconnectGitModal() {
 
   const onDisconnectGit = useCallback(() => {
     setIsRevoking(true);
-    dispatch(disconnectGit());
-  }, [dispatch, disconnectGit]);
+    dispatch(revokeGit());
+  }, [dispatch, revokeGit]);
 
   const theme = useTheme() as Theme;
 

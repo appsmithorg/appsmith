@@ -132,6 +132,9 @@ describe("Autocomplete using slash command and mustache tests", function() {
         // validates autocomplete suggestion for resetWidget() in onClick field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(0)
+          .should("have.text", "removeValue()");
+        cy.get(`${dynamicInputLocators.hints} li`)
+          .eq(1)
           .should("have.text", "resetWidget()");
       });
     cy.EnableAllCodeEditors();
@@ -171,7 +174,8 @@ describe("Autocomplete using slash command and mustache tests", function() {
         cy.get(`${dynamicInputLocators.hints} li`)
           .should("contain.text", "closeModal()")
           .and("contain.text", "copyToClipboard()")
-          .and("contain.text", "clearInterval()");
+          .and("contain.text", "clearInterval()")
+          .and("contain.text", "clearStore()");
       });
     cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")

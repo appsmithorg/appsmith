@@ -10,10 +10,11 @@ import {
   hideByColumnType,
   showByColumnType,
   uniqueColumnAliasValidation,
+  updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
 export default {
@@ -22,48 +23,63 @@ export default {
     {
       propertyName: "columnType",
       label: "Column Type",
+      helpText:
+        "Type of column to be shown corresponding to the data of the column",
       controlType: "DROP_DOWN",
       options: [
         {
-          label: "Plain Text",
-          value: "text",
+          label: "Button",
+          value: ColumnTypes.BUTTON,
         },
         {
-          label: "URL",
-          value: "url",
-        },
-        {
-          label: "Number",
-          value: "number",
-        },
-        {
-          label: "Image",
-          value: "image",
-        },
-        {
-          label: "Video",
-          value: "video",
+          label: "Checkbox",
+          value: ColumnTypes.CHECKBOX,
         },
         {
           label: "Date",
-          value: "date",
-        },
-        {
-          label: "Button",
-          value: "button",
-        },
-        {
-          label: "Menu Button",
-          value: "menuButton",
+          value: ColumnTypes.DATE,
         },
         {
           label: "Icon Button",
-          value: "iconButton",
+          value: ColumnTypes.ICON_BUTTON,
+        },
+        {
+          label: "Image",
+          value: ColumnTypes.IMAGE,
+        },
+        {
+          label: "Menu Button",
+          value: ColumnTypes.MENU_BUTTON,
+        },
+        {
+          label: "Number",
+          value: ColumnTypes.NUMBER,
+        },
+        {
+          label: "Plain Text",
+          value: ColumnTypes.TEXT,
+        },
+        {
+          label: "Select",
+          value: ColumnTypes.SELECT,
+        },
+        {
+          label: "Switch",
+          value: ColumnTypes.SWITCH,
+        },
+        {
+          label: "URL",
+          value: ColumnTypes.URL,
+        },
+        {
+          label: "Video",
+          value: ColumnTypes.VIDEO,
         },
       ],
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
+        updateMenuItemsSource,
       ]),
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,
@@ -79,6 +95,8 @@ export default {
       propertyName: "alias",
       label: "Property Name",
       controlType: "INPUT_TEXT",
+      helperText: () =>
+        "Changing the name of the column overrides any changes to this field",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
         let isDerivedProperty = false;
@@ -117,6 +135,7 @@ export default {
     {
       propertyName: "displayText",
       label: "Display Text",
+      helpText: "The text to be displayed in the column",
       controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -133,6 +152,9 @@ export default {
       propertyName: "computedValue",
       label: "Computed Value",
       controlType: "TABLE_COMPUTE_VALUE",
+      additionalControlData: {
+        isArrayValue: true,
+      },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.DATE,
@@ -141,6 +163,9 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.VIDEO,
           ColumnTypes.URL,
+          ColumnTypes.CHECKBOX,
+          ColumnTypes.SWITCH,
+          ColumnTypes.SELECT,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
@@ -150,6 +175,7 @@ export default {
     {
       propertyName: "inputFormat",
       label: "Original Date Format",
+      helpText: "Date format of incoming data to the column",
       controlType: "DROP_DOWN",
       options: [
         {
@@ -244,7 +270,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -278,6 +304,7 @@ export default {
     {
       propertyName: "outputFormat",
       label: "Display Date Format",
+      helpText: "Date format to be shown to users",
       controlType: "DROP_DOWN",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
@@ -372,7 +399,7 @@ export default {
       dependencies: ["primaryColumns", "columnType"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {

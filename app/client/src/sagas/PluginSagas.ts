@@ -8,6 +8,7 @@ import PluginsApi, { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
+  getActions,
   getDatasources,
   getPlugin,
   getPluginForm,
@@ -29,13 +30,14 @@ import {
 import { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
-import { PluginType } from "entities/Action";
+import { getGraphQLPlugin, PluginType } from "entities/Action";
 import {
   FormEditorConfigs,
   FormSettingsConfigs,
   FormDependencyConfigs,
   FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
 function* fetchPluginsSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -74,13 +76,24 @@ function* fetchPluginFormConfigsSaga() {
     const pluginIdFormsToFetch = new Set(
       datasources.map((datasource) => datasource.pluginId),
     );
-    // Add the api plugin id by default because it is the only type of action that
-    // can exist without a saved datasource
+    // Add the api plugin id by default as API, JS, Graphql can exists without datasource
     const apiPlugin = plugins.find((plugin) => plugin.type === PluginType.API);
     const jsPlugin = plugins.find((plugin) => plugin.type === PluginType.JS);
+    const graphqlPlugin = getGraphQLPlugin(plugins);
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
+
+    if (graphqlPlugin) {
+      pluginIdFormsToFetch.add(graphqlPlugin.id);
+    }
+
+    const actions: ActionDataState = yield select(getActions);
+    const actionPluginIds = actions.map((action) => action.config.pluginId);
+    for (const pluginId of actionPluginIds) {
+      pluginIdFormsToFetch.add(pluginId);
+    }
+
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
       [...pluginIdFormsToFetch].map((id) =>

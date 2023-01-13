@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
@@ -9,13 +8,14 @@ import {
   getGenerateCRUDEnabledPluginMap,
   getIsFetchingSinglePluginForm,
   getDatasourcesStructure,
+  getNumberOfEntitiesInCurrentPage,
 } from "selectors/entitiesSelector";
 
 import { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "../../../Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
@@ -27,6 +27,7 @@ import {
   Category,
   Dropdown,
   DropdownOption,
+  getTypographyByKey,
   IconName,
   IconSize,
   RenderDropdownOptionType,
@@ -53,7 +54,6 @@ import {
   DropdownOptions,
   DatasourceTableDropdownOption,
   PluginFormInputFieldMap,
-  PLUGIN_PACKAGE_NAME,
   DEFAULT_DROPDOWN_OPTION,
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
@@ -69,6 +69,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
+import { PluginPackageName } from "entities/Action";
 
 //  ---------- Styles ----------
 
@@ -104,7 +105,7 @@ const FormWrapper = styled.div`
 `;
 
 const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
-  ${(props) => getTypographyByKey(props, "btnLarge")};
+  ${getTypographyByKey("btnLarge")};
   color: ${Colors.DOVE_GRAY2};
   margin: 10px 0px;
 `;
@@ -121,7 +122,7 @@ const DescWrapper = styled.div`
 `;
 
 const Title = styled.p`
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   font-weight: 500;
   color: ${Colors.CODE_GRAY};
   font-size: 24px;
@@ -157,7 +158,7 @@ function GeneratePageSubmitBtn({
 }) {
   return showSubmitButton ? (
     <FormSubmitButton
-      category={Category.tertiary}
+      category={Category.secondary}
       data-cy="t--generate-page-form-submit"
       disabled={disabled}
       isLoading={isLoading}
@@ -181,7 +182,12 @@ function GeneratePageForm() {
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
-  const currentMode = useRef(GENERATE_PAGE_MODE.REPLACE_EMPTY);
+  const numberOfEntities = useSelector(getNumberOfEntitiesInCurrentPage);
+  const currentMode = useRef(
+    numberOfEntities > 0
+      ? GENERATE_PAGE_MODE.NEW
+      : GENERATE_PAGE_MODE.REPLACE_EMPTY,
+  );
 
   const [datasourceIdToBeSelected, setDatasourceIdToBeSelected] = useState<
     string
@@ -217,10 +223,10 @@ function GeneratePageForm() {
     generateCRUDSupportedPlugin[selectedDatasourcePluginId];
 
   const isGoogleSheetPlugin =
-    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
+    selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS;
 
   const isS3Plugin =
-    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.S3;
+    selectedDatasourcePluginPackageName === PluginPackageName.S3;
 
   const isFetchingSheetPluginForm = useSelector((state: AppState) => {
     if (isGoogleSheetPlugin) {
@@ -281,7 +287,7 @@ function GeneratePageForm() {
         setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
           switch (pluginPackageName) {
-            case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
+            case PluginPackageName.GOOGLE_SHEETS:
               break;
             default: {
               if (dataSourceObj.id) {
@@ -463,7 +469,7 @@ function GeneratePageForm() {
       const datasourceId = queryParams.datasourceId;
       const generateNewPage = queryParams.new_page;
       if (datasourceId) {
-        if (generateNewPage) {
+        if (generateNewPage || numberOfEntities > 0) {
           currentMode.current = GENERATE_PAGE_MODE.NEW;
         } else {
           currentMode.current = GENERATE_PAGE_MODE.REPLACE_EMPTY;
@@ -476,7 +482,7 @@ function GeneratePageForm() {
         history.replace(redirectURL);
       }
     }
-  }, [querySearch, setDatasourceIdToBeSelected]);
+  }, [numberOfEntities, querySearch, setDatasourceIdToBeSelected]);
 
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
@@ -592,7 +598,7 @@ function GeneratePageForm() {
 
   const showSearchableColumn =
     !!selectedTable.value &&
-    PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
+    PluginPackageName.S3 !== selectedDatasourcePluginPackageName;
 
   const showSubmitButton =
     selectedTable.value &&
@@ -622,6 +628,7 @@ function GeneratePageForm() {
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
             options={dataSourceOptions}
             renderOption={({
+              isHighlighted,
               isSelectedNode,
               option,
               optionClickHandler,
@@ -629,6 +636,7 @@ function GeneratePageForm() {
               <DataSourceOption
                 cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}
+                isHighlighted={isHighlighted}
                 isSelectedNode={isSelectedNode}
                 key={(option as DropdownOption).id}
                 option={option}
@@ -664,7 +672,7 @@ function GeneratePageForm() {
         ) : null}
         {showEditDatasourceBtn && (
           <EditDatasourceButton
-            category={Category.tertiary}
+            category={Category.secondary}
             onClick={goToEditDatasource}
             size={Size.medium}
             text="Edit Datasource"

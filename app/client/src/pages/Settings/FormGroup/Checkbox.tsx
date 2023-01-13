@@ -7,7 +7,7 @@ import {
 } from "redux-form";
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
-import { FormTextFieldProps } from "components/ads/formFields/TextField";
+import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { Button, Category, Checkbox } from "design-system";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
@@ -75,7 +75,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
         <div>{labelSuffix}</div>
         {props.needsUpgrade && (
           <UpgradeButton
-            category={Category.tertiary}
+            category={Category.secondary}
             onClick={onUpgrade}
             text="UPGRADE"
           />

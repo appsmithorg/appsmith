@@ -7,7 +7,6 @@ describe("Test Create Api and Bind to Table widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-
   it("1. Create an API and Execute the API and bind with TableV2", function() {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
@@ -45,36 +44,38 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.changeColumnType("Image");
     cy.closePropertyPane();
     cy.SearchEntityandOpen("Table1");
+    cy.backFromPropertyPanel();
     cy.moveToStyleTab();
     cy.get(widgetsPage.centerAlign)
       .first()
       .click({ force: true });
     cy.closePropertyPane();
-    cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell`)
+    cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
-      .should("have.css", "background-position", "50% 50%");
+      .should("have.css", "justify-content", "center");
     cy.SearchEntityandOpen("Table1");
     cy.moveToStyleTab();
     cy.get(widgetsPage.rightAlign)
       .first()
       .click({ force: true });
     cy.closePropertyPane();
-    cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell`)
+    cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
-      .should("have.css", "background-position", "100% 50%");
+      .should("have.css", "justify-content", "flex-end");
     cy.SearchEntityandOpen("Table1");
     cy.moveToStyleTab();
     cy.get(widgetsPage.leftAlign)
       .first()
       .click({ force: true });
     cy.closePropertyPane();
-    cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell`)
+    cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
-      .should("have.css", "background-position", "0% 50%");
+      .should("have.css", "justify-content", "flex-start");
   });
 
   it("4. Update table json data and check the derived column values after update", function() {
     cy.SearchEntityandOpen("Table1");
+    cy.moveToContentTab();
     cy.tableV2ColumnDataValidation("id");
     cy.tableV2ColumnDataValidation("name");
     cy.tableV2ColumnDataValidation("status");

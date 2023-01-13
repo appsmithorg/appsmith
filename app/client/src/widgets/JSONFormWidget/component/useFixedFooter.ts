@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 type UseFixedFooterProps = {
   fixedFooter: boolean;
   activeClassName: string;
+  ref: React.MutableRefObject<HTMLDivElement | null>;
 };
 
 const ERROR_MARGIN = 2;
@@ -21,10 +22,10 @@ const hasOverflowingContent = (element: HTMLElement) => {
 const THROTTLE_TIMEOUT = 50;
 
 function useFixedFooter<
-  TBodyElement extends HTMLElement = HTMLDivElement,
+  HTMLDivElement extends HTMLElement,
   TFooterElement extends HTMLElement = HTMLDivElement
->({ activeClassName, fixedFooter }: UseFixedFooterProps) {
-  const bodyRef = useRef<TBodyElement>(null);
+>({ activeClassName, fixedFooter, ref }: UseFixedFooterProps) {
+  const bodyRef = ref;
   const footerRef = useRef<TFooterElement>(null);
 
   const isOverflowing = bodyRef.current

@@ -1,25 +1,37 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { storeAsDatasource } from "actions/datasourceActions";
-import { useDispatch } from "react-redux";
-import { Text, TextType } from "design-system";
-import { Icon, IconSize } from "design-system";
-import { Classes } from "components/ads/common";
+import {
+  setDatasourceViewMode,
+  storeAsDatasource,
+} from "actions/datasourceActions";
+import { connect, useDispatch, useSelector } from "react-redux";
+import history from "utils/history";
+import { Classes, FontWeight, Text, TextType } from "design-system";
+import { datasourcesEditorIdURL } from "RouteBuilder";
+import CloudLine from "remixicon-react/CloudLineIcon";
+import Edit2Line from "remixicon-react/Edit2LineIcon";
+import { getQueryParams } from "utils/URLUtils";
+import { Colors } from "constants/Colors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  createMessage,
+  EDIT_DATASOURCE,
+  SAVE_DATASOURCE,
+} from "@appsmith/constants/messages";
 
-export const DatasourceIcon = styled.div<{ enable?: boolean }>`
+export const StoreDatasourceWrapper = styled.div<{ enable?: boolean }>`
   display: flex;
   align-items: center;
   cursor: pointer;
-  margin-left: 10px;
-  height: 100%;
+  height: auto;
   min-height: 37px;
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.apiPane.settings.textColor};
+    color: ${Colors.GRAY_700};
   }
   .${Classes.ICON} {
     margin-right: 5px;
     path {
-      fill: ${(props) => props.theme.colors.icon.hover};
+      fill: ${Colors.GRAY_700};
     }
   }
   ${(props) => (props.enable ? "" : disabled)}
@@ -32,22 +44,60 @@ const disabled = css`
 `;
 
 type storeDataSourceProps = {
+  datasourceId?: string;
   enable: boolean;
+  shouldSave: boolean;
+  setDatasourceViewMode: (viewMode: boolean) => void;
 };
+
+interface ReduxDispatchProps {
+  setDatasourceViewMode: (viewMode: boolean) => void;
+}
 
 function StoreAsDatasource(props: storeDataSourceProps) {
   const dispatch = useDispatch();
+  const pageId = useSelector(getCurrentPageId);
+
+  const saveOrEditDatasource = () => {
+    if (props.shouldSave) {
+      dispatch(storeAsDatasource());
+    } else {
+      if (props.datasourceId) {
+        props.setDatasourceViewMode(false);
+        history.push(
+          datasourcesEditorIdURL({
+            pageId,
+            datasourceId: props.datasourceId,
+            params: getQueryParams(),
+          }),
+        );
+      }
+    }
+  };
 
   return (
-    <DatasourceIcon
+    <StoreDatasourceWrapper
       className="t--store-as-datasource"
       enable={props.enable}
-      onClick={() => dispatch(storeAsDatasource())}
+      onClick={saveOrEditDatasource}
     >
-      <Icon name="datasource" size={IconSize.LARGE} />
-      <Text type={TextType.P1}>Save As Datasource</Text>
-    </DatasourceIcon>
+      {props.shouldSave ? (
+        <CloudLine className={Classes.ICON} size={14} />
+      ) : (
+        <Edit2Line className={Classes.ICON} size={14} />
+      )}
+      <Text type={TextType.P3} weight={FontWeight.BOLD}>
+        {props.shouldSave
+          ? createMessage(SAVE_DATASOURCE)
+          : createMessage(EDIT_DATASOURCE)}
+      </Text>
+    </StoreDatasourceWrapper>
   );
 }
 
-export default StoreAsDatasource;
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  setDatasourceViewMode: (viewMode: boolean) =>
+    dispatch(setDatasourceViewMode(viewMode)),
+});
+
+export default connect(null, mapDispatchToProps)(StoreAsDatasource);

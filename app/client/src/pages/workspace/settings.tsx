@@ -8,11 +8,10 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import { TabComponent, TabProp } from "components/ads/Tabs";
-import { MenuItemProps } from "design-system";
+import { MenuItemProps, TabComponent, TabProp } from "design-system";
 import styled from "styled-components";
 
-import MemberSettings from "./Members";
+import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";
@@ -23,6 +22,17 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
+import {
+  createMessage,
+  INVITE_USERS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -70,6 +80,11 @@ export const TabsWrapper = styled.div`
   }
 `;
 
+enum TABS {
+  GENERAL = "general",
+  MEMBERS = "members",
+}
+
 export default function Settings() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const currentWorkspace = useSelector(getCurrentWorkspace).filter(
@@ -86,13 +101,15 @@ export default function Settings() {
 
   const history = useHistory();
 
+  const currentTab = location.pathname.split("/").pop();
+
   const onButtonClick = () => {
     setShowModal(true);
   };
 
   useEffect(() => {
     if (currentWorkspace) {
-      setPageTitle(`Members in ${currentWorkspace.name}`);
+      setPageTitle(`${currentWorkspace?.name}`);
     }
   }, [currentWorkspace]);
 
@@ -102,24 +119,25 @@ export default function Settings() {
     }
   }, [dispatch, currentWorkspace]);
 
-  const SettingsRenderer = (
-    <>
-      <SentryRoute
-        component={GeneralSettings}
-        location={location}
-        path={`${path}/general`}
-      />
-      <SentryRoute
-        component={useCallback(
-          (props: any) => (
-            <MemberSettings {...props} searchValue={searchValue} />
-          ),
-          [location, searchValue],
-        )}
-        location={location}
-        path={`${path}/members`}
-      />
-    </>
+  const GeneralSettingsComponent = (
+    <SentryRoute
+      component={GeneralSettings}
+      location={location}
+      path={`${path}/general`}
+    />
+  );
+
+  const MemberSettingsComponent = (
+    <SentryRoute
+      component={useCallback(
+        (props: any) => (
+          <MemberSettings {...props} searchValue={searchValue} />
+        ),
+        [location, searchValue],
+      )}
+      location={location}
+      path={`${path}/members`}
+    />
   );
 
   const onSearch = debounce((search: string) => {
@@ -130,22 +148,27 @@ export default function Settings() {
     }
   }, 300);
 
+  const isMemberofTheWorkspace = isPermitted(
+    currentWorkspace?.userPermissions || [],
+    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+  );
+
   const tabArr: TabProp[] = [
-    {
+    isMemberofTheWorkspace && {
       key: "members",
       title: "Members",
-      panelComponent: SettingsRenderer,
+      panelComponent: MemberSettingsComponent,
       // icon: "gear",
       // iconSize: IconSize.XL,
     },
     {
       key: "general",
       title: "General Settings",
-      panelComponent: SettingsRenderer,
+      panelComponent: GeneralSettingsComponent,
       // icon: "user-2",
       // iconSize: IconSize.XL,
     },
-  ];
+  ].filter(Boolean) as TabProp[];
 
   const pageMenuItems: MenuItemProps[] = [
     {
@@ -158,7 +181,9 @@ export default function Settings() {
     },
   ];
 
-  const isMembersPage = location.pathname.indexOf("members") !== -1;
+  const isMembersPage = tabArr.length > 1 && currentTab === TABS.MEMBERS;
+  const isGeneralPage = tabArr.length === 1 && currentTab === TABS.GENERAL;
+
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
   return (
     <>
@@ -172,6 +197,7 @@ export default function Settings() {
             pageMenuItems={pageMenuItems}
             searchPlaceholder="Search"
             showMoreOptions={false}
+            showSearchNButton={isMembersPage}
             title={pageTitle}
           />
         </StyledStickyHeader>
@@ -183,7 +209,7 @@ export default function Settings() {
             onSelect={(index: number) =>
               navigateToTab(tabArr[index].key, location, history)
             }
-            selectedIndex={isMembersPage ? 0 : 1}
+            selectedIndex={isMembersPage ? 0 : isGeneralPage ? 0 : 1}
             tabs={tabArr}
           />
         </TabsWrapper>
@@ -193,6 +219,7 @@ export default function Settings() {
         canOutsideClickClose
         isOpen={showModal}
         onClose={() => setShowModal(false)}
+        placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
         title={`Invite Users to ${currentWorkspace?.name}`}
         trigger
         workspaceId={workspaceId}

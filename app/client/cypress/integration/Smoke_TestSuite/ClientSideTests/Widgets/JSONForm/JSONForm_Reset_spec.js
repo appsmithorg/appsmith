@@ -3,7 +3,7 @@ const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.jso
 const fieldPrefix = ".t--jsonformfield";
 
 describe("JSON Form reset", () => {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dslWithSchema);
   });
 

@@ -34,10 +34,8 @@ describe("Admin settings page", function() {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit(routes.APPLICATIONS);
-    cy.get(".t--profile-menu-icon").should("be.visible");
-    cy.get(".t--profile-menu-icon").click();
-    cy.get(".t--admin-settings-menu").should("be.visible");
-    cy.get(".t--admin-settings-menu").click();
+    cy.get(".admin-settings-menu-option").should("be.visible");
+    cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", routes.GENERAL);
     cy.wait("@getEnvVariables");
     cy.LogOut();
@@ -47,9 +45,7 @@ describe("Admin settings page", function() {
     cy.wait(2000);
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.visit(routes.APPLICATIONS);
-    cy.get(".t--profile-menu-icon").should("be.visible");
-    cy.get(".t--profile-menu-icon").click();
-    cy.get(".t--admin-settings-menu").should("not.exist");
+    cy.get(".admin-settings-menu-option").should("not.exist");
     cy.visit(routes.GENERAL);
     // non super users are redirected to home page
     cy.url().should("contain", routes.APPLICATIONS);
@@ -84,8 +80,7 @@ describe("Admin settings page", function() {
   it("should test that settings page tab redirects", () => {
     cy.visit(routes.APPLICATIONS);
     cy.wait(3000);
-    cy.get(".t--profile-menu-icon").click();
-    cy.get(".t--admin-settings-menu").click();
+    cy.get(".admin-settings-menu-option").click();
     cy.get(adminsSettings.generalTab).click();
     cy.url().should("contain", routes.GENERAL);
     cy.get(adminsSettings.advancedTab).click();
@@ -269,8 +264,6 @@ describe("Admin settings page", function() {
       "Product Updates",
     );
     cy.get(".bp3-dialog-close-button").should("be.visible");
-    cy.get("[data-cy='t--product-updates-close-btn']").should("be.visible");
-    cy.get("[data-cy='t--product-updates-ok-btn']").should("be.visible");
     cy.get(".bp3-dialog-close-button").click();
     cy.wait(2000);
     cy.get(".bp3-dialog-container").should("not.exist");

@@ -6,6 +6,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +21,9 @@ public class UserController extends UserControllerCE {
                           SessionUserService sessionUserService,
                           UserWorkspaceService userWorkspaceService,
                           UserSignup userSignup,
-                          UserDataService userDataService) {
+                          UserDataService userDataService,
+                          UserAndAccessManagementService userAndAccessManagementService) {
 
-        super(service, sessionUserService, userWorkspaceService, userSignup, userDataService);
+        super(service, sessionUserService, userWorkspaceService, userSignup, userDataService, userAndAccessManagementService);
     }
 }

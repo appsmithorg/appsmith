@@ -3,11 +3,37 @@
   "xmlParser": {
     "parse": {
       "!doc": "converts xml string to json object",
-      "!type": "fn(xml: string, options?: object) -> object"
+      "!type": "fn(xml: string, options?: object, validationOption?: object) -> object"
     },
     "validate": {
       "!doc": "validate xml data",
       "!type": "fn(xml: string) -> bool"
+    },
+    "convertToJson": {
+      "!type": "fn(node: ?, options: object) -> ?"
+    },
+    "convertToJsonString": {
+      "!type": "fn(node: ?, options: object) -> string"
+    },
+    "convertTonimn": {
+      "!type": "fn(node: ?, e_schema: ?, options: object) -> ?"
+    },
+    "getTraversalObj": {
+      "!type": "fn(xmlData: ?, options: object) -> ?"
+    },
+    "j2xParser": {
+      "!type": "fn(options: object) -> object",
+      "prototype": {
+        "parse": {
+          "!type": "fn(jObj: ?)"
+        },
+        "j2x": {
+          "!type": "fn(jObj: ?, level: ?)"
+        }
+      }
+    },
+    "parseToNimn": {
+      "!type": "fn(xmlData: ?, schema: ?, options: ?) -> ?"
     }
   }
 }

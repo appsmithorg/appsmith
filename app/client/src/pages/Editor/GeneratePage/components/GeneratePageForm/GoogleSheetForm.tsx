@@ -16,6 +16,7 @@ import {
   Dropdown,
   DropdownOption,
   FontWeight,
+  getTypographyByKey,
   Icon,
   IconSize,
   Text,
@@ -24,7 +25,6 @@ import {
   TooltipComponent as Tooltip,
 } from "design-system";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { debounce } from "lodash";
 import {
   createMessage,
@@ -72,7 +72,7 @@ const Row = styled.div`
 `;
 
 const ColumnName = styled.span`
-  ${(props) => `${getTypographyByKey(props, "p3")}`};
+  ${getTypographyByKey("p3")};
   color: ${Colors.GRAY};
   text-align: center;
   white-space: nowrap;
@@ -101,7 +101,7 @@ const TooltipWrapper = styled.div`
 `;
 
 const RowHeading = styled.p`
-  ${(props) => `${getTypographyByKey(props, "p1")}`};
+  ${getTypographyByKey("p1")};
   margin-right: 10px;
 `;
 
@@ -137,6 +137,7 @@ function GoogleSheetForm(props: Props) {
   const { fetchAllSpreadsheets } = spreadSheetsProps;
   const {
     columnHeaderList,
+    errorFetchingColumnHeaderList,
     fetchColumnHeaderList,
     isFetchingColumnHeaderList,
   } = sheetColumnsHeaderProps;
@@ -381,7 +382,10 @@ function GoogleSheetForm(props: Props) {
       {selectedSheet.value
         ? renderSubmitButton({
             onSubmit,
-            disabled: !columnHeaderList.length || isFetchingColumnHeaderList,
+            disabled:
+              !columnHeaderList.length ||
+              isFetchingColumnHeaderList ||
+              !!errorFetchingColumnHeaderList,
             isLoading: isFetchingColumnHeaderList,
           })
         : null}

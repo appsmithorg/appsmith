@@ -19,10 +19,8 @@ describe("Admin settings page", function() {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
-    cy.get(".t--profile-menu-icon").should("be.visible");
-    cy.get(".t--profile-menu-icon").click();
-    cy.get(".t--admin-settings-menu").should("be.visible");
-    cy.get(".t--admin-settings-menu").click();
+    cy.get(".admin-settings-menu-option").should("be.visible");
+    cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
     cy.wait("@getEnvVariables");
     cy.LogOut();
@@ -32,9 +30,7 @@ describe("Admin settings page", function() {
     cy.wait(2000);
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.visit("/applications");
-    cy.get(".t--profile-menu-icon").should("be.visible");
-    cy.get(".t--profile-menu-icon").click();
-    cy.get(".t--admin-settings-menu").should("not.exist");
+    cy.get(".admin-settings-menu-option").should("not.exist");
     cy.visit("/settings/general");
     // non super users are redirected to home page
     cy.url().should("contain", "/applications");
@@ -52,8 +48,7 @@ describe("Admin settings page", function() {
   it("should test that settings page tab redirects", () => {
     cy.visit("/applications");
     cy.wait(3000);
-    cy.get(".t--profile-menu-icon").click();
-    cy.get(".t--admin-settings-menu").click();
+    cy.get(".admin-settings-menu-option").click();
     cy.get(adminsSettings.generalTab).click();
     cy.url().should("contain", "/settings/general");
     cy.get(adminsSettings.advancedTab).click();

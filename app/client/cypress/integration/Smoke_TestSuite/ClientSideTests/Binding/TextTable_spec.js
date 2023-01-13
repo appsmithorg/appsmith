@@ -1,7 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/TextTabledsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Text-Table Binding Functionality", function() {
   Cypress.on("uncaught:exception", (err, runnable) => {

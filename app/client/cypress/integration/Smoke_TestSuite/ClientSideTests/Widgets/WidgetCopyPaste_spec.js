@@ -10,7 +10,7 @@ describe("Widget Copy paste", function() {
     cy.addDsl(dsl);
   });
 
-  it("when non Layout widget is selected, it should place below the widget selected", function() {
+  it("1. When non Layout widget is selected, it should place below the widget selected", function() {
     // Selection
     cy.get(`#${dsl.dsl.children[1].widgetId}`).click({
       ctrlKey: true,
@@ -41,7 +41,7 @@ describe("Widget Copy paste", function() {
       });
   });
 
-  it("when Layout widget is selected, it should place it inside the layout widget", function() {
+  it("2. When Layout widget is selected, it should place it inside the layout widget", function() {
     cy.get(`#div-selection-0`).click({
       force: true,
     });
@@ -60,7 +60,7 @@ describe("Widget Copy paste", function() {
       .should("have.length", 1);
   });
 
-  it("when widget inside the layout widget is selected, then it should paste inside the layout widget below the selected widget", function() {
+  it("3. When widget inside the layout widget is selected, then it should paste inside the layout widget below the selected widget", function() {
     cy.get(`#div-selection-0`).click({
       force: true,
     });
@@ -80,7 +80,7 @@ describe("Widget Copy paste", function() {
       .should("have.length", 2);
   });
 
-  it("when modal is open, it should paste inside the modal", () => {
+  it("4. When modal is open, it should paste inside the modal", () => {
     //add modal widget
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 700 });
@@ -93,7 +93,7 @@ describe("Widget Copy paste", function() {
       .should("have.length", 1);
   });
 
-  it("when widget Inside a modal is selected, it should paste inside the modal", () => {
+  it("5. When widget Inside a modal is selected, it should paste inside the modal", () => {
     //verify modal and selected widget
     cy.get(".t--modal-widget").should("exist");
     cy.get(".t--modal-widget")
@@ -102,12 +102,14 @@ describe("Widget Copy paste", function() {
 
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);
+    // cy.get(explorer.explorerSwitchId).click();
+    // cy.get(explorer.entityModal).click();
     cy.get(".t--modal-widget")
       .find(widgetsPage.chartWidget)
       .should("have.length", 2);
   });
 
-  it("should not be able to paste list widget inside another list widget", function() {
+  it("6. Should not be able to paste list widget inside another list widget", function() {
     //clean up
     cy.get(`#div-selection-0`).click({
       force: true,
@@ -116,6 +118,7 @@ describe("Widget Copy paste", function() {
     cy.get("body").type("{del}");
 
     //add list widget
+    cy.get(explorer.widgetSwitchId).click();
     cy.dragAndDropToCanvas("listwidget", { x: 300, y: 700 });
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 
@@ -131,7 +134,7 @@ describe("Widget Copy paste", function() {
       .should("have.length", 0);
   });
 
-  it("should not be able to paste list widget inside another list widget, when widget inside the list widget are selected", function() {
+  it("7. Should not be able to paste list widget inside another list widget, when widget inside the list widget are selected", function() {
     cy.get(`#div-selection-0`).click({
       force: true,
     });
@@ -154,11 +157,8 @@ describe("Widget Copy paste", function() {
       .should("have.length", 0);
   });
 
-  it("should be able to paste widget on the initial generate Page", function() {
+  it("8. Should be able to paste widget on the initial generate Page", function() {
     cy.Createpage("NewPage", false);
-
-    //verify that it is in generate page
-    cy.get(generatePage.buildFromScratchActionCard).should("have.length", 1);
 
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);

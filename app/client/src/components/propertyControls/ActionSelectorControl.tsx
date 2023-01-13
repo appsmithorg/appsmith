@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 // import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
-import { ActionCreator } from "components/editorComponents/ActionCreator";
+import ActionCreator from "components/editorComponents/ActionCreator";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -39,7 +39,8 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
   };
 
   handleValueUpdate = (newValue: string, isUpdatedViaKeyboard = false) => {
-    const { propertyName } = this.props;
+    const { propertyName, propertyValue } = this.props;
+    if (!propertyValue && !newValue) return;
     this.updateProperty(propertyName, newValue, isUpdatedViaKeyboard);
   };
 

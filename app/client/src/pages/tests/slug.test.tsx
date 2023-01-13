@@ -16,6 +16,8 @@ import {
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import { Icon, IconSize } from "design-system";
+import { Colors } from "constants/Colors";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -121,7 +123,16 @@ describe("URL slug names", () => {
         applicationVersion: 1,
       },
     });
-    const component = render(<ManualUpgrades />);
+    const component = render(
+      <ManualUpgrades showTooltip>
+        <Icon
+          className="t--upgrade"
+          fillColor={Colors.SCORPION}
+          name="upgrade"
+          size={IconSize.XXXL}
+        />
+      </ManualUpgrades>,
+    );
     expect(component.getByTestId("update-indicator")).toBeDefined();
   });
 

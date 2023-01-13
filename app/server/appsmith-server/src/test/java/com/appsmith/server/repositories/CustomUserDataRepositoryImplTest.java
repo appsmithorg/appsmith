@@ -3,21 +3,22 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.domains.UserData;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 public class CustomUserDataRepositoryImplTest {
@@ -55,8 +56,8 @@ public class CustomUserDataRepositoryImplTest {
         Mono<UserData> userDataAfterUpdateMono = updateResultMono.then(readUserDataMono);
 
         StepVerifier.create(userDataAfterUpdateMono).assertNext(userData -> {
-            Assert.assertEquals(2, userData.getRecentlyUsedWorkspaceIds().size());
-            Assert.assertArrayEquals(List.of("123", "234").toArray(), userData.getRecentlyUsedWorkspaceIds().toArray());
+            assertEquals(2, userData.getRecentlyUsedWorkspaceIds().size());
+            assertArrayEquals(List.of("123", "234").toArray(), userData.getRecentlyUsedWorkspaceIds().toArray());
         }).verifyComplete();
     }
 
@@ -80,8 +81,8 @@ public class CustomUserDataRepositoryImplTest {
         Mono<UserData> userDataAfterUpdateMono = updateResultMono.then(readUserDataMono);
 
         StepVerifier.create(userDataAfterUpdateMono).assertNext(userData -> {
-            Assert.assertEquals(3, userData.getRecentlyUsedWorkspaceIds().size());
-            Assert.assertArrayEquals(List.of("123", "234", "345").toArray(), userData.getRecentlyUsedWorkspaceIds().toArray());
+            assertEquals(3, userData.getRecentlyUsedWorkspaceIds().size());
+            assertArrayEquals(List.of("123", "234", "345").toArray(), userData.getRecentlyUsedWorkspaceIds().toArray());
         }).verifyComplete();
     }
 

@@ -23,11 +23,6 @@ describe("Switch datasource", function() {
         .should("have.value", postgresDatasourceName)
         .blur();
     });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
   });
@@ -45,11 +40,6 @@ describe("Switch datasource", function() {
         .should("have.value", postgresDatasourceNameSecond)
         .blur();
     });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
   });
@@ -67,12 +57,6 @@ describe("Switch datasource", function() {
         .should("have.value", mongoDatasourceName)
         .blur();
     });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-
     cy.fillMongoDatasourceForm();
     cy.testSaveDatasource();
   });
@@ -91,7 +75,6 @@ describe("Switch datasource", function() {
       "response.body.data.isValid",
       true,
     );
-
     cy.get(".t--switch-datasource").click();
     cy.contains(".t--datasource-option", postgresDatasourceNameSecond)
       .click()
@@ -111,7 +94,6 @@ describe("Switch datasource", function() {
 
   it("6. Delete the query and datasources", function() {
     cy.deleteQueryUsingContext();
-
     cy.deleteDatasource(postgresDatasourceName);
     cy.deleteDatasource(postgresDatasourceNameSecond);
     cy.deleteDatasource(mongoDatasourceName);

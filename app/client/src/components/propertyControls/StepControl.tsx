@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import StepComponent from "components/ads/StepComponent";
+import { StepComponent } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,

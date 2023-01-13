@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("MultiSelectTree Widget Functionality", function() {
   before(() => {
@@ -118,6 +119,16 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(".tree-multiselect-dropdown .rc-tree-select-empty").contains(
       "No Results Found",
     );
+  });
+
+  it("8. Select tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("multiselecttreewidget");
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
+    // tooltip help icon shows
+    cy.get(".multitree-select-tooltip")
+      .scrollIntoView()
+      .should("be.visible");
   });
 });
 afterEach(() => {

@@ -1,6 +1,6 @@
 import React, { ReactNode, useMemo } from "react";
 import { dbQueryIcon, ApiMethodIcon, EntityIcon } from "../ExplorerIcons";
-import { PluginType } from "entities/Action";
+import { isGraphqlPlugin, PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 
 import { Plugin } from "api/PluginApi";
@@ -65,7 +65,13 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       }
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
-      if (plugin && plugin.type === PluginType.API && !remoteIcon) {
+      const isGraphql = isGraphqlPlugin(plugin);
+      if (
+        plugin &&
+        plugin.type === PluginType.API &&
+        !remoteIcon &&
+        !isGraphql
+      ) {
         const method = action?.actionConfiguration?.httpMethod;
         if (method) return <ApiMethodIcon type={method} />;
       }

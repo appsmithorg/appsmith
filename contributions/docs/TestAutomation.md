@@ -1,6 +1,6 @@
 # How can I contribute to the Cypress Test Suite?
 
-1. Follow the setup document to set up [Appsmith locally](contributions/ClientSetup.md) and go through [the docs](https://docs.appsmith.com). The docs are backed by the [appsmith-docs](https://github.com/appsmithorg/appsmith-docs) repository.
+1. Follow the setup document to set up [Appsmith locally](/contributions/ClientSetup.md) and go through [the docs](https://docs.appsmith.com). The docs are backed by the [appsmith-docs](https://github.com/appsmithorg/appsmith-docs) repository.
 
 1. Once we have the setup in place, all dependencies will be available locally for test execution.
 
@@ -34,7 +34,7 @@
 
 1. For run mode, you can use CLI args. Example: To run the entire `Smoke_TestSuite`, use `$(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Smoke_TestSuite/*/*"`
 
-1. If you need help with writing the tests, their syntax or flow, cypress [getting started docs](https://docs.cypress.io/guides/getting-started/writing-your-first-test.html) is a great starting point.
+1. If you need help with writing the tests, their syntax or flow, cypress [getting started docs](https://docs.cypress.io/guides/core-concepts/introduction-to-cypress#What-you-ll-learn) is a great starting point.
 
 ## A word about env variables in Cypress tests
 

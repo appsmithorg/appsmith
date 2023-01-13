@@ -4,7 +4,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import propertyConfig, { contentConfig, styleConfig } from "./propertyConfig";
+import { contentConfig, styleConfig } from "./propertyConfig";
 import {
   ChartType,
   CustomFusionChartConfig,
@@ -15,6 +15,7 @@ import {
 import { WidgetType } from "constants/WidgetConstants";
 import { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
+import { Stylesheet } from "entities/AppTheming";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -31,16 +32,21 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
-  static getPropertyPaneConfig() {
-    return propertyConfig;
-  }
-
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+    };
   }
 
   onDataPointClick = (selectedDataPoint: ChartSelectedDataPoint) => {

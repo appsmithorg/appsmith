@@ -97,4 +97,7 @@ APPSMITH_SUPERVISOR_PASSWORD=$SUPERVISOR_PASSWORD
 # Default value, if commented or not set, is "'none'", which disables embedding completely.
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
 APPSMITH_ALLOWED_FRAME_ANCESTORS="'self' *"
+
+APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX=false
+
 EOF

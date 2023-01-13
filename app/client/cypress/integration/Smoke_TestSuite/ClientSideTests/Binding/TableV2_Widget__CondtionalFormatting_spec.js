@@ -1,5 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const dsl = require("../../../../fixtures/tableV2WidgetCondnFormatDsl.json");
+
 describe("Table Widget V2 condtional formatting to remain consistent", function() {
   before(() => {
     cy.addDsl(dsl);

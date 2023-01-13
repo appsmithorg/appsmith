@@ -4,41 +4,34 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
-import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.events.CommentAddedEvent;
-import com.appsmith.server.events.CommentThreadClosedEvent;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.UserWorkspaceService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ComponentScan("com.appsmith.server.solutions")
 public class EmailEventHandlerTest {
 
@@ -60,6 +53,8 @@ public class EmailEventHandlerTest {
     private PolicyUtils policyUtils;
     @MockBean
     UserWorkspaceService userWorkspaceService;
+    @MockBean
+    ApplicationPermission applicationPermission;
 
     EmailEventHandler emailEventHandler;
 
@@ -72,11 +67,12 @@ public class EmailEventHandlerTest {
     String workspaceId = "workspace-id";
     String emailReceiverUsername = "email-receiver";
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         emailEventHandler = new EmailEventHandlerImpl(applicationEventPublisher, emailSender, workspaceRepository,
-                applicationRepository, newPageRepository, policyUtils, emailConfig, userWorkspaceService);
+                applicationRepository, newPageRepository, policyUtils, emailConfig, userWorkspaceService,
+                applicationPermission);
 
         application = new Application();
         application.setName("Test application for comment");
@@ -104,7 +100,7 @@ public class EmailEventHandlerTest {
                 authorUserName, applicationId, new Comment(), originHeader, null
         );
         StepVerifier.create(booleanMono).assertNext(aBoolean -> {
-            Assert.assertEquals(Boolean.FALSE, aBoolean);
+            assertEquals(Boolean.FALSE, aBoolean);
         }).verifyComplete();
     }
 
@@ -114,7 +110,7 @@ public class EmailEventHandlerTest {
                 authorUserName, applicationId, new Comment(), originHeader, Set.of()
         );
         StepVerifier.create(booleanMono).assertNext(aBoolean -> {
-            Assert.assertEquals(Boolean.FALSE, aBoolean);
+            assertEquals(Boolean.FALSE, aBoolean);
         }).verifyComplete();
     }
 }

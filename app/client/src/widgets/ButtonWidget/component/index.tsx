@@ -20,8 +20,7 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { ThemeProp, Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
@@ -42,6 +41,7 @@ import {
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
+import { ThemeProp } from "widgets/constants";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -99,7 +99,7 @@ outline: none;
 padding: 0px 10px;
 gap: 8px;
 
-&:hover, &:active {
+&:hover, &:active, &:focus {
   ${buttonHoverActiveStyles}
  }
 
@@ -115,14 +115,15 @@ ${({ buttonColor, buttonVariant, theme }) => `
 
     &:disabled, &.${Classes.DISABLED} {
     cursor: not-allowed;
-    background-color: ${Colors.GREY_1} !important;
-    color: ${Colors.GREY_9} !important;
+    background-color: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
+      "var(--wds-color-bg-disabled)"} !important;
+    color: var(--wds-color-text-disabled) !important;
     box-shadow: none !important;
     pointer-events: none;
-    border-color: ${Colors.GREY_1} !important;
+    border-color: var(--wds-color-border-disabled) !important;
 
     > span {
-      color: ${Colors.GREY_9} !important;
+      color: var(--wds-color-text-disabled) !important;
     }
   }
 

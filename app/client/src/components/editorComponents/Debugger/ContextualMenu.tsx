@@ -21,8 +21,7 @@ import {
   DEBUGGER_OPEN_DOCUMENTATION,
   DEBUGGER_SEARCH_SNIPPET,
 } from "@appsmith/constants/messages";
-import { Icon, IconName, IconSize } from "design-system";
-import { Classes } from "components/ads/common";
+import { Classes, Icon, IconName, IconSize } from "design-system";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
@@ -71,7 +70,7 @@ const getOptions = (type?: string, subType?: string) => {
           CONTEXT_MENU_ACTIONS.INTERCOM,
         ];
       case PropertyEvaluationErrorType.PARSE:
-        return [CONTEXT_MENU_ACTIONS.SNIPPET];
+        return [CONTEXT_MENU_ACTIONS.DOCS, CONTEXT_MENU_ACTIONS.SNIPPET];
       case PropertyEvaluationErrorType.LINT:
         return [CONTEXT_MENU_ACTIONS.SNIPPET];
       default:

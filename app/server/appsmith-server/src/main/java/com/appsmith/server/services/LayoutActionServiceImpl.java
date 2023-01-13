@@ -2,7 +2,9 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ce.LayoutActionServiceCEImpl;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,10 +23,13 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
                                    CollectionService collectionService,
                                    ApplicationService applicationService,
                                    ResponseUtils responseUtils,
-                                   DatasourceService datasourceService) {
+                                   DatasourceService datasourceService,
+                                   PagePermission pagePermission,
+                                   ActionPermission actionPermission) {
 
         super(objectMapper, analyticsService, newPageService, newActionService, pageLoadActionsUtil, sessionUserService,
-                actionCollectionService, collectionService, applicationService, responseUtils, datasourceService);
+                actionCollectionService, collectionService, applicationService, responseUtils, datasourceService,
+                pagePermission, actionPermission);
 
     }
 }

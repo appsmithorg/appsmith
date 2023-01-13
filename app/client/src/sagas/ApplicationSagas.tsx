@@ -1,5 +1,6 @@
 import {
   ApplicationPayload,
+  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -24,6 +25,7 @@ import ApplicationApi, {
   PublishApplicationResponse,
   SetDefaultPageRequest,
   UpdateApplicationRequest,
+  UpdateApplicationResponse,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
@@ -41,8 +43,11 @@ import {
   resetCurrentApplication,
   setDefaultApplicationPageSuccess,
   setIsReconnectingDatasourcesModalOpen,
+  setPageIdForImport,
   setWorkspaceIdForImport,
   showReconnectDatasourceModal,
+  updateCurrentApplicationEmbedSetting,
+  updateCurrentApplicationIcon,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -51,10 +56,9 @@ import {
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
 } from "@appsmith/constants/messages";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system";
 import { APP_MODE } from "entities/App";
-import { Workspace, Workspaces } from "constants/workspaceConstants";
-import { Variant } from "components/ads/common";
+import { Workspace, Workspaces } from "@appsmith/constants/workspaceConstants";
 import { AppIconName } from "design-system";
 import { AppColorCode } from "constants/DefaultTheme";
 import {
@@ -86,15 +90,16 @@ import {
 import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
-import { getPluginForm } from "selectors/entitiesSelector";
+import { getPageList, getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
+import { setCanvasCardsState } from "actions/editorActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -193,12 +198,8 @@ export function* getAllApplicationSaga() {
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
         payload: workspaceApplication,
       });
-      const { newReleasesCount, releaseItems } = response.data || {};
-      yield put({
-        type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
-        payload: { newReleasesCount, releaseItems },
-      });
     }
+    yield call(fetchReleases);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
@@ -224,6 +225,11 @@ export function* fetchAppAndPagesSaga(
     );
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
+      const prevPagesState: Page[] = yield select(getPageList);
+      const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
+        acc[page.pageId] = page.userPermissions ?? [];
+        return acc;
+      }, {} as Record<string, string[]>);
       yield put({
         type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         payload: { ...response.data.application, pages: response.data.pages },
@@ -238,6 +244,10 @@ export function* fetchAppAndPagesSaga(
             isDefault: page.isDefault,
             isHidden: !!page.isHidden,
             slug: page.slug,
+            customSlug: page.customSlug,
+            userPermissions: page.userPermissions
+              ? page.userPermissions
+              : pagePermissionsMap[page.id],
           })),
           applicationId: response.data.application?.id,
         },
@@ -337,7 +347,7 @@ export function* updateApplicationSaga(
 ) {
   try {
     const request: UpdateApplicationRequest = action.payload;
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<UpdateApplicationResponse> = yield call(
       ApplicationApi.updateApplication,
       request,
     );
@@ -358,10 +368,19 @@ export function* updateApplicationSaga(
         });
       }
       if (request.currentApp) {
-        yield put({
-          type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
-          payload: response.data,
-        });
+        if (request.name)
+          yield put({
+            type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
+            payload: response.data,
+          });
+        if (request.icon) {
+          yield put(updateCurrentApplicationIcon(response.data.icon));
+        }
+        if (request.embedSetting) {
+          yield put(
+            updateCurrentApplicationEmbedSetting(response.data.embedSetting),
+          );
+        }
       }
     }
   } catch (error) {
@@ -549,7 +568,6 @@ export function* createApplicationSaga(
         const FirstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
-        let pageURL;
         if (
           isFirstTimeUserOnboardingEnabled &&
           FirstTimeUserOnboardingApplicationId === ""
@@ -559,15 +577,16 @@ export function* createApplicationSaga(
               ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
-          pageURL = builderURL({
-            pageId: application.defaultPageId as string,
-          });
-        } else {
-          pageURL = generateTemplateURL({
-            pageId: application.defaultPageId as string,
-          });
         }
-        history.push(pageURL);
+        // Show cta's in empty canvas for the first page
+        yield put(
+          setCanvasCardsState(getDefaultPageId(response.data.pages) ?? ""),
+        );
+        history.push(
+          builderURL({
+            pageId: application.defaultPageId as string,
+          }),
+        );
 
         // subscribe to newly created application
         // users join rooms on connection, so reconnecting
@@ -612,6 +631,12 @@ export function* forkApplicationSaga(
           application,
         },
       });
+      yield put({
+        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
+        payload: {
+          id: action.payload.workspaceId,
+        },
+      });
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
       });
@@ -632,10 +657,12 @@ function* showReconnectDatasourcesModalSaga(
     application: ApplicationResponsePayload;
     unConfiguredDatasourceList: Array<Datasource>;
     workspaceId: string;
+    pageId?: string;
   }>,
 ) {
   const {
     application,
+    pageId,
     unConfiguredDatasourceList,
     workspaceId,
   } = action.payload;
@@ -648,6 +675,7 @@ function* showReconnectDatasourcesModalSaga(
   );
 
   yield put(setWorkspaceIdForImport(workspaceId));
+  yield put(setPageIdForImport(pageId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
 
@@ -719,7 +747,7 @@ export function* importApplicationSaga(
 function* fetchReleases() {
   try {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
-      ApplicationApi.getAllApplication,
+      ApplicationApi.getReleaseItems,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {

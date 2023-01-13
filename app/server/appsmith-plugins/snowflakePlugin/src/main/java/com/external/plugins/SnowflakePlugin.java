@@ -48,7 +48,7 @@ public class SnowflakePlugin extends BasePlugin {
     @Extension
     public static class SnowflakePluginExecutor implements PluginExecutor<Connection> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(Connection connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
@@ -176,30 +176,11 @@ public class SnowflakePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .flatMap(connection -> {
-                        if (connection != null) {
-                            try {
-                                Set<String> invalids = validateWarehouseDatabaseSchema(connection);
-                                if (!invalids.isEmpty()) {
-                                    return Mono.error(
-                                            new AppsmithPluginException(
-                                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                                    invalids.toArray()[0]
-                                            )
-                                    );
-                                }
-                                connection.close();
-                            } catch (SQLException throwable) {
-                                log.error("Exception caught while testing Snowflake datasource. Cause: ", throwable);
-                                return Mono.error(throwable);
-                            }
-                        }
-
-                        return Mono.just(new DatasourceTestResult());
+        public Mono<DatasourceTestResult> testDatasource(Connection connection) {
+            return Mono.fromCallable(() -> {
+                        return validateWarehouseDatabaseSchema(connection);
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+                    .map(DatasourceTestResult::new);
         }
 
         @Override

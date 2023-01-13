@@ -1,11 +1,11 @@
 import React from "react";
 import { ReactNode } from "react";
+import { useSelector } from "react-redux";
 import {
   forceShowContentSelector,
   getCurrentStep,
   inGuidedTour,
 } from "selectors/onboardingSelectors";
-import { useSelector } from "store";
 
 type BoxedProps = {
   alternative?: JSX.Element;

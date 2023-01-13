@@ -44,7 +44,7 @@ import { flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -123,7 +123,9 @@ export function* showIfModalSaga(
   }
 }
 
-export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
+export function* showModalSaga(
+  action: ReduxAction<{ modalId: string; shouldSelectModal?: boolean }>,
+) {
   // First we close the currently open modals (if any)
   // Notice the empty payload.
   yield call(closeModalSaga, {
@@ -136,13 +138,8 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   const pageId: string = yield select(getCurrentPageId);
   const appMode: APP_MODE = yield select(getAppMode);
 
-  if (appMode === APP_MODE.EDIT)
-    navigateToCanvas({ pageId, widgetId: action.payload.modalId });
+  if (appMode === APP_MODE.EDIT) navigateToCanvas(pageId);
 
-  yield put({
-    type: ReduxActionTypes.SELECT_WIDGET_INIT,
-    payload: { widgetId: action.payload.modalId },
-  });
   yield put(focusWidget(action.payload.modalId));
 
   const metaProps: Record<string, unknown> = yield select(

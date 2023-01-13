@@ -98,7 +98,10 @@ describe("Currency widget - ", () => {
     cy.closePropertyPane();
     cy.wait(500);
     cy.openPropertyPane(widgetName);
-    cy.get(".t--property-control-decimalsallowed  .cs-text").should("have.text", "0");
+    cy.get(".t--property-control-decimalsallowed  .cs-text").should(
+      "have.text",
+      "0",
+    );
   });
 
   it("should check that widget input resets on submit", () => {

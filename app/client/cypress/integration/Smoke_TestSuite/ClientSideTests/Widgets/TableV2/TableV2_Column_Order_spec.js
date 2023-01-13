@@ -1,6 +1,5 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2ColumnOrderDsl.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Table Widget V2 column order maintained on column change validation", function() {
   before(() => {

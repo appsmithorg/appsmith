@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/ChartTextDsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Text-Chart Binding Functionality", function() {
   before(() => {

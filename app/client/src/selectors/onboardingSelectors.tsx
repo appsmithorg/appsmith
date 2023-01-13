@@ -1,7 +1,4 @@
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsWorkspaces } from "./applicationSelectors";
@@ -11,7 +8,7 @@ import {
   getActions,
   getCanvasWidgets,
 } from "./entitiesSelector";
-import { getSelectedWidget } from "./ui";
+import { getLastSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 
 // Signposting selectors
@@ -126,7 +123,7 @@ export const isQueryExecutionSuccessful = createSelector(
 
 export const isTableWidgetSelected = createSelector(
   getTableWidget,
-  getSelectedWidget,
+  getLastSelectedWidget,
   wasTableWidgetSelected,
   (tableWidget, selectedWidgetId, tableWidgetWasSelected) => {
     if (!tableWidgetWasSelected) {
@@ -196,7 +193,7 @@ export const nameInputSelector = createSelector(getWidgets, (widgets) => {
 // Check if CountryInput is selected
 export const countryInputSelector = createSelector(
   getWidgets,
-  getSelectedWidget,
+  getLastSelectedWidget,
   (widgets, selectedWidgetId) => {
     const widgetValues = Object.values(widgets);
     const countryInput = widgetValues.find((widget) => {
@@ -312,10 +309,7 @@ export const getOnboardingWorkspaces = createSelector(
   getUserApplicationsWorkspaces,
   (userWorkspaces) => {
     return userWorkspaces.filter((userWorkspace) =>
-      isPermitted(
-        userWorkspace.workspace.userPermissions || [],
-        PERMISSION_TYPE.CREATE_APPLICATION,
-      ),
+      hasCreateNewAppPermission(userWorkspace.workspace.userPermissions ?? []),
     );
   },
 );

@@ -1,6 +1,6 @@
-import React, { memo, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
-import _ from "lodash";
+import { isObject, isString } from "lodash";
 import equal from "fast-deep-equal/es6";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
@@ -10,15 +10,23 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
-import { ScrollIndicator } from "design-system";
+import {
+  ScrollIndicator,
+  Toaster,
+  TooltipComponent as Tooltip,
+  Variant,
+} from "design-system";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { TooltipComponent as Tooltip } from "design-system";
-import { Toaster } from "components/ads/Toast";
-import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
+import {
+  Button,
+  Classes,
+  Collapse,
+  Icon,
+  IPopoverSharedProps,
+} from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
-import { IPopoverSharedProps } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
@@ -27,7 +35,10 @@ import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import { Indices, Layers } from "constants/Layers";
-import { Variant } from "components/ads/common";
+import { useDispatch, useSelector } from "react-redux";
+import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
+import { AppState } from "@appsmith/reducers";
+import { setEvalPopupState } from "actions/editorContextActions";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -37,6 +48,7 @@ const modifiers: IPopoverSharedProps["modifiers"] = {
   preventOverflow: {
     enabled: true,
     boundariesElement: "viewport",
+    padding: 38,
   },
 };
 const Wrapper = styled.div`
@@ -169,14 +181,17 @@ function CollapseToggle(props: { isOpen: boolean }) {
   );
 }
 
-function copyContent(content: any) {
-  const stringifiedContent = _.isString(content)
+function copyContent(
+  content: any,
+  onCopyContentText = `Evaluated value copied to clipboard`,
+) {
+  const stringifiedContent = isString(content)
     ? content
     : JSON.stringify(content, null, 2);
 
   copy(stringifiedContent);
   Toaster.show({
-    text: `Evaluated value copied to clipboard`,
+    text: onCopyContentText,
     variant: Variant.success,
   });
 }
@@ -195,6 +210,7 @@ interface Props {
   popperPlacement?: Placement;
   entity?: FieldEntityInformation;
   popperZIndex?: Indices;
+  dataTreePath?: string;
 }
 
 interface PopoverContentProps {
@@ -209,6 +225,7 @@ interface PopoverContentProps {
   onMouseLeave: () => void;
   hideEvaluatedValue?: boolean;
   preparedStatementViewer: boolean;
+  dataTreePath?: string;
 }
 
 const PreparedStatementViewerContainer = styled.span`
@@ -261,17 +278,58 @@ export function PreparedStatementViewer(props: {
   );
 }
 
-export const CurrentValueViewer = memo(
-  function CurrentValueViewer(props: {
+export function CurrentValueViewer(props: {
+  theme: EditorTheme;
+  evaluatedValue: any;
+  hideLabel?: boolean;
+  preparedStatementViewer?: boolean;
+  /** @param {number} [collapseStringsAfterLength=20]
+   * This collapses the values visible in (say json) after these many characters and shows ellipsis.
+   */
+  collapseStringsAfterLength?: number;
+  /** @param {string} [onCopyContentText=`Evaluated value copied to clipboard`]
+   * This parameter contains the string that is shown when the evaluatedValue is copied.
+   */
+  onCopyContentText?: string;
+}) {
+  const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+  return (
+    <ControlledCurrentValueViewer
+      {...props}
+      openEvaluatedValue={openEvaluatedValue}
+      setOpenEvaluatedValue={(isOpen: boolean) => setOpenEvaluatedValue(isOpen)}
+    />
+  );
+}
+
+const ControlledCurrentValueViewer = memo(
+  function ControlledCurrentValueViewer(props: {
     theme: EditorTheme;
     evaluatedValue: any;
+    openEvaluatedValue: boolean;
+    setOpenEvaluatedValue?: (a: boolean) => void;
     hideLabel?: boolean;
     preparedStatementViewer?: boolean;
+    /** @param {number} [collapseStringsAfterLength=20]
+     * This collapses the values visible in (say json) after these many characters and shows ellipsis.
+     */
+    collapseStringsAfterLength?: number;
+    /** @param {string} [onCopyContentText=`Evaluated value copied to clipboard`]
+     * This parameter contains the string that is shown when the evaluatedValue is copied.
+     */
+    onCopyContentText?: string;
   }) {
+    /* Setting the default value for collapseStringsAfterLength to 20;
+       This ensures that earlier code that depends on the value keeps working.
+     */
+    const collapseStringsAfterLength = props.collapseStringsAfterLength || 20;
+    /* Setting the default value; ensuring that earlier code keeps working. */
+    const onCopyContentText =
+      props.onCopyContentText || `Evaluated value copied to clipboard`;
     const codeWrapperRef = React.createRef<HTMLPreElement>();
-    const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+    const { openEvaluatedValue, setOpenEvaluatedValue } = props;
     const toggleEvaluatedValue = () => {
-      setOpenEvaluatedValue(!openEvaluatedValue);
+      if (!!setOpenEvaluatedValue) setOpenEvaluatedValue(!openEvaluatedValue);
     };
     let content = (
       <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
@@ -281,7 +339,7 @@ export const CurrentValueViewer = memo(
     );
     if (props.evaluatedValue !== undefined) {
       if (
-        _.isObject(props.evaluatedValue) ||
+        isObject(props.evaluatedValue) ||
         Array.isArray(props.evaluatedValue)
       ) {
         if (props.preparedStatementViewer) {
@@ -305,7 +363,7 @@ export const CurrentValueViewer = memo(
               fontSize: "12px",
             },
             collapsed: 2,
-            collapseStringsAfterLength: 20,
+            collapseStringsAfterLength,
             shouldCollapse: (field: any) => {
               const index = field.name * 1;
               return index >= 2;
@@ -347,7 +405,9 @@ export const CurrentValueViewer = memo(
               <CopyIconWrapper
                 colorTheme={props.theme}
                 minimal
-                onClick={() => copyContent(props.evaluatedValue)}
+                onClick={() =>
+                  copyContent(props.evaluatedValue, onCopyContentText)
+                }
               >
                 <CopyIcon height={34} />
               </CopyIconWrapper>
@@ -361,6 +421,7 @@ export const CurrentValueViewer = memo(
     return (
       prevProps.theme === nextProps.theme &&
       prevProps.hideLabel === nextProps.hideLabel &&
+      prevProps.openEvaluatedValue === nextProps.openEvaluatedValue &&
       // Deep-compare evaluated values to ensure we only rerender
       // when the array actually changes
       equal(prevProps.evaluatedValue, nextProps.evaluatedValue)
@@ -370,11 +431,23 @@ export const CurrentValueViewer = memo(
 
 function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
-  const [openExpectedDataType, setOpenExpectedDataType] = useState(false);
+  const dispatch = useDispatch();
+  const popupContext = useSelector((state: AppState) =>
+    getEvaluatedPopupState(state, props.dataTreePath),
+  );
+  const [openExpectedDataType, setOpenExpectedDataType] = useState(
+    !!popupContext?.type,
+  );
+  const [openExpectedExample, setOpenExpectedExample] = useState(
+    !!popupContext?.example,
+  );
+  const [openEvaluatedValue, setOpenEvaluatedValue] = useState(
+    popupContext && popupContext.value !== undefined
+      ? popupContext.value
+      : true,
+  );
   const toggleExpectedDataType = () =>
     setOpenExpectedDataType(!openExpectedDataType);
-
-  const [openExpectedExample, setOpenExpectedExample] = useState(false);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
   const {
@@ -389,6 +462,16 @@ function PopoverContent(props: PopoverContentProps) {
   if (hasError) {
     error = errors[0];
   }
+
+  useEffect(() => {
+    dispatch(
+      setEvalPopupState(props.dataTreePath, {
+        type: openExpectedDataType,
+        example: openExpectedExample,
+        value: openEvaluatedValue,
+      }),
+    );
+  }, [openExpectedDataType, openExpectedExample, openEvaluatedValue]);
 
   return (
     <ContentWrapper
@@ -441,9 +524,13 @@ function PopoverContent(props: PopoverContentProps) {
         </>
       )}
       {!props.hideEvaluatedValue && (
-        <CurrentValueViewer
+        <ControlledCurrentValueViewer
           evaluatedValue={props.evaluatedValue}
+          openEvaluatedValue={openEvaluatedValue}
           preparedStatementViewer={props.preparedStatementViewer}
+          setOpenEvaluatedValue={(isOpen: boolean) =>
+            setOpenEvaluatedValue(isOpen)
+          }
           theme={props.theme}
         />
       )}
@@ -477,6 +564,7 @@ function EvaluatedValuePopup(props: Props) {
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
+          dataTreePath={props.dataTreePath}
           entity={props.entity}
           errors={props.errors}
           evaluatedValue={props.evaluatedValue}

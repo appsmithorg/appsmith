@@ -1,0 +1,27 @@
+---
+- name: deploy cloud init config file
+  template: src=templates/cloud-config.cfg dest=/etc/cloud/cloud.cfg.d/defaults.cfg
+  become: yes
+
+- name: create group appsmith
+  group: name={{ cloud_user }} state=present
+  become: yes
+
+- name: create user appsmith
+  user: name={{ cloud_user }} groups={{ cloud_group }}
+  become: yes
+
+
+- name: create user {{ default_user }}
+  user: name={{ default_user }} groups={{ cloud_group }}
+  become: yes
+
+
+- name: add sudoers group for user {{ cloud_user }}
+  copy:
+    content: 'appsmith ALL=(ALL) NOPASSWD: ALL'
+    dest: /etc/sudoers.d/appsmith
+    mode: 0440
+    owner: root
+    group: root
+  become: yes

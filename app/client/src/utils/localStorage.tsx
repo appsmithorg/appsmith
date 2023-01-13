@@ -1,5 +1,4 @@
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system";
 import * as log from "loglevel";
 import {
   LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE,
@@ -7,6 +6,10 @@ import {
   LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED,
   createMessage,
 } from "@appsmith/constants/messages";
+
+export const LOCAL_STORAGE_KEYS = {
+  CANVAS_CARDS_STATE: "CANVAS_CARDS_STATE",
+};
 
 class LocalStorageNotSupportedError extends Error {
   name: string;

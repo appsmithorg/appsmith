@@ -5,12 +5,20 @@ const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const backBtn = ".t--property-pane-back-btn";
 
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("JSON Form Widget Form Bindings", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dslWithSchema);
   });
 
-  it("updates formData when field value changes", () => {
+  it("1. updates formData when field value changes", () => {
     const expectedInitialFormData = {
       age: 30,
       dob: "10/12/1992",
@@ -68,7 +76,7 @@ describe("JSON Form Widget Form Bindings", () => {
     });
   });
 
-  it("updates fieldState", () => {
+  it("2. updates fieldState", () => {
     const expectedInitialFieldState = {
       name: {
         isDisabled: false,
@@ -231,15 +239,15 @@ describe("JSON Form Widget Form Bindings", () => {
       .wait(500);
 
     // migrant.visible -> false
-    cy.openFieldConfiguration("migrant");
+    cy.openFieldConfiguration("migrant", false);
     cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
     cy.get(backBtn)
       .click({ force: true })
       .wait(500);
 
     // address.street.required -> true
-    cy.openFieldConfiguration("address");
-    cy.openFieldConfiguration("street");
+    cy.openFieldConfiguration("address", false);
+    cy.openFieldConfiguration("street", false);
     cy.togglebar(`${propertyControlPrefix}-required input`);
     cy.get(backBtn)
       .click({ force: true })
@@ -251,13 +259,13 @@ describe("JSON Form Widget Form Bindings", () => {
     // education.college.required -> true
     // education.year.visible -> false
     cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("college");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("college", false);
     cy.togglebar(`${propertyControlPrefix}-required input`);
     cy.get(backBtn)
       .click({ force: true })
       .wait(500);
-    cy.openFieldConfiguration("year");
+    cy.openFieldConfiguration("year", false);
     cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
     cy.get(backBtn)
       .click({ force: true })
@@ -280,7 +288,7 @@ describe("JSON Form Widget Form Bindings", () => {
     });
   });
 
-  it("change field accessor should reflect in fieldState", () => {
+  it("3. change field accessor should reflect in fieldState", () => {
     const expectedFieldStateChange = {
       firstName: {
         isDisabled: false,
@@ -365,9 +373,9 @@ describe("JSON Form Widget Form Bindings", () => {
       .wait(500);
 
     // Change accessor education -> college to education -> graduatingCollege
-    cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("college");
+    cy.openFieldConfiguration("education", false);
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("college", false);
     cy.testJsontext("propertyname", "graduatingCollege");
 
     cy.wait(5000);
@@ -379,7 +387,7 @@ describe("JSON Form Widget Form Bindings", () => {
     });
   });
 
-  it("change field accessor should reflect in formData", () => {
+  it("4. change field accessor should reflect in formData", () => {
     const expectedFormDataChange = {
       age: 30,
       dob: "10/12/1992",
@@ -403,8 +411,8 @@ describe("JSON Form Widget Form Bindings", () => {
 
     // Change accessor education -> college to education -> graduatingCollege
     cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("college");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("college", false);
     cy.testJsontext("propertyname", "graduatingCollege");
 
     cy.wait(5000);

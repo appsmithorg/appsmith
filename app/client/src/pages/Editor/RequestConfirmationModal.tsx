@@ -7,7 +7,7 @@ import {
   cancelActionConfirmationModal,
   acceptActionConfirmationModal,
 } from "actions/pluginActionActions";
-import DialogComponent from "components/ads/DialogComponent";
+import { DialogComponent } from "design-system";
 import styled from "styled-components";
 import { Button, Category, Size } from "design-system";
 import {
@@ -101,7 +101,7 @@ class RequestConfirmationModal extends React.Component<Props> {
             </ModalBody>
             <ModalFooter>
               <Button
-                category={Category.tertiary}
+                category={Category.secondary}
                 cypressSelector="t--cancel-modal-btn"
                 onClick={() => {
                   dispatch(cancelActionConfirmationModal(modalInfo.name));

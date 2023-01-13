@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { TabProp } from "./ads/Tabs";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
+import { getTypographyByKey, TabProp } from "design-system";
+import { Theme } from "constants/DefaultTheme";
 
 type WrapperProps = {
   selected: boolean;
@@ -17,13 +17,13 @@ const getFocusedStyles = (props: WrapperProps) => `
 
 const Wrapper = styled.div<WrapperProps>`
   display: flex;
-  ${(props) => getTypographyByKey(props, "p1")}
+  ${getTypographyByKey("p1")}
 
   ${(props) =>
     props.selected
       ? getFocusedStyles(props)
       : `
-      color: ${props.theme.colors.tabItemBackgroundFill.textColor};  
+      color: ${props.theme.colors.tabItemBackgroundFill.textColor};
     `};
 
   &:hover,

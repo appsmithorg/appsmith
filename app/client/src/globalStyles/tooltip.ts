@@ -1,7 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import { Classes } from "@blueprintjs/core";
-import { Classes as CsClasses } from "components/ads/common";
+import { Classes as CsClasses } from "design-system";
 
 export const GLOBAL_STYLE_TOOLTIP_CLASSNAME = "ads-global-tooltip";
 

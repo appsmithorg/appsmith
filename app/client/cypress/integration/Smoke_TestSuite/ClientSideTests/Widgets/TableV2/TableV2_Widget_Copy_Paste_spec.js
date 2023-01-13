@@ -3,11 +3,10 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 
-before(() => {
-  cy.addDsl(dsl);
-});
-
 describe("Test Suite to validate copy/paste table Widget V2", function() {
+  before(() => {
+    cy.addDsl(dsl);
+  });
   it("1. Copy paste table widget and valdiate application status", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.openPropertyPane("tablewidgetv2");
@@ -45,7 +44,7 @@ describe("Test Suite to validate copy/paste table Widget V2", function() {
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(17);
+      expect($lis).to.have.length(20);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
     });

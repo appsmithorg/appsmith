@@ -7,7 +7,6 @@ describe("Test Create Api and Bind to Table widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-
   it("Test_Add Paginate with Table Page No and Execute the Api", function() {
     cy.wait(30000);
     /**Create an Api1 of Paginate with Table Page No */

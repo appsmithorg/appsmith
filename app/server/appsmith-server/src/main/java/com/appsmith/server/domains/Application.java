@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryEntity;
@@ -13,12 +14,13 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
@@ -45,6 +47,7 @@ public class Application extends BaseDomain {
     TODO: remove default values from application.
      */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Deprecated(forRemoval = true)
     Boolean isPublic = false;
 
     List<ApplicationPage> pages;
@@ -77,6 +80,9 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
+    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
+
     GitApplicationMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -94,13 +100,25 @@ public class Application extends BaseDomain {
      */
     Integer applicationVersion;
 
-    /*
-    Changing name, change in pages, widgets and datasources will set lastEditedAt.
-    Other activities e.g. changing policy will not change this property.
-    We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
+    /**
+     * Changing name, change in pages, widgets and datasources will set lastEditedAt.
+     * Other activities e.g. changing policy will not change this property.
+     * We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
      */
     @JsonIgnore
     Instant lastEditedAt;
+
+    EmbedSetting embedSetting;
+
+    NavigationSetting unpublishedNavigationSetting;
+
+    NavigationSetting publishedNavigationSetting;
+
+    @JsonIgnore
+    AppPositioning publishedAppPositioning;
+
+    @JsonIgnore
+    AppPositioning unpublishedAppPositioning;
 
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
@@ -151,6 +169,7 @@ public class Application extends BaseDomain {
     Boolean exportWithConfiguration;
 
     @JsonIgnore
+    @Deprecated
     String defaultPermissionGroup;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
@@ -165,6 +184,9 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+        this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
+        this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
+        this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
@@ -237,4 +259,65 @@ public class Application extends BaseDomain {
             FLUID,
         }
     }
+
+    /**
+     * EmbedSetting is used for embedding Appsmith apps on other platforms
+     */
+    @Data
+    public static class EmbedSetting {
+        private String height;
+        private String width;
+        private Boolean showNavigationBar;
+    }
+
+
+    /**
+     * NavigationSetting stores the navigation configuration for the app
+     */
+    @Data
+    public static class NavigationSetting {
+        private Boolean showNavbar;
+        private String orientation;
+        private String navStyle;
+        private String position;
+        private String itemStyle;
+        private String colorStyle;
+        private String logoAssetId;
+        private String logoConfiguration;
+        private Boolean showSignIn;
+        private Boolean showShareApp;
+    }
+
+    public AppPositioning getAppPositioning() {
+        return Boolean.TRUE.equals(viewMode) ? publishedAppPositioning : unpublishedAppPositioning;
+    }
+
+    public void setAppPositioning(AppPositioning appPositioning) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedAppPositioning = appPositioning;
+        } else {
+            unpublishedAppPositioning = appPositioning;
+        }
+    }
+
+    /**
+     * AppPositioning captures widget positioning Mode of the application
+     */
+    @Data
+    @NoArgsConstructor
+    public static class AppPositioning {
+        Type type;
+
+        public AppPositioning(Type type) {
+            this.type = type;
+        }
+
+        public enum Type {
+            FIXED,
+            AUTO
+        }
+
+    }
+
+
 }

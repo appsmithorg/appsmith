@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
@@ -9,12 +10,16 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
@@ -24,19 +29,16 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
-import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
-import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DateUtils;
@@ -56,10 +58,14 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -78,9 +84,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple5;
 
 import javax.lang.model.SourceVersion;
-import javax.validation.Validator;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -92,6 +98,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -101,13 +108,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -142,6 +143,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ResponseUtils responseUtils;
 
     private final PermissionGroupService permissionGroupService;
+    private final DatasourcePermission datasourcePermission;
+    private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
 
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
@@ -162,7 +167,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   AuthenticationValidator authenticationValidator,
                                   ConfigService configService,
                                   ResponseUtils responseUtils,
-                                  PermissionGroupService permissionGroupService) {
+                                  PermissionGroupService permissionGroupService,
+                                  DatasourcePermission datasourcePermission,
+                                  ApplicationPermission applicationPermission,
+                                  PagePermission pagePermission,
+                                  ActionPermission actionPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -181,6 +190,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
         this.configService = configService;
+        this.datasourcePermission = datasourcePermission;
+        this.applicationPermission = applicationPermission;
+        this.pagePermission = pagePermission;
+        this.actionPermission = actionPermission;
     }
 
     @Override
@@ -220,7 +233,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultActionId(branchName, id, READ_ACTIONS)
+        return this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getReadPermission())
                 .map(responseUtils::updateNewActionWithDefaultResources);
     }
 
@@ -351,8 +364,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 datasourceMono = Mono.just(action.getDatasource())
                         .flatMap(datasourceService::validateDatasource);
             } else {
+                // TODO: check if datasource should be fetched with edit during action create or update.
                 //Data source already exists. Find the same.
-                datasourceMono = datasourceService.findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
+                datasourceMono = datasourceService.findById(action.getDatasource().getId())
                         .switchIfEmpty(Mono.defer(() -> {
                             action.setIsValid(false);
                             invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
@@ -364,9 +378,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             return datasource;
                         })
                         // If the action is publicly executable, update the datasource policy
-                        .flatMap(datasource -> updateDatasourcePolicyForPublicAction(
-                                newAction.getApplicationId(), newAction.getPolicies(), datasource)
-                        );
+                        .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction, datasource));
             }
         }
 
@@ -420,6 +432,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     return Mono.just(savedAction);
                 })
+                .flatMap(repository::setUserPermissionsInObject)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
@@ -432,7 +445,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param actionDTO
      * @return
      */
-    private Set<String> extractKeysFromAction(ActionDTO actionDTO) {
+    private Set<MustacheBindingToken> extractKeysFromAction(ActionDTO actionDTO) {
         if (actionDTO == null) {
             return new HashSet<>();
         }
@@ -442,11 +455,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return new HashSet<>();
         }
 
-        Set<String> keys = MustacheHelper.extractMustacheKeysFromFields(actionConfiguration);
+        Set<MustacheBindingToken> keys = MustacheHelper.extractMustacheKeysFromFields(actionConfiguration);
 
         // Add JS function body to jsonPathKeys field.
         if (PluginType.JS.equals(actionDTO.getPluginType()) && actionConfiguration.getBody() != null) {
-            keys.add(actionConfiguration.getBody());
+            keys.add(new MustacheBindingToken(actionConfiguration.getBody(), 0, false));
 
             // Since this is a JS function, we should also set the dynamic binding path list if absent
             List<Property> dynamicBindingPathList = actionDTO.getDynamicBindingPathList();
@@ -470,8 +483,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public NewAction extractAndSetJsonPathKeys(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
-        Set<String> actionKeys = extractKeysFromAction(action);
-        Set<String> datasourceKeys = datasourceService.extractKeysFromDatasource(action.getDatasource());
+        Set<String> actionKeys = extractKeysFromAction(action).stream().map(token -> token.getValue()).collect(Collectors.toSet());
+        Set<String> datasourceKeys = datasourceService.extractKeysFromDatasource(action.getDatasource()).stream().map(token -> token.getValue()).collect(Collectors.toSet());
         Set<String> keys = new HashSet<>() {{
             addAll(actionKeys);
             addAll(datasourceKeys);
@@ -538,7 +551,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // the update doesn't lead to resetting of this field.
         action.setUserSetOnLoad(null);
 
-        Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
+        Mono<NewAction> updatedActionMono = repository.findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
                     final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
@@ -574,8 +587,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Datasource datasource = zippedData.getT2();
                     final NewAction newAction1 = zippedActions.getT2();
 
+                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                            FieldName.ACTION, newAction1
+                    );
+                    data.put(FieldName.EVENT_DATA, eventData);
+
                     return analyticsService
-                            .sendUpdateEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                            .sendUpdateEvent(newAction1, data)
                             .thenReturn(zippedActions.getT1());
 
                 });
@@ -609,60 +630,85 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
-    @Override
-    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
-        // 1. Validate input parameters which are required for mustache replacements
-        List<Param> params = executeActionDTO.getParams();
+    /**
+     * Sets the param value to "" if key is not empty and value is null for each param
+     *
+     * @param params
+     */
+    protected void replaceNullWithQuotesForParamValues(List<Param> params) {
+
         if (!CollectionUtils.isEmpty(params)) {
             for (Param param : params) {
                 // In case the parameter values turn out to be null, set it to empty string instead to allow
                 // the execution to go through no matter what.
-                if (!StringUtils.isEmpty(param.getKey()) && param.getValue() == null) {
+                if (StringUtils.hasLength(param.getKey()) && param.getValue() == null) {
                     param.setValue("");
                 }
             }
         }
+    }
 
-        String actionId = executeActionDTO.getActionId();
-        AtomicReference<String> actionName = new AtomicReference<>();
-        // Initialize the name to be empty value
-        actionName.set("");
-        // 2. Fetch the action from the DB and check if it can be executed
-        Mono<NewAction> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
+    /**
+     * Fetches and caches action with permission.
+     *
+     * @param actionId
+     * @return actionMono
+     */
+    protected Mono<NewAction> getCachedActionForActionExecution(String actionId) {
+
+        return repository.findById(actionId, actionPermission.getExecutePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
                 .cache();
+    }
 
-        Mono<ActionDTO> actionDTOMono = actionMono
+    /**
+     * Retrieves and caches validated actionDTO from actionMono.
+     *
+     * @param actionMono
+     * @param executeActionDTO
+     * @param actionId
+     * @return actionDTOMono
+     */
+    protected Mono<ActionDTO> getCachedActionDTOForActionExecution(Mono<NewAction> actionMono,
+                                                                   ExecuteActionDTO executeActionDTO,
+                                                                   String actionId) {
+        return actionMono
                 .flatMap(action -> getValidActionForExecution(executeActionDTO, actionId, action))
                 .cache();
+    }
 
-        // 3. Instantiate the implementation class based on the query type
+    /**
+     * Fetches, validates and caches the datasource from actionDTO
+     *
+     * @param actionDTOMono
+     * @return datasourceMono
+     */
+    protected Mono<Datasource> getCachedDatasourceForActionExecution(Mono<ActionDTO> actionDTOMono, String environmentName) {
 
-        Mono<Datasource> datasourceMono = actionDTOMono
-                .flatMap(action -> {
-                    // Global datasource requires us to fetch the datasource from DB.
-                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId(), EXECUTE_DATASOURCES)
-                                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                                        FieldName.DATASOURCE,
-                                        action.getDatasource().getId())));
-                    }
-
-                    // This is a nested datasource. Return as is.
-                    return Mono.justOrEmpty(action.getDatasource());
-                })
-                .cache();
-
-        Mono<Plugin> pluginMono = datasourceMono
+        return actionDTOMono
+                .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO,
+                        datasourcePermission.getExecutePermission()))
                 .flatMap(datasource -> {
-                    // For embedded datasources, validate the datasource for each execution
+                    // For embedded datasource, validate the datasource for each execution
                     if (datasource.getId() == null) {
                         return datasourceService.validateDatasource(datasource);
                     }
 
-                    // The external datasources have already been validated. No need to validate again.
+                    // The external datasource have already been validated. No need to validate again.
                     return Mono.just(datasource);
                 })
+                .cache();
+    }
+
+    /**
+     * fetches and caches plugin by pluginId after checking datasource for invalids(issues)
+     *
+     * @param datasourceMono
+     * @param actionId
+     * @return pluginMono if datasource has no issues and plugin is find, else throws error
+     */
+    protected Mono<Plugin> getCachedPluginForActionExecution(Mono<Datasource> datasourceMono, String actionId) {
+        return datasourceMono
                 .flatMap(datasource -> {
                     Set<String> invalids = datasource.getInvalids();
                     if (!CollectionUtils.isEmpty(invalids)) {
@@ -676,139 +722,235 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN)))
                 .cache();
+    }
 
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+    /**
+     * Fetches and returns editorConfigLabelMap if datasourceId is present
+     *
+     * @param datasourceMono
+     * @return an Empty hashMap if datasource doesn't have id, else configLabelMap from plugin service
+     */
+    protected Mono<Map> getEditorConfigLabelMap(Mono<Datasource> datasourceMono) {
 
-        // 4. Execute the query
-        Mono<ActionExecutionResult> actionExecutionResultMono = Mono
-                .zip(
-                        actionDTOMono,
-                        datasourceMono,
-                        pluginExecutorMono,
-                        pluginMono
-                )
+        return datasourceMono
+                .flatMap(datasource -> {
+                    if (!StringUtils.hasLength(datasource.getId())) {
+                        return Mono.just(new HashMap());
+                    }
+
+                    return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
+                });
+    }
+
+    /**
+     * Passes the payload to pluginExecutor post datasource validation and context retrieval
+     * <p>
+     * This method validates the datasource, retrieves context and subsequently passes the payload to pluginExecutor for
+     * further execution of the request.
+     * </p>
+     * <p> In case of failure the method retries to from context</p>
+     *
+     * @param executeActionDTO
+     * @param actionDTO
+     * @param datasource
+     * @param plugin
+     * @param pluginExecutor
+     * @param environmentName
+     * @return actionExecutionResultMono
+     */
+    protected Mono<ActionExecutionResult> verifyDatasourceAndMakeRequest(ExecuteActionDTO executeActionDTO,
+                                                                         ActionDTO actionDTO,
+                                                                         Datasource datasource,
+                                                                         Plugin plugin,
+                                                                         PluginExecutor pluginExecutor,
+                                                                         String environmentName) {
+        // This method will be overridden in EE branch to make use of environmentName.
+        Mono<Datasource> validatedDatasourceMono = getValidatedDatasourceForActionExecution(datasource, environmentName);
+
+        Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
+                .flatMap(datasource1 -> getDatasourceContextFromValidatedDatasourceForActionExecution(datasource1,
+                        plugin,
+                        environmentName))
+                // Now that we have the context (connection details), execute the action.
+                .flatMap(resourceContext -> validatedDatasourceMono
+                        .flatMap(datasource1 -> {
+                            final Instant requestedAt = Instant.now();
+                            return ((Mono<ActionExecutionResult>) pluginExecutor.
+                                    executeParameterized(resourceContext.getConnection(),
+                                            executeActionDTO,
+                                            datasource1.getDatasourceConfiguration(),
+                                            actionDTO.getActionConfiguration()))
+                                    .map(actionExecutionResult -> {
+                                        ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
+                                        if (actionExecutionRequest == null) {
+                                            actionExecutionRequest = new ActionExecutionRequest();
+                                        }
+                                        actionExecutionRequest.setActionId(executeActionDTO.getActionId());
+                                        actionExecutionRequest.setRequestedAt(requestedAt);
+
+                                        actionExecutionResult.setRequest(actionExecutionRequest);
+                                        return actionExecutionResult;
+                                    });
+                        }));
+
+        return executionMono.onErrorResume(StaleConnectionException.class, error -> {
+            log.info("Looks like the connection is stale. Retrying with a fresh context.");
+            return deleteDatasourceContextForRetry(datasource, environmentName)
+                    .then(executionMono);
+        });
+    }
+
+    /**
+     * Validates the datasource for further execution
+     *
+     * @param datasource
+     * @return
+     */
+    protected Mono<Datasource> getValidatedDatasourceForActionExecution(Datasource datasource, String environmentName) {
+        // the environmentName argument is not consumed over here
+        // See EE override for usage of variable
+        return authenticationValidator.validateAuthentication(datasource).cache();
+    }
+
+    /**
+     * Provides datasource context for execution
+     *
+     * @param validatedDatasource
+     * @param plugin
+     * @param environmentName
+     * @return datasourceContextMono
+     */
+    protected Mono<DatasourceContext<?>> getDatasourceContextFromValidatedDatasourceForActionExecution
+    (Datasource validatedDatasource, Plugin plugin, String environmentName) {
+        // the environmentName argument is not consumed over here
+        // See EE override for usage of variable
+        if (plugin.isRemotePlugin()) {
+            return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource);
+        }
+        return datasourceContextService.getDatasourceContext(validatedDatasource);
+
+    }
+
+    /**
+     * Deletes the datasourceContext for the given datasource
+     *
+     * @param datasource
+     * @param environmentName
+     * @return datasourceContextMono
+     */
+    protected Mono<DatasourceContext<?>> deleteDatasourceContextForRetry(Datasource datasource, String environmentName) {
+        // the environmentName argument is not consumed over here
+        // See EE override for usage of variable
+        return datasourceContextService.deleteDatasourceContext(datasource.getId());
+    }
+
+    protected Mono<ActionExecutionResult> handleExecutionErrors(Mono<ActionExecutionResult> actionExecutionResultMono,
+                                                                ActionDTO actionDTO,
+                                                                Integer timeoutDuration,
+                                                                String actionId) {
+        return actionExecutionResultMono
+                .onErrorMap(TimeoutException.class, error ->
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                actionDTO.getName(),
+                                timeoutDuration))
+                .onErrorMap(StaleConnectionException.class, error ->
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                                "Secondary stale connection error."))
+                .onErrorResume(e -> {
+                    log.debug("{}: In the action execution error mode.",
+                            Thread.currentThread().getName(), e);
+                    ActionExecutionResult result = new ActionExecutionResult();
+                    result.setBody(e.getMessage());
+                    result.setIsExecutionSuccess(false);
+                    final ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
+                    actionExecutionRequest.setActionId(actionId);
+                    actionExecutionRequest.setRequestedAt(Instant.now());
+                    result.setRequest(actionExecutionRequest);
+                    // Set the status code for Appsmith plugin errors
+                    if (e instanceof AppsmithPluginException) {
+                        result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
+                        result.setTitle(((AppsmithPluginException) e).getTitle());
+                        result.setErrorType(((AppsmithPluginException) e).getErrorType());
+                    } else {
+                        result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+
+                        if (e instanceof AppsmithException) {
+                            result.setTitle(((AppsmithException) e).getTitle());
+                            result.setErrorType(((AppsmithException) e).getErrorType());
+                        }
+                    }
+                    return Mono.just(result);
+                });
+
+    }
+
+    /**
+     * Handles the execution logic, call to pluginExecutor with the payload post retrieval and validation of action, datasource, and plugin
+     *
+     * @param executeActionDTO
+     * @param actionMono
+     * @param actionDTOMono
+     * @param datasourceMono
+     * @param pluginMono
+     * @param pluginExecutorMono
+     * @param actionName
+     * @param actionId
+     * @param environmentName
+     * @return actionExecutionResultMono
+     */
+    protected Mono<ActionExecutionResult> getActionExecutionResult(ExecuteActionDTO executeActionDTO,
+                                                                   Mono<NewAction> actionMono,
+                                                                   Mono<ActionDTO> actionDTOMono,
+                                                                   Mono<Datasource> datasourceMono,
+                                                                   Mono<Plugin> pluginMono,
+                                                                   Mono<PluginExecutor> pluginExecutorMono,
+                                                                   AtomicReference<String> actionName,
+                                                                   String actionId,
+                                                                   String environmentName) {
+
+        Mono<Tuple5<ActionDTO, Datasource, PluginExecutor, Plugin, NewAction>> executeActionPublishersCache =
+                Mono.zip(actionDTOMono, datasourceMono, pluginExecutorMono, pluginMono, actionMono).cache();
+
+        return executeActionPublishersCache
                 .flatMap(tuple -> {
-                    final ActionDTO action = tuple.getT1();
+                    final ActionDTO actionDTO = tuple.getT1();
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
                     final Plugin plugin = tuple.getT4();
+                    final NewAction actionFromDb = tuple.getT5();
 
                     // Set the action name
-                    actionName.set(action.getName());
-
-                    ActionConfiguration actionConfiguration = action.getActionConfiguration();
-
-                    Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
+                    actionName.set(actionDTO.getName());
 
                     log.debug("[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
                             Thread.currentThread().getName(),
-                            action.getPageId(), actionId, action.getName());
+                            actionDTO.getPageId(), actionId, actionDTO.getName());
 
-                    Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource).cache();
+                    Integer timeoutDuration = actionDTO.getActionConfiguration().getTimeoutInMillisecond();
 
-                    Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
-                            .flatMap(datasource1 -> {
-                                if (plugin.isRemotePlugin()) {
-                                    return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
-                                } else {
-                                    return datasourceContextService.getDatasourceContext(datasource1);
-                                }
-                            })
-                            // Now that we have the context (connection details), execute the action.
-                            .flatMap(resourceContext -> validatedDatasourceMono
-                                    .flatMap(datasource1 -> {
-                                        final Instant requestedAt = Instant.now();
-                                        return ((Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
-                                                resourceContext.getConnection(),
-                                                executeActionDTO,
-                                                datasource1.getDatasourceConfiguration(),
-                                                actionConfiguration
-                                        )).map(actionExecutionResult -> {
-                                            ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
-                                            if (actionExecutionRequest == null) {
-                                                actionExecutionRequest = new ActionExecutionRequest();
-                                            }
-                                            actionExecutionRequest.setActionId(actionId);
-                                            actionExecutionRequest.setRequestedAt(requestedAt);
+                    Mono<ActionExecutionResult> actionExecutionResultMono =
+                            verifyDatasourceAndMakeRequest(executeActionDTO, actionDTO, datasource,
+                                    plugin, pluginExecutor, environmentName)
+                                    .timeout(Duration.ofMillis(timeoutDuration));
 
-                                            actionExecutionResult.setRequest(actionExecutionRequest);
-
-                                            return actionExecutionResult;
-                                        });
-                                    })
-                            );
-
-                    return executionMono
-                            .onErrorResume(StaleConnectionException.class, error -> {
-                                log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                                return datasourceContextService
-                                        .deleteDatasourceContext(datasource.getId())
-                                        .then(executionMono);
-                            })
-                            .timeout(Duration.ofMillis(timeoutDuration))
-                            .onErrorMap(TimeoutException.class,
-                                    error -> new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
-                                            action.getName(), timeoutDuration
-                                    )
-                            )
-                            .onErrorMap(
-                                    StaleConnectionException.class,
-                                    error -> new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
-                                            "Secondary stale connection error."
-                                    )
-                            )
-                            .onErrorResume(e -> {
-                                log.debug("{}: In the action execution error mode.",
-                                        Thread.currentThread().getName(), e);
-                                ActionExecutionResult result = new ActionExecutionResult();
-                                result.setBody(e.getMessage());
-                                result.setIsExecutionSuccess(false);
-                                final ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
-                                actionExecutionRequest.setActionId(actionId);
-                                actionExecutionRequest.setRequestedAt(Instant.now());
-                                result.setRequest(actionExecutionRequest);
-                                // Set the status code for Appsmith plugin errors
-                                if (e instanceof AppsmithPluginException) {
-                                    result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
-                                    result.setTitle(((AppsmithPluginException) e).getTitle());
-                                    result.setErrorType(((AppsmithPluginException) e).getErrorType());
-                                } else {
-                                    result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
-
-                                    if (e instanceof AppsmithException) {
-                                        result.setTitle(((AppsmithException) e).getTitle());
-                                        result.setErrorType(((AppsmithException) e).getErrorType());
-                                    }
-                                }
-                                return Mono.just(result);
-                            })
+                    return handleExecutionErrors(actionExecutionResultMono, actionDTO, timeoutDuration, actionId)
                             .elapsed()
                             // Now send the analytics event for this execution
                             .flatMap(tuple1 -> {
-                                        Long timeElapsed = tuple1.getT1();
-                                        ActionExecutionResult result = tuple1.getT2();
+                                Long timeElapsed = tuple1.getT1();
+                                ActionExecutionResult result = tuple1.getT2();
 
-                                        log.debug("{}: Action {} with id {} execution time : {} ms",
-                                                Thread.currentThread().getName(),
-                                                actionName.get(),
-                                                actionId,
-                                                timeElapsed
-                                        );
+                                log.debug("{}: Action {} with id {} execution time : {} ms",
+                                        Thread.currentThread().getName(),
+                                        actionName.get(),
+                                        actionId,
+                                        timeElapsed
+                                );
 
-                                        return Mono.zip(actionMono, actionDTOMono, datasourceMono)
-                                                .flatMap(tuple2 -> {
-                                                    ActionExecutionResult actionExecutionResult = result;
-                                                    NewAction actionFromDb = tuple2.getT1();
-                                                    ActionDTO actionDTO = tuple2.getT2();
-                                                    Datasource datasourceFromDb = tuple2.getT3();
-
-                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
-                                                            .thenReturn(result);
-                                                });
-                                    }
-                            );
+                                return sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasource,
+                                        executeActionDTO, result, timeElapsed)
+                                        .then(Mono.just(result));
+                            });
                 })
                 .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();
@@ -819,40 +961,65 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     result.setErrorType(error.getErrorType());
                     return Mono.just(result);
                 });
+    }
 
-        Mono<Map> editorConfigLabelMapMono = datasourceMono
-                .flatMap(datasource -> {
-                    if (datasource.getId() != null) {
-                        return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
-                    }
+    /**
+     * Fetches the required Mono (action, datasource, and plugin) and makes actionExecution call to plugin
+     *
+     * @param executeActionDTO
+     * @param environmentName
+     * @return actionExecutionResult if query succeeds, error messages otherwise
+     */
+    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentName) {
 
-                    return Mono.just(new HashMap());
-                });
+        // 1. Validate input parameters which are required for mustache replacements
+        replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
 
-        return Mono.zip(actionExecutionResultMono, editorConfigLabelMapMono)
-                .flatMap(tuple -> {
-                    ActionExecutionResult result = tuple.getT1();
-                    // In case the action was executed in view mode, do not return the request object
+        String actionId = executeActionDTO.getActionId();
+        AtomicReference<String> actionName = new AtomicReference<>();
+        actionName.set("");
+
+        // 2. Fetch the action from the DB and check if it can be executed
+        Mono<NewAction> actionMono = getCachedActionForActionExecution(actionId);
+        Mono<ActionDTO> actionDTOMono = getCachedActionDTOForActionExecution(actionMono, executeActionDTO, actionId);
+
+        // 3. Instantiate the implementation class based on the query type
+        Mono<Datasource> datasourceMono = getCachedDatasourceForActionExecution(actionDTOMono, environmentName);
+        Mono<Plugin> pluginMono = getCachedPluginForActionExecution(datasourceMono, actionId);
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+
+        // 4. Execute the query
+        Mono<ActionExecutionResult> actionExecutionResultMono = getActionExecutionResult(executeActionDTO,
+                actionMono,
+                actionDTOMono,
+                datasourceMono,
+                pluginMono,
+                pluginExecutorMono,
+                actionName,
+                actionId,
+                environmentName);
+
+        Mono<Map> editorConfigLabelMapMono = getEditorConfigLabelMap(datasourceMono);
+
+        return actionExecutionResultMono
+                .zipWith(editorConfigLabelMapMono, (result, labelMap) -> {
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
                         result.setRequest(null);
-                        return Mono.just(result);
+                    } else if (result.getRequest() != null && result.getRequest().getRequestParams() != null) {
+                        transformRequestParams(result, labelMap);
                     }
-
-                    if (result.getRequest() == null || result.getRequest().getRequestParams() == null) {
-                        return Mono.just(result);
-                    }
-
-                    Map labelMap = tuple.getT2();
-                    transformRequestParams(result, labelMap);
-
-                    return Mono.just(result);
+                    return result;
                 })
                 .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
-    @Override
-    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName) {
-
+    /**
+     * Creates the ExecuteActionDTO from Flux of ByteBuffers
+     *
+     * @param partFlux
+     * @return an executionDTO object with parameterMap
+     */
+    protected Mono<ExecuteActionDTO> createExecuteActionDTO(Flux<Part> partFlux) {
         final ExecuteActionDTO dto = new ExecuteActionDTO();
         return partFlux
                 .flatMap(part -> {
@@ -900,8 +1067,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .flatMap(part -> {
                     final Param param = new Param();
-                    String pseudoBindingName = part.name();
-                    param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
+                    param.setPseudoBindingName(part.name());
                     return DataBufferUtils
                             .join(part.content())
                             .map(dataBuffer -> {
@@ -917,18 +1083,89 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (dto.getActionId() == null) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
                     }
+
+                    final Set<String> visitedBindings = new HashSet<>();
+                    /*
+                        Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
+                        along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
+                        Ref: https://github.com/appsmithorg/appsmith/issues/16722
+                     */
+                    params.forEach(
+                            param -> {
+                                String pseudoBindingName = param.getPseudoBindingName();
+                                String bindingValue = dto.getInvertParameterMap().get(pseudoBindingName);
+                                param.setKey(bindingValue);
+                                visitedBindings.add(bindingValue);
+                                //if the type is not an array e.g. "k1": "string" or "k1": "boolean"
+                                if (dto.getParamProperties()
+                                        .get(pseudoBindingName) instanceof String) {
+                                    param.setClientDataType(ClientDataType.valueOf(String.valueOf(dto.getParamProperties()
+                                                    .get(pseudoBindingName))
+                                            .toUpperCase()));
+                                } else if (dto.getParamProperties()
+                                        .get(pseudoBindingName) instanceof LinkedHashMap) {
+                                    //if the type is an array e.g. "k1": { "array": [ "string", "number", "string", "boolean"]
+                                    LinkedHashMap<String, ArrayList> stringArrayListLinkedHashMap =
+                                            (LinkedHashMap<String, ArrayList>) dto.getParamProperties()
+                                                    .get(pseudoBindingName);
+                                    Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet()
+                                            .stream()
+                                            .findFirst();
+                                    if (firstKeyOpt.isPresent()) {
+                                        String firstKey = firstKeyOpt.get();
+                                        param.setClientDataType(ClientDataType.valueOf(firstKey.toUpperCase()));
+                                        List<String> individualTypes = stringArrayListLinkedHashMap.get(firstKey);
+                                        List<ClientDataType> dataTypesOfArrayElements =
+                                                individualTypes.stream()
+                                                        .map(it -> ClientDataType.valueOf(String.valueOf(it)
+                                                                .toUpperCase()))
+                                                        .collect(Collectors.toList());
+                                        param.setDataTypesOfArrayElements(dataTypesOfArrayElements);
+                                    }
+                                }
+
+                            }
+                    );
+
+                    // In case there are parameters that did not receive a value in the multipart request,
+                    // initialize these bindings with empty strings
+                    if (dto.getParameterMap() != null) {
+                        dto.getParameterMap()
+                                .keySet()
+                                .stream()
+                                .forEach(parameter -> {
+                                    if (!visitedBindings.contains(parameter)) {
+                                        Param newParam = new Param(parameter, "");
+                                        params.add(newParam);
+                                    }
+                                });
+                    }
                     dto.setParams(params);
                     return Mono.just(dto);
-                })
-                .flatMap(executeActionDTO -> this
-                        .findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
+                });
+    }
+
+    /**
+     * Executes the action(queries) by creating executeActionDTO and sending it to the plugin for further execution
+     *
+     * @param partFlux
+     * @param branchName
+     * @param environmentName
+     * @return Mono of actionExecutionResult if the query succeeds, error messages otherwise
+     */
+    @Override
+    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName, String environmentName) {
+        return createExecuteActionDTO(partFlux)
+                .flatMap(executeActionDTO -> findByBranchNameAndDefaultActionId(branchName,
+                        executeActionDTO.getActionId(),
+                        actionPermission.getExecutePermission())
                         .map(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
                             return executeActionDTO;
-                        })
-                )
-                .flatMap(this::executeAction);
+                        }))
+                .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, environmentName));
     }
+
 
     @Override
     public Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction) {
@@ -1009,21 +1246,26 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return result;
     }
 
+    /**
+     * Since we're loading the application and other details from DB *only* for analytics, we check if analytics is
+     * active before making the call to DB.
+     *
+     * @return
+     */
+    public Boolean isSendExecuteAnalyticsEvent() {
+        return analyticsService.isActive();
+    }
+
     private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
             NewAction action,
             ActionDTO actionDTO,
             Datasource datasource,
-            Boolean viewMode,
+            ExecuteActionDTO executeActionDto,
             ActionExecutionResult actionExecutionResult,
             Long timeElapsed
     ) {
-        // Since we're loading the application from DB *only* for analytics, we check if analytics is
-        // active before making the call to DB.
-        if (!analyticsService.isActive()) {
-            // This is to have consistency in how the AnalyticsService is being called.
-            // Even though sendObjectEvent is triggered, AnalyticsService would still reject this and prevent the event
-            // from being sent to analytics provider if telemetry is disabled.
-            analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action);
+
+        if (!isSendExecuteAnalyticsEvent()) {
             return Mono.empty();
         }
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
@@ -1086,7 +1328,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(application -> Mono.zip(
                         Mono.just(application),
                         sessionUserService.getCurrentUser(),
-                        newPageService.getNameByPageId(actionDTO.getPageId(), viewMode),
+                        newPageService.getNameByPageId(actionDTO.getPageId(), executeActionDto.getViewMode()),
                         pluginService.getById(action.getPluginId())
                 ))
                 .flatMap(tuple -> {
@@ -1096,6 +1338,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Plugin plugin = tuple.getT4();
 
                     final PluginType pluginType = action.getPluginType();
+                    final String appMode = TRUE.equals(executeActionDto.getViewMode()) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
 
                     final Map<String, Object> data = new HashMap<>(Map.of(
                             "username", user.getUsername(),
@@ -1107,7 +1350,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             ),
                             "orgId", application.getWorkspaceId(),
                             "appId", action.getApplicationId(),
-                            "appMode", TRUE.equals(viewMode) ? "view" : "edit",
+                            FieldName.APP_MODE, appMode,
                             "appName", application.getName(),
                             "isExampleApp", application.isAppIsExample()
                     ));
@@ -1116,6 +1359,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (datasource.getCreatedAt() != null) {
                         dsCreatedAt = DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt());
                     }
+                    List<Param> paramsList = executeActionDto.getParams();
+                    if (paramsList == null) {
+                        paramsList = new ArrayList<>();
+                    }
+                    List<String> executionParams = paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.putAll(Map.of(
                             "request", request,
@@ -1125,7 +1373,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
                             "timeElapsed", timeElapsed,
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
-                            "actionId", ObjectUtils.defaultIfNull(action.getId(), "")
+                            "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, String.valueOf(executionParams.size()),
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams.stream().collect(Collectors.joining(",", "[", "]"))
                     ));
                     data.putAll(Map.of(
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
@@ -1152,13 +1402,22 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 "statusCode", actionExecutionResult.getStatusCode()
                         ));
                     }
+
+                    String executionRequestQuery = "";
+                    if (actionExecutionResult != null &&
+                            actionExecutionResult.getRequest() != null &&
+                            actionExecutionResult.getRequest().getQuery() != null) {
+                        executionRequestQuery = actionExecutionResult.getRequest().getQuery();
+                    }
+
                     final Map<String, Object> eventData = Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
-                            FieldName.VIEW_MODE, viewMode,
+                            FieldName.APP_MODE, appMode,
                             FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
                             FieldName.ACTION_EXECUTION_TIME, timeElapsed,
-                            FieldName.ACTION_EXECUTION_REQUEST, request,
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams,
+                            FieldName.ACTION_EXECUTION_QUERY, executionRequestQuery,
                             FieldName.APPLICATION, application,
                             FieldName.PLUGIN, plugin
                     );
@@ -1196,7 +1455,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
-                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS)
+                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, actionPermission.getEditPermission())
                 .flatMap(this::sanitizeAction);
     }
 
@@ -1210,7 +1469,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
         return repository
-                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS)
+                .findUnpublishedActionsByNameInAndPageId(names, pageId, actionPermission.getEditPermission())
                 .flatMap(this::sanitizeAction);
     }
 
@@ -1228,6 +1487,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, AclPermission permission) {
+        return repository.findByPageId(pageId, permission)
+                .flatMap(this::sanitizeAction);
+    }
+
+    @Override
+    public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission) {
         return repository.findByPageId(pageId, permission)
                 .flatMap(this::sanitizeAction);
     }
@@ -1258,8 +1523,27 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
+    public Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort) {
+        return repository.findByApplicationId(applicationId, permission, sort)
+                // In case of view mode being true, filter out all the actions which haven't been published
+                .flatMap(action -> {
+                    if (Boolean.TRUE.equals(viewMode)) {
+                        // In case we are trying to fetch published actions but this action has not been published, do not return
+                        if (action.getPublishedAction() == null) {
+                            return Mono.empty();
+                        }
+                    }
+                    // No need to handle the edge case of unpublished action not being present. This is not possible because
+                    // every created action starts from an unpublishedAction state.
+
+                    return Mono.just(action);
+                })
+                .flatMap(this::sanitizeAction);
+    }
+
+    @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .flatMapMany(this::getActionsForViewMode)
                 .map(responseUtils::updateActionViewDTOWithDefaultResources);
     }
@@ -1273,7 +1557,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         // fetch the published actions by applicationId
         // No need to sort the results
-        return findAllByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS, null)
+        return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .map(action -> {
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
@@ -1307,7 +1591,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        Mono<NewAction> actionMono = repository.findById(id, MANAGE_ACTIONS)
+        Mono<NewAction> actionMono = repository.findById(id, actionPermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
                 .flatMap(toDelete -> {
@@ -1333,9 +1617,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .flatMap(zippedActions -> {
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
+                                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                                    final Map<String, Object> eventData = Map.of(
+                                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                            FieldName.ACTION, newAction1
+                                    );
+                                    data.put(FieldName.EVENT_DATA, eventData);
 
                                     return analyticsService
-                                            .sendArchiveEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .sendArchiveEvent(newAction1, data)
                                             .thenReturn(zippedActions.getT1());
 
                                 })
@@ -1356,9 +1646,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .flatMap(zippedActions -> {
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
+                                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                                    final Map<String, Object> eventData = Map.of(
+                                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                            FieldName.ACTION, newAction1
+                                    );
+                                    data.put(FieldName.EVENT_DATA, eventData);
 
                                     return analyticsService
-                                            .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .sendDeleteEvent(newAction1, data)
                                             .thenReturn(zippedActions.getT1());
 
                                 })
@@ -1459,12 +1755,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
-                    .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
-                    .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
+                    .findById(params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission())
+                    .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission()))
                     .flatMap(this::sanitizeAction)
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
-        return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
+        return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, actionPermission.getReadPermission(), sort)
                 .flatMap(this::sanitizeAction)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
@@ -1476,10 +1772,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // Get branched applicationId and pageId
         Mono<NewPage> branchedPageMono = StringUtils.isEmpty(params.getFirst(FieldName.PAGE_ID))
                 ? Mono.just(new NewPage())
-                : newPageService.findByBranchNameAndDefaultPageId(branchName, params.getFirst(FieldName.PAGE_ID), READ_PAGES);
+                : newPageService.findByBranchNameAndDefaultPageId(branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission());
         Mono<Application> branchedApplicationMono = StringUtils.isEmpty(params.getFirst(FieldName.APPLICATION_ID))
                 ? Mono.just(new Application())
-                : applicationService.findByBranchNameAndDefaultApplicationId(branchName, params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS);
+                : applicationService.findByBranchNameAndDefaultApplicationId(branchName, params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission());
 
         return Mono.zip(branchedApplicationMono, branchedPageMono)
                 .flatMapMany(tuple -> {
@@ -1524,6 +1820,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return actionMono;
+    }
+
+    @Override
+    public Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO) {
+        Mono<Plugin> pluginMono = pluginService.getById(actionDTO.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+
+        return pluginExecutorMono
+                .map(pluginExecutor -> {
+                    actionDTO.getActionConfiguration().setSelfReferencingDataPaths(pluginExecutor.getSelfReferencingDataPaths());
+                    return actionDTO;
+                });
     }
 
     private boolean isPluginTypeOrPluginIdMissing(NewAction action) {
@@ -1786,9 +2094,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         .flatMap(zippedActions -> {
                             final Datasource datasource = zippedActions.getT2();
                             final NewAction newAction1 = zippedActions.getT1();
+                            final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                            final Map<String, Object> eventData = Map.of(
+                                    FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                                    FieldName.ACTION, newAction1
+                            );
+                            data.put(FieldName.EVENT_DATA, eventData);
 
                             return analyticsService
-                                    .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                    .sendDeleteEvent(newAction1, data)
                                     .thenReturn(zippedActions.getT1());
 
                         })
@@ -1797,7 +2111,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
-        Mono<NewAction> branchedActionMono = this.findByBranchNameAndDefaultActionId(branchName, id, MANAGE_ACTIONS);
+        Mono<NewAction> branchedActionMono = this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getDeletePermission());
 
         return branchedActionMono
                 .flatMap(branchedAction -> this.archiveById(branchedAction.getId()))
@@ -1820,7 +2134,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .collectList();
     }
 
-    public List<String> extractMustacheKeysInOrder(String query) {
+    public List<MustacheBindingToken> extractMustacheKeysInOrder(String query) {
         return MustacheHelper.extractMustacheKeysInOrder(query);
     }
 
@@ -1837,60 +2151,50 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return updatedActionConfiguration.getBody();
     }
 
-    private Mono<Datasource> updateDatasourcePolicyForPublicAction(String applicationId, Set<Policy> actionPolicies, Datasource datasource) {
+    private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {
         if (datasource.getId() == null) {
             // This seems to be a nested datasource. Return as is.
             return Mono.just(datasource);
         }
 
-        // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
-        return repository.isPermissionPresentForUser(actionPolicies, EXECUTE_ACTIONS.getValue(), FieldName.ANONYMOUS_USER)
-                .flatMap(isPublicAction -> {
+        String applicationId = action.getApplicationId();
+
+        return permissionGroupService.getPublicPermissionGroup()
+                .flatMap(publicPermissionGroup -> {
+                    String publicPermissionGroupId = publicPermissionGroup.getId();
+                    // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
+                    boolean isPublicAction = permissionGroupService.isEntityAccessible(action, actionPermission.getExecutePermission().getValue(), publicPermissionGroupId);
 
                     if (!isPublicAction) {
                         return Mono.just(datasource);
                     }
                     // Check if datasource has execute permission
-                    return repository.isPermissionPresentForUser(
-                                    datasource.getPolicies(), EXECUTE_DATASOURCES.getValue(), FieldName.ANONYMOUS_USER
-                            )
-                            .flatMap(isPublicDatasource -> {
-                                if (isPublicDatasource) {
-                                    // Datasource has correct permission. Return as is
-                                    return Mono.just(datasource);
+                    boolean isPublicDatasource = permissionGroupService.isEntityAccessible(datasource, datasourcePermission.getExecutePermission().getValue(), publicPermissionGroupId);
+                    if (isPublicDatasource) {
+                        // Datasource has correct permission. Return as is
+                        return Mono.just(datasource);
+                    }
+
+                    // Add the permission to datasource
+                    return applicationService.findById(applicationId)
+                            .flatMap(application -> {
+                                if (!application.getIsPublic()) {
+                                    return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
                                 }
 
-                                // Add the permission to datasource
-                                return applicationService.findById(applicationId)
-                                        .flatMap(application -> {
-                                            String defaultPermissionGroup = application.getDefaultPermissionGroup();
-                                            if (defaultPermissionGroup == null) {
-                                                return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
-                                            }
+                                Policy executePolicy = Policy.builder()
+                                        .permission(EXECUTE_DATASOURCES.getValue())
+                                        .permissionGroups(Set.of(publicPermissionGroupId))
+                                        .build();
+                                Map<String, Policy> datasourcePolicyMap = Map.of(
+                                        EXECUTE_DATASOURCES.getValue(), executePolicy
+                                );
 
-                                            Map<String, Policy> datasourcePolicyMap =
-                                                    policyUtils.generatePolicyFromPermissionWithPermissionGroup(
-                                                            EXECUTE_DATASOURCES, defaultPermissionGroup
-                                                    );
-
-                                            Datasource updatedDatasource =
-                                                    policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                                Datasource updatedDatasource =
+                                        policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
 
-                                            // Update the permission group to store the datasource execute permission
-                                            return permissionGroupService.findById(defaultPermissionGroup)
-                                                    .flatMap(permissionGroup -> {
-                                                        Set<Permission> permissions = permissionGroup.getPermissions();
-                                                        Permission datasourcePermission = new Permission(datasource.getId(), EXECUTE_DATASOURCES);
-
-                                                        permissionGroup.setPermissions(
-                                                                Sets.union(permissions, Sets.newHashSet(datasourcePermission))
-                                                        );
-
-                                                        return permissionGroupService.save(permissionGroup)
-                                                                .then(datasourceService.save(updatedDatasource));
-                                                    });
-                                        });
+                                return datasourceService.save(updatedDatasource);
                             });
                 });
     }

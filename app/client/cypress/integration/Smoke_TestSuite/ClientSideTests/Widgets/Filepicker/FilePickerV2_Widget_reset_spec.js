@@ -3,12 +3,12 @@ const dsl = require("../../../../../fixtures/filePickerV2_reset_check_dsl.json")
 const Layoutpage = require("../../../../../locators/Layout.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Checkbox Widget Functionality", function() {
+describe("File Picker Widget V2 Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Check if the uploaded data reset when tab switch in the TabsWidget", () => {
+  it("Check if the uploaded data does not reset when tab switch in the TabsWidget", () => {
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     cy.get(widgetsPage.filepickerwidgetv2).click();
     cy.get(commonlocators.filePickerInput)
@@ -31,6 +31,9 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(Layoutpage.tabWidget)
       .contains("Tab 1")
       .should("have.class", "is-selected");
-    cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
+    cy.get(widgetsPage.filepickerwidgetv2).should(
+      "contain",
+      "1 files selected",
+    );
   });
 });

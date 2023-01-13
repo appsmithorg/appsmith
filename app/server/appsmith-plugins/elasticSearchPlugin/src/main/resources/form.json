@@ -10,7 +10,7 @@
               "label": "Host URL",
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host URL",
+              "validationMessage": "Please enter a valid URL, for example, https://example.com",
               "validationRegex": "^(http|https)://"
             },
             {

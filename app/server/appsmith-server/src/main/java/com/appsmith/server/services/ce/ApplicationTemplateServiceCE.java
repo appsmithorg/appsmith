@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import org.springframework.util.MultiValueMap;
@@ -21,7 +20,7 @@ public interface ApplicationTemplateServiceCE {
 
     Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId);
 
-    Mono<Application> mergeTemplateWithApplication(String templateId, String applicationId, String workspaceId, String branchName, List<String> pagesToImport);
+    Mono<ApplicationImportDTO> mergeTemplateWithApplication(String templateId, String applicationId, String workspaceId, String branchName, List<String> pagesToImport);
 
     Mono<ApplicationTemplate> getFilters();
 }

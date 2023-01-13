@@ -6,7 +6,9 @@ const jsEditor = ObjectsRegistry.JSEditor,
   apiPage = ObjectsRegistry.ApiPage,
   agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  installer = ObjectsRegistry.LibraryInstaller,
+  home = ObjectsRegistry.HomePage;
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
@@ -75,9 +77,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // create Api1
-    apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/"
-    );
+    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
 
     clickButtonAndAssertLintError(false);
 
@@ -88,9 +88,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(true);
 
     // Re-create Api1
-    apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/"
-    );
+    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
 
     clickButtonAndAssertLintError(false);
   });
@@ -272,14 +270,13 @@ describe("Linting", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/"
-    );
+    apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
 
     createMySQLDatasourceQuery();
-
+    agHelper.RefreshPage(); //Since this seems failing a bit
     clickButtonAndAssertLintError(false);
   });
+
   it("8. Doesn't show lint errors for supported web apis", () => {
     const JS_OBJECT_WITH_WEB_API = `export default {
       myFun1: () => {
@@ -295,5 +292,49 @@ describe("Linting", () => {
     });
     // expect no lint error
     agHelper.AssertElementAbsence(locator._lintErrorElement);
+  });
+
+  it("9. Shows lint errors for usage of library that are not installed yet", () => {
+    const JS_OBJECT_WITH_LIB_API = `export default {
+      myFun1: () => {
+        return UUID.generate();
+      },
+    }`;
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    agHelper.AssertElementExist(locator._lintErrorElement);
+    ee.ExpandCollapseEntity("Libraries");
+    // install the library
+    installer.openInstaller();
+    installer.installLibrary("uuidjs", "UUID");
+    installer.closeInstaller();
+
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
+
+    installer.uninstallLibrary("uuidjs");
+
+    agHelper.AssertElementExist(locator._lintErrorElement);
+    agHelper.Sleep(2000);
+    installer.openInstaller();
+    installer.installLibrary("uuidjs", "UUID");
+    installer.closeInstaller();
+
+    home.NavigateToHome();
+
+    home.CreateNewApplication();
+
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    agHelper.AssertElementExist(locator._lintErrorElement);
   });
 });

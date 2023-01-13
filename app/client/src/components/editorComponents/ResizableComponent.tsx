@@ -33,15 +33,22 @@ import {
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  previewModeSelector,
   snipingModeSelector,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
+import {
+  isCurrentWidgetFocused,
+  isCurrentWidgetLastSelected,
+  isWidgetSelected,
+  isMultiSelectedWidget,
+} from "selectors/widgetSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -60,15 +67,15 @@ export const ResizableComponent = memo(function ResizableComponent(
   const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
+  // Check if current widget is in the list of selected widgets
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  // Check if current widget is the last selected widget
+  const isLastSelected = useSelector(
+    isCurrentWidgetLastSelected(props.widgetId),
   );
-  const selectedWidgets = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
-  );
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  // Check if current widget is one of multiple selected widgets
+  const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
 
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
@@ -79,11 +86,10 @@ export const ResizableComponent = memo(function ResizableComponent(
   const parentWidgetToSelect = useSelector(
     getParentToOpenSelector(props.widgetId),
   );
-
-  const isWidgetFocused =
-    focusedWidget === props.widgetId ||
-    selectedWidget === props.widgetId ||
-    selectedWidgets.includes(props.widgetId);
+  const isParentWidgetSelected = useSelector(
+    isCurrentWidgetLastSelected(parentWidgetToSelect?.widgetId || ""),
+  );
+  const isWidgetFocused = isFocused || isLastSelected || isSelected;
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
@@ -106,8 +112,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       width: newDimensions.width - dimensions.width,
     };
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
-    let canResizeHorizontally = true,
-      canResizeVertically = true;
+    let canResizeVertically = true;
+    let canResizeHorizontally = true;
 
     // this is required for list widget so that template have no collision
     if (props.ignoreCollision)
@@ -131,7 +137,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     ) {
       canResizeVertically = false;
     }
-
     const resizedPositions = {
       id: props.widgetId,
       left: newRowCols.leftColumn,
@@ -139,6 +144,12 @@ export const ResizableComponent = memo(function ResizableComponent(
       bottom: newRowCols.bottomRow,
       right: newRowCols.rightColumn,
     };
+
+    if (isAutoHeightEnabledForWidget(props)) {
+      canResizeVertically = false;
+      resizedPositions.top = props.topRow;
+      resizedPositions.bottom = props.bottomRow;
+    }
 
     // Check if new row cols are occupied by sibling widgets
     return {
@@ -186,19 +197,17 @@ export const ResizableComponent = memo(function ResizableComponent(
     // Tell the Canvas to put the focus back to this widget
     // By setting the focus, we enable the control buttons on the widget
     selectWidget &&
-      selectedWidget !== props.widgetId &&
+      !isLastSelected &&
       parentWidgetToSelect?.widgetId !== props.widgetId &&
       selectWidget(props.widgetId);
 
     if (parentWidgetToSelect) {
       selectWidget &&
-        selectedWidget !== parentWidgetToSelect.widgetId &&
+        !isParentWidgetSelected &&
         selectWidget(parentWidgetToSelect.widgetId);
       focusWidget(parentWidgetToSelect.widgetId);
     } else {
-      selectWidget &&
-        selectedWidget !== props.widgetId &&
-        selectWidget(props.widgetId);
+      selectWidget && !isLastSelected && selectWidget(props.widgetId);
     }
     // Property pane closes after a resize/drag
     showPropertyPane && showPropertyPane();
@@ -214,9 +223,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const handleResizeStart = () => {
     setIsResizing && !isResizing && setIsResizing(true);
-    selectWidget &&
-      selectedWidget !== props.widgetId &&
-      selectWidget(props.widgetId);
+    selectWidget && !isLastSelected && selectWidget(props.widgetId);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
@@ -245,10 +252,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode;
-  const isMultiSelectedWidget =
-    selectedWidgets &&
-    selectedWidgets.length > 1 &&
-    selectedWidgets.includes(props.widgetId);
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const gridProps = {
@@ -271,12 +274,25 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
+  const snapGrid = useMemo(
+    () => ({
+      x: props.parentColumnSpace,
+      y: props.parentRowSpace,
+    }),
+    [props.parentColumnSpace, props.parentRowSpace],
+  );
+
+  const isVerticalResizeEnabled = useMemo(() => {
+    return !isAutoHeightEnabledForWidget(props) && isEnabled;
+  }, [props, isAutoHeightEnabledForWidget, isEnabled]);
+
   return (
     <Resizable
-      allowResize={!isMultiSelectedWidget}
+      allowResize={!isMultiSelected}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enable={isEnabled}
+      enableHorizontalResize={isEnabled}
+      enableVerticalResize={isVerticalResizeEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
@@ -284,7 +300,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       onStop={updateSize}
       originalPositions={originalPositions}
       parentId={props.parentId}
-      snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      snapGrid={snapGrid}
       updateBottomRow={updateBottomRow}
       widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.

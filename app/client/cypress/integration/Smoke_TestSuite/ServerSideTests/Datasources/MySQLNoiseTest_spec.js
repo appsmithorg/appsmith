@@ -2,8 +2,10 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const dsl = require("../../../../fixtures/noiseDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+
 describe("MySQL noise test", function() {
   let datasourceName;
+
   beforeEach(() => {
     cy.addDsl(dsl);
     cy.startRoutesForDatasource();
@@ -61,10 +63,8 @@ describe("MySQL noise test", function() {
       expect(response.body.data.statusCode).to.eq("200 OK");
     });
     cy.wait("@postExecute").then(({ response }) => {
-      expect(response.body.data.statusCode).to.eq("5004");
-      expect(response.body.data.title).to.eq(
-        "Datasource configuration is invalid",
-      );
+      expect(response.body.data.statusCode).to.eq("5000");
+      expect(response.body.data.title).to.eq("Query execution error");
     });
   });
 });

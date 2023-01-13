@@ -3,7 +3,6 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
@@ -13,7 +12,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +33,8 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> userCreate(User user, boolean isAdminUser);
 
-    Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader);
+    Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
+                                                         Workspace workspace, User inviter, String role);
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 
@@ -46,4 +45,6 @@ public interface UserServiceCE extends CrudService<User, String> {
     Mono<UserProfileDTO> buildUserProfileDTO(User user);
 
     Flux<User> getAllByEmails(Set<String> emails, AclPermission permission);
+
+    Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params);
 }

@@ -31,7 +31,10 @@ export const DropdownTrigger = styled.div<{ skin: Skin }>`
     }
   }
 `;
-export const DropdownContent = styled.div<{ skin: Skin }>`
+export const DropdownContent = styled.div<{
+  skin: Skin;
+  borderRadius?: string;
+}>`
   &&& * {
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
@@ -40,6 +43,7 @@ export const DropdownContent = styled.div<{ skin: Skin }>`
   background: ${(props) => props.theme.dropdown[props.skin].background};
   max-height: 300px;
   overflow-y: auto;
+  border-radius: ${(props) => `min(0.375rem, ${props.borderRadius || "0"})`};
 `;
 
 export const DropdownContentSection = styled.div<{

@@ -17,13 +17,13 @@ import {
   Category,
   notEmptyValidator,
   Size,
+  Toaster,
   Text,
   TextInput,
   TextType,
 } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { emailValidator } from "design-system";
-import { Toaster } from "components/ads/Toast";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,

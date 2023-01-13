@@ -21,7 +21,7 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
-import { editorInitializer } from "utils/EditorUtils";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -44,6 +44,12 @@ import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
+
+import {
+  checkContainersForAutoHeightAction,
+  updateWidgetAutoHeightAction,
+} from "actions/autoHeightActions";
+import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -90,6 +96,8 @@ function AppViewer(props: Props) {
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
   const { hideWatermark } = getAppsmithConfigs();
+
+  const focusRef = useWidgetFocus();
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -227,6 +235,18 @@ function AppViewer(props: Props) {
     [triggerEvalOnMetaUpdate, dispatch],
   );
 
+  const updateWidgetAutoHeightCallback = useCallback(
+    (widgetId: string, height: number) => {
+      dispatch(updateWidgetAutoHeightAction(widgetId, height));
+    },
+    [updateWidgetAutoHeightAction, dispatch],
+  );
+
+  const checkContainersForAutoHeightCallback = useCallback(
+    () => dispatch(checkContainersForAutoHeightAction()),
+    [checkContainersForAutoHeightAction],
+  );
+
   return (
     <ThemeProvider theme={lightTheme}>
       <EditorContext.Provider
@@ -236,6 +256,8 @@ function AppViewer(props: Props) {
           batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
           syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
           triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
+          updateWidgetAutoHeight: updateWidgetAutoHeightCallback,
+          checkContainersForAutoHeight: checkContainersForAutoHeightCallback,
         }}
       >
         <WidgetGlobaStyles
@@ -249,6 +271,7 @@ function AppViewer(props: Props) {
             className={CANVAS_SELECTOR}
             hasPages={pages.length > 1}
             headerHeight={headerHeight}
+            ref={focusRef}
             showGuidedTourMessage={showGuidedTourMessage}
           >
             {isInitialized && registered && <AppViewerPageContainer />}

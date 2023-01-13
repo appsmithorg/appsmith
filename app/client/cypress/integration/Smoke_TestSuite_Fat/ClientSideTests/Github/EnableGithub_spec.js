@@ -7,10 +7,8 @@ describe("SSO with Github test functionality", function() {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
-    cy.get(".t--profile-menu-icon").should("be.visible");
-    cy.get(".t--profile-menu-icon").click();
-    cy.get(".t--admin-settings-menu").should("be.visible");
-    cy.get(".t--admin-settings-menu").click();
+    cy.get(".admin-settings-menu-option").should("be.visible");
+    cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
@@ -33,10 +31,8 @@ describe("SSO with Github test functionality", function() {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
-    cy.get(".t--profile-menu-icon").should("be.visible");
-    cy.get(".t--profile-menu-icon").click();
-    cy.get(".t--admin-settings-menu").should("be.visible");
-    cy.get(".t--admin-settings-menu").click();
+    cy.get(".admin-settings-menu-option").should("be.visible");
+    cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();
@@ -68,10 +64,8 @@ describe("SSO with Github test functionality", function() {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
-    cy.get(".t--profile-menu-icon").should("be.visible");
-    cy.get(".t--profile-menu-icon").click();
-    cy.get(".t--admin-settings-menu").should("be.visible");
-    cy.get(".t--admin-settings-menu").click();
+    cy.get(".admin-settings-menu-option").should("be.visible");
+    cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
     // click authentication tab
     cy.get(adminSettings.authenticationTab).click();

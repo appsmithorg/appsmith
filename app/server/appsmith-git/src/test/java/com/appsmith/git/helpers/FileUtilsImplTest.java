@@ -3,9 +3,9 @@ package com.appsmith.git.helpers;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
-import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,11 +29,13 @@ import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 @ExtendWith(SpringExtension.class)
-public class FileUtilsImplTest extends TestCase {
+public class FileUtilsImplTest {
     private FileUtilsImpl fileUtils;
     @MockBean
     private GitExecutorImpl gitExecutor;
     private GitServiceConfig gitServiceConfig;
+    private static final String localTestDirectory = "localTestDirectory";
+    private static final Path localTestDirectoryPath = Path.of(localTestDirectory);
 
     @BeforeEach
     public void setUp() {
@@ -42,8 +44,10 @@ public class FileUtilsImplTest extends TestCase {
         fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor);
     }
 
-    private static final String localTestDirectory = "localTestDirectory";
-    private static final Path localTestDirectoryPath = Path.of(localTestDirectory);
+    @AfterEach
+    public void tearDown() {
+        this.deleteLocalTestDirectoryPath();
+    }
 
     @Test
     public void saveApplicationRef_removeActionAndActionCollectionDirectoryCreatedInV1FileFormat_success() throws GitAPIException, IOException {
@@ -53,7 +57,7 @@ public class FileUtilsImplTest extends TestCase {
         Files.createDirectories(actionCollectionDirectoryPath);
 
         Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.any()))
-                        .thenReturn(Mono.just(true));
+                .thenReturn(Mono.just(true));
 
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
         applicationGitReference.setApplication(new Object());
@@ -62,6 +66,7 @@ public class FileUtilsImplTest extends TestCase {
         applicationGitReference.setActions(new HashMap<>());
         applicationGitReference.setActionCollections(new HashMap<>());
         applicationGitReference.setDatasources(new HashMap<>());
+        applicationGitReference.setJsLibraries(new HashMap<>());
         fileUtils.saveApplicationToGitRepo(Path.of(""), applicationGitReference, "branch").block();
 
         Assertions.assertFalse(actionDirectoryPath.toFile().exists());
@@ -111,11 +116,10 @@ public class FileUtilsImplTest extends TestCase {
             Assertions.fail("Error while scanning directory");
         }
 
-        this.deleteLocalTestDirectoryPath();
     }
 
     @Test
-    public void testScanAndDeleteFileForDeletedResources(){
+    public void testScanAndDeleteFileForDeletedResources() {
         Path actionDirectoryPath = localTestDirectoryPath.resolve(ACTION_DIRECTORY);
 
         // Create random action files in the file system
@@ -135,12 +139,12 @@ public class FileUtilsImplTest extends TestCase {
         try {
             Files.createDirectories(actionDirectoryPath);
             actionsSet.forEach(actionFile -> {
-                try{
+                try {
                     Path actionFilePath = actionDirectoryPath.resolve(actionFile);
-                    if(!Files.exists(actionFilePath)) {
+                    if (!Files.exists(actionFilePath)) {
                         Files.createFile(actionDirectoryPath.resolve(actionFile));
                     }
-                } catch (IOException e){
+                } catch (IOException e) {
                     Assertions.fail("Error while creating files");
                 }
             });
@@ -165,17 +169,16 @@ public class FileUtilsImplTest extends TestCase {
             Assertions.fail("Error while scanning directory");
         }
 
-        this.deleteLocalTestDirectoryPath();
     }
 
     /**
      * This will delete localTestDirectory and its contents after the test is executed.
      */
-    private void deleteLocalTestDirectoryPath(){
-        if(localTestDirectoryPath.toFile().exists()) {
+    private void deleteLocalTestDirectoryPath() {
+        if (localTestDirectoryPath.toFile().exists()) {
             try {
                 FileUtils.deleteDirectory(localTestDirectoryPath.toFile());
-            } catch (IOException e){
+            } catch (IOException e) {
 
             }
         }

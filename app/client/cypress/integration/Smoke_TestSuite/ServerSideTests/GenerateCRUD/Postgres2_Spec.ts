@@ -231,6 +231,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       deployMode._jsonFormDatepickerFieldByName("Eta Updated"),
     );
     agHelper.GetNClick(locator._datePicker(23));
+    agHelper.GetNClick(deployMode._jsonFieldName("Distance To Go"));
 
     deployMode.ClearJSONFieldValue("Distance To Go");
     deployMode.EnterJSONInputValue("Distance To Go", "303");
@@ -497,6 +498,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       1,
     );
     agHelper.GetNClick(locator._datePicker(2));
+    agHelper.GetNClick(deployMode._jsonFieldName("Distance To Go"), 1);
 
     deployMode.ClearJSONFieldValue("Distance To Go", 1);
     deployMode.EnterJSONInputValue("Distance To Go", "18.1", 1);

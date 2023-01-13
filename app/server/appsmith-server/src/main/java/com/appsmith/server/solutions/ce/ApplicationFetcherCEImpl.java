@@ -9,9 +9,10 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseNode;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
+import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -22,7 +23,10 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -40,9 +44,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 
 
 @Slf4j
@@ -63,6 +64,9 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
     private final UserWorkspaceService userWorkspaceService;
+    private final WorkspacePermission workspacePermission;
+    private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     private <Domain extends BaseDomain> Flux<Domain> sortDomain(Flux<Domain> domainFlux, List<String> sortOrder) {
         if (CollectionUtils.isEmpty(sortOrder)) {
@@ -115,7 +119,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                     // Collect all the applications as a map with workspace id as a key
                     Flux<Application> applicationFlux = applicationRepository
-                            .findAllUserApps(READ_APPLICATIONS)
+                            .findAllUserApps(applicationPermission.getReadPermission())
                             //sort transformation
                             .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedAppIds()))
                             // Git connected apps will have gitApplicationMetadat
@@ -134,7 +138,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             Application::getWorkspaceId, Function.identity()
                     );
 
-                    Flux<Workspace> workspacesFromRepoFlux = workspaceService.getAll(READ_WORKSPACES)
+                    Flux<Workspace> workspacesFromRepoFlux = workspaceService.getAll(workspacePermission.getReadPermission())
                             .cache();
 
                     Mono<List<Workspace>> workspaceListMono = workspacesFromRepoFlux
@@ -144,7 +148,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             .collectList()
                             .cache();
 
-                    Mono<Map<String, List<UserAndPermissionGroupDTO>>> userAndPermissionGroupMapDTO = workspacesFromRepoFlux
+                    Mono<Map<String, List<WorkspaceMemberInfoDTO>>> userAndPermissionGroupMapDTO = workspacesFromRepoFlux
                             .map(Workspace::getId)
                             .collect(Collectors.toSet())
                             .flatMap(workspaceIds -> userWorkspaceService.getWorkspaceMembers(workspaceIds));
@@ -155,7 +159,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                                 Map<String, Collection<Application>> applicationsCollectionByWorkspaceId = tuple.getT2();
 
-                                Map<String, List<UserAndPermissionGroupDTO>> userAndPermissionGroupMapDTOByWorkspaceId = tuple.getT3();
+                                Map<String, List<WorkspaceMemberInfoDTO>> userAndPermissionGroupMapDTOByWorkspaceId = tuple.getT3();
 
                                 List<WorkspaceApplicationsDTO> workspaceApplicationsDTOS = new ArrayList<>();
 
@@ -187,7 +191,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             ).flatMap(Collection::stream).collect(Collectors.toList());
 
                     // fetch the page slugs for the applications
-                    return newPageService.findPageSlugsByApplicationIds(applicationIds, READ_PAGES)
+                    return newPageService.findPageSlugsByApplicationIds(applicationIds, pagePermission.getReadPermission())
                             .collectMultimap(NewPage::getApplicationId)
                             .map(applicationPageMap -> {
                                 for (WorkspaceApplicationsDTO workspaceApps : userHomepageDTO.getWorkspaceApplications()) {
@@ -198,29 +202,43 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                                 }
                                 return userHomepageDTO;
                             });
-                })
-                .flatMap(userHomepageDTO -> Mono.zip(
-                        Mono.just(userHomepageDTO),
-                        releaseNotesService.getReleaseNodes()
-                                // In case of an error or empty response from CS Server, continue without this data.
-                                .onErrorResume(error -> Mono.empty())
-                                .defaultIfEmpty(Collections.emptyList()),
-                        userDataMono
-                ))
-                .flatMap(tuple -> {
-                    final UserHomepageDTO userHomepageDTO = tuple.getT1();
-                    final List<ReleaseNode> releaseNodes = tuple.getT2();
-                    final UserData userData = tuple.getT3();
-
-                    final User user = userHomepageDTO.getUser();
-                    userHomepageDTO.setReleaseItems(releaseNodes);
-
-                    final String count = releaseNotesService.computeNewFrom(userData.getReleaseNotesViewedVersion());
-                    userHomepageDTO.setNewReleasesCount("0".equals(count) ? "" : count);
-
-                    return userDataService.ensureViewedCurrentVersionReleaseNotes(user)
-                            .thenReturn(userHomepageDTO);
                 });
+    }
+
+    public Mono<ReleaseItemsDTO> getReleaseItems() {
+        Mono<User> userMono = sessionUserService
+                                  .getCurrentUser()
+                                  .flatMap(user -> {
+                                      if (user.isAnonymous()) {
+                                          return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
+                                      }
+                                      return Mono.just(user.getUsername());
+                                  })
+                                  .flatMap(userService::findByEmail)
+                                  .cache();
+
+        Mono<UserData> userDataMono = userDataService.getForCurrentUser().defaultIfEmpty(new UserData()).cache();
+
+        return userMono.flatMap(user -> Mono.zip(
+            Mono.just(user),
+            releaseNotesService.getReleaseNodes()
+                // In case of an error or empty response from CS Server, continue without this data.
+                .onErrorResume(error -> Mono.empty())
+                .defaultIfEmpty(Collections.emptyList()),
+            userDataMono)
+        ).flatMap(tuple -> {
+            User user = tuple.getT1();
+            final List<ReleaseNode> releaseNodes = tuple.getT2();
+            final UserData userData = tuple.getT3();
+            ReleaseItemsDTO releaseItemsDTO = new ReleaseItemsDTO();
+            releaseItemsDTO.setReleaseItems(releaseNodes);
+
+            final String count = releaseNotesService.computeNewFrom(userData.getReleaseNotesViewedVersion());
+            releaseItemsDTO.setNewReleasesCount("0".equals(count) ? "" : count);
+
+            return userDataService.ensureViewedCurrentVersionReleaseNotes(user)
+                       .thenReturn(releaseItemsDTO);
+        });
     }
 
     private void setDefaultPageSlug(

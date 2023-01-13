@@ -1,3 +1,4 @@
+import { editorInitializer } from "utils/editor/EditorUtils";
 import {
   Page,
   ReduxActionTypes,
@@ -10,7 +11,6 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { createSelector } from "reselect";
 import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import { editorInitializer } from "utils/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
 import { AppState } from "@appsmith/reducers";
@@ -40,6 +40,12 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
           layoutActions: [],
         },
       ],
+      userPermissions: [
+        "read:pages",
+        "manage:pages",
+        "create:pageActions",
+        "delete:pages",
+      ],
     },
   };
   const canvasWidgetsPayload = getCanvasWidgetsPayload(mockResp);
@@ -59,6 +65,12 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
       isDefault: mockResp.data.isDefault,
       isHidden: !!mockResp.data.isHidden,
       slug: mockResp.data.slug,
+      userPermissions: [
+        "read:pages",
+        "manage:pages",
+        "create:pageActions",
+        "delete:pages",
+      ],
     },
   ];
   dispatch({
@@ -115,6 +127,10 @@ export const mockGetChildWidgets = (state: AppState, widgetId: string) => {
   return getChildWidgets(state.entities.canvasWidgets, widgetId);
 };
 
+export const mockGetPagePermissions = () => {
+  return ["read:pages", "manage:pages", "create:pageActions", "delete:pages"];
+};
+
 export const mockCreateCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -156,6 +172,12 @@ export function MockApplication({ children }: any) {
         name: "Page1",
         isDefault: true,
         slug: "page-1",
+        userPermissions: [
+          "read:pages",
+          "manage:pages",
+          "create:pageActions",
+          "delete:pages",
+        ],
       },
     ],
     id: "app_id",
@@ -189,7 +211,16 @@ export function MockApplication({ children }: any) {
   });
   dispatch({
     type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
-    payload: { id: "page_id", slug: "page-1" },
+    payload: {
+      id: "page_id",
+      slug: "page-1",
+      permissions: [
+        "read:pages",
+        "manage:pages",
+        "create:pageActions",
+        "delete:pages",
+      ],
+    },
   });
   return children;
 }

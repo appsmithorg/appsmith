@@ -4,8 +4,17 @@ let propPane = ObjectsRegistry.PropertyPane;
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table Widget V2 property pane feature validation", function() {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
     cy.addDsl(dsl);
   });

@@ -6,6 +6,7 @@ export type RadioGroupWrapperProps = {
   placeholder: string;
   input: WrappedFieldInputProps;
   options: Array<{ value: string; label: string }>;
+  selectedOptionElements?: Array<JSX.Element | null>;
   className?: string;
   columns?: number;
   rows?: number;
@@ -44,6 +45,7 @@ function RadioGroupWrapper(props: RadioGroupWrapperProps) {
       onSelect={(value: string) => onSelectHandler(value)}
       options={props.options}
       rows={props.rows}
+      selectedOptionElements={props.selectedOptionElements}
     />
   );
 }

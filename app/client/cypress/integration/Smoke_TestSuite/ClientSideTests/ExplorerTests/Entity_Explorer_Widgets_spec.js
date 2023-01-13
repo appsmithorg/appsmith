@@ -1,9 +1,8 @@
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Entity explorer tests related to widgets and validation", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
 

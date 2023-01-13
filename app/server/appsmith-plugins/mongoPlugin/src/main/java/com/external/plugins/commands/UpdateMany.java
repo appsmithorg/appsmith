@@ -26,6 +26,7 @@ import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments;
 
 @Getter
 @Setter
@@ -84,7 +85,7 @@ public class UpdateMany extends MongoCommand {
 
         Document queryDocument = parseSafely("Query", this.query);
 
-        Document updateDocument = parseSafely("Update", this.update);
+        Object updateDocument = parseSafelyDocumentAndArrayOfDocuments("Update", this.update);
 
         Document update = new Document();
         update.put("q", queryDocument);

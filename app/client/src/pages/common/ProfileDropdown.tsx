@@ -1,6 +1,7 @@
 import React from "react";
-import { CommonComponentProps, Classes } from "components/ads/common";
 import {
+  Classes,
+  CommonComponentProps,
   Menu,
   MenuDivider,
   MenuItem,
@@ -9,27 +10,21 @@ import {
   TooltipComponent,
 } from "design-system";
 import styled from "styled-components";
-import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
-  getOnSelectAction,
+  Classes as BlueprintClasses,
+  PopperModifiers,
+  Position,
+} from "@blueprintjs/core";
+import {
   DropdownOnSelectActions,
+  getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
-import { PopperModifiers } from "@blueprintjs/core";
-import {
-  PROFILE,
-  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
-} from "constants/routes";
+import { PROFILE } from "constants/routes";
 import { Colors } from "constants/Colors";
-import {
-  ACCOUNT_TOOLTIP,
-  createMessage,
-  ADMIN_SETTINGS,
-} from "@appsmith/constants/messages";
+import { ACCOUNT_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
@@ -44,6 +39,7 @@ const StyledMenuItem = styled(MenuItem)`
     width: 18px;
     height: 18px;
     fill: ${Colors.GRAY};
+
     path {
       fill: ${Colors.GRAY};
     }
@@ -65,6 +61,7 @@ const UserInformation = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.profileDropdown.userName};
     }
@@ -75,6 +72,7 @@ const UserInformation = styled.div`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.profileDropdown.name};
     }
@@ -82,6 +80,7 @@ const UserInformation = styled.div`
 
   .user-image {
     margin-right: ${(props) => props.theme.spaces[4]}px;
+
     div {
       cursor: default;
     }
@@ -96,7 +95,6 @@ const UserNameWrapper = styled.div`
 `;
 
 export default function ProfileDropdown(props: TagProps) {
-  const user = useSelector(getCurrentUser);
   const Profile = (
     <TooltipComponent
       content={createMessage(ACCOUNT_TOOLTIP)}
@@ -146,18 +144,6 @@ export default function ProfileDropdown(props: TagProps) {
         }}
         text="Edit Profile"
       />
-      {user?.isSuperUser && user?.isConfigurable && (
-        <StyledMenuItem
-          className={`t--admin-settings-menu ${BlueprintClasses.POPOVER_DISMISS}`}
-          icon="setting"
-          onSelect={() => {
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
-            });
-          }}
-          text={createMessage(ADMIN_SETTINGS)}
-        />
-      )}
       <StyledMenuItem
         className="t--logout-icon"
         icon="logout"

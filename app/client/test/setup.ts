@@ -43,3 +43,19 @@ document.createRange = () => {
 
 // jest events doesnt seem to be handling scrollTo
 Element.prototype.scrollTo = () => {};
+
+class WorkerStub {
+  url: string;
+  onmessage: CallableFunction;
+  constructor(stringUrl: string) {
+    this.url = stringUrl;
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    this.onmessage = () => {};
+  }
+
+  postMessage(msg) {
+    this.onmessage(msg);
+  }
+}
+
+window.Worker = WorkerStub as any;

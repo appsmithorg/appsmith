@@ -8,10 +8,11 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   TextSizes,
+  WidgetHeightLimits,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
-import { WidgetPositionProps } from "./BaseWidget";
+import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { Theme } from "constants/DefaultTheme";
 import {
   ButtonStyleTypes,
@@ -24,14 +25,16 @@ import {
 import tinycolor from "tinycolor2";
 import { createGlobalStyle } from "styled-components";
 import { Classes } from "@blueprintjs/core";
-import { Classes as DateTimeClasses } from "@blueprintjs/datetime";
+import { Classes as DTClasses } from "@blueprintjs/datetime";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
 import { isArray } from "lodash";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import { getLocale } from "utils/helpers";
 
 const punycode = require("punycode/");
 
@@ -131,19 +134,61 @@ export const getCustomHoverColor = (
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
       return backgroundColor
-        ? lightenColor(backgroundColor)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
-        ? lightenColor(backgroundColor)
+        ? calulateHoverColor(backgroundColor, true)
         : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
-        ? darkenColor(backgroundColor, 10)
+        ? calulateHoverColor(backgroundColor, false)
         : theme.colors.button.primary.primary.hoverColor;
   }
+};
+
+/**
+ * Calculate Hover Color using the logic
+ * https://www.notion.so/appsmith/Widget-hover-colors-165e54b304ca4e83a355e4e14d7aa3cb
+ *
+ * In case of transparent backgrounds (secondary or tertiary button varients)
+ * 1. Find out the button color
+ * 2. Calculate hover color by setting the button color to 10% transparency
+ * 3. Add the calculated color to the background of the button
+ *
+ * In case of non transparent backgrounds (primary button varient), using the HSL color modal,
+ * 1. If lightness > 35, decrease the lightness by 5 on hover
+ * 2. If lightness <= 35, increase the lightness by 5 on hover
+ *
+ * @param backgroundColor A color string
+ * @param hasTransparentBackground Boolean to represent if the button has transparent background
+ *
+ * @returns An RGB string (in case of transparent backgrounds) or a HSL string (in case of solid backgrounds).
+ */
+export const calulateHoverColor = (
+  backgroundColor: string,
+  hasTransparentBackground?: boolean,
+) => {
+  // For transparent backgrounds
+  if (hasTransparentBackground) {
+    return tinycolor(backgroundColor)
+      .setAlpha(0.1)
+      .toRgbString();
+  }
+
+  // For non-transparent backgrounds, using the HSL color modal
+  const backgroundColorHsl = tinycolor(backgroundColor).toHsl();
+
+  // Check the lightness and modify accordingly
+  if (backgroundColorHsl.l > 0.35) {
+    backgroundColorHsl.l -= 0.05;
+  } else {
+    backgroundColorHsl.l += 0.05;
+  }
+
+  return tinycolor(backgroundColorHsl).toHslString();
 };
 
 export const getCustomBackgroundColor = (
@@ -185,15 +230,6 @@ export const getAlignText = (isRightAlign: boolean, iconName?: IconName) =>
       ? Alignment.LEFT
       : Alignment.RIGHT
     : Alignment.CENTER;
-export const escapeSpecialChars = (stringifiedJSONObject: string) => {
-  return stringifiedJSONObject
-    .replace(/\\n/g, "\\\\n") // new line char
-    .replace(/\\b/g, "\\\\b") //
-    .replace(/\\t/g, "\\\\t") // tab
-    .replace(/\\f/g, "\\\\f") //
-    .replace(/\\/g, "\\\\") //
-    .replace(/\\r/g, "\\\\r"); //
-};
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -258,6 +294,12 @@ export const darkenColor = (color = "#fff", amount = 10) => {
         .toString();
 };
 
+export const getRgbaColor = (color: string, opacity: number) => {
+  const { b, g, r } = tinycolor(color).toRgb();
+
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+};
+
 /**
  * checks if color is dark or not
  *
@@ -279,37 +321,100 @@ export const PopoverStyles = createGlobalStyle<{
   portalClassName: string;
   accentColor: string;
 }>`
-  ${(props) => `
-    .${props.portalClassName} .${Classes.POPOVER} {
-      border-radius: ${props.borderRadius} !important;
+  ${({ accentColor, borderRadius, portalClassName }) => `
+    .${portalClassName} .${Classes.POPOVER} {
+      border-radius: ${borderRadius} !important;
       overflow: hidden;
       box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
       margin-top: 4px !important;
     }
 
-    .${props.portalClassName} .${DateTimeClasses.DATEPICKER_DAY},
-    .${props.portalClassName} .${Classes.BUTTON} {
-      border-radius: ${props.borderRadius} !important;
-    }
-    .${props.portalClassName} .${DateTimeClasses.DATEPICKER_DAY_SELECTED} {
-      background-color: ${props.accentColor} !important;
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY},
+    .${portalClassName} .${Classes.BUTTON} {
+      border-radius: ${borderRadius} !important;
     }
 
-    .${props.portalClassName}  .${Classes.INPUT} {
-      border-radius: ${props.borderRadius} !important;
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY}:hover,
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY}:hover
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY}:focus,
+    .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select:hover,
+    .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select:hover,
+    .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select:focus,
+    .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select:focus,
+    .${portalClassName} .${Classes.BUTTON}:hover {
+      background: var(--wds-color-bg-hover);
     }
 
-    .${props.portalClassName}  .${Classes.INPUT}:focus, .${
-    props.portalClassName
-  }  .${Classes.INPUT}:active {
-      border: 1px solid ${props.accentColor} !important;
-      box-shadow:  0px 0px 0px 2px ${lightenColor(
-        props.accentColor,
-      )} !important;
+    .${portalClassName} .${DTClasses.DATEPICKER_DAY_SELECTED} {
+      background-color: ${accentColor} !important;
     }
 
-    .${props.portalClassName} .ads-dropdown-options-wrapper {
+    .${portalClassName}  .${Classes.INPUT} {
+      border-radius: ${borderRadius} !important;
+    }
+
+    .${portalClassName}  .${Classes.INPUT}:focus,
+    .${portalClassName}  .${Classes.INPUT}:active {
+      border: 1px solid ${accentColor} !important;
+      box-shadow:  0px 0px 0px 2px ${lightenColor(accentColor)} !important;
+    }
+
+    .${portalClassName} .ads-dropdown-options-wrapper {
       border: 0px solid !important;
+    }
+
+    .${portalClassName} .${DTClasses.TIMEPICKER_INPUT_ROW} {
+      box-shadow: 0px 0px 0px 1px var(--wds-color-border);
+    }
+
+    .${portalClassName} .${DTClasses.TIMEPICKER_INPUT_ROW}:hover {
+      box-shadow: 0px 0px 0px 1px var(--wds-color-border-hover);
+    }
+
+    .${portalClassName} .${DTClasses.TIMEPICKER_INPUT}:focus {
+      box-shadow: 0px 0px 0px 1px ${accentColor},
+                  0px 0px 0px 3px ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${Classes.BUTTON} {
+      color: ${accentColor};
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${
+    Classes.BUTTON
+  }:hover {
+      background-color: ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_NAVBUTTON} span {
+      color: var(--wds-color-icon) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_NAVBUTTON}:disabled span {
+      color: var(--wds-color-icon-disabled) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATEPICKER_YEAR_SELECT} select + .${
+    Classes.ICON
+  }, .${portalClassName} .${DTClasses.DATEPICKER_MONTH_SELECT} select + .${
+    Classes.ICON
+  } {
+      color: var(--wds-color-icon) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a {
+      border-radius: ${borderRadius};
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a:hover {
+      background-color: ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a.${
+    Classes.ACTIVE
+  } {
+      color: ${getComplementaryGrayscaleColor(accentColor)};
+      background-color: ${accentColor};
     }
   `}
 `;
@@ -543,6 +648,10 @@ export const parseSchemaItem = (
   }
 };
 
+export interface DynamicnHeightEnabledComponentProps {
+  isDynamicHeightEnabled?: boolean;
+}
+
 export const getMainCanvas = () =>
   document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
 
@@ -590,6 +699,18 @@ export function composePropertyUpdateHook(
   };
 }
 
+export function getLocaleDecimalSeperator() {
+  return Intl.NumberFormat(getLocale())
+    .format(1.1)
+    .replace(/\p{Number}/gu, "");
+}
+
+export function getLocaleThousandSeparator() {
+  return Intl.NumberFormat(getLocale())
+    .format(11111)
+    .replace(/\p{Number}/gu, "");
+}
+
 interface DropdownOption {
   label: string;
   value: string | number;
@@ -613,3 +734,118 @@ export const flat = (array: DropdownOption[]) => {
   });
   return result;
 };
+
+/**
+ * A utility function to check whether a widget has dynamic height enabled?
+ * @param props: Widget properties
+ * @param shouldCheckIfEnabledWithLimits: Should we check specifically for auto height with limits.
+ */
+export const isAutoHeightEnabledForWidget = (
+  props: WidgetProps,
+  shouldCheckIfEnabledWithLimits = false,
+) => {
+  if (shouldCheckIfEnabledWithLimits) {
+    return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+  }
+  return (
+    props.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
+    props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+  );
+};
+
+/**
+ * Gets the max possible height for the widget
+ * @param props: WidgetProperties
+ * @returns: The max possible height of the widget (in rows)
+ */
+export function getWidgetMaxAutoHeight(props: WidgetProps) {
+  if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT) {
+    return WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+  } else if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+    return props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+  }
+}
+
+/**
+ * Gets the min possible height for the widget
+ * @param props: WidgetProperties
+ * @returns: The min possible height of the widget (in rows)
+ */
+export function getWidgetMinAutoHeight(props: WidgetProps) {
+  if (props.dynamicHeight !== DynamicHeight.FIXED)
+    return props.minDynamicHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+}
+
+/**
+ * A function which considers a widget's props and computes if it needs an auto height update
+ * @param expectedHeightInPixels: number
+ * @param props: WidgetProps
+ * @returns boolean
+ */
+export function shouldUpdateWidgetHeightAutomatically(
+  expectedHeightInPixels: number,
+  props: WidgetProps,
+): boolean {
+  // The current height in rows of the widget
+  const currentHeightInRows = props.bottomRow - props.topRow;
+
+  // The expected height in rows for the widget
+  const expectedHeightInRows = Math.ceil(
+    expectedHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+
+  // Does this widget have dynamic height enabled
+  const isAutoHeightEnabled = isAutoHeightEnabledForWidget(props);
+
+  // Run the following pieces of code only if dynamic height is enabled
+  if (!isAutoHeightEnabled) return false;
+
+  const maxAutoHeightInRows = getWidgetMaxAutoHeight(props);
+  const minAutoHeightInRows = getWidgetMinAutoHeight(props);
+
+  // If current height is less than the expected height
+  // We're trying to see if we can increase the height
+  if (currentHeightInRows < expectedHeightInRows) {
+    // If our attempt to reduce does not go above the max possible height
+    // And the difference in expected and current is atleast 1 row
+    // We can safely reduce the height
+    if (
+      maxAutoHeightInRows >= currentHeightInRows &&
+      Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
+    ) {
+      return true;
+    }
+  }
+
+  // If current height is greater than expected height
+  // We're trying to see if we can reduce the height
+  if (currentHeightInRows > expectedHeightInRows) {
+    // If our attempt to reduce does not go below the min possible height
+    // And the difference in expected and current is atleast 1 row
+    // We can safely reduce the height
+    if (
+      minAutoHeightInRows < currentHeightInRows &&
+      currentHeightInRows - expectedHeightInRows >= 1
+    ) {
+      return true;
+    }
+  }
+
+  // If current height is more than the maxDynamicHeightInRows
+  // Then we need to update height in any case, the call to update comes
+  // at a good time. This usually happens when we change the max value from the
+  // property pane.
+  if (currentHeightInRows > maxAutoHeightInRows) {
+    return true;
+  }
+
+  // The widget height should always be at least minDynamicHeightInRows
+  // Same case as above, this time if minheight goes below the current.
+  if (currentHeightInRows !== minAutoHeightInRows) {
+    return true;
+  }
+
+  // Since the conditions to change height already return true
+  // If we reach this point, we don't have to change height
+  return false;
+}

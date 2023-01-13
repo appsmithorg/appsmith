@@ -8,7 +8,7 @@ import React, {
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
-import { TabComponent } from "components/ads/Tabs";
+import { DropdownOnSelect, SearchSnippet, TabComponent } from "design-system";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
@@ -19,16 +19,16 @@ import {
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   setActiveJSAction,
+  setJsPaneConfigSelectedTabIndex,
   startExecutingJSFunction,
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../Explorer/helpers";
+import { useLocation, useParams } from "react-router";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
 import { AppState } from "@appsmith/reducers";
@@ -44,9 +44,9 @@ import {
   getActionFromJsCollection,
   getJSActionOption,
   getJSFunctionLineGutter,
+  getJSPropertyLineFromName,
   JSActionDropdownOption,
 } from "./utils";
-import { DropdownOnSelect } from "design-system";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import {
@@ -58,6 +58,21 @@ import {
   StyledFormRow,
   TabbedViewContainer,
 } from "./styledComponents";
+import { getJSPaneConfigSelectedTabIndex } from "selectors/jsPaneSelectors";
+import { EventLocation } from "utils/AnalyticsUtil";
+import {
+  hasDeleteActionPermission,
+  hasExecuteActionPermission,
+  hasManageActionPermission,
+} from "@appsmith/utils/permissionHelpers";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { SlashCommand } from "entities/Action";
+import {
+  setCodeEditorCursorAction,
+  setFocusableInputField,
+} from "actions/editorContextActions";
+import history from "utils/history";
+import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -67,9 +82,10 @@ type Props = JSFormProps;
 
 function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const theme = EditorTheme.LIGHT;
-  const [mainTabIndex, setMainTabIndex] = useState(0);
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
+  const { hash } = useLocation();
+
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
 
   // Currently active response (only changes upon execution)
@@ -104,6 +120,37 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     ),
   );
 
+  useEffect(() => {
+    if (hash) {
+      const actionName = hash.substring(1);
+      const position = getJSPropertyLineFromName(
+        currentJSCollection.body,
+        actionName,
+      );
+      if (position) {
+        dispatch(setFocusableInputField(`${currentJSCollection.name}.body`));
+        dispatch(
+          setCodeEditorCursorAction(
+            `${currentJSCollection.name}.body`,
+            position,
+            CursorPositionOrigin.Navigation,
+          ),
+        );
+        history.replace(window.location.pathname);
+      }
+    }
+  }, [hash]);
+
+  const isChangePermitted = hasManageActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+  const isExecutePermitted = hasExecuteActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+
   // Triggered when there is a change in the code editor
   const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
     const value: string =
@@ -115,7 +162,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   };
 
   // Executes JS action
-  const executeJSAction = (jsAction: JSAction) => {
+  const executeJSAction = (jsAction: JSAction, from: EventLocation) => {
     setActiveResponse(jsAction);
     if (jsAction.id !== selectedJSActionOption.data?.id)
       setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
@@ -130,6 +177,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         collectionName: currentJSCollection.name || "",
         action: jsAction,
         collectionId: currentJSCollection.id || "",
+        from: from,
       }),
     );
   };
@@ -153,8 +201,9 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         executeJSAction,
         !parseErrors.length,
         handleActiveActionChange,
+        isExecutePermitted,
       ),
-    [jsActions, parseErrors, handleActiveActionChange],
+    [jsActions, parseErrors, handleActiveActionChange, isExecutePermitted],
   );
 
   const handleJSActionOptionSelection: DropdownOnSelect = (
@@ -169,6 +218,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   const handleRunAction = (
     event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
+    from: EventLocation,
   ) => {
     event.preventDefault();
     if (
@@ -176,7 +226,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       !isExecutingCurrentJSAction &&
       selectedJSActionOption.data
     ) {
-      executeJSAction(selectedJSActionOption.data);
+      executeJSAction(selectedJSActionOption.data, from);
     }
   };
 
@@ -210,31 +260,65 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     return [];
   }, [selectedJSActionOption.label, currentJSCollection.name]);
 
+  const selectedConfigTab = useSelector(getJSPaneConfigSelectedTabIndex);
+
+  const setSelectedConfigTab = useCallback((selectedIndex: number) => {
+    dispatch(setJsPaneConfigSelectedTabIndex(selectedIndex));
+  }, []);
+
   return (
     <FormWrapper>
-      <JSObjectHotKeys runActiveJSFunction={handleRunAction}>
+      <JSObjectHotKeys
+        runActiveJSFunction={(
+          event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
+        ) => {
+          handleRunAction(event, "KEYBOARD_SHORTCUT");
+        }}
+      >
         <CloseEditor />
         <Form>
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
-              <JSObjectNameEditor page="JS_PANE" />
+              <JSObjectNameEditor
+                disabled={!isChangePermitted}
+                page="JS_PANE"
+              />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreJSCollectionsMenu
                 className="t--more-action-menu"
                 id={currentJSCollection.id}
+                isChangePermitted={isChangePermitted}
+                isDeletePermitted={isDeletePermitted}
                 name={currentJSCollection.name}
                 pageId={pageId}
               />
-              <SearchSnippets
+              <SearchSnippet
                 entityId={currentJSCollection?.id}
                 entityType={ENTITY_TYPE.JSACTION}
+                onClick={() => {
+                  dispatch(
+                    executeCommandAction({
+                      actionType: SlashCommand.NEW_SNIPPET,
+                      args: {
+                        entityId: currentJSCollection?.id,
+                        entityType: ENTITY_TYPE.JSACTION,
+                      },
+                    }),
+                  );
+                }}
               />
               <JSFunctionRun
-                disabled={disableRunFunctionality}
+                disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}
                 jsCollection={currentJSCollection}
-                onButtonClick={handleRunAction}
+                onButtonClick={(
+                  event:
+                    | React.MouseEvent<HTMLElement, MouseEvent>
+                    | KeyboardEvent,
+                ) => {
+                  handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
+                }}
                 onSelect={handleJSActionOptionSelection}
                 options={convertJSActionsToDropdownOptions(jsActions)}
                 selected={selectedJSActionOption}
@@ -245,8 +329,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
           <SecondaryWrapper>
             <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
               <TabComponent
-                onSelect={setMainTabIndex}
-                selectedIndex={mainTabIndex}
+                onSelect={setSelectedConfigTab}
+                selectedIndex={selectedConfigTab}
                 tabs={[
                   {
                     key: "code",
@@ -257,6 +341,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                         className={"js-editor"}
                         customGutter={JSGutters}
                         dataTreePath={`${currentJSCollection.name}.body`}
+                        disabled={!isChangePermitted}
                         folding
                         height={"100%"}
                         hideEvaluatedValue
@@ -279,7 +364,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     key: "settings",
                     title: "Settings",
                     panelComponent: (
-                      <JSFunctionSettingsView actions={jsActions} />
+                      <JSFunctionSettingsView
+                        actions={jsActions}
+                        disabled={!isChangePermitted}
+                      />
                     ),
                   },
                 ]}
@@ -287,11 +375,17 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
             </TabbedViewContainer>
             <JSResponseView
               currentFunction={activeResponse}
-              disabled={disableRunFunctionality}
+              disabled={disableRunFunctionality || !isExecutePermitted}
               errors={parseErrors}
               isLoading={isExecutingCurrentJSAction}
               jsObject={currentJSCollection}
-              onButtonClick={handleRunAction}
+              onButtonClick={(
+                event:
+                  | React.MouseEvent<HTMLElement, MouseEvent>
+                  | KeyboardEvent,
+              ) => {
+                handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
+              }}
               theme={theme}
             />
           </SecondaryWrapper>

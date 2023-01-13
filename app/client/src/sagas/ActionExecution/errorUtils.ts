@@ -8,15 +8,15 @@ import {
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
 import { Types } from "utils/TypeHelpers";
 import {
   ActionTriggerFunctionNames,
-  ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+  ActionTriggerKeys,
+} from "@appsmith/entities/DataTree/actionTriggers";
+import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 /*
  * The base trigger error that also logs the errors in the debugger.
@@ -42,7 +42,7 @@ export class PluginTriggerFailureError extends TriggerFailureError {
 
 export class ActionValidationError extends TriggerFailureError {
   constructor(
-    functionName: ActionTriggerType,
+    functionName: ActionTriggerKeys,
     argumentName: string,
     expectedType: Types,
     received: Types,
@@ -65,29 +65,39 @@ export const logActionExecutionError = (
   errorType?: PropertyEvaluationErrorType,
 ) => {
   if (triggerPropertyName) {
-    AppsmithConsole.addError({
-      id: `${source?.id}-${triggerPropertyName}`,
-      logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
-      text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
-      source: {
-        type: ENTITY_TYPE.WIDGET,
-        id: source?.id ?? "",
-        name: source?.name ?? "",
-        propertyPath: triggerPropertyName,
-      },
-      messages: [
-        {
-          type: errorType,
-          message: errorMessage,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: `${source?.id}-${triggerPropertyName}`,
+          logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
+          text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
+          source: {
+            type: ENTITY_TYPE.WIDGET,
+            id: source?.id ?? "",
+            name: source?.name ?? "",
+            propertyPath: triggerPropertyName,
+          },
+          messages: [
+            {
+              type: errorType,
+              message: errorMessage,
+            },
+          ],
         },
-      ],
-    });
+      },
+    ]);
   }
 
   Toaster.show({
     text: errorMessage,
     variant: Variant.danger,
-    showDebugButton: !!triggerPropertyName,
+    showDebugButton: !!triggerPropertyName && {
+      component: DebugButton,
+      componentProps: {
+        className: "t--toast-debug-button",
+        source: "TOAST",
+      },
+    },
   });
 };
 

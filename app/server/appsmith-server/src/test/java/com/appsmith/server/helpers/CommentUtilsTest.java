@@ -2,7 +2,6 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.CommentConstants;
 import com.appsmith.server.domains.Comment;
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -11,12 +10,14 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class CommentUtilsTest {
     @Test
     void getCommentBody_WhenBodyIsNull_ReturnsEmptyList() {
         Comment comment = new Comment();
-        Assert.assertEquals(0, CommentUtils.getCommentBody(comment).size());
+        assertEquals(0, CommentUtils.getCommentBody(comment).size());
     }
 
     @Test
@@ -40,7 +41,7 @@ class CommentUtilsTest {
     @Test
     public void isUserMentioned_WhenBodyIsNull_ReturnsFalse() {
         Comment comment = new Comment();
-        Assert.assertFalse(CommentUtils.isUserMentioned(comment, "user@abc.com"));
+        assertFalse(CommentUtils.isUserMentioned(comment, "user@abc.com"));
     }
 
     @Test
@@ -48,19 +49,19 @@ class CommentUtilsTest {
         Comment.Body body = new Comment.Body();
         Comment comment = new Comment();
         comment.setBody(body);
-        Assert.assertFalse(CommentUtils.isUserMentioned(comment, "user@abc.com"));
+        assertFalse(CommentUtils.isUserMentioned(comment, "user@abc.com"));
 
         Comment.Entity entity = new Comment.Entity();
         Map<String, Comment.Entity> entityMap = new HashMap<>();
         entityMap.put("abc", entity);
         body.setEntityMap(entityMap);
         comment.setBody(body);
-        Assert.assertFalse(CommentUtils.isUserMentioned(comment, "user@abc.com"));
+        assertFalse(CommentUtils.isUserMentioned(comment, "user@abc.com"));
     }
 
     private Map<String, Comment.Entity> createEntityMapForUsers(List<String> mentionedUserNames) {
         Map<String, Comment.Entity> entityMap = new HashMap<>();
-        for (String username: mentionedUserNames) {
+        for (String username : mentionedUserNames) {
             Comment.EntityData.EntityUser entityUser = new Comment.EntityData.EntityUser();
             entityUser.setUsername(username);
             Comment.EntityData.Mention mention = new Comment.EntityData.Mention();

@@ -9,6 +9,10 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 describe("Check datasource doc links", function() {
   it("1. Verify Postgres documentation opens", function() {
     dataSources.CreateDataSource("Postgres");
+
+    // go back to active ds list
+    dataSources.NavigateToActiveTab();
+
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQuery(dsName);
@@ -22,6 +26,10 @@ describe("Check datasource doc links", function() {
 
   it("2. Verify Mongo documentation opens", function() {
     dataSources.CreateDataSource("Mongo");
+
+    // go back to active ds list
+    dataSources.NavigateToActiveTab();
+
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQuery(dsName);
@@ -33,6 +41,10 @@ describe("Check datasource doc links", function() {
 
   it("3. Verify MySQL documentation opens", function() {
     dataSources.CreateDataSource("MySql");
+
+    // go back to active ds list
+    dataSources.NavigateToActiveTab();
+
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.CreateQuery(dsName);

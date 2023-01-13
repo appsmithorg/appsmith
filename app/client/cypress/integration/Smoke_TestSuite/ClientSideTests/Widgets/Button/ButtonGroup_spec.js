@@ -80,20 +80,24 @@ describe("Button Group Widget Functionality", function() {
       "Between",
     );
     // 1st btn
-    cy.get(firstButton).last().should("have.css", "justify-content", "space-between");
+    cy.get(firstButton)
+      .last()
+      .should("have.css", "justify-content", "space-between");
     // update dropdown value
     cy.selectDropdownValue(
       ".t--property-control-placement .bp3-popover-target",
       "Start",
     );
-    cy.get(firstButton).last().should("have.css", "justify-content", "start");
+    cy.get(firstButton)
+      .last()
+      .should("have.css", "justify-content", "start");
     // other button style stay same
     cy.get(menuButton).should("have.css", "justify-content", "center");
   });
 
   it("Update icon alignment and Verify buttons alignments", function() {
     // align right
-    cy.get(".t--property-control-position .t--button-tab-left")
+    cy.get(".t--property-control-position .t--button-group-left")
       .first()
       .click();
     cy.wait(200);
@@ -102,7 +106,7 @@ describe("Button Group Widget Functionality", function() {
       .eq(1)
       .should("have.css", "flex-direction", "row");
     // align left
-    cy.get(".t--property-control-position .t--button-tab-right")
+    cy.get(".t--property-control-position .t--button-group-right")
       .last()
       .click();
     cy.wait(200);

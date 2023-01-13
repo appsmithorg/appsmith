@@ -9,16 +9,14 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -41,13 +39,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -64,9 +61,9 @@ public class RedshiftPluginTest {
     private static Integer port;
     private static String username;
     private static String password;
-    private  static String dbName;
+    private static String dbName;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         address = "address";
         port = 5439;
@@ -107,13 +104,13 @@ public class RedshiftPluginTest {
         StepVerifier.create(dsConnectionMono)
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithPluginException &&
-                        throwable.getMessage().equals(
-                                new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Failed to initialize pool: The connection attempt failed."
+                                throwable.getMessage().equals(
+                                        new AppsmithPluginException(
+                                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                                "Failed to initialize pool: The connection attempt failed."
+                                        )
+                                                .getMessage()
                                 )
-                                .getMessage()
-                        )
                 )
                 .verify();
     }
@@ -144,7 +141,7 @@ public class RedshiftPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.setEndpoints(new ArrayList<>());
 
-        Assert.assertEquals(Set.of("Missing endpoint."),
+        assertEquals(Set.of("Missing endpoint."),
                 pluginExecutor.validateDatasource(dsConfig));
     }
 
@@ -153,7 +150,7 @@ public class RedshiftPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("");
 
-        Assert.assertEquals(Set.of("Missing hostname."),
+        assertEquals(Set.of("Missing hostname."),
                 pluginExecutor.validateDatasource(dsConfig));
     }
 
@@ -163,7 +160,7 @@ public class RedshiftPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getEndpoints().get(0).setHost("jdbc://localhost");
 
-        Assert.assertEquals(Set.of("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."),
+        assertEquals(Set.of("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."),
                 pluginExecutor.validateDatasource(dsConfig));
     }
 
@@ -583,7 +580,7 @@ public class RedshiftPluginTest {
                                 Arrays.stream(message.split(":")[1].split("\\.")[0].split(","))
                                         .forEach(columnName -> foundColumnNames.add(columnName.trim()));
                             });
-                    assertTrue(expectedColumnNames.equals(foundColumnNames));
+                    assertEquals(expectedColumnNames, foundColumnNames);
                 })
                 .verifyComplete();
     }

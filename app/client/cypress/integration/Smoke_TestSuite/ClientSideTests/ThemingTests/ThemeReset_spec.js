@@ -1,6 +1,9 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const appSettings = ObjectsRegistry.AppSettings;
 
 describe("Theme validation usecases", function() {
   it("Drag and drop button widget, change value and check reset flow", function() {
@@ -21,6 +24,8 @@ describe("Theme validation usecases", function() {
     // click on canvas to see the theming pane
     cy.get("#canvas-selection-0").click({ force: true });
 
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     // reset theme
     cy.contains("Theme Properties")
       .closest("div")
@@ -40,5 +45,6 @@ describe("Theme validation usecases", function() {
           backgroudColor,
         );
       });
+    appSettings.ClosePane();
   });
 });

@@ -14,9 +14,9 @@ describe("MultiSelect Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   beforeEach(() => {
-    cy.wait(7000);
+    cy.wait(3000);
   });
-  it("Add new multiselect widget", () => {
+  it("1. Add new multiselect widget", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("multiselectwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-multiselectwidgetv2").should("exist");
@@ -37,10 +37,13 @@ describe("MultiSelect Widget Functionality", function() {
         }
       ]`,
     );
-    cy.updateCodeInput(".t--property-control-defaultselectedvalues", defaultValue);
+    cy.updateCodeInput(
+      ".t--property-control-defaultselectedvalues",
+      defaultValue,
+    );
   });
 
-  it("Copy and paste multiselect widget", () => {
+  it("2. Copy and paste multiselect widget", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //copy and paste
@@ -70,5 +73,13 @@ describe("MultiSelect Widget Functionality", function() {
           expect(val).to.deep.equal(JSON.parse(defaultValue));
         } catch (error) {}
       });
+  });
+
+  it("3. Select tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("multiselectwidgetv2");
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
+    // tooltip help icon shows
+    cy.get(".multiselect-tooltip").should("be.visible");
   });
 });

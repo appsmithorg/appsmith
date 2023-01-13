@@ -8,7 +8,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.events.CommentAddedEvent;
 import com.appsmith.server.events.CommentThreadClosedEvent;
 import com.appsmith.server.helpers.CommentUtils;
@@ -18,6 +18,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 
 
@@ -54,6 +54,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     private final EmailConfig emailConfig;
 
     private final UserWorkspaceService userWorkspaceService;
+    private final ApplicationPermission applicationPermission;
 
     public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader, Set<String> subscribers) {
         if(CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
@@ -70,7 +71,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                         .zipWith(userWorkspaceService.getWorkspaceMembers(objects.getT1().getWorkspaceId()))
                         .map(tuple -> {
                             Workspace workspace = tuple.getT1();
-                            List<UserAndPermissionGroupDTO> workspaceMembers = tuple.getT2();
+                            List<WorkspaceMemberInfoDTO> workspaceMembers = tuple.getT2();
                             String pagename = objects.getT2();
                             applicationEventPublisher.publishEvent(
                                     new CommentAddedEvent(
@@ -115,7 +116,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                         event.getOriginHeader(),
                         event.getSubscribers(),
                         event.getPageName()
-                ).subscribeOn(Schedulers.elastic())
+                ).subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
 
@@ -130,13 +131,13 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                         event.getOriginHeader(),
                         event.getPageName()
                 )
-                .subscribeOn(Schedulers.elastic())
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
 
     private String getCommentThreadLink(Application application, String pageId, String threadId, String username, String originHeader) {
         Boolean canManageApplication = policyUtils.isPermissionPresentForUser(
-                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), username
+                application.getPolicies(), applicationPermission.getEditPermission().getValue(), username
         );
         String urlPostfix = "/edit";
         if (Boolean.FALSE.equals(canManageApplication)) {  // user has no permission to manage application
@@ -197,7 +198,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         return emailSender.sendMail(receiverEmail, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams);
     }
 
-    private Mono<Boolean> getAddCommentEmailSenderMono(UserAndPermissionGroupDTO userAndGroupDTO, Comment comment, String originHeader,
+    private Mono<Boolean> getAddCommentEmailSenderMono(WorkspaceMemberInfoDTO userAndGroupDTO, Comment comment, String originHeader,
                                                        Application application, String pagename) {
         String receiverName = StringUtils.isEmpty(userAndGroupDTO.getName()) ? "User" : userAndGroupDTO.getName();
         String receiverEmail = userAndGroupDTO.getUsername();
@@ -261,12 +262,12 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         );
     }
 
-    private Mono<Boolean> sendEmailForCommentAdded(Workspace workspace, List<UserAndPermissionGroupDTO> workspaceMembers,
+    private Mono<Boolean> sendEmailForCommentAdded(Workspace workspace, List<WorkspaceMemberInfoDTO> workspaceMembers,
                                                    Application application, Comment comment, String originHeader,
                                                    Set<String> subscribers, String pagename) {
 
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
-        for (UserAndPermissionGroupDTO user : workspaceMembers) {
+        for (WorkspaceMemberInfoDTO user : workspaceMembers) {
             if(!comment.getAuthorUsername().equals(user.getUsername()) && subscribers.contains(user.getUsername())) {
                 emailMonos.add(getAddCommentEmailSenderMono(user, comment, originHeader, application, pagename));
             }

@@ -2,8 +2,10 @@ package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -49,7 +51,7 @@ public class DataTypeStringUtils {
 
     private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
 
-    private static Pattern placeholderPattern = Pattern.compile(APPSMITH_SUBSTITUTION_PLACEHOLDER);
+    public static Pattern placeholderPattern = Pattern.compile(APPSMITH_SUBSTITUTION_PLACEHOLDER);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -58,7 +60,7 @@ public class DataTypeStringUtils {
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
 
-
+    @Deprecated(since = "With the implementation of Data Type handling this function is marked as deprecated and is discouraged for further use")
     public static DataType stringToKnownDataTypeConverter(String input) {
 
         if (input == null) {
@@ -197,17 +199,20 @@ public class DataTypeStringUtils {
      * @param insertedParams keeps a list of tuple (replacement, data_type)
      * @param smartSubstitutionUtils provides entry to plugin specific post-processing logic applied to replacement
      *                               value before the final substitution happens
+     * @param param the binding parameter having the clientDataType to be used in the data type identification process
      * @return
      */
     public static String jsonSmartReplacementPlaceholderWithValue(String input,
                                                                   String replacement,
                                                                   DataType replacementDataType,
                                                                   List<Map.Entry<String, String>> insertedParams,
-                                                                  SmartSubstitutionInterface smartSubstitutionUtils) {
+                                                                  SmartSubstitutionInterface smartSubstitutionUtils,
+                                                                  Param param) {
 
         final DataType dataType;
         if (replacementDataType == null) {
-            dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), replacement);
+            dataType = appsmithType.type();
         } else {
             dataType = replacementDataType;
         }
@@ -229,6 +234,8 @@ public class DataTypeStringUtils {
                 try {
                     JSONArray jsonArray = (JSONArray) parser.parse(replacement);
                     updatedReplacement = String.valueOf(objectMapper.writeValueAsString(jsonArray));
+                    // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
+                    updatedReplacement = Matcher.quoteReplacement(updatedReplacement);
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(

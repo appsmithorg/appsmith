@@ -1,4 +1,3 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/defaultTableDsl.json");
 
 describe("Table Widget property pane deafult feature validation", function() {

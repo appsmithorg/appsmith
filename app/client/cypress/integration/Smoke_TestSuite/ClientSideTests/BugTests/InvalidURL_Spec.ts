@@ -1,7 +1,10 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import { WIDGET } from "../../../../locators/WidgetLocators";
 
 const jsEditor = ObjectsRegistry.JSEditor,
-  agHelper = ObjectsRegistry.AggregateHelper;
+  agHelper = ObjectsRegistry.AggregateHelper,
+  ee = ObjectsRegistry.EntityExplorer,
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Invalid page routing", () => {
   it("1. Bug #16047 - Shows Invalid URL UI for invalid JS Object page url", () => {
@@ -27,7 +30,16 @@ describe("Invalid page routing", () => {
       const urlWithoutQueryParams = url.split("?")[0];
       const invalidURL = urlWithoutQueryParams + "invalid";
       cy.visit(invalidURL);
-      agHelper.AssertContains(`The page you’re looking for either does not exist`, "exist");
+      agHelper.AssertContains(
+        `The page you’re looking for either does not exist`,
+        "exist",
+      );
     });
   });
+
+  // it("2. Multi select - test ", () => {
+  //   ee.DragDropWidgetNVerify(WIDGET.MULTITREESELECT);
+  //   deployMode.DeployApp();
+  //   agHelper.SelectFromMutliTree("Red");
+  // });
 });

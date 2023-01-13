@@ -84,9 +84,9 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(".t--property-control-options .t--codemirror-has-error").should(
       "not.exist",
     );
-    cy.get(".t--property-control-defaultselectedvalue .t--codemirror-has-error").should(
-      "not.exist",
-    );
+    cy.get(
+      ".t--property-control-defaultselectedvalue .t--codemirror-has-error",
+    ).should("not.exist");
     cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Blue");
   });
 
@@ -108,30 +108,36 @@ describe("Dropdown Widget Functionality", function() {
         }]`,
     );
     cy.updateCodeInput(".t--property-control-defaultselectedvalue", "null");
-    cy.get(".t--property-control-defaultselectedvalue .t--codemirror-has-error").should(
-      "not.exist",
-    );
+    cy.get(
+      ".t--property-control-defaultselectedvalue .t--codemirror-has-error",
+    ).should("not.exist");
     cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Blue");
 
     cy.openPropertyPane("selectwidget");
     cy.updateCodeInput(".t--property-control-defaultselectedvalue", "120");
-    cy.get(".t--property-control-defaultselectedvalue .t--codemirror-has-error").should(
-      "not.exist",
-    );
+    cy.get(
+      ".t--property-control-defaultselectedvalue .t--codemirror-has-error",
+    ).should("not.exist");
     cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Red");
 
     cy.openPropertyPane("selectwidget");
-    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "{{ 100 }}");
-    cy.get(".t--property-control-defaultselectedvalue .t--codemirror-has-error").should(
-      "not.exist",
+    cy.updateCodeInput(
+      ".t--property-control-defaultselectedvalue",
+      "{{ 100 }}",
     );
+    cy.get(
+      ".t--property-control-defaultselectedvalue .t--codemirror-has-error",
+    ).should("not.exist");
     cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Green");
 
     cy.openPropertyPane("selectwidget");
-    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "{{ null }}");
-    cy.get(".t--property-control-defaultselectedvalue .t--codemirror-has-error").should(
-      "exist",
+    cy.updateCodeInput(
+      ".t--property-control-defaultselectedvalue",
+      "{{ null }}",
     );
+    cy.get(
+      ".t--property-control-defaultselectedvalue .t--codemirror-has-error",
+    ).should("exist");
   });
 
   it("Dropdown Functionality To Check disabled Widget", function() {

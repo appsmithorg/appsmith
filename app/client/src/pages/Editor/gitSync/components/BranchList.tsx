@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { TextInput } from "design-system";
+import { getTypographyByKey, TextInput } from "design-system";
 import styled, { useTheme } from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -57,7 +56,7 @@ const BranchDropdownContainer = styled.div`
   flex-direction: column;
 
   & .title {
-    ${(props) => getTypographyByKey(props, "p1")};
+    ${getTypographyByKey("p1")};
   }
 
   padding: ${(props) => props.theme.spaces[5]}px;
@@ -85,12 +84,12 @@ const CreateNewBranchContainer = styled.div`
   }
 
   & .large-text {
-    ${(props) => getTypographyByKey(props, "p1")};
+    ${getTypographyByKey("p1")};
     color: ${Colors.BLACK};
   }
 
   & .small-text {
-    ${(props) => getTypographyByKey(props, "p3")};
+    ${getTypographyByKey("p3")};
     color: ${Colors.GREY_7};
   }
 `;

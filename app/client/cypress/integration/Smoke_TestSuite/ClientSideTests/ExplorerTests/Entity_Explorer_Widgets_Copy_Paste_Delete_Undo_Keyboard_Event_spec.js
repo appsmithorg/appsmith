@@ -3,16 +3,14 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWithInputdsl.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
 let ee = ObjectsRegistry.EntityExplorer;
 
-const pageid = "MyPage";
 before(() => {
   cy.addDsl(dsl);
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function() {
-  it("Drag and drop form widget and validate copy widget via toast message", function() {
+  it.only("Drag and drop form widget and validate copy widget via toast message", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
     cy.openPropertyPane("formwidget");

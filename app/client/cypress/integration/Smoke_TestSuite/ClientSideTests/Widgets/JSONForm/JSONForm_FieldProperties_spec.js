@@ -1,9 +1,19 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const fieldPrefix = ".t--jsonformfield";
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Text Field Property Control", () => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   before(() => {
     const schema = {
       name: "John",
@@ -13,27 +23,29 @@ describe("Text Field Property Control", () => {
     cy.testJsontext("sourcedata", JSON.stringify(schema));
   });
 
-  it("has valid default text", () => {
+  it("1. has valid default text", () => {
     cy.openFieldConfiguration("name");
     cy.get(".t--property-control-defaultvalue").contains("{{sourceData.name}}");
   });
 
-  it("updated field with change in default text", () => {
+  it("2. updated field with change in default text", () => {
     const defaultValue = "New default text";
     cy.testJsontext("defaultvalue", "New default text").wait(200);
     cy.get(`${fieldPrefix}-name input`).should("have.value", defaultValue);
   });
 
-  it("throws max character error when exceeds maxChar limit for default text", () => {
+  it("3. throws max character error when exceeds maxChar limit for default text", () => {
     cy.testJsontext("maxchars", 5);
     cy.get(`${fieldPrefix}-name input`).click();
     cy.get(".bp3-popover-content").should(($x) => {
-      expect($x).contain("Default text length must be less than 5 characters");
+      expect($x).contain(
+        "Default text length must be less than or equal to 5 characters",
+      );
     });
     cy.testJsontext("maxchars", "");
   });
 
-  it("throws max character error when exceeds maxChar limit for input text", () => {
+  it("4. throws max character error when exceeds maxChar limit for input text", () => {
     cy.testJsontext("defaultvalue", "").wait(200);
     cy.get(`${fieldPrefix}-name input`)
       .clear()
@@ -46,7 +58,7 @@ describe("Text Field Property Control", () => {
     cy.testJsontext("maxchars", "");
   });
 
-  it("sets placeholder", () => {
+  it("5. sets placeholder", () => {
     const placeholderText = "First name";
     cy.testJsontext("placeholder", placeholderText);
     cy.get(`${fieldPrefix}-name input`)
@@ -54,7 +66,7 @@ describe("Text Field Property Control", () => {
       .should("contain", placeholderText);
   });
 
-  it("sets valid property with custom error message", () => {
+  it("6. sets valid property with custom error message", () => {
     cy.testJsontext("valid", "false");
     cy.get(`${fieldPrefix}-name input`)
       .clear()
@@ -71,7 +83,7 @@ describe("Text Field Property Control", () => {
     cy.testJsontext("valid", "");
   });
 
-  it("hides field when visible switched off", () => {
+  it("7. hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-name`).should("not.exist");
     cy.wait(500);
@@ -79,7 +91,7 @@ describe("Text Field Property Control", () => {
     cy.get(`${fieldPrefix}-name`).should("exist");
   });
 
-  it("disables field when disabled switched on", () => {
+  it("8. disables field when disabled switched on", () => {
     cy.togglebar(`.t--property-control-disabled input`);
     cy.get(`${fieldPrefix}-name input`).each(($el) => {
       cy.wrap($el).should("have.attr", "disabled");
@@ -88,7 +100,7 @@ describe("Text Field Property Control", () => {
     cy.togglebarDisable(`.t--property-control-disabled input`);
   });
 
-  it("throws error when REGEX does not match the input value", () => {
+  it("9. throws error when REGEX does not match the input value", () => {
     cy.testJsontext("regex", "^\\d+$");
     cy.get(`${fieldPrefix}-name input`)
       .clear()
@@ -100,10 +112,8 @@ describe("Text Field Property Control", () => {
       .type("1234");
     cy.get(".bp3-popover-content").should("not.exist");
   });
-});
 
-describe("Checkbox Field Property Control", () => {
-  before(() => {
+  it("10. Checkbox Field Property Control - pre condition", () => {
     const schema = {
       check: false,
     };
@@ -114,18 +124,18 @@ describe("Checkbox Field Property Control", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Checkbox");
   });
 
-  it("has default property", () => {
+  it("11. has default property", () => {
     cy.get(".t--property-control-defaultstate").contains(
       "{{sourceData.check}}",
     );
   });
 
-  it("should update field checked state when default selected changed", () => {
+  it("12. should update field checked state when default selected changed", () => {
     cy.testJsontext("defaultstate", "{{true}}");
     cy.get(`${fieldPrefix}-check input`).should("be.checked");
   });
 
-  it("hides field when visible switched off", () => {
+  it("13. hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-check`).should("not.exist");
     cy.wait(500);
@@ -133,7 +143,7 @@ describe("Checkbox Field Property Control", () => {
     cy.get(`${fieldPrefix}-check`).should("exist");
   });
 
-  it("disables field when disabled switched on", () => {
+  it("14. disables field when disabled switched on", () => {
     cy.togglebar(`.t--property-control-disabled input`);
     cy.get(`${fieldPrefix}-check input`).each(($el) => {
       cy.wrap($el).should("have.attr", "disabled");
@@ -141,10 +151,8 @@ describe("Checkbox Field Property Control", () => {
 
     cy.togglebarDisable(`.t--property-control-disabled input`);
   });
-});
 
-describe("Switch Field Property Control", () => {
-  before(() => {
+  it("15. Switch Field Property Control - pre condition", () => {
     const schema = {
       switch: true,
     };
@@ -154,13 +162,13 @@ describe("Switch Field Property Control", () => {
     cy.openFieldConfiguration("switch");
   });
 
-  it("has default property", () => {
+  it("16. has default property", () => {
     cy.get(".t--property-control-defaultselected").contains(
       "{{sourceData.switch}}",
     );
   });
 
-  it("should update field checked state when default selected changed", () => {
+  it("17. should update field checked state when default selected changed", () => {
     cy.testJsontext("defaultselected", "{{false}}");
     cy.get(`${fieldPrefix}-switch label.bp3-control.bp3-switch`).should(
       "have.class",
@@ -168,7 +176,7 @@ describe("Switch Field Property Control", () => {
     );
   });
 
-  it("hides field when visible switched off", () => {
+  it("18. hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-switch`).should("not.exist");
     cy.wait(500);
@@ -176,7 +184,7 @@ describe("Switch Field Property Control", () => {
     cy.get(`${fieldPrefix}-switch`).should("exist");
   });
 
-  it("disables field when disabled switched on", () => {
+  it("19. disables field when disabled switched on", () => {
     cy.togglebar(`.t--property-control-disabled input`);
     cy.get(`${fieldPrefix}-switch input`).each(($el) => {
       cy.wrap($el).should("have.attr", "disabled");
@@ -184,10 +192,8 @@ describe("Switch Field Property Control", () => {
 
     cy.togglebarDisable(`.t--property-control-disabled input`);
   });
-});
 
-describe("Select Field Property Control", () => {
-  before(() => {
+  it("20. Select Field Property Control - pre condition", () => {
     const schema = {
       state: "Karnataka",
     };
@@ -198,13 +204,13 @@ describe("Select Field Property Control", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
   });
 
-  it("has valid default value", () => {
+  it("21. has valid default value", () => {
     cy.get(".t--property-control-defaultselectedvalue").contains(
       "{{sourceData.state}}",
     );
   });
 
-  it("makes select filterable", () => {
+  it("22. makes select filterable", () => {
     // click select field and filter input should not exist
     cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
     cy.get(`.bp3-select-popover .bp3-input-group`).should("not.exist");
@@ -217,7 +223,7 @@ describe("Select Field Property Control", () => {
     cy.get(`.bp3-select-popover .bp3-input-group`).should("exist");
   });
 
-  it("hides field when visible switched off", () => {
+  it("23. hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-state`).should("not.exist");
     cy.wait(500);
@@ -225,7 +231,7 @@ describe("Select Field Property Control", () => {
     cy.get(`${fieldPrefix}-state`).should("exist");
   });
 
-  it("disables field when disabled switched on", () => {
+  it("24. disables field when disabled switched on", () => {
     cy.togglebar(`.t--property-control-disabled input`);
     cy.get(`${fieldPrefix}-state button.bp3-button`).should(
       "have.class",
@@ -234,10 +240,8 @@ describe("Select Field Property Control", () => {
 
     cy.togglebarDisable(`.t--property-control-disabled input`);
   });
-});
 
-describe("Multi-Select Field Property Control", () => {
-  before(() => {
+  it("25. Multi Field Property Control - pre condition", () => {
     const schema = {
       hobbies: [],
     };
@@ -247,14 +251,14 @@ describe("Multi-Select Field Property Control", () => {
     cy.openFieldConfiguration("hobbies");
   });
 
-  it("has valid default value", () => {
+  it("26. has valid default value", () => {
     cy.get(".t--property-control-defaultselectedvalues").contains(
       "{{sourceData.hobbies}}",
     );
     cy.closePropertyPane();
   });
 
-  it("adds placeholder text", () => {
+  it("27. adds placeholder text", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("hobbies");
 
@@ -263,7 +267,7 @@ describe("Multi-Select Field Property Control", () => {
     cy.get(`.rc-select-selection-placeholder`).contains("Select placeholder");
   });
 
-  it("hides field when visible switched off", () => {
+  it("28. hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-hobbies`).should("not.exist");
     cy.wait(500);
@@ -271,7 +275,7 @@ describe("Multi-Select Field Property Control", () => {
     cy.get(`${fieldPrefix}-hobbies`).should("exist");
   });
 
-  it("disables field when disabled switched on", () => {
+  it("29. disables field when disabled switched on", () => {
     cy.togglebar(`.t--property-control-disabled input`);
     cy.get(`${fieldPrefix}-hobbies .rc-select-multiple`).should(
       "have.class",
@@ -280,10 +284,8 @@ describe("Multi-Select Field Property Control", () => {
 
     cy.togglebarDisable(`.t--property-control-disabled input`);
   });
-});
 
-describe("Radio group Field Property Control", () => {
-  before(() => {
+  it("30. Radio group Field Property Control - pre condition", () => {
     const sourceData = {
       radio: "Y",
     };
@@ -294,7 +296,7 @@ describe("Radio group Field Property Control", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
   });
 
-  it("has valid default value", () => {
+  it("31. has valid default value", () => {
     cy.get(".t--property-control-defaultselectedvalue").contains(
       "{{sourceData.radio}}",
     );
@@ -302,7 +304,7 @@ describe("Radio group Field Property Control", () => {
     cy.get(`${fieldPrefix}-radio input`).should("have.value", "Y");
   });
 
-  it("hides field when visible switched off", () => {
+  it("32. hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-radio`).should("not.exist");
     cy.wait(500);

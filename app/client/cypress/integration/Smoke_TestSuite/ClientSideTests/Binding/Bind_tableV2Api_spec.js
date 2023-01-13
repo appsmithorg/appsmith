@@ -7,7 +7,6 @@ describe("Test Create Api and Bind to Table widget V2", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-
   it("1. Test_Add users api and execute api", function() {
     cy.createAndFillApi(this.data.userApi, "/users");
     cy.RunAPI();
@@ -27,7 +26,7 @@ describe("Test Create Api and Bind to Table widget V2", function() {
   it("2. Test_Validate the Api data is updated on Table widget", function() {
     cy.SearchEntityandOpen("Table1");
     cy.openPropertyPane("tablewidgetv2");
-    cy.testJsontext("tabledata", "{{ Api1.data.users }}");
+    cy.testJsontext("tabledata", "{{Api1.data.users}}");
 
     /**
      * readTabledata--> is to read the table contents

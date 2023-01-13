@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { ReactComponent as CloudyIcon } from "assets/icons/ads/cloudy-line.svg";
 import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
   getApplicationLastDeployedAt,

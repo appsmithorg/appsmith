@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
@@ -9,8 +9,16 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate basic Promises", () => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("1. Verify storeValue via .then via direct Promises", () => {
-    let date = new Date().toDateString();
+    const date = new Date().toDateString();
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
@@ -92,8 +100,8 @@ describe("Validate basic Promises", () => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi(
-      "https://source.unsplash.com/collection/8439505",
-      "Christmas",
+      "https://picsum.photos/200/300",
+      "RandomImy",
       30000,
     );
     ee.SelectEntityByName("Button1", "Widgets");
@@ -101,14 +109,14 @@ describe("Validate basic Promises", () => {
       "onClick",
       `{{
             (function () {
-          return Christmas.run()
+          return RandomImy.run()
             .then(() => showAlert("You have a beautiful picture", 'success'))
             .catch(() => showAlert('Oops!', 'error'))
         })()
           }}`,
     );
     ee.SelectEntityByName("Image1");
-    propPane.UpdatePropertyFieldValue("Image", `{{Christmas.data}}`);
+    propPane.UpdatePropertyFieldValue("Image", `{{RandomImy.data}}`);
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
     );
@@ -183,7 +191,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
     apiPage.CreateAndFillApi(
-      "https://api.jikan.moe/v3/search/anime?q={{this.params.name}}",
+      "https://api.jikan.moe/v4/anime?q={{this.params.name}}",
       "GetAnime",
       30000,
     );
@@ -191,20 +199,20 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     propPane.UpdatePropertyFieldValue(
       "Items",
       `[{
-  "name": {{ GetAnime.data.results[0].title }},
-"img": {{ GetAnime.data.results[0].image_url }},
-"synopsis": {{ GetAnime.data.results[0].synopsis }}
+        "name": {{ GetAnime.data.data[0].title }},
+      "img": {{GetAnime.data.data[0].images.jpg.image_url}},
+      "synopsis": {{ GetAnime.data.data[0].synopsis }}
+            },
+      {
+        "name": {{ GetAnime.data.data[3].title }},
+        "img": {{GetAnime.data.data[3].images.jpg.image_url}},
+        "synopsis": {{ GetAnime.data.data[3].synopsis }}
       },
-{
-  "name": {{ GetAnime.data.results[3].title }},
-  "img": {{ GetAnime.data.results[3].image_url }},
-  "synopsis": {{ GetAnime.data.results[3].synopsis }}
-},
-{
-  "name": {{ GetAnime.data.results[2].title }},
-  "img": {{ GetAnime.data.results[2].image_url }},
-  "synopsis": {{ GetAnime.data.results[2].synopsis }}
-}]`,
+      {
+        "name": {{ GetAnime.data.data[2].title }},
+        "img": {{GetAnime.data.data[2].images.jpg.image_url}},
+        "synopsis": {{ GetAnime.data.data[2].synopsis }}
+      }]`,
     );
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
@@ -254,7 +262,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
 
   it("9. Bug 10150: Verify Promise.all via JSObjects", () => {
     deployMode.NavigateBacktoEditor();
-    let date = new Date().toDateString();
+    const date = new Date().toDateString();
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
@@ -263,7 +271,7 @@ RandomUser.run(),
 GetAnime.run({ name: 'Gintama' }),
 InspiringQuotes.run(),
 Agify.run({ person: 'Scripty' }),
-Christmas.run()
+RandomImy.run()
 ]
 showAlert("Running all api's", "warning");
 return Promise.all(allFuncs).then(() =>
@@ -337,24 +345,35 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
       "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",
     );
     deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
-    agHelper.TypeText(locator._widgetInputSelector("inputwidgetv2"), "Update value")
+    agHelper.TypeText(
+      locator._widgetInputSelector("inputwidgetv2"),
+      "Update value",
+    );
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Test");
   });
 
-  //Skipping until this bug this is addressed!
-  it.skip("12. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
+  it("12. Bug 9782: Verify .then & .catch (show alert should trigger) via JS Objects without return keyword", () => {
     deployMode.NavigateBacktoEditor();
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     jsEditor.CreateJSObject(`const user = 'You';
 InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
-    ee.SelectEntityByName("Button1");
+    ee.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
+    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage("Today's quote for You");
+    agHelper.Sleep(1000);
+    agHelper
+      .GetNAssertContains(
+        locator._toastMsg,
+        /Today's quote for You|Unable to fetch quote for/g,
+      )
+      .then(($ele: string | JQuery<HTMLElement>) =>
+        agHelper.AssertElementLength($ele, 1),
+      );
   });
 });

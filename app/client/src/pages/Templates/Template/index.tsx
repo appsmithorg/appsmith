@@ -1,18 +1,25 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
-import { Button, Size, TooltipComponent as Tooltip } from "design-system";
+import { Template as TemplateInterface } from "api/TemplatesApi";
+import {
+  Button,
+  getTypographyByKey,
+  Size,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
   FORK_THIS_TEMPLATE,
 } from "@appsmith/constants/messages";
 import { templateIdUrl } from "RouteBuilder";
+import { Position } from "@blueprintjs/core";
+import { getForkableWorkspaces } from "selectors/templatesSelectors";
+import { useSelector } from "react-redux";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -47,11 +54,11 @@ const TemplateContent = styled.div`
   flex: 1;
 
   .title {
-    ${(props) => getTypographyByKey(props, "h1")}
+    ${getTypographyByKey("h1")}
     color: ${Colors.EBONY_CLAY};
   }
   .categories {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     font-weight: normal;
     color: var(--appsmith-color-black-800);
     margin-top: ${(props) => props.theme.spaces[1]}px;
@@ -59,7 +66,7 @@ const TemplateContent = styled.div`
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
     color: var(--appsmith-color-black-700);
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${getTypographyByKey("p1")}
   }
 `;
 
@@ -95,7 +102,8 @@ const StyledButton = styled(Button)`
 export interface TemplateProps {
   template: TemplateInterface;
   size?: string;
-  onClick?: () => void;
+  onClick?: (id: string) => void;
+  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 const Template = (props: TemplateProps) => {
@@ -109,7 +117,8 @@ const Template = (props: TemplateProps) => {
 export interface TemplateLayoutProps {
   template: TemplateInterface;
   className?: string;
-  onClick?: () => void;
+  onClick?: (id: string) => void;
+  onForkTemplateClick?: (template: TemplateInterface) => void;
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
@@ -122,14 +131,23 @@ export function TemplateLayout(props: TemplateLayoutProps) {
     title,
   } = props.template;
   const [showForkModal, setShowForkModal] = useState(false);
+  const workspaceList = useSelector(getForkableWorkspaces);
   const onClick = () => {
-    history.push(templateIdUrl({ id }));
-    props.onClick && props.onClick();
+    if (props.onClick) {
+      props.onClick(id);
+    } else {
+      history.push(templateIdUrl({ id }));
+    }
   };
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
-    setShowForkModal(true);
+    if (props.onForkTemplateClick) {
+      e.preventDefault();
+      props.onForkTemplateClick(props.template);
+    } else {
+      e.stopPropagation();
+      setShowForkModal(true);
+    }
   };
 
   const onForkModalClose = (e?: React.MouseEvent<HTMLElement>) => {
@@ -161,22 +179,29 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               );
             })}
           </TemplateDatasources>
-          <div onClick={onForkButtonTrigger}>
-            <ForkTemplateDialog
-              onClose={onForkModalClose}
-              showForkModal={showForkModal}
-              templateId={id}
-            >
-              <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
-                <StyledButton
-                  className="t--fork-template fork-button"
-                  icon="fork-2"
-                  size={Size.medium}
-                  tag="button"
-                />
-              </Tooltip>
-            </ForkTemplateDialog>
-          </div>
+          {!!workspaceList.length && (
+            <div onClick={onForkButtonTrigger}>
+              <ForkTemplateDialog
+                onClose={onForkModalClose}
+                showForkModal={showForkModal}
+                templateId={id}
+              >
+                <Tooltip
+                  content={createMessage(FORK_THIS_TEMPLATE)}
+                  minimal
+                  position={Position.BOTTOM}
+                >
+                  <StyledButton
+                    className="t--fork-template fork-button"
+                    icon="plus"
+                    onClick={onForkButtonTrigger}
+                    size={Size.medium}
+                    tag="button"
+                  />
+                </Tooltip>
+              </ForkTemplateDialog>
+            </div>
+          )}
         </TemplateContentFooter>
       </TemplateContent>
     </TemplateWrapper>

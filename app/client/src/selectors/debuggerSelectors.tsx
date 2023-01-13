@@ -6,7 +6,7 @@ import { AppState } from "@appsmith/reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
-import { isWidget } from "workers/evaluationUtils";
+import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 
 type ErrorObejct = {
@@ -101,9 +101,6 @@ export const isParentVisible = (
 
 export const hasParentWidget = (widget: DataTreeWidget) =>
   widget.parentId && widget.parentId !== "0";
-
-export const getCurrentDebuggerTab = (state: AppState) =>
-  state.ui.debugger.currentTab;
 
 export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
   const errorKeys = Object.keys(errors);

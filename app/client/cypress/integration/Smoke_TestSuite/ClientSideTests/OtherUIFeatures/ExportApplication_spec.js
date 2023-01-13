@@ -2,8 +2,7 @@ const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 import homePage from "../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const commonlocators = require("../../../../locators/commonlocators.json");
-let HomePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper;
+let HomePage = ObjectsRegistry.HomePage;
 
 describe("Export application as a JSON file", function() {
   let workspaceId;
@@ -66,7 +65,6 @@ describe("Export application as a JSON file", function() {
       cy.get(homePage.shareApp).click({ force: true });
       // cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.adminRole);
       HomePage.InviteUserToWorkspaceFromApp(
-        workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "Administrator",
       );
@@ -119,7 +117,6 @@ describe("Export application as a JSON file", function() {
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
       HomePage.InviteUserToWorkspaceFromApp(
-        workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "Developer",
       );
@@ -174,7 +171,6 @@ describe("Export application as a JSON file", function() {
       cy.get(homePage.shareApp).click({ force: true });
 
       HomePage.InviteUserToWorkspaceFromApp(
-        workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );

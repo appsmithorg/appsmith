@@ -3,7 +3,7 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -11,6 +11,7 @@ import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -40,12 +41,15 @@ public class ActionControllerCE {
 
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
+    private final RefactoringSolution refactoringSolution;
 
     @Autowired
     public ActionControllerCE(LayoutActionService layoutActionService,
-                              NewActionService newActionService) {
+                              NewActionService newActionService,
+                              RefactoringSolution refactoringSolution) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
+        this.refactoringSolution = refactoringSolution;
     }
 
     @PostMapping
@@ -70,8 +74,9 @@ public class ActionControllerCE {
 
     @PostMapping(value = "/execute", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody Flux<Part> partFlux,
-                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newActionService.executeAction(partFlux, branchName)
+                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
+        return newActionService.executeAction(partFlux, branchName, environmentName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
@@ -86,7 +91,7 @@ public class ActionControllerCE {
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorActionNameDTO refactorActionNameDTO,
                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return layoutActionService.refactorActionName(refactorActionNameDTO, branchName)
+        return refactoringSolution.refactorActionName(refactorActionNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 

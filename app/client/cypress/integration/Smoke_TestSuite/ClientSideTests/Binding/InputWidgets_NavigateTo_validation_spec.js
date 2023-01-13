@@ -7,14 +7,37 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function() {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
   before(() => {
     cy.addDsl(dsl);
     cy.wait(5000); //dsl to settle!
   });
 
-  it("1. Input widget test with default value from table widget", function() {
+  it("1. Create MyPage and valdiate if its successfully created", function() {
+    cy.Createpage(pageid);
+    cy.addDsl(dsl2);
+    cy.wait(5000); //dsl to settle!
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(3000);
+    cy.CheckAndUnfoldEntityItem("Pages");
+    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
+  });
+
+  it("2. Input widget test with default value from table widget", function() {
+    cy.get(`.t--entity-name:contains("Page1")`)
+      .should("be.visible")
+      .click({ force: true });
     cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     cy.get(widgetsPage.inputOnTextChange)
@@ -24,23 +47,14 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .children()
       .contains("Navigate to")
       .click();
-    cy.enterNavigatePageName(pageid);
+    cy.get(".t--open-dropdown-Select-Page").click();
+    cy.get(commonlocators.singleSelectMenuItem)
+      .contains(pageid)
+      .click({ force: true });
     cy.assertPageSave();
   });
 
-  it("2. Create MyPage and valdiate if its successfully created", function() {
-    cy.Createpage(pageid);
-    cy.addDsl(dsl2);
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
-  });
-
   it("3. Validate NavigateTo Page functionality ", function() {
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
     cy.wait(4000);
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {

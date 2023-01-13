@@ -2,10 +2,11 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public interface NewActionServiceCE extends CrudService<NewAction, String> {
@@ -35,10 +37,10 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 
-    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
+    Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentName);
 
-    Mono<ActionExecutionResult> executeAction(Flux<Part> partsFlux, String branchName);
-    
+    Mono<ActionExecutionResult> executeAction(Flux<Part> partsFlux, String branchName, String environmentName);
+
     Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction);
 
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
@@ -57,9 +59,13 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId, AclPermission permission);
 
+    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission);
+
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission);
 
     Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission permission, Sort sort);
+
+    Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort);
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
@@ -85,7 +91,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission);
 
-    List<String> extractMustacheKeysInOrder(String query);
+    List<MustacheBindingToken> extractMustacheKeysInOrder(String query);
 
     String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
 
@@ -100,6 +106,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 
     public Mono<NewAction> sanitizeAction(NewAction action);
+
+    Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
 }

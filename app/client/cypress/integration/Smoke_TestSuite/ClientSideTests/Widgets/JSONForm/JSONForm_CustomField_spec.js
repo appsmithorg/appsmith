@@ -46,6 +46,7 @@ describe("JSON Form Widget Custom Field", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
+    cy.backFromPropertyPanel();
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
 
     cy.wait(500);

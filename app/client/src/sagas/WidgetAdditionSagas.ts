@@ -1,12 +1,15 @@
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { RenderModes } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import {
   CanvasWidgetsReduxState,
@@ -23,7 +26,10 @@ import {
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
-import { getParentBottomRowAfterAddingWidget } from "./WidgetOperationUtils";
+import {
+  getParentBottomRowAfterAddingWidget,
+  resizeCanvasToLowestWidget,
+} from "./WidgetOperationUtils";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
@@ -32,18 +38,14 @@ import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { getMainCanvasProps } from "selectors/editorSelectors";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
-
-const themePropertiesDefaults = {
-  boxShadow: "none",
-  borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  accentColor: "{{appsmith.theme.colors.primaryColor}}",
-};
 
 type GeneratedWidgetPayload = {
   widgetId: string;
@@ -58,32 +60,6 @@ type WidgetAddTabChild = {
 function* getEntityNames() {
   const evalTree: DataTree = yield select(getDataTree);
   return Object.keys(evalTree);
-}
-
-/**
- * return stylesheet of widget
- * NOTE: a stylesheet is an object that contains
- * which property of widget will use which property of the theme
- *
- * @param type
- * @returns
- */
-function* getThemeDefaultConfig(type: string) {
-  const fallbackStylesheet: Record<string, string> = {
-    TABLE_WIDGET_V2: "TABLE_WIDGET",
-  };
-
-  const stylesheet: Record<string, unknown> = yield select(
-    getSelectedAppThemeStylesheet,
-  );
-
-  if (stylesheet[type]) {
-    return stylesheet[type];
-  } else if (fallbackStylesheet[type] && stylesheet[fallbackStylesheet[type]]) {
-    return stylesheet[fallbackStylesheet[type]];
-  } else {
-    return themePropertiesDefaults;
-  }
 }
 
 function* getChildWidgetProps(
@@ -104,10 +80,9 @@ function* getChildWidgetProps(
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
-  const themeDefaultConfig: Record<string, unknown> = yield call(
-    getThemeDefaultConfig,
-    type,
-  );
+  const themeDefaultConfig =
+    WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
     const entityNames: string[] = yield call(getEntityNames);
@@ -158,10 +133,19 @@ function* getChildWidgetProps(
   );
 
   widget.widgetId = newWidgetId;
+  /**
+   * un-evaluated childStylesheet used by widgets; so they are to be excluded
+   * from the dynamicBindingPathList and they are not included as a part of
+   * the props send to getPropertiesToUpdate.
+   */
+  const themeConfigWithoutChildStylesheet = omit(
+    themeDefaultConfig,
+    "childStylesheet",
+  );
   const { dynamicBindingPathList } = yield call(
     getPropertiesToUpdate,
     widget,
-    themeDefaultConfig,
+    themeConfigWithoutChildStylesheet,
   );
   widget.dynamicBindingPathList = clone(dynamicBindingPathList);
   return widget;
@@ -315,9 +299,27 @@ export function* getUpdateDslAfterCreatingChild(
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     traverseTreeAndExecuteBlueprintChildOperations,
     parent,
-    addChildPayload.newWidgetId,
+    [addChildPayload.newWidgetId],
     widgets,
   );
+
+  if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
+    const mainCanvasProps: MainCanvasReduxState = yield select(
+      getMainCanvasProps,
+    );
+    const mainCanvasMinHeight = mainCanvasProps?.height;
+
+    //updates bottom Row of main Canvas
+    updatedWidgets[
+      MAIN_CONTAINER_WIDGET_ID
+    ].bottomRow = resizeCanvasToLowestWidget(
+      updatedWidgets,
+      widgetId,
+      updatedWidgets[MAIN_CONTAINER_WIDGET_ID].bottomRow,
+      mainCanvasMinHeight,
+    );
+  }
+
   return updatedWidgets;
 }
 
@@ -333,11 +335,14 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
+
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [addChildAction.payload.newWidgetId],
     });
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
+
     log.debug("add child computations took", performance.now() - start, "ms");
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
     // call execute

@@ -1,20 +1,21 @@
 import { Log, LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system";
 import {
   createMessage,
   OPEN_THE_DEBUGGER,
   PRESS,
 } from "@appsmith/constants/messages";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import { DependencyMap, isChildPropertyPath } from "utils/DynamicBindingUtils";
 import {
   matchBuilderPath,
   matchApiPath,
   matchQueryPath,
 } from "constants/routes";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { modText } from "utils/helpers";
+import { union } from "lodash";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -23,11 +24,11 @@ const BlankStateWrapper = styled.div`
   justify-content: center;
   align-items: center;
   color: ${(props) => props.theme.colors.debugger.blankState.color};
-  ${(props) => getTypographyByKey(props, "p1")}
+  ${getTypographyByKey("p1")}
 
   .debugger-shortcut {
     color: ${(props) => props.theme.colors.debugger.blankState.shortcut};
-    ${(props) => getTypographyByKey(props, "h5")}
+    ${getTypographyByKey("h5")}
   }
 `;
 
@@ -63,6 +64,58 @@ export const SeverityIcon: Record<Severity, string> = {
   [Severity.ERROR]: "close-circle",
   [Severity.WARNING]: "warning",
 };
+
+const truncate = (input: string, suffix = "", truncLen = 100) => {
+  try {
+    if (!!input) {
+      return input.length > truncLen
+        ? `${input.substring(0, truncLen)}...${suffix}`
+        : input;
+    } else {
+      return "";
+    }
+  } catch (error) {
+    return `Invalid log: ${JSON.stringify(error)}`;
+  }
+};
+
+// Converts the data from the log object to a string
+export function createLogTitleString(data: any[]) {
+  try {
+    // convert mixed array to string
+    return data.reduce((acc, curr) => {
+      // curr can be a string or an object
+      if (typeof curr === "boolean") {
+        return `${acc} ${curr}`;
+      }
+      if (curr === null || curr === undefined) {
+        return `${acc} undefined`;
+      }
+      if (curr instanceof Promise) {
+        return `${acc} Promise ${curr.constructor.name}`;
+      }
+      if (typeof curr === "string") {
+        return `${acc} ${truncate(curr)}`;
+      }
+      if (typeof curr === "number") {
+        return `${acc} ${truncate(curr.toString())}`;
+      }
+      if (typeof curr === "function") {
+        return `${acc} func() ${curr.name}`;
+      }
+      if (typeof curr === "object") {
+        let suffix = "}";
+        if (Array.isArray(curr)) {
+          suffix = "]";
+        }
+        return `${acc} ${truncate(JSON.stringify(curr, null, "\t"), suffix)}`;
+      }
+      acc = `${acc} -`;
+    }, "");
+  } catch (error) {
+    return `Error in parsing log: ${JSON.stringify(error)}`;
+  }
+}
 
 export const getLogIcon = (log: Log) => {
   if (log.severity === Severity.ERROR) {
@@ -126,17 +179,20 @@ export function getDependencyChain(
   let currentChain: string[] = [];
   const dependents = inverseMap[propertyPath];
 
-  if (!dependents) return currentChain;
+  if (!dependents || !dependents.length) return currentChain;
 
-  const dependentInfo = getEntityNameAndPropertyPath(propertyPath);
+  const { entityName } = getEntityNameAndPropertyPath(propertyPath);
 
-  dependents.map((e) => {
-    if (!e.includes(dependentInfo.entityName)) {
-      currentChain.push(e);
+  dependents.map((dependentPath) => {
+    if (!isChildPropertyPath(entityName, dependentPath)) {
+      currentChain.push(dependentPath);
     }
 
-    if (e !== dependentInfo.entityName) {
-      currentChain = currentChain.concat(getDependencyChain(e, inverseMap));
+    if (dependentPath !== entityName) {
+      currentChain = union(
+        currentChain,
+        getDependencyChain(dependentPath, inverseMap),
+      );
     }
   });
   return currentChain;

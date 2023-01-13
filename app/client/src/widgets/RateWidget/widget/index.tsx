@@ -7,7 +7,8 @@ import RateComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Stylesheet } from "entities/AppTheming";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -67,163 +68,6 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
 }
 
 class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            propertyName: "maxCount",
-            helpText: "Sets the maximum allowed rating",
-            label: "Max Rating",
-            controlType: "INPUT_TEXT",
-            placeholderText: "5",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: { natural: true },
-            },
-          },
-          {
-            propertyName: "defaultRate",
-            helpText: "Sets the default rating",
-            label: "Default Rating",
-            controlType: "INPUT_TEXT",
-            placeholderText: "2.5",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: validateDefaultRate,
-                expected: {
-                  type: "number",
-                  example: 5,
-                  autocompleteDataType: AutocompleteDataType.NUMBER,
-                },
-              },
-            },
-            dependencies: ["maxCount", "isAllowHalf"],
-          },
-
-          {
-            propertyName: "tooltips",
-            helpText: "Sets the tooltip contents of stars",
-            label: "Tooltips",
-            controlType: "INPUT_TEXT",
-            placeholderText: '["Bad", "Neutral", "Good"]',
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.ARRAY,
-              params: { children: { type: ValidationTypes.TEXT } },
-            },
-          },
-          {
-            propertyName: "size",
-            label: "Size",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Small",
-                value: "SMALL",
-              },
-              {
-                label: "Medium",
-                value: "MEDIUM",
-              },
-              {
-                label: "Large",
-                value: "LARGE",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "isAllowHalf",
-            helpText: "Controls if user can submit half stars",
-            label: "Allow half stars",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isDisabled",
-            helpText: "Disables input to the widget",
-            label: "Disabled",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Events",
-        children: [
-          {
-            helpText: "Triggers an action when the rate is changed",
-            propertyName: "onRateChanged",
-            label: "onChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-      {
-        sectionName: "Styles",
-        children: [
-          {
-            propertyName: "activeColor",
-            label: "Active color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "inactiveColor",
-            label: "Inactive color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ];
-  }
-
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -312,6 +156,16 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "isReadOnly",
+            helpText: "Makes the widget read only",
+            label: "Read only",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "animateLoading",
             label: "Animate Loading",
             controlType: "SWITCH",
@@ -349,7 +203,9 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "size",
             label: "Star Size",
-            controlType: "DROP_DOWN",
+            helpText: "Controls the size of the stars in the widget",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 label: "Small",
@@ -375,6 +231,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "activeColor",
             label: "Active Color",
+            helpText: "Color of the selected stars",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -384,6 +241,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "inactiveColor",
             label: "Inactive Color",
+            helpText: "Color of the unselected stars",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -413,6 +271,12 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      activeColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
   valueChangedHandler = (value: number) => {
     this.props.updateWidgetMetaProperty("rate", value, {
       triggerPropertyName: "onRateChanged",
@@ -437,7 +301,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           leftColumn={this.props.leftColumn}
           maxCount={this.props.maxCount}
           onValueChanged={this.valueChangedHandler}
-          readonly={this.props.isDisabled}
+          readonly={this.props.isReadOnly}
           rightColumn={this.props.rightColumn}
           size={this.props.size}
           tooltips={this.props.tooltips}
@@ -464,6 +328,7 @@ export interface RateWidgetProps extends WidgetProps {
   isAllowHalf?: boolean;
   onRateChanged?: string;
   tooltips?: Array<string>;
+  isReadOnly?: boolean;
 }
 
 export default RateWidget;

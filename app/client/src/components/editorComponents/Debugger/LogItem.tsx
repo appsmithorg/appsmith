@@ -1,7 +1,6 @@
 import { Collapse } from "@blueprintjs/core";
 import { get } from "lodash";
 import { isString } from "lodash";
-import { Classes } from "components/ads/common";
 import {
   Log,
   LOG_CATEGORY,
@@ -16,19 +15,21 @@ import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
 import {
   AppIcon,
+  Classes,
+  getTypographyByKey,
   Icon,
   IconName,
   IconSize,
   Text,
   TextType,
+  TooltipComponent,
 } from "design-system";
-import { getTypographyByKey } from "constants/DefaultTheme";
-import { TooltipComponent } from "design-system";
 import {
   createMessage,
   TROUBLESHOOT_ISSUE,
 } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
+import { Colors } from "constants/Colors";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -75,7 +76,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
         : `transform: rotate(0deg); `};
     }
   .debugger-time {
-    ${(props) => getTypographyByKey(props, "h6")}
+    ${getTypographyByKey("h6")}
     line-height: 16px;
     margin-left: 8px;
     margin-right: 18px;
@@ -91,6 +92,26 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       color: ${(props) => props.theme.colors.debugger.warning.time};
     }
   }
+  .debugger-occurences{
+    height: 18px;
+    width: 18px;
+    border-radius: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: ${Colors.GRAY_900};
+    &.${Severity.INFO} {
+      background-color: ${Colors.GREY_200};
+    }
+    margin-right: 4px;
+    &.${Severity.ERROR} {
+      background-color: ${Colors.RED_150};
+    }
+    &.${Severity.WARNING} {
+      background-color: ${Colors.WARNING_DEBUGGER_GROUPING_BADGE};
+    }
+    ${getTypographyByKey("u2")}
+  }
   .debugger-description {
     display: flex;
     align-items: center;
@@ -100,7 +121,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
     .debugger-label {
       color: ${(props) => props.theme.colors.debugger.label};
-      ${(props) => getTypographyByKey(props, "p1")}
+      ${getTypographyByKey("p1")}
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -111,7 +132,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     }
     .debugger-entity {
       color: ${(props) => props.theme.colors.debugger.entity};
-      ${(props) => getTypographyByKey(props, "h6")}
+      ${getTypographyByKey("h6")}
       margin-left: 6px;
 
       & > span {
@@ -128,13 +149,13 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   .debugger-timetaken {
     color: ${(props) => props.theme.colors.debugger.entity};
     margin-left: 5px;
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${getTypographyByKey("p2")}
     line-height: 19px;
   }
 
   .debugger-entity-link {
     margin-left: auto;
-    ${(props) => getTypographyByKey(props, "btnMedium")}
+    ${getTypographyByKey("btnMedium")}
     color: ${(props) => props.theme.colors.debugger.entityLink};
     text-transform: uppercase;
     cursor: pointer;
@@ -166,7 +187,7 @@ margin-top:${(props) =>
   margin-left: 120px;
 
   .debugger-message {
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${getTypographyByKey("p2")}
     color: ${(props) => props.theme.colors.debugger.message};
     text-decoration-line: underline;
     cursor: pointer;
@@ -208,6 +229,7 @@ export const getLogItemProps = (e: Log) => {
     id: e.source ? e.source.id : undefined,
     messages: e.messages,
     collapsable: showToggleIcon(e),
+    occurences: e.occurrenceCount || 1,
   };
 };
 
@@ -226,6 +248,7 @@ type LogItemProps = {
   source?: SourceEntity;
   expand?: boolean;
   messages?: Message[];
+  occurences: number;
 };
 
 function LogItem(props: LogItemProps) {
@@ -286,6 +309,13 @@ function LogItem(props: LogItemProps) {
           props.category === LOG_CATEGORY.USER_GENERATED
         ) && (
           <div className="debugger-description">
+            {props.occurences > 1 && (
+              <span
+                className={`t--debugger-log-message-occurence debugger-occurences ${props.severity}`}
+              >
+                {props.occurences}
+              </span>
+            )}
             <span
               className="debugger-label t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}

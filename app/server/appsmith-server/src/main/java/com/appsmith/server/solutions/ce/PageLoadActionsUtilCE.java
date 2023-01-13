@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.ActionDependencyEdge;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import reactor.core.publisher.Mono;
 
@@ -12,6 +12,7 @@ import java.util.Set;
 public interface PageLoadActionsUtilCE {
 
     Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(String pageId,
+                                                       Integer evaluatedVersion,
                                                        Set<String> widgetNames,
                                                        Set<ActionDependencyEdge> edges,
                                                        Map<String, Set<String>> widgetDynamicBindingsMap,

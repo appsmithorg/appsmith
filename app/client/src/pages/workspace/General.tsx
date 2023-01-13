@@ -4,8 +4,8 @@ import {
   deleteWorkspaceLogo,
   saveWorkspace,
   uploadWorkspaceLogo,
-} from "actions/workspaceActions";
-import { SaveWorkspaceRequest } from "api/WorkspaceApi";
+} from "@appsmith/actions/workspaceActions";
+import { SaveWorkspaceRequest } from "@appsmith/api/WorkspaceApi";
 import { debounce } from "lodash";
 import { TextInput, emailValidator, notEmptyValidator } from "design-system";
 import { useSelector, useDispatch } from "react-redux";
@@ -16,14 +16,15 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { Text, TextType } from "design-system";
-import { Classes } from "@blueprintjs/core";
 import {
-  SetProgress,
-  UploadCallback,
+  FilePickerV2,
   FileType,
-} from "components/ads/FilePicker";
-import FilePickerV2 from "components/ads/FilePickerV2";
+  SetProgress,
+  Text,
+  TextType,
+  UploadCallback,
+} from "design-system";
+import { Classes } from "@blueprintjs/core";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useMediaQuery } from "react-responsive";
 

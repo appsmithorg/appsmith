@@ -22,16 +22,13 @@ describe("Entity explorer tests related to copy query", function() {
 
   it("1. Create a query with dataSource in explorer, Create new Page", function() {
     cy.Createpage(pageid);
-    cy.get(".t--entity-name")
-      .contains("Page1")
-      .click({ force: true });
-    cy.wait(2000);
+    ee.SelectEntityByName("Page1");
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
 
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
       cy.CheckAndUnfoldEntityItem("Datasources");
       cy.NavigateToActiveDSQueryPane(datasourceName);
@@ -51,10 +48,9 @@ describe("Entity explorer tests related to copy query", function() {
 
     cy.EvaluateCurrentValue("select * from users");
     cy.get(".t--action-name-edit-field").click({ force: true });
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
-
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
+      ee.ExpandCollapseEntity("Queries/JS");
       ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
       cy.get(apiwidget.propertyList).then(function($lis) {
         expect($lis).to.have.length(5);
@@ -68,14 +64,10 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("2. Copy query in explorer to new page & verify Bindings are copied too", function() {
-    cy.get(".t--entity-name")
-      .contains("Page1")
-      .click({ force: true });
+    ee.SelectEntityByName("Query1", "Queries/JS");
     ee.ActionContextMenuByEntityName("Query1", "Copy to page", pageid);
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(".t--entity-name")
-      .contains("Query1")
-      .click({ force: true });
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.SelectEntityByName("Query1");
     cy.runQuery();
     ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
@@ -88,17 +80,16 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("3. Rename datasource in explorer, Delete query and try to Delete datasource", function() {
-    cy.get(".t--entity-name")
-      .contains("Page1")
-      .click({ force: true });
-    cy.wait(2000);
+    ee.SelectEntityByName("Page1");
     cy.generateUUID().then((uid) => {
       updatedName = uid;
       cy.log("complete uid :" + updatedName);
       updatedName = uid.replace(/-/g, "_").slice(1, 15);
       cy.log("sliced id :" + updatedName);
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
-      cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
+      ee.ExpandCollapseEntity("Queries/JS");
+      ee.ExpandCollapseEntity("Datasources");
+      ee.RenameEntityFromExplorer(datasourceName, updatedName);
+      //cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.wait(1000);
       ee.ActionContextMenuByEntityName(updatedName, "Delete", "Are you sure?");
       cy.wait(1000);
@@ -109,9 +100,7 @@ describe("Entity explorer tests related to copy query", function() {
         409,
       );
     });
-    cy.get(".t--entity-name")
-      .contains("Query1")
-      .click();
+    ee.SelectEntityByName("Query1", "Queries/JS");
     ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
   });
 });

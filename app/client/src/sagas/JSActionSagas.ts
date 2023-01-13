@@ -32,20 +32,18 @@ import {
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import {
   createMessage,
   JS_ACTION_COPY_SUCCESS,
   ERROR_JS_ACTION_COPY_FAIL,
   JS_ACTION_DELETE_SUCCESS,
-  JS_ACTION_CREATED_SUCCESS,
   JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
-import PageApi, { FetchPageResponse } from "api/PageApi";
+import PageApi, { FetchPageResponse, PageLayout } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { ApiResponse } from "api/ApiResponses";
@@ -55,6 +53,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
+import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -77,21 +77,22 @@ export function* fetchJSCollectionsSaga(
 }
 
 export function* createJSCollectionSaga(
-  actionPayload: ReduxAction<CreateJSCollectionRequest>,
+  actionPayload: ReduxAction<{
+    request: CreateJSCollectionRequest;
+    from: EventLocation;
+  }>,
 ) {
   try {
-    const payload = actionPayload.payload;
+    const payload = actionPayload.payload.request;
     const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.createJSCollection(
       payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const actionName = actionPayload.payload.name
-        ? actionPayload.payload.name
-        : "";
-      Toaster.show({
-        text: createMessage(JS_ACTION_CREATED_SUCCESS, actionName),
-        variant: Variant.success,
+      const actionName = payload.name ? payload.name : "";
+      AnalyticsUtil.logEvent("JS_OBJECT_CREATED", {
+        name: actionName,
+        from: actionPayload.payload.from,
       });
 
       AppsmithConsole.info({
@@ -366,6 +367,9 @@ export function* refactorJSObjectName(
       } else {
         yield put(fetchJSCollectionsForPage(pageId));
       }
+      checkAndLogErrorsIfCyclicDependency(
+        (refactorResponse.data as PageLayout).layoutOnLoadActionErrors,
+      );
     }
   }
 }

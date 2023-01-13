@@ -8,14 +8,14 @@ import {
   PAGE_ROOM_PREFIX,
   ROOT_NAMESPACE,
   PAGE_VISIBILITY_EVENT_NAME
-} from "../constants/socket";
+} from "@constants/socket";
 import { VERSION as buildVersion } from "../version";
 import {
   subscribeToEditEvents,
   onAppSocketConnected,
   onPageSocketConnected,
-  sendCurrentUsers
-} from "../controllers/socket";
+  sendCurrentUsers,
+} from "@controllers/socket";
 
 export function watchEvents(io: Server) {
   io.on("connection", (socket: Socket) => {

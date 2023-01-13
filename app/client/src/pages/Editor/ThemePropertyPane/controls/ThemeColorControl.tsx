@@ -5,7 +5,7 @@ import styled from "styled-components";
 
 import { AppTheme } from "entities/AppTheming";
 import { TooltipComponent } from "design-system";
-import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
+import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 
 interface ThemeColorControlProps {
   theme: AppTheme;
@@ -69,6 +69,9 @@ function ThemeColorControl(props: ThemeColorControlProps) {
             color={userDefinedColors[selectedColor]}
             isOpen={autoFocus}
             key={selectedColor}
+            portalContainer={
+              document.getElementById("app-settings-portal") || undefined
+            }
           />
         </div>
       )}

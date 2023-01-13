@@ -4,23 +4,25 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.PageNameIdDTO;
+import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -32,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * This test is written based on the inspiration from the tutorial: https://www.baeldung.com/spring-mocking-webclient
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ApplicationTemplateServiceTest {
     ApplicationTemplateService applicationTemplateService;
     private static ObjectMapper objectMapper = new ObjectMapper();
@@ -52,20 +54,28 @@ public class ApplicationTemplateServiceTest {
     @MockBean
     private AnalyticsService analyticsService;
 
+    @MockBean
+    private ApplicationService applicationService;
+
+    @MockBean
+    private ResponseUtils responseUtils;
+    @MockBean
+    ApplicationPermission applicationPermission;
+
     private static MockWebServer mockCloudServices;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         mockCloudServices = new MockWebServer();
         mockCloudServices.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws IOException {
         mockCloudServices.shutdown();
     }
 
-    @Before
+    @BeforeEach
     public void initialize() {
         String baseUrl = String.format("http://localhost:%s", mockCloudServices.getPort());
 
@@ -73,7 +83,8 @@ public class ApplicationTemplateServiceTest {
         Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
 
         applicationTemplateService = new ApplicationTemplateServiceImpl(
-                cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService, userDataService
+                cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService,
+                userDataService, applicationService, responseUtils, applicationPermission
         );
     }
 
@@ -93,8 +104,8 @@ public class ApplicationTemplateServiceTest {
         // mock the server to return the above three templates
         mockCloudServices
                 .enqueue(new MockResponse()
-                .setBody(objectMapper.writeValueAsString(List.of(templateOne, templateTwo, templateThree)))
-                .addHeader("Content-Type", "application/json"));
+                        .setBody(objectMapper.writeValueAsString(List.of(templateOne, templateTwo, templateThree)))
+                        .addHeader("Content-Type", "application/json"));
 
         // mock the user data to set second template as recently used
         UserData mockUserData = new UserData();

@@ -17,6 +17,7 @@ import {
   NodeTypes,
   SourceType,
 } from "@shared/ast";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;
@@ -80,6 +81,40 @@ export const getJSFunctionStartLineFromCode = (
   return result;
 };
 
+export const getJSPropertyLineFromName = (
+  code: string,
+  functionName: string,
+): { line: number; ch: number } | null => {
+  let ast: Node = { end: 0, start: 0, type: "" };
+  let result: { line: number; ch: number } | null = null;
+  try {
+    ast = getAST(code, SourceType.module);
+  } catch (e) {
+    return result;
+  }
+
+  ancestor(ast, {
+    Property(node, ancestors: Node[]) {
+      // We are only interested in identifiers at this depth (exported object keys)
+      const depth = ancestors.length - 3;
+      if (
+        isPropertyNode(node) &&
+        node.loc &&
+        getNameFromPropertyNode(node) === functionName &&
+        ancestors[depth] &&
+        ancestors[depth].type === NodeTypes.ExportDefaultDeclaration
+      ) {
+        // 1 is subtracted because codeMirror's line is zero-indexed, this isn't
+        result = {
+          line: node.loc.start.line - 1,
+          ch: node.loc.start.column,
+        };
+      }
+    },
+  });
+  return result;
+};
+
 export const createGutterMarker = (gutterOnclick: () => void) => {
   const marker = document.createElement("button");
   // For most browsers the default type of button is submit, this causes the page to reload when marker is clicked
@@ -101,9 +136,10 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
 
 export const getJSFunctionLineGutter = (
   jsActions: JSAction[],
-  runFuction: (jsAction: JSAction) => void,
+  runFunction: (jsAction: JSAction, from: EventLocation) => void,
   showGutters: boolean,
   onFocusAction: (jsAction: JSAction) => void,
+  isExecutePermitted: boolean,
 ): CodeEditorGutter => {
   const gutter: CodeEditorGutter = {
     getGutterConfig: null,
@@ -115,10 +151,12 @@ export const getJSFunctionLineGutter = (
     getGutterConfig: (code: string, lineNumber: number) => {
       const config = getJSFunctionStartLineFromCode(code, lineNumber);
       const action = find(jsActions, ["name", config?.actionName]);
-      return config && action
+      return config && action && isExecutePermitted
         ? {
             line: config.line,
-            element: createGutterMarker(() => runFuction(action)),
+            element: createGutterMarker(() =>
+              runFunction(action, "JS_OBJECT_GUTTER_RUN_BUTTON"),
+            ),
             isFocusedAction: () => {
               onFocusAction(action);
             },

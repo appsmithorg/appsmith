@@ -9,7 +9,8 @@ export default [
         propertyName: "compactMode",
         helpText: "Selects row height",
         label: "Default Row Height",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         defaultValue: "DEFAULT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -36,6 +37,7 @@ export default [
       {
         propertyName: "textSize",
         label: "Text Size",
+        helpText: "Controls the size of text in the column",
         controlType: "DROP_DOWN",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
@@ -69,7 +71,8 @@ export default [
       {
         propertyName: "fontStyle",
         label: "Emphasis",
-        controlType: "BUTTON_TABS",
+        helpText: "Controls the style of the text in the column",
+        controlType: "BUTTON_GROUP",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
         options: [
@@ -82,13 +85,17 @@ export default [
             value: "ITALIC",
           },
         ],
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "horizontalAlignment",
         label: "Text Align",
+        helpText: "Sets the horizontal alignment of the content in the column",
         controlType: "ICON_TABS",
+        fullWidth: true,
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
         options: [
@@ -106,13 +113,22 @@ export default [
           },
         ],
         defaultValue: "LEFT",
-        isBindProperty: false,
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ["LEFT", "CENTER", "RIGHT"],
+          },
+        },
       },
       {
         propertyName: "verticalAlignment",
         label: "Vertical Alignment",
+        helpText: "Sets the vertical alignment of the content in the column",
         controlType: "ICON_TABS",
+        fullWidth: true,
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
         options: [
@@ -129,9 +145,16 @@ export default [
             value: "BOTTOM",
           },
         ],
-        defaultValue: "LEFT",
-        isBindProperty: false,
+        defaultValue: "CENTER",
+        isJSConvertible: true,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ["TOP", "CENTER", "BOTTOM"],
+          },
+        },
       },
     ],
   },
@@ -141,6 +164,7 @@ export default [
       {
         propertyName: "cellBackground",
         label: "Cell Background Color",
+        helpText: "Changes the background color of the cell",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
@@ -162,6 +186,7 @@ export default [
       {
         propertyName: "textColor",
         label: "Text Color",
+        helpText: "Controls the color of text in the column",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
@@ -175,6 +200,29 @@ export default [
   {
     sectionName: "Border and Shadow",
     children: [
+      {
+        propertyName: "variant",
+        helpText: "Selects the variant",
+        label: "Cell borders",
+        controlType: "DROP_DOWN",
+        defaultValue: "DEFAULT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        options: [
+          {
+            label: "Default",
+            value: "DEFAULT",
+          },
+          {
+            label: "No borders",
+            value: "VARIANT2",
+          },
+          {
+            label: "Horizonal borders only",
+            value: "VARIANT3",
+          },
+        ],
+      },
       {
         propertyName: "borderRadius",
         label: "Border Radius",
@@ -195,6 +243,26 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        helpText: "Use a html color name, HEX, RGB or RGBA value",
+        placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+        propertyName: "borderColor",
+        label: "Border Color",
+        controlType: "COLOR_PICKER",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        helpText: "Enter value for border width",
+        propertyName: "borderWidth",
+        label: "Border Width",
+        placeholderText: "Enter value in px",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.NUMBER },
       },
     ],
   },

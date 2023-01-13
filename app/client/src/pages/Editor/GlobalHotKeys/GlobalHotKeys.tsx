@@ -18,7 +18,7 @@ import {
 } from "actions/widgetSelectionActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { isMacOrIOS } from "utils/helpers";
-import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -33,8 +33,7 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
@@ -49,7 +48,8 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { matchBuilderPath, matchGeneratePagePath } from "constants/routes";
+import { matchBuilderPath } from "constants/routes";
+import { toggleInstaller } from "actions/JSLibraryActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -78,6 +78,7 @@ type Props = {
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
+  hideInstaller: () => void;
 };
 
 @HotkeysTarget
@@ -110,6 +111,7 @@ class GlobalHotKeys extends React.Component<Props> {
 
     const category = filterCategories[categoryId];
     this.props.setGlobalSearchCategory(category);
+    this.props.hideInstaller();
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "HOTKEY_COMBO",
       category: category.title,
@@ -213,10 +215,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Paste Widget"
           onKeyDown={() => {
-            if (
-              matchBuilderPath(window.location.pathname) ||
-              matchGeneratePagePath(window.location.pathname)
-            ) {
+            if (matchBuilderPath(window.location.pathname)) {
               this.props.pasteCopiedWidget(
                 this.props.getMousePosition() || { x: 0, y: 0 },
               );
@@ -363,6 +362,7 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Pin/Unpin Entity Explorer"
           onKeyDown={() => {
             this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
+            this.props.hideInstaller();
           }}
         />
         <Hotkey
@@ -383,7 +383,7 @@ class GlobalHotKeys extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  selectedWidget: getSelectedWidget(state),
+  selectedWidget: getLastSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: state.ui.debugger.isOpen,
   appMode: getAppMode(state),
@@ -418,6 +418,7 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(
         setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
       ),
+    hideInstaller: () => dispatch(toggleInstaller(false)),
   };
 };
 

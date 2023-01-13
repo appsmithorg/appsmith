@@ -12,7 +12,7 @@ describe("Create a query with a empty datasource, run, save the query", function
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.testSaveDatasource(false);
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
@@ -28,7 +28,7 @@ describe("Create a query with a empty datasource, run, save the query", function
     cy.EvaluateCurrentValue("select * from users limit 10");
     cy.runQuery(false);
     cy.get(".t--query-error").contains(
-      "[Missing endpoint., Missing username for authentication., Missing password for authentication.]",
+      "[Missing endpoint., Missing username for authentication.]",
     );
   });
 });

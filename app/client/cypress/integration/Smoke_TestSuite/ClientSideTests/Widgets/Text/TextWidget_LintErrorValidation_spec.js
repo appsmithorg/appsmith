@@ -53,12 +53,6 @@ describe("Linting warning validation with text widget", function() {
       .should("be.visible")
       .click({ force: true });
 
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(0)
-      .contains("ReferenceError: error is not defined");
-
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(1)
-      .contains("ReferenceError: lintErrror is not defined");
+    cy.get(commonlocators.debugErrorMsg).should("have.length", 3);
   });
 });

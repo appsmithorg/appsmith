@@ -2,6 +2,10 @@ const pages = require("../../../../locators/Pages.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
+const locators = {
+  errorPageTitle: ".t--error-page-title",
+};
+
 describe("Pages", function() {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
   let apiName = "someApi";
@@ -59,8 +63,8 @@ describe("Pages", function() {
 
   it("Checks if 404 is showing correct route", () => {
     cy.visit("/route-that-does-not-exist");
-    cy.get(".bold-text").should(($x) => {
-      expect($x).contain("Page not found");
+    cy.get(locators.errorPageTitle).should(($x) => {
+      expect($x).contain(Cypress.env("MESSAGES").PAGE_NOT_FOUND());
     });
   });
 });

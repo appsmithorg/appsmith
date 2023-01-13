@@ -1,7 +1,10 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.helpers.PluginUtils;
+import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
+import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -9,10 +12,11 @@ import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.PaginationType;
+import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
-import com.external.connections.APIConnection;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,24 +26,28 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,19 +57,21 @@ import java.util.Set;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
-import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
-import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
-import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
+import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 public class RestApiPluginTest {
+
+    private static HintMessageUtils hintMessageUtils;
 
     public class MockSharedConfig implements SharedConfig {
 
@@ -83,8 +93,9 @@ public class RestApiPluginTest {
 
     RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig());
 
-    @Before
+    @BeforeEach
     public void setUp() {
+        hintMessageUtils = new HintMessageUtils();
     }
 
     @Test
@@ -116,6 +127,260 @@ public class RestApiPluginTest {
                             assertEquals("application/json", field.getValue().get(0).asText());
                         }
                     });
+                })
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testExecuteApiWithPaginationForPreviousUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.PREV);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedPreviousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc+11";
+                        assertEquals(encodedPreviousUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteApiWithPaginationForPreviousEncodedUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11",
+                StandardCharsets.UTF_8);
+        String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.PREV);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedPreviousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc+11";
+                        assertEquals(encodedPreviousUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteApiWithPaginationForNextUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedNextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc+11";
+                        assertEquals(encodedNextUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteApiWithPaginationForNextEncodedUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11", StandardCharsets.UTF_8);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedNextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc+11";
+                        assertEquals(encodedNextUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
                 })
                 .verifyComplete();
     }
@@ -207,6 +472,79 @@ public class RestApiPluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testHttpGetRequestRawBody() {
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("123");
+        param.setClientDataType(ClientDataType.STRING);
+        param.setPseudoBindingName("k0");
+
+        executeActionDTO.setParams(Collections.singletonList(param));
+        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
+        executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text","k0"));
+        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Input1.text"));
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("https://postman-echo.com/get");
+
+        final List<Property> headers = List.of(
+                new Property("content-type",MediaType.TEXT_PLAIN_VALUE));
+
+        final List<Property> queryParameters = List.of();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(headers);
+        actionConfiguration.setQueryParameters(queryParameters);
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+
+        actionConfiguration.setTimeoutInMillisecond("10000");
+
+        actionConfiguration.setPaginationType(PaginationType.NONE);
+
+        actionConfiguration.setEncodeParamsToggle(true);
+
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfiguration.setFormData(Collections.singletonMap("apiContentType", MediaType.TEXT_PLAIN_VALUE));
+
+        String[] requestBodyList = {"abc is equals to {{Input1.text}}","{ \"abc\": {{Input1.text}} }",""};
+
+        String[] finalRequestBodyList = {"abc is equals to \"123\"","{ \"abc\": \"123\" }",""};
+
+        for (int requestBodyIndex = 0; requestBodyIndex < requestBodyList.length; requestBodyIndex++) {
+
+            actionConfiguration.setBody(requestBodyList[requestBodyIndex]);
+            Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
+
+            int currentIndex = requestBodyIndex;
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertTrue(result.getIsExecutionSuccess());
+                        JsonNode body = (JsonNode) result.getBody();
+                        assertNotNull(body);
+                        JsonNode args = body.get("args");
+                        int index = 0;
+                        StringBuilder actualRequestBody = new StringBuilder();
+                        while (true) {
+                            if (!args.has(String.valueOf(index))) {
+                                break;
+                            }
+                            JsonNode ans = args.get(String.valueOf(index));
+                            index++;
+                            actualRequestBody.append(ans.asText());
+                        }
+                        assertEquals(finalRequestBodyList[currentIndex],actualRequestBody.toString());
+                        final ActionExecutionRequest request = result.getRequest();
+                        assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    })
+                    .verifyComplete();
+        }
     }
 
     @Test
@@ -338,7 +676,7 @@ public class RestApiPluginTest {
 
         StepVerifier
                 .create(invalidsMono)
-                .assertNext(invalids -> invalids.containsAll(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL")));
+                .assertNext(invalids -> assertIterableEquals(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL"), invalids));
     }
 
     @Test
@@ -368,30 +706,37 @@ public class RestApiPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("this is a string! Yay :D");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("true");
+        param3.setClientDataType(ClientDataType.BOOLEAN);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("0");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("12/01/2018");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         Param param6 = new Param();
         param6.setKey("Input5.text");
         param6.setValue("null");
+        param6.setClientDataType(ClientDataType.NULL);
         params.add(param6);
         Param param7 = new Param();
         param7.setKey("Table1.selectedRow");
         param7.setValue("{  \"id\": 2381224,  \"email\": \"michael.lawson@reqres.in\",  \"userName\": \"Michael Lawson\",  \"productName\": \"Chicken Sandwich\",  \"orderAmount\": 4.99}");
+        param7.setClientDataType(ClientDataType.OBJECT);
         params.add(param7);
         Param param8 = new Param();
         param8.setKey("Table1.tableData");
         param8.setValue("[  {    \"id\": 2381224,    \"email\": \"michael.lawson@reqres.in\",    \"userName\": \"Michael Lawson\",    \"productName\": \"Chicken Sandwich\",    \"orderAmount\": 4.99  },  {    \"id\": 2736212,    \"email\": \"lindsay.ferguson@reqres.in\",    \"userName\": \"Lindsay Ferguson\",    \"productName\": \"Tuna Salad\",    \"orderAmount\": 9.99  },  {    \"id\": 6788734,    \"email\": \"tobias.funke@reqres.in\",    \"userName\": \"Tobias Funke\",    \"productName\": \"Beef steak\",    \"orderAmount\": 19.99  }]");
+        param8.setClientDataType(ClientDataType.ARRAY);
         params.add(param8);
         executeActionDTO.setParams(params);
 
@@ -572,10 +917,12 @@ public class RestApiPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("this is a string with a ? ");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         Param param2 = new Param();
         param2.setKey("Input2.text");
         param2.setValue("email@email.com");
+        param2.setClientDataType(ClientDataType.STRING);
         params.add(param2);
         executeActionDTO.setParams(params);
 
@@ -642,7 +989,8 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(actionParams);
 
         /* Test duplicate headers in datasource configuration only */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersWithDsConfigOnly = getAllDuplicateHeaders(null, dsConfig);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersWithDsConfigOnly =
+                hintMessageUtils.getAllDuplicateHeaders(null, dsConfig);
 
         // Header duplicates
         Set<String> expectedDuplicateHeaders = new HashSet<>();
@@ -651,8 +999,9 @@ public class RestApiPluginTest {
         assertTrue(expectedDuplicateHeaders.equals(duplicateHeadersWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
 
         /* Test duplicate query params in datasource configuration only */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsWithDsConfigOnly = getAllDuplicateParams(null,
-                dsConfig);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsWithDsConfigOnly =
+                hintMessageUtils.getAllDuplicateParams(null,
+                        dsConfig);
 
         // Query param duplicates
         Set<String> expectedDuplicateParams = new HashSet<>();
@@ -661,7 +1010,8 @@ public class RestApiPluginTest {
         assertTrue(expectedDuplicateParams.equals(duplicateParamsWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
 
         /* Test duplicate headers in datasource + action configuration */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders = getAllDuplicateHeaders(actionConfig, dsConfig);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders =
+                hintMessageUtils.getAllDuplicateHeaders(actionConfig, dsConfig);
 
         // Header duplicates in ds config only
         expectedDuplicateHeaders = new HashSet<>();
@@ -682,8 +1032,9 @@ public class RestApiPluginTest {
         assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(DATASOURCE_AND_ACTION_CONFIG)));
 
         /* Test duplicate query params in action + datasource config */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams = getAllDuplicateParams(actionConfig,
-                dsConfig);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams =
+                hintMessageUtils.getAllDuplicateParams(actionConfig,
+                        dsConfig);
 
         // Query param duplicates in datasource config only
         expectedDuplicateParams = new HashSet<>();
@@ -720,7 +1071,8 @@ public class RestApiPluginTest {
         actionConfig.setHeaders(actionHeaders);
 
         /* Test duplicate headers in datasource + action configuration */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders = getAllDuplicateHeaders(actionConfig, dsConfig);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders =
+                hintMessageUtils.getAllDuplicateHeaders(actionConfig, dsConfig);
 
         // Header duplicates in ds config only
         assertTrue(allDuplicateHeaders.get(DATASOURCE_CONFIG_ONLY).isEmpty());
@@ -753,8 +1105,9 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(actionParams);
 
         /* Test duplicate params in datasource + action configuration */
-        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams = getAllDuplicateParams(actionConfig,
-                dsConfig);
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams =
+                hintMessageUtils.getAllDuplicateParams(actionConfig,
+                        dsConfig);
 
         // Param duplicates in ds config only
         assertTrue(allDuplicateParams.get(DATASOURCE_CONFIG_ONLY).isEmpty());
@@ -937,6 +1290,7 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
+    @Test
     public void testQueryParamsInDatasource() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("https://postman-echo.com/post");
@@ -1081,6 +1435,46 @@ public class RestApiPluginTest {
                     fields.forEachRemaining(field -> {
                         if ("gzipped".equalsIgnoreCase(field.getKey())) {
                             assertEquals("true", field.getValue().get(0).asText());
+                        }
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testNumericStringHavingLeadingZero() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        final List<Property> headers = List.of(new Property("content-type", "application/json"));
+        actionConfig.setHeaders(headers);
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "{\"phoneNumber\":\"{{phoneNumber.text}}\"}";
+        actionConfig.setBody(requestBody);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param param = new Param();
+        param.setKey("phoneNumber.text");
+        param.setValue("017725617478");
+        param.setClientDataType(ClientDataType.STRING);
+        List<Param> params = new ArrayList<>();
+        params.add(param);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
+                    assertEquals(requestBody.replace("{{phoneNumber.text}}", param.getValue()), data.toString());
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals("https://postman-echo.com/post", request.getUrl());
+                    assertEquals(HttpMethod.POST, request.getHttpMethod());
+                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                    fields.forEachRemaining(field -> {
+                        if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
+                            assertEquals("application/json", field.getValue().get(0).asText());
                         }
                     });
                 })

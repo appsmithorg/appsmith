@@ -7,8 +7,9 @@ import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
-import { ActionCreator } from "components/editorComponents/ActionCreator";
+import ActionCreator from "components/editorComponents/ActionCreator";
 import { Size, Category } from "design-system";
+
 export interface ColumnAction {
   label?: string;
   id: string;
@@ -80,7 +81,7 @@ class ColumnActionSelectorControl extends BaseControl<
           })}
 
         <StyledPropertyPaneButton
-          category={Category.tertiary}
+          category={Category.secondary}
           icon="plus"
           onClick={this.addColumnAction}
           size={Size.medium}

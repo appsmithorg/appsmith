@@ -37,7 +37,10 @@ describe("Select Widget Functionality", function() {
         }
       ]`,
     );
-    cy.updateCodeInput(".t--property-control-defaultselectedvalue", defaultValue);
+    cy.updateCodeInput(
+      ".t--property-control-defaultselectedvalue",
+      defaultValue,
+    );
   });
 
   it("Copy and paste select widget", () => {

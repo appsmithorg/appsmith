@@ -1,5 +1,9 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.converters.HttpMethodConverter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.gson.annotations.JsonAdapter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,8 +14,10 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 
@@ -35,9 +41,9 @@ public class ActionConfiguration implements AppsmithDomain {
      * action execution.
      */
 
-    @Range(min=MIN_TIMEOUT_VALUE,
-           max=MAX_TIMEOUT_VALUE,
-           message=TIMEOUT_OUT_OF_RANGE_MESSAGE)
+    @Range(min = MIN_TIMEOUT_VALUE,
+            max = MAX_TIMEOUT_VALUE,
+            message = TIMEOUT_OUT_OF_RANGE_MESSAGE)
     Integer timeoutInMillisecond;
     PaginationType paginationType = PaginationType.NONE;
 
@@ -51,10 +57,24 @@ public class ActionConfiguration implements AppsmithDomain {
     List<Property> bodyFormData;
     // For route parameters extracted from rapid-api
     List<Property> routeParameters;
+    // All the following adapters are registered so that we can serialize between enum HttpMethod,
+    // and what is now the class HttpMethod
+    @JsonSerialize(using = HttpMethodConverter.HttpMethodSerializer.class)
+    @JsonDeserialize(using = HttpMethodConverter.HttpMethodDeserializer.class)
+    @JsonAdapter(HttpMethodConverter.class)
     HttpMethod httpMethod;
     // Paginated API fields
     String next;
     String prev;
+
+    /**
+     * This field is supposed to hold a set of paths that are expected to contain bindings that refer to the same action
+     * object i.e. a cyclic reference. e.g. A GraphQL API response can contain pagination cursors that are required
+     * to be configured in the pagination tab of the same API. We don't want to treat these cyclic references as
+     * cyclic dependency errors.
+     */
+    @Transient
+    Set<String> selfReferencingDataPaths = new HashSet<>();
 
     // DB action fields
 

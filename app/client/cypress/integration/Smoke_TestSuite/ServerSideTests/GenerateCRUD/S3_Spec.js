@@ -4,6 +4,9 @@ const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let ee = ObjectsRegistry.EntityExplorer;
 
 describe("Generate New CRUD Page Inside from entity explorer", function() {
   let datasourceName;
@@ -152,17 +155,15 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
 
     //Save source
     cy.get(".t--save-datasource").click();
-    cy.wait("@createDatasource");
+    cy.wait("@saveDatasource");
 
     //Verify page after save clicked
-    // cy.get("@createDatasource").then((httpResponse) => {
+    // cy.get("@saveDatasource").then((httpResponse) => {
     //   datasourceName = httpResponse.response.body.data.name;
     // });
 
     //Create Dummy Page2 :
-    cy.get(pages.AddPage)
-      .first()
-      .click();
+    cy.CreatePage();
     cy.wait("@createPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -170,9 +171,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     );
 
     //Creating CRUD Page3
-    cy.get(pages.AddPage)
-      .first()
-      .click();
+    cy.CreatePage();
     cy.wait("@createPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -180,7 +179,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     );
 
     cy.get("@dSName").then((dbName) => {
-      cy.get(generatePage.generateCRUDPageActionCard).click();
+      ee.AddNewPage("generate-page");
       cy.get(generatePage.selectDatasourceDropdown).click();
       cy.get(generatePage.datasourceDropdownOption)
         .contains(dbName)
@@ -248,5 +247,42 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     //cy.VerifyNoDataDisplayAbsence()
     //cy.isNotInViewport("//div[text()='haiiii hello']")
     //cy.isNotInViewport("//div[text()='No data to display']")
+  });
+
+  it("4. Generate CRUD page from the page menu", function() {
+    cy.GenerateCRUD();
+    cy.NavigateToDSGeneratePage(datasourceName);
+    // fetch bucket
+    cy.wait("@getDatasourceStructure").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.get(generatePage.selectTableDropdown).click();
+    cy.get(generatePage.dropdownOption)
+      .contains("assets-test.appsmith.com")
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
+    cy.get(generatePage.generatePageFormSubmitBtn).click();
+
+    cy.wait("@post_replaceLayoutCRUD").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.wait("@get_Actions").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait("@post_Execute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.get("span:contains('GOT IT')").click();
   });
 });

@@ -3,9 +3,7 @@
 import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const commonlocators = require("../../../../locators/commonlocators.json");
-let HomePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper;
+let HomePage = ObjectsRegistry.HomePage;
 
 describe("Create new workspace and share with a user", function() {
   let workspaceId;
@@ -33,7 +31,6 @@ describe("Create new workspace and share with a user", function() {
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
       HomePage.InviteUserToWorkspaceFromApp(
-        workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );
@@ -72,7 +69,7 @@ describe("Create new workspace and share with a user", function() {
     );
     cy.get("h2").contains("Drag and drop a widget here");
     cy.get(homePage.shareApp).click();
-    cy.enablePublicAccess();
+    cy.enablePublicAccess(true);
     cy.PublishtheApp();
     currentUrl = cy.url();
     cy.url().then((url) => {
@@ -134,7 +131,7 @@ describe("Create new workspace and share with a user", function() {
     );
     cy.get("h2").contains("Drag and drop a widget here");
     cy.get(homePage.shareApp).click();
-    cy.enablePublicAccess();
+    cy.enablePublicAccess(true);
     cy.LogOut();
   });
 
@@ -156,6 +153,7 @@ describe("Create new workspace and share with a user", function() {
       "response.body.responseMeta.status",
       404,
     );
+    cy.wait(2000);
     cy.contains("Sign in to your account").should("be.visible");
   });
 

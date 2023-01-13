@@ -5,13 +5,19 @@ import {
   SSH_KEY_GENERATED,
 } from "@appsmith/constants/messages";
 import React, { useCallback, useState } from "react";
-import { Icon, IconSize, Menu, Text, TextType } from "design-system";
+import {
+  Icon,
+  IconSize,
+  Menu,
+  Toaster,
+  Text,
+  TextType,
+  Variant,
+} from "design-system";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Position } from "@blueprintjs/core";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { useSSHKeyPair } from "../../hooks";
 import {
   DeployedKeyContainer,

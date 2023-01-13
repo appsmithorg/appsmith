@@ -89,7 +89,9 @@ describe("Table Widget V2 property pane feature validation", function() {
   it("5. Check On Page Change Action", function() {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(".t--property-control-serversidepagination input").click({force:true})
+    cy.get(".t--property-control-serversidepagination input").click({
+      force: true,
+    });
     // Select show message in the "on selected row" dropdown
     cy.onTableAction(0, "onpagechange", "Page Changed");
     cy.PublishtheApp();
@@ -101,7 +103,6 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  
   it("6. Check open section and column data in property pane", function() {
     cy.openPropertyPane("tablewidgetv2");
 
@@ -239,7 +240,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       .children()
       .contains("URL")
       .click();
-    cy.get(".t--property-control-visible span.bp3-control-indicator").click();
+    // cy.get(".t--property-control-visible span.bp3-control-indicator").click();
     cy.wait("@updateLayout");
     cy.moveToStyleTab();
     // Verifying Center Alignment
@@ -320,7 +321,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       "0",
       "0",
       "background",
-      "rgb(126, 34, 206) none repeat scroll 0% 0% / auto padding-box border-box",
+      "rgb(113, 30, 184) none repeat scroll 0% 0% / auto padding-box border-box",
       true,
     );
     // Changing Cell backgroud color to PURPLE and validate using JS
@@ -331,7 +332,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       "0",
       "0",
       "background",
-      "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
+      "rgb(102, 0, 102) none repeat scroll 0% 0% / auto padding-box border-box",
       true,
     );
     // close property pane
@@ -341,12 +342,49 @@ describe("Table Widget V2 property pane feature validation", function() {
   it("12. Verify default search text", function() {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
+    cy.moveToContentTab();
     // Chage deat search text value to "data"
+    cy.backFromPropertyPanel();
     cy.testJsontext("defaultsearchtext", "data");
     cy.PublishtheApp();
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
     cy.get(publish.backToEditor).click();
   });
-  
+
+  it("13. Verify custom column property name changes with change in column name ([FEATURE]: #17142)", function() {
+    // Open property pane
+    cy.openPropertyPane("tablewidgetv2");
+    cy.moveToContentTab();
+    cy.addColumnV2("customColumn18");
+    cy.editColumn("customColumn1");
+    cy.get(".t--property-control-propertyname pre span span").should(
+      "have.text",
+      "customColumn18",
+    );
+    cy.editColName("customColumn00");
+    cy.get(".t--property-control-propertyname pre span span").should(
+      "have.text",
+      "customColumn00",
+    );
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get('[data-rbd-draggable-id="customColumn1"] input').should(
+      "have.value",
+      "customColumn00",
+    );
+    cy.get("[data-rbd-draggable-id='customColumn1'] input[type='text']").clear({
+      force: true,
+    });
+    cy.get("[data-rbd-draggable-id='customColumn1'] input[type='text']").type(
+      "customColumn99",
+      {
+        force: true,
+      },
+    );
+    cy.editColumn("customColumn1");
+    cy.get(".t--property-control-propertyname pre span span").should(
+      "have.text",
+      "customColumn99",
+    );
+  });
 });

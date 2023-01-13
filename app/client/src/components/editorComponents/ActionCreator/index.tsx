@@ -8,10 +8,13 @@ import {
   JsFileIconV2,
   jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { getWidgetOptionsTree } from "sagas/selectors";
+import {
+  getDataTreeForActionCreator,
+  getWidgetOptionsTree,
+} from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -25,20 +28,15 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import Fields, {
-  ACTION_ANONYMOUS_FUNC_REGEX,
-  ACTION_TRIGGER_REGEX,
-  ActionType,
-  FieldType,
-} from "./Fields";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import Fields from "./Fields";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { JSAction, Variable } from "entities/JSCollection";
 import {
   CLEAR_INTERVAL,
+  CLEAR_STORE,
   CLOSE_MODAL,
   COPY_TO_CLIPBOARD,
   createMessage,
@@ -49,6 +47,8 @@ import {
   NAVIGATE_TO,
   NO_ACTION,
   OPEN_MODAL,
+  POST_MESSAGE,
+  REMOVE_VALUE,
   RESET_WIDGET,
   SET_INTERVAL,
   SHOW_MESSAGE,
@@ -61,69 +61,92 @@ import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
+import { isValidURL } from "utils/URLUtils";
+import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
+import {
+  NAVIGATE_TO_TAB_OPTIONS,
+  AppsmithFunction,
+  FieldType,
+} from "./constants";
+import {
+  SwitchType,
+  ActionCreatorProps,
+  GenericFunction,
+  DataTreeForActionCreator,
+} from "./types";
 
-/* eslint-disable @typescript-eslint/ban-types */
-/* TODO: Function and object types need to be updated to enable the lint rule */
 const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(NO_ACTION),
-    value: ActionType.none,
+    value: AppsmithFunction.none,
   },
   {
     label: createMessage(EXECUTE_A_QUERY),
-    value: ActionType.integration,
+    value: AppsmithFunction.integration,
   },
   {
     label: createMessage(NAVIGATE_TO),
-    value: ActionType.navigateTo,
+    value: AppsmithFunction.navigateTo,
   },
   {
     label: createMessage(SHOW_MESSAGE),
-    value: ActionType.showAlert,
+    value: AppsmithFunction.showAlert,
   },
   {
     label: createMessage(OPEN_MODAL),
-    value: ActionType.showModal,
+    value: AppsmithFunction.showModal,
   },
   {
     label: createMessage(CLOSE_MODAL),
-    value: ActionType.closeModal,
+    value: AppsmithFunction.closeModal,
   },
   {
     label: createMessage(STORE_VALUE),
-    value: ActionType.storeValue,
+    value: AppsmithFunction.storeValue,
+  },
+  {
+    label: createMessage(REMOVE_VALUE),
+    value: AppsmithFunction.removeValue,
+  },
+  {
+    label: createMessage(CLEAR_STORE),
+    value: AppsmithFunction.clearStore,
   },
   {
     label: createMessage(DOWNLOAD),
-    value: ActionType.download,
+    value: AppsmithFunction.download,
   },
   {
     label: createMessage(COPY_TO_CLIPBOARD),
-    value: ActionType.copyToClipboard,
+    value: AppsmithFunction.copyToClipboard,
   },
   {
     label: createMessage(RESET_WIDGET),
-    value: ActionType.resetWidget,
+    value: AppsmithFunction.resetWidget,
   },
   {
     label: createMessage(SET_INTERVAL),
-    value: ActionType.setInterval,
+    value: AppsmithFunction.setInterval,
   },
   {
     label: createMessage(CLEAR_INTERVAL),
-    value: ActionType.clearInterval,
+    value: AppsmithFunction.clearInterval,
   },
   {
     label: createMessage(GET_GEO_LOCATION),
-    value: ActionType.getGeolocation,
+    value: AppsmithFunction.getGeolocation,
   },
   {
     label: createMessage(WATCH_GEO_LOCATION),
-    value: ActionType.watchGeolocation,
+    value: AppsmithFunction.watchGeolocation,
   },
   {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
-    value: ActionType.stopWatchGeolocation,
+    value: AppsmithFunction.stopWatchGeolocation,
+  },
+  {
+    label: createMessage(POST_MESSAGE),
+    value: AppsmithFunction.postMessage,
   },
 ];
 
@@ -131,12 +154,12 @@ const getBaseOptions = (featureFlags: FeatureFlags) => {
   const { JS_EDITOR: isJSEditorEnabled } = featureFlags;
   if (isJSEditorEnabled) {
     const jsOption = baseOptions.find(
-      (option: any) => option.value === ActionType.jsFunction,
+      (option: any) => option.value === AppsmithFunction.jsFunction,
     );
     if (!jsOption) {
       baseOptions.splice(2, 0, {
         label: createMessage(EXECUTE_JS_FUNCTION),
-        value: ActionType.jsFunction,
+        value: AppsmithFunction.jsFunction,
       });
     }
   }
@@ -145,8 +168,9 @@ const getBaseOptions = (featureFlags: FeatureFlags) => {
 
 function getFieldFromValue(
   value: string | undefined,
-  getParentValue?: Function,
-  dataTree?: DataTree,
+  activeTabNavigateTo: SwitchType,
+  getParentValue?: (changeValue: string) => string,
+  dataTree?: DataTreeForActionCreator,
 ): any[] {
   const fields: any[] = [];
   if (!value) {
@@ -183,6 +207,7 @@ function getFieldFromValue(
         }
         const successFields = getFieldFromValue(
           successValue,
+          activeTabNavigateTo,
           (changeValue: string) => {
             const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
             const args = [
@@ -209,6 +234,7 @@ function getFieldFromValue(
         }
         const errorFields = getFieldFromValue(
           errorValue,
+          activeTabNavigateTo,
           (changeValue: string) => {
             const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
             const args = [
@@ -280,8 +306,19 @@ function getFieldFromValue(
   });
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
-      field: FieldType.URL_FIELD,
+      field: FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD,
     });
+
+    if (activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.PAGE_NAME) {
+      fields.push({
+        field: FieldType.PAGE_SELECTOR_FIELD,
+      });
+    } else {
+      fields.push({
+        field: FieldType.URL_FIELD,
+      });
+    }
+
     fields.push({
       field: FieldType.QUERY_PARAMS_FIELD,
     });
@@ -319,6 +356,11 @@ function getFieldFromValue(
         field: FieldType.VALUE_TEXT_FIELD,
       },
     );
+  }
+  if (value.indexOf("removeValue") !== -1) {
+    fields.push({
+      field: FieldType.KEY_TEXT_FIELD,
+    });
   }
   if (value.indexOf("resetWidget") !== -1) {
     fields.push(
@@ -373,6 +415,21 @@ function getFieldFromValue(
       field: FieldType.CALLBACK_FUNCTION_FIELD,
     });
   }
+
+  if (value.indexOf("postWindowMessage") !== -1) {
+    fields.push(
+      {
+        field: FieldType.MESSAGE_FIELD,
+      },
+      {
+        field: FieldType.SOURCE_FIELD,
+      },
+      {
+        field: FieldType.TARGET_ORIGIN_FIELD,
+      },
+    );
+  }
+
   return fields;
 }
 
@@ -387,7 +444,7 @@ function useModalDropdownList() {
       id: "create",
       icon: "plus",
       className: "t--create-modal-btn",
-      onSelect: (option: TreeDropdownOption, setter?: Function) => {
+      onSelect: (option: TreeDropdownOption, setter?: GenericFunction) => {
         const modalName = nextModalName;
         if (setter) {
           setter({
@@ -425,7 +482,7 @@ function getIntegrationOptionsWithChildren(
     icon: "plus",
     className: "t--create-js-object-btn",
     onSelect: () => {
-      dispatch(createNewJSCollection(pageId));
+      dispatch(createNewJSCollection(pageId, "ACTION_SELECTOR"));
     },
   };
   const queries = actions.filter(
@@ -438,11 +495,11 @@ function getIntegrationOptionsWithChildren(
       action.config.pluginType === PluginType.REMOTE,
   );
   const option = options.find(
-    (option) => option.value === ActionType.integration,
+    (option) => option.value === AppsmithFunction.integration,
   );
 
   const jsOption = options.find(
-    (option) => option.value === ActionType.jsFunction,
+    (option) => option.value === AppsmithFunction.jsFunction,
   );
 
   if (option) {
@@ -565,29 +622,64 @@ function useIntegrationsOptionTree() {
   );
 }
 
-type ActionCreatorProps = {
-  value: string;
-  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
-  additionalAutoComplete?: Record<string, Record<string, unknown>>;
+const isValueValidURL = (value: string) => {
+  if (value) {
+    const indices = [];
+    for (let i = 0; i < value.length; i++) {
+      if (value[i] === "'") {
+        indices.push(i);
+      }
+    }
+    const str = value.substring(indices[0], indices[1] + 1);
+    return isValidURL(str);
+  }
 };
 
-export const ActionCreator = React.forwardRef(
+const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
-    const dataTree = useSelector(getDataTree);
+    const NAVIGATE_TO_TAB_SWITCHER: Array<SwitchType> = [
+      {
+        id: "page-name",
+        text: "Page Name",
+        action: () => {
+          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[0]);
+        },
+      },
+      {
+        id: "url",
+        text: "URL",
+        action: () => {
+          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[1]);
+        },
+      },
+    ];
+
+    const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
+      NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
+    );
+    const dataTree = useSelector(getDataTreeForActionCreator);
     const integrationOptionTree = useIntegrationsOptionTree();
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const pageDropdownOptions = useSelector(getPageListAsOptions);
-    const fields = getFieldFromValue(props.value, undefined, dataTree);
+    const fields = getFieldFromValue(
+      props.value,
+      activeTabNavigateTo,
+      undefined,
+      dataTree,
+    );
+
     return (
       <TreeStructure ref={ref}>
         <Fields
+          activeNavigateToTab={activeTabNavigateTo}
           additionalAutoComplete={props.additionalAutoComplete}
           depth={1}
           fields={fields}
           integrationOptionTree={integrationOptionTree}
           maxDepth={1}
           modalDropdownList={modalDropdownList}
+          navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
           onValueChange={props.onValueChange}
           pageDropdownOptions={pageDropdownOptions}
           value={props.value}
@@ -597,3 +689,7 @@ export const ActionCreator = React.forwardRef(
     );
   },
 );
+
+ActionCreator.displayName = "ActionCreator";
+
+export default ActionCreator;

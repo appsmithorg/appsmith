@@ -8,7 +8,11 @@ import { AppState } from "@appsmith/reducers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { getAction, getDatasource } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import { isAction, isJSAction, isWidget } from "workers/evaluationUtils";
+import {
+  isAction,
+  isJSAction,
+  isWidget,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { doesEntityHaveErrors } from "../helpers";
 import React from "react";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";

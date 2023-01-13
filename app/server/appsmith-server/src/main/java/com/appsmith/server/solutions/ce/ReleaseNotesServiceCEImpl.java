@@ -98,6 +98,7 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
         return newCount == releaseNodesCache.size() ? ((newCount - 1) + "+") : String.valueOf(newCount);
     }
 
+    @Override
     public String getReleasedVersion() {
         final String version = projectProperties.getVersion();
 
@@ -112,6 +113,11 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
         return releaseNodesCache.get(0).getTagName();
     }
 
+    @Override
+    public String getRunningVersion() {
+        return projectProperties.getVersion();
+    }
+
     /**
      * Refresh the cached release notes every two hours.
      */
@@ -120,7 +126,7 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
     public void refreshReleaseNotes() {
         cacheExpiryTime = null;  // Bust the release notes cache to force fetching again.
         getReleaseNodes()
-                .subscribeOn(Schedulers.elastic())
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
     }
 

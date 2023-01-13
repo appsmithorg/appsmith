@@ -5,18 +5,18 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.NotificationRepository;
 import com.mongodb.client.result.UpdateResult;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class NotificationServiceImplTest {
     @MockBean
     private Scheduler scheduler;
@@ -54,7 +54,7 @@ public class NotificationServiceImplTest {
     NotificationService notificationService;
     private User currentUser;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         notificationService = new NotificationServiceImpl(
                 scheduler, validator, mongoConverter, reactiveMongoTemplate,
@@ -72,7 +72,7 @@ public class NotificationServiceImplTest {
     private List<Notification> createSampleNotificationList() {
         // create some sample notification
         List<Notification> notificationList = new ArrayList<>();
-        for(int i = 1; i <= 5; i++) {
+        for (int i = 1; i <= 5; i++) {
             Notification notification = new Notification();
             notification.setId("test-id-" + i);
             notificationList.add(notification);

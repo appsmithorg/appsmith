@@ -22,6 +22,7 @@ export const TableIconWrapper = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--wds-color-bg);
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
   cursor: ${(props) => !props.disabled && "pointer"};
   color: ${(props) => (props.selected ? Colors.CODE_GRAY : Colors.GRAY)};
@@ -30,11 +31,12 @@ export const TableIconWrapper = styled.div<{
     white-space: nowrap;
     color: ${(props) => props.titleColor || Colors.GRAY};
   }
+  border-bottom: 1px solid ${Colors.GEYSER_LIGHT};
   position: relative;
   margin-left: 5px;
   padding: 0 5px;
   &:hover {
-    background: ${Colors.ATHENS_GRAY};
+    background: var(--wds-color-bg-hover);
   }
 `;
 

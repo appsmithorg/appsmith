@@ -1,10 +1,13 @@
-import { transformRestAction } from "transformers/RestActionTransformer";
+import {
+  extractApiUrlPath,
+  transformRestAction,
+} from "transformers/RestActionTransformer";
 import { PluginType, ApiAction } from "entities/Action";
 import {
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,
   // POST_BODY_FORMAT_OPTIONS_ENUM,
-} from "constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 
 // jest.mock("POST_");
 
@@ -326,5 +329,41 @@ describe("Api action transformer", () => {
     };
     const result = transformRestAction(input);
     expect(result).toEqual(output);
+  });
+
+  it("Ensures that Api url path is being correctly extracted regardless of expressions witin dynamic bindings", () => {
+    // testing for simple dynamic bindings in path
+    const path1 = `/{{Text1.text ? 'users' : 'user'}}`;
+    const output1 = `/{{Text1.text ? 'users' : 'user'}}`;
+
+    const result1 = extractApiUrlPath(path1);
+    expect(result1).toEqual(output1);
+
+    // testing multiple dynamic bindings in path with empty query params
+    const path2 = `/{{Text1.text ? 'users' : 'user'}}/{{"test"}}?`;
+    const output2 = `/{{Text1.text ? 'users' : 'user'}}/{{"test"}}`;
+
+    const result2 = extractApiUrlPath(path2);
+    expect(result2).toEqual(output2);
+
+    // testing multiple dynamic bindings in path with non-empty query params
+    const path3 = `/{{Text1.text ? 'users' : 'user'}}/{{"test"}}?a=hello&b=world`;
+    const output3 = `/{{Text1.text ? 'users' : 'user'}}/{{"test"}}`;
+
+    const result3 = extractApiUrlPath(path3);
+    expect(result3).toEqual(output3);
+
+    // testing normal strings and dynamic bindings in path with non-empty query params
+    const path4 = `/key/{{Text1.text}}?a=hello&b=world`;
+    const output4 = `/key/{{Text1.text}}`;
+
+    const result4 = extractApiUrlPath(path4);
+    expect(result4).toEqual(output4);
+
+    const path5 = "/{{Text1.text ?? 'user1'}}";
+    const output5 = "/{{Text1.text ?? 'user1'}}";
+
+    const result5 = extractApiUrlPath(path5);
+    expect(result5).toEqual(output5);
   });
 });

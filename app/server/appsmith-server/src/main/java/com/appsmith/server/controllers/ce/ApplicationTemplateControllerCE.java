@@ -66,7 +66,7 @@ public class ApplicationTemplateControllerCE {
     }
 
     @PostMapping("{templateId}/merge/{applicationId}/{organizationId}")
-    public Mono<ResponseDTO<Application>> mergeTemplateWithApplication(@PathVariable String templateId,
+    public Mono<ResponseDTO<ApplicationImportDTO>> mergeTemplateWithApplication(@PathVariable String templateId,
                                                                        @PathVariable String applicationId,
                                                                        @PathVariable String organizationId,
                                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,

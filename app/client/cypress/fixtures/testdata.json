@@ -71,6 +71,7 @@
   "input2": "(//div[@class='bp3-input-group']//input)[1]",
   "input3": "(//div[@class='bp3-input-group']//input)[2]",
   "videoUrl": "https://www.youtube.com/watch?v=S5musXykVs0",
+  "videoUrl2": "https://assets.appsmith.com/widgets/bird.mp4",
   "audioUrl": "https://assets.appsmith.com/widgets/birds_chirping.mp3",
   "TablePagination": [
     {

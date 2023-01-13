@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
-import { Text, TextType } from "design-system";
+import { Classes, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
-import { Classes } from "components/ads";
 
 const Flex = styled.div`
   display: flex;

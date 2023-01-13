@@ -3,13 +3,13 @@ import React from "react";
 import styled from "styled-components";
 import { noop } from "lodash";
 
-import { CommonComponentProps } from "components/ads/common";
-import EditableTextSubComponent from "components/ads/EditableTextSubComponent";
 import {
+  CommonComponentProps,
+  EditableTextSubComponent,
   EditInteractionKind,
   SavingState,
   UNFILLED_WIDTH,
-} from "components/ads/EditableText";
+} from "design-system";
 
 export type EditableAppNameProps = CommonComponentProps & {
   defaultValue: string;

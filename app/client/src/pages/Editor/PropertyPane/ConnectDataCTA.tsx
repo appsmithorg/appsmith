@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Button, Category, Size } from "design-system";
+import { Button, Category, getTypographyByKey, Size } from "design-system";
 import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,14 +10,13 @@ import {
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { WidgetType } from "constants/WidgetConstants";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
-  ${(props) => getTypographyByKey(props, "p1")}
+  ${getTypographyByKey("p1")}
   background-color: ${(props) =>
     props.theme.colors.propertyPane.ctaBackgroundColor};
   padding: ${(props) => props.theme.spaces[3]}px ${(props) =>
@@ -35,7 +34,7 @@ const StyledDiv = styled.div`
     justify-content: flex-start;
     padding: 0px;
     color: ${(props) => props.theme.colors.propertyPane.ctaLearnMoreTextColor};
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${getTypographyByKey("p3")}
     margin-top: ${(props) => props.theme.spaces[2]}px;
 
     :hover, :focus {
@@ -92,7 +91,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
         text="CONNECT DATA"
       />
       <Button
-        category={Category.tertiary}
+        category={Category.secondary}
         onClick={openHelpModal}
         tabIndex={0}
         tag="button"
