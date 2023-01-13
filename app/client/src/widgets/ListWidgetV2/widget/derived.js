@@ -1,43 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedItem: (props, moment, _) => {
-    const selectedItemIndex =
-      props.selectedItemIndex === undefined ||
-      Number.isNaN(parseInt(props.selectedItemIndex))
-        ? -1
-        : parseInt(props.selectedItemIndex);
+    const selectedItemIndex = Number.isNaN(parseInt(props.selectedItemIndex))
+      ? -1
+      : parseInt(props.selectedItemIndex);
     const items = props.listData || [];
 
-    if (selectedItemIndex === -1) {
-      const emptyRow = { ...items[0] };
-      Object.keys(emptyRow).forEach((key) => {
-        emptyRow[key] = "";
-      });
-      return emptyRow;
+    if (selectedItemIndex === -1 || items.length < selectedItemIndex) {
+      return undefined;
     }
-
-    const selectedItem = { ...items[selectedItemIndex] };
-    return selectedItem;
+    return items[selectedItemIndex];
   },
   //
   getTriggeredItem: (props, moment, _) => {
-    const triggeredItemIndex =
-      props.triggeredItemIndex === undefined ||
-      Number.isNaN(parseInt(props.triggeredItemIndex))
-        ? -1
-        : parseInt(props.triggeredItemIndex);
+    const triggeredItemIndex = Number.isNaN(parseInt(props.triggeredItemIndex))
+      ? -1
+      : parseInt(props.triggeredItemIndex);
     const items = props.listData || [];
 
-    if (triggeredItemIndex === -1) {
-      const emptyRow = { ...items[0] };
-      Object.keys(emptyRow).forEach((key) => {
-        emptyRow[key] = "";
-      });
-      return emptyRow;
+    if (triggeredItemIndex === -1 || items.length < triggeredItemIndex) {
+      return undefined;
     }
-
-    const triggeredItem = { ...items[triggeredItemIndex] };
-    return triggeredItem;
+    return items[triggeredItemIndex];
   },
   //
   getChildAutoComplete: (props, moment, _) => {

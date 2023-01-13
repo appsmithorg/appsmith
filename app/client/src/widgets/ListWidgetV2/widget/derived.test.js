@@ -14,5 +14,24 @@ describe("Validates Derived Properties", () => {
 
     let result = getSelectedItem(input, moment, _);
     expect(result).toStrictEqual(expected);
+
+    expect(
+      getSelectedItem({ ...input, selectedItemIndex: undefined }, moment, _),
+    ).toStrictEqual(undefined);
+  });
+  it("validates triggeredItem property", () => {
+    const { getTriggeredItem } = derivedProperty;
+    const input = {
+      listData: [{ id: 1 }, { id: 2 }],
+      triggeredItemIndex: 1,
+    };
+
+    const expected = { id: 2 };
+
+    let result = getTriggeredItem(input, moment, _);
+    expect(result).toStrictEqual(expected);
+    expect(
+      getTriggeredItem({ ...input, triggeredItemIndex: undefined }, moment, _),
+    ).toStrictEqual(undefined);
   });
 });
