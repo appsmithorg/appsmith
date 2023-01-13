@@ -1,17 +1,16 @@
 import React from "react";
-import CustomizedDropdown, {
-  CustomizedDropdownProps,
-} from "pages/common/CustomizedDropdown";
-
 import { Directions } from "utils/helpers";
 import { Action } from "entities/Action";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getLightningMenuOptions } from "./helpers";
 import { LightningMenuTrigger } from "./LightningMenuTrigger";
 import { useActions, useWidgets, usePageId } from "./hooks";
-import { Theme, Skin } from "constants/DefaultTheme";
-import { withTheme } from "styled-components";
+import { Skin, Theme } from "constants/DefaultTheme";
 import { useDispatch } from "react-redux";
+import { useTheme } from "styled-components";
+import CustomizedDropdown, {
+  CustomizedDropdownProps,
+} from "pages/common/CustomizedDropdown";
 
 const lightningMenuOptions = (
   skin: Skin,
@@ -65,7 +64,6 @@ type LightningMenuProps = {
   onCloseLightningMenu?: () => void;
   updateDynamicInputValue: (value: string, cursor?: number) => void;
   skin: Skin;
-  theme: Theme;
 };
 
 export function LightningMenu(props: LightningMenuProps) {
@@ -73,6 +71,7 @@ export function LightningMenu(props: LightningMenuProps) {
   const { apis, queries, saas } = useActions();
   const pageId = usePageId();
   const dispatch = useDispatch();
+  const theme = useTheme() as Theme;
 
   return (
     <CustomizedDropdown
@@ -89,7 +88,7 @@ export function LightningMenu(props: LightningMenuProps) {
           isOpened={props.isOpened}
           onOpenLightningMenu={props.onOpenLightningMenu}
           skin={props.skin}
-          theme={props.theme}
+          theme={theme}
         />,
         props.onCloseLightningMenu,
       )}
@@ -97,4 +96,4 @@ export function LightningMenu(props: LightningMenuProps) {
   );
 }
 
-export default withTheme(LightningMenu);
+export default LightningMenu;

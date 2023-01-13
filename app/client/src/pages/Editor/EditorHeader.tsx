@@ -262,6 +262,8 @@ export function ShareButtonComponent() {
   );
 }
 
+const theme = getTheme(ThemeMode.LIGHT);
+
 export function EditorHeader(props: EditorHeaderProps) {
   const {
     applicationId,
@@ -555,8 +557,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     </ThemeProvider>
   );
 }
-
-const theme = getTheme(ThemeMode.LIGHT);
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
