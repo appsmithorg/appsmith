@@ -4,7 +4,6 @@ import {
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
 import { getIsMobile } from "./mainCanvasSelectors";
