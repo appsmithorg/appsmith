@@ -1024,6 +1024,8 @@ export interface ShowPropertyPanePayload {
 
 export interface Page {
   pageName: string;
+
+  description: string;
   pageId: string;
   isDefault: boolean;
   latest?: boolean;
