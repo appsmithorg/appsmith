@@ -1,11 +1,11 @@
 import React from "react";
 import "@testing-library/jest-dom";
+import { ThemeProvider } from "styled-components";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 
 import { lightTheme } from "selectors/themeSelectors";
-import { ThemeProvider } from "constants/DefaultTheme";
 import store from "store";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 

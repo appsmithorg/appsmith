@@ -30,6 +30,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -269,6 +270,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         if (Boolean.TRUE.equals(applicationPage.getIsDefault())) {
                             defaultPageId = applicationPage.getId();
                         }
+                    }
+                    if(!StringUtils.hasLength(defaultPageId) && !CollectionUtils.isEmpty(applicationPages)) {
+                        log.error("application {} has no default page, returning first page as default", application.getId());
+                        defaultPageId = applicationPages.get(0).getId();
                     }
                     return defaultPageId;
                 });

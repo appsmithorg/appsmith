@@ -1,10 +1,11 @@
 import store from "store";
 import React from "react";
+import { ThemeProvider } from "styled-components";
 import { Provider } from "react-redux";
 import { render, screen } from "@testing-library/react";
 
 import EvaluatedValuePopup from "./EvaluatedValuePopup";
-import { ThemeProvider, theme } from "constants/DefaultTheme";
+import { theme } from "constants/DefaultTheme";
 import { EditorTheme } from "./EditorConfig";
 
 describe("EvaluatedValuePopup", () => {
