@@ -4,11 +4,9 @@ import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import WidgetStyleContainer, {
-  WidgetStyleContainerProps,
-} from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
+import { useCollapse } from "./use-collapse";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -51,6 +49,47 @@ const StyledContainerComponent = styled.div<
   }
 `;
 
+export enum BoxShadowTypes {
+  NONE = "NONE",
+  VARIANT1 = "VARIANT1",
+  VARIANT2 = "VARIANT2",
+  VARIANT3 = "VARIANT3",
+  VARIANT4 = "VARIANT4",
+  VARIANT5 = "VARIANT5",
+}
+
+export type BoxShadow = keyof typeof BoxShadowTypes;
+
+export interface WidgetStyleContainerProps {
+  widgetId: string;
+  containerStyle?: ContainerStyle;
+  children?: ReactNode;
+  borderColor?: Color;
+  backgroundColor?: Color;
+  borderWidth?: number;
+  borderRadius?: number;
+  boxShadow?: BoxShadow;
+  className?: string;
+}
+
+const WidgetStyle = styled.div<WidgetStyleContainerProps>`
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${(props) => props.boxShadow} !important;
+  border-width: ${(props) => props.borderWidth}px;
+  border-color: ${(props) => props.borderColor || "transparent"};
+  border-style: solid;
+  background-color: ${(props) => props.backgroundColor || "transparent"};
+`;
+
+// wrapper component for apply styles on any widget boundary
+function WidgetStyleContainer(props: WidgetStyleContainerProps) {
+  return (
+    <WidgetStyle {...props} data-testid={`container-wrapper-${props.widgetId}`}>
+      <div>{props.children}</div>
+    </WidgetStyle>
+  );
+}
+
 function ContainerComponentWrapper(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
@@ -84,21 +123,53 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
   );
 }
 
+const collapseHeaderStyles: React.CSSProperties = {
+  boxSizing: "border-box",
+  // border: "2px solid black",
+  color: "#212121",
+  fontFamily: "Helvetica",
+  padding: "10px",
+  fontSize: "14px",
+  cursor: "pointer",
+  userSelect: "none",
+};
+
 function ContainerComponent(props: ContainerComponentProps) {
+  const { getCollapseProps, getToggleProps, isExpanded } = useCollapse({});
+
   return (
-    <WidgetStyleContainer
-      {...pick(props, [
-        "widgetId",
-        "containerStyle",
-        "backgroundColor",
-        "borderColor",
-        "borderWidth",
-        "borderRadius",
-        "boxShadow",
-      ])}
-    >
-      <ContainerComponentWrapper {...props} />
-    </WidgetStyleContainer>
+    <div>
+      <WidgetStyleContainer
+        {...pick(props, [
+          "widgetId",
+          "containerStyle",
+          "backgroundColor",
+          "borderColor",
+          "borderWidth",
+          "borderRadius",
+          "boxShadow",
+        ])}
+      >
+        <div style={collapseHeaderStyles} {...getToggleProps({})}>
+          {isExpanded ? "Close" : "Open"}
+        </div>
+      </WidgetStyleContainer>
+      <div {...getCollapseProps()}>
+        <WidgetStyleContainer
+          {...pick(props, [
+            "widgetId",
+            "containerStyle",
+            "backgroundColor",
+            "borderColor",
+            "borderWidth",
+            "borderRadius",
+            "boxShadow",
+          ])}
+        >
+          <ContainerComponentWrapper {...props} />
+        </WidgetStyleContainer>
+      </div>
+    </div>
   );
 }
 
