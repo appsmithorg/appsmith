@@ -152,7 +152,7 @@ import {
   addChildToPastedFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
-} from "./AutoLayoutUtils";
+} from "../utils/autoLayout/AutoLayoutUtils";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,

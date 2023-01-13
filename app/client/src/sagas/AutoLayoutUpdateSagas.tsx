@@ -15,7 +15,7 @@ import {
   removeChildLayers,
   updateFillChildStatus,
   wrapChildren,
-} from "./AutoLayoutUtils";
+} from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
 
 type LayoutUpdatePayload = {

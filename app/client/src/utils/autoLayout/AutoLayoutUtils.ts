@@ -103,7 +103,7 @@ export function updateFlexLayersOnDelete(
       index += 1;
       continue;
     }
-    // children.splice(index, 1);
+
     updatedChildren = children.filter(
       (each: LayerChild) => each.id !== widgetId,
     );
@@ -304,6 +304,12 @@ export function pasteWidgetInFlexLayers(
   return updateWidgetPositions(widgets, parentId, isMobile);
 }
 
+/**
+ * Add nested children to flex layers of the new pasted canvas.
+ * The flexLayers get copied from the original canvas.
+ * This method matches the copied widgetId with the original widgetId
+ * and replaces them in position.
+ */
 export function addChildToPastedFlexLayers(
   allWidgets: CanvasWidgetsReduxState,
   widget: any,
@@ -364,3 +370,16 @@ export function isStack(
 /**
  * END: copy paste utils
  */
+
+export function getLayerIndexOfWidget(
+  flexLayers: FlexLayer[],
+  widgetId: string,
+): number {
+  if (!flexLayers) return -1;
+  return flexLayers.findIndex((layer: FlexLayer) => {
+    return (
+      layer.children.findIndex((child: LayerChild) => child.id === widgetId) !==
+      -1
+    );
+  });
+}

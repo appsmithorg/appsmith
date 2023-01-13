@@ -35,7 +35,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
-import { updateFlexLayersOnDelete } from "./AutoLayoutUtils";
+import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,

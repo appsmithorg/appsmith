@@ -10,6 +10,7 @@ import {
   updateExistingLayer,
   updateRelationships,
 } from "./autoLayoutDraggingUtils";
+import { getLayerIndexOfWidget } from "./AutoLayoutUtils";
 import { FlexLayerAlignment } from "./constants";
 import { data } from "./testData";
 
@@ -46,13 +47,7 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         ["pt32jvs72k"],
         layers,
       );
-      const layerIndex = result.findIndex((layer: FlexLayer) => {
-        return (
-          layer.children.findIndex(
-            (child: LayerChild) => child.id === "pt32jvs72k",
-          ) !== -1
-        );
-      });
+      const layerIndex = getLayerIndexOfWidget(result, "pt32jvs72k");
       expect(result[0].children.length).toEqual(1);
       expect(layerIndex).toEqual(-1);
     });
@@ -84,14 +79,9 @@ describe("test AutoLayoutDraggingUtils methods", () => {
       expect(result[movedWidget].parentId === "0").toBeTruthy;
       if (result[oldParent]) {
         expect(result[oldParent]?.children?.includes(movedWidget)).toBeFalsy;
-        const layerIndex = result[oldParent]?.flexLayers?.findIndex(
-          (layer: FlexLayer) => {
-            return (
-              layer.children.findIndex(
-                (child: LayerChild) => child.id === "pt32jvs72k",
-              ) !== -1
-            );
-          },
+        const layerIndex = getLayerIndexOfWidget(
+          result[oldParent]?.flexLayers,
+          "pt32jvs72k",
         );
         expect(layerIndex).toEqual(-1);
       }
@@ -109,14 +99,9 @@ describe("test AutoLayoutDraggingUtils methods", () => {
       expect(result[movedWidget].parentId === "0").toBeFalsy;
       if (result[oldParent]) {
         expect(result[oldParent]?.children?.includes(movedWidget)).toBeTruthy;
-        const layerIndex = result[oldParent]?.flexLayers?.findIndex(
-          (layer: FlexLayer) => {
-            return (
-              layer.children.findIndex(
-                (child: LayerChild) => child.id === "pt32jvs72k",
-              ) !== -1
-            );
-          },
+        const layerIndex = getLayerIndexOfWidget(
+          result[oldParent]?.flexLayers,
+          "pt32jvs72k",
         );
         expect(layerIndex).toEqual(-1);
       }
@@ -139,14 +124,9 @@ describe("test AutoLayoutDraggingUtils methods", () => {
       );
       const updatedParent = result[newParentId];
       expect(updatedParent.flexLayers.length).toEqual(2);
-      const layerIndex = updatedParent?.flexLayers?.findIndex(
-        (layer: FlexLayer) => {
-          return (
-            layer.children.findIndex(
-              (child: LayerChild) => child.id === "pt32jvs72k",
-            ) !== -1
-          );
-        },
+      const layerIndex = getLayerIndexOfWidget(
+        updatedParent?.flexLayers,
+        "pt32jvs72k",
       );
       expect(layerIndex).toEqual(0);
     });
@@ -166,14 +146,9 @@ describe("test AutoLayoutDraggingUtils methods", () => {
       );
       const updatedParent = result[newParentId];
       expect(updatedParent.flexLayers.length).toEqual(2);
-      const layerIndex = updatedParent?.flexLayers?.findIndex(
-        (layer: FlexLayer) => {
-          return (
-            layer.children.findIndex(
-              (child: LayerChild) => child.id === "pt32jvs72k",
-            ) !== -1
-          );
-        },
+      const layerIndex = getLayerIndexOfWidget(
+        updatedParent?.flexLayers,
+        "pt32jvs72k",
       );
       expect(layerIndex).toEqual(1);
     });
@@ -198,14 +173,9 @@ describe("test AutoLayoutDraggingUtils methods", () => {
       const updatedParent = result[newParentId];
       expect(updatedParent.flexLayers.length).toEqual(1);
       expect(updatedParent.flexLayers[0].children.length).toEqual(3);
-      const layerIndex = updatedParent?.flexLayers?.findIndex(
-        (layer: FlexLayer) => {
-          return (
-            layer.children.findIndex(
-              (child: LayerChild) => child.id === "pt32jvs72k",
-            ) !== -1
-          );
-        },
+      const layerIndex = getLayerIndexOfWidget(
+        updatedParent?.flexLayers,
+        "pt32jvs72k",
       );
       expect(layerIndex).toEqual(0);
     });
