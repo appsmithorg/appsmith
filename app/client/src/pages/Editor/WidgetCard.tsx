@@ -7,6 +7,7 @@ import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
+import { isAutoLayout } from "selectors/mainCanvasSelectors";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -68,6 +69,10 @@ function WidgetCard(props: CardProps) {
   const { deselectAll } = useWidgetSelection();
 
   const onDragStart = (e: any) => {
+    let rows = (props.details as any).rows;
+    if (isAutoLayout()) {
+      rows = (props.details as any).autoLayout?.defaults?.rows ?? rows;
+    }
     e.preventDefault();
     e.stopPropagation();
     deselectAll();
@@ -78,6 +83,7 @@ function WidgetCard(props: CardProps) {
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,
+        rows: rows,
         widgetId: generateReactKey(),
       });
   };

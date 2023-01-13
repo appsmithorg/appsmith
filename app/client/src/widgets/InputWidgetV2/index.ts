@@ -21,7 +21,7 @@ export const CONFIG = {
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...BaseConfig.defaults,
-    rows: 8,
+    rows: 7,
     labelPosition: LabelPosition.Top,
     inputType: "TEXT",
     widgetName: "Input",
@@ -38,6 +38,11 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+  },
+  autoLayout: {
+    defaults: {
+      rows: 8,
+    },
   },
 };
 

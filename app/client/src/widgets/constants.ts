@@ -15,7 +15,14 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
 
+interface AutoLayoutWidgetConfiguration {
+  defaults: {
+    rows?: number;
+  };
+}
+
 export interface WidgetConfiguration {
+  autoLayout?: AutoLayoutWidgetConfiguration;
   type: string;
   name: string;
   iconSVG?: string;
