@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
@@ -24,6 +25,7 @@ public class ActionViewDTO {
     Set<String> jsonPathKeys;
     @JsonIgnore
     DefaultResources defaultResources;
+    public Set<String> userPermissions = new HashSet<>();
 
     // Overriding the getter to ensure that for actions missing action configuration, the timeout is
     // still set for the client to use as a guideline (even though this would be an invalid action

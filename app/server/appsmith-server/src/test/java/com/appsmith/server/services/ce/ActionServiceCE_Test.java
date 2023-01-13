@@ -1036,6 +1036,7 @@ public class ActionServiceCE_Test {
                     assertThat(actionViewDTO.getJsonPathKeys()).containsAll(Set.of(key));
                     assertThat(actionViewDTO.getPageId()).isEqualTo(testPage.getId());
                     assertThat(actionViewDTO.getTimeoutInMillisecond()).isEqualTo(DEFAULT_ACTION_EXECUTION_TIMEOUT_MS);
+                    assertThat(actionViewDTO.getUserPermissions()).contains(EXECUTE_ACTIONS.getValue());
 
                     ActionViewDTO actionViewDTO1 = actionsList.stream().filter(dto -> dto.getName().equals(action1.getName())).findFirst().get();
 
@@ -1043,12 +1044,14 @@ public class ActionServiceCE_Test {
                     assertThat(actionViewDTO1.getJsonPathKeys()).isNullOrEmpty();
                     assertThat(actionViewDTO1.getPageId()).isEqualTo(testPage.getId());
                     assertThat(actionViewDTO1.getTimeoutInMillisecond()).isEqualTo(20000);
+                    assertThat(actionViewDTO1.getUserPermissions()).contains(EXECUTE_ACTIONS.getValue());
 
                     ActionViewDTO actionViewDTO2 = actionsList.stream().filter(dto -> dto.getName().equals(action2.getName())).findFirst().get();
 
                     assertThat(actionViewDTO2).isNotNull();
                     assertThat(actionViewDTO2.getPageId()).isEqualTo(testPage.getId());
                     assertThat(actionViewDTO2.getTimeoutInMillisecond()).isEqualTo(DEFAULT_ACTION_EXECUTION_TIMEOUT_MS);
+                    assertThat(actionViewDTO2.getUserPermissions()).contains(EXECUTE_ACTIONS.getValue());
                 })
                 .verifyComplete();
     }
@@ -1150,6 +1153,7 @@ public class ActionServiceCE_Test {
                     assertThat(actionViewDTO.getPageId()).isNotNull();
                     assertThat(actionViewDTO.getConfirmBeforeExecute()).isNotNull();
                     assertThat(actionViewDTO.getJsonPathKeys().size()).isEqualTo(1);
+                    assertThat(actionViewDTO.getUserPermissions()).contains(EXECUTE_ACTIONS.getValue());
                 })
                 .verifyComplete();
     }

@@ -1585,6 +1585,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (action.getPublishedAction().getActionConfiguration() != null) {
                         actionViewDTO.setTimeoutInMillisecond(action.getPublishedAction().getActionConfiguration().getTimeoutInMillisecond());
                     }
+
+                    actionViewDTO.setUserPermissions(action.getUserPermissions());
+
                     return actionViewDTO;
                 });
     }
