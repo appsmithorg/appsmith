@@ -153,6 +153,7 @@ describe("Create new workspace and share with a user", function() {
       "response.body.responseMeta.status",
       404,
     );
+    cy.wait(2000);
     cy.contains("Sign in to your account").should("be.visible");
   });
 
