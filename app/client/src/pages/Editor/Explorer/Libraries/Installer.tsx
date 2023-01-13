@@ -260,11 +260,9 @@ function ProgressTracker({
       addBorder={!isFirst}
       className={classNames({
         "mb-2": isLast,
+        hidden: status !== InstallState.Failed,
       })}
     >
-      {[InstallState.Queued, InstallState.Installing].includes(status) && (
-        <div className="text-gray-700 text-xs">Installing...</div>
-      )}
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-center gap-2 fw-500 text-sm">
           <div className="install-url text-sm font-medium">{url}</div>
@@ -274,7 +272,7 @@ function ProgressTracker({
         </div>
         <div
           className={classNames({
-            "gap-2 error-card items-start": true,
+            "gap-2 error-card items-start ": true,
             show: status === InstallState.Failed,
           })}
         >
@@ -344,6 +342,7 @@ export function Installer(props: { left: number }) {
   const installerRef = useRef<HTMLDivElement>(null);
 
   const closeInstaller = useCallback(() => {
+    setURL("");
     dispatch(clearInstalls());
     dispatch(toggleInstaller(false));
   }, []);
@@ -447,6 +446,7 @@ export function Installer(props: { left: number }) {
               data-testid="install-library-btn"
               disabled={!(URL && isValid)}
               icon="download"
+              isLoading={queuedLibraries.length > 0}
               onClick={() => installLibrary()}
               size={Size.medium}
               tag="button"
