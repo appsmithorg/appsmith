@@ -18,7 +18,6 @@ import com.appsmith.server.constants.GitDefaultCommitMessage;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
@@ -27,6 +26,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
@@ -2453,10 +2453,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         );
         analyticsProps.put(FieldName.EVENT_DATA, eventData);
         return sessionUserService.getCurrentUser()
-                .map(user -> {
-                    analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
-                    return application;
-                });
+                .flatMap(user -> analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps).thenReturn(application));
     }
 
     @Override
