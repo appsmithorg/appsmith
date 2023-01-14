@@ -151,7 +151,6 @@ class ListWidget extends BaseWidget<
     return {
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
       triggeredItem: `{{(()=>{${derivedProperties.getTriggeredItem}})()}}`,
-      items: `{{(() => {${derivedProperties.getItems}})()}}`,
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
     };
   }
