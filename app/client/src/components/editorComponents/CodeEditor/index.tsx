@@ -70,6 +70,7 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
+  isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import {
   addEventToHighlightedElement,
@@ -1056,6 +1057,8 @@ class CodeEditor extends Component<Props, State> {
       dataTreePath,
     );
 
+    console.log("heree", dataTreePath, evaluatedValue, pathEvaluatedValue);
+
     let errors = evalErrors,
       isInvalid = evalErrors.length > 0,
       evaluated = evaluatedValue;
@@ -1071,8 +1074,11 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.isInvalid !== undefined) {
       isInvalid = Boolean(this.props.isInvalid);
     }
+    const isDynamic = isDynamicValue(this.props?.input?.value) || false;
+
     const showEvaluatedValue =
       this.state.isFocused &&
+      isDynamic &&
       !hideEvaluatedValue &&
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!dataTreePath));

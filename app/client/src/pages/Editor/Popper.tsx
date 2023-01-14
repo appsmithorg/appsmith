@@ -1,7 +1,7 @@
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 import { Colors } from "constants/Colors";
 import PopperJS, { Placement, PopperOptions } from "popper.js";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AppState } from "@appsmith/reducers";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -38,6 +38,12 @@ export type PopperProps = {
     left: number;
   };
   onPositionChange?: (position: { top: number; left: number }) => void;
+  onMouseEnterFn?: (e: any) => void;
+  onMouseLeaveFn?: (e: any) => void;
+  setPosition?: (e: any) => void;
+  setIsDragging?: (e: any) => void;
+  isDragging?: boolean;
+  customParent?: Element | undefined;
   // DraggableNode?: any;
 };
 
@@ -64,9 +70,14 @@ const DragHandleBlock = styled.div`
   }
 `;
 
-export function PopperDragHandle() {
+// type PopperDragHandleProps = {};
+
+export function PopperDragHandle(props: any) {
   return (
-    <DragHandleBlock>
+    <DragHandleBlock
+      onMouseEnter={() => props.dragFn(true)}
+      onMouseLeave={() => props.dragFn(false)}
+    >
       <DragHandleIcon />
     </DragHandleBlock>
   );
@@ -74,9 +85,34 @@ export function PopperDragHandle() {
 
 /* eslint-disable react/display-name */
 export default (props: PopperProps) => {
-  const contentRef = useRef(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const popperIdRef = useRef(generateReactKey());
   const popperId = popperIdRef.current;
+  // const [isDragging, setIsDragging] = useState(false);
+
+  const onPositionChangeFn = (e: any) => {
+    console.log("heree", e, position);
+    if (contentRef.current && !!props.setPosition) {
+      // contentRef.current.style.transform = "unset";
+      contentRef.current.style.top = e.top + "px";
+      contentRef.current.style.left = e.left + "px";
+
+      props.setPosition(e);
+    }
+  };
+
+  // const onMouseEnterFn = (e: any) => {
+  //   if (props.isDragging && props.setIsDragging) {
+  //     console.log("hereee enr", props.isDragging);
+  //     props.setIsDragging(true);
+  //   }
+  // };
+  // const onMouseLeaveFn = (e: any) => {
+  //   if (props.isDragging && props.setIsDragging) {
+  //     props.setIsDragging(false);
+  //     console.log("hereee leave", props.isDragging);
+  //   }
+  // };
 
   const {
     boundaryParent = "viewport",
@@ -84,7 +120,7 @@ export default (props: PopperProps) => {
     disablePopperEvents = false,
     position,
     renderDragBlock,
-    onPositionChange = noop,
+    onPositionChange = onPositionChangeFn,
     themeMode = props.themeMode || ThemeMode.LIGHT,
     renderDragBlockPositions,
     cypressSelectorDragHandle,
@@ -97,7 +133,9 @@ export default (props: PopperProps) => {
   );
 
   useEffect(() => {
-    const parentElement = props.targetNode && props.targetNode.parentElement;
+    const parentElement =
+      props?.customParent ||
+      (props.targetNode && props.targetNode.parentElement);
 
     if (
       parentElement &&
@@ -120,6 +158,12 @@ export default (props: PopperProps) => {
           onCreate: (popperData) => {
             const elementRef: any = popperData.instance.popper;
             if (isDraggable && position) {
+              console.log(
+                "hereee",
+                "i runnn",
+                position,
+                elementRef.getBoundingClientRect(),
+              );
               const initPositon =
                 position || elementRef.getBoundingClientRect();
               elementRef.style.transform = "unset";
@@ -138,7 +182,7 @@ export default (props: PopperProps) => {
               enabled: false,
             },
             preventOverflow: {
-              enabled: true,
+              enabled: false,
               /*
                 Prevent the FilterPane from overflowing the canvas when the
                 table widget is on the very top of the canvas.
@@ -163,7 +207,10 @@ export default (props: PopperProps) => {
               renderDragBlock
             ) : (
               <ThemeProvider theme={popperTheme}>
-                <PopperDragHandle />
+                <PopperDragHandle
+                  dragFn={props.setIsDragging}
+                  // onMouseLeaveFn={props.setIsDragging}
+                />
               </ThemeProvider>
             ),
           cypressSelectorDragHandle,

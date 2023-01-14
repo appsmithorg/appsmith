@@ -541,6 +541,8 @@ function PopoverContent(props: PopoverContentProps) {
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
   const [timeoutId, setTimeoutId] = useState(0);
+  const [position, setPosition] = useState(undefined);
+  const [isDragging, setIsDragging] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
@@ -554,12 +556,22 @@ function EvaluatedValuePopup(props: Props) {
     return "left-start";
   }, [wrapperRef.current]);
 
+  console.log("hereee", isDragging, props.entity, props);
+
+  // entityId -> path name.
+
   return (
     <Wrapper ref={wrapperRef}>
       <Popper
-        isOpen={props.isOpen || contentHovered}
+        customParent={document.body}
+        isDraggable
+        isDragging={isDragging}
+        isOpen={props.isOpen || contentHovered || isDragging}
         modifiers={modifiers}
         placement={placement}
+        position={position}
+        setIsDragging={setIsDragging}
+        setPosition={setPosition}
         targetNode={wrapperRef.current || undefined}
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
