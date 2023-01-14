@@ -13,7 +13,9 @@ export enum Activities {
   ACTIVE,
   NONE,
 }
-const StyledTooltip = styled(Tooltip)`
+const StyledTooltip = styled(Tooltip)<{
+  children?: React.ReactNode;
+}>`
   .${Classes.POPOVER_TARGET} {
     height: 100%;
   }

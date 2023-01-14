@@ -48,4 +48,5 @@ export interface EvalTreeResponseData {
   userLogs: UserLogObject[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
+  staleMetaIds: string[];
 }
