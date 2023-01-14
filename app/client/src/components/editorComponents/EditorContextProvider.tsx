@@ -30,10 +30,12 @@ import {
 import {
   modifyMetaWidgets,
   deleteMetaWidgets,
+  updateMetaWidgetProperty,
 } from "actions/metaWidgetActions";
 import {
   ModifyMetaWidgetPayload,
   DeleteMetaWidgetsPayload,
+  UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 
@@ -72,6 +74,7 @@ export type EditorContextType<TCache = unknown> = {
   checkContainersForAutoHeight?: () => void;
   modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
   setWidgetCache?: (widgetId: string, data: TCache) => void;
+  updateMetaWidgetProperty?: (payload: UpdateMetaWidgetPropertyPayload) => void;
   getWidgetCache?: (widgetId: string) => TCache;
   deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
 };
@@ -91,6 +94,7 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "modifyMetaWidgets",
   "resetChildrenMetaProperty",
   "setWidgetCache",
+  "updateMetaWidgetProperty",
   "syncUpdateWidgetMetaProperty",
   "triggerEvalOnMetaUpdate",
   "updateWidgetAutoHeight",
@@ -104,7 +108,6 @@ const CANVAS_MODE_API_METHODS: EditorContextTypeKey[] = [
   "deleteMetaWidgets",
   "deleteWidgetProperty",
   "disableDrag",
-  "modifyMetaWidgets",
   "updateWidget",
   "updateWidgetProperty",
 ];
@@ -192,6 +195,7 @@ const mapDispatchToProps = {
   updateWidgetAutoHeight: updateWidgetAutoHeightAction,
   checkContainersForAutoHeight: checkContainersForAutoHeightAction,
   modifyMetaWidgets,
+  updateMetaWidgetProperty,
   deleteMetaWidgets,
 };
 

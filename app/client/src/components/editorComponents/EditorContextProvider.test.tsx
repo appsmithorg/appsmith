@@ -31,6 +31,7 @@ describe("EditorContextProvider", () => {
       "modifyMetaWidgets",
       "resetChildrenMetaProperty",
       "setWidgetCache",
+      "updateMetaWidgetProperty",
       "syncUpdateWidgetMetaProperty",
       "triggerEvalOnMetaUpdate",
       "deleteMetaWidgets",
@@ -63,6 +64,7 @@ describe("EditorContextProvider", () => {
       "modifyMetaWidgets",
       "resetChildrenMetaProperty",
       "setWidgetCache",
+      "updateMetaWidgetProperty",
       "syncUpdateWidgetMetaProperty",
       "triggerEvalOnMetaUpdate",
     ].sort();

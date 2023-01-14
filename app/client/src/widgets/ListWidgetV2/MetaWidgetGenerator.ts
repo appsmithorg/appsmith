@@ -798,13 +798,25 @@ class MetaWidgetGenerator {
     metaWidget.level = this.level + 1;
   };
 
+  updateWidgetNameInDynamicBinding = (
+    binding: string,
+    metaWidgetName: string,
+    templateWidgetName: string,
+  ) => {
+    if (metaWidgetName === templateWidgetName) return binding;
+
+    const pattern = new RegExp(`${templateWidgetName}\\.`, "g");
+
+    return binding.replace(pattern, `${metaWidgetName}.`);
+  };
+
   private addDynamicPathsProperties = (
     metaWidget: MetaWidget,
     metaWidgetCacheProps: MetaWidgetCacheProps,
     key: string,
     options: AddDynamicPathsPropertiesOptions = {},
   ) => {
-    const { metaWidgetName } = metaWidgetCacheProps;
+    const { metaWidgetName, templateWidgetName } = metaWidgetCacheProps;
     const { excludedPaths = [] } = options;
     const dynamicPaths = [
       ...(metaWidget.dynamicBindingPathList || []),
@@ -817,7 +829,13 @@ class MetaWidgetGenerator {
     dynamicPaths.forEach(({ key: path }) => {
       if (excludedPaths.includes(path)) return;
 
-      const propertyValue: string = get(metaWidget, path);
+      let propertyValue: string = get(metaWidget, path);
+
+      propertyValue = this.updateWidgetNameInDynamicBinding(
+        propertyValue,
+        metaWidgetName,
+        templateWidgetName,
+      );
       const { jsSnippets, stringSegments } = getDynamicBindings(propertyValue);
       const js = combineDynamicBindings(jsSnippets, stringSegments);
       const pathTypes = new Set();

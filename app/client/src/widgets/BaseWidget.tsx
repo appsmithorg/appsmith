@@ -53,7 +53,10 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
 import { FlattenedWidgetProps } from "./constants";
-import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
+import {
+  ModifyMetaWidgetPayload,
+  UpdateMetaWidgetPropertyPayload,
+} from "reducers/entityReducers/metaWidgetsReducer";
 
 /***
  * BaseWidget
@@ -260,6 +263,15 @@ abstract class BaseWidget<
   deleteMetaWidgets = () => {
     this.context?.deleteMetaWidgets?.({
       creatorIds: [this.props.widgetId],
+    });
+  };
+
+  updateMetaWidgetProperty = (payload: UpdateMetaWidgetPropertyPayload) => {
+    const { widgetId } = this.props;
+
+    this.context.updateMetaWidgetProperty?.({
+      ...payload,
+      creatorId: widgetId,
     });
   };
 

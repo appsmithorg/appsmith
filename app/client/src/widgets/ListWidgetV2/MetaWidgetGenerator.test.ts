@@ -908,7 +908,7 @@ describe("#generate", () => {
     };
 
     const expectedDataBinding =
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,gridGap: List6.gridGap,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,items: List6.items,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,selectedItemIndex: List6.selectedItemIndex,triggeredItemIndex: List6.triggeredItemIndex }\n        \n      }\n    }}";
+      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,items: List6.items,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,selectedItemIndex: List6.selectedItemIndex,triggeredItemIndex: List6.triggeredItemIndex }\n        \n      }\n    }}";
 
     const count = Object.keys(metaWidgets).length;
     expect(count).toEqual(18);
@@ -1232,5 +1232,39 @@ describe("#getMetaContainers", () => {
 
     expect(containers.names[0]).toEqual("Container1");
     expect(containers.names[1]).not.toEqual("Container1");
+  });
+});
+
+describe("#updateWidgetNameInDynamicBinding", () => {
+  const { generator } = init();
+  const data = [
+    {
+      binding: "Text1.isValid + Text1 + Text1.text",
+      metaWidgetName: "List12_Text1_szn8dmq3qq_txbxl5n484",
+      templateWidgetName: "Text1",
+      expected:
+        "List12_Text1_szn8dmq3qq_txbxl5n484.isValid + Text1 + List12_Text1_szn8dmq3qq_txbxl5n484.text",
+    },
+    {
+      binding:
+        '{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["name"]))}}',
+      metaWidgetName: "List1_Table1_szn8dmq3qq_l21enk0im8",
+      templateWidgetName: "Table1",
+      expected:
+        '{{List1_Table1_szn8dmq3qq_l21enk0im8.processedTableData.map((currentRow, currentIndex) => ( currentRow["name"]))}}',
+    },
+  ];
+
+  it("returns meta containers", () => {
+    data.forEach(
+      ({ binding, expected, metaWidgetName, templateWidgetName }) => {
+        const updatedBinding = generator.updateWidgetNameInDynamicBinding(
+          binding,
+          metaWidgetName,
+          templateWidgetName,
+        );
+        expect(updatedBinding).toBe(expected);
+      },
+    );
   });
 });
