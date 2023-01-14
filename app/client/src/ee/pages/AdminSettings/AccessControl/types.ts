@@ -68,6 +68,7 @@ export type GroupProps = BaseAclProps & {
   allRoles: BaseAclProps[];
   userPermissions?: string[];
   isNew?: boolean;
+  description?: string;
 };
 
 export type GroupEditProps = {

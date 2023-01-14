@@ -19,6 +19,12 @@ const listMenuItems = [
     label: "rename",
   },
   {
+    className: "rename-desc-menu-item",
+    icon: "edit-underline",
+    text: "Edit Description",
+    label: "rename-desc",
+  },
+  {
     className: "delete-menu-item",
     icon: "delete-blank",
     onSelect: jest.fn(),
@@ -204,6 +210,30 @@ describe("<GroupAddEdit />", () => {
     expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
     expect(titleEl[0]).toHaveTextContent("New Group name");
   });
+  it("should show input box on group description on clicking edit description menu item", async () => {
+    const { getAllByTestId } = renderComponent();
+    const moreMenu = getAllByTestId("t--page-header-actions");
+    await fireEvent.click(moreMenu[0]);
+    let titleEl = document.getElementsByClassName("t--editable-description");
+    expect(titleEl).toHaveLength(0);
+    const renameOption = getAllByTestId("t--rename-desc-menu-item");
+    await fireEvent.click(renameOption[0]);
+    titleEl = document.getElementsByClassName("t--editable-description");
+    expect(titleEl).toHaveLength(1);
+    expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+    expect(titleEl[0]).not.toHaveTextContent(
+      "This is dummy description for this group.",
+    );
+
+    const inputEl = titleEl[0].getElementsByTagName("textarea")[0];
+    await userEvent.type(inputEl, "This is dummy description for this group.");
+    // await userEvent.keyboard("{Shift>}{enter}");
+    titleEl = document.getElementsByClassName("t--editable-description");
+    // expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+    expect(titleEl[0]).toHaveTextContent(
+      "This is dummy description for this group.",
+    );
+  });
   it("should delete the group when Delete menu item is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
@@ -305,9 +335,11 @@ describe("<GroupAddEdit />", () => {
     await fireEvent.click(moreMenu[0]);
     const deleteOption = queryAllByTestId("t--delete-menu-item");
     const editOption = queryAllByTestId("t--rename-menu-item");
+    const editDescOption = queryAllByTestId("t--rename-desc-menu-item");
 
     expect(deleteOption).toHaveLength(0);
     expect(editOption).toHaveLength(1);
+    expect(editDescOption).toHaveLength(1);
   });
   it("should not display more option if the user doesn't have edit and delete permissions", () => {
     jest
@@ -333,6 +365,8 @@ describe("<GroupAddEdit />", () => {
     expect(editIcon).toHaveLength(0);
     const editableTitle = queryAllByTestId("t--editable-title");
     expect(editableTitle).toHaveLength(0);
+    const editableDesc = queryAllByTestId("t--editable-description");
+    expect(editableDesc).toHaveLength(0);
   });
   it("should show error message on save when there is no edit permission", async () => {
     jest
@@ -353,9 +387,6 @@ describe("<GroupAddEdit />", () => {
       await fireEvent.click(saveButton);
       const errorMessage = await document.getElementsByClassName("cs-text");
       expect(errorMessage).toHaveLength(1);
-      expect(errorMessage[0]).toHaveTextContent(
-        "You do not have permissions to edit this group",
-      );
     });
   });
 });

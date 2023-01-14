@@ -200,6 +200,7 @@ export class AclApi extends Api {
   ): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.put(`${AclApi.userGroups}/${payload.id}`, {
       name: payload.name,
+      description: payload.description,
     });
     return response;
   }

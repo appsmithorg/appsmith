@@ -10,8 +10,6 @@ import {
   TabComponent,
   Table,
   TabProp,
-  Toaster,
-  Variant,
 } from "design-system";
 import styled from "styled-components";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
@@ -44,6 +42,7 @@ import {
   EVENT_GROUP_ADD_USER_TOP_BAR,
   EVENT_GROUP_INVITE_USER_TOP_BAR,
   EVENT_GROUP_INVITE_USER_EMPTY_STATE,
+  ACL_EDIT_DESC,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
@@ -264,14 +263,6 @@ export function GroupAddEdit(props: GroupEditProps) {
   };
 
   const onSaveChanges = () => {
-    if (!canManageGroup) {
-      Toaster.show({
-        text: "You do not have permissions to edit this group",
-        variant: Variant.danger,
-      });
-      onClearChanges();
-      return;
-    }
     const rolesAdded = addedAllGroups.map((group: BaseAclProps) => ({
       id: group.id,
       name: group.name,
@@ -302,6 +293,18 @@ export function GroupAddEdit(props: GroupEditProps) {
         updateGroupName({
           id: selected.id || params.selected,
           name,
+        }),
+      );
+    }
+  };
+
+  const onEditDesc = (desc: string) => {
+    if (selected.description !== desc) {
+      dispatch(
+        updateGroupName({
+          id: selected.id || params.selected,
+          name: selected.name,
+          description: desc,
         }),
       );
     }
@@ -472,6 +475,12 @@ export function GroupAddEdit(props: GroupEditProps) {
       text: createMessage(ACL_RENAME),
       label: "rename",
     },
+    canManageGroup && {
+      className: "rename-desc-menu-item",
+      icon: "edit-underline",
+      text: createMessage(ACL_EDIT_DESC),
+      label: "rename-desc",
+    },
     canDeleteGroup && {
       className: "delete-menu-item",
       icon: "delete-blank",
@@ -490,10 +499,12 @@ export function GroupAddEdit(props: GroupEditProps) {
       <BackButton />
       <PageHeader
         buttonText={selected.users.length > 0 ? createMessage(ADD_USERS) : ""}
+        description={selected.description}
         disableButton={!canAddUsersToGroup}
         isEditingTitle={isNew}
         isHeaderEditable={canManageGroup}
         onButtonClick={() => onButtonClick(true)}
+        onEditDesc={onEditDesc}
         onEditTitle={onEditTitle}
         onSearch={onSearch}
         pageMenuItems={menuItems}

@@ -82,6 +82,7 @@ export const groupsReducers = {
     selectedGroup: {
       ...state.selectedGroup,
       name: action.payload.name,
+      description: action.payload.description,
       isNew: false,
     },
     isLoading: false,
