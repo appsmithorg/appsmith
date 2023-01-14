@@ -4,7 +4,7 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
-describe("List widget v2 onRowClick", () => {
+describe("List widget v2 onItemClick", () => {
   it("1. List widget V2 with onRowCLick", () => {
     cy.dragAndDropToCanvas("listwidgetv2", {
       x: 300,
@@ -12,10 +12,10 @@ describe("List widget v2 onRowClick", () => {
     });
     cy.openPropertyPane("listwidgetv2");
 
-    cy.get(toggleJSButton("onrowclick")).click({ force: true });
+    cy.get(toggleJSButton("onitemclick")).click({ force: true });
 
     cy.testJsontext(
-      "onrowclick",
+      "onitemclick",
       "{{showAlert('ListWidget_' + currentItem.name + '_' + currentIndex,'success')}}",
     );
 

@@ -197,9 +197,9 @@ export const PropertyPaneContentConfig = [
     sectionName: "Events",
     children: [
       {
-        propertyName: "onRowClick",
-        helpText: "Triggers an action when a row is clicked",
-        label: "onRowClick",
+        propertyName: "onItemClick",
+        helpText: "Triggers an action when an item is clicked",
+        label: "onItemClick",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,
