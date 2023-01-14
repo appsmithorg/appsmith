@@ -1,10 +1,15 @@
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
+const dslWithCurrencyWidget = require("../../../../../../fixtures/Listv2/simpleListWithCurrencyWidget.json");
 const publish = require("../../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 
+import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
+
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const widgetSelectorByType = (name) => `.t--widget-${name}`;
+
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
@@ -13,7 +18,16 @@ describe("Input Widgets", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("a. Input Widgets default value", function() {
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  it("1. Input Widgets default value", function() {
     cy.dragAndDropToWidget("currencyinputwidget", "listwidgetv2", {
       x: 50,
       y: 50,
@@ -59,7 +73,8 @@ describe("Input Widgets", function() {
       .invoke("attr", "value")
       .should("contain", items[0].phoneNumber);
   });
-  it("b. Input Widgets isValid", function() {
+
+  it("2. Input Widgets isValid", function() {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
       x: 350,
@@ -124,5 +139,52 @@ describe("Input Widgets", function() {
     )
       .first()
       .should("have.text", "false");
+  });
+
+  it("3. Currency widget default value is retained over page change", () => {
+    const value = "123456789";
+    const formattedText = "123,456,789";
+
+    cy.addDsl(dslWithCurrencyWidget);
+    cy.openPropertyPane("currencyinputwidget");
+    cy.updateCodeInput(".t--property-control-defaultvalue", value);
+
+    // Observe the value of 2nd item currency widget - formatted text
+    cy.get(".t--widget-currencyinputwidget")
+      .eq(1)
+      .find("input")
+      .should("have.value", formattedText);
+
+    // Find the 2nd item currency and click to focus
+    cy.get(".t--widget-currencyinputwidget")
+      .eq(1)
+      .find("input")
+      .click({ force: true });
+
+    // Observe the value of 2nd item currency widget - un-formatted text
+    cy.get(".t--widget-currencyinputwidget")
+      .eq(1)
+      .find("input")
+      .should("have.value", value);
+
+    // Change to page 2
+    cy.get(".rc-pagination-item")
+      .find("a")
+      .contains("2")
+      .click({ force: true })
+      .wait(500);
+
+    // Back to page 1
+    cy.get(".rc-pagination-item")
+      .find("a")
+      .contains("1")
+      .click({ force: true })
+      .wait(500);
+
+    // Observe the value of 2nd item currency widget - formatted text
+    cy.get(".t--widget-currencyinputwidget")
+      .eq(1)
+      .find("input")
+      .should("have.value", formattedText);
   });
 });
