@@ -1,6 +1,7 @@
 import React from "react";
 import Pagination from "rc-pagination";
 import styled, { css } from "styled-components";
+import { Icon, IconSize } from "design-system";
 
 const locale = {
   // Options.jsx
@@ -17,7 +18,14 @@ const locale = {
   next_3: "Next 3 Pages",
 };
 
-const paginatorCss = css`
+interface StyledPaginationProps {
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
+  disabled?: boolean;
+}
+
+const paginatorCss = css<StyledPaginationProps>`
   margin: 0 auto;
   padding: 0;
   font-size: 14px;
@@ -48,7 +56,7 @@ const paginatorCss = css`
     min-width: 28px;
     height: 28px;
     margin-right: 8px;
-    font-family: Arial;
+    font-family: inherit;
     line-height: 26px;
     text-align: center;
     vertical-align: middle;
@@ -59,6 +67,9 @@ const paginatorCss = css`
     outline: 0;
     cursor: pointer;
     user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .rc-pagination-item a {
     display: block;
@@ -115,7 +126,7 @@ const paginatorCss = css`
     min-width: 28px;
     height: 28px;
     color: rgba(0, 0, 0, 0.85);
-    font-family: Arial;
+    font-family: inherit;
     line-height: 28px;
     text-align: center;
     vertical-align: middle;
@@ -140,7 +151,6 @@ const paginatorCss = css`
   }
   .rc-pagination-prev .rc-pagination-item-link,
   .rc-pagination-next .rc-pagination-item-link {
-    display: block;
     width: 100%;
     height: 100%;
     font-size: 12px;
@@ -150,6 +160,14 @@ const paginatorCss = css`
     border-radius: 2px;
     outline: none;
     transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::after,
+    &::before {
+      display: none;
+    }
   }
   .rc-pagination-prev:focus .rc-pagination-item-link,
   .rc-pagination-next:focus .rc-pagination-item-link,
@@ -170,6 +188,10 @@ const paginatorCss = css`
   .rc-pagination-disabled:hover,
   .rc-pagination-disabled:focus {
     cursor: not-allowed;
+
+    & > * {
+      pointer-events: none;
+    }
   }
   .rc-pagination-disabled .rc-pagination-item-link,
   .rc-pagination-disabled:hover .rc-pagination-item-link,
@@ -288,37 +310,41 @@ const paginatorCss = css`
       display: none;
     }
   }
-`;
 
-const StyledPagination = styled(Pagination)<{
-  disabled?: boolean;
-  borderRadius: string;
-  boxShadow?: string;
-  accentColor: string;
-}>`
-  ${paginatorCss}
   pointer-events: ${(props) => (props.disabled ? "none" : "all")};
   opacity: ${(props) => (props.disabled ? "0.4" : "1")};
 
   .rc-pagination-item {
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-    color:  ${({ accentColor }) => accentColor} !important;
+    color:  var(--wds-color-text) !important;
     border-color:  transparent !important;
-
   }
 
   .rc-pagination-prev .rc-pagination-item-link, .rc-pagination-next .rc-pagination-item-link  {
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     border-color:  transparent !important;
-    color:  ${({ accentColor }) => accentColor} !important;
+    color:  var(--wds-color-text) !important;
+
+    &:hover {
+      background-color: var(--wds-color-bg-hover) !important;
+
+      a {
+        color: var(--wds-color-text);
+      }
+    }
+  }
+
+  .rc-pagination-disabled .rc-pagination-item-link {
+    color: var(--wds-color-text-disabled) !important;
   }
 
   .rc-pagination-item:hover {
-    background-color: ${({ accentColor }) => accentColor} !important;
+    background-color: var(--wds-color-bg-hover) !important;
+
     a {
-      color: white;
+      color: var(--wds-color-text);
     }
   }
 
@@ -328,9 +354,17 @@ const StyledPagination = styled(Pagination)<{
       color: white;
     }
 
-    .rc-pagination-item-active:hover a {
-      color: white !important;
+    &:hover {
+      background-color: ${({ accentColor }) => accentColor} !important;
+
+      a {
+        color: white !important;
+      }
     }
+`;
+
+const StyledPagination = styled(Pagination)<StyledPaginationProps>`
+  ${paginatorCss}
 `;
 
 interface ListPaginationProps {
@@ -338,6 +372,7 @@ interface ListPaginationProps {
   total: number;
   pageSize: number;
   disabled?: boolean;
+  isLoading: boolean;
   onChange: (page: number) => void;
   borderRadius: string;
   boxShadow?: string;
@@ -351,10 +386,20 @@ function ListPagination(props: ListPaginationProps) {
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
       current={props.pageNo}
-      disabled={props.disabled}
+      disabled={props.disabled || props.isLoading}
       locale={locale}
+      nextIcon={() => (
+        <button aria-label="next page" className="rc-pagination-item-link">
+          <Icon name="right-arrow-2" size={IconSize.XXL} />
+        </button>
+      )}
       onChange={props.onChange}
       pageSize={props.pageSize}
+      prevIcon={() => (
+        <button aria-label="prev page" className="rc-pagination-item-link">
+          <Icon name="left-arrow-2" size={IconSize.XXL} />
+        </button>
+      )}
       showTitle={false}
       total={props.total}
     />
@@ -367,9 +412,26 @@ const PaginationWrapper = styled.ul`
   opacity: "1";
 `;
 
-export function ServerSideListPagination(props: any) {
+interface ServerSideListPaginationProps {
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
+  disableNextPage: boolean;
+  disabled: boolean;
+  isLoading: boolean;
+  nextPageClick: () => void;
+  pageNo: number;
+  prevPageClick: () => void;
+}
+
+export function ServerSideListPagination(props: ServerSideListPaginationProps) {
   return (
-    <PaginationWrapper>
+    <PaginationWrapper
+      accentColor={props.accentColor}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      disabled={props.disabled || props.isLoading}
+    >
       <li
         className={`t--list-widget-prev-page rc-pagination-prev ${props.pageNo ===
           1 && "rc-pagination-disabled"}`}
@@ -382,16 +444,19 @@ export function ServerSideListPagination(props: any) {
             if (props.pageNo > 1) props.prevPageClick();
           }}
           type="button"
-        />
+        >
+          <Icon name="left-arrow-2" size={IconSize.XXL} />
+        </button>
       </li>
       <li
         className="rc-pagination-item rc-pagination-item-0 rc-pagination-item-active"
-        title={props.pageNo}
+        title={props.pageNo.toString()}
       >
         <a rel="nofollow">{props.pageNo}</a>
       </li>
       <li
-        className="t--list-widget-next-page rc-pagination-next"
+        className={`t--list-widget-next-page rc-pagination-next ${props.disableNextPage &&
+          "rc-pagination-disabled"}`}
         title="Next Page"
       >
         <button
@@ -401,7 +466,9 @@ export function ServerSideListPagination(props: any) {
             props.nextPageClick();
           }}
           type="button"
-        />
+        >
+          <Icon name="right-arrow-2" size={IconSize.XXL} />
+        </button>
       </li>
     </PaginationWrapper>
   );

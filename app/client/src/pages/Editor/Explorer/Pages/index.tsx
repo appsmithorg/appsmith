@@ -31,7 +31,10 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
 import { builderURL } from "RouteBuilder";
-import { getExplorerStatus, saveExplorerStatus } from "../helpers";
+import {
+  getExplorerStatus,
+  saveExplorerStatus,
+} from "@appsmith/pages/Editor/Explorer/helpers";
 import { tailwindLayers } from "constants/Layers";
 import useResize, {
   CallbackResponseType,

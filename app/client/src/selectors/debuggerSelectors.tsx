@@ -9,7 +9,7 @@ import { getWidgets } from "sagas/selectors";
 import {
   shouldSuppressDebuggerError,
   isWidget,
-} from "workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 
 type ErrorObejct = {
@@ -45,6 +45,7 @@ export const getFilteredErrors = createSelector(
         const entity = error?.source?.name && dataTree[error.source.name];
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
+        if (!entity) return false;
         if (entity && isWidget(entity)) {
           if (shouldSuppressDebuggerError(entity)) {
             return false;

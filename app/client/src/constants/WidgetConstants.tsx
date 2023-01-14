@@ -70,7 +70,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 73;
+export const LATEST_PAGE_VERSION = 75;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -142,8 +142,6 @@ export const WIDGET_STATIC_PROPS = {
   detachFromLayout: true,
   noContainerOffset: false,
   height: false,
-  level: true,
-  levelData: true,
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {

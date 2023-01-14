@@ -1,5 +1,8 @@
 package com.appsmith.server.services.ce;
 
+import java.util.Optional;
+
+
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
@@ -20,6 +23,8 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> findById(String id);
 
     Mono<Application> findById(String id, AclPermission aclPermission);
+
+    Mono<Application> findById(String id, Optional<AclPermission> aclPermission);
 
     Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
 
@@ -60,6 +65,8 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
                                                               String defaultApplicationId,
                                                               AclPermission aclPermission);
+
+    Mono<String> findBranchedApplicationId(Optional<String> branchName, String defaultApplicationId, Optional<AclPermission> permission);
 
     Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
                                                               String defaultApplicationId,

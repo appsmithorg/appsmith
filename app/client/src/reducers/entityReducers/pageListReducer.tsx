@@ -67,7 +67,8 @@ export const pageListReducer = createReducer(initialState, {
       pages: state.pages.map((page) => {
         return {
           ...page,
-          userPermissions: pagePermissionsMap[page.pageId] ?? [],
+          userPermissions:
+            pagePermissionsMap[page.pageId] ?? (page.userPermissions || []),
         };
       }),
     };

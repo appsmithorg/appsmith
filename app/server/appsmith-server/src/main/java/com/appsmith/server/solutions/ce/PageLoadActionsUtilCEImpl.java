@@ -49,10 +49,9 @@ import static java.lang.Boolean.TRUE;
 public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
     private final NewActionService newActionService;
-
     private final AstService astService;
     private final ActionPermission actionPermission;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     /**
      * The following regex finds the immediate parent of an entity path.

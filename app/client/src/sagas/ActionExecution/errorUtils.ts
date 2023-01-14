@@ -14,8 +14,8 @@ import { isString } from "lodash";
 import { Types } from "utils/TypeHelpers";
 import {
   ActionTriggerFunctionNames,
-  ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+  ActionTriggerKeys,
+} from "@appsmith/entities/DataTree/actionTriggers";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 /*
@@ -42,7 +42,7 @@ export class PluginTriggerFailureError extends TriggerFailureError {
 
 export class ActionValidationError extends TriggerFailureError {
   constructor(
-    functionName: ActionTriggerType,
+    functionName: ActionTriggerKeys,
     argumentName: string,
     expectedType: Types,
     received: Types,

@@ -61,12 +61,11 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
   ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
-  ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
+  ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
-  ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
+  ReduxActionTypes.UPDATE_APP_STORE,
   ReduxActionTypes.SET_USER_CURRENT_GEO_LOCATION,
   // Widgets
   ReduxActionTypes.UPDATE_LAYOUT,
@@ -74,8 +73,6 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
   // Meta Widgets
   ReduxActionTypes.MODIFY_META_WIDGETS,
-  // ReduxActionTypes.UPDATE_META_WIDGET,
-  // ReduxActionTypes.DELETE_META_WIDGET,
   // Widget Meta
   ReduxActionTypes.SET_META_PROP_AND_EVAL,
   ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,

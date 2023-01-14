@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
 import history from "utils/history";
 import ContextMenuTrigger from "../ContextMenuTrigger";
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { useNewActionName } from "./helpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";

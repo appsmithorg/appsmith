@@ -1,10 +1,10 @@
 import { spawn } from "redux-saga/effects";
-import { PostMessageDescription } from "../../entities/DataTree/actionTriggers";
+import { PostMessageDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import {
   logActionExecutionError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
-import { TriggerMeta } from "./ActionExecutionSagas";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { isEmpty } from "lodash";
 
 export function* postMessageSaga(

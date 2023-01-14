@@ -50,11 +50,12 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
+    const metaWidget = useSelector(getMetaWidget(widgetId));
+
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
     );
     const renderMode = useSelector(getRenderMode);
-    const metaWidget = useSelector(getMetaWidget(widgetId));
 
     const widgetName = canvasWidget?.widgetName || metaWidget?.widgetName;
 
@@ -121,7 +122,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           props.noPad && props.dropDisabled && props.openParentPropertyPane;
 
         widgetProps.rightColumn = props.rightColumn;
-        if (widgetProps.bottomRow === undefined || isListWidgetCanvas) {
+        if (
+          widgetProps.bottomRow === undefined ||
+          isListWidgetCanvas ||
+          Number.isNaN(widgetProps.bottomRow)
+        ) {
           widgetProps.bottomRow = props.bottomRow;
           widgetProps.minHeight = props.minHeight;
         }

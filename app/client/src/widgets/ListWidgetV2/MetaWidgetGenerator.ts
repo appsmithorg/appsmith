@@ -16,9 +16,10 @@ import {
   Virtualizer,
   VirtualizerOptions,
 } from "@tanstack/virtual-core";
+import isEqual from "fast-deep-equal/es6";
 
 import Queue from "./Queue";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { extractTillNestedListWidget } from "./widget/helper";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";
@@ -36,6 +37,7 @@ import {
   MetaWidgetCache,
   MetaWidgetCacheProps,
   MetaWidgets,
+  RowDataCache,
 } from "./widget";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -62,13 +64,23 @@ type UpdateSiblingsOptions = {
   metaWidget: MetaWidget;
 };
 
+export type HookOptions = {
+  childMetaWidgets: MetaWidgets;
+};
+
+type Hook = (metaWidget: MetaWidget, options: HookOptions) => void;
+
+type Hooks = {
+  afterMetaWidgetGenerate?: Hook;
+};
+
 export type GeneratorOptions = {
-  cacheIndexArr: number[];
   containerParentId: string;
   containerWidgetId: string;
   currTemplateWidgets: TemplateWidgets;
   prevTemplateWidgets?: TemplateWidgets;
   data: Record<string, unknown>[];
+  hooks?: Hooks;
   itemSpacing: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
   levelData?: LevelData;
@@ -104,16 +116,23 @@ type TemplateWidgetStatus = {
   unchanged: Set<string>;
 };
 
+type CacheDataOption = {
+  keepMetaWidgetData: boolean;
+  key: string;
+};
+
 type GenerateMetaWidgetProps = {
   rowIndex: number;
   templateWidgetId: string;
   parentId: string;
+  options?: CacheDataOption;
 };
 
 type GenerateMetaWidgetChildrenProps = {
   rowIndex: number;
   parentId: string;
   templateWidget: FlattenedWidgetProps;
+  options?: CacheDataOption;
 };
 
 type GeneratedMetaWidget = {
@@ -149,6 +168,7 @@ enum MODIFICATION_TYPE {
   PAGE_NO_UPDATED = "PAGE_NO_UPDATED",
   REGENERATE_META_WIDGETS = "REGENERATE_META_WIDGETS",
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
+  GENERATE_CACHE_WIDGETS = "GENERATE_CACHE_WIDGETS",
 }
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
@@ -191,6 +211,7 @@ class MetaWidgetGenerator {
   private data: GeneratorOptions["data"];
   private getWidgetCache: ConstructorProps["getWidgetCache"];
   private getWidgetReferenceCache: ConstructorProps["getWidgetReferenceCache"];
+  private hooks?: GeneratorOptions["hooks"];
   private itemSpacing: GeneratorOptions["itemSpacing"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
   private isListCloned: ConstructorProps["isListCloned"];
@@ -210,6 +231,7 @@ class MetaWidgetGenerator {
   private primaryKeys: GeneratorOptions["primaryKeys"];
   private primaryWidgetType: ConstructorProps["primaryWidgetType"];
   private renderMode: ConstructorProps["renderMode"];
+  private rowDataCache: RowDataCache;
   private scrollElement: GeneratorOptions["scrollElement"];
   private serverSidePagination: GeneratorOptions["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
@@ -249,6 +271,7 @@ class MetaWidgetGenerator {
     this.primaryWidgetType = props.primaryWidgetType;
     this.serverSidePagination = false;
     this.renderMode = props.renderMode;
+    this.rowDataCache = {};
     this.modificationsQueue = new Queue<MODIFICATION_TYPE>();
     this.scrollElement = null;
     this.setWidgetCache = props.setWidgetCache;
@@ -267,7 +290,6 @@ class MetaWidgetGenerator {
   withOptions = (options: GeneratorOptions) => {
     this.updateModificationsQueue(options);
 
-    this.cacheIndexArr = options.cacheIndexArr;
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
@@ -282,6 +304,7 @@ class MetaWidgetGenerator {
     this.serverSidePagination = options.serverSidePagination;
     this.templateBottomRow = options.templateBottomRow;
     this.widgetName = options.widgetName;
+    this.hooks = options.hooks;
     this.currTemplateWidgets = extractTillNestedListWidget(
       options.currTemplateWidgets,
       options.containerParentId,
@@ -370,11 +393,14 @@ class MetaWidgetGenerator {
       }
     }
 
-    this.cacheRowIndices(this.cacheIndexArr);
-
     const removedMetaWidgetIds = this.getRemovedMetaWidgetIds();
 
-    this.cachedRows.prev = new Set(this.cachedRows.curr);
+    if (this.modificationsQueue.has(MODIFICATION_TYPE.GENERATE_CACHE_WIDGETS)) {
+      const cachedTemplateMetaWidgets = this.getCachedTemplateMetaWidgets();
+
+      metaWidgets = { ...metaWidgets, ...cachedTemplateMetaWidgets };
+      this.cachedRows.prev = new Set(this.cachedRows.curr);
+    }
 
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
@@ -384,6 +410,45 @@ class MetaWidgetGenerator {
       metaWidgets,
       removedMetaWidgetIds,
     };
+  };
+
+  getCachedTemplateMetaWidgets = () => {
+    let cachedTemplateMetaWidgets: MetaWidgets = {};
+
+    this.cachedRows.curr.forEach((key) => {
+      const rowIndex = this.getRowIndexFromPrimaryKey(key);
+      const isClonedRow = this.isClonedRow(rowIndex);
+
+      /**
+       * We only want to generate metaWidgets in the templateRow if getCachedTemplateMetaWidgets()
+       * is called due to the addition of a new cacheRow.
+       */
+      if (!isEqual(this.cachedRows.curr, this.cachedRows.prev) && isClonedRow)
+        return;
+
+      const {
+        childMetaWidgets,
+        metaWidget,
+      } = this.generateMetaWidgetRecursively({
+        rowIndex,
+        parentId: this.containerParentId,
+        templateWidgetId: this.containerWidgetId,
+        options: {
+          keepMetaWidgetData: true,
+          key,
+        },
+      });
+
+      cachedTemplateMetaWidgets = {
+        ...cachedTemplateMetaWidgets,
+        ...childMetaWidgets,
+      };
+      if (metaWidget) {
+        cachedTemplateMetaWidgets[metaWidget.widgetId] = metaWidget;
+      }
+    });
+
+    return cachedTemplateMetaWidgets;
   };
 
   private generateMetaWidgetId = () =>
@@ -441,17 +506,8 @@ class MetaWidgetGenerator {
     return Array.from(removedWidgetsFromView);
   };
 
-  private cacheRowIndices = (rowIndices: number[]) => {
-    this.cachedRows.curr.clear();
-    rowIndices.forEach((rowIndex) => {
-      if (rowIndex !== -1 && isFinite(rowIndex)) {
-        const key = this.getPrimaryKey(rowIndex);
-        this.cachedRows.curr.add(key);
-      }
-    });
-  };
-
   private generateMetaWidgetRecursively = ({
+    options,
     parentId,
     rowIndex,
     templateWidgetId,
@@ -461,10 +517,14 @@ class MetaWidgetGenerator {
     if (!templateWidget)
       return { metaWidgetId: undefined, metaWidgetName: undefined };
 
-    const key = this.getPrimaryKey(rowIndex);
+    const key = options ? options.key : this.getPrimaryKey(rowIndex);
 
     const metaWidget = klona(templateWidget) as MetaWidget;
-    const metaCacheProps = this.getRowTemplateCache(key, templateWidgetId);
+    const metaCacheProps = this.getRowTemplateCache(
+      key,
+      templateWidgetId,
+      options,
+    );
 
     if (!metaCacheProps) {
       return {
@@ -486,24 +546,32 @@ class MetaWidgetGenerator {
       rowIndex,
       templateWidget,
       parentId: metaWidgetId,
+      options,
     });
 
-    if (!this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key)) {
+    if (
+      !this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key) &&
+      !options?.keepMetaWidgetData
+    ) {
       return { childMetaWidgets, metaWidgetName, metaWidgetId };
     }
 
     if (isMainContainerWidget) {
       this.updateContainerPosition(metaWidget, rowIndex);
-      this.updateContainerBindings(metaWidget, key);
-      this.addDynamicPathsProperties(metaWidget, metaCacheProps, {
+      this.updateContainerBindings(metaWidget, key, options);
+      this.addDynamicPathsProperties(metaWidget, metaCacheProps, key, {
         excludedPaths: ["data"],
       });
     } else {
-      this.addDynamicPathsProperties(metaWidget, metaCacheProps);
+      this.addDynamicPathsProperties(metaWidget, metaCacheProps, key);
+    }
+
+    if (isMainContainerWidget) {
+      this.disableResizeHandles(metaWidget);
     }
 
     if (templateWidget.type === this.primaryWidgetType) {
-      this.addLevelData(metaWidget, rowIndex);
+      this.addLevelData(metaWidget, rowIndex, key);
       metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
       metaWidget.nestedViewIndex = viewIndex;
     }
@@ -526,6 +594,10 @@ class MetaWidgetGenerator {
       metaWidget.siblingMetaWidgets = this.getSiblings(templateWidgetId);
     }
 
+    this.hooks?.afterMetaWidgetGenerate?.(metaWidget, {
+      childMetaWidgets,
+    });
+
     this.updateSiblings(rowIndex, {
       metaWidget,
       originalMetaWidgetId,
@@ -541,6 +613,7 @@ class MetaWidgetGenerator {
   };
 
   private generateMetaWidgetChildren = ({
+    options,
     parentId,
     rowIndex,
     templateWidget,
@@ -557,6 +630,7 @@ class MetaWidgetGenerator {
         rowIndex,
         parentId,
         templateWidgetId: childWidgetId,
+        options,
       });
 
       metaWidgets = {
@@ -673,7 +747,7 @@ class MetaWidgetGenerator {
     }
   };
 
-  private disableWidgetOperations = (metaWidget: FlattenedWidgetProps) => {
+  private disableWidgetOperations = (metaWidget: MetaWidget) => {
     set(metaWidget, "resizeDisabled", true);
     set(metaWidget, "disablePropertyPane", true);
     set(metaWidget, "dragDisabled", true);
@@ -682,6 +756,10 @@ class MetaWidgetGenerator {
     set(metaWidget, "ignoreCollision", true);
     set(metaWidget, "shouldScrollContents", undefined);
 
+    this.disableResizeHandles(metaWidget);
+  };
+
+  private disableResizeHandles = (metaWidget: MetaWidget) => {
     set(metaWidget, `disabledResizeHandles`, [
       "left",
       "top",
@@ -702,13 +780,20 @@ class MetaWidgetGenerator {
    *  In the derived property of the List widget, the childAutoComplete property uses the currentItem and currentView
    *  to define the autocomplete suggestions.
    */
-  private addLevelData = (metaWidget: MetaWidget, rowIndex: number) => {
-    const key = this.getPrimaryKey(rowIndex);
+  private addLevelData = (
+    metaWidget: MetaWidget,
+    rowIndex: number,
+    key: string,
+  ) => {
     const data = this.getData();
     const currentIndex = this.serverSidePagination
       ? this.getViewIndex(rowIndex)
       : rowIndex;
-    const currentItem = `{{${this.widgetName}.listData[${currentIndex}]}}`;
+    const dataBinding =
+      this.serverSidePagination && this.cachedRows.curr.has(key)
+        ? `{{${JSON.stringify(this.rowDataCache[key])}}}`
+        : `{{${this.widgetName}.listData[${currentIndex}]}}`;
+    const currentItem = dataBinding;
     const currentRowCache = this.getRowCacheGroupByTemplateWidgetName(key);
     const metaContainers = this.getMetaContainers();
     const metaContainerName = metaContainers.names[0];
@@ -765,11 +850,11 @@ class MetaWidgetGenerator {
   private addDynamicPathsProperties = (
     metaWidget: MetaWidget,
     metaWidgetCacheProps: MetaWidgetCacheProps,
+    key: string,
     options: AddDynamicPathsPropertiesOptions = {},
   ) => {
-    const { metaWidgetName, rowIndex } = metaWidgetCacheProps;
+    const { metaWidgetName } = metaWidgetCacheProps;
     const { excludedPaths = [] } = options;
-    const key = this.getPrimaryKey(rowIndex);
     const dynamicPaths = [
       ...(metaWidget.dynamicBindingPathList || []),
       ...(metaWidget.dynamicTriggerPathList || []),
@@ -787,7 +872,7 @@ class MetaWidgetGenerator {
       const pathTypes = new Set();
 
       if (hasCurrentItem(propertyValue)) {
-        this.addCurrentItemProperty(metaWidget, metaWidgetName);
+        this.addCurrentItemProperty(metaWidget, metaWidgetName, key);
         pathTypes.add(DynamicPathType.CURRENT_ITEM);
       }
 
@@ -833,10 +918,16 @@ class MetaWidgetGenerator {
   private addCurrentItemProperty = (
     metaWidget: MetaWidget,
     metaWidgetName: string,
+    key: string,
   ) => {
     if (metaWidget.currentItem) return;
 
-    metaWidget.currentItem = `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
+    const dataBinding =
+      this.serverSidePagination && this.cachedRows.curr.has(key)
+        ? `{{${JSON.stringify(this.rowDataCache[key])}}}`
+        : `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
+
+    metaWidget.currentItem = dataBinding;
     metaWidget.dynamicBindingPathList = [
       ...(metaWidget.dynamicBindingPathList || []),
       { key: "currentItem" },
@@ -863,6 +954,7 @@ class MetaWidgetGenerator {
    *    value: List1_Input2_1.value,
    *    text: List1_Input2_1.text
    *  }
+   * List12.rowDataCache[543_123]
    * }}"
    *
    */
@@ -937,8 +1029,14 @@ class MetaWidgetGenerator {
     });
   };
 
-  private updateContainerBindings = (metaWidget: MetaWidget, key: string) => {
-    const currentRowMetaWidgets = this.getCurrentRowMetaWidgets(key);
+  private updateContainerBindings = (
+    metaWidget: MetaWidget,
+    key: string,
+    options = {
+      keepMetaWidgetData: false,
+    },
+  ) => {
+    const currentRowMetaWidgets = this.getCurrentRowMetaWidgets(key, options);
     const dataBinding = this.getContainerBinding(currentRowMetaWidgets);
 
     metaWidget.data = `{{${dataBinding}}}`;
@@ -1019,8 +1117,21 @@ class MetaWidgetGenerator {
     ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
     }
+    /**
+     * (Operation) Moving to Next Page
+     * 2 Things would change at different times,
+     * page No would change immediately -> causes regeneration of meta widgets
+     * Data would later change -> this is only communicated by primaryKey since the data.length is still constant.
+     * But once primaryKey is undefined, This change in data isn't known.
+     * We would need regenerate the meta widgets only at these points.
+     */
 
-    if (this.hasRegenerationOptionsChanged(nextOptions)) {
+    if (
+      this.hasRegenerationOptionsChanged(nextOptions) ||
+      (this.primaryKeys === undefined &&
+        nextOptions.primaryKeys === undefined &&
+        this.serverSidePagination)
+    ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.REGENERATE_META_WIDGETS);
     }
 
@@ -1031,6 +1142,39 @@ class MetaWidgetGenerator {
     if (this.pageNo !== nextOptions.pageNo) {
       this.modificationsQueue.add(MODIFICATION_TYPE.PAGE_NO_UPDATED);
     }
+    if (this.shouldGenerateCacheWidgets(nextOptions)) {
+      this.modificationsQueue.add(MODIFICATION_TYPE.GENERATE_CACHE_WIDGETS);
+    }
+  };
+
+  /**
+   * Only generate cache widget when template widget property changes
+   * or new template widgets are added
+   * or new cached row is added (further conditions are done in getCachedTemplateMetaWidgets to ensure
+   * its only generated for the template row, the usual filtering of metaWidgetIds is used to cache rows)
+   *
+   */
+  private shouldGenerateCacheWidgets = (nextOptions: GeneratorOptions) => {
+    return (
+      (!isEqual(this.currTemplateWidgets, nextOptions.currTemplateWidgets) ||
+        !isEqual(this.cachedRows.curr, this.cachedRows.prev)) &&
+      this.renderMode !== RenderModes.PAGE
+    );
+  };
+
+  /**
+   * rowIndex is used to get the state of the row(isClonedRow)
+   * The rowIndex changes in live data so we need to
+   * 1. if Key is in primaryKeys i.e the row is in currentView, we use rowIndex
+   * 2. if key isn't in primaryKeys i.e it's a cachedRow and we're in a diff page, we use prevRowIndex
+   */
+  private getRowIndexFromPrimaryKey = (key: string) => {
+    const rowCache = this.getRowCache(key) ?? {};
+    const rowIndex = this.primaryKeys?.toString().includes(key)
+      ? rowCache[this.containerWidgetId].rowIndex
+      : rowCache[this.containerWidgetId]?.prevRowIndex ??
+        rowCache[this.containerWidgetId].rowIndex;
+    return rowIndex;
   };
 
   private flushModificationQueue = () => {
@@ -1288,13 +1432,20 @@ class MetaWidgetGenerator {
     return this.virtualizer?.getTotalSize?.();
   };
 
-  private getRowTemplateCache = (key: string, templateWidgetId: string) => {
+  private getRowTemplateCache = (
+    key: string,
+    templateWidgetId: string,
+    options = {
+      keepMetaWidgetData: false,
+    },
+  ) => {
     const templateCache = this.getRowCache(key)?.[templateWidgetId];
 
     if (
       templateCache &&
       this.renderMode === RenderModes.CANVAS &&
-      this.templateWidgetCandidates.has(templateCache.metaWidgetId)
+      this.templateWidgetCandidates.has(templateCache.metaWidgetId) &&
+      !options.keepMetaWidgetData
     ) {
       const { templateWidgetId, templateWidgetName, type } = templateCache;
       return {
@@ -1399,7 +1550,7 @@ class MetaWidgetGenerator {
   private getContainerWidget = () =>
     this.currTemplateWidgets?.[this.containerWidgetId] as FlattenedWidgetProps;
 
-  private getPrimaryKey = (rowIndex: number): string => {
+  getPrimaryKey = (rowIndex: number): string => {
     let dataIndex = rowIndex;
 
     if (this.serverSidePagination) {
@@ -1417,16 +1568,29 @@ class MetaWidgetGenerator {
     return hash(dataToHash, { algorithm: "md5" });
   };
 
+  updateCurrCachedRows = (keys: string[]) => {
+    this.cachedRows.curr = new Set(keys);
+  };
+
   getTemplateWidgetIdByMetaWidgetId = (metaWidgetId: string) => {
     return this.metaIdToTemplateIdMap[metaWidgetId];
   };
 
-  private getCurrentRowMetaWidgets = (key: string) => {
+  private getCurrentRowMetaWidgets = (
+    key: string,
+    options = {
+      keepMetaWidgetData: false,
+    },
+  ) => {
     const templateWidgetIds = Object.keys(this.currTemplateWidgets || {});
 
     const metaWidgets: MetaWidgetCacheProps[] = [];
     templateWidgetIds.forEach((templateWidgetId) => {
-      const rowTemplateCache = this.getRowTemplateCache(key, templateWidgetId);
+      const rowTemplateCache = this.getRowTemplateCache(
+        key,
+        templateWidgetId,
+        options,
+      );
 
       if (rowTemplateCache) {
         metaWidgets.push(rowTemplateCache);
@@ -1485,8 +1649,9 @@ class MetaWidgetGenerator {
       return;
     }
     const key = this.getPrimaryKey(rowIndex);
-    return this.getRowTemplateCache(key, this.containerWidgetId)
-      ?.metaWidgetName;
+    return this.getRowTemplateCache(key, this.containerWidgetId, {
+      keepMetaWidgetData: true,
+    })?.metaWidgetName;
   };
 
   private resetCache = () => {
@@ -1503,6 +1668,12 @@ class MetaWidgetGenerator {
       this.virtualizer._willUpdate();
     }
   };
+
+  updateRowDataCache = (data: RowDataCache) => {
+    this.rowDataCache = data;
+  };
+
+  getRowDataCache = () => this.rowDataCache;
 
   private unmountVirtualizer = () => {
     if (this.virtualizer) {

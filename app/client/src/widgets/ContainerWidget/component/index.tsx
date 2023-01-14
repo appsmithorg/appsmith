@@ -1,4 +1,10 @@
-import React, { ReactNode, useRef, useEffect, RefObject } from "react";
+import React, {
+  ReactNode,
+  useRef,
+  useEffect,
+  RefObject,
+  useCallback,
+} from "react";
 import styled, { css } from "styled-components";
 import tinycolor from "tinycolor2";
 import fastdom from "fastdom";
@@ -30,6 +36,7 @@ const StyledContainerComponent = styled.div<
   box-shadow: ${(props) =>
     props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
   border-radius: ${({ borderRadius }) => borderRadius};
+  backgound: ${({ backgroundColor }) => backgroundColor};
 
   ${(props) =>
     props.shouldScrollContents === true
@@ -40,22 +47,20 @@ const StyledContainerComponent = styled.div<
         `
       : ""}
 
-  &:hover {
-    z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
-    cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
+  &.hover-styles {
+    z-index: 2;
+    cursor: pointer;
     background: ${(props) => {
-      return props.onClickCapture && props.backgroundColor
-        ? tinycolor(props.backgroundColor)
-            .darken(5)
-            .toString()
-        : props.backgroundColor;
-    }};
-  }
+      return tinycolor(props.backgroundColor)
+        .darken(5)
+        .toString();
+    }}
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!props.shouldScrollContents) {
       const supportsNativeSmoothScroll =
@@ -72,16 +77,60 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
       });
     }
   }, [props.shouldScrollContents]);
+
+  /**
+   * This is for all the container widgets that have the onClickCapture method.
+   * The mouse over event makes sure to add the class `hover-styles` so that a
+   * darker shade of the background color takes effect to induce the hover effect.
+   *
+   * Why not use the :hover css selector?
+   * For cases like List widget, it can have inner list widgets; so there can be
+   * containers inside containers. When the inner container is hovered, the parent container's
+   * :hover selector is also triggered making the outer and inner container both having this
+   * hover effect.
+   */
+  const onMouseOver = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = e.currentTarget;
+      const widgetType = el.getAttribute("type");
+      const widgetId = el.dataset.widgetid;
+      const isMainContainer = widgetId === "0";
+
+      if (
+        (widgetType === "CONTAINER_WIDGET" && props.onClickCapture) ||
+        isMainContainer
+      ) {
+        const elementsHovered = document.getElementsByClassName(
+          "hover-styles",
+        ) as HTMLCollectionOf<HTMLDivElement>;
+
+        fastdom.mutate(() => {
+          for (const elHovered of elementsHovered) {
+            elHovered.classList.remove("hover-styles");
+          }
+
+          if (!isMainContainer) {
+            el.classList.add("hover-styles");
+          }
+        });
+      }
+    },
+    [props.onClickCapture],
+  );
+
   return (
     <StyledContainerComponent
       {...props}
+      // Before you remove: generateClassName is used for bounding the resizables within this canvas
+      // getCanvasClassName is used to add a scrollable parent.
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)}`}
       containerStyle={containerStyle}
-      // Before you remove: generateClassName is used for bounding the resizables within this canvas
-      // getCanvasClassName is used to add a scrollable parent.
+      data-widgetId={props.widgetId}
+      onMouseOver={onMouseOver}
       ref={containerRef}
+      tabIndex={props.shouldScrollContents ? undefined : 0}
     >
       {props.children}
     </StyledContainerComponent>
@@ -121,6 +170,7 @@ export interface ContainerComponentProps
   selected?: boolean;
   focused?: boolean;
   minHeight?: number;
+  onClickCapture?: () => void;
 }
 
 export default ContainerComponent;

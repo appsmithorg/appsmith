@@ -7,8 +7,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsagePulseServiceImpl extends UsagePulseServiceCEImpl implements UsagePulseService {
 
-    public UsagePulseServiceImpl(UsagePulseRepository repository, SessionUserService sessionUserService) {
-        super(repository, sessionUserService);
+    public UsagePulseServiceImpl(UsagePulseRepository repository,
+                                 SessionUserService sessionUserService,
+                                 UserService userService,
+                                 TenantService tenantService,
+                                 ConfigService configService) {
+        super(repository, sessionUserService, userService, tenantService, configService);
     }
 
 }

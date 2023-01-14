@@ -2,7 +2,10 @@ import { get } from "lodash";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { BlueprintOperationTypes } from "widgets/constants";
+import {
+  BlueprintOperationTypes,
+  FlattenedWidgetProps,
+} from "widgets/constants";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "widgets/BaseWidget";
 
@@ -61,6 +64,11 @@ export const CONFIG = {
         autocomplete: (parentProps: any) => {
           return parentProps.childAutoComplete;
         },
+        shouldHideProperty: (parentProps: any, propertyName: string) => {
+          if (propertyName === "dynamicHeight") return true;
+
+          return false;
+        },
       },
     },
     itemSpacing: 8,
@@ -69,7 +77,7 @@ export const CONFIG = {
     pageSize: DEFAULT_LIST_DATA.length,
     widgetName: "List",
     children: [],
-    passThroughPropsKeys: [
+    additionalStaticProps: [
       "level",
       "levelData",
       "prefixMetaWidgetId",
@@ -106,6 +114,7 @@ export const CONFIG = {
                     isDeletable: false,
                     disallowCopy: true,
                     noContainerOffset: true,
+
                     disabledWidgetFeatures: [
                       RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
                     ],
@@ -169,6 +178,7 @@ export const CONFIG = {
                                       },
                                     ],
                                     dynamicTriggerPathList: [],
+                                    dynamicHeight: "FIXED",
                                   },
                                 },
                                 {
@@ -192,6 +202,7 @@ export const CONFIG = {
                                       },
                                     ],
                                     dynamicTriggerPathList: [],
+                                    dynamicHeight: "FIXED",
                                   },
                                 },
                               ],
@@ -236,6 +247,22 @@ export const CONFIG = {
             ];
           },
         },
+        {
+          type: BlueprintOperationTypes.CHILD_OPERATIONS,
+          fn: (
+            widgets: { [widgetId: string]: FlattenedWidgetProps },
+            widgetId: string,
+            parentId: string,
+          ) => {
+            if (!parentId) return { widgets };
+            const widget = { ...widgets[widgetId] };
+
+            widget.dynamicHeight = "FIXED";
+
+            widgets[widgetId] = widget;
+            return { widgets };
+          },
+        },
       ],
     },
   },
@@ -246,6 +273,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

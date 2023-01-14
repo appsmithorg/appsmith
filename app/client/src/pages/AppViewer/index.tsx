@@ -33,6 +33,7 @@ import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -79,6 +80,8 @@ function AppViewer(props: Props) {
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
   const { hideWatermark } = getAppsmithConfigs();
+
+  const focusRef = useWidgetFocus();
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -185,6 +188,7 @@ function AppViewer(props: Props) {
             className={CANVAS_SELECTOR}
             hasPages={pages.length > 1}
             headerHeight={headerHeight}
+            ref={focusRef}
             showGuidedTourMessage={showGuidedTourMessage}
           >
             {isInitialized && registered && <AppViewerPageContainer />}

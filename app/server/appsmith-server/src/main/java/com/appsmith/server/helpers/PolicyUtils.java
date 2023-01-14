@@ -236,6 +236,28 @@ public class PolicyUtils {
                 .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
     }
 
+    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(Set<String> ids,
+                                                                                               Map<String, Policy> datasourcePolicyMap,
+                                                                                               boolean addPolicyToObject) {
+
+        // Find all the datasources without permission to update the policies.
+        return datasourceRepository
+                .findByIdIn(List.copyOf(ids))
+                .switchIfEmpty(Mono.empty())
+                .flatMap(datasource -> {
+                    Datasource updatedDatasource;
+                    if (addPolicyToObject) {
+                        updatedDatasource = addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                    } else {
+                        updatedDatasource = removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
+                    }
+
+                    return Mono.just(updatedDatasource);
+                })
+                .collectList()
+                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
+    }
+
     public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(String workspaceId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
 
         return applicationRepository

@@ -70,7 +70,7 @@ import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
 } from "entities/Widget/utils";
-import { getAllPaths } from "workers/Evaluation/evaluationUtils";
+import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   createMessage,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
@@ -139,7 +139,7 @@ import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
-import { getSlidingCanvasName } from "constants/componentClassNameConstants";
+import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
@@ -668,6 +668,7 @@ function* batchUpdateWidgetPropertySaga(
   };
   log.debug(
     "Batch widget property update calculations took: ",
+    action,
     performance.now() - start,
     "ms",
   );
@@ -1106,9 +1107,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
   const containerId = getContainerIdForCanvas(parentId);
 
   const containerWidget = canvasWidgets[containerId];
-  const canvasDOM = document.querySelector(
-    `#${getSlidingCanvasName(parentId)}`,
-  );
+  const canvasDOM = document.querySelector(`#${getSlidingArenaName(parentId)}`);
 
   if (!canvasDOM || !containerWidget) return {};
 

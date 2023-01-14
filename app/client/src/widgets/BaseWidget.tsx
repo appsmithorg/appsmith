@@ -264,13 +264,17 @@ abstract class BaseWidget<
   setWidgetCache = (data: TCache) => {
     const key = this.getWidgetCacheKey();
 
-    this.context?.setWidgetCache?.(key, data);
+    if (key) {
+      this.context?.setWidgetCache?.(key, data);
+    }
   };
 
   getWidgetCache = () => {
     const key = this.getWidgetCacheKey();
 
-    return this.context?.getWidgetCache?.(key);
+    if (key) {
+      return this.context?.getWidgetCache?.(key);
+    }
   };
 
   getWidgetCacheKey = () => {
@@ -408,6 +412,8 @@ abstract class BaseWidget<
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         focused={this.props.focused}
+        isDisabled={this.props.isDisabled}
+        isVisible={this.props.isVisible}
         leftColumn={this.props.leftColumn}
         noContainerOffset={this.props.noContainerOffset}
         parentColumnSpace={this.props.parentColumnSpace}
@@ -430,16 +436,30 @@ abstract class BaseWidget<
   }
 
   addAutoHeightOverlay(content: ReactNode, style?: CSSProperties) {
-    const onBatchUpdate = (height: number, propertiesToUpdate?: string[]) => {
-      if (propertiesToUpdate === undefined) {
-        propertiesToUpdate = ["minDynamicHeight", "maxDynamicHeight"];
-      }
+    // required when the limits have to be updated
+    // simultaneosuly when they move together
+    // to maintain the undo/redo stack
+    const onBatchUpdate = ({
+      maxHeight,
+      minHeight,
+    }: {
+      maxHeight?: number;
+      minHeight?: number;
+    }) => {
       const modifyObj: Record<string, unknown> = {};
-      propertiesToUpdate.forEach((propertyName) => {
-        modifyObj[propertyName] = Math.floor(
-          height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+
+      if (maxHeight !== undefined) {
+        modifyObj["maxDynamicHeight"] = Math.floor(
+          maxHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         );
-      });
+      }
+
+      if (minHeight !== undefined) {
+        modifyObj["minDynamicHeight"] = Math.floor(
+          minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      }
+
       this.batchUpdateWidgetProperty({
         modify: modifyObj,
         postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
@@ -447,11 +467,9 @@ abstract class BaseWidget<
       AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
     };
 
-    const onMaxHeightSet = (height: number) =>
-      onBatchUpdate(height, ["maxDynamicHeight"]);
+    const onMaxHeightSet = (maxHeight: number) => onBatchUpdate({ maxHeight });
 
-    const onMinHeightSet = (height: number) =>
-      onBatchUpdate(height, ["minDynamicHeight"]);
+    const onMinHeightSet = (minHeight: number) => onBatchUpdate({ minHeight });
 
     return (
       <>
@@ -619,7 +637,7 @@ export interface WidgetBaseProps {
    * The keys of the props mentioned here would always be picked from the canvas widget
    * rather than the evaluated values in withWidgetProps HOC.
    *  */
-  passThroughPropsKeys?: string[];
+  additionalStaticProps?: string[];
 }
 
 export type WidgetRowCols = {

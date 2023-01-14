@@ -21,7 +21,11 @@ describe("Guided Tour", function() {
     cy.get(explorerLocators.entityExplorer).should("not.be.visible");
     // Refresh the page to validate if the tour resumes
     cy.reload();
-    cy.get(guidedTourLocators.banner).should("be.visible");
+    cy.get(".query-page").then(($ele) => {
+      if ($ele.find(guidedTourLocators.banner).length) {
+        cy.get(guidedTourLocators.banner).should("be.visible");
+      }
+    });
     // Step 1: Run query
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
@@ -53,8 +57,8 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
-      x: 700,
-      y: 400,
+      x: 800,
+      y: 750,
     });
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();

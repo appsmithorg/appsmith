@@ -58,7 +58,7 @@ function execCommand(cmd, options) {
         return;
       }
       isPromiseDone = true;
-      log.error("Error running command", err);
+      console.error("Error running command", err);
       reject();
     });
   });
@@ -97,6 +97,11 @@ async function getLastBackupErrorMailSentInMilliSec() {
   }
 }
 
+async function getCurrentAppsmithVersion() {
+  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', { encoding: 'utf8' });
+  return content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
+}
+
 module.exports = {
   showHelp,
   start,
@@ -105,4 +110,5 @@ module.exports = {
   listLocalBackupFiles,
   updateLastBackupErrorMailSentInMilliSec,
   getLastBackupErrorMailSentInMilliSec,
+  getCurrentAppsmithVersion
 };

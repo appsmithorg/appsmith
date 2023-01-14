@@ -13,7 +13,10 @@ import ListPagination, {
 } from "../component/ListPagination";
 import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
-import MetaWidgetGenerator, { GeneratorOptions } from "../MetaWidgetGenerator";
+import MetaWidgetGenerator, {
+  GeneratorOptions,
+  HookOptions,
+} from "../MetaWidgetGenerator";
 import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
@@ -30,6 +33,11 @@ import {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetState } from "../../BaseWidget";
+import { Stylesheet } from "entities/AppTheming";
+import {
+  TabContainerWidgetProps,
+  TabsWidgetProps,
+} from "widgets/TabsWidget/constants";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -48,11 +56,15 @@ export type DynamicPathMap = Record<string, DynamicPathType[]>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
 
-export type MetaWidget = FlattenedWidgetProps & {
+type BaseMetaWidget = FlattenedWidgetProps & {
   currentIndex: number;
   currentView: string;
-  currentItem: string;
+  currentItem: Record<string, unknown> | string;
 };
+
+export type MetaWidget<TProps = void> = TProps extends void
+  ? BaseMetaWidget
+  : TProps & BaseMetaWidget;
 
 export type LevelData = {
   [level: string]: {
@@ -77,6 +89,8 @@ export type MetaWidgetCacheProps = {
   viewIndex: number;
 };
 
+export type RowDataCache = Record<string, Record<string, unknown>>;
+
 type LevelDataMetaWidgetCacheProps = Omit<
   MetaWidgetCacheProps,
   "originalMetaWidgetId" | "originalMetaWidgetName"
@@ -98,7 +112,8 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
 type RenderChildrenOption = {
   componentWidth: number;
   parentColumnSpace: number;
-  selectedItemIndex?: number;
+  selectedItemIndex: number;
+  startIndex: number;
 };
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
@@ -108,6 +123,7 @@ class ListWidget extends BaseWidget<
   WidgetState,
   MetaWidgetCache
 > {
+  cachedKeys: Record<string, number>;
   componentRef: RefObject<HTMLDivElement>;
   metaWidgetGenerator: MetaWidgetGenerator;
   prevFlattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
@@ -121,6 +137,14 @@ class ListWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return PropertyPaneStyleConfig;
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   static getDerivedPropertiesMap() {
@@ -166,6 +190,7 @@ class ListWidget extends BaseWidget<
       setWidgetCache: this.setWidgetCache,
       setWidgetReferenceCache: this.setWidgetReferenceCache,
     });
+    this.cachedKeys = {};
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
@@ -196,25 +221,25 @@ class ListWidget extends BaseWidget<
 
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
-      if (this.shouldFireOnPageSizeChange()) {
-        // run onPageSizeChange if user resize widgets
-        this.triggerOnPageSizeChange();
+      if (this.props.serverSidePagination && !this.props.pageSize) {
+        this.onPageChange(this.props.pageNo);
       }
     }
 
+    if (this.props.serverSidePagination) {
+      this.updateRowCacheWithNewData();
+    }
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
-      const maxPageNo = Math.ceil(
-        (this.props?.listData?.length || 0) / this.pageSize,
+      const maxPageNo = Math.max(
+        Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
+        1,
       );
 
       this.onPageChange(maxPageNo);
     }
 
-    if (this.props.primaryKeys !== prevProps.primaryKeys) {
-      this.resetSelectedItemViewIndex();
-      this.resetSelectedItemView();
-      this.resetTriggeredItemViewIndex();
-      this.resetTriggeredItemView();
+    if (this.shouldUpdateCacheKeys(prevProps)) {
+      this.updateCacheKey();
     }
 
     this.setupMetaWidgets(prevProps);
@@ -255,10 +280,7 @@ class ListWidget extends BaseWidget<
     } = this.props;
     const pageSize = this.pageSize;
 
-    const cacheRowIndexes = this.getCachedRowIndexes();
-
     return {
-      cacheIndexArr: cacheRowIndexes,
       containerParentId: mainCanvasId,
       containerWidgetId: mainContainerId,
       currTemplateWidgets: flattenedChildCanvasWidgets,
@@ -275,11 +297,15 @@ class ListWidget extends BaseWidget<
       pageNo,
       pageSize,
       serverSidePagination,
+      hooks: {
+        afterMetaWidgetGenerate: this.afterMetaWidgetGenerate,
+      },
     };
   };
 
   generateMetaWidgets = () => {
     const generatorOptions = this.metaWidgetGeneratorOptions();
+    this.handleRowCacheData();
 
     const {
       metaWidgets,
@@ -349,6 +375,24 @@ class ListWidget extends BaseWidget<
     }
   };
 
+  afterMetaWidgetGenerate = (metaWidget: MetaWidget, options: HookOptions) => {
+    if (metaWidget.type === "TABS_WIDGET") {
+      const tabsWidget = metaWidget as MetaWidget<
+        TabsWidgetProps<TabContainerWidgetProps>
+      >;
+      const widgetIdToMetaWidgetIdMap: Record<string, string> = {};
+      Object.values(options.childMetaWidgets).forEach(
+        ({ referencedWidgetId = "", widgetId }) => {
+          widgetIdToMetaWidgetIdMap[referencedWidgetId] = widgetId;
+        },
+      );
+
+      Object.values(tabsWidget.tabsObj).forEach((tab) => {
+        tab.widgetId = widgetIdToMetaWidgetIdMap[tab.widgetId];
+      });
+    }
+  };
+
   updateCurrentItemsViewBinding = () => {
     const {
       names: currMetaContainerNames,
@@ -414,9 +458,11 @@ class ListWidget extends BaseWidget<
       spaceAvailableWithoutPaginationControls - LIST_WIDGET_PAGINATION_HEIGHT;
 
     const spaceTakenByAllContainers = spaceTakenByOneContainer * itemsCount;
+    const exceedsAvailableSpace =
+      spaceTakenByAllContainers > spaceAvailableWithoutPaginationControls;
     const paginationControlsEnabled =
-      (spaceTakenByAllContainers > spaceAvailableWithoutPaginationControls ||
-        serverSidePagination) &&
+      spaceTakenByAllContainers > 0 &&
+      (exceedsAvailableSpace || serverSidePagination) &&
       !infiniteScroll;
 
     const totalAvailableSpace = paginationControlsEnabled
@@ -433,11 +479,7 @@ class ListWidget extends BaseWidget<
   };
 
   shouldUpdatePageSize = () => {
-    return this.props.pageSize !== this.pageSize;
-  };
-
-  shouldFireOnPageSizeChange = () => {
-    return this.props.serverSidePagination && this.props.onPageSizeChange;
+    return this.props.listData?.length && this.props.pageSize !== this.pageSize;
   };
 
   isCurrPageNoGreaterThanMaxPageNo = () => {
@@ -452,16 +494,6 @@ class ListWidget extends BaseWidget<
     }
 
     return false;
-  };
-
-  triggerOnPageSizeChange = () => {
-    super.executeAction({
-      triggerPropertyName: "onPageSizeChange",
-      dynamicString: this.props.onPageSizeChange as string,
-      event: {
-        type: EventType.ON_PAGE_SIZE_CHANGE,
-      },
-    });
   };
 
   mainMetaCanvasWidget = () => {
@@ -523,6 +555,88 @@ class ListWidget extends BaseWidget<
     }
   };
 
+  getCurrDataCache = () => this.metaWidgetGenerator.getRowDataCache();
+
+  setRowDataCache = () => {
+    const prevDataCache = this.getCurrDataCache();
+    const rowDataCache: RowDataCache = {};
+
+    Object.entries(this.cachedKeys).forEach(([key, rowIndex]) => {
+      if (Object.keys(prevDataCache).includes(key)) {
+        rowDataCache[key] = prevDataCache[key];
+        return;
+      }
+      const viewIndex = this.metaWidgetGenerator.getViewIndex(rowIndex);
+      const rowData = this.props.listData?.[viewIndex] ?? {};
+      rowDataCache[key] = rowData;
+    });
+
+    this.updateMetaGeneratorRowDataCache(rowDataCache);
+    this.updateGeneratorCacheRowKeys(Object.keys(rowDataCache));
+  };
+
+  updateGeneratorCacheRowKeys = (keys: string[]) => {
+    this.metaWidgetGenerator.updateCurrCachedRows(keys);
+  };
+
+  updateMetaGeneratorRowDataCache = (rowDataCache: RowDataCache) => {
+    if (this.props.serverSidePagination) {
+      this.metaWidgetGenerator.updateRowDataCache(rowDataCache);
+    }
+  };
+
+  updateCacheKey = () => {
+    const { selectedItemIndex = -1, triggeredItemIndex = -1 } = this.props;
+    const cachedKeys: Record<string, number> = {};
+
+    if (selectedItemIndex === -1 && triggeredItemIndex === -1) return;
+
+    [selectedItemIndex, triggeredItemIndex].forEach((index) => {
+      if (index === -1) return;
+
+      if (Object.values(this.cachedKeys).includes(index)) {
+        const key = Object.keys(this.cachedKeys).find(
+          (key) => this.cachedKeys[key] === index,
+        );
+        if (key) cachedKeys[key] = index;
+        return;
+      }
+
+      const key = this.metaWidgetGenerator.getPrimaryKey(index);
+      cachedKeys[key] = index;
+    });
+
+    this.cachedKeys = cachedKeys;
+  };
+
+  shouldUpdateCacheKeys = (prevProps: ListWidgetProps) => {
+    return (
+      this.props.triggeredItemIndex !== prevProps.triggeredItemIndex ||
+      this.props.selectedItemIndex !== prevProps.selectedItemIndex
+    );
+  };
+
+  handleRowCacheData = () => {
+    this.setRowDataCache();
+  };
+
+  updateRowCacheWithNewData = () => {
+    let rowDataCache: RowDataCache = { ...this.getCurrDataCache() };
+    Object.keys(this.cachedKeys).forEach((key) => {
+      if (this.props.primaryKeys?.toString().includes(key)) {
+        const rowIndex = this.cachedKeys[key];
+        const startIndex = this.metaWidgetGenerator.getStartIndex();
+        const viewIndex = rowIndex - startIndex;
+
+        rowDataCache = {
+          ...rowDataCache,
+          [key]: this.props.listData?.[viewIndex] ?? rowDataCache[key],
+        };
+      }
+    });
+    this.updateMetaGeneratorRowDataCache(rowDataCache);
+  };
+
   onRowClick = (rowIndex: number) => {
     this.updateSelectedItemViewIndex(rowIndex);
     this.updateSelectedItemView(rowIndex);
@@ -556,15 +670,7 @@ class ListWidget extends BaseWidget<
   onRowClickCapture = (rowIndex: number) => {
     this.updateTriggeredItemViewIndex(rowIndex);
     this.updateTriggeredItemView(rowIndex);
-  };
-
-  getCachedRowIndexes = () => {
-    const cachedRowIndexes = new Set<number>();
-
-    cachedRowIndexes.add(this.props.selectedItemIndex ?? -1);
-    cachedRowIndexes.add(this.props.triggeredItemIndex ?? -1);
-
-    return Array.from(cachedRowIndexes);
+    this.setRowDataCache();
   };
 
   updateSelectedItemViewIndex = (rowIndex: number) => {
@@ -574,7 +680,6 @@ class ListWidget extends BaseWidget<
       this.resetSelectedItemViewIndex();
       return;
     }
-
     this.props.updateWidgetMetaProperty("selectedItemIndex", rowIndex);
   };
 
@@ -625,14 +730,6 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  resetTriggeredItemView = () => {
-    this.context?.syncUpdateWidgetMetaProperty?.(
-      this.props.widgetId,
-      "triggeredItemView",
-      "{{{}}}",
-    );
-  };
-
   updateTriggeredItemViewIndex = (rowIndex: number) => {
     this.props.updateWidgetMetaProperty("triggeredItemIndex", rowIndex);
   };
@@ -659,11 +756,6 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  getRowIndex = (viewIndex: number) => {
-    const startIndex = this.metaWidgetGenerator.getStartIndex();
-    return startIndex + viewIndex;
-  };
-
   /**
    * Note: Do not use this.props inside the renderChildren method if the expectation is that
    * the renderChildren would re-render when the particular prop changes.
@@ -675,7 +767,12 @@ class ListWidget extends BaseWidget<
       metaWidgetChildrenStructure: ListWidgetProps["metaWidgetChildrenStructure"],
       options: RenderChildrenOption,
     ) => {
-      const { componentWidth, parentColumnSpace, selectedItemIndex } = options;
+      const {
+        componentWidth,
+        parentColumnSpace,
+        selectedItemIndex,
+        startIndex,
+      } = options;
 
       const childWidgets = (metaWidgetChildrenStructure || []).map(
         (childWidgetStructure) => {
@@ -686,7 +783,7 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.children = child.children?.map((container, viewIndex) => {
-            const rowIndex = this.getRowIndex(viewIndex);
+            const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             return {
@@ -719,7 +816,8 @@ class ListWidget extends BaseWidget<
           prevMetaChildrenStructure === nextMetaChildrenStructure &&
           prevOptions.componentWidth === nextOptions.componentWidth &&
           prevOptions.parentColumnSpace === nextOptions.parentColumnSpace &&
-          prevOptions.selectedItemIndex === nextOptions.selectedItemIndex
+          prevOptions.selectedItemIndex === nextOptions.selectedItemIndex &&
+          prevOptions.startIndex === nextOptions.startIndex
         );
       },
     },
@@ -776,18 +874,57 @@ class ListWidget extends BaseWidget<
     this.context?.deleteWidgetProperty?.(widgetId, propertyPaths);
   };
 
+  shouldDisableNextPage = () => {
+    const { listData, serverSidePagination } = this.props;
+
+    return Boolean(serverSidePagination && !listData?.length);
+  };
+
+  renderPaginationUI = () => {
+    const { isLoading, pageNo, serverSidePagination } = this.props;
+    const disableNextPage = this.shouldDisableNextPage();
+    return (
+      this.shouldPaginate() &&
+      (serverSidePagination ? (
+        <ServerSideListPagination
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          disableNextPage={disableNextPage}
+          disabled={false && this.props.renderMode === RenderModes.CANVAS}
+          isLoading={isLoading}
+          nextPageClick={() => this.onPageChange(pageNo + 1)}
+          pageNo={this.props.pageNo}
+          prevPageClick={() => this.onPageChange(pageNo - 1)}
+        />
+      ) : (
+        <ListPagination
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          disabled={false && this.props.renderMode === RenderModes.CANVAS}
+          isLoading={isLoading}
+          onChange={this.onPageChange}
+          pageNo={this.props.pageNo}
+          pageSize={this.pageSize}
+          total={(this.props.listData || []).length}
+        />
+      ))
+    );
+  };
+
   getPageView() {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const {
-      pageNo,
+      isLoading,
       parentColumnSpace,
       parentRowSpace,
-      selectedItemIndex,
-      serverSidePagination,
+      selectedItemIndex = -1,
     } = this.props;
+    const startIndex = this.metaWidgetGenerator.getStartIndex();
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
 
-    if (this.props.isLoading) {
+    if (isLoading) {
       return (
         <Loader
           itemSpacing={this.props.itemSpacing}
@@ -802,7 +939,12 @@ class ListWidget extends BaseWidget<
       this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
-      return <ListComponentEmpty>No data to display</ListComponentEmpty>;
+      return (
+        <>
+          <ListComponentEmpty>No data to display</ListComponentEmpty>
+          {this.renderPaginationUI()}
+        </>
+      );
     }
 
     if (isNaN(templateHeight) || templateHeight > componentHeight - 45) {
@@ -832,27 +974,10 @@ class ListWidget extends BaseWidget<
             componentWidth,
             parentColumnSpace,
             selectedItemIndex,
+            startIndex,
           })}
         </MetaWidgetContextProvider>
-        {this.shouldPaginate() &&
-          (serverSidePagination ? (
-            <ServerSideListPagination
-              nextPageClick={() => this.onPageChange(pageNo + 1)}
-              pageNo={this.props.pageNo}
-              prevPageClick={() => this.onPageChange(pageNo - 1)}
-            />
-          ) : (
-            <ListPagination
-              accentColor={this.props.accentColor}
-              borderRadius={this.props.borderRadius}
-              boxShadow={this.props.boxShadow}
-              disabled={false && this.props.renderMode === RenderModes.CANVAS}
-              onChange={this.onPageChange}
-              pageNo={this.props.pageNo}
-              pageSize={this.pageSize}
-              total={(this.props.listData || []).length}
-            />
-          ))}
+        {this.renderPaginationUI()}
       </ListComponent>
     );
   }
@@ -881,7 +1006,6 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   mainCanvasId?: string;
   mainContainerId?: string;
   onRowClick?: string;
-  onPageSizeChange?: string;
   pageNo: number;
   pageSize: number;
   prefixMetaWidgetId?: string;
@@ -892,6 +1016,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
+  rowDataCache: RowDataCache;
 }
 
 export default ListWidget;

@@ -29,7 +29,6 @@ import {
   convertPathToString,
   CrashingError,
   DataTreeDiff,
-  getAllPaths,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   isAction,
@@ -39,8 +38,10 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   overrideWidgetProperties,
+  getAllPaths,
   isValidEntity,
-} from "workers/Evaluation/evaluationUtils";
+  isNewEntity,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   difference,
   flatten,
@@ -63,14 +64,14 @@ import {
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluateSync, {
   EvalResult,
-  evaluateAsync,
   EvaluateContext,
+  evaluateAsync,
 } from "workers/Evaluation/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
 import {
-  ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
   Severity,
   SourceEntity,
+  ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
   UserLogObject,
 } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
@@ -81,29 +82,28 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
-import { EvalMetaUpdates } from "./types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import {
-  createDependencyMap,
   updateDependencyMap,
+  createDependencyMap,
 } from "workers/common/DependencyMap";
 import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
-  parseJSActionsForViewMode,
   parseJSActions,
-  parseJSActionsWithDifferences,
 } from "workers/Evaluation/JSObject";
 import { getFixedTimeDifference } from "./utils";
-import {
-  getAppMode,
-  isJSObjectFunction,
-} from "workers/Evaluation/JSObject/utils";
+import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
   validateActionProperty,
   validateAndParseWidgetProperty,
 } from "./validationUtils";
-import { APP_MODE } from "../../../entities/App";
+import { errorModifier } from "workers/Evaluation/errorModifier";
+import {
+  isMetaWidgetTemplate,
+  isWidgetDefaultPropertyPath,
+} from "entities/DataTree/utils";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -156,10 +156,6 @@ export default class DataTreeEvaluator {
    */
   evalProps: EvalProps = {};
   public hasCyclicalDependency = false;
-  parseJsActionsConfig = {
-    [APP_MODE.EDIT]: parseJSActions,
-    [APP_MODE.PUBLISHED]: parseJSActionsForViewMode,
-  };
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
     allActionValidationConfig?: {
@@ -208,9 +204,8 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const currentAppMode: APP_MODE = getAppMode(localUnEvalTree);
-    jsUpdates =
-      this.parseJsActionsConfig[currentAppMode](this, localUnEvalTree) || {};
+    const parsedCollections = parseJSActions(this, localUnEvalTree);
+    jsUpdates = parsedCollections.jsUpdates;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
@@ -298,10 +293,11 @@ export default class DataTreeEvaluator {
   evalAndValidateFirstTree(): {
     evalTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
+    staleMetaIds: string[];
   } {
     const evaluationStartTime = performance.now();
     // Evaluate
-    const { evalMetaUpdates, evaluatedTree } = this.evaluateTree(
+    const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
       this.oldUnEvalTree,
       this.resolvedFunctions,
       this.sortedDependencies,
@@ -332,6 +328,7 @@ export default class DataTreeEvaluator {
     return {
       evalTree: this.getEvalTree(),
       evalMetaUpdates,
+      staleMetaIds,
     };
   }
 
@@ -386,18 +383,18 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
-    // save parsed functions in resolveJSFunctions, update current state of js collection
-    jsUpdates =
-      (!!jsTranslatedDiffs && !!this.oldUnEvalTree
-        ? parseJSActionsWithDifferences(
-            this,
-            localUnEvalTree,
-            jsTranslatedDiffs,
-          )
-        : parseJSActions(this, localUnEvalTree)) || {};
-    // update local data tree if js body has updated (remove/update/add js functions or variables)
+    //save parsed functions in resolveJSFunctions, update current state of js collection
+    const parsedCollections = parseJSActions(
+      this,
+      localUnEvalTree,
+      jsTranslatedDiffs,
+      this.oldUnEvalTree,
+    );
+
+    jsUpdates = parsedCollections.jsUpdates;
+    //update local data tree if js body has updated (remove/update/add js functions or variables)
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
-      jsUpdates || {},
+      jsUpdates,
       localUnEvalTree,
     );
 
@@ -532,18 +529,21 @@ export default class DataTreeEvaluator {
   evalAndValidateSubTree(
     evaluationOrder: string[],
     nonDynamicFieldValidationOrder: string[],
+    unevalUpdates: DataTreeDiff[],
   ): {
     evalMetaUpdates: EvalMetaUpdates;
+    staleMetaIds: string[];
   } {
     const evaluationStartTime = performance.now();
     const {
       evalMetaUpdates,
       evaluatedTree: newEvalTree,
+      staleMetaIds,
     } = this.evaluateTree(
       this.evalTree,
       this.resolvedFunctions,
       evaluationOrder,
-      { skipRevalidation: false },
+      { skipRevalidation: false, isFirstTree: false, unevalUpdates },
     );
     const evaluationEndTime = performance.now();
     const reValidateStartTime = performance.now();
@@ -563,6 +563,7 @@ export default class DataTreeEvaluator {
     this.logs.push({ timeTakenForEvalAndValidateSubTree });
     return {
       evalMetaUpdates,
+      staleMetaIds,
     };
   }
 
@@ -666,13 +667,21 @@ export default class DataTreeEvaluator {
     oldUnevalTree: DataTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
-    option = { skipRevalidation: true },
+    options: {
+      skipRevalidation: boolean;
+      isFirstTree: boolean;
+      unevalUpdates: DataTreeDiff[];
+    } = { skipRevalidation: true, isFirstTree: true, unevalUpdates: [] },
   ): {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
+    staleMetaIds: string[];
   } {
     const tree = klona(oldUnevalTree);
+    errorModifier.updateAsyncFunctions(tree);
     const evalMetaUpdates: EvalMetaUpdates = [];
+    const { isFirstTree, skipRevalidation, unevalUpdates } = options;
+    let staleMetaIds: string[] = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
@@ -732,6 +741,8 @@ export default class DataTreeEvaluator {
             evalPropertyValue = unEvalPropertyValue;
           }
           if (isWidget(entity) && !isATriggerPath) {
+            const isNewWidget =
+              isFirstTree || isNewEntity(unevalUpdates, entityName);
             if (propertyPath) {
               const parsedValue = validateAndParseWidgetProperty({
                 fullPropertyPath,
@@ -750,15 +761,19 @@ export default class DataTreeEvaluator {
                 parsedValue,
                 propertyPath,
                 evalPropertyValue,
+                isNewWidget,
               });
 
-              if (!option.skipRevalidation) {
+              if (!skipRevalidation) {
                 this.reValidateWidgetDependentProperty({
                   fullPropertyPath,
                   widget: entity,
                   currentTree,
                 });
               }
+              staleMetaIds = staleMetaIds.concat(
+                this.getStaleMetaStateIds(entity, propertyPath),
+              );
 
               return currentTree;
             }
@@ -825,13 +840,13 @@ export default class DataTreeEvaluator {
         },
         tree,
       );
-      return { evaluatedTree, evalMetaUpdates };
+      return { evaluatedTree, evalMetaUpdates, staleMetaIds };
     } catch (error) {
       this.errors.push({
         type: EvalErrorTypes.EVAL_TREE_ERROR,
         message: (error as Error).message,
       });
-      return { evaluatedTree: tree, evalMetaUpdates };
+      return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds };
     }
   }
 
@@ -1024,7 +1039,6 @@ export default class DataTreeEvaluator {
   async evaluateTriggers(
     userScript: string,
     dataTree: DataTree,
-    requestId: string,
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
     context?: EvaluateContext,
@@ -1033,7 +1047,6 @@ export default class DataTreeEvaluator {
     return evaluateAsync(
       jsSnippets[0] || userScript,
       dataTree,
-      requestId,
       resolvedFunctions,
       context,
       callbackData,
@@ -1046,7 +1059,7 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
-    createGlobalData: boolean,
+    isJSObject: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
     skipUserLogsOperations = false,
@@ -1056,7 +1069,7 @@ export default class DataTreeEvaluator {
         js,
         data,
         resolvedFunctions,
-        createGlobalData,
+        isJSObject,
         contextData,
         callbackData,
         skipUserLogsOperations,
@@ -1082,6 +1095,7 @@ export default class DataTreeEvaluator {
     evalMetaUpdates,
     evalPropertyValue,
     fullPropertyPath,
+    isNewWidget,
     parsedValue,
     propertyPath,
   }: {
@@ -1089,6 +1103,7 @@ export default class DataTreeEvaluator {
     entity: DataTreeWidget;
     evalMetaUpdates: EvalMetaUpdates;
     fullPropertyPath: string;
+    isNewWidget: boolean;
     parsedValue: unknown;
     propertyPath: string;
     evalPropertyValue: unknown;
@@ -1099,6 +1114,7 @@ export default class DataTreeEvaluator {
       value: parsedValue,
       currentTree,
       evalMetaUpdates,
+      isNewWidget,
     });
 
     if (overwriteObj && overwriteObj.overwriteParsedValue) {
@@ -1378,6 +1394,13 @@ export default class DataTreeEvaluator {
         },
       );
     });
+  }
+  // When a default value changes, meta values of metaWidgets not present in the unevalTree becomes stale
+  getStaleMetaStateIds(entity: DataTreeWidget, propertyPath: string) {
+    return isWidgetDefaultPropertyPath(entity, propertyPath) &&
+      isMetaWidgetTemplate(entity)
+      ? (entity.siblingMetaWidgets as string[])
+      : [];
   }
 
   clearErrors() {

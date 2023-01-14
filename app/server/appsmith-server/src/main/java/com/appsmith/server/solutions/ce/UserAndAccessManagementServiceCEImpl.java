@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.services.ce.UserServiceCEImpl.INVITE_USER_EMAIL_TEMPLATE;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementServiceCE {
@@ -108,18 +109,33 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         // Get workspace from the default group.
         Mono<Workspace> workspaceMono = permissionGroupMono.flatMap(permissionGroup -> workspaceService.getById(permissionGroup.getDefaultWorkspaceId())).cache();
 
+        // Get all the default permision groups of the workspace
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                workspaceMono.flatMap(workspace ->
+                        permissionGroupService.findAllByIds(workspace.getDefaultPermissionGroups())
+                                .collectList()
+                ).cache();
+
         // Check if the invited user exists. If yes, return the user, else create a new user by triggering
         // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
         Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
-                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, permissionGroupMono))
+                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, permissionGroupMono, defaultPermissionGroupsMono))
                 .flatMap(tuple -> {
                     String username = tuple.getT1();
                     Workspace workspace = tuple.getT2();
                     eventData.put(FieldName.WORKSPACE, workspace);
                     User currentUser = tuple.getT3();
                     PermissionGroup permissionGroup = tuple.getT4();
+                    List<PermissionGroup> defaultPermissionGroups = tuple.getT5();
 
-                    return userRepository.findByEmail(username)
+                    Mono<User> getUserFromDbAndCheckIfUserExists = userRepository.findByEmail(username)
+                            .flatMap(user -> {
+                                return throwErrorIfUserAlreadyExistsInWorkspace(user, defaultPermissionGroups)
+                                        // If no errors, proceed forward
+                                        .thenReturn(user);
+                            });
+
+                    return getUserFromDbAndCheckIfUserExists
                             .flatMap(existingUser -> {
                                 // The user already existed, just send an email informing that the user has been added
                                 // to a new workspace
@@ -168,6 +184,19 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                 });
 
         return bulkAddUserResultMono.then(sendAnalyticsEventMono).then(inviteUsersMono);
+    }
+
+    private Mono<Boolean> throwErrorIfUserAlreadyExistsInWorkspace(User user,
+                                                                   List<PermissionGroup> defaultPermissionGroups) {
+
+        return Flux.fromIterable(defaultPermissionGroups)
+                .map(permissionGroup -> {
+                    if (permissionGroup.getAssignedToUserIds().contains(user.getId())) {
+                        throw new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_IN_WORKSPACE, user.getUsername(), permissionGroup.getName());
+                    }
+                    return TRUE;
+                })
+                .then(Mono.just(TRUE));
     }
 
 }

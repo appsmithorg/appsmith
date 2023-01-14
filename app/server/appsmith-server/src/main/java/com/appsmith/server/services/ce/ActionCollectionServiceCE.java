@@ -37,6 +37,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Mono<ActionCollectionDTO> update(String id, ActionCollectionDTO actionCollectionDTO);
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
+    
+    Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id);
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName);
 
