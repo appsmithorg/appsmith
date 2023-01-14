@@ -10,6 +10,7 @@ import {
 import {
   actionChannel,
   call,
+  cancel,
   fork,
   put,
   spawn,
@@ -21,7 +22,7 @@ import {
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
-import { Channel, channel } from "redux-saga";
+import { Channel, channel, Task } from "redux-saga";
 import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import ts from "typescript";
 import { EvalWorker } from "sagas/EvaluationsSaga";
@@ -328,20 +329,22 @@ function* startDebuggerSaga(action: ReduxAction<string>) {
   });
 
   const statusChannel = channel();
-  const messagePort = setupSWBridge(statusChannel);
+  const { port1, port2 } = setupSWBridge(statusChannel);
 
-  const task1: unknown = yield fork(listenForMessageFromSW, statusChannel);
+  const task1: Task = yield fork(listenForMessageFromSW, statusChannel);
 
-  const task2: unknown = yield fork(
-    listenForMessagesFromMainThread,
-    messagePort,
-  );
+  const task2: Task = yield fork(listenForMessagesFromMainThread, port1);
 
   //@ts-expect-error test
   const response = yield call(EvalWorker.request, EVAL_WORKER_ACTIONS.DEBUG, {
     code,
     localVariables: Array.from(localVariables),
   });
+
+  port1.close();
+  port2.close();
+  yield cancel(task1);
+  yield cancel(task2);
 }
 
 function* listenForMessageFromSW(channel: Channel<any>) {
@@ -377,7 +380,7 @@ function setupSWBridge(channel: Channel<any>) {
     channel.put(data);
   };
 
-  return messagePort;
+  return { port1: messagePort, port2: messageChannel.port2 };
 }
 
 export default function*() {

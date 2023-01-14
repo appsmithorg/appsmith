@@ -99,7 +99,6 @@ const debuggerReducer = createImmerReducer(initialState, {
     state.hideErrors = action.payload;
   },
   DEBUGGER_MESSAGE: (state: DebuggerReduxState, action: ReduxAction<any>) => {
-    console.log("Inside reducer", { action });
     state.codeDebugger = action.payload;
   },
   // Resetting debugger state after page switch

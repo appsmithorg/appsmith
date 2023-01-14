@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import CodeMirror from "react-codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/mode/javascript/javascript";
+import "codemirror/theme/base16-light.css";
 import { Button, Category, Size } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "ce/reducers";
@@ -19,18 +20,28 @@ export default function Debugger() {
     lineNumbers: true,
     mode: "javascript",
     addModeClass: true,
-    theme: "duotone-light",
+    theme: "base16-light",
   };
 
   const dispatch = useDispatch();
 
-  const debug = useCallback(() => {
-    dispatch({ type: "DEBUG", payload: code });
-  }, [code]);
+  const debug = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dispatch({ type: "DEBUG", payload: code });
+    },
+    [code],
+  );
 
-  const next = useCallback(() => {
-    dispatch({ type: "NEXT_DEBUGGER_STEP" });
-  }, [code]);
+  const next = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dispatch({ type: "NEXT_DEBUGGER_STEP" });
+    },
+    [code],
+  );
 
   const line = useSelector(
     (state: AppState) => state.ui.debugger.codeDebugger.line,

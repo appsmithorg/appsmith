@@ -73,6 +73,7 @@ import {
 } from "actions/editorContextActions";
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import Debugger from "./Debugger";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -369,6 +370,11 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                         disabled={!isChangePermitted}
                       />
                     ),
+                  },
+                  {
+                    key: "debugger",
+                    title: "Debug",
+                    panelComponent: <Debugger />,
                   },
                 ]}
               />
