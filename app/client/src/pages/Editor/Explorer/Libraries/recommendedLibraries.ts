@@ -44,7 +44,7 @@ export default [
     author: "supabase",
     docsURL: "https://supabase.com/docs/reference/javascript",
     version: "2.2.3",
-    url: "https://unpkg.com/@supabase/supabase-js@2.2.3/dist/umd/supabase.js",
+    url: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1",
     icon: "https://github.com/supabase.png?s=20",
   },
   {
