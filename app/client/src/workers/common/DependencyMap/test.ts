@@ -54,10 +54,12 @@ describe("test validationDependencyMap", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates,
     } = dataTreeEvaluator.setupUpdateTree((unEvalTree as unknown) as DataTree);
     dataTreeEvaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder,
+      unEvalUpdates,
     );
 
     expect(dataTreeEvaluator.validationDependencyMap).toStrictEqual({});

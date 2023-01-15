@@ -93,7 +93,9 @@ const StyledForm = styled.form<StyledFormProps>`
   overflow-y: ${({ scrollContents }) => (scrollContents ? "auto" : "hidden")};
 `;
 
-const StyledTitle = styled(Text)`
+const StyledTitle = styled(Text)<{
+  children?: React.ReactNode;
+}>`
   font-weight: bold;
   font-size: ${TITLE_FONT_SIZE};
   word-break: break-word;

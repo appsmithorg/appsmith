@@ -1,5 +1,6 @@
-import styled from "constants/DefaultTheme";
 import React, { forwardRef, RefObject, useEffect, useRef } from "react";
+import styled from "styled-components";
+
 import ResizeObserver from "resize-observer-polyfill";
 import { useSelector } from "react-redux";
 import { getCanvasScale } from "selectors/editorSelectors";
