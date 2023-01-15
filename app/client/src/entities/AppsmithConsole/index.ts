@@ -5,6 +5,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { PluginType } from "entities/Action";
+import { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -77,6 +78,8 @@ export interface SourceEntity {
   propertyPath?: string;
   // type of plugin
   pluginType?: PluginType;
+  //If actionn is API, http method is required for icon in error item
+  httpMethod?: HTTP_METHOD;
 }
 
 export enum LOG_CATEGORY {

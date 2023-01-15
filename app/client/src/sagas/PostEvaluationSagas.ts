@@ -124,6 +124,8 @@ function logLatestEvalPropertyErrors(
         },
       ];
 
+      const httpMethod = get(entity.config, "httpMethod") || undefined;
+
       for (const { errors, isWarning, key: debuggerKey } of debuggerKeys) {
         // if dataTree has error but debugger does not -> add
         // if debugger has error and data tree has error -> update error
@@ -170,6 +172,7 @@ function logLatestEvalPropertyErrors(
                   type: entityType,
                   propertyPath: logPropertyPath,
                   pluginType: pluginTypeField,
+                  httpMethod,
                 },
                 state: {
                   [logPropertyPath]: evaluatedValue,

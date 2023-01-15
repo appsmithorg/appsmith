@@ -21,10 +21,13 @@ import {
 } from "design-system";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import {
+  ApiMethodIcon,
+  EntityIcon,
+  JsFileIconV2,
+} from "pages/Editor/Explorer/ExplorerIcons";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import { getPlugins } from "selectors/entitiesSelector";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { PluginType } from "entities/Action";
 
 const InnerWrapper = styled.div`
@@ -208,12 +211,12 @@ export const getLogItemProps = (e: Log) => {
   return {
     icon: getLogIcon(e) as IconName,
     timestamp: e.timestamp,
-    iconId: e.iconId,
     source: e.source,
     label: e.text,
     logData: e.logData,
     logType: e.logType,
     category: e.category,
+    iconId: e.iconId,
     timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
     severity: e.severity,
     text: e.text,
@@ -228,13 +231,13 @@ export const getLogItemProps = (e: Log) => {
 type LogItemProps = {
   collapsable?: boolean;
   icon: IconName;
-  iconId: string;
   timestamp: string;
   label: string;
   timeTaken: string;
   severity: Severity;
   text: string;
   category: LOG_CATEGORY;
+  iconId?: string;
   logType?: LOG_TYPE;
   logData?: any[];
   state?: Record<string, any>;
@@ -261,17 +264,24 @@ function LogItem(props: LogItemProps) {
       } else if (props.source.type === ENTITY_TYPE.JSACTION) {
         return JsFileIconV2(12, 12);
       } else if (props.source.type === ENTITY_TYPE.ACTION) {
-        return (
-          <EntityIcon height={"12px"} width={"12px"}>
-            <img
-              alt="entityIcon"
-              src={pluginGroups[props.iconId].iconLocation}
-            />
-          </EntityIcon>
-        );
+        if (
+          props.source.pluginType === PluginType.API &&
+          props.source.httpMethod
+        ) {
+          return ApiMethodIcon(props.source.httpMethod, "9px", "17px", 28);
+        } else if (props.iconId) {
+          return (
+            <EntityIcon height={"12px"} width={"12px"}>
+              <img
+                alt="entityIcon"
+                src={pluginGroups[props.iconId].iconLocation}
+              />
+            </EntityIcon>
+          );
+        }
       }
     }
-    return <img alt="Icon" src={undefined} />;
+    return <img alt="icon" src={undefined} />;
   };
   return (
     <Wrapper
