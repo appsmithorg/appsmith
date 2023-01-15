@@ -208,6 +208,7 @@ export const getLogItemProps = (e: Log) => {
   return {
     icon: getLogIcon(e) as IconName,
     timestamp: e.timestamp,
+    iconId: e.iconId,
     source: e.source,
     label: e.text,
     logData: e.logData,
@@ -227,6 +228,7 @@ export const getLogItemProps = (e: Log) => {
 type LogItemProps = {
   collapsable?: boolean;
   icon: IconName;
+  iconId: string;
   timestamp: string;
   label: string;
   timeTaken: string;
@@ -263,13 +265,13 @@ function LogItem(props: LogItemProps) {
           <EntityIcon height={"12px"} width={"12px"}>
             <img
               alt="entityIcon"
-              src={pluginGroups[props.source.id].iconLocation}
+              src={pluginGroups[props.iconId].iconLocation}
             />
           </EntityIcon>
         );
       }
     }
-    return <img alt="NA" src={undefined} />;
+    return <img alt="Icon" src={undefined} />;
   };
   return (
     <Wrapper

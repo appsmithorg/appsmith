@@ -87,6 +87,8 @@ export enum LOG_CATEGORY {
 export interface LogActionPayload {
   // Log id, used for updating or deleting
   id?: string;
+  //icon id, used for finding right icons.
+  iconId?: string;
   // What is the log about. Is it a datasource update, widget update, eval error etc.
   logType?: LOG_TYPE;
   // This is the preview of the log that the user sees.
