@@ -1,5 +1,9 @@
 import { klona } from "klona/lite";
-import { ColumnProperties, TableStyles } from "../component/Constants";
+import {
+  ColumnProperties,
+  StickyType,
+  TableStyles,
+} from "../component/Constants";
 import { ColumnTypes } from "../constants";
 import {
   escapeString,
@@ -2351,16 +2355,16 @@ describe("generateNewColumnOrderFromStickyValue", () => {
   } = {
     primaryColumns: {
       step: {
-        sticky: "",
+        sticky: StickyType.NONE,
       },
       task: {
-        sticky: "",
+        sticky: StickyType.NONE,
       },
       status: {
-        sticky: "",
+        sticky: StickyType.NONE,
       },
       action: {
-        sticky: "",
+        sticky: StickyType.NONE,
       },
     },
     columnOrder: ["step", "task", "status", "action"],

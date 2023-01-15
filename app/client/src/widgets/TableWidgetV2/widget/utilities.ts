@@ -1,5 +1,9 @@
 import { Colors } from "constants/Colors";
-import { FontStyleTypes } from "constants/WidgetConstants";
+import {
+  FontStyleTypes,
+  RenderMode,
+  RenderModes,
+} from "constants/WidgetConstants";
 import _, { isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import {
@@ -727,6 +731,44 @@ export const getColumnType = (
       return ColumnTypes.TEXT;
   }
 };
+
+export const generateLocalNewColumnOrderFromStickyValue = (
+  columnOrder: string[],
+  columnName: string,
+  sticky?: string,
+  leftOrder?: string[],
+  rightOrder?: string[],
+) => {
+  let newColumnOrder = [...columnOrder];
+  newColumnOrder = without(newColumnOrder, columnName);
+
+  let columnIndex = -1;
+  if (sticky === StickyType.LEFT) {
+    if (leftOrder) {
+      columnIndex = leftOrder.length;
+    }
+  } else if (sticky === StickyType.RIGHT) {
+    if (rightOrder) {
+      if (rightOrder.length !== 0) {
+        columnIndex = columnOrder.indexOf(rightOrder[0]) - 1;
+      } else {
+        columnIndex = columnOrder.length - 1;
+      }
+    }
+  } else {
+    if (leftOrder?.includes(columnName)) {
+      columnIndex = leftOrder.length - 1;
+    } else if (rightOrder?.includes(columnName)) {
+      if (rightOrder.length !== 0) {
+        columnIndex = columnOrder.indexOf(rightOrder[0]);
+      } else {
+        columnIndex = columnOrder.length - 1;
+      }
+    }
+  }
+  newColumnOrder.splice(columnIndex, 0, columnName);
+  return newColumnOrder;
+};
 /**
  * Function to get new column order when there is a change in column's sticky value.
  */
@@ -810,5 +852,86 @@ export const deleteLocalTableColumnOrderByWidgetId = (widgetId: string) => {
     }
   } catch (e) {
     log.debug("Error in reading local data", e);
+  }
+};
+
+export const fetchSticky = (
+  columnId: string,
+  primaryColumns: Record<string, ColumnProperties>,
+  renderMode: RenderMode,
+  widgetId?: string,
+): StickyType | undefined => {
+  if (renderMode === RenderModes.PAGE && widgetId) {
+    const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(widgetId);
+    if (localTableColumnOrder) {
+      const { leftOrder, rightOrder } = localTableColumnOrder;
+      if (leftOrder.indexOf(columnId) > -1) {
+        return StickyType.LEFT;
+      } else if (rightOrder.indexOf(columnId) > -1) {
+        return StickyType.RIGHT;
+      } else {
+        return StickyType.NONE;
+      }
+    } else {
+      return get(primaryColumns, `${columnId}`).sticky;
+    }
+  }
+  if (renderMode === RenderModes.CANVAS) {
+    return get(primaryColumns, `${columnId}`).sticky;
+  }
+};
+
+export const updateAndSyncTableLocalColumnOrders = (
+  columnName: string,
+  leftOrder: string[],
+  rightOrder: string[],
+  sticky?: StickyType,
+) => {
+  if (sticky === StickyType.LEFT) {
+    leftOrder.push(columnName);
+    if (rightOrder) {
+      rightOrder = without(rightOrder, columnName);
+    }
+  } else if (sticky === StickyType.RIGHT) {
+    rightOrder.unshift(columnName);
+    // When column is frozen to right from left. Remove the column name from leftOrder
+    if (leftOrder) {
+      leftOrder = without(leftOrder, columnName);
+    }
+  } else {
+    // remove column from both orders:
+    leftOrder = without(leftOrder, columnName);
+    rightOrder = without(rightOrder, columnName);
+  }
+  return { leftOrder, rightOrder };
+};
+
+export const getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
+  const localTableWidgetColumnOrder = localStorage.getItem(
+    LOCAL_TABLE_COLUMN_ORDER,
+  );
+  if (localTableWidgetColumnOrder) {
+    try {
+      const parsedTableWidgetColumnOrder = JSON.parse(
+        localTableWidgetColumnOrder,
+      );
+
+      if (parsedTableWidgetColumnOrder[widgetId]) {
+        const {
+          columnOrder,
+          columnUpdatedAt,
+          leftOrder,
+          rightOrder,
+        } = parsedTableWidgetColumnOrder[widgetId];
+        return {
+          columnOrder,
+          columnUpdatedAt,
+          leftOrder,
+          rightOrder,
+        };
+      }
+    } catch (e) {
+      log.debug("Unable to parse local column order:", { e });
+    }
   }
 };

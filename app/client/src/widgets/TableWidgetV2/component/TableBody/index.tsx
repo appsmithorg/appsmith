@@ -82,28 +82,29 @@ type BodyPropsType = {
 };
 
 const TableVirtualBodyComponent = React.forwardRef(
-  (props: BodyPropsType & { innerRef?: any; outerRef?: any }) => {
+  (props: BodyPropsType & { outerRef?: any }) => {
     return (
-      <FixedSizeList
-        className="virtual-list"
-        height={
-          props.height -
-          props.tableSizes.TABLE_HEADER_HEIGHT -
-          2 * WIDGET_PADDING -
-          TABLE_SCROLLBAR_HEIGHT
-        }
-        innerElementType={props.innerElementType}
-        innerRef={props.innerRef}
-        itemCount={Math.max(props.rows.length, props.pageSize)}
-        itemData={props.rows}
-        itemSize={
-          props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
-        }
-        outerRef={props.outerRef}
-        width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
-      >
-        {rowRenderer}
-      </FixedSizeList>
+      <div className="simplebar-content-wrapper">
+        <FixedSizeList
+          className="virtual-list simplebar-content"
+          height={
+            props.height -
+            props.tableSizes.TABLE_HEADER_HEIGHT -
+            2 * WIDGET_PADDING -
+            TABLE_SCROLLBAR_HEIGHT
+          }
+          innerElementType={props.innerElementType}
+          itemCount={Math.max(props.rows.length, props.pageSize)}
+          itemData={props.rows}
+          itemSize={
+            props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
+          }
+          outerRef={props.outerRef}
+          width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
+        >
+          {rowRenderer}
+        </FixedSizeList>
+      </div>
     );
   },
 );

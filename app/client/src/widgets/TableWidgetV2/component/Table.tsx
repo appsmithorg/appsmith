@@ -193,7 +193,6 @@ const HeaderComponent = (props: HeaderComponentProps) => {
 
 export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
-
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnWidthMap = {
       ...props.columnWidthMap,
@@ -346,20 +345,17 @@ export function Table(props: TableProps) {
           subPage={subPage}
           {...props}
         />
-        <div className="simplebar-content-wrapper" ref={outerRef}>
-          <div className="simplebar-content" ref={innerRef}>
-            <div
-              className="tbody body"
-              style={{
-                width: props.multiRowSelection
-                  ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
-                  : totalColumnsWidth,
-              }}
-            >
-              <div {...getTableBodyProps()} {...rest} style={style}>
-                {children}
-              </div>
-            </div>
+        <div
+          className="tbody body"
+          ref={outerRef}
+          style={{
+            width: props.multiRowSelection
+              ? MULTISELECT_CHECKBOX_WIDTH + totalColumnsWidth
+              : totalColumnsWidth,
+          }}
+        >
+          <div {...getTableBodyProps()} {...rest} style={style}>
+            {children}
           </div>
         </div>
       </>
@@ -370,6 +366,7 @@ export function Table(props: TableProps) {
       props.multiRowSelection,
       rowSelectionState,
       shouldUseVirtual,
+      totalColumnsWidth,
     ],
   );
   return (
@@ -465,7 +462,7 @@ export function Table(props: TableProps) {
               height: props.height - tableSizes.TABLE_HEADER_HEIGHT - 11,
             }}
           >
-            {({ contentNodeRef, scrollableNodeRef }) => {
+            {({ scrollableNodeRef }) => {
               return !shouldUseVirtual ? (
                 <div className="simplebar-content-wrapper">
                   <div className="simplebar-content">
@@ -510,7 +507,6 @@ export function Table(props: TableProps) {
                   getTableBodyProps={getTableBodyProps}
                   height={props.height}
                   innerElementType={MemoizedInnerElement}
-                  innerRef={contentNodeRef}
                   isAddRowInProgress={props.isAddRowInProgress}
                   multiRowSelection={!!props.multiRowSelection}
                   outerRef={scrollableNodeRef}

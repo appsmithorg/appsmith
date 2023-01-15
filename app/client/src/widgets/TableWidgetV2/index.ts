@@ -20,7 +20,7 @@ export const CONFIG = {
   defaults: {
     rows: 28,
     canFreezeColumn: true,
-    timestamp: Date.now(),
+    columnUpdatedAt: Date.now(),
     columns: 34,
     animateLoading: true,
     defaultSelectedRowIndex: 0,

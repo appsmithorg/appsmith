@@ -707,7 +707,7 @@ export const migrateColumnFreezeAttributes = (currentDSL: DSLWidget) => {
       }
 
       widget.canFreezeColumn = false;
-      widget.timestamp = Date.now();
+      widget.columnUpdatedAt = Date.now();
     }
   });
 };

@@ -22,6 +22,7 @@ import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 import { TableVariant, TableVariantTypes } from "../constants";
+import { Layers } from "constants/Layers";
 
 const OFFSET_WITHOUT_HEADER = 40;
 const OFFSET_WITH_HEADER = 80;
@@ -765,5 +766,5 @@ export const EmptyCell = styled.div<{ width: number; sticky?: string }>`
   width: ${(props) => props.width}px;
   boxsizing: border-box;
   flex: ${(props) => props.width} 0 auto;
-  z-index: ${(props) => (props.sticky ? 3 : 0)};
+  z-index: ${(props) => (props.sticky ? Layers.dragPreview : 0)};
 `;

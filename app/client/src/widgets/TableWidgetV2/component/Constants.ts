@@ -336,7 +336,7 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
-  sticky?: string;
+  sticky?: StickyType;
   getVisibleItems?: () => Array<MenuItem>;
   menuItemsSource?: MenuItemsSource;
   configureMenuItems?: ConfigureMenuItems;
