@@ -328,7 +328,7 @@ export function Table(props: TableProps) {
   }, [props.isAddRowInProgress]);
 
   const MemoizedInnerElement = useMemo(
-    () => ({ children, innerRef, outerRef, style, ...rest }: any) => (
+    () => ({ children, outerRef, style, ...rest }: any) => (
       <>
         <HeaderComponent
           handleAllRowSelectClick={handleAllRowSelectClick}
