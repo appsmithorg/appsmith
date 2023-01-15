@@ -76,7 +76,7 @@ export interface SourceEntity {
   // property path of the child
   propertyPath?: string;
   // type of plugin
-  pluginType?: PluginType | undefined;
+  pluginType?: PluginType;
 }
 
 export enum LOG_CATEGORY {

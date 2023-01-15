@@ -252,8 +252,10 @@ function LogItem(props: LogItemProps) {
 
   const getIcon = () => {
     if (props.source) {
-      if (props.source.type === ENTITY_TYPE.WIDGET) {
-        return <WidgetIcon height={12} type={props.source.name} width={12} />;
+      if (props.source.type === ENTITY_TYPE.WIDGET && props.source.pluginType) {
+        return (
+          <WidgetIcon height={12} type={props.source.pluginType} width={12} />
+        );
       } else if (props.source.type === ENTITY_TYPE.JSACTION) {
         return JsFileIconV2(12, 12);
       } else if (props.source.type === ENTITY_TYPE.ACTION) {
@@ -267,6 +269,7 @@ function LogItem(props: LogItemProps) {
         );
       }
     }
+    return <img alt="NA" src={undefined} />;
   };
   return (
     <Wrapper
@@ -303,8 +306,9 @@ function LogItem(props: LogItemProps) {
             size={IconSize.SMALL}
           />
         )} */}
-        <span className={`debugger-error-type`}>{`${props.messages &&
-          props.messages[0].message.name}:`}</span>
+        <span className={`debugger-error-type`}>
+          {`${props.messages && props.messages[0].message.name}:`}
+        </span>
 
         {props.source && (
           <span
