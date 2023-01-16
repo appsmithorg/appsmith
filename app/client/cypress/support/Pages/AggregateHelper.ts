@@ -1049,6 +1049,22 @@ export class AggregateHelper {
     this.Sleep();
   }
 
+  public AssertElementEnabledDisabled(
+    selector: ElementType,
+    index = 0,
+    disabled = true,
+  ) {
+    if (disabled) {
+      return this.GetElement(selector)
+        .eq(index)
+        .should("be.disabled");
+    } else {
+      return this.GetElement(selector)
+        .eq(index)
+        .should("not.be.disabled");
+    }
+  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath
