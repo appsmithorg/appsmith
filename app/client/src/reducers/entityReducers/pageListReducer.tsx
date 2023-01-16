@@ -78,6 +78,7 @@ export const pageListReducer = createReducer(initialState, {
     state: PageListReduxState,
     action: ReduxAction<{
       pageName: string;
+      description?: string;
       pageId: string;
       layoutId: string;
       isDefault: boolean;
@@ -207,6 +208,7 @@ export const pageListReducer = createReducer(initialState, {
         layoutId: action.payload.page.layouts[0].id,
         isDefault: !!action.payload.page.isDefault,
         slug: action.payload.page.slug,
+        description: action.payload.page.description,
       };
       _state.pages.push({ ...newPage, latest: true });
     }
@@ -244,6 +246,7 @@ export type SupportedLayouts =
   | "TABLET"
   | "MOBILE"
   | "FLUID";
+
 export interface AppLayoutConfig {
   type: SupportedLayouts;
 }
