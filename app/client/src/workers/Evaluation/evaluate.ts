@@ -19,7 +19,7 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { updateJSCollectionStateFromContext } from "./JSObject/jsUpdates";
+import { updateJSCollectionStateFromContext } from "./JSObject";
 
 export type EvalResult = {
   result: any;
