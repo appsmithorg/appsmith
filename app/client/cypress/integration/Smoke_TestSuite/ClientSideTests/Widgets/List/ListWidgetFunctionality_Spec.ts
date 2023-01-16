@@ -32,7 +32,6 @@ it("1. Create new API validate binding on List widget", function(){
     _.ee.SelectEntityByName("Text2")
     _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.id}}")
     _.agHelper.GetNAssertElementText(_.locators._textWidget,"0","have.text",1)
-    _.agHelper.Sleep(1000)
 })
 
 it("2. Verify 'onListitemClick' functionality of Show messgage event on deploy mode",function(){
@@ -48,10 +47,10 @@ it("2. Verify 'onListitemClick' functionality of Show messgage event on deploy m
     _.agHelper.GetNClick(_.locators._containerWidget,1,true)
     _.agHelper.ValidateToastMessage("ListWidget_House Tarly_1")
     _.deployMode.NavigateBacktoEditor()
-    _.agHelper.Sleep()
 })
 
 it("3. Verify pagination and also verify Next_Page/Prev_Page disabled when List reach to last/first page", function(){
+    _.agHelper.GetElement(_.locators._listWidget,3000)
     _.ee.NavigateToSwitcher("explorer")
     _.dataSources.CreateDataSource("MySql")
     cy.get("@dsName").then(($dsName) => {
@@ -155,7 +154,7 @@ it("7. Verify Pagination in SSP and no pagination visible on disabling SSP", fun
     })
 })
 
-it("8. Verify onPageSizeChange functionality by changing the page size of list widget", function(){
+it("8. Verify onPageSizeChange functionality in SSP of list widget", function(){
     _.propPane.ToggleOnOrOff("Server Side Pagination", "On")
     _.propPane.EnterJSContext("onPageSizeChange", "{{showAlert('Page size changed ' + List1Copy.pageSize)}}", true)
     _.propPane.ToggleOnOrOff("Server Side Pagination","Off")
