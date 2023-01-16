@@ -65,11 +65,7 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import {
-  captureInvalidDynamicBindingPath,
-  isNameValid,
-  quickScrollToWidget,
-} from "utils/helpers";
+import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import { getAllPageIds, getEditorConfigs, getWidgets } from "./selectors";
@@ -121,7 +117,6 @@ import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
-import { getSelectedWidgets } from "selectors/ui";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
@@ -255,8 +250,6 @@ export function* handleFetchedPage({
     yield put(updateCurrentPage(pageId, pageSlug, pagePermissions));
     // dispatch fetch page success
     yield put(fetchPageSuccess());
-    // restore selected widgets while loading the page.
-    yield call(restoreSelectedWidgetContext);
 
     /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
      */
@@ -1126,19 +1119,6 @@ export function* generateTemplatePageSaga(
   } catch (error) {
     yield put(generateTemplateError());
   }
-}
-
-function* restoreSelectedWidgetContext() {
-  const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  if (!selectedWidgets.length) return;
-
-  if (selectedWidgets.length === 1) {
-    yield put(
-      selectWidgetInitAction(SelectionRequestType.ONE, selectedWidgets),
-    );
-  }
-
-  quickScrollToWidget(selectedWidgets[0]);
 }
 
 function* deleteCanvasCardsStateSaga() {

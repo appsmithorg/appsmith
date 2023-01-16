@@ -23,7 +23,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { getParentModalId } from "selectors/entitiesSelector";
 import {
-  appendSelectWidget,
+  pushPopWidgetSelection,
   assertParentId,
   isInvalidSelectionRequest,
   selectAllWidgetsInCanvasSaga,
@@ -35,6 +35,7 @@ import {
   shiftSelectWidgets,
 } from "sagas/WidgetSelectUtils";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
@@ -92,7 +93,16 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         break;
       }
       case SelectionRequestType.PushPop: {
-        newSelection = appendSelectWidget(payload, selectedWidgets);
+        assertParentId(parentId);
+        const siblingWidgets: string[] = yield select(
+          getWidgetImmediateChildren,
+          parentId,
+        );
+        newSelection = pushPopWidgetSelection(
+          payload,
+          selectedWidgets,
+          siblingWidgets,
+        );
         break;
       }
       case SelectionRequestType.ALL: {
