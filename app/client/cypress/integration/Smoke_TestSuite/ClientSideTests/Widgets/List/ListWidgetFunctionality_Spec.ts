@@ -1,244 +1,168 @@
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { getWidgetSelector, PROPERTY_SELECTOR, WIDGET } from "../../../../../locators/WidgetLocators";
 import {
     ERROR_ACTION_EXECUTE_FAIL,
     createMessage,
   } from "../../../../../support/Objects/CommonErrorMessages";
-import { EntityExplorer } from "../../../../../support/Pages/EntityExplorer";
-import { first, propertyOf } from "lodash";
-import { data } from "cypress/types/jquery";
-import { listenerCount, on } from "process";
-
-const agHelper = ObjectsRegistry.AggregateHelper,
-propPane = ObjectsRegistry.PropertyPane,
-ee = ObjectsRegistry.EntityExplorer,
-locator = ObjectsRegistry.CommonLocators,
-deployMode = ObjectsRegistry.DeployMode,
-apiPage = ObjectsRegistry.ApiPage,
-dataSources = ObjectsRegistry.DataSources;
+import { __esModule } from "cypress-image-snapshot/constants";
 
 let dsName : any;
 
-describe("Verify List widget binding with Queries and API", function() {
+describe("Verify List widget binding & functionalities with Queries and API", function() {
 
-it("1. Create new API and bind it with List widget", function(){
+it("1. Create new API validate binding on List widget", function(){
     const apiUrl = `https://thronesapi.com/api/v2/Characters`
-    apiPage.CreateAndFillApi(apiUrl,"API1")
-    apiPage.RunAPI()
-    agHelper.AssertElementAbsence(
-        locator._specificToast(
+    _.apiPage.CreateAndFillApi(apiUrl,"API1")
+    _.apiPage.RunAPI()
+    _.agHelper.AssertElementAbsence(
+        _.locators._specificToast(
             createMessage(ERROR_ACTION_EXECUTE_FAIL, "API1")
         ),
     )
-    apiPage.ResponseStatusCheck("200 OK")
-    ee.DragDropWidgetNVerify(WIDGET.LIST, 300,100)
-    propPane.UpdatePropertyFieldValue("Items", "{{API1.data}}")
-    agHelper.Sleep(2000)
-    // Selecting widgets inside list for binding
-    ee.NavigateToSwitcher("explorer")
-    ee.ExpandCollapseEntity("List1")
-    ee.ExpandCollapseEntity("Container1")
-    ee.SelectEntityByName("Text1")
-    propPane.UpdatePropertyFieldValue("Text", "{{currentItem.fullName}}")
-    agHelper.Sleep(200)
-    ee.SelectEntityByName("Text2")
-    propPane.UpdatePropertyFieldValue("Text", "{{currentItem.family}}")
-    ee.SelectEntityByName("Image1")
-   // agHelper.GetNClick(locator._imageWidget, 0, true) //Image1
-    propPane.UpdatePropertyFieldValue("Image", "{{currentItem.imageUrl}}")
-    deployMode.DeployApp()
-    agHelper.Sleep()
-    //click on pagination and navigate through different pages after app deployed and then go back to editor
-    // cy.get(".t--widget-listwidget .t--list-widget-next-page")
-    // agHelper.WaitUntilEleAppear(".t--widget-listwidget")
-    // cy.get(".t--widget-listwidget .t--list-widget-next-page")
-    deployMode.NavigateBacktoEditor()
-    agHelper.Sleep()
+    _.apiPage.ResponseStatusCheck("200 OK")
+    _.ee.DragDropWidgetNVerify(WIDGET.LIST, 300,100)
+    _.propPane.UpdatePropertyFieldValue("Items", "{{API1.data}}")
+    _.ee.NavigateToSwitcher("explorer")
+    _.ee.ExpandCollapseEntity("List1")
+    _.ee.ExpandCollapseEntity("Container1")
+    _.ee.SelectEntityByName("Text1")
+    _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.family}}")
+    _.agHelper.GetNAssertElementText(_.locators._textWidget,"House Targaryen","have.text",0)
+    _.ee.SelectEntityByName("Text2")
+    _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.id}}")
+    _.agHelper.GetNAssertElementText(_.locators._textWidget,"0","have.text",1)
+    _.agHelper.Sleep(1000)
 })
 
-it("2. Call MYSQL query and bind it with List widget", function(){
-    ee.NavigateToSwitcher("explorer")
-    dataSources.CreateDataSource("MySql")
+it("2. Verify 'onListitemClick' functionality of Show messgage event on deploy mode",function(){
+    _.agHelper.GetNClick(_.locators._listWidget,0,true)
+    _.propPane.EnterJSContext(
+        "onListItemClick","{{showAlert('ListWidget_' + currentItem.family + '_' + currentItem.id,'success')}}"
+        ,true)
+    _.deployMode.DeployApp()
+    _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
+    _.agHelper.GetNClick(_.locators._containerWidget,0,true)
+    _.agHelper.ValidateToastMessage("ListWidget_House Targaryen_0")
+    _.agHelper.WaitUntilAllToastsDisappear()
+    _.agHelper.GetNClick(_.locators._containerWidget,1,true)
+    _.agHelper.ValidateToastMessage("ListWidget_House Tarly_1")
+    _.deployMode.NavigateBacktoEditor()
+    _.agHelper.Sleep()
+})
+
+it("3. Verify pagination and also verify Next_Page/Prev_Page disabled when List reach to last/first page", function(){
+    _.ee.NavigateToSwitcher("explorer")
+    _.dataSources.CreateDataSource("MySql")
     cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
-        dataSources.CreateNewQueryInDS(
+        _.dataSources.CreateNewQueryInDS(
             dsName,
-            "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10",
+            "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 4",
             "Query1_mysql",
         )
-        dataSources.ToggleUsePreparedStatement(false)
-        dataSources.RunQuery(true)
-        ee.NavigateToSwitcher("widgets")
-        agHelper.Sleep(1000)
-        agHelper.GetNClick(locator._listWidget,0,true)
-        propPane.UpdatePropertyFieldValue("Items", "{{Query1_mysql.data}}")
-        // Selecting widgets inside list for binding
-        ee.NavigateToSwitcher("explorer")
-        ee.ExpandCollapseEntity("Widgets")
-        ee.ExpandCollapseEntity("List1")
-        ee.ExpandCollapseEntity("Container1")
-        ee.SelectEntityByName("Text1")
-        propPane.UpdatePropertyFieldValue("Text", "{{currentItem.id}}")
-        agHelper.Sleep(200)
-        ee.SelectEntityByName("Text2")
-        propPane.UpdatePropertyFieldValue("Text", "{{currentItem.email}}")
-        ee.SelectEntityByName("Image1")
-        //agHelper.GetNClick(locator._imageWidget, 0, true) //Image1
-        propPane.UpdatePropertyFieldValue("Image", "{{currentItem.avatar}}")
-        deployMode.DeployApp()
-        agHelper.Sleep()
-        deployMode.NavigateBacktoEditor()
-        agHelper.Sleep()
-    
+        _.dataSources.ToggleUsePreparedStatement(false)
+        _.dataSources.RunQuery(true)
+        _.ee.NavigateToSwitcher("widgets")
+        _.agHelper.GetNClick(_.locators._listWidget,0,true)
+        _.propPane.UpdatePropertyFieldValue("Items", "{{Query1_mysql.data}}")
+        _.deployMode.DeployApp()
+        _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
+        _.agHelper.GetNAssertElementText(_.locators._listPaginateActivePage,"1","have.text")
+        _.agHelper.GetNClick(_.locators._listPaginateNextButton)
+        _.agHelper.GetNAssertElementText(_.locators._listPaginateActivePage,"2","have.text")
+        _.agHelper.AssertElementDisabled(_.locators._listPaginateButtonsDisabled,"true")
+        _.agHelper.GetNClick(_.locators._listPaginatePrevButton)
+        _.agHelper.GetNAssertElementText(_.locators._listPaginateActivePage,"1","have.text")
+        _.agHelper.AssertElementDisabled(_.locators._listPaginateButtonsDisabled,"true")
+        _.deployMode.NavigateBacktoEditor()
+        _.agHelper.Sleep()
+       
     })
 })
 
-it("3. Call Postgres query and bind it with List widget", function(){
-    ee.NavigateToSwitcher("explorer")
-    dataSources.CreateDataSource("Postgres")
-    cy.get("@dsName").then(($dsName) => {
-        dsName = $dsName;
-        dataSources.CreateNewQueryInDS(
-            dsName,
-            "SELECT * FROM mockusers_v2 LIMIT 10;",
-            "Query1_postgres",
-        )
-        dataSources.ToggleUsePreparedStatement(false)
-        dataSources.RunQuery(true)
-        ee.NavigateToSwitcher("widgets")
-        agHelper.GetNClick(locator._listWidget,0,true)
-        propPane.UpdatePropertyFieldValue("Items", "{{Query1_postgres.data}}")
-        agHelper.Sleep(2000)
-        // Selecting widgets inside list for binding
-        ee.NavigateToSwitcher("explorer")
-        ee.ExpandCollapseEntity("Widgets")
-        ee.ExpandCollapseEntity("List1")
-        ee.ExpandCollapseEntity("Container1")
-        ee.SelectEntityByName("Text1")
-        propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}")
-        agHelper.Sleep(200)
-        ee.SelectEntityByName("Text2")
-        propPane.UpdatePropertyFieldValue("Text", "{{currentItem.email}}")
-        ee.SelectEntityByName("Image1")
-        propPane.UpdatePropertyFieldValue("Image", "{{currentItem.image}}")
-        deployMode.DeployApp()
-        agHelper.Sleep()
-        deployMode.NavigateBacktoEditor()
-        agHelper.Sleep()
-    })
+it("4. Delete the List widget from canvas and verify it",function(){
+    _.agHelper.GetNClick(_.locators._listWidget,0,true)
+    _.agHelper.GetNAssertElementText(_.locators._propertyPaneTitle,"List1","have.text")
+    _.agHelper.GetNClick(_.propPane._deleteWidget)
+    _.agHelper.ValidateToastMessage("List1 is removed")
+    _.deployMode.DeployApp()
+    _.agHelper.Sleep(2000)
+    _.agHelper.AssertElementAbsence(_.locators._listWidget)
+    _.deployMode.NavigateBacktoEditor()
+})
+
+it("5. Verify List widget with error message on wrong input", function(){
+    _.ee.DragDropWidgetNVerify(WIDGET.LIST, 300,100)
+    _.ee.NavigateToSwitcher("explorer")
+    _.ee.ExpandCollapseEntity("List1")
+    _.ee.ExpandCollapseEntity("Container1")
+    _.ee.SelectEntityByName("Text1")
+    _.propPane.UpdatePropertyFieldValue("Text", "{{text}}")
+    _.agHelper.VerifyEvaluatedErrorMessage("ReferenceError: text is not defined")
+    _.agHelper.GetNClick(_.locators._listWidget,0,true)
+    _.propPane.UpdatePropertyFieldValue("Items", 
+        "{'id': '001', 'name': 'Blue', img': 'https://assets.appsmith.com/widgets/default.png'}")
+    _.agHelper.VerifyEvaluatedErrorMessage("This value does not evaluate to type Array")
+    _.agHelper.Sleep()
+})
+
+it("6. Copy/Paste List widget", function(){
+    _.agHelper.GetElement(_.locators._listWidget)
+    _.ee.CopyPasteWidget("List1")
+    _.agHelper.AssertElementExist(_.locators._listWidget,1)
+    _.agHelper.GetNAssertElementText(_.locators._propertyPaneTitle,"List1Copy","have.text")
+    _.agHelper.Sleep() 
 })
 
 
-
-it("4. Copy/Paste List widget", function(){
-    agHelper.GetNClick(locator._listWidget,0,true)
-    ee.CopyPasteWidget("List1")
-    
-})
-
-it("5. Create new API with pagination and bind it with List widget", function(){
-    const apiUrl = `https://mock-api.appsmith.com/users?page={{List1Copy.pageNo}}&pageSize={{List1Copy.pageSize}}`
-    apiPage.CreateAndFillApi(apiUrl,"API1_ssp")
-    apiPage.RunAPI()
-    agHelper.AssertElementAbsence(
-        locator._specificToast(
-            createMessage(ERROR_ACTION_EXECUTE_FAIL, "API1_ssp")
-        ),
-    )
-    apiPage.ResponseStatusCheck("200 OK")
-    ee.NavigateToSwitcher("widgets")
-    agHelper.GetNClick(locator._listWidget,1,true)
-    propPane.ToggleOnOrOff("Server Side Pagination", "On")
-    propPane.UpdatePropertyFieldValue("Items", "{{API1_ssp.data.users}}")
-    propPane.EnterJSContext("onPageChange","{{Api1_ssp.run()}}",true)
-    // Selecting widgets inside list for binding
-    ee.NavigateToSwitcher("explorer")
-    ee.ExpandCollapseEntity("List1Copy")
-    ee.ExpandCollapseEntity("Container1Copy")
-    ee.SelectEntityByName("Text1Copy")
-    propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}")
-    agHelper.Sleep(200)
-    ee.SelectEntityByName("Text2Copy")
-    propPane.UpdatePropertyFieldValue("Text", "{{currentItem.gender}}")
-    ee.SelectEntityByName("Image1Copy")
-   // agHelper.GetNClick(locator._imageWidget, 0, true) //Image1
-    propPane.UpdatePropertyFieldValue("Image", "{{currentItem.avatar}}")
-    deployMode.DeployApp()
-    agHelper.Sleep(5000)
-    //click on pagination and navigate through different pages after app deployed and then go back to editor
-    deployMode.NavigateBacktoEditor()
-})
-
-it("6. Enable and bind SSP Query with List widget - MySql", function(){
-    ee.NavigateToSwitcher("explorer")
-    dataSources.CreateDataSource("MySql")
+it("7. Verify Pagination in SSP and no pagination visible on disabling SSP", function(){
+    _.ee.NavigateToSwitcher("explorer")
+    _.dataSources.CreateDataSource("Postgres")
     cy.get("@dsName").then(($dsName)=> {
         dsName = $dsName
-        dataSources.CreateNewQueryInDS(
-            dsName,
-            "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT {{List1Copy.pageSize}} offset {{(List1Copy.pageNo-1)*List1Copy.pageSize}}",
-            "mysql_ssp",
-        )
-        dataSources.ToggleUsePreparedStatement(false)
-        dataSources.RunQuery(true)
-        ee.NavigateToSwitcher("widgets")
-        agHelper.Sleep(1000)
-        agHelper.GetNClick(locator._listWidget,1,true)
-        propPane.ToggleOnOrOff("Server Side Pagination", "On")
-        propPane.EnterJSContext("onPageChange","{{mysql_ssp.run()}}",true)
-        propPane.UpdatePropertyFieldValue("Items", "{{mysql_ssp.data}}")
-        ee.NavigateToSwitcher("explorer")
-        ee.ExpandCollapseEntity("Widgets")
-        ee.ExpandCollapseEntity("List1Copy")
-        ee.ExpandCollapseEntity("Container1Copy")
-        ee.SelectEntityByName("Text1Copy")
-        propPane.UpdatePropertyFieldValue("Text", "{{currentItem.dob}}")
-        agHelper.Sleep(200)
-        ee.SelectEntityByName("Text2Copy")
-        propPane.UpdatePropertyFieldValue("Text", "{{currentItem.address}}")
-        ee.SelectEntityByName("Image1Copy")
-        propPane.UpdatePropertyFieldValue("Image", "{{currentItem.avatar}}")
-        deployMode.DeployApp()
-        agHelper.Sleep(5000)
-        deployMode.NavigateBacktoEditor()
-        agHelper.Sleep()
-    
-    })
-})
-
-it("7. Enable and bind SSP Query with List widget - Postgres", function(){
-    ee.NavigateToSwitcher("explorer")
-    dataSources.CreateDataSource("Postgres")
-    cy.get("@dsName").then(($dsName)=> {
-        dsName = $dsName
-        dataSources.CreateNewQueryInDS(
+        _.dataSources.CreateNewQueryInDS(
             dsName,
             "SELECT * FROM mockusers_v2 LIMIT {{List1Copy.pageSize}} offset {{(List1Copy.pageNo-1)*List1Copy.pageSize}}",
             "postgres_ssp",
         )
-        dataSources.ToggleUsePreparedStatement(false)
-        dataSources.RunQuery(true)
-        ee.NavigateToSwitcher("widgets")
-        agHelper.Sleep(1000)
-        agHelper.GetNClick(locator._listWidget,1,true)
-        propPane.ToggleOnOrOff("Server Side Pagination", "On")
-        propPane.EnterJSContext("onPageChange","{{postgres_ssp.run()}}",true)
-        propPane.UpdatePropertyFieldValue("Items", "{{postgres_ssp.data}}")
-        ee.NavigateToSwitcher("explorer")
-        ee.ExpandCollapseEntity("Widgets")
-        ee.ExpandCollapseEntity("List1Copy")
-        ee.ExpandCollapseEntity("Container1Copy")
-        ee.SelectEntityByName("Text1Copy")
-        propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}")
-        agHelper.Sleep(200)
-        ee.SelectEntityByName("Text2Copy")
-        propPane.UpdatePropertyFieldValue("Text", "{{currentItem.phone}}")
-        ee.SelectEntityByName("Image1Copy")
-        propPane.UpdatePropertyFieldValue("Image", "{{currentItem.image}}")
-        deployMode.DeployApp()
-        agHelper.Sleep()
-    
+        _.dataSources.ToggleUsePreparedStatement(false)
+        _.dataSources.RunQuery(true)
+        _.ee.NavigateToSwitcher("widgets")
+        _.agHelper.GetNClick(_.locators._listWidget,1,true)
+        _.propPane.ToggleOnOrOff("Server Side Pagination", "On")
+        _.propPane.EnterJSContext("onPageChange","{{postgres_ssp.run()}}",true)
+        _.propPane.UpdatePropertyFieldValue("Items", "{{postgres_ssp.data}}")
+        _.ee.NavigateToSwitcher("explorer")
+        _.ee.ExpandCollapseEntity("Widgets")
+        _.ee.ExpandCollapseEntity("List1Copy")
+        _.ee.ExpandCollapseEntity("Container1Copy")
+        _.ee.SelectEntityByName("Text2Copy")
+        _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.phone}}")
+        _.ee.SelectEntityByName("Image1Copy")
+        _.propPane.UpdatePropertyFieldValue("Image", "{{currentItem.image}}")
+        _.deployMode.DeployApp()
+        _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
+        _.agHelper.GetNAssertElementText(_.locators._listPaginateActivePage,"1","have.text")
+        _.agHelper.GetNAssertElementText(_.locators._listPaginateItem,"2","not.have.text")
+        _.agHelper.GetNClick(_.locators._listPaginateNextButton)
+        _.agHelper.GetNAssertElementText(_.locators._listPaginateActivePage,"2","have.text")
+        _.deployMode.NavigateBacktoEditor()
+        _.agHelper.GetNClick(_.locators._listWidget,1,true)
+        _.propPane.ToggleOnOrOff("Server Side Pagination", "Off")
+        _.agHelper.AssertElementAbsence(_.locators._listPaginateItem)
+        _.agHelper.Sleep()
     })
+})
+
+it("8. Verify onPageSizeChange functionality by changing the page size of list widget", function(){
+    _.propPane.ToggleOnOrOff("Server Side Pagination", "On")
+    _.propPane.EnterJSContext("onPageSizeChange", "{{showAlert('Page size changed ' + List1Copy.pageSize)}}", true)
+    _.propPane.ToggleOnOrOff("Server Side Pagination","Off")
+    _.propPane.ToggleOnOrOff("Server Side Pagination","On")
+    _.agHelper.ValidateToastMessage("Page size changed 2")
+    _.agHelper.Sleep()
+    
 })
 
 })

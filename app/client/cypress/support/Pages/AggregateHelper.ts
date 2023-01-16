@@ -22,7 +22,7 @@ export class AggregateHelper {
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
-  }`;
+    }`;
   private removeLine = "{backspace}";
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
@@ -88,11 +88,11 @@ export class AggregateHelper {
         cy.request(
           "PUT",
           "api/v1/layouts/" +
-            layoutId +
-            "/pages/" +
-            pageid +
-            "?applicationId=" +
-            appId,
+          layoutId +
+          "/pages/" +
+          pageid +
+          "?applicationId=" +
+          appId,
           dsl,
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
@@ -960,6 +960,16 @@ export class AggregateHelper {
       return cy.contains(selector, text).should(exists);
     }
     return cy.contains(text).should(exists);
+  }
+
+  public AssertElementDisabled(
+    selector: string,
+    disabled: "true" | "false" = "true",
+
+  ) {
+    return this.GetElement(
+      selector
+    ).should('have.attr', 'aria-disabled', disabled)
   }
 
   public GetNAssertContains(

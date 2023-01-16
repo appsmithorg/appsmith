@@ -170,4 +170,11 @@ export class CommonLocators {
   _editorVariable = ".cm-variable";
   _consoleString = ".cm-string";
   _commentString = ".cm-comment";
+  _containerWidget = "div[type='CONTAINER_WIDGET']";
+  _listPaginateNextButton = ".rc-pagination-next";
+  _listPaginateActivePage = ".rc-pagination-item-active";
+  _listPaginatePrevButton = ".rc-pagination-prev";
+  _listPaginateItem = ".rc-pagination-item";
+  _listPaginateButtonsDisabled = ".rc-pagination-disabled";
+  _propertyPaneTitle = ".t--property-pane-title";
 }
