@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
@@ -38,7 +39,10 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final ApplicationContext applicationContext;
 
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
+
     private boolean isRtsAccessible = false;
+
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -58,6 +62,14 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .subscribe(null, e -> {
                     log.debug("Application start up encountered an error: {}", e.getMessage());
                     Sentry.captureException(e);
+                });
+
+        // Prefill the server cache with anonymous user permission group ids.
+        cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache()
+                .subscribe(null, e -> {
+                    log.debug("Application start up encountered an error: {}", e.getMessage());
+                    Sentry.captureException(e);
+                    System.exit(1);
                 });
     }
 
