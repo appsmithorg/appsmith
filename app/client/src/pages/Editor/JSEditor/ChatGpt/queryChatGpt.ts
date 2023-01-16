@@ -1,4 +1,5 @@
-const token = "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";
+// Provide a valid token openapi token
+const token = null;
 
 const extractResponse = (str: string) => {
   if (!str) return;
@@ -17,8 +18,11 @@ export const queryChatGpt = async (query: string) => {
       body: JSON.stringify({
         model: "code-davinci-002",
         prompt: query,
-        max_tokens: 100,
         temperature: 0,
+        max_tokens: 60,
+        top_p: 1,
+        frequency_penalty: 0.5,
+        presence_penalty: 0,
       }),
     });
     const { choices } = (await resp.json()) || {};
