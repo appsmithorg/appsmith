@@ -59,17 +59,11 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
         checkInstanceSchemaVersion()
                 .flatMap(signal -> registrationAndRtsCheckMono)
+                // Prefill the server cache with anonymous user permission group ids.
+                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
                 .subscribe(null, e -> {
                     log.debug("Application start up encountered an error: {}", e.getMessage());
                     Sentry.captureException(e);
-                });
-
-        // Prefill the server cache with anonymous user permission group ids.
-        cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache()
-                .subscribe(null, e -> {
-                    log.debug("Application start up encountered an error: {}", e.getMessage());
-                    Sentry.captureException(e);
-                    System.exit(1);
                 });
     }
 
