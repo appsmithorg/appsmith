@@ -22,12 +22,30 @@ import {
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 
+/**
+ * Selection types that are possible for widget select
+ *
+ * It is currently used for widget selection,
+ * but can be used for other types of selections like tabs
+ */
 export enum SelectionRequestType {
+  /** Remove all selections, reset last selected widget to the main container  */
   EMPTY = "EMPTY",
+  /** Replace the existing selection with a new single selection.
+   * The new selection will be the last selected widget */
   ONE = "ONE",
+  /** Replace the existing selection with a new selection of multiple widgets.
+   * The new selection's first widget becomes the last selected widget
+   * */
   MULTIPLE = "MULTIPLE",
-  APPEND = "APPEND",
+  /** Adds or removes a widget selection. Similar to CMD/Ctrl selections,
+   *  if the payload exits in the selection, it will be removed.
+   *  If the payload is new, it will be added.*/
+  PushPop = "PushPop",
+  /** Selects all widgets in the last selected canvas */
   ALL = "ALL",
+  /** Add selection like shift select where the widgets between two selections
+   * are also selected. Widget order is taken from children order of the canvas */
   SHIFT_SELECT = "SHIFT_SELECT",
 }
 

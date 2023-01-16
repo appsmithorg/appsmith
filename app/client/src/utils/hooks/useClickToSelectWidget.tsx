@@ -77,7 +77,7 @@ export const useClickToSelectWidget = (widgetId: string) => {
       if ((!isPropPaneVisible && isSelected) || !isSelected) {
         let type: SelectionRequestType = SelectionRequestType.ONE;
         if (e.metaKey || e.ctrlKey) {
-          type = SelectionRequestType.APPEND;
+          type = SelectionRequestType.PushPop;
         } else if (e.shiftKey) {
           type = SelectionRequestType.SHIFT_SELECT;
         }
@@ -90,7 +90,7 @@ export const useClickToSelectWidget = (widgetId: string) => {
         }
 
         if (
-          type === SelectionRequestType.APPEND ||
+          type === SelectionRequestType.PushPop ||
           type === SelectionRequestType.SHIFT_SELECT
         ) {
           e.stopPropagation();
