@@ -241,7 +241,7 @@ function CanvasContainer() {
               cursor: "col-resize",
               width: "16px",
               height: "0px",
-              right: isPreviewMode ? "100%" : "16px",
+              right: isPreviewMode ? "0px" : "16px",
               top: "50%",
               zIndex: isPreviewMode ? 2 : undefined,
               float: "right",
