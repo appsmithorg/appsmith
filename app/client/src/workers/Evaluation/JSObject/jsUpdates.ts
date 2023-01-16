@@ -269,7 +269,7 @@ export function parseJSActions(
     });
   });
 
-  functionDeterminer.setOffEval();
+  functionDeterminer.close();
 
   return { jsUpdates };
 }
