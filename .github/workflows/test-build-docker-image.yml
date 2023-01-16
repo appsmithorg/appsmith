@@ -533,7 +533,13 @@ jobs:
           ls -l dist/
           # Run the server in the background and redirect logs to a log file
           ./scripts/start-dev-server.sh &> server-logs.log &
-
+          
+      - name: Installing Yarn serve
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          yarn global add serve
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+          
       # Start rts
       - name: Start RTS Server
         if: steps.run_result.outputs.run_result != 'success'
