@@ -1,4 +1,3 @@
-import { Position } from "@blueprintjs/core";
 import React, { useEffect, useRef } from "react";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,6 +25,12 @@ const StyledTrigger = styled.div`
   }
 
   cursor: pointer;
+`;
+
+const PopoverContentWrapper = styled.div`
+  display: flex;
+  width: 246px;
+  height: min(70vh, 600px);
 `;
 
 function WidgetPaneTrigger() {
@@ -79,20 +84,22 @@ function WidgetPaneTrigger() {
       <Popover2
         canEscapeKeyClose
         content={
-          <div
-            style={{
-              display: "flex",
-              width: "246px",
-              height: "600px",
-            }}
-          >
+          <PopoverContentWrapper>
             <WidgetSidebar isActive={false} />
-          </div>
+          </PopoverContentWrapper>
         }
         isOpen={openWidgetPanel}
         minimal
+        modifiers={{
+          offset: {
+            enabled: true,
+            options: {
+              offset: [13, 0],
+            },
+          },
+        }}
         onClose={() => dispatch(forceOpenWidgetPanel(false))}
-        position={Position.BOTTOM_LEFT}
+        placement="bottom-start"
       >
         <StyledTrigger
           className="flex ml-3 justify-center"

@@ -33,7 +33,6 @@ import {
 } from "@appsmith/constants/messages";
 
 const GuideWrapper = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[4]}px;
   user-select: text;
 
   code {

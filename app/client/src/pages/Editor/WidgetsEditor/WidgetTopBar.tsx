@@ -13,6 +13,7 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import WidgetPaneTrigger from "./WidgetPaneCTA";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 const Wrapper = styled.div`
   height: 40px;
@@ -40,6 +41,8 @@ function WidgetTopBar() {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
   const isPreviewMode = useSelector(previewModeSelector);
+  const guidedTour = useSelector(inGuidedTour);
+  const showPopularWidgets = !guidedTour;
 
   const onDragStart = (e: any, widget: WidgetCardProps) => {
     e.preventDefault();
@@ -64,19 +67,21 @@ function WidgetTopBar() {
       })}
     >
       <WidgetPaneTrigger />
-      <div className="flex flex-1 gap-6	justify-center">
-        {widgets.map((widget) => {
-          return (
-            <WidgetWrapper
-              draggable
-              key={widget.type}
-              onDragStart={(e) => onDragStart(e, widget)}
-            >
-              <img className="w-4 h-4" src={widget.icon} />
-            </WidgetWrapper>
-          );
-        })}
-      </div>
+      {showPopularWidgets && (
+        <div className="flex flex-1 gap-6	justify-center">
+          {widgets.map((widget) => {
+            return (
+              <WidgetWrapper
+                draggable
+                key={widget.type}
+                onDragStart={(e) => onDragStart(e, widget)}
+              >
+                <img className="w-4 h-4" src={widget.icon} />
+              </WidgetWrapper>
+            );
+          })}
+        </div>
+      )}
     </Wrapper>
   );
 }
