@@ -21,7 +21,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
-          status=$(lsof -i -P -n | grep LISTEN > log.txt 2>&1)
+          status=$(lsof -i -P -n | grep LISTEN > log.txt 2>&1 ; echo $?)
           cat log.txt
          
             
