@@ -16,6 +16,7 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
+import com.external.plugins.exceptions.GraphQLPluginError;
 import com.external.utils.GraphQLHintMessageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,6 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
@@ -1130,6 +1132,11 @@ public class GraphQLPluginTest {
         String expectedVariableString = "{\"first\":3}";
         assertEquals(expectedVariableString,
                 actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).getValue());
+    }
+
+    @Test
+    public void verifyUniquenessOfGraphQLPluginErrorCode() {
+        assert (Arrays.stream(GraphQLPluginError.values()).map(GraphQLPluginError::getAppErrorCode).distinct().count() == GraphQLPluginError.values().length);
     }
 
 }

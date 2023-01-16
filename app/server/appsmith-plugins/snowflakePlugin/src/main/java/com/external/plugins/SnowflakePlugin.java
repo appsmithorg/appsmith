@@ -12,6 +12,8 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.plugins.exceptions.SnowflakeErrorMessages;
+import com.external.plugins.exceptions.SnowflakePluginError;
 import com.external.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -55,10 +57,10 @@ public class SnowflakePlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
 
-            if (query == null) {
+            if (! StringUtils.hasLength(query)) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Missing required parameter: Query."));
+                        SnowflakeErrorMessages.MISSING_QUERY_ERROR_MSG));
             }
 
             return Mono
@@ -88,7 +90,7 @@ public class SnowflakePlugin extends BasePlugin {
                 Class.forName("net.snowflake.client.jdbc.SnowflakeDriver");
             } catch (ClassNotFoundException ex) {
                 log.debug("Driver not found");
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, ex.getMessage()));
+                return Mono.error(new AppsmithPluginException(SnowflakePluginError.SNOWFLAKE_PLUGIN_ERROR, SnowflakeErrorMessages.DRIVER_NOT_FOUND_ERROR_MSG, ex.getMessage()));
             }
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             Properties properties = new Properties();
@@ -106,10 +108,10 @@ public class SnowflakePlugin extends BasePlugin {
                             conn = DriverManager.getConnection("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com", properties);
                         } catch (SQLException e) {
                             log.error("Exception caught when connecting to Snowflake endpoint: " + datasourceConfiguration.getUrl() + ". Cause: ", e);
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, String.format(SnowflakeErrorMessages.CONNECTION_CREATION_FAILED_ERROR_MSG, datasourceConfiguration.getUrl()), e.getMessage());
                         }
                         if (conn == null) {
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to create connection to Snowflake URL");
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, SnowflakeErrorMessages.UNABLE_TO_CREATE_CONNECTION_ERROR_MSG);
                         }
                         return conn;
                     })
@@ -132,7 +134,7 @@ public class SnowflakePlugin extends BasePlugin {
             Set<String> invalids = new HashSet<>();
 
             if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
-                invalids.add("Missing Snowflake URL.");
+                invalids.add(SnowflakeErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
             }
 
             if (datasourceConfiguration.getProperties() != null
@@ -140,7 +142,7 @@ public class SnowflakePlugin extends BasePlugin {
                     || datasourceConfiguration.getProperties().get(0) == null
                     || datasourceConfiguration.getProperties().get(0).getValue() == null
                     || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(0).getValue())))) {
-                invalids.add("Missing warehouse name.");
+                invalids.add(SnowflakeErrorMessages.DS_MISSING_WAREHOUSE_NAME_ERROR_MSG);
             }
 
             if (datasourceConfiguration.getProperties() != null
@@ -148,7 +150,7 @@ public class SnowflakePlugin extends BasePlugin {
                     || datasourceConfiguration.getProperties().get(1) == null
                     || datasourceConfiguration.getProperties().get(1).getValue() == null
                     || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(1).getValue())))) {
-                invalids.add("Missing database name.");
+                invalids.add(SnowflakeErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG);
             }
 
             if (datasourceConfiguration.getProperties() != null
@@ -156,19 +158,19 @@ public class SnowflakePlugin extends BasePlugin {
                     || datasourceConfiguration.getProperties().get(2) == null
                     || datasourceConfiguration.getProperties().get(2).getValue() == null
                     || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(2).getValue())))) {
-                invalids.add("Missing schema name.");
+                invalids.add(SnowflakeErrorMessages.DS_MISSING_SCHEMA_NAME_ERROR_MSG);
             }
 
             if (datasourceConfiguration.getAuthentication() == null) {
-                invalids.add("Missing authentication details.");
+                invalids.add(SnowflakeErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
             } else {
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add("Missing username for authentication.");
+                    invalids.add(SnowflakeErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
                 }
 
                 if (StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add("Missing password for authentication.");
+                    invalids.add(SnowflakeErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
                 }
             }
 
@@ -227,7 +229,7 @@ public class SnowflakePlugin extends BasePlugin {
                             }
                         } catch (SQLException throwable) {
                             log.error("Exception caught while fetching structure of Snowflake datasource. Cause: ", throwable);
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, throwable.getMessage());
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, SnowflakeErrorMessages.GET_STRUCTURE_ERROR_MSG, throwable.getMessage(), "SQLSTATE: " + throwable.getSQLState());
                         }
                         return structure;
                     })
