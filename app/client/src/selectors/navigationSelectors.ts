@@ -1,5 +1,6 @@
 import {
   DataTree,
+  DataTreeAction,
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
@@ -17,6 +18,8 @@ import { keyBy } from "lodash";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
 
 export type NavigationData = {
   name: string;
@@ -25,6 +28,8 @@ export type NavigationData = {
   url: string | undefined;
   navigable: boolean;
   children: Record<string, NavigationData>;
+  peekable: boolean;
+  peekData?: unknown;
 };
 export type EntityNavigationData = Record<string, NavigationData>;
 
@@ -43,6 +48,25 @@ export const getEntitiesForNavigation = createSelector(
         (plugin) => plugin.id === action.config.pluginId,
       );
       const config = getActionConfig(action.config.pluginType);
+      const definitions = entityDefinitions.ACTION(
+        dataTree[action.config.name] as DataTreeAction,
+        {},
+      );
+      console.log(
+        "entitiesForNav",
+        config,
+        action.config,
+        dataTree[action.config.name],
+        definitions,
+      );
+      const { childNavData, peekData } = getActionPeekData(
+        action,
+        entityDefinitions.ACTION(
+          dataTree[action.config.name] as DataTreeAction,
+          {},
+        ),
+        dataTree[action.config.name] as DataTreeAction,
+      );
       if (!config) return;
       navigationData[action.config.name] = {
         name: action.config.name,
@@ -55,8 +79,11 @@ export const getEntitiesForNavigation = createSelector(
           plugin,
         ),
         navigable: true,
-        children: {},
+        children: childNavData,
+        peekable: true,
+        peekData,
       };
+      console.log("--- entitiesForNav", navigationData[action.config.name]);
     });
 
     jsActions.forEach((jsAction) => {
@@ -67,6 +94,7 @@ export const getEntitiesForNavigation = createSelector(
         url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
         navigable: true,
         children: getJsObjectChildren(jsAction, pageId),
+        peekable: false,
       };
     });
 
@@ -78,6 +106,7 @@ export const getEntitiesForNavigation = createSelector(
         url: builderURL({ pageId, hash: widget.widgetId }),
         navigable: true,
         children: getWidgetChildren(widget, dataTree, pageId),
+        peekable: false,
       };
     });
     return navigationData;
@@ -100,6 +129,7 @@ const getJsObjectChildren = (jsAction: JSCollectionData, pageId: string) => {
     }),
     navigable: true,
     children: {},
+    peekable: false,
   }));
 
   return keyBy(children, (data) => data.key);
@@ -126,6 +156,7 @@ const getWidgetChildren = (
           navigable: true,
           children: {},
           url: builderURL({ pageId, hash: childWidgetId }),
+          peekable: false,
         };
       });
     }
@@ -136,9 +167,38 @@ const getWidgetChildren = (
       navigable: false,
       children: formChildren,
       url: undefined,
+      peekable: false,
     };
 
     return children;
   }
   return {};
+};
+
+const getActionPeekData = (
+  action: ActionData,
+  definitions: Record<string, unknown>,
+  dataTree: DataTreeAction,
+) => {
+  const peekData: Record<string, unknown> = {};
+  const childNavData: Record<string, NavigationData> = {};
+  Object.keys(definitions).forEach((key) => {
+    if (key.indexOf("!") === -1) {
+      if (key === "data" || key === "isLoading" || key === "responseMeta") {
+        peekData[key] = dataTree[key];
+        childNavData[key] = {
+          id: `${action.config.name}.${key}`,
+          name: key,
+          type: ENTITY_TYPE.ACTION,
+          navigable: false,
+          url: undefined,
+          children: {},
+          peekable: true,
+          peekData: dataTree[key],
+        };
+      }
+    }
+  });
+
+  return { peekData, childNavData };
 };

@@ -49,6 +49,9 @@ const hasReference = (token: CodeMirror.Token) => {
   return token.type === "variable" || tokenString === "this";
 };
 
+export const PEEKABLE_CLASSNAME = "peekaboo";
+export const PEEKABLE_ATTRIBUTE = "peek-data";
+
 export const entityMarker: MarkHelper = (
   editor: CodeMirror.Editor,
   entityNavigationData,
@@ -79,6 +82,22 @@ export const entityMarker: MarkHelper = (
             title: data.name,
           },
         );
+        if (data.peekable) {
+          editor.markText(
+            { ch: token.start, line: lineNo },
+            { ch: token.end, line: lineNo },
+            {
+              className: PEEKABLE_CLASSNAME,
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              attributes: {
+                [PEEKABLE_ATTRIBUTE]: data.id,
+              },
+              atomic: false,
+              title: data.name,
+            },
+          );
+        }
         addMarksForChildren(
           entityNavigationData[tokenString],
           lineNo,
@@ -117,6 +136,22 @@ const addMarksForChildren = (
             // @ts-ignore
             attributes: {
               [NAVIGATE_TO_ATTRIBUTE]: `${childLink.name}`,
+            },
+            atomic: false,
+            title: childLink.name,
+          },
+        );
+      }
+      if (childLink.peekable) {
+        editor.markText(
+          { ch: token.start, line: lineNo },
+          { ch: token.end, line: lineNo },
+          {
+            className: PEEKABLE_CLASSNAME,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            attributes: {
+              [PEEKABLE_ATTRIBUTE]: childLink.id,
             },
             atomic: false,
             title: childLink.name,
