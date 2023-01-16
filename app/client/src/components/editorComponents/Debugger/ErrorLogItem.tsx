@@ -74,8 +74,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
   .debugger-time {
     ${getTypographyByKey("h6")}
+    letter-spacing: -0.24px;
     margin-left: 4px;
-    margin-right: 4px;
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
     }
@@ -304,7 +304,8 @@ function LogItem(props: LogItemProps) {
           size={IconSize.SMALL}
         />
         {props.logType !== LOG_TYPE.LINT_ERROR &&
-          props.logType !== LOG_TYPE.EVAL_ERROR && (
+          props.messages &&
+          props.messages[0].message.name !== "SyntaxError" && (
             <span className={`debugger-time ${props.severity}`}>
               {props.timestamp}
             </span>

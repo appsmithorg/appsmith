@@ -361,7 +361,7 @@ export function getLintingErrors(
       raw: script,
       severity: getLintSeverity(lintError.code),
       errorMessage: {
-        name: "LinitingError",
+        name: "LintingError",
         text: getLintErrorMessage(lintError.reason),
       },
       errorSegment: lintError.evidence,
