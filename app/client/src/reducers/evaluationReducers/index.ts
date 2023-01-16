@@ -4,6 +4,7 @@ import evaluationDependencyReducer from "./dependencyReducer";
 import loadingEntitiesReducer from "./loadingEntitiesReducer";
 import formEvaluationReducer from "./formEvaluationReducer";
 import triggerReducer from "./triggerReducer";
+import configTreeReducer from "./configTreeReducer";
 
 export default combineReducers({
   tree: evaluatedTreeReducer,
@@ -11,4 +12,5 @@ export default combineReducers({
   loadingEntities: loadingEntitiesReducer,
   formEvaluation: formEvaluationReducer,
   triggers: triggerReducer,
+  configTree: configTreeReducer,
 });

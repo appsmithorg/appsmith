@@ -15,14 +15,19 @@ export default async function(request: EvalWorkerASyncRequest) {
   if (!dataTreeEvaluator) {
     return { triggers: [], errors: [] };
   }
-  const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
+  // const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
+  const unEvalTree = __unEvalTree__;
   const {
     evalOrder,
     nonDynamicFieldValidationOrder,
-  } = dataTreeEvaluator.setupUpdateTree(unEvalTree);
+  } = dataTreeEvaluator.setupUpdateTree(
+    unEvalTree.dataTree,
+    unEvalTree.configTree,
+  );
   dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,
+    unEvalTree.configTree,
   );
   const evalTree = dataTreeEvaluator.evalTree;
   const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;

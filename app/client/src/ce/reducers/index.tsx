@@ -157,6 +157,7 @@ export interface AppState {
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
     triggers: TriggerValuesEvaluationState;
+    configTree: any;
   };
   linting: {
     errors: LintErrors;

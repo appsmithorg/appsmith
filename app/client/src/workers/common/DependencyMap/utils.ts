@@ -16,6 +16,7 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
+  DataTree,
   DataTreeAction,
   DataTreeJSAction,
   DataTreeWidget,
@@ -213,6 +214,7 @@ export function listEntityDependencies(
   entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
   entityName: string,
   allPaths: Record<string, true>,
+  unEvalDataTree: DataTree,
 ): DependencyMap {
   let dependencies: DependencyMap = {};
 
@@ -261,7 +263,8 @@ export function listEntityDependencies(
       Object.keys(entity.reactivePaths).forEach((propertyPath) => {
         const existingDeps =
           dependencies[`${entityName}.${propertyPath}`] || [];
-        const unevalPropValue = get(entity, propertyPath);
+        // const unevalPropValue = get(entity, propertyPath);
+        const unevalPropValue = get(unEvalDataTree?.[entityName], propertyPath);
         const unevalPropValueString =
           !!unevalPropValue && unevalPropValue.toString();
         const { jsSnippets } = getDynamicBindings(
@@ -281,7 +284,8 @@ export function listEntityDependencies(
     if (dynamicBindingPathList.length) {
       dynamicBindingPathList.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;
-        const unevalPropValue = get(entity, propertyPath);
+        // const unevalPropValue = get(entity, propertyPath);
+        const unevalPropValue = get(unEvalDataTree?.[entityName], propertyPath);
         const { jsSnippets } = getDynamicBindings(unevalPropValue);
         const existingDeps =
           dependencies[`${entityName}.${propertyPath}`] || [];

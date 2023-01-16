@@ -20,7 +20,10 @@ import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
 
-import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
+import {
+  getDataTreeForAutocomplete,
+  getConfigTree,
+} from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
 import _, { isEqual } from "lodash";
@@ -848,7 +851,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   getEntityInformation = (): FieldEntityInformation => {
-    const { dataTreePath, dynamicData, expected } = this.props;
+    const { configTree, dataTreePath, dynamicData, expected } = this.props;
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
@@ -858,7 +861,7 @@ class CodeEditor extends Component<Props, State> {
         dataTreePath,
       );
       entityInformation.entityName = entityName;
-      const entity = dynamicData[entityName];
+      const entity = configTree[entityName];
 
       if (entity) {
         if ("ENTITY_TYPE" in entity) {
@@ -1191,6 +1194,7 @@ class CodeEditor extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState, props: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
+  configTree: getConfigTree(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),

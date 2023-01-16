@@ -238,6 +238,6 @@ export const generateDataTreeWidget = (
 
   return {
     unEvalEntity: dataTreeWidget,
-    configEntity: entityConfig,
+    configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
   };
 };

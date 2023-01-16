@@ -126,6 +126,15 @@ export const setEvaluatedTree = (
   };
 };
 
+export const setConfigTree = (
+  configTree: any,
+): ReduxAction<{ configTree: any }> => {
+  return {
+    type: ReduxActionTypes.SET_CONFIG_TREE,
+    payload: { configTree },
+  };
+};
+
 export const setDependencyMap = (
   inverseDependencyMap: DependencyMap,
 ): ReduxAction<{ inverseDependencyMap: DependencyMap }> => {

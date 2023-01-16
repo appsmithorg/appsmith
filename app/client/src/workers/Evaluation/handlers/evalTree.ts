@@ -26,6 +26,7 @@ import {
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
 } from "../types";
+import { unEvalTree } from "workers/common/DataTreeEvaluator/mockData/mockUnEvalTree";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -44,6 +45,7 @@ export default function(request: EvalWorkerSyncRequest) {
   let userLogs: UserLogObject[] = [];
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
+  let configTree: any = {};
 
   const {
     allActionValidationConfig,
@@ -56,11 +58,8 @@ export default function(request: EvalWorkerSyncRequest) {
     widgetTypeConfigMap,
   } = data as EvalTreeRequestData;
 
-  // const unevalAndConfigTreeObject = createUnEvalTreeForEval(__unevalTree__);
-  const unevalAndConfigTreeObject = __unevalTree__;
-  const unevalTree = unevalAndConfigTreeObject.dataTree;
-  const configTree = unevalAndConfigTreeObject.configTree;
-  console.log("**** evaltree + configTree", unevalTree, configTree);
+  const unevalTree = __unevalTree__.dataTree;
+  configTree = __unevalTree__.configTree;
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
@@ -70,12 +69,12 @@ export default function(request: EvalWorkerSyncRequest) {
         widgetTypeConfigMap,
         allActionValidationConfig,
       );
-      console.log(" **# 1", unevalTree);
 
       const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
         unevalTree,
         configTree,
       );
+
       evalOrder = setupFirstTreeResponse.evalOrder;
       lintOrder = setupFirstTreeResponse.lintOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
@@ -89,9 +88,11 @@ export default function(request: EvalWorkerSyncRequest) {
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
+
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
+      // dataTree = dataTreeResponse.evalTree;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -111,7 +112,6 @@ export default function(request: EvalWorkerSyncRequest) {
           allActionValidationConfig,
         );
       }
-      console.log(" **# 2");
       const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
         unevalTree,
         configTree,
@@ -147,6 +147,7 @@ export default function(request: EvalWorkerSyncRequest) {
         unevalTree,
         configTree,
       );
+
       evalOrder = setupUpdateTreeResponse.evalOrder;
       lintOrder = setupUpdateTreeResponse.lintOrder;
       jsUpdates = setupUpdateTreeResponse.jsUpdates;
@@ -159,16 +160,18 @@ export default function(request: EvalWorkerSyncRequest) {
         }),
         requiresLinting,
       );
-
       nonDynamicFieldValidationOrder =
         setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
+
       const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
+        configTree,
       );
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
+
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );
@@ -221,6 +224,7 @@ export default function(request: EvalWorkerSyncRequest) {
     userLogs,
     unEvalUpdates,
     isCreateFirstTree,
+    configTree,
   } as EvalTreeResponseData;
 }
 

@@ -29,6 +29,7 @@ import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { PrivateWidgets } from "entities/DataTree/types";
 import { EvalProps } from "workers/common/DataTreeEvaluator";
+import widget from "widgets/ModalWidget/widget";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -741,15 +742,28 @@ export const overrideWidgetProperties = (params: {
   propertyPath: string;
   value: unknown;
   currentTree: DataTree;
+  configTree: any;
   evalMetaUpdates: EvalMetaUpdates;
+  fullPropertyPath: string;
 }) => {
-  const { currentTree, entity, evalMetaUpdates, propertyPath, value } = params;
+  const {
+    configTree,
+    currentTree,
+    entity,
+    evalMetaUpdates,
+    fullPropertyPath,
+    propertyPath,
+    value,
+  } = params;
   const clonedValue = klona(value);
-  if (propertyPath in entity.overridingPropertyPaths) {
-    const overridingPropertyPaths =
-      entity.overridingPropertyPaths[propertyPath];
+  const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
 
-    overridingPropertyPaths.forEach((overriddenPropertyPath) => {
+  const configEntity = configTree[entityName];
+  if (propertyPath in configEntity.overridingPropertyPaths) {
+    const overridingPropertyPaths =
+      configEntity.overridingPropertyPaths[propertyPath];
+
+    overridingPropertyPaths.forEach((overriddenPropertyPath: any) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
       _.set(
         currentTree,
@@ -770,15 +784,15 @@ export const overrideWidgetProperties = (params: {
       }
     });
   } else if (
-    propertyPath in entity.propertyOverrideDependency &&
+    propertyPath in configEntity.propertyOverrideDependency &&
     clonedValue === undefined
   ) {
     // When a reset a widget its meta value becomes undefined, ideally they should reset to default value.
     // below we handle logic to reset meta values to default values.
     const propertyOverridingKeyMap =
-      entity.propertyOverrideDependency[propertyPath];
+      configEntity.propertyOverrideDependency[propertyPath];
     if (propertyOverridingKeyMap.DEFAULT) {
-      const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
+      const defaultValue = configEntity[propertyOverridingKeyMap.DEFAULT];
       const clonedDefaultValue = klona(defaultValue);
       if (defaultValue !== undefined) {
         const propertyPathArray = propertyPath.split(".");

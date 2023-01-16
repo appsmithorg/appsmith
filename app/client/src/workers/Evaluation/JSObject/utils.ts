@@ -48,20 +48,16 @@ export const updateJSCollectionInUnEvalTree = (
         if (jsCollection[action.name] !== action.body) {
           const data = get(
             modifiedUnEvalTree,
-            `${jsCollection.name}.${action.name}.data`,
+            `${entityName}.${action.name}.data`,
             {},
           );
           set(
             modifiedUnEvalTree,
-            `${jsCollection.name}.${action.name}`,
+            `${entityName}.${action.name}`,
             new String(action.body),
           );
 
-          set(
-            modifiedUnEvalTree,
-            `${jsCollection.name}.${action.name}.data`,
-            data,
-          );
+          set(modifiedUnEvalTree, `${entityName}.${action.name}.data`, data);
         }
       } else {
         const reactivePaths = oldConfig.reactivePaths;
@@ -86,19 +82,15 @@ export const updateJSCollectionInUnEvalTree = (
 
         const data = get(
           modifiedUnEvalTree,
-          `${jsCollection.name}.${action.name}.data`,
+          `${entityName}.${action.name}.data`,
           {},
         );
         set(
           modifiedUnEvalTree,
-          `${jsCollection.name}.${action.name}`,
+          `${entityName}.${action.name}`,
           new String(action.body.toString()),
         );
-        set(
-          modifiedUnEvalTree,
-          `${jsCollection.name}.${action.name}.data`,
-          data,
-        );
+        set(modifiedUnEvalTree, `${entityName}.${action.name}.data`, data);
       }
     }
   }
@@ -126,8 +118,8 @@ export const updateJSCollectionInUnEvalTree = (
         const meta = oldConfig.meta;
         delete meta[oldActionName];
 
-        unset(modifiedUnEvalTree[jsCollection.name], oldActionName);
-        unset(modifiedUnEvalTree[jsCollection.name], `${oldActionName}.data`);
+        unset(modifiedUnEvalTree[entityName], oldActionName);
+        unset(modifiedUnEvalTree[entityName], `${oldActionName}.data`);
       }
     }
   }
@@ -142,11 +134,7 @@ export const updateJSCollectionInUnEvalTree = (
             (newVar.value && newVar.value.toString()) ||
           (!existedVarVal && !!newVar)
         ) {
-          set(
-            modifiedUnEvalTree,
-            `${jsCollection.name}.${newVar.name}`,
-            newVar.value,
-          );
+          set(modifiedUnEvalTree, `${entityName}.${newVar.name}`, newVar.value);
         }
       } else {
         varList.push(newVar.name);
@@ -157,12 +145,8 @@ export const updateJSCollectionInUnEvalTree = (
         const dynamicBindingPathList = oldConfig.dynamicBindingPathList;
         dynamicBindingPathList.push({ key: newVar.name });
 
-        set(modifiedUnEvalTree, `${jsCollection.name}.variables`, varList);
-        set(
-          modifiedUnEvalTree,
-          `${jsCollection.name}.${newVar.name}`,
-          newVar.value,
-        );
+        set(modifiedUnEvalTree, `${entityName}.variables`, varList);
+        set(modifiedUnEvalTree, `${entityName}.${newVar.name}`, newVar.value);
       }
     }
     let newVarList: Array<string> = varList;
@@ -180,11 +164,11 @@ export const updateJSCollectionInUnEvalTree = (
         );
 
         newVarList = newVarList.filter((item) => item !== varListItem);
-        unset(modifiedUnEvalTree[jsCollection.name], varListItem);
+        unset(modifiedUnEvalTree[entityName], varListItem);
       }
     }
     if (newVarList.length) {
-      set(modifiedUnEvalTree, `${jsCollection.name}.variables`, newVarList);
+      set(modifiedUnEvalTree, `${entityName}.variables`, newVarList);
     }
   }
   return modifiedUnEvalTree;

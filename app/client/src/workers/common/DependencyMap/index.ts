@@ -63,6 +63,7 @@ export function createDependencyMap(
         entity,
         entityName,
         dataTreeEvalRef.allKeys,
+        unEvalTree,
       );
       dependencyMap = { ...dependencyMap, ...entityListedDependencies };
     }

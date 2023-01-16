@@ -276,7 +276,6 @@ export function parseJSActions(
   });
 
   functionDeterminer.setOffEval();
-  console.log("** return js update", unEvalDataTree);
   return { jsUpdates };
 }
 

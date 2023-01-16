@@ -37,6 +37,7 @@ import { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
+  getConfigTree,
   getDataTree,
   getEvaluationInverseDependencyMap,
 } from "selectors/dataTreeSelectors";
@@ -233,7 +234,8 @@ function* logDependentEntityProperties(payload: Log[]) {
 }
 
 function* onTriggerPropertyUpdates(payload: Log[]) {
-  const dataTree: DataTree = yield select(getDataTree);
+  // const dataTree: DataTree = yield select(getDataTree);
+  const configTree: any = yield select(getConfigTree);
   const validLogs = payload.filter(
     (log) => log.source && log.source.propertyPath,
   );
@@ -244,7 +246,7 @@ function* onTriggerPropertyUpdates(payload: Log[]) {
   for (const log of validLogs) {
     const { source } = log;
     if (!source || !source.propertyPath) continue;
-    const widget = dataTree[source.name];
+    const widget = configTree[source.name];
     // If property is not a trigger property we ignore
     if (!isWidget(widget) || !(source.propertyPath in widget.triggerPaths))
       return false;

@@ -19,6 +19,7 @@ import { validate } from "workers/Evaluation/validations";
 import { EvalProps } from ".";
 
 export function validateAndParseWidgetProperty({
+  configTree,
   currentTree,
   evalPropertyValue,
   evalProps,
@@ -29,6 +30,7 @@ export function validateAndParseWidgetProperty({
   fullPropertyPath: string;
   widget: DataTreeWidget;
   currentTree: DataTree;
+  configTree: any;
   evalPropertyValue: unknown;
   unEvalPropertyValue: string;
   evalProps: EvalProps;
@@ -38,7 +40,9 @@ export function validateAndParseWidgetProperty({
     // TODO find a way to validate triggers
     return unEvalPropertyValue;
   }
-  const validation = widget.validationPaths[propertyPath];
+  // const validation = widget.validationPaths[propertyPath];
+  const validation =
+    configTree[widget.widgetName]?.validationPaths?.propertyPath;
 
   const { isValid, messages, parsed, transformed } = validateWidgetProperty(
     validation,
@@ -123,13 +127,15 @@ export function getValidatedTree(
   const { evalProps } = option;
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const parsedEntity = configTree[entityKey];
+    const entity = tree[entityKey];
     if (!isWidget(parsedEntity)) {
       return tree;
     }
 
     Object.entries(parsedEntity.validationPaths).forEach(
       ([property, validation]) => {
-        const value = get(parsedEntity, property);
+        const value = get(entity, property);
+        // const value = get(parsedEntity, property);
         // Pass it through parse
         const {
           isValid,
@@ -137,7 +143,7 @@ export function getValidatedTree(
           parsed,
           transformed,
         } = validateWidgetProperty(validation, value, parsedEntity, property);
-        set(parsedEntity, property, parsed);
+        set(entity, property, parsed);
         const evaluatedValue = isValid
           ? parsed
           : isUndefined(transformed)
@@ -171,6 +177,6 @@ export function getValidatedTree(
         }
       },
     );
-    return { ...tree, [entityKey]: parsedEntity };
+    return { ...tree, [entityKey]: entity };
   }, tree);
 }

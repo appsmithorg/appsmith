@@ -43,6 +43,7 @@ import { Action } from "redux";
 import {
   EVALUATE_REDUX_ACTIONS,
   FIRST_EVAL_REDUX_ACTIONS,
+  setConfigTree,
   setDependencyMap,
   setEvaluatedTree,
   shouldLint,
@@ -115,6 +116,7 @@ import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/u
 import { MessageType, TMessage } from "utils/MessageUtil";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
+import { unEvalTree } from "workers/common/DataTreeEvaluator/mockData/mockUnEvalTree";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -184,6 +186,7 @@ export function* evaluateTreeSaga(
     userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
+    configTree,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -194,8 +197,8 @@ export function* evaluateTreeSaga(
   const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
-
   yield put(setEvaluatedTree(updates));
+  yield put(setConfigTree(configTree));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
