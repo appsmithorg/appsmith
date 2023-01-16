@@ -18,5 +18,5 @@ export interface SignaturePadComponentProps extends ComponentProps {
   padBackgroundColor?: string;
   borderRadius: string;
   boxShadow?: string;
-  onSigning: (value: string) => void;
+  onSigning: (event: MouseEvent) => void;
 }

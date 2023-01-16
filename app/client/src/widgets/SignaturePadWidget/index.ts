@@ -8,9 +8,6 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   searchTags: ["sign", "signature pad", "pad", "draw"],
-  features: {
-    dynamicHeight: false,
-  },
   defaults: {
     widgetName: "SignaturePad",
     rows: 18,
@@ -28,6 +25,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

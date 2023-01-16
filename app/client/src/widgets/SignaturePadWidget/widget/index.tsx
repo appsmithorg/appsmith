@@ -33,14 +33,14 @@ class SignaturePadWidget extends BaseWidget<
     };
   }
 
-  onSigning = (value: string) => {
-    this.props.updateWidgetMetaProperty("value", value, {
-      triggerPropertyName: "onSigning",
-      dynamicString: this.props.onSigning,
-      event: {
-        type: EventType.ON_SIGNING,
-      },
-    });
+  onSigning = (event: MouseEvent) => {
+    // this.props.updateWidgetMetaProperty("value", value, {
+    //   triggerPropertyName: "onSigning",
+    //   dynamicString: this.props.onSigning,
+    //   event: {
+    //     type: EventType.ON_SIGNING,
+    //   },
+    // });
   };
 
   getPageView() {
