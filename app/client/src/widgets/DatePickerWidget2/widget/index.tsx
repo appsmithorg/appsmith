@@ -32,7 +32,7 @@ function allowedRange(value: any) {
         ]
       : [
           {
-            name: "ValidationError",
+            name: "RangeError",
             text: "Number should be between 0-6.",
           },
         ],

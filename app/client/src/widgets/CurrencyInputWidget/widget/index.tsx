@@ -112,7 +112,7 @@ export function defaultValueValidation(
       isValid = false;
       messages = [
         {
-          name: "ValidationError",
+          name: "RangeError",
           text:
             "No. of decimals are higher than the decimals field set. Please update the default or the decimals field",
         },

@@ -35,7 +35,7 @@ export function sourceDataArrayValidation(
       if (options.length > 10) {
         isValid = false;
         message = {
-          name: "ValidationError",
+          name: "RangeError",
           text: "Source data cannot have more than 10 items",
         };
       }
@@ -180,7 +180,7 @@ export function iconNamesForEachRowValidation(
   };
 
   const DEFAULT_MESSAGE = {
-    name: "ValidationError",
+    name: "TypeError",
     text:
       "The evaluated value should either be an icon name, undefined, null, or an empty string. We currently use the icons from the Blueprint library. You can see the list of icons at https://blueprintjs.com/docs/#icons",
   };
@@ -239,7 +239,7 @@ export function iconPositionForEachRowValidation(
   };
 
   const DEFAULT_MESSAGE = {
-    name: "ValidationError",
+    name: "TypeError",
     text: `The evaluated value should be one of the allowed values => ${config?.params?.allowedValues?.join(
       ", ",
     )}, undefined, null, or an empty string`,
@@ -299,7 +299,7 @@ export function colorForEachRowValidation(
   };
 
   const DEFAULT_MESSAGE = {
-    name: "ValidationError",
+    name: "TypeError",
     text: `The evaluated value should match ${config?.params?.regex}`,
   };
 

@@ -27,7 +27,7 @@ export function minValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "TypeError",
           text: "This value must be a number",
         },
       ],
@@ -40,7 +40,7 @@ export function minValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "RangeError",
           text: "This value must be less than max value",
         },
       ],
@@ -86,7 +86,7 @@ export function maxValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "TypeError",
           text: "This value must be a number",
         },
       ],
@@ -99,7 +99,7 @@ export function maxValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "RangeError",
           text: "This value must be greater than min value",
         },
       ],
@@ -146,7 +146,7 @@ export function defaultValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "TypeError",
           text: "This value must be a number",
         },
       ],
@@ -159,7 +159,7 @@ export function defaultValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "RangeError",
           text: "This value must be greater than or equal to the min value",
         },
       ],
@@ -172,7 +172,7 @@ export function defaultValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "RangeError",
           text: "This value must be less than or equal to the max value",
         },
       ],
@@ -217,7 +217,7 @@ export function stepSizeValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "TypeError",
           text: "This value must be a number",
         },
       ],
@@ -230,7 +230,7 @@ export function stepSizeValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "RangeError",
           text: "This value must be greater than 0.1",
         },
       ],
@@ -248,7 +248,7 @@ export function stepSizeValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "RangeError",
           text: `This value must be less than ${sliderRange}`,
         },
       ],

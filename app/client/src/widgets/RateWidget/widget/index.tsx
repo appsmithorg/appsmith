@@ -46,7 +46,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
         parsed,
         messages: [
           {
-            name: "ValidationError",
+            name: "RangeError",
             text: `This value must be less than or equal to max count`,
           },
         ],

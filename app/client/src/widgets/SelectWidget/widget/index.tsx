@@ -73,7 +73,7 @@ export function defaultOptionValueValidation(
     isValid = false;
     parsed = undefined;
     message = {
-      name: "ValidationError",
+      name: "TypeError",
       text:
         'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }',
     };

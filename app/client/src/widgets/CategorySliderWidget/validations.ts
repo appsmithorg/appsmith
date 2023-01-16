@@ -79,7 +79,7 @@ export function optionsCustomValidation(
       if (typeof value !== valueType) {
         _isValid = false;
         message = {
-          name: "ValidationError",
+          name: "TypeError",
           text: "All value properties in options must have the same type",
         };
         break;
@@ -89,7 +89,7 @@ export function optionsCustomValidation(
       if (_.isNil(value)) {
         _isValid = false;
         message = {
-          name: "ValidationError",
+          name: "TypeError",
           text:
             'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
         };
@@ -109,7 +109,7 @@ export function optionsCustomValidation(
     parsed: [],
     messages: [
       {
-        name: "ValidationError",
+        name: "TypeError",
         text:
           'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
       },
@@ -142,7 +142,7 @@ export function defaultOptionValidation(
       parsed: JSON.stringify(value, null, 2),
       messages: [
         {
-          name: "ValidationError",
+          name: "TypeError",
           text: "This value does not evaluate to type: string or number",
         },
       ],
@@ -156,7 +156,7 @@ export function defaultOptionValidation(
       parsed: value,
       messages: [
         {
-          name: "ValidationError",
+          name: "TypeError",
           text: "This value does not evaluate to type: string or number",
         },
       ],

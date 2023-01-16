@@ -129,7 +129,7 @@ export function minValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "RangeError",
           text: "This value must be lesser than max value",
         },
       ],
@@ -175,7 +175,7 @@ export function maxValueValidation(
       parsed: undefined,
       messages: [
         {
-          name: "ValidationError",
+          name: "RangeError",
           text: "This value must be greater than min value",
         },
       ],
