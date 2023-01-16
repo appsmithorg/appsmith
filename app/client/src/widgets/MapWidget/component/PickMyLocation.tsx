@@ -1,17 +1,11 @@
 import React from "react";
-import { ControlIcons } from "icons/ControlIcons";
 import styled from "styled-components";
 
-const StyledPickMyLocationSelectedIcon = styled(
-  ControlIcons.PICK_MY_LOCATION_SELECTED_CONTROL,
-)`
-  position: relative;
-  cursor: pointer;
-  height: 28px;
-  width: 28px;
-`;
+import { ControlIcons } from "icons/ControlIcons";
 
-const PickMyLocationIconWrapper = styled.div`
+const Icon = styled(ControlIcons.PICK_MY_LOCATION_SELECTED_CONTROL)<{
+  allowZoom?: boolean;
+}>`
   background: white;
   width: 40px;
   height: 40px;
@@ -20,57 +14,55 @@ const PickMyLocationIconWrapper = styled.div`
   justify-content: center;
   align-items: center;
   box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+  right: 10px;
+  bottom: ${(props) => (props.allowZoom ? "110px" : "20px")};
+  position: absolute;
 `;
 
 interface PickMyLocationProps {
+  title?: string;
+  isEnabled?: boolean;
+  allowZoom?: boolean;
   updateCenter: (lat: number, long: number) => void;
 }
 
-interface PickMyLocationState {
-  clicked: boolean;
-  selected: boolean;
-}
-export default class PickMyLocation extends React.Component<
-  PickMyLocationProps,
-  PickMyLocationState
-> {
-  constructor(props: PickMyLocationProps) {
-    super(props);
-    this.state = {
-      selected: false,
-      clicked: false,
-    };
-  }
-  getUserLocation = () => {
+const PickMyLocation: React.FC<PickMyLocationProps> = (props) => {
+  const { allowZoom, isEnabled, title, updateCenter } = props;
+  const [clicked, setClicked] = React.useState(false);
+  const [selected, setSelected] = React.useState(false);
+
+  /**
+   * get user location
+   *
+   * @returns
+   */
+  const getUserLocation = () => {
     if ("geolocation" in navigator) {
       return navigator.geolocation.getCurrentPosition((data) => {
         const {
           coords: { latitude: lat, longitude: long },
         } = data;
-        this.setState({ selected: true });
-        this.props.updateCenter(lat, long);
+        setSelected(true);
+        updateCenter(lat, long);
       });
     }
   };
-  render() {
-    return (
-      <PickMyLocationIconWrapper>
-        <StyledPickMyLocationSelectedIcon
-          color={
-            this.state.selected
-              ? "#049ADA"
-              : this.state.clicked
-              ? "#666666"
-              : "#999999"
-          }
-          onClick={() => {
-            if (!(this.state.clicked && this.state.selected)) {
-              this.setState({ clicked: true });
-              this.getUserLocation();
-            }
-          }}
-        />
-      </PickMyLocationIconWrapper>
-    );
-  }
-}
+
+  if (!isEnabled) return null;
+
+  return (
+    <Icon
+      allowZoom={allowZoom}
+      color={selected ? "#049ADA" : clicked ? "#666666" : "#999999"}
+      onClick={() => {
+        if (!(clicked && selected)) {
+          setClicked(true);
+          getUserLocation();
+        }
+      }}
+      title={title}
+    />
+  );
+};
+
+export default PickMyLocation;

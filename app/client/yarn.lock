@@ -1972,6 +1972,28 @@
   version "1.1.5"
   resolved "https://registry.npmjs.org/@github/g-emoji-element/-/g-emoji-element-1.1.5.tgz"
 
+"@googlemaps/js-api-loader@^1.13.2":
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/@googlemaps/js-api-loader/-/js-api-loader-1.15.1.tgz#7d5f1d55a4ec5c99b1d8f0708f3a46b83a71384c"
+  integrity sha512-AsnEgNsB7S/VdrHGEQUaUM2e5tmjFGKBAfzR/AqO8O7TPq/jQGvoRw5liPBw4EMF38RDsHmKDV89q/X+qiUREQ==
+  dependencies:
+    fast-deep-equal "^3.1.3"
+
+"@googlemaps/markerclusterer@^2.0.14":
+  version "2.0.14"
+  resolved "https://registry.yarnpkg.com/@googlemaps/markerclusterer/-/markerclusterer-2.0.14.tgz#803dee96260feb26a3e75fb865125f8f3fbd5c29"
+  integrity sha512-/AKSz4kqMKOGc1ByPK4FWygOi0SHE2MjZdueelx4oShagcR5d9eIz77YMxcyxOUIc/dI0x5/Y0VoUTn+aWEUtQ==
+  dependencies:
+    fast-deep-equal "^3.1.3"
+    supercluster "^7.1.3"
+
+"@googlemaps/react-wrapper@^1.1.35":
+  version "1.1.35"
+  resolved "https://registry.yarnpkg.com/@googlemaps/react-wrapper/-/react-wrapper-1.1.35.tgz#fde9146b1ae02805dcad9c0fab56c4bc137b32ee"
+  integrity sha512-vK+BDQMHN0Oqr66cW3ZPWVK43BUmJJBu6P8T74tc6/fKpUJUlFEaZsupgIIRRRDW9ejB8uGagUmwOnA2gdcvbw==
+  dependencies:
+    "@googlemaps/js-api-loader" "^1.13.2"
+
 "@humanwhocodes/config-array@^0.6.0":
   version "0.6.0"
   resolved "https://registry.npmjs.org/@humanwhocodes/config-array/-/config-array-0.6.0.tgz"
@@ -3021,6 +3043,11 @@
   version "1.1.2"
   resolved "https://registry.npmjs.org/@types/fined/-/fined-1.1.2.tgz"
 
+"@types/google.maps@^3.51.0":
+  version "3.51.0"
+  resolved "https://registry.yarnpkg.com/@types/google.maps/-/google.maps-3.51.0.tgz#56198ebe9ecb9b83821a290ae2abe97b68e3d20b"
+  integrity sha512-44/oQYjc5D6kxBcI3Qk9rk3IIOMwnlEMWDV7pwPJ2YI89s5Q1OzDrFvR7QJ3LFrpVXEhig+gyagFg54+foinFg==
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.4"
   resolved "https://registry.npmjs.org/@types/graceful-fs/-/graceful-fs-4.1.4.tgz"
@@ -3272,12 +3299,12 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-dom@^16.8.0":
-  version "16.9.16"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.9.16.tgz#c591f2ed1c6f32e9759dfa6eb4abfd8041f29e39"
-  integrity sha512-Oqc0RY4fggGA3ltEgyPLc3IV9T73IGoWjkONbsyJ3ZBn+UPPCYpU2ec0i3cEbJuEdZtkqcCF2l1zf2pBdgUGSg==
+"@types/react-dom@^17.0.2":
+  version "17.0.18"
+  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.18.tgz#8f7af38f5d9b42f79162eea7492e5a1caff70dc2"
+  integrity sha512-rLVtIfbwyur2iFKykP2w0pl/1unw26b5td16d5xMgp7/yjTHomkyxPYChFoCr/FtEX1lN9wY6lFj1qvKdS5kDw==
   dependencies:
-    "@types/react" "^16"
+    "@types/react" "^17"
 
 "@types/react-google-recaptcha@^2.1.1":
   version "2.1.1"
@@ -3411,15 +3438,6 @@
     "@types/scheduler" "*"
     csstype "^3.0.2"
 
-"@types/react@^16", "@types/react@^16.8.2":
-  version "16.14.28"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.28.tgz#073258f3fe7bb80c748842c1f93aeaafe16dffad"
-  integrity sha512-83zBE6+XUVXsdL3iFzOyUewdauaU+KviKCHEGOgSW52coAuqW7tEKQM0E9+ZC0Zk6TELQ2/JgogPvp7FavzFwg==
-  dependencies:
-    "@types/prop-types" "*"
-    "@types/scheduler" "*"
-    csstype "^3.0.2"
-
 "@types/react@^16.0.40":
   version "16.14.8"
   resolved "https://registry.npmjs.org/@types/react/-/react-16.14.8.tgz"
@@ -3432,6 +3450,15 @@
   version "16.14.31"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.31.tgz#03757719ac16b460ab9124f718fdd079f6578fe8"
   integrity sha512-CD3LuBW4xIeGy6BxuNZdXBOsuP00OHFuNOq/4e2xKDq6z02XvdH9wIkuPNmz7BRQpo5ncy1zT9fz4tTDqXbjzQ==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/scheduler" "*"
+    csstype "^3.0.2"
+
+"@types/react@^17", "@types/react@^17.0.2":
+  version "17.0.52"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.52.tgz#10d8b907b5c563ac014a541f289ae8eaa9bf2e9b"
+  integrity sha512-vwk8QqVODi0VaZZpDXQCmEmiOuyjEFPY7Ttaw5vjM112LOq37yz1CDJGrRJwA1fYEq4Iitd5rnjd1yWAc/bT+A==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -4733,13 +4760,6 @@ babel-preset-react-app@^10.0.1:
     babel-plugin-macros "^3.1.0"
     babel-plugin-transform-react-remove-prop-types "^0.4.24"
 
-babel-runtime@^6.11.6:
-  version "6.26.0"
-  resolved "https://registry.npmjs.org/babel-runtime/-/babel-runtime-6.26.0.tgz"
-  dependencies:
-    core-js "^2.4.0"
-    regenerator-runtime "^0.11.0"
-
 balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz"
@@ -5019,10 +5039,6 @@ camelize@^1.0.0:
   resolved "https://registry.yarnpkg.com/camelize/-/camelize-1.0.1.tgz#89b7e16884056331a35d6b5ad064332c91daa6c3"
   integrity sha512-dU+Tx2fsypxTgtLoE36npi3UqcjSSMNYfkqgmoEhtZrraP5VWq0K7FkWVTYa8eMPtnU/G2txVsfdCJTn9uzpuQ==
 
-can-use-dom@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.npmjs.org/can-use-dom/-/can-use-dom-0.1.0.tgz"
-
 caniuse-api@^3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/caniuse-api/-/caniuse-api-3.0.0.tgz"
@@ -5032,19 +5048,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0:
-  version "1.0.30001148"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001148.tgz"
-
-caniuse-lite@^1.0.30001332, caniuse-lite@^1.0.30001335:
-  version "1.0.30001341"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001341.tgz"
-  integrity sha512-2SodVrFFtvGENGCv0ChVJIDQ0KPaS1cg7/qtfMaICgeMolDdo/Z2OD32F0Aq9yl6F4YFwGPBS5AaPqNYiW4PoA==
-
-caniuse-lite@^1.0.30001426:
-  version "1.0.30001431"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001431.tgz#e7c59bd1bc518fae03a4656be442ce6c4887a795"
-  integrity sha512-zBUoFU0ZcxpvSt9IU66dXVT/3ctO1cy4y9cscs1szkPlcWb6pasYM144GqrUygUbT+k7cmUCW61cvskjcv0enQ==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001332, caniuse-lite@^1.0.30001335, caniuse-lite@^1.0.30001426:
+  version "1.0.30001444"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001444.tgz"
+  integrity sha512-ecER9xgJQVMqcrxThKptsW0pPxSae8R2RB87LNa+ivW9ppNWRHEplXcDzkCOP4LYWGj8hunXLqaiC41iBATNyg==
 
 capital-case@^1.0.4:
   version "1.0.4"
@@ -5125,10 +5132,6 @@ change-case@^4.1.2:
     sentence-case "^3.0.4"
     snake-case "^3.0.4"
     tslib "^2.0.3"
-
-change-emitter@^0.1.2:
-  version "0.1.6"
-  resolved "https://registry.npmjs.org/change-emitter/-/change-emitter-0.1.6.tgz"
 
 char-regex@^1.0.2:
   version "1.0.2"
@@ -5583,11 +5586,7 @@ core-js-pure@^3.8.1:
   resolved "https://registry.npmjs.org/core-js-pure/-/core-js-pure-3.22.5.tgz"
   integrity sha512-8xo9R00iYD7TcV7OrC98GwxiUEAabVWO3dix+uyWjnYrx9fyASLlIX+f/3p5dW5qByaP2bcZ8X/T47s55et/tA==
 
-core-js@^1.0.0:
-  version "1.2.7"
-  resolved "https://registry.npmjs.org/core-js/-/core-js-1.2.7.tgz"
-
-core-js@^2.4.0, core-js@^2.6.5:
+core-js@^2.6.5:
   version "2.6.11"
   resolved "https://registry.npmjs.org/core-js/-/core-js-2.6.11.tgz"
 
@@ -6259,10 +6258,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.45":
-  version "1.0.45"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.45.tgz#c3156581397beff0b4edc2bbc48ec2f17d51afd4"
-  integrity sha512-QrrtpQKhR719H6i9cp9OS0zr4lmjwheZcMrInOCllZ8BRr22eT7BFPpRgENzWQqq4deIWWFqD+qFDstImNhPUQ==
+"design-system@npm:@appsmithorg/design-system@1.0.46":
+  version "1.0.46"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.46.tgz#f2091ee536def9cce2f170aed036d62ae4752bb5"
+  integrity sha512-o1h72Sf0ZX/sUYibhxcPD4s8Z4e/AWRxPO5M45m3+g5sVZHMH25ydEEPBWODxFK2CeaNOU0NP+sBc063Q07NKA==
   dependencies:
     emoji-mart "3.0.1"
 
@@ -7453,18 +7452,6 @@ fbjs-css-vars@^1.0.0:
   version "1.0.2"
   resolved "https://registry.npmjs.org/fbjs-css-vars/-/fbjs-css-vars-1.0.2.tgz"
 
-fbjs@^0.8.1:
-  version "0.8.17"
-  resolved "https://registry.npmjs.org/fbjs/-/fbjs-0.8.17.tgz"
-  dependencies:
-    core-js "^1.0.0"
-    isomorphic-fetch "^2.1.1"
-    loose-envify "^1.0.0"
-    object-assign "^4.1.0"
-    promise "^7.1.1"
-    setimmediate "^1.0.5"
-    ua-parser-js "^0.7.18"
-
 fbjs@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/fbjs/-/fbjs-2.0.0.tgz"
@@ -8125,10 +8112,6 @@ glur@^1.1.2:
   resolved "https://registry.npmjs.org/glur/-/glur-1.1.2.tgz"
   integrity sha1-8g6jbbEDv8KSNDkh8fkeg8NGdok=
 
-google-maps-infobox@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/google-maps-infobox/-/google-maps-infobox-2.0.0.tgz"
-
 graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.4:
   version "4.2.4"
   resolved "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.4.tgz"
@@ -8298,10 +8281,6 @@ history@^4.10.1, history@^4.9.0:
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
     value-equal "^1.0.1"
-
-hoist-non-react-statics@^2.3.1:
-  version "2.5.5"
-  resolved "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz"
 
 hoist-non-react-statics@^3.0.0, hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
@@ -8699,7 +8678,7 @@ interweave@^12.7.2:
   dependencies:
     escape-html "^1.0.3"
 
-invariant@^2.2.1, invariant@^2.2.4:
+invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.npmjs.org/invariant/-/invariant-2.2.4.tgz"
   dependencies:
@@ -9076,13 +9055,6 @@ isobject@^3.0.0, isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.npmjs.org/isobject/-/isobject-3.0.1.tgz"
   integrity sha1-TkMekrEalzFjaqH5yNHMvP2reN8=
-
-isomorphic-fetch@^2.1.1:
-  version "2.2.1"
-  resolved "https://registry.npmjs.org/isomorphic-fetch/-/isomorphic-fetch-2.2.1.tgz"
-  dependencies:
-    node-fetch "^1.0.1"
-    whatwg-fetch ">=0.10.0"
 
 isomorphic.js@^0.2.4:
   version "0.2.4"
@@ -9850,6 +9822,11 @@ jszip@^3.1.3, jszip@^3.1.5, jszip@^3.7.1:
     readable-stream "~2.3.6"
     set-immediate-shim "~1.0.1"
 
+kdbush@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/kdbush/-/kdbush-3.0.0.tgz#f8484794d47004cc2d85ed3a79353dbe0abc2bf0"
+  integrity sha512-hRkd6/XW4HTsA9vjVpY9tuXJYLSlelnkTmVFu4M9/7MIYQtFcHpbugAU7UbOfjOiVSVYl2fqgBuJ32JUmRo5Ew==
+
 kind-of@^6.0.2:
   version "6.0.3"
   resolved "https://registry.npmjs.org/kind-of/-/kind-of-6.0.3.tgz"
@@ -10190,7 +10167,7 @@ lodash.uniq@^4.5.0:
   version "4.5.0"
   resolved "https://registry.npmjs.org/lodash.uniq/-/lodash.uniq-4.5.0.tgz"
 
-lodash@4.x, lodash@^4, lodash@^4.16.2, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4, lodash@^4.7.0, lodash@~4.17.21:
+lodash@4.x, lodash@^4, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4, lodash@^4.7.0, lodash@~4.17.21:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
 
@@ -10339,14 +10316,6 @@ marked@^4.0.18:
   version "4.0.18"
   resolved "https://registry.yarnpkg.com/marked/-/marked-4.0.18.tgz#cd0ac54b2e5610cfb90e8fd46ccaa8292c9ed569"
   integrity sha512-wbLDJ7Zh0sqA0Vdg6aqlbT+yPxqLblpAZh1mK2+AO2twQkPywvvqQNfEPVwSSRjZ7dZcdeVBIAgiO7MMp3Dszw==
-
-marker-clusterer-plus@^2.1.4:
-  version "2.1.4"
-  resolved "https://registry.npmjs.org/marker-clusterer-plus/-/marker-clusterer-plus-2.1.4.tgz"
-
-markerwithlabel@^2.0.1:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/markerwithlabel/-/markerwithlabel-2.0.2.tgz"
 
 matchmediaquery@^0.3.0:
   version "0.3.1"
@@ -10744,7 +10713,7 @@ no-case@^3.0.4:
     lower-case "^2.0.2"
     tslib "^2.0.3"
 
-node-fetch@2.6.7, node-fetch@^1.0.1, node-fetch@^2.6.1, node-fetch@^2.6.7:
+node-fetch@2.6.7, node-fetch@^2.6.1, node-fetch@^2.6.7:
   version "2.6.7"
   resolved "https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.7.tgz"
   integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==
@@ -12598,15 +12567,14 @@ react-documents@^1.0.4:
   resolved "https://registry.npmjs.org/react-documents/-/react-documents-1.0.4.tgz"
   integrity sha512-EpoY+MZEu3hPffIWA4FadUYu8daubNkr+LK2zuoPkCAVtyNY+z+/RuzzTriuhjcDydKXzgzp42kQTfAD2j3Mxw==
 
-react-dom@^16.7.0:
-  version "16.14.0"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.14.0.tgz#7ad838ec29a777fb3c75c3a190f661cf92ab8b89"
-  integrity sha512-1gCeQXDLoIqMgqD3IO2Ah9bnf0w9kzhwN5q4FGnHZ67hBm9yePzB5JJAIQCc8x3pFnNlwFq4RidZggNAAkzWWw==
+react-dom@^17.0.2:
+  version "17.0.2"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-17.0.2.tgz#ecffb6845e3ad8dbfcdc498f0d0a939736502c23"
+  integrity sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
-    prop-types "^15.6.2"
-    scheduler "^0.19.1"
+    scheduler "^0.20.2"
 
 react-error-boundary@^3.1.0:
   version "3.1.3"
@@ -12640,22 +12608,6 @@ react-fusioncharts@^3.1.2:
   integrity sha512-ilmR7gfUJL5yed0soSHKlBpq2qCPyWiSc7gyFlT2vbPQS8eN6fAWMmLHy8H2kFP/XELItoAMqgUXyrjgK82bXA==
   dependencies:
     uuid "^3.2.1"
-
-react-google-maps@^9.4.5:
-  version "9.4.5"
-  resolved "https://registry.npmjs.org/react-google-maps/-/react-google-maps-9.4.5.tgz"
-  dependencies:
-    babel-runtime "^6.11.6"
-    can-use-dom "^0.1.0"
-    google-maps-infobox "^2.0.0"
-    invariant "^2.2.1"
-    lodash "^4.16.2"
-    marker-clusterer-plus "^2.1.4"
-    markerwithlabel "^2.0.1"
-    prop-types "^15.5.8"
-    recompose "^0.26.0"
-    scriptjs "^2.5.8"
-    warning "^3.0.0"
 
 react-google-recaptcha@^2.1.0:
   version "2.1.0"
@@ -13061,14 +13013,13 @@ react-zoom-pan-pinch@^1.6.1:
   version "1.6.1"
   resolved "https://registry.npmjs.org/react-zoom-pan-pinch/-/react-zoom-pan-pinch-1.6.1.tgz"
 
-react@^16.12.0:
-  version "16.14.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
-  integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
+react@^17.0.2:
+  version "17.0.2"
+  resolved "https://registry.yarnpkg.com/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"
+  integrity sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
-    prop-types "^15.6.2"
 
 read-pkg@^5.2.0:
   version "5.2.0"
@@ -13123,15 +13074,6 @@ rechoir@^0.8.0:
   integrity sha512-/vxpCXddiX8NGfGO/mTafwjq4aFa/71pvamip0++IQk3zG8cbCj0fifNPrjjF1XMXUne91jL9OoxmdykoEtifQ==
   dependencies:
     resolve "^1.20.0"
-
-recompose@^0.26.0:
-  version "0.26.0"
-  resolved "https://registry.npmjs.org/recompose/-/recompose-0.26.0.tgz"
-  dependencies:
-    change-emitter "^0.1.2"
-    fbjs "^0.8.1"
-    hoist-non-react-statics "^2.3.1"
-    symbol-observable "^1.0.4"
 
 recursive-readdir@^2.2.2:
   version "2.2.2"
@@ -13230,10 +13172,6 @@ regenerate@^1.4.2:
   version "1.4.2"
   resolved "https://registry.npmjs.org/regenerate/-/regenerate-1.4.2.tgz"
   integrity sha512-zrceR/XhGYU/d/opr2EKO7aRHUeiBI8qjtfHqADTwZd6Szfy16la6kqD0MIUs5z5hx6AaKa+PixpPrR289+I0A==
-
-regenerator-runtime@^0.11.0:
-  version "0.11.1"
-  resolved "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz"
 
 regenerator-runtime@^0.13.11:
   version "0.13.11"
@@ -13605,6 +13543,14 @@ scheduler@^0.19.1:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
+scheduler@^0.20.2:
+  version "0.20.2"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.20.2.tgz#4baee39436e34aa93b4874bddcbf0fe8b8b50e91"
+  integrity sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
 schema-utils@2.7.0:
   version "2.7.0"
   resolved "https://registry.npmjs.org/schema-utils/-/schema-utils-2.7.0.tgz"
@@ -13648,10 +13594,6 @@ schema-utils@^4.0.0:
     ajv "^8.8.0"
     ajv-formats "^2.1.1"
     ajv-keywords "^5.0.0"
-
-scriptjs@^2.5.8:
-  version "2.5.9"
-  resolved "https://registry.npmjs.org/scriptjs/-/scriptjs-2.5.9.tgz"
 
 scroll-into-view-if-needed@^2.2.26:
   version "2.2.26"
@@ -14342,6 +14284,13 @@ stylehacks@^5.1.0:
     browserslist "^4.16.6"
     postcss-selector-parser "^6.0.4"
 
+supercluster@^7.1.3:
+  version "7.1.5"
+  resolved "https://registry.yarnpkg.com/supercluster/-/supercluster-7.1.5.tgz#65a6ce4a037a972767740614c19051b64b8be5a3"
+  integrity sha512-EulshI3pGUM66o6ZdH3ReiFcvHpM3vAigyK+vcxdjpJyEbIIrtbmBdY23mGgnI24uXiGFvrGq9Gkum/8U7vJWg==
+  dependencies:
+    kdbush "^3.0.0"
+
 supports-color@8.1.1, supports-color@^8.0.0, supports-color@^8.1.1:
   version "8.1.1"
   resolved "https://registry.npmjs.org/supports-color/-/supports-color-8.1.1.tgz"
@@ -14412,7 +14361,7 @@ svgo@^2.7.0:
     picocolors "^1.0.0"
     stable "^0.1.8"
 
-symbol-observable@^1.0.4, symbol-observable@^1.2.0:
+symbol-observable@^1.2.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/symbol-observable/-/symbol-observable-1.2.0.tgz"
 
@@ -15192,12 +15141,6 @@ walker@^1.0.7:
   dependencies:
     makeerror "1.0.x"
 
-warning@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/warning/-/warning-3.0.0.tgz"
-  dependencies:
-    loose-envify "^1.0.0"
-
 warning@^4.0.2, warning@^4.0.3:
   version "4.0.3"
   resolved "https://registry.npmjs.org/warning/-/warning-4.0.3.tgz"
@@ -15402,10 +15345,6 @@ whatwg-encoding@^1.0.5:
   resolved "https://registry.npmjs.org/whatwg-encoding/-/whatwg-encoding-1.0.5.tgz"
   dependencies:
     iconv-lite "0.4.24"
-
-whatwg-fetch@>=0.10.0:
-  version "3.4.1"
-  resolved "https://registry.npmjs.org/whatwg-fetch/-/whatwg-fetch-3.4.1.tgz"
 
 whatwg-fetch@^3.0.0, whatwg-fetch@^3.6.2:
   version "3.6.2"
