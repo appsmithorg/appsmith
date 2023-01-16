@@ -46,8 +46,8 @@ import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
 import { Button, Case, Size, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
   display: flex;

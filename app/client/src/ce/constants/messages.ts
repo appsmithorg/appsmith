@@ -1474,7 +1474,7 @@ export const customJSLibraryMessages = {
     `Installation Successful. You can access the library via ${accessor}`,
   INSTALLATION_FAILED: () => "Installation failed",
   INSTALLED_ALREADY: (accessor: string) =>
-    `This library is installed already. You could access it via ${accessor}.`,
+    `This library is already installed. You could access it via ${accessor}.`,
   UNINSTALL_FAILED: (name: string) =>
     `Couldn't uninstall ${name}. Please try again after sometime.`,
   UNINSTALL_SUCCESS: (accessor: string) =>
