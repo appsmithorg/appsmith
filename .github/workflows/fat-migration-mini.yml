@@ -22,7 +22,7 @@ jobs:
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;                  
-          #docker run --name giteafat -p 3000:3000 -p 22:22 -e USER_UID=1000 -e  USER_GID=1000 --restart always  gitea/gitea:latest
+          docker run --name giteafat -p 3000:3000 -p 22:22 -e USER_UID=1000 -e  USER_GID=1000 --restart always  gitea/gitea:latest
          
             
       - name: Setup tmate session
