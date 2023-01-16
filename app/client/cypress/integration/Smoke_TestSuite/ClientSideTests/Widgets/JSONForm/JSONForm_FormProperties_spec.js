@@ -202,7 +202,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
 
-    cy.togglebar(`${propertyControlPrefix}-usesourcedata input`);
+    cy.togglebar(`${propertyControlPrefix}-hiddenfieldsindata input`);
 
     cy.openFieldConfiguration("age");
     cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
@@ -228,7 +228,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
 
-    cy.togglebarDisable(`${propertyControlPrefix}-usesourcedata input`);
+    cy.togglebarDisable(`${propertyControlPrefix}-hiddenfieldsindata input`);
 
     cy.openFieldConfiguration("age");
     cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
