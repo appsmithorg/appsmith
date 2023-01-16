@@ -427,6 +427,9 @@ Lets build great software together.
 [![onifs10](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48095055?v=4&w=50&h=50&mask=circle)](https://github.com/onifs10)
 [![ps-xaf](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/4478450?v=4&w=50&h=50&mask=circle)](https://github.com/ps-xaf)
 
+
+This project is tested with [BrowserStack](https://email.browserstack.com/c/eJwdjUuOwyAQRE9jdlgGmsZesJjNXGPEpz1mEtsEiCzN6UMi1aqeqh5ZgagNgjCGRau9joYliwqW2esJ1IziR6pZeillBEGTCYsGQCPGmiLd0oOvhR5POhpfI89nfFZytQm-u3Qo_luIDo4YAuo468D_y18-Bpio8_vYt3WLVG9jOHe2Wa9dRPDoV1iDAKC4Ts7IJSC99ZLd7dZaroP6GuR3z3Vdoy_nVanU5sLnp9es2Opyc3vqKpdz3VPb3uwFHrhMRQ)
+
 ## License
 
 Appsmith is available under the [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE). Use it wisely. 
