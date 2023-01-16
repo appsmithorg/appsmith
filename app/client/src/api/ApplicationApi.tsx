@@ -155,11 +155,16 @@ export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
   data: {
     workspaceApplications: Array<WorkspaceApplicationObject>;
     user: string;
+    newReleasesCount?: string;
+    releaseItems?: Array<Record<string, any>>;
+  };
+}
+export interface FetchReleaseItemsResponse extends ApiResponse {
+  data: {
     newReleasesCount: string;
     releaseItems: Array<Record<string, any>>;
   };
 }
-
 export interface FetchUnconfiguredDatasourceListResponse extends ApiResponse {
   data: Array<Datasource>;
 }
@@ -234,6 +239,10 @@ class ApplicationApi extends Api {
 
   static getAllApplication(): AxiosPromise<GetAllApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + "/new");
+  }
+
+  static getReleaseItems(): AxiosPromise<FetchReleaseItemsResponse> {
+    return Api.get(ApplicationApi.baseURL + "/releaseItems");
   }
 
   static fetchApplication(
