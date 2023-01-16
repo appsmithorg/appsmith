@@ -95,7 +95,10 @@ import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationR
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
-import { getAllActionValidationConfig } from "selectors/entitiesSelector";
+import {
+  getAllActionValidationConfig,
+  getAllJSActionsData,
+} from "selectors/entitiesSelector";
 import {
   DataTree,
   UnEvalTree,
@@ -236,6 +239,7 @@ export function* evaluateTreeSaga(
   yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
 
   if (appMode !== APP_MODE.PUBLISHED) {
+    const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
@@ -250,6 +254,7 @@ export function* evaluateTreeSaga(
       updatedDataTree,
       unEvalUpdates,
       isCreateFirstTree,
+      jsData,
     );
   }
   yield put(setDependencyMap(dependencies));
@@ -636,6 +641,7 @@ function* evaluationChangeListenerSaga(): any {
 
     if (shouldProcessBatchedAction(action)) {
       const postEvalActions = getPostEvalActions(action);
+
       yield call(
         evaluateTreeSaga,
         postEvalActions,
