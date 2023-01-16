@@ -129,7 +129,7 @@ describe("<RoleListing />", () => {
     const searched = screen.queryAllByText("devops_design");
     expect(searched).toHaveLength(1);
 
-    waitFor(() => {
+    await waitFor(() => {
       const filtered = screen.queryAllByText("HR_Appsmith");
       return expect(filtered).toHaveLength(0);
     });

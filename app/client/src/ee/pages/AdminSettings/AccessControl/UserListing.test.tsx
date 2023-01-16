@@ -127,7 +127,7 @@ describe("<UserListing />", () => {
     const searched = screen.queryAllByText("sangy123@appsmith.com");
     expect(searched).toHaveLength(1);
 
-    waitFor(() => {
+    await waitFor(() => {
       const filtered = screen.queryAllByText("techak@appsmith.com");
       return expect(filtered).toHaveLength(0);
     });

@@ -140,7 +140,7 @@ describe("<Listing />", () => {
     await fireEvent.dblClick(deleteOption[0]);
     user = queryByText(userListingProps.data[0].username);
     /*expect(user).not.toBeInTheDocument();*/
-    waitFor(() => {
+    await waitFor(() => {
       expect(userListingProps.listMenuItems[1].onSelect).toHaveBeenCalledTimes(
         1,
       );
