@@ -36,8 +36,8 @@ jobs:
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
-            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            -e APPSMITH_AUDITLOG_ENABLED=true appsmith/appsmith-ce
+              \
+             appsmith/appsmith-ce
             
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
