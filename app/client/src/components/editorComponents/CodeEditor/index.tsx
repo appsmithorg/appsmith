@@ -19,6 +19,16 @@ import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
+import "codemirror/addon/selection/active-line";
+import "codemirror/theme/eclipse.css";
+import "codemirror/mode/javascript/javascript";
+
+{
+  /* <script src="../node_modules/codemirror/lib/codemirror.js"></script> */
+}
+{
+  /* <script src="../node_modules/codemirror/mode/javascript/javascript.js"></script>  */
+}
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -123,7 +133,6 @@ import {
 import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
-import defineTextHoverOption from "./utils/defineTextHoverOption";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -286,7 +295,7 @@ class CodeEditor extends Component<Props, State> {
             addNew: false,
           };
         },
-        // textHover: true,
+        textHover: true,
       };
 
       const gutters = new Set<string>();
@@ -360,29 +369,6 @@ class CodeEditor extends Component<Props, State> {
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
-
-        defineTextHoverOption();
-
-        CodeMirror.registerHelper("textHover", "javascript", function(
-          cm: any,
-          data: any,
-          node: any,
-        ) {
-          let html = "token null";
-          if (data && data.token) {
-            const token = data.token;
-            html = "node.innerText: " + (node.innerText || node.textContent);
-            html += "</br>node.className: " + node.className;
-            html += "</br>className: " + token.className;
-            html += "</br>end: " + token.end;
-            html += "</br>start: " + token.start;
-            html += "</br>string: " + token.string;
-            html += "</br>type: " + token.type;
-          }
-          const result = document.createElement("div");
-          result.innerHTML = html;
-          return result;
-        });
 
         if (this.props.height) {
           editor.setSize("100%", this.props.height);

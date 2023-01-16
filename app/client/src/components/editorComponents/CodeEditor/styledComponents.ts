@@ -173,6 +173,31 @@ export const EditorWrapper = styled.div<{
     .cm-m-javascript.${PEEKABLE_CLASSNAME}:hover {
       text-decoration: underline;
     }
+    .CodeMirror-hover-tooltip {
+      background-color: infobackground;
+      border: 1px solid black;
+      border-radius: 4px 4px 4px 4px;
+      color: infotext;
+      font-family: monospace;
+      font-size: 10pt;
+      overflow: hidden;
+      padding: 2px 5px;
+      position: fixed;
+      z-index: 100;
+      max-width: 600px;
+      opacity: 0;
+      white-space: pre-wrap;
+      transition: opacity .4s;
+      -moz-transition: opacity .4s;
+      -webkit-transition: opacity .4s;
+      -o-transition: opacity .4s;
+      -ms-transition: opacity .4s;
+    }
+    
+    /*.CodeMirror-hover {
+      outline: 1px solid grey;
+    }*/
+
     .CodeMirror-matchingbracket {
       text-decoration: none;
       color: #ffd600 !important;
