@@ -154,7 +154,7 @@ export default (props: PopperProps) => {
         const config = { attributes: true };
         const callback = (mutationList: any, observer: any) => {
           for (const mutation of mutationList) {
-            if (mutation.type === "attributes") {
+            if (["attributes", "childList"].includes(mutation.type)) {
               _popper.scheduleUpdate();
             }
           }

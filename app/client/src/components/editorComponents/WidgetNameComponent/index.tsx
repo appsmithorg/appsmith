@@ -6,8 +6,10 @@ import Popper from "pages/Editor/Popper";
 import { Data } from "popper.js";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
+  getCurrentAppPositioningType,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -168,7 +170,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     propertyPaneWidgetId === props.widgetId
   )
     currentActivity = Activities.ACTIVE;
-  const targetNode: any = document.getElementById(`resize-${props.widgetId}`);
+  const targetNode: any = document.getElementById(`${props.widgetId}`);
 
   // This state tells us to disable dragging,
   // This is usually true when widgets themselves implement drag/drop
@@ -234,17 +236,23 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
     }
   };
+  const currentAppPositioningType = useSelector(getCurrentAppPositioningType);
+  const isAutoLayout = currentAppPositioningType === AppPositioningTypes.AUTO;
+  const popperOffset = {
+    left: isAutoLayout ? 3.5 : 0,
+    top: isAutoLayout ? 4 : 0,
+  };
   return showWidgetName ? (
     <Popper
-      isOpen
+      isOpen={!isResizingOrDragging}
       modifiers={{
         offset: {
           enabled: true,
           fn: (data: Data) => {
             data.offsets.popper = {
               ...data.offsets.popper,
-              left: data.offsets.popper.left - 4,
-              top: data.offsets.popper.top - 3,
+              left: data.offsets.popper.left - popperOffset.left,
+              top: data.offsets.popper.top - popperOffset.top,
             };
             return data;
           },
