@@ -28,8 +28,8 @@ import { isString, isEmpty, findIndex, isNil, isNaN, get, set } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
-import styled from "constants/DefaultTheme";
+
+import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
 import { IconName, IconNames } from "@blueprintjs/icons";
@@ -592,7 +592,7 @@ export const renderEmptyRows = (
   }
 };
 
-const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;
   position: relative;
   top: 3px;
@@ -605,7 +605,7 @@ const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   }
 `;
 
-const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;
   position: relative;
   top: 3px;
@@ -726,7 +726,9 @@ export function getTableStyles(props: TableStyles) {
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 
-const StyledSingleDropDown = styled(SingleDropDown)`
+const StyledSingleDropDown = styled(SingleDropDown)<{
+  children?: React.ReactNode;
+}>`
   div {
     padding: 0 10px;
     display: flex;

@@ -10,7 +10,7 @@ const PULSE_INTERVAL = 3600; /* 1 hour in seconds */
 const USER_ACTIVITY_LISTENER_EVENTS = ["pointerdown", "keydown"];
 class UsagePulse {
   static userAnonymousId: string | undefined;
-  static Timer: number;
+  static Timer: ReturnType<typeof setTimeout>;
   static unlistenRouteChange: () => void;
 
   /*
