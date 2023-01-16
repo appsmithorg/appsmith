@@ -34,7 +34,9 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   }
 }
 
-export function* lintTreeActionHandler(data: any) {
+export function* lintTreeActionHandler(message: any) {
+  const { body } = message;
+  const { data } = body;
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
@@ -44,7 +46,9 @@ export function* lintTreeActionHandler(data: any) {
   });
 }
 
-export function* processLogsHandler(data: any) {
+export function* processLogsHandler(message: any) {
+  const { body } = message;
+  const { data } = body;
   const { logs = [], triggerMeta, eventType } = data;
   yield call(
     storeLogs,
@@ -57,7 +61,9 @@ export function* processLogsHandler(data: any) {
   );
 }
 
-export function* processJSFunctionExecution(data: any) {
+export function* processJSFunctionExecution(message: any) {
+  const { body } = message;
+  const { data } = body;
   const sortedData: BatchedJSExecutionData = yield sortJSExecutionDataByCollectionId(
     data.JSData as Record<string, unknown>,
   );
