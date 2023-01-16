@@ -182,7 +182,7 @@ const BindingBanner = styled.div`
   width: 199px;
   height: 36px;
   left: 50%;
-  top: ${(props) => props.theme.smallHeaderHeight};
+  top: 80px;
   transform: translate(-50%, 0);
   text-align: center;
   background: ${Colors.DANUBE};

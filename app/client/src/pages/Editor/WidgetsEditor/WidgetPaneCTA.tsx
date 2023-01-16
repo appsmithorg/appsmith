@@ -9,11 +9,12 @@ import { useMouseLocation } from "../GlobalHotKeys/useMouseLocation";
 import styled from "styled-components";
 import { Icon, IconSize } from "design-system";
 import { Popover2 } from "@blueprintjs/popover2";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 const WIDGET_PANE_WIDTH = 246;
 const WIDGET_PANE_HEIGHT = 600;
 
-const StyledTrigger = styled.div`
+const StyledTrigger = styled.div<{ active: boolean }>`
   height: 40px;
   width: 36px;
 
@@ -23,6 +24,12 @@ const StyledTrigger = styled.div`
   :active {
     background-color: #e7e7e7;
   }
+
+  ${(props) =>
+    props.active &&
+    `
+  background-color: #e7e7e7;
+  `}
 
   cursor: pointer;
 `;
@@ -42,6 +49,7 @@ function WidgetPaneTrigger() {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const isInGuidedTour = useSelector(inGuidedTour);
   const toOpen = useRef(false);
 
   const isOverlappingWithPane = () => {
@@ -72,12 +80,12 @@ function WidgetPaneTrigger() {
 
   useEffect(() => {
     if (!isDragging && toOpen.current) {
-      if (!isOverlappingWithPane()) {
+      if (!isOverlappingWithPane() && !isInGuidedTour) {
         dispatch(forceOpenWidgetPanel(true));
       }
       toOpen.current = false;
     }
-  }, [isDragging]);
+  }, [isDragging, isInGuidedTour]);
 
   return (
     <div className="widget-pane">
@@ -102,6 +110,7 @@ function WidgetPaneTrigger() {
         placement="bottom-start"
       >
         <StyledTrigger
+          active={openWidgetPanel}
           className="flex ml-3 justify-center"
           onClick={() => dispatch(forceOpenWidgetPanel(true))}
           ref={ref}
