@@ -124,6 +124,15 @@ export const shiftSelectWidgets = (
   const siblingIndexOfLastSelectedWidget = siblingWidgets.indexOf(
     lastSelectedWidget,
   );
+  if (siblingIndexOfLastSelectedWidget === -1) {
+    return { widgets: request, lastWidgetSelected: request[0] };
+  }
+  if (currentlySelectedWidgets.includes(request[0])) {
+    return {
+      widgets: currentlySelectedWidgets.filter((w) => request[0] !== w),
+      lastWidgetSelected: "",
+    };
+  }
   let widgets: string[] = [...request, ...currentlySelectedWidgets];
   const start =
     siblingIndexOfLastSelectedWidget < selectedWidgetIndex
@@ -140,9 +149,10 @@ export const shiftSelectWidgets = (
   return { widgets: uniq(widgets), lastWidgetSelected: widgets[0] };
 };
 
-export const appendSelectWidget = (
+export const pushPopWidgetSelection = (
   request: SelectionPayload,
   currentlySelectedWidgets: string[],
+  siblingWidgets: string[],
 ): SetSelectionResult => {
   const widgetId = request[0];
   const alreadySelected = currentlySelectedWidgets.includes(widgetId);
@@ -153,8 +163,11 @@ export const appendSelectWidget = (
       widgets: currentlySelectedWidgets.filter((each) => each !== widgetId),
     };
   } else if (!!widgetId) {
+    const widgets = [...currentlySelectedWidgets, widgetId].filter((w) =>
+      siblingWidgets.includes(w),
+    );
     return {
-      widgets: [...currentlySelectedWidgets, widgetId],
+      widgets,
       lastWidgetSelected: widgetId,
     };
   }
