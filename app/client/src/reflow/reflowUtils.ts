@@ -1994,6 +1994,12 @@ export function getContainerExitEdge(
   ) {
     if (mousePosition.left >= exitContainer.right) return ReflowDirection.RIGHT;
     if (mousePosition.left <= exitContainer.left) return ReflowDirection.LEFT;
+    if (
+      Math.abs(mousePosition.left - exitContainer.left) <
+      Math.abs(mousePosition.left - exitContainer.right)
+    )
+      return ReflowDirection.LEFT;
+    else return ReflowDirection.RIGHT;
   }
 
   if (
@@ -2003,6 +2009,12 @@ export function getContainerExitEdge(
     if (mousePosition.top >= exitContainer.bottom)
       return ReflowDirection.BOTTOM;
     if (mousePosition.top <= exitContainer.top) return ReflowDirection.TOP;
+    if (
+      Math.abs(mousePosition.top - exitContainer.top) <
+      Math.abs(mousePosition.top - exitContainer.bottom)
+    )
+      return ReflowDirection.TOP;
+    else return ReflowDirection.BOTTOM;
   }
 }
 

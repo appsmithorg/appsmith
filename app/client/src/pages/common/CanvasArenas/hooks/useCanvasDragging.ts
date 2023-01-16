@@ -7,6 +7,7 @@ import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   MovementLimitMap,
@@ -19,6 +20,7 @@ import {
   getCanvasScale,
   getCurrentAppPositioningType,
 } from "selectors/editorSelectors";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
@@ -30,6 +32,7 @@ import {
 import {
   getEdgeDirection,
   getInterpolatedMoveDirection,
+  getLastDraggedCanvasSpace,
   getMoveDirection,
   getReflowedSpaces,
   modifyBlockDimension,
@@ -69,6 +72,7 @@ export const useCanvasDragging = (
   scale *= canvasScale;
   const appPositioningType = useSelector(getCurrentAppPositioningType);
   const parentOffsetTop = useSelector(getParentOffsetTop(widgetId));
+  const allWidgets: CanvasWidgetsReduxState = useSelector(getCanvasWidgets);
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -450,8 +454,18 @@ export const useCanvasDragging = (
                 const currentOccupiedSpace: any[] = occupiedSpaces[widgetId];
                 let exitContainer: OccupiedSpace | undefined = undefined;
                 if (lastDraggedCanvas.current && currentOccupiedSpace) {
-                  exitContainer = currentOccupiedSpace.find(
-                    (each) => each.id === lastDraggedCanvas.current,
+                  const occupiedSpaceMap = currentOccupiedSpace.reduce(
+                    (acc, curr) => {
+                      acc[curr.id] = curr;
+                      return acc;
+                    },
+                    {},
+                  );
+                  exitContainer = getLastDraggedCanvasSpace(
+                    allWidgets,
+                    widgetId,
+                    lastDraggedCanvas.current,
+                    occupiedSpaceMap,
                   );
                 }
                 currentDirection.current = getInterpolatedMoveDirection(

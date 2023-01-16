@@ -1,5 +1,6 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   HORIZONTAL_RESIZE_MIN_LIMIT,
   MovementLimitMap,
@@ -379,4 +380,27 @@ export function getLastCanvasExitDirection(
   );
   if (direction) return direction;
   return currentDirection;
+}
+
+export function getLastDraggedCanvasSpace(
+  allWidgets: CanvasWidgetsReduxState,
+  currentCanvasId: string,
+  lastCanvasId: string | undefined,
+  occupiedSpaceMap: { [key: string]: OccupiedSpace },
+): OccupiedSpace | undefined {
+  if (!allWidgets || !lastCanvasId || !currentCanvasId || !occupiedSpaceMap)
+    return undefined;
+  if (currentCanvasId === lastCanvasId) return undefined;
+  if (occupiedSpaceMap[lastCanvasId]) return occupiedSpaceMap[lastCanvasId];
+  else if (allWidgets[lastCanvasId].parentId) {
+    /**
+     * Needed for list widget.
+     */
+    return getLastDraggedCanvasSpace(
+      allWidgets,
+      currentCanvasId,
+      allWidgets[lastCanvasId].parentId,
+      occupiedSpaceMap,
+    );
+  }
 }
