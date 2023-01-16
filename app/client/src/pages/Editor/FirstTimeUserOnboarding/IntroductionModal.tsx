@@ -214,19 +214,19 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             <div>
               <StyledButton
                 category={Category.secondary}
-                className="t--introduction-modal-build-button my-6"
-                onClick={onBuildApp}
-                size={Size.large}
-                tag="button"
-                text={createMessage(BUILD_MY_FIRST_APP)}
-              />
-              <StyledButton
-                category={Category.primary}
-                className="t--introduction-modal-welcome-tour-button my-6 ml-5"
+                className="t--introduction-modal-welcome-tour-button my-6"
                 onClick={() => triggerWelcomeTour(dispatch)}
                 size={Size.large}
                 tag="button"
                 text={createMessage(START_TUTORIAL)}
+              />
+              <StyledButton
+                category={Category.primary}
+                className="t--introduction-modal-build-button my-6 ml-5"
+                onClick={onBuildApp}
+                size={Size.large}
+                tag="button"
+                text={createMessage(BUILD_MY_FIRST_APP)}
               />
             </div>
           </ModalFooter>
