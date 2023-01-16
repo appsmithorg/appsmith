@@ -1,9 +1,3 @@
-import {
-  APPSMITH_BRAND_LOGO_URL,
-  APPSMITH_BRAND_FAVICON_URL,
-  APPSMITH_BRAND_PRIMARY_COLOR,
-  createBrandColorsFromPrimaryColor,
-} from "utils/BrandingUtils";
 import { AppState } from "@appsmith/reducers";
 
 export const getTenantPermissions = (state: AppState) => {
