@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { invisible, theme } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import styled, { css } from "styled-components";
@@ -16,6 +17,7 @@ export const VisibilityContainer = styled.div<{
 
 const VerticalResizeIndicators = css<{
   showLightBorder: boolean;
+  isHovered: boolean;
 }>`
   &::after {
     position: absolute;
@@ -26,12 +28,15 @@ const VerticalResizeIndicators = css<{
     background: white;
     top: calc(50% - 8px);
     left: calc(50% - 2.5px);
-    border: 1px solid #f86a2b;
+    border: ${(props) => {
+      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
+    }};
   }
 `;
 
 const HorizontalResizeIndicators = css<{
   showLightBorder: boolean;
+  isHovered: boolean;
 }>`
   &::after {
     position: absolute;
@@ -39,7 +44,9 @@ const HorizontalResizeIndicators = css<{
     width: 16px;
     height: 6px;
     border-radius: 16%/50%;
-    border: 1px solid #f86a2b;
+    border: ${(props) => {
+      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
+    }};
     background: white;
     top: calc(50% - 2.5px);
     left: calc(50% - 8px);
@@ -50,6 +57,7 @@ export const EdgeHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
+  isHovered: boolean;
 }>`
   position: absolute;
   width: ${EDGE_RESIZE_HANDLE_WIDTH}px;
@@ -61,6 +69,10 @@ export const EdgeHandleStyles = css<{
 
       if (props.showAsBorder) return theme.colors.widgetMultiSelectBorder;
 
+      if (props.isHovered) {
+        return Colors.WATUSI;
+      }
+
       return "#F86A2B";
     }};
     content: "";
@@ -71,6 +83,7 @@ export const VerticalHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
+  isHovered: boolean;
 }>`
   ${EdgeHandleStyles}
   ${(props) =>
@@ -91,6 +104,7 @@ export const HorizontalHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
+  isHovered: boolean;
 }>`
   ${EdgeHandleStyles}
   ${(props) =>

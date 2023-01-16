@@ -134,7 +134,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     let canResizeHorizontally = true;
 
     // this is required for list widget so that template have no collision
-    if (props.ignoreCollision || props.isFlexChild)
+    if (props.ignoreCollision)
       return {
         canResizeHorizontally,
         canResizeVertically,
@@ -330,6 +330,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const allowResize: boolean =
     !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
     !props.isFlexChild;
+  const isHovered = isFocused && !isSelected;
   return (
     <Resizable
       allowResize={allowResize}
@@ -343,6 +344,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       handles={handles}
       isAffectedByDrag={isAffectedByDrag}
       isFlexChild={props.isFlexChild}
+      isHovered={isHovered}
       isMobile={isMobile}
       onStart={handleResizeStart}
       onStop={updateSize}

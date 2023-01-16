@@ -239,7 +239,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const currentAppPositioningType = useSelector(getCurrentAppPositioningType);
   const isAutoLayout = currentAppPositioningType === AppPositioningTypes.AUTO;
   const popperOffset = {
-    left: isAutoLayout ? 3.5 : 0,
+    left: isAutoLayout ? 4 : 0,
     top: isAutoLayout ? 4 : 0,
   };
   return showWidgetName ? (
