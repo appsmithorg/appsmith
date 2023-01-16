@@ -17,13 +17,12 @@ jobs:
       matrix:
         job: [ 0 ]
     steps:
-      #- name: Load docker image
-        #if: steps.run_result.outputs.run_result != 'success'
-        #working-directory: "."
-        #run: |
-          #sudo systemctl stop ssh;
-          #sudo systemctl disable ssh
-          #docker run --name giteafat -p 3000:3000 -p 22:22 -e USER_UID=1000 -e  USER_GID=1000 --restart always  gitea/gitea:latest
+      - name: Load docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
+        run: |
+          sudo sudo /etc/init.d/ssh stop
+          docker run --name giteafat -p 3000:3000 -p 22:22 -e USER_UID=1000 -e  USER_GID=1000 --restart always  gitea/gitea:latest
          
             
       - name: Setup tmate session
