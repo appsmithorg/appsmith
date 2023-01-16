@@ -404,7 +404,7 @@ export function* handleJSFunctionExecutionErrorLog(
               subType: error.errorType,
             })),
             source: {
-              id: action.id,
+              id: action.collectionId ? action.collectionId : action.id,
               name: `${collectionName}.${action.name}`,
               type: ENTITY_TYPE.JSACTION,
               propertyPath: `${collectionName}.${action.name}`,

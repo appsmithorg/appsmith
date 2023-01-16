@@ -283,6 +283,7 @@ function LogItem(props: LogItemProps) {
     }
     return <img alt="icon" src={undefined} />;
   };
+
   return (
     <Wrapper
       className={props.severity}
