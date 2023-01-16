@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import React from "react";
+import { ThemeProvider } from "styled-components";
 import { Field } from "./index";
-import { ThemeProvider } from "constants/DefaultTheme";
 import { lightTheme } from "selectors/themeSelectors";
 import { FieldType } from "../constants";
 import { FIELD_CONFIG } from "../FieldConfig";

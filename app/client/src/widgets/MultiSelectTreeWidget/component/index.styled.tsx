@@ -1,8 +1,7 @@
 import React from "react";
 import { Checkbox, Classes } from "@blueprintjs/core";
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
-import { createGlobalStyle } from "constants/DefaultTheme";
 import {
   LabelPosition,
   LABEL_MARGIN_OLD_SELECT,

@@ -1,4 +1,9 @@
-import React, { useRef, RefObject, useCallback } from "react";
+import React, {
+  useRef,
+  RefObject,
+  useCallback,
+  PropsWithChildren,
+} from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
@@ -241,7 +246,7 @@ export const EMPTY_RESPONSE: ActionResponse = {
   dataTypes: [],
 };
 
-const StatusCodeText = styled(BaseText)<{ code: string }>`
+const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
   cursor: pointer;
