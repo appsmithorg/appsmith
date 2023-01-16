@@ -3,6 +3,12 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import {
+  APPSMITH_BRAND_FAVICON_URL,
+  APPSMITH_BRAND_LOGO_URL,
+  APPSMITH_BRAND_PRIMARY_COLOR,
+  createBrandColorsFromPrimaryColor,
+} from "utils/BrandingUtils";
 import { createReducer } from "utils/ReducerUtils";
 
 export interface TenantReduxState<T> {
@@ -12,9 +18,19 @@ export interface TenantReduxState<T> {
   isLoading: boolean;
 }
 
+const defaultBrandingConfig = {
+  brandFaviconUrl: APPSMITH_BRAND_FAVICON_URL,
+  brandColors: {
+    ...createBrandColorsFromPrimaryColor(APPSMITH_BRAND_PRIMARY_COLOR),
+  },
+  brandLogoUrl: APPSMITH_BRAND_LOGO_URL,
+};
+
 export const initialState: TenantReduxState<any> = {
   userPermissions: [],
-  tenantConfiguration: {},
+  tenantConfiguration: {
+    ...defaultBrandingConfig,
+  },
   new: false,
   isLoading: true,
 };

@@ -6,14 +6,6 @@ import {
 } from "utils/BrandingUtils";
 import { AppState } from "@appsmith/reducers";
 
-const defaultBrandingConfig = {
-  brandFaviconUrl: APPSMITH_BRAND_FAVICON_URL,
-  brandColors: {
-    ...createBrandColorsFromPrimaryColor(APPSMITH_BRAND_PRIMARY_COLOR),
-  },
-  brandLogoUrl: APPSMITH_BRAND_LOGO_URL,
-};
-
 export const getTenantPermissions = (state: AppState) => {
   return state.tenant?.userPermissions;
 };
@@ -24,11 +16,8 @@ export const getTenantPermissions = (state: AppState) => {
  * @param state
  * @returns
  */
-export const getTenantConfig = (state: AppState): Record<string, any> => {
-  return {
-    ...defaultBrandingConfig,
-    ...(state.tenant?.tenantConfiguration || {}),
-  };
+export const getTenantConfig = (state: AppState) => {
+  return state.tenant?.tenantConfiguration;
 };
 
 /**
