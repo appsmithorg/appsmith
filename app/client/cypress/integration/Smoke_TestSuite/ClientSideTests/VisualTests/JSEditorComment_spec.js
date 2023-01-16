@@ -38,6 +38,7 @@ describe("JSEditor Comment - Visual tests", () => {
 
       cy.get(jsEditor._lineinJsEditor(i)).type(
         agHelper.isMac ? "{meta} /" : "{ctrl} /",
+        { timeout: 1000 },
       );
     }
 

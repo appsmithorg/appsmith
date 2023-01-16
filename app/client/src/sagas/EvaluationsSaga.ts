@@ -58,7 +58,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isUndefined } from "lodash";
+import { difference, get, isEmpty, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -94,7 +94,7 @@ import { Channel } from "redux-saga";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { updateMetaState } from "actions/metaActions";
+import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 import {
   DataTree,
@@ -147,9 +147,11 @@ export function* updateDataTreeHandler(
     userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
+    staleMetaIds,
   } = data;
 
   const { appMode, postEvalActions, unevalTree } = extraData;
+
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -159,6 +161,11 @@ export function* updateDataTreeHandler(
   const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
+  // Replace empty object below with list of current metaWidgets present in the viewport
+  const hiddenStaleMetaIds = difference(staleMetaIds, Object.keys({}));
+  if (!isEmpty(hiddenStaleMetaIds)) {
+    yield put(resetWidgetsMetaState(hiddenStaleMetaIds));
+  }
 
   yield put(setEvaluatedTree(updates));
   PerformanceTracker.stopAsyncTracking(
