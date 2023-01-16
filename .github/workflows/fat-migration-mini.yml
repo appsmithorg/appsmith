@@ -23,7 +23,7 @@ jobs:
         run: |
           status=$(lsof -i -P -n | grep LISTEN > log.txt 2>&1)
           cat log.txt
-          docker run --name giteafat -p 3000:3000 -p 22:22 -e USER_UID=1000 -e  USER_GID=1000 --restart always  gitea/gitea:latest
+         
             
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
