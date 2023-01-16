@@ -27,17 +27,26 @@ export function defaultOptionValueValidation(
 ): ValidationResponse {
   let isValid = false;
   let parsed: any[] = [];
-  let message = "";
+  let message = { name: "", text: "" };
   const isServerSideFiltered = props.serverSideFiltering;
   // TODO: options shouldn't get un-eval values;
   let options = props.options;
 
-  const DEFAULT_ERROR_MESSAGE =
-    "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
-  const MISSING_FROM_OPTIONS =
-    "Some or all default values are missing from options. Please update the values.";
-  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT =
-    "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data";
+  const DEFAULT_ERROR_MESSAGE = {
+    name: "TypeError",
+    text:
+      "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
+  };
+  const MISSING_FROM_OPTIONS = {
+    name: "ValidationError",
+    text:
+      "Some or all default values are missing from options. Please update the values.",
+  };
+  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
+    name: "ValidationError",
+    text:
+      "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
+  };
   /*
    * Function to check if the object has `label` and `value`
    */
@@ -96,7 +105,10 @@ export function defaultOptionValueValidation(
         parsed = value;
       } else {
         parsed = [];
-        message = "values must be unique. Duplicate values found";
+        message = {
+          name: "ValidationError",
+          text: "values must be unique. Duplicate values found",
+        };
       }
     } else if (value.every(hasLabelValue)) {
       /*
@@ -107,7 +119,10 @@ export function defaultOptionValueValidation(
         parsed = value;
       } else {
         parsed = [];
-        message = "path:value must be unique. Duplicate values found";
+        message = {
+          name: "ValidationError",
+          text: "path:value must be unique. Duplicate values found",
+        };
       }
     } else {
       /*

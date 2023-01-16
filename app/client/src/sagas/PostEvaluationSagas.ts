@@ -104,6 +104,14 @@ function logLatestEvalPropertyErrors(
         : isAction(entity)
         ? ENTITY_TYPE.ACTION
         : ENTITY_TYPE.JSACTION;
+      const pluginTypeField = isAction(entity)
+        ? entity.pluginType
+        : entity.type;
+      const iconId = isWidget(entity)
+        ? entity.widgetId
+        : isJSAction(entity)
+        ? entity.actionId
+        : entity.pluginId;
       const debuggerKeys = [
         {
           key: `${idField}-${propertyPath}`,
@@ -116,6 +124,8 @@ function logLatestEvalPropertyErrors(
         },
       ];
 
+      const httpMethod = get(entity.config, "httpMethod") || undefined;
+
       for (const { errors, isWarning, key: debuggerKey } of debuggerKeys) {
         // if dataTree has error but debugger does not -> add
         // if debugger has error and data tree has error -> update error
@@ -127,10 +137,7 @@ function logLatestEvalPropertyErrors(
           // Reformatting eval errors here to a format usable by the debugger
           const errorMessages = errors.map((e) => {
             // Error format required for the debugger
-            return {
-              message: e.errorMessage,
-              type: e.errorType,
-            };
+            return { message: e.errorMessage, type: e.errorType };
           });
 
           const analyticsData = isWidget(entity)
@@ -149,6 +156,7 @@ function logLatestEvalPropertyErrors(
             errorsToAdd.push({
               payload: {
                 id: debuggerKey,
+                iconId: iconId,
                 logType: isWarning
                   ? LOG_TYPE.EVAL_WARNING
                   : LOG_TYPE.EVAL_ERROR,
@@ -163,6 +171,8 @@ function logLatestEvalPropertyErrors(
                   name: nameField,
                   type: entityType,
                   propertyPath: logPropertyPath,
+                  pluginType: pluginTypeField,
+                  httpMethod,
                 },
                 state: {
                   [logPropertyPath]: evaluatedValue,
@@ -393,7 +403,7 @@ export function* handleJSFunctionExecutionErrorLog(
               subType: error.errorType,
             })),
             source: {
-              id: action.id,
+              id: action.collectionId ? action.collectionId : action.id,
               name: `${collectionName}.${action.name}`,
               type: ENTITY_TYPE.JSACTION,
               propertyPath: `${collectionName}.${action.name}`,

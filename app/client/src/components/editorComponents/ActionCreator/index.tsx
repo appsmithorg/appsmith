@@ -539,7 +539,7 @@ function getIntegrationOptionsWithChildren(
           id: jsAction.config.id,
           value: jsAction.config.name,
           type: jsOption.value,
-          icon: JsFileIconV2,
+          icon: JsFileIconV2(),
         } as unknown) as TreeDropdownOption;
         ((jsOption.children as unknown) as TreeDropdownOption[]).push(jsObject);
         if (jsObject) {
