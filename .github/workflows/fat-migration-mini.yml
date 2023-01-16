@@ -23,8 +23,6 @@ jobs:
           fetch-depth: 0
       - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
-        env:
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
           mkdir -p ~/git-server/keys
