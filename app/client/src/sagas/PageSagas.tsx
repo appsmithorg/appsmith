@@ -158,6 +158,7 @@ export function* fetchPageListSaga(
       const workspaceId = response.data.workspaceId;
       const pages: Page[] = response.data.pages.map((page) => ({
         pageName: page.name,
+        description: page.description,
         pageId: page.id,
         isDefault: page.isDefault,
         isHidden: !!page.isHidden,
