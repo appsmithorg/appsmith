@@ -47,10 +47,11 @@ it("2. Verify 'onListitemClick' functionality of Show messgage event on deploy m
     _.agHelper.GetNClick(_.locators._containerWidget,1,true)
     _.agHelper.ValidateToastMessage("ListWidget_House Tarly_1")
     _.deployMode.NavigateBacktoEditor()
+    _.agHelper.Sleep()
 })
 
 it("3. Verify pagination and also verify Next_Page/Prev_Page disabled when List reach to last/first page", function(){
-    _.agHelper.GetElement(_.locators._listWidget,3000)
+    _.agHelper.GetNClick(_.locators._listWidget,0,true)
     _.ee.NavigateToSwitcher("explorer")
     _.dataSources.CreateDataSource("MySql")
     cy.get("@dsName").then(($dsName) => {
@@ -107,7 +108,7 @@ it("5. Verify List widget with error message on wrong input", function(){
 })
 
 it("6. Copy/Paste List widget", function(){
-    _.agHelper.GetElement(_.locators._listWidget)
+    _.agHelper.GetNClick(_.locators._listWidget,0,true)
     _.ee.CopyPasteWidget("List1")
     _.agHelper.AssertElementExist(_.locators._listWidget,1)
     _.agHelper.GetNAssertElementText(_.locators._propertyPaneTitle,"List1Copy","have.text")
@@ -116,6 +117,7 @@ it("6. Copy/Paste List widget", function(){
 
 
 it("7. Verify Pagination in SSP and no pagination visible on disabling SSP", function(){
+    _.agHelper.GetNClick(_.locators._listWidget,1,true)
     _.ee.NavigateToSwitcher("explorer")
     _.dataSources.CreateDataSource("Postgres")
     cy.get("@dsName").then(($dsName)=> {
