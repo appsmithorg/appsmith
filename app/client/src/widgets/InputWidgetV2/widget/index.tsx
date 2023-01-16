@@ -194,10 +194,12 @@ function InputTypeUpdateHook(
   ];
 
   if (propertyValue === InputTypes.MULTI_LINE_TEXT) {
-    updates.push({
-      propertyPath: "dynamicHeight",
-      propertyValue: DynamicHeight.AUTO_HEIGHT,
-    });
+    if (props.dynamicHeight === DynamicHeight.FIXED) {
+      updates.push({
+        propertyPath: "dynamicHeight",
+        propertyValue: DynamicHeight.AUTO_HEIGHT,
+      });
+    }
   }
 
   return updates;
@@ -240,6 +242,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isBindProperty: false,
               isTriggerProperty: false,
               updateHook: InputTypeUpdateHook,
+              dependencies: ["dynamicHeight"],
             },
             {
               helpText:
