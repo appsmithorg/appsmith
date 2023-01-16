@@ -941,18 +941,18 @@ export class AggregateHelper {
       .should("be.visible");
   }
 
-  public CheckForInternalServerError(selector: ElementType) {
+  public CheckForErrorToast(error: string, errorMsg: string) {
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._toastMsg).length) {
         if (
           $ele.find(
             this.locator._specificToast(
-              "Internal server error while processing request",
+              error,
             ),
           )
         ) {
           throw new Error(
-            "'Internal server error toast seen' from application",
+            errorMsg,
           );
         }
       }

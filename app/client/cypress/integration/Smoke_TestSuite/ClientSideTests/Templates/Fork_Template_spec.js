@@ -39,9 +39,12 @@ describe("Fork a template to an workspace", () => {
       fixture: "Templates/MockAppViewerUser.json",
     });
     AggregateHelper.RefreshPage();
-    HomePage.SwitchToTemplatesTab(); 
-    AggregateHelper.Sleep(2000)
-    AggregateHelper.CheckForInternalServerError()
+    HomePage.SwitchToTemplatesTab();
+    AggregateHelper.Sleep(2000);
+    AggregateHelper.CheckForErrorToast(
+      "Internal server error while processing request",
+      "'Internal server error toast seen' from application",
+    );
     AggregateHelper.AssertElementExist(templateLocators.templateCard);
     AggregateHelper.AssertElementAbsence(templateLocators.templateForkButton);
 
