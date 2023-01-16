@@ -21,7 +21,7 @@ export const useNavigateToWidget = () => {
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
     navigateToCanvas(pageId);
     flashElementsById(widgetId);
-    selectWidget(SelectionRequestType.APPEND, [widgetId]);
+    selectWidget(SelectionRequestType.PushPop, [widgetId]);
   };
 
   const selectSingleWidget = (

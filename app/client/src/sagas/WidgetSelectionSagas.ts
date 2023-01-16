@@ -51,15 +51,23 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
     const lastSelectedWidget: string = yield select(getLastSelectedWidget);
 
+    // It is possible that the payload is empty.
+    // These properties can be used for a finding sibling widgets for certain types of selections
     const widgetId = payload[0];
     const parentId: string | undefined =
       widgetId in allWidgets ? allWidgets[widgetId].parentId : undefined;
 
     switch (selectionRequestType) {
+      // Deselect everything and set the lastSelected to the main container
+      // This will reset the last selected canvas and can be pasted into
       case SelectionRequestType.EMPTY: {
-        newSelection = { widgets: [], lastWidgetSelected: "0" };
+        newSelection = {
+          widgets: [],
+          lastWidgetSelected: MAIN_CONTAINER_WIDGET_ID,
+        };
         break;
       }
+      //
       case SelectionRequestType.ONE: {
         assertParentId(parentId);
         newSelection = selectOneWidget(payload);
@@ -83,7 +91,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         );
         break;
       }
-      case SelectionRequestType.APPEND: {
+      case SelectionRequestType.PushPop: {
         newSelection = appendSelectWidget(payload, selectedWidgets);
         break;
       }
@@ -96,9 +104,8 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
 
     if (
       [
-        SelectionRequestType.APPEND,
+        SelectionRequestType.PushPop,
         SelectionRequestType.SHIFT_SELECT,
-        SelectionRequestType.MULTIPLE,
       ].includes(selectionRequestType) &&
       newSelection.widgets[0] in allWidgets
     ) {
