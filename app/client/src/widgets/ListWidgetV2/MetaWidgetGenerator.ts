@@ -1,6 +1,14 @@
 import hash from "object-hash";
 import { klona } from "klona";
-import { difference, omit, set, get, isEmpty, isString } from "lodash";
+import {
+  difference,
+  omit,
+  set,
+  get,
+  isEmpty,
+  isString,
+  debounce,
+} from "lodash";
 import {
   elementScroll,
   observeElementOffset,
@@ -41,6 +49,21 @@ type TemplateWidgets = ListWidgetProps<
   WidgetProps
 >["flattenedChildCanvasWidgets"];
 
+type ReferenceCache = Record<
+  string,
+  | {
+      siblings?: Set<string>;
+      callback?: () => void;
+    }
+  | undefined
+>;
+
+type UpdateSiblingsOptions = {
+  templateWidgetId: string;
+  originalMetaWidgetId: string;
+  metaWidget: MetaWidget;
+};
+
 export type HookOptions = {
   childMetaWidgets: MetaWidgets;
 };
@@ -61,6 +84,7 @@ export type GeneratorOptions = {
   itemSpacing: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
   levelData?: LevelData;
+  nestedViewIndex?: number;
   pageNo?: number;
   pageSize?: number;
   primaryKeys?: (string | number | undefined)[];
@@ -72,14 +96,17 @@ export type GeneratorOptions = {
 
 export type ConstructorProps = {
   getWidgetCache: () => MetaWidgetCache | undefined;
+  getWidgetReferenceCache: () => ReferenceCache | undefined;
   infiniteScroll: boolean;
   isListCloned: boolean;
   level: number;
   onVirtualListScroll: () => void;
+  onMetaWidgetsUpdate: (metaWidgets: MetaWidgets) => void;
   prefixMetaWidgetId: string;
   primaryWidgetType: string;
   renderMode: string;
   setWidgetCache: (data: MetaWidgetCache) => void;
+  setWidgetReferenceCache: (data: ReferenceCache) => void;
 };
 
 type TemplateWidgetStatus = {
@@ -174,6 +201,8 @@ const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
 class MetaWidgetGenerator {
+  private batchSiblingUpdates: MetaWidgets;
+  private cacheIndexArr: number[];
   private cachedRows: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
@@ -181,6 +210,7 @@ class MetaWidgetGenerator {
   private currViewMetaWidgetIds: string[];
   private data: GeneratorOptions["data"];
   private getWidgetCache: ConstructorProps["getWidgetCache"];
+  private getWidgetReferenceCache: ConstructorProps["getWidgetReferenceCache"];
   private hooks?: GeneratorOptions["hooks"];
   private itemSpacing: GeneratorOptions["itemSpacing"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
@@ -189,7 +219,9 @@ class MetaWidgetGenerator {
   private levelData: GeneratorOptions["levelData"];
   private metaIdToTemplateIdMap: Record<string, string>;
   private modificationsQueue: Queue<MODIFICATION_TYPE>;
+  private nestedViewIndex?: GeneratorOptions["nestedViewIndex"];
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
+  private onMetaWidgetsUpdate: ConstructorProps["onMetaWidgetsUpdate"];
   private pageNo?: number;
   private pageSize?: number;
   private prefixMetaWidgetId: string;
@@ -203,6 +235,7 @@ class MetaWidgetGenerator {
   private scrollElement: GeneratorOptions["scrollElement"];
   private serverSidePagination: GeneratorOptions["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
+  private setWidgetReferenceCache: ConstructorProps["setWidgetReferenceCache"];
   private templateBottomRow: GeneratorOptions["templateBottomRow"];
   private templateWidgetCandidates: Set<string>;
   private templateWidgetStatus: TemplateWidgetStatus;
@@ -210,6 +243,8 @@ class MetaWidgetGenerator {
   private widgetName: GeneratorOptions["widgetName"];
 
   constructor(props: ConstructorProps) {
+    this.batchSiblingUpdates = {};
+    this.cacheIndexArr = [];
     this.cachedRows = {
       prev: new Set(),
       curr: new Set(),
@@ -219,6 +254,7 @@ class MetaWidgetGenerator {
     this.currViewMetaWidgetIds = [];
     this.data = [];
     this.getWidgetCache = props.getWidgetCache;
+    this.getWidgetReferenceCache = props.getWidgetReferenceCache;
     this.itemSpacing = 0;
     this.infiniteScroll = props.infiniteScroll;
     this.isListCloned = props.isListCloned;
@@ -226,6 +262,7 @@ class MetaWidgetGenerator {
     this.levelData = undefined;
     this.metaIdToTemplateIdMap = {};
     this.onVirtualListScroll = props.onVirtualListScroll;
+    this.onMetaWidgetsUpdate = props.onMetaWidgetsUpdate;
     this.pageNo = 1;
     this.pageSize = 0;
     this.prefixMetaWidgetId = props.prefixMetaWidgetId;
@@ -238,6 +275,7 @@ class MetaWidgetGenerator {
     this.modificationsQueue = new Queue<MODIFICATION_TYPE>();
     this.scrollElement = null;
     this.setWidgetCache = props.setWidgetCache;
+    this.setWidgetReferenceCache = props.setWidgetReferenceCache;
     this.templateBottomRow = DEFAULT_TEMPLATE_BOTTOM_ROW;
     this.templateWidgetCandidates = new Set();
     this.templateWidgetStatus = {
@@ -258,6 +296,7 @@ class MetaWidgetGenerator {
     this.itemSpacing = options.itemSpacing;
     this.infiniteScroll = options.infiniteScroll;
     this.levelData = options.levelData;
+    this.nestedViewIndex = options.nestedViewIndex;
     this.pageNo = options.pageNo;
     this.pageSize = options.pageSize;
     this.primaryKeys = options.primaryKeys;
@@ -304,7 +343,6 @@ class MetaWidgetGenerator {
 
   didUnmount = () => {
     this.unmountVirtualizer();
-    this.resetCache();
   };
 
   generate = () => {
@@ -535,6 +573,7 @@ class MetaWidgetGenerator {
     if (templateWidget.type === this.primaryWidgetType) {
       this.addLevelData(metaWidget, rowIndex, key);
       metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
+      metaWidget.nestedViewIndex = viewIndex;
     }
 
     if (this.isRowNonConfigurable(metaCacheProps)) {
@@ -551,8 +590,18 @@ class MetaWidgetGenerator {
     metaWidget.referencedWidgetId = templateWidgetId;
     metaWidget.metaWidgetId = originalMetaWidgetId;
 
+    if (this.canHoldSiblingData(rowIndex)) {
+      metaWidget.siblingMetaWidgets = this.getSiblings(templateWidgetId);
+    }
+
     this.hooks?.afterMetaWidgetGenerate?.(metaWidget, {
       childMetaWidgets,
+    });
+
+    this.updateSiblings(rowIndex, {
+      metaWidget,
+      originalMetaWidgetId,
+      templateWidgetId,
     });
 
     return {
@@ -1233,7 +1282,7 @@ class MetaWidgetGenerator {
       !isMetaWidgetPresentInCurrentView ||
       hasTemplateWidgetChanged ||
       (type === this.primaryWidgetType && templateWidgetsAddedOrRemoved) ||
-      (type === this.primaryWidgetType && levelDataUpdated) ||
+      levelDataUpdated ||
       rowIndex !== prevRowIndex ||
       (!isClonedRow && pageNoUpdated)
     );
@@ -1257,6 +1306,21 @@ class MetaWidgetGenerator {
     );
   };
 
+  private canHoldSiblingData = (rowIndex: number) => {
+    const viewIndex = this.getViewIndex(rowIndex);
+
+    /**
+     * If nestedViewIndex is undefined then the list widget is the parent widget
+     * and the 0th item can hold the data
+     * or
+     * If nestedViewIndex is present then it is a child list widget and the
+     * value 0 would represent it is the first list widget and it's 0th item can hold the dat
+     */
+    return (
+      (!this.nestedViewIndex || this.nestedViewIndex === 0) && viewIndex === 0
+    );
+  };
+
   private setRowCache = (key: string, rowData: MetaWidgetCache[string]) => {
     const cache = this.getWidgetCache() || {};
     const updatedCache = {
@@ -1265,6 +1329,74 @@ class MetaWidgetGenerator {
     };
 
     this.setCache(updatedCache);
+  };
+
+  queueMetaWidgetUpdate = (metaWidget: MetaWidget) => {
+    this.batchSiblingUpdates[metaWidget.widgetId] = metaWidget;
+
+    this.onMetaWidgetsUpdateDebounced();
+  };
+
+  onMetaWidgetsUpdateDebounced = debounce(() => {
+    this.onMetaWidgetsUpdate(this.batchSiblingUpdates);
+  }, 2000);
+
+  private buildReferenceUpdateCb = (
+    metaWidget: MetaWidget,
+    templateWidgetId: string,
+  ) => {
+    return () => {
+      const siblings = this.getSiblings(templateWidgetId);
+      const updatedMetaWidget = klona(metaWidget);
+      updatedMetaWidget.siblingMetaWidgets = siblings;
+
+      this.queueMetaWidgetUpdate(updatedMetaWidget);
+    };
+  };
+
+  private updateSiblings = (
+    rowIndex: number,
+    options: UpdateSiblingsOptions,
+  ) => {
+    const { metaWidget, originalMetaWidgetId, templateWidgetId } = options;
+    const viewIndex = this.getViewIndex(rowIndex);
+    const referenceCache = klona(this.getWidgetReferenceCache());
+    const currentCache = referenceCache?.[templateWidgetId];
+    const siblings = klona(currentCache?.siblings || new Set<string>());
+    const isCandidateListWidget =
+      this.nestedViewIndex === 0 || !this.nestedViewIndex;
+    const isCandidateWidget = isCandidateListWidget && viewIndex === 0;
+    let callback = currentCache?.callback;
+
+    siblings.add(originalMetaWidgetId);
+
+    if (isCandidateWidget) {
+      // add callback to the cache
+      callback = this.buildReferenceUpdateCb(metaWidget, templateWidgetId);
+    }
+
+    const updatedCache = {
+      ...referenceCache,
+      [templateWidgetId]: {
+        siblings,
+        callback,
+      },
+    };
+
+    this.setWidgetReferenceCache(updatedCache);
+
+    if (!isCandidateListWidget) {
+      // call callback
+      currentCache?.callback?.();
+    }
+  };
+
+  private getSiblings = (templateWidgetId: string) => {
+    const referenceCache = klona(this.getWidgetReferenceCache());
+    const currentCache = referenceCache?.[templateWidgetId];
+    const siblings = currentCache?.siblings || new Set();
+
+    return [...siblings];
   };
 
   private getData = () => {

@@ -39,6 +39,8 @@ describe("EditorContextProvider", () => {
       "disableDrag",
       "updateWidget",
       "updateWidgetProperty",
+      "updateWidgetAutoHeight",
+      "checkContainersForAutoHeight",
     ].sort();
 
     const testRenderer = TestRenderer.create(
@@ -67,6 +69,8 @@ describe("EditorContextProvider", () => {
       "updateMetaWidgetProperty",
       "syncUpdateWidgetMetaProperty",
       "triggerEvalOnMetaUpdate",
+      "updateWidgetAutoHeight",
+      "checkContainersForAutoHeight",
     ].sort();
 
     const testRenderer = TestRenderer.create(

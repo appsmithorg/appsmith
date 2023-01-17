@@ -71,6 +71,8 @@ import {
  *
  */
 
+const REFERENCE_KEY = "$$refs$$";
+
 abstract class BaseWidget<
   T extends WidgetProps,
   K extends WidgetState,
@@ -256,14 +258,18 @@ abstract class BaseWidget<
     });
   };
 
-  setWidgetCache = (data: TCache) => {
-    this.context?.setWidgetCache?.(this.props.widgetId, data);
-  };
-
   deleteMetaWidgets = () => {
     this.context?.deleteMetaWidgets?.({
       creatorIds: [this.props.widgetId],
     });
+  };
+
+  setWidgetCache = (data: TCache) => {
+    const key = this.getWidgetCacheKey();
+
+    if (key) {
+      this.context?.setWidgetCache?.(key, data);
+    }
   };
 
   updateMetaWidgetProperty = (payload: UpdateMetaWidgetPropertyPayload) => {
@@ -276,7 +282,31 @@ abstract class BaseWidget<
   };
 
   getWidgetCache = () => {
-    return this.context?.getWidgetCache?.(this.props.widgetId);
+    const key = this.getWidgetCacheKey();
+
+    if (key) {
+      return this.context?.getWidgetCache?.(key);
+    }
+  };
+
+  getWidgetCacheKey = () => {
+    return this.props.metaWidgetId || this.props.widgetId;
+  };
+
+  setWidgetReferenceCache = <TRefCache,>(data: TRefCache) => {
+    const key = this.getWidgetCacheReferenceKey();
+
+    this.context?.setWidgetCache?.(`${key}.${REFERENCE_KEY}`, data);
+  };
+
+  getWidgetReferenceCache = <TRefCache,>() => {
+    const key = this.getWidgetCacheReferenceKey();
+
+    return this.context?.getWidgetCache?.<TRefCache>(`${key}.${REFERENCE_KEY}`);
+  };
+
+  getWidgetCacheReferenceKey = () => {
+    return this.props.referencedWidgetId || this.props.widgetId;
   };
 
   getComponentDimensions = () => {

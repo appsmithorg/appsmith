@@ -7,6 +7,7 @@ import React, {
   useRef,
 } from "react";
 import { connect } from "react-redux";
+import { get, set } from "lodash";
 
 import { WidgetOperation } from "widgets/BaseWidget";
 
@@ -43,6 +44,7 @@ import {
   checkContainersForAutoHeightAction,
   updateWidgetAutoHeightAction,
 } from "actions/autoHeightActions";
+
 export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
@@ -73,10 +75,15 @@ export type EditorContextType<TCache = unknown> = {
   updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
   checkContainersForAutoHeight?: () => void;
   modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
-  setWidgetCache?: (widgetId: string, data: TCache) => void;
-  updateMetaWidgetProperty?: (payload: UpdateMetaWidgetPropertyPayload) => void;
-  getWidgetCache?: (widgetId: string) => TCache;
+  setWidgetCache?: <TAltCache = void>(
+    widgetId: string,
+    data: TCache | TAltCache,
+  ) => void;
+  getWidgetCache?: <TAltCache = void>(
+    widgetId: string,
+  ) => TAltCache extends void ? TCache : TAltCache;
   deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
+  updateMetaWidgetProperty?: (payload: UpdateMetaWidgetPropertyPayload) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -140,19 +147,19 @@ function extractFromObj<T, K extends keyof T>(
 function EditorContextProvider(props: EditorContextProviderProps) {
   const widgetCache = useRef<Record<string, unknown>>({});
 
-  const setWidgetCache = useCallback((widgetId: string, data: unknown) => {
-    widgetCache.current[widgetId] = data;
+  const setWidgetCache = useCallback((path: string, data: unknown) => {
+    set(widgetCache.current, path, data);
   }, []);
 
   const getWidgetCache = useCallback(
-    (widgetId: string) => widgetCache.current[widgetId],
+    (path: string) => get(widgetCache.current, path),
     [],
   );
 
   const allMethods: EditorContextProviderProps = {
     ...props,
-    setWidgetCache,
-    getWidgetCache,
+    setWidgetCache: setWidgetCache as EditorContextType["setWidgetCache"],
+    getWidgetCache: getWidgetCache as EditorContextType["getWidgetCache"],
   };
 
   const { children, renderMode } = props;
