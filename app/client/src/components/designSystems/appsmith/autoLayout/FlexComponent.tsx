@@ -73,10 +73,10 @@ export function FlexComponent(props: AutoLayoutProps) {
       display: "flex",
       zIndex,
       width: isResizing
-        ? "100%"
+        ? "auto"
         : `${props.componentWidth - WIDGET_PADDING * 2}px`,
       height: isResizing
-        ? "100%"
+        ? "auto"
         : props.componentHeight - WIDGET_PADDING * 2 + "px",
       minHeight: "30px",
       margin: WIDGET_PADDING + "px",
