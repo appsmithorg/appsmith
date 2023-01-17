@@ -239,7 +239,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const currentAppPositioningType = useSelector(getCurrentAppPositioningType);
   const isAutoLayout = currentAppPositioningType === AppPositioningTypes.AUTO;
   const popperOffset = {
-    left: isAutoLayout ? 4 : 0,
+    left: isAutoLayout ? 3 : 0,
     top: isAutoLayout ? 4 : 0,
   };
   return showWidgetName ? (
@@ -249,11 +249,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
         offset: {
           enabled: true,
           fn: (data: Data) => {
-            data.offsets.popper = {
-              ...data.offsets.popper,
-              left: data.offsets.popper.left - popperOffset.left,
-              top: data.offsets.popper.top - popperOffset.top,
-            };
+            const left = data.offsets.popper.left - popperOffset.left;
+            const top = data.offsets.popper.top - popperOffset.top;
+            data.styles.transform = `translate3d(${left}px,${top}px , 0px)`;
             return data;
           },
         },
