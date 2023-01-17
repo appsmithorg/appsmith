@@ -266,9 +266,8 @@ export const getCurrentApplicationLayout = createSelector(
   },
 );
 
-export const isAutoLayoutEnabled = (state: AppState) => {
-  return true;
-  // state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
+export const isAutoLayoutEnabled = (state: AppState): boolean => {
+  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
 };
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
