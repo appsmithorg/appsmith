@@ -57,7 +57,7 @@ it("3. Verify pagination and also verify Next_Page/Prev_Page disabled when List 
         dsName = $dsName;
         _.dataSources.CreateNewQueryInDS(
             dsName,
-            "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 4",
+            "SELECT * FROM users LIMIT 4",
             "Query1_mysql",
         )
         _.dataSources.ToggleUsePreparedStatement(false)
