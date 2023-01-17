@@ -49,15 +49,16 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
 
+        // If the user is anonymous, then we don't need to fetch the permission groups from the database. We can just
+        // return the cached permission group ids.
+        if (ANONYMOUS_USER.equals(user.getUsername())) {
+            return getPermissionGroupsOfAnonymousUser();
+        }
+
         if (user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null || user.getId().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
         }
 
-        // If the user is anonymous, then we don't need to fetch the permission groups from the database. We can just
-        // return the cached permission group ids.
-        if (user.getUsername().equals(ANONYMOUS_USER)) {
-            return getPermissionGroupsOfAnonymousUser();
-        }
 
         Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
         Criteria notDeletedCriteria = notDeleted();
