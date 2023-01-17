@@ -3,24 +3,28 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { NavigationMethod } from "utils/history";
 
 export type WidgetSelectionRequestPayload = {
   selectionRequestType: SelectionRequestType;
   payload?: string[];
+  invokedBy?: NavigationMethod;
 };
 
 export type WidgetSelectionRequest = (
   selectionRequestType: SelectionRequestType,
   payload?: string[],
+  invokedBy?: NavigationMethod,
 ) => ReduxAction<WidgetSelectionRequestPayload>;
 
 // Use to select a widget programmatically via platform action
 export const selectWidgetInitAction: WidgetSelectionRequest = (
   selectionRequestType,
   payload,
+  invokedBy?: NavigationMethod,
 ) => ({
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
-  payload: { selectionRequestType, payload },
+  payload: { selectionRequestType, payload, invokedBy },
 });
 
 // To be used to collect selected widget state from url and set on state
@@ -42,12 +46,5 @@ export const setSelectedWidgetAncestry = (widgetIds: string[]) => {
   return {
     type: ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTRY,
     payload: widgetIds,
-  };
-};
-
-export const appendSelectedWidgetToUrl = (selectedWidgets: string[]) => {
-  return {
-    type: ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
-    payload: { selectedWidgets },
   };
 };

@@ -168,6 +168,15 @@ export const builderURL = (props: URLBuilderParams): string => {
   return urlBuilder.build(props);
 };
 
+export const widgetURL = (
+  props: URLBuilderParams & { selectedWidgets: string[] },
+) => {
+  return urlBuilder.build({
+    ...props,
+    suffix: `widgets/${props.selectedWidgets.join(",")}`,
+  });
+};
+
 export const viewerURL = (props: URLBuilderParams): string => {
   return urlBuilder.build(props, APP_MODE.PUBLISHED);
 };

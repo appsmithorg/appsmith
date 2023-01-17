@@ -11,7 +11,7 @@ import {
   FocusEntityInfo,
   identifyEntityFromPath,
   isSameBranch,
-  shouldStoreURLforFocus,
+  shouldStoreURLForFocus,
 } from "navigation/FocusEntity";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action } from "entities/Action";
@@ -29,9 +29,10 @@ import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
+import { setSelectedWidgets } from "actions/widgetSelectionActions";
+import { getWidgetsByName } from "sagas/selectors";
 
 let previousPath: string;
-let previousHash: string | undefined;
 
 function* appBackgroundHandler() {
   const currentTheme: BackgroundTheme = yield select(getCurrentThemeDetails);
@@ -41,23 +42,23 @@ function* appBackgroundHandler() {
 export function* handleRouteChange(
   action: ReduxAction<RouteChangeActionPayload>,
 ) {
-  const { hash, pathname, state } = action.payload.location;
+  const { pathname, state } = action.payload.location;
   try {
     const isAnEditorPath = isEditorPath(pathname);
 
     // handled only on edit mode
     if (isAnEditorPath) {
       yield call(logNavigationAnalytics, action.payload);
-      yield call(contextSwitchingSaga, pathname, state, hash);
+      yield call(contextSwitchingSaga, pathname, state);
       yield call(appBackgroundHandler);
-      const entityInfo = identifyEntityFromPath(pathname, hash);
+      const entityInfo = identifyEntityFromPath(pathname);
       yield fork(updateRecentEntitySaga, entityInfo);
+      yield fork(setSelectedWidgetsSaga, pathname);
     }
   } catch (e) {
     log.error("Error in focus change", e);
   } finally {
     previousPath = pathname;
-    previousHash = hash;
   }
 }
 
@@ -65,17 +66,17 @@ function* logNavigationAnalytics(payload: {
   location: Location<AppsmithLocationState>;
 }) {
   const {
-    location: { hash, pathname, state },
+    location: { pathname, state },
   } = payload;
   const recentEntityIds: Array<string> = yield select(getRecentEntityIds);
-  const currentEntity = identifyEntityFromPath(pathname, hash);
-  const previousEntity = identifyEntityFromPath(previousPath, previousHash);
+  const currentEntity = identifyEntityFromPath(pathname);
+  const previousEntity = identifyEntityFromPath(previousPath);
   const isRecent = recentEntityIds.some(
     (entityId) => entityId === currentEntity.id,
   );
   AnalyticsUtil.logEvent("ROUTE_CHANGE", {
-    toPath: pathname + hash,
-    fromPath: previousPath + previousHash || undefined,
+    toPath: pathname,
+    fromPath: previousPath || undefined,
     navigationMethod: state?.invokedBy,
     isRecent,
     recentLength: recentEntityIds.length,
@@ -112,34 +113,30 @@ export function* handlePageChange(
   }
 }
 
-function* contextSwitchingSaga(
-  pathname: string,
-  state: AppsmithLocationState,
-  hash?: string,
-) {
+function* contextSwitchingSaga(pathname: string, state: AppsmithLocationState) {
   if (previousPath) {
     // store current state
-    yield call(storeStateOfPath, previousPath, previousHash);
+    yield call(storeStateOfPath, previousPath);
     // while switching from selected widget state to API, Query or Datasources directly, store Canvas state as well
-    if (shouldStoreStateForCanvas(previousPath, pathname, previousHash, hash)) {
+    if (shouldStoreStateForCanvas(previousPath, pathname)) {
       yield call(storeStateOfPath, previousPath);
     }
   }
   // Check if it should restore the stored state of the path
-  if (shouldSetState(previousPath, pathname, previousHash, hash, state)) {
+  if (shouldSetState(previousPath, pathname, state)) {
     // restore old state for new path
-    yield call(setStateOfPath, pathname, hash);
+    yield call(setStateOfPath, pathname);
   }
 }
 
-function* storeStateOfPath(path: string, hash?: string) {
+function* storeStateOfPath(path: string) {
   const focusHistory: FocusState | undefined = yield select(
     getCurrentFocusInfo,
-    hash ? `${path}${hash}` : path,
+    path,
   );
   const entityInfo: FocusEntityInfo = focusHistory
     ? focusHistory.entityInfo
-    : identifyEntityFromPath(path, hash);
+    : identifyEntityFromPath(path);
 
   const selectors = FocusElementsConfig[entityInfo.entity];
   const state: Record<string, any> = {};
@@ -149,22 +146,19 @@ function* storeStateOfPath(path: string, hash?: string) {
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
   yield put(
-    setFocusHistory(hash ? `${path}${hash}` : path, {
+    setFocusHistory(path, {
       entityInfo,
       state,
     }),
   );
 }
 
-function* setStateOfPath(path: string, hash?: string) {
-  const focusHistory: FocusState = yield select(
-    getCurrentFocusInfo,
-    hash ? `${path}${hash}` : path,
-  );
+function* setStateOfPath(path: string) {
+  const focusHistory: FocusState = yield select(getCurrentFocusInfo, path);
 
   const entityInfo: FocusEntityInfo = focusHistory
     ? focusHistory.entityInfo
-    : identifyEntityFromPath(path, hash);
+    : identifyEntityFromPath(path);
 
   const selectors = FocusElementsConfig[entityInfo.entity];
 
@@ -202,7 +196,7 @@ function* storeStateOfPage(
     // @ts-ignore
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
-  if (shouldStoreURLforFocus(fromPath)) {
+  if (shouldStoreURLForFocus(fromPath)) {
     if (fromPath) {
       state._routingURL = fromPath;
     }
@@ -257,20 +251,30 @@ function* getEntitySubType(entityInfo: FocusEntityInfo) {
   }
 }
 
+function* setSelectedWidgetsSaga(pathname: string) {
+  const entityInfo = identifyEntityFromPath(pathname);
+  if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
+    const widgets: Record<string, { widgetId: string }> = yield select(
+      getWidgetsByName,
+    );
+    yield put(
+      setSelectedWidgets(
+        entityInfo.id.split(",").map((w) => widgets[w].widgetId),
+      ),
+    );
+  }
+}
+
 /**
  * This method returns boolean to indicate if state should be restored to the path
  * @param prevPath
  * @param currPath
- * @param prevHash
- * @param currHash
  * @param state
  * @returns
  */
 function shouldSetState(
   prevPath: string,
   currPath: string,
-  prevHash?: string,
-  currHash?: string,
   state?: AppsmithLocationState,
 ) {
   if (
@@ -281,8 +285,8 @@ function shouldSetState(
     // If it is a command click navigation, we will set the state
     return true;
   }
-  const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash).entity;
-  const currFocusEntity = identifyEntityFromPath(currPath, currHash).entity;
+  const prevFocusEntity = identifyEntityFromPath(prevPath).entity;
+  const currFocusEntity = identifyEntityFromPath(currPath).entity;
 
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
@@ -297,18 +301,11 @@ function shouldSetState(
  * This method returns boolean if it should store an additional intermediate state
  * @param prevPath
  * @param currPath
- * @param prevHash
- * @param currHash
  * @returns
  */
-function shouldStoreStateForCanvas(
-  prevPath: string,
-  currPath: string,
-  prevHash?: string,
-  currHash?: string,
-) {
-  const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash).entity;
-  const currFocusEntity = identifyEntityFromPath(currPath, currHash).entity;
+function shouldStoreStateForCanvas(prevPath: string, currPath: string) {
+  const prevFocusEntity = identifyEntityFromPath(prevPath).entity;
+  const currFocusEntity = identifyEntityFromPath(currPath).entity;
 
   // while moving from selected widget state directly to some other state,
   // it should also store selected widgets as well

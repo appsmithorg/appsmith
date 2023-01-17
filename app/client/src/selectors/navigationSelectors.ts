@@ -12,7 +12,7 @@ import {
 import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { builderURL, jsCollectionIdURL } from "RouteBuilder";
+import { builderURL, jsCollectionIdURL, widgetURL } from "RouteBuilder";
 import { keyBy } from "lodash";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -75,7 +75,7 @@ export const getEntitiesForNavigation = createSelector(
         name: widget.widgetName,
         id: widget.widgetId,
         type: ENTITY_TYPE.WIDGET,
-        url: builderURL({ pageId, hash: widget.widgetId }),
+        url: widgetURL({ pageId, selectedWidgets: [widget.widgetId] }),
         navigable: true,
         children: getWidgetChildren(widget, dataTree, pageId),
       };

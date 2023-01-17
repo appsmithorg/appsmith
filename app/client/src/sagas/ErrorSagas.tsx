@@ -50,9 +50,10 @@ export function* callAPI(apiCall: any, requestPayload: any) {
 }
 
 /**
- * transforn server errors to client error codes
+ * transform server errors to client error codes
  *
  * @param code
+ * @param resourceType
  */
 const getErrorMessage = (code: number, resourceType = "") => {
   switch (code) {
@@ -76,6 +77,7 @@ export class IncorrectBindingError extends Error {}
  * @throws {Error}
  * @param response
  * @param show
+ * @param logToSentry
  */
 export function* validateResponse(
   response: ApiResponse | any,
