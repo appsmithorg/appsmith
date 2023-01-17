@@ -37,7 +37,7 @@ function log(ev: Log) {
 }
 
 function getTimeStamp() {
-  return moment().format("hh:mm:ss");
+  return moment().format("HH:mm:ss");
 }
 
 function addLogs(logs: Log[]) {

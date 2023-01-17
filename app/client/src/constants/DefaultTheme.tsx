@@ -2077,18 +2077,18 @@ export const dark: ColorType = {
       shortcut: "#D4D4D4",
     },
     info: {
-      time: "#D4D4D4",
+      time: Colors.GRAY_500,
       borderBottom: "black",
     },
     warning: {
-      time: "#D4D4D4",
+      time: Colors.GRAY_500,
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
-      time: "#D4D4D4",
+      time: Colors.GRAY_500,
       type: "#393939",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
@@ -2712,18 +2712,18 @@ export const light: ColorType = {
       shortcut: "black",
     },
     info: {
-      time: "#939393",
+      time: Colors.GRAY_500,
       borderBottom: "#E8E8E8",
     },
     warning: {
-      time: "#575757",
+      time: Colors.GRAY_500,
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "#E8E8E8",
       backgroundColor: "#FFF8E2",
     },
     error: {
-      time: "#575757",
+      time: Colors.GRAY_500,
       type: "#393939",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
