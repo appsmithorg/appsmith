@@ -456,6 +456,7 @@ export const useCanvasDragging = (
         const reflowAfterTimeoutCallback = (reflowParams: {
           movementMap: ReflowedSpaceMap;
           spacePositionMap: SpaceMap | undefined;
+          movementLimitMap: MovementLimitMap | undefined;
         }) => {
           currentReflowParams = { ...currentReflowParams, ...reflowParams };
           updateParamsPostReflow();

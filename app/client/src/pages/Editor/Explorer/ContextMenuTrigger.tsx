@@ -1,9 +1,7 @@
 import React from "react";
 import { ControlIcons } from "icons/ControlIcons";
-import { withTheme } from "styled-components";
-import { Theme } from "constants/DefaultTheme";
 import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { Colors } from "constants/Colors";
 import { TooltipComponent } from "design-system";
 import {
@@ -11,12 +9,11 @@ import {
   ENTITY_MORE_ACTIONS_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Theme } from "constants/DefaultTheme";
 
 const ToggleIcon = styled(ControlIcons.MORE_VERTICAL_CONTROL)`
   &&& {
     flex-grow: 0;
-    width: ${(props) => props.theme.fontSizes[3]}px;
-    height: ${(props) => props.theme.fontSizes[3]}px;
     g {
       path {
         fill: ${Colors.GRAY};
@@ -24,10 +21,9 @@ const ToggleIcon = styled(ControlIcons.MORE_VERTICAL_CONTROL)`
     }
   }
 `;
-export function ContextMenuTrigger(props: {
-  className?: string;
-  theme: Theme;
-}) {
+export function ContextMenuTrigger(props: { className?: string }) {
+  const theme = useTheme() as Theme;
+
   return (
     <EntityTogglesWrapper
       className={props.className + " entity-context-menu-icon"}
@@ -38,13 +34,10 @@ export function ContextMenuTrigger(props: {
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
         position="right"
       >
-        <ToggleIcon
-          height={props.theme.fontSizes[3]}
-          width={props.theme.fontSizes[3]}
-        />
+        <ToggleIcon height={theme.fontSizes[3]} width={theme.fontSizes[3]} />
       </TooltipComponent>
     </EntityTogglesWrapper>
   );
 }
 
-export default withTheme(ContextMenuTrigger);
+export default ContextMenuTrigger;

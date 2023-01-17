@@ -302,6 +302,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(branchedApplication -> {
                     application.setPages(null);
                     application.setGitApplicationMetadata(null);
+                    /**
+                     * Retaining the logoAssetId field value while updating NavigationSetting
+                     */
+                    Application.NavigationSetting requestNavSetting = application.getUnpublishedNavigationSetting();
+                    if (requestNavSetting != null) {
+                        Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
+                        requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), ""));
+                        application.setUnpublishedNavigationSetting(requestNavSetting);
+                    }
                     return this.update(branchedApplication.getId(), application);
                 });
     }
