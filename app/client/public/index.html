@@ -113,7 +113,7 @@
       const inverseRefMap = new Map();
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
-          navigator.serviceWorker.register("/sw.js").then(function() {
+          navigator.serviceWorker.register("/pageService.js").then(function() {
             console.log("Service Worker Registered");
           }).catch(error => {
             console.error("Service Worker Registration failed: " + error);

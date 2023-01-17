@@ -1,6 +1,5 @@
 self.addEventListener('fetch', function (event) {
     if (event.request.url.indexOf('/windowProxy/') !== -1) {
-        console.log("Intercepted request for " + event.request);
         const response = event.request.json().then((reqJSON) => {
             return new Promise(function (resolve, reject) {
                 var channel = new MessageChannel();
