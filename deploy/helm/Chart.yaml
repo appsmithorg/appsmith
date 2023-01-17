@@ -14,18 +14,18 @@ home: https://www.appsmith.com/
 icon: https://assets.appsmith.com/appsmith-icon.png
 version: 2.0.0
 dependencies:
-- condition: redis.enabled
-  name: redis
-  version: 17.0.10
-  appVersion: 6.0.2
-  repository: https://charts.bitnami.com/bitnami
-- condition: mongodb.enabled
-  name: mongodb
-  version: 13.6.0
-  appVersion: 5.0.12
-  repository: https://charts.bitnami.com/bitnami
-- condition: postgresql.enabled
-  name: postgresql
-  version: 11.9.5
-  appVersion: 14.5.0
-  repository: https://charts.bitnami.com/bitnami
+  - condition: redis.enabled
+    name: redis
+    version: 17.0.10
+    appVersion: 6.0.2
+    repository: https://charts.bitnami.com/bitnami
+  - condition: mongodb.enabled
+    name: mongodb
+    version: 13.6.0
+    appVersion: 5.0.12
+    repository: https://charts.bitnami.com/bitnami
+  - condition: postgresql.enabled
+    name: postgresql
+    version: 11.9.5
+    appVersion: 14.5.0
+    repository: https://charts.bitnami.com/bitnami
