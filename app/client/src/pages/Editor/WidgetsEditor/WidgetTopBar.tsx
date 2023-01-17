@@ -14,6 +14,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import WidgetPaneTrigger from "./WidgetPaneCTA";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { TooltipComponent } from "design-system";
 
 const Wrapper = styled.div`
   height: 40px;
@@ -27,6 +28,7 @@ const WidgetWrapper = styled.div`
   align-items: center;
   justify-content: center;
   width: 32px;
+  height: 40px;
   :hover {
     background-color: #f1f1f1;
     cursor: grab;
@@ -35,6 +37,14 @@ const WidgetWrapper = styled.div`
     background-color: #e7e7e7;
   }
 `;
+
+const WIDGET_ICON_SIZE: Record<string, number> = {
+  TEXT_WIDGET: 5,
+  TABLE_WIDGET_V2: 4,
+  BUTTON_WIDGET: 7,
+  INPUT_WIDGET_V2: 5,
+  CONTAINER_WIDGET: 4,
+};
 
 function WidgetTopBar() {
   const widgets = useSelector(getCommonWidgets);
@@ -71,13 +81,19 @@ function WidgetTopBar() {
         <div className="flex flex-1 gap-6	justify-center">
           {widgets.map((widget) => {
             return (
-              <WidgetWrapper
-                draggable
-                key={widget.type}
-                onDragStart={(e) => onDragStart(e, widget)}
-              >
-                <img className="w-4 h-4" src={widget.icon} />
-              </WidgetWrapper>
+              <TooltipComponent content={widget.displayName} key={widget.type}>
+                <WidgetWrapper
+                  draggable
+                  onDragStart={(e) => onDragStart(e, widget)}
+                >
+                  <img
+                    className={`w-${WIDGET_ICON_SIZE[widget.type]} h-${
+                      WIDGET_ICON_SIZE[widget.type]
+                    }`}
+                    src={widget.icon}
+                  />
+                </WidgetWrapper>
+              </TooltipComponent>
             );
           })}
         </div>

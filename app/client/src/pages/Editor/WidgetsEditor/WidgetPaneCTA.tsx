@@ -7,7 +7,7 @@ import { getDragDetails } from "sagas/selectors";
 import { AppState } from "@appsmith/reducers";
 import { useMouseLocation } from "../GlobalHotKeys/useMouseLocation";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system";
 import { Popover2 } from "@blueprintjs/popover2";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 
@@ -109,19 +109,24 @@ function WidgetPaneTrigger() {
         onClose={() => dispatch(forceOpenWidgetPanel(false))}
         placement="bottom-start"
       >
-        <StyledTrigger
-          active={openWidgetPanel}
-          className="flex ml-3 justify-center"
-          onClick={() => dispatch(forceOpenWidgetPanel(true))}
-          ref={ref}
+        <TooltipComponent
+          content={"Find and add a widget"}
+          disabled={openWidgetPanel}
         >
-          <Icon fillColor={"#575757"} name="plus" size={IconSize.XXL} />
-          <Icon
-            fillColor={"#858282"}
-            name="arrow-down-s-fill"
-            size={IconSize.XXS}
-          />
-        </StyledTrigger>
+          <StyledTrigger
+            active={openWidgetPanel}
+            className="flex ml-3 justify-center"
+            onClick={() => dispatch(forceOpenWidgetPanel(true))}
+            ref={ref}
+          >
+            <Icon fillColor={"#575757"} name="plus" size={IconSize.XXL} />
+            <Icon
+              fillColor={"#858282"}
+              name="arrow-down-s-fill"
+              size={IconSize.XXS}
+            />
+          </StyledTrigger>
+        </TooltipComponent>
       </Popover2>
     </div>
   );
