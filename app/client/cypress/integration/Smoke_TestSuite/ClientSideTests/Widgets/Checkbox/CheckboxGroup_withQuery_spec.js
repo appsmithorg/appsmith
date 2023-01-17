@@ -19,7 +19,7 @@ describe("Checkbox Group Widget Functionality", function() {
       // add Query 1 with limit 10
       dataSources.CreateQuery(mockDBName);
       agHelper.GetNClick(dataSources._templateMenuOption("Select"));
-      dataSources.RunQueryNVerifyResponseViews(10);
+      cy.runQuery();
 
       // add Query 2 with limit 2
       cy.get(".t--entity-add-btn.group.files").click({ force: true });
@@ -30,7 +30,7 @@ describe("Checkbox Group Widget Functionality", function() {
         .focus()
         .type(selectAll)
         .type("select * from users order by id limit 2");
-      dataSources.RunQueryNVerifyResponseViews(2);
+      cy.runQuery();
 
       // add checkbox group widget
       cy.get(explorer.addWidget).click();
