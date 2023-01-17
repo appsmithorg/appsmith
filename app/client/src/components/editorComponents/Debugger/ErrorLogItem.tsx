@@ -166,7 +166,7 @@ const MessageInfo = styled.div`
 `;
 
 const MessageWrapper = styled.div`
-  padding-bottom: 4px;
+  cpadding-bottom: 4px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -208,15 +208,7 @@ const LineNumber = styled.div`
 `;
 
 const showToggleIcon = (e: Log) => {
-  let output = !!e.state;
-  if (!output && e.logData && e.logData.length > 0) {
-    e.logData.forEach((item) => {
-      if (typeof item === "object") {
-        output = true;
-      }
-    });
-  }
-  return output;
+  return !!e.state;
 };
 
 export const getLogItemProps = (e: Log) => {
@@ -255,14 +247,13 @@ type LogItemProps = {
   state?: Record<string, any>;
   id?: string;
   source?: SourceEntity;
-  expand?: boolean;
   messages?: Message[];
   occurences: number;
   pluginErrorDetails?: any;
 };
 
 function ErrorLogItem(props: LogItemProps) {
-  const [isOpen, setIsOpen] = useState(!!props.expand);
+  const [isOpen, setIsOpen] = useState(false);
   const { collapsable } = props;
   const theme = useTheme();
   const plugins = useSelector(getPlugins);
