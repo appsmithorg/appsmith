@@ -65,7 +65,6 @@ function NavigationSettings() {
     [navigationSetting],
   );
 
-  // Show a spinner until default values are set
   if (!navigationSetting) {
     return (
       <div className="px-4 py-10 w-full flex justify-center">
