@@ -58,7 +58,9 @@ export const EditorWrapper = styled.div<{
 }>`
   width: 100%;
   ${(props) =>
-    props.size === EditorSize.COMPACT && props.isFocused
+    (props.size === EditorSize.COMPACT ||
+      props.size === EditorSize.COMPACT_RETAIN_FORMATTING) &&
+    props.isFocused
       ? `
   z-index: 5;
   right: 0;
@@ -271,7 +273,8 @@ export const EditorWrapper = styled.div<{
         props.theme.colors.apiPane.codeEditor.placeholderColor};
     }
     ${(props) =>
-      props.size === EditorSize.COMPACT &&
+      (props.size === EditorSize.COMPACT ||
+        props.size === EditorSize.COMPACT_RETAIN_FORMATTING) &&
       `
       .CodeMirror-hscrollbar {
       -ms-overflow-style: none;
@@ -326,7 +329,8 @@ export const EditorWrapper = styled.div<{
     }
 
     ${(props) =>
-      props.size === EditorSize.COMPACT
+      props.size === EditorSize.COMPACT ||
+      props.size === EditorSize.COMPACT_RETAIN_FORMATTING
         ? `
         position: absolute;
         left: 0;
@@ -338,7 +342,11 @@ export const EditorWrapper = styled.div<{
 
     ${(props) => {
       let height = props.height || "auto";
-      if (props.size === EditorSize.COMPACT && !props.isFocused) {
+      if (
+        (props.size === EditorSize.COMPACT ||
+          props.size === EditorSize.COMPACT_RETAIN_FORMATTING) &&
+        !props.isFocused
+      ) {
         height = props.height || "36px";
       }
       return `height: ${height}`;

@@ -237,6 +237,20 @@ describe("Debugger logs", function() {
       },
     );
     agHelper.WaitUntilAllToastsDisappear();
+
+    // Edit JSObject and verify no logs are visible
+    jsEditor.EditJSObj(`export default {
+      myFun1: async () => {
+        console.log("${logString}");
+        return "async";
+      },
+      myFun2: () => {
+        return 2;
+      }
+    }`);
+    debuggerHelper.DoesConsoleLogExist(logString, false);
+
+    // Run function and verify logs are visible
     agHelper.GetNClick(jsEditor._runButton);
     debuggerHelper.DoesConsoleLogExist(logString);
   });
