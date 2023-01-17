@@ -21,6 +21,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
+import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 600px;
@@ -67,7 +68,7 @@ const TabKeys: string[] = Object.values(GitSyncModalTab)
   .map((value) => value as string);
 
 function GitSyncModal(props: { isImport?: boolean }) {
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);

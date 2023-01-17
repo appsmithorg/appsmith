@@ -41,7 +41,7 @@ type Props = {
 };
 
 export const EntityExplorerSidebar = memo((props: Props) => {
-  let tooltipTimeout: number;
+  let tooltipTimeout: ReturnType<typeof setTimeout>;
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);

@@ -14,6 +14,7 @@ import {
   BUILDER_PATCH_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  LICENSE_CHECK_PATH,
   PROFILE,
   SETUP,
   SIGNUP_SUCCESS_URL,
@@ -120,7 +121,7 @@ export function Routes() {
       <SentryRoute component={AppViewerLoader} path={VIEWER_CUSTOM_PATH} />
       <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
       <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
-      <SentryRoute component={Spinner} path="/license-check" />
+      <SentryRoute component={Spinner} path={LICENSE_CHECK_PATH} />
       <SentryRoute component={PageNotFound} />
     </Switch>
   );
