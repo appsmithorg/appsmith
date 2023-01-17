@@ -130,12 +130,14 @@ export const useCanvasDragging = (
     useAutoLayout,
   });
 
-  setTimeout(() => {
-    calculateHighlights();
-  }, 0);
+  if (useAutoLayout) {
+    setTimeout(() => {
+      calculateHighlights();
+    }, 0);
 
-  if (!isDragging || !isCurrentDraggedCanvas) {
-    cleanUpTempStyles();
+    if (!isDragging || !isCurrentDraggedCanvas) {
+      cleanUpTempStyles();
+    }
   }
 
   const {
