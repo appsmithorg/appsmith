@@ -8,7 +8,7 @@ import {
   ImportApplicationRequest,
   FetchApplicationPayload,
 } from "api/ApplicationApi";
-import { PublishedNavigationSetting } from "constants/AppConstants";
+import { NavigationSetting } from "constants/AppConstants";
 import { AppIconName } from "design-system";
 import { Datasource } from "entities/Datasource";
 
@@ -95,11 +95,11 @@ export const updateCurrentApplicationEmbedSetting = (
 };
 
 export const updateApplicationNavigationSettingAction = (
-  publishedNavigationSetting: PublishedNavigationSetting,
+  navigationSetting: NavigationSetting,
 ) => {
   return {
-    type: ReduxActionTypes.UPDATE_PUBLISHED_NAVIGATION_SETTING,
-    payload: publishedNavigationSetting,
+    type: ReduxActionTypes.UPDATE_NAVIGATION_SETTING,
+    payload: navigationSetting,
   };
 };
 

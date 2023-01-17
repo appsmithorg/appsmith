@@ -11,10 +11,7 @@ import { ReactComponent as NavPositionStickyIcon } from "assets/icons/settings/n
 import { ReactComponent as NavPositionStaticIcon } from "assets/icons/settings/nav-position-static.svg";
 import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
 import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
-import {
-  NAVIGATION_SETTINGS,
-  PublishedNavigationSetting,
-} from "constants/AppConstants";
+import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
 import _, { debounce, isEmpty, isPlainObject } from "lodash";
 import ButtonGroupSetting from "./ButtonGroupSetting";
 import ColorStyleIcon from "./ColorStyleIcon";
@@ -27,15 +24,15 @@ import { updateApplication } from "actions/applicationActions";
 import { Spinner } from "design-system";
 
 export type UpdateSetting = (
-  key: keyof PublishedNavigationSetting,
-  value: PublishedNavigationSetting[keyof PublishedNavigationSetting],
+  key: keyof NavigationSetting,
+  value: NavigationSetting[keyof NavigationSetting],
 ) => void;
 
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
   const dispatch = useDispatch();
-  const publishedNavigationSetting = application?.publishedNavigationSetting;
+  const navigationSetting = application?.navigationSetting;
   const defaultSettings = {
     showNavbar: true,
     orientation: NAVIGATION_SETTINGS.ORIENTATION.TOP,
@@ -52,35 +49,35 @@ function NavigationSettings() {
 
   useEffect(() => {
     // Set default values
-    if (!publishedNavigationSetting) {
+    if (!navigationSetting) {
       const payload: UpdateApplicationPayload = { currentApp: true };
 
-      payload.publishedNavigationSetting = defaultSettings;
+      payload.navigationSetting = defaultSettings;
 
       dispatch(updateApplication(applicationId, payload));
     }
-  }, [publishedNavigationSetting]);
+  }, [navigationSetting]);
 
   const updateSetting = useCallback(
     debounce(
       (
-        key: keyof PublishedNavigationSetting,
-        value: PublishedNavigationSetting[keyof PublishedNavigationSetting],
+        key: keyof NavigationSetting,
+        value: NavigationSetting[keyof NavigationSetting],
       ) => {
         if (
-          publishedNavigationSetting &&
-          isPlainObject(publishedNavigationSetting) &&
-          !isEmpty(publishedNavigationSetting)
+          navigationSetting &&
+          isPlainObject(navigationSetting) &&
+          !isEmpty(navigationSetting)
         ) {
           const newSettings = {
-            ...publishedNavigationSetting,
+            ...navigationSetting,
             [key]: value,
           };
 
-          if (!equal(publishedNavigationSetting, newSettings)) {
+          if (!equal(navigationSetting, newSettings)) {
             const payload: UpdateApplicationPayload = { currentApp: true };
 
-            payload.publishedNavigationSetting = newSettings as PublishedNavigationSetting;
+            payload.navigationSetting = newSettings as NavigationSetting;
 
             dispatch(updateApplication(applicationId, payload));
           }
@@ -88,11 +85,11 @@ function NavigationSettings() {
       },
       50,
     ),
-    [publishedNavigationSetting],
+    [navigationSetting],
   );
 
   // Show a spinner until default values are set
-  if (!publishedNavigationSetting) {
+  if (!navigationSetting) {
     return (
       <div className="px-4 py-10 w-full flex justify-center">
         <Spinner size="extraExtraExtraExtraLarge" />
@@ -106,7 +103,7 @@ function NavigationSettings() {
         keyName="showNavbar"
         label={createMessage(APP_NAVIGATION_SETTING.showNavbarLabel)}
         updateSetting={updateSetting}
-        value={publishedNavigationSetting?.showNavbar}
+        value={navigationSetting?.showNavbar}
       />
 
       <ButtonGroupSetting
@@ -115,6 +112,7 @@ function NavigationSettings() {
           doesntWorkRightNowLabel
         }
         keyName="orientation"
+        navigationSetting={navigationSetting}
         options={[
           {
             label: _.startCase(NAVIGATION_SETTINGS.ORIENTATION.TOP),
@@ -127,7 +125,6 @@ function NavigationSettings() {
             icon: <NavOrientationSideIcon />,
           },
         ]}
-        publishedNavigationSetting={publishedNavigationSetting}
         updateSetting={updateSetting}
       />
 
@@ -137,6 +134,7 @@ function NavigationSettings() {
           doesntWorkRightNowLabel
         }
         keyName="navStyle"
+        navigationSetting={navigationSetting}
         options={[
           {
             label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.STACKED),
@@ -149,7 +147,6 @@ function NavigationSettings() {
             icon: <NavStyleInlineIcon />,
           },
         ]}
-        publishedNavigationSetting={publishedNavigationSetting}
         updateSetting={updateSetting}
       />
 
@@ -159,6 +156,7 @@ function NavigationSettings() {
           doesntWorkRightNowLabel
         }
         keyName="position"
+        navigationSetting={navigationSetting}
         options={[
           {
             label: _.startCase(NAVIGATION_SETTINGS.POSITION.STATIC),
@@ -171,13 +169,13 @@ function NavigationSettings() {
             icon: <NavPositionStickyIcon />,
           },
         ]}
-        publishedNavigationSetting={publishedNavigationSetting}
         updateSetting={updateSetting}
       />
 
       <ButtonGroupSetting
         heading={createMessage(APP_NAVIGATION_SETTING.itemStyleLabel)}
         keyName="itemStyle"
+        navigationSetting={navigationSetting}
         options={[
           {
             label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON),
@@ -192,13 +190,13 @@ function NavigationSettings() {
             value: NAVIGATION_SETTINGS.ITEM_STYLE.ICON,
           },
         ]}
-        publishedNavigationSetting={publishedNavigationSetting}
         updateSetting={updateSetting}
       />
 
       <ButtonGroupSetting
         heading={createMessage(APP_NAVIGATION_SETTING.colorStyleLabel)}
         keyName="colorStyle"
+        navigationSetting={navigationSetting}
         options={[
           {
             label: _.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT),
@@ -228,12 +226,11 @@ function NavigationSettings() {
             ),
           },
         ]}
-        publishedNavigationSetting={publishedNavigationSetting}
         updateSetting={updateSetting}
       />
 
       <LogoConfiguration
-        publishedNavigationSetting={publishedNavigationSetting}
+        navigationSetting={navigationSetting}
         updateSetting={updateSetting}
       />
 
@@ -241,14 +238,14 @@ function NavigationSettings() {
         keyName="showSignIn"
         label={createMessage(APP_NAVIGATION_SETTING.showSignInLabel)}
         updateSetting={updateSetting}
-        value={publishedNavigationSetting?.showSignIn}
+        value={navigationSetting?.showSignIn}
       />
 
       <SwitchSetting
         keyName="showShareApp"
         label={createMessage(APP_NAVIGATION_SETTING.showShareAppLabel)}
         updateSetting={updateSetting}
-        value={publishedNavigationSetting?.showShareApp}
+        value={navigationSetting?.showShareApp}
       />
     </div>
   );

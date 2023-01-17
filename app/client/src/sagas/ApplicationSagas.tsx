@@ -382,10 +382,10 @@ export function* updateApplicationSaga(
             updateCurrentApplicationEmbedSetting(response.data.embedSetting),
           );
         }
-        if (request.publishedNavigationSetting) {
+        if (request.navigationSetting) {
           yield put(
             updateApplicationNavigationSettingAction(
-              response.data.publishedNavigationSetting,
+              response.data.navigationSetting,
             ),
           );
         }

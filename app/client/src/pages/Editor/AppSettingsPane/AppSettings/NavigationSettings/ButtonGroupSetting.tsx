@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { TextType, Text, ButtonGroup, ButtonGroupOption } from "design-system";
 import {
-  PublishedNavigationSetting,
-  StringsFromPublishedNavigationSetting,
+  NavigationSetting,
+  StringsFromNavigationSetting,
 } from "constants/AppConstants";
 import { UpdateSetting } from ".";
 import equal from "fast-deep-equal/es6";
@@ -11,7 +11,7 @@ import usePrevious from "utils/hooks/usePrevious";
 export type ButtonGroupSettingProps = {
   heading: string;
   options: ButtonGroupOption[];
-  publishedNavigationSetting: StringsFromPublishedNavigationSetting;
+  navigationSetting: StringsFromNavigationSetting;
   keyName: string;
   updateSetting: UpdateSetting;
 };
@@ -19,31 +19,26 @@ export type ButtonGroupSettingProps = {
 const ButtonGroupSetting = ({
   heading,
   keyName,
+  navigationSetting,
   options,
-  publishedNavigationSetting,
   updateSetting,
 }: ButtonGroupSettingProps) => {
   const [selectedValue, setSelectedValue] = useState<string[]>([]);
-  const previousPublishedNavigationSetting = usePrevious(
-    publishedNavigationSetting,
-  );
+  const previousNavigationSetting = usePrevious(navigationSetting);
 
   useEffect(() => {
-    if (
-      !equal(previousPublishedNavigationSetting, publishedNavigationSetting)
-    ) {
+    if (!equal(previousNavigationSetting, navigationSetting)) {
       const currentValue =
-        publishedNavigationSetting?.[
-          keyName as keyof StringsFromPublishedNavigationSetting
-        ] || "";
+        navigationSetting?.[keyName as keyof StringsFromNavigationSetting] ||
+        "";
 
       setSelectedValue([currentValue]);
     }
-  }, [publishedNavigationSetting]);
+  }, [navigationSetting]);
 
   const onChange = (value: string) => {
     setSelectedValue([value]);
-    updateSetting(keyName as keyof PublishedNavigationSetting, value);
+    updateSetting(keyName as keyof NavigationSetting, value);
   };
 
   return (

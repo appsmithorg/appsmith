@@ -12,7 +12,7 @@ import {
   GitApplicationMetadata,
 } from "api/ApplicationApi";
 import { ApplicationVersion } from "actions/applicationActions";
-import { PublishedNavigationSetting } from "constants/AppConstants";
+import { NavigationSetting } from "constants/AppConstants";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -499,7 +499,7 @@ export const ReduxActionTypes = {
   CURRENT_APPLICATION_ICON_UPDATE: "CURRENT_APPLICATION_ICON_UPDATE",
   CURRENT_APPLICATION_EMBED_SETTING_UPDATE:
     "CURRENT_APPLICATION_EMBED_SETTING_UPDATE",
-  UPDATE_PUBLISHED_NAVIGATION_SETTING: "UPDATE_PUBLISHED_NAVIGATION_SETTING",
+  UPDATE_NAVIGATION_SETTING: "UPDATE_NAVIGATION_SETTING",
   FORK_APPLICATION_INIT: "FORK_APPLICATION_INIT",
   FORK_APPLICATION_SUCCESS: "FORK_APPLICATION_SUCCESS",
   IMPORT_APPLICATION_INIT: "IMPORT_APPLICATION_INIT",
@@ -1067,8 +1067,7 @@ export interface ApplicationPayload {
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
-  publishedNavigationSetting?: PublishedNavigationSetting;
-  unpublishedNavigationSetting?: PublishedNavigationSetting;
+  navigationSetting?: NavigationSetting;
 }
 
 export type WorkspaceDetails = {

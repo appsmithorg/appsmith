@@ -7,10 +7,7 @@ import {
 import { Icon, IconSize } from "design-system";
 import Navigation from "./Navigation";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
-import {
-  PublishedNavigationSetting,
-  NAVIGATION_SETTINGS,
-} from "constants/AppConstants";
+import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -18,7 +15,7 @@ import { getMenuContainerBackgroundColor, getMenuItemTextColor } from "./utils";
 
 const Container = styled.div<{
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   width: 100%;
   align-items: center;
@@ -41,7 +38,7 @@ const Container = styled.div<{
 const ScrollBtnContainer = styled.div<{
   visible: boolean;
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   cursor: pointer;
   display: flex;
@@ -82,7 +79,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
   // TODO - @Dhruvik - ImprovedAppNav
   // Use published and unpublished nav settings as needed
   const navColorStyle =
-    currentApplicationDetails?.publishedNavigationSetting?.colorStyle ||
+    currentApplicationDetails?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
@@ -159,13 +156,12 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
 
   return appPages.length > 1 &&
     /**
-     * Since the Backend doesn't have publishedNavigationSetting field by default
+     * Since the Backend doesn't have navigationSetting field by default
      * and we are creating the default values only when any nav settings via the
      * settings pane has changed, we need to hide the navbar ONLY when the showNavbar
      * setting is explicitly set to false by the user via the settings pane.
      */
-    currentApplicationDetails?.publishedNavigationSetting?.showNavbar !==
-      false ? (
+    currentApplicationDetails?.navigationSetting?.showNavbar !== false ? (
     <Container
       className="relative hidden px-6 h-11 md:flex"
       navColorStyle={navColorStyle}

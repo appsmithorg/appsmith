@@ -20,7 +20,7 @@ import { getAllApplications } from "actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
-import { PublishedNavigationSetting } from "constants/AppConstants";
+import { NavigationSetting } from "constants/AppConstants";
 import { Icon } from "design-system";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
@@ -34,7 +34,7 @@ type Props = {
   url?: string;
   className?: string;
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 };
 
 /**
@@ -147,12 +147,12 @@ function PrimaryCTA(props: Props) {
       currentApplication?.isPublic &&
       currentUser?.username === ANONYMOUS_USERNAME &&
       /**
-       * Since the Backend doesn't have publishedNavigationSetting field by default
+       * Since the Backend doesn't have navigationSetting field by default
        * and we are creating the default values only when any nav settings via the
        * settings pane has changed, we need to hide the sign in button ONLY when the
        * showSignIn setting is explicitly set to false by the user via the settings pane.
        */
-      currentApplication?.publishedNavigationSetting?.showSignIn !== false
+      currentApplication?.navigationSetting?.showSignIn !== false
     ) {
       return (
         <Button

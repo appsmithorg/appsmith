@@ -19,14 +19,11 @@ import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
 } from "./utils";
-import {
-  NAVIGATION_SETTINGS,
-  PublishedNavigationSetting,
-} from "constants/AppConstants";
+import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
 
 const PageTab = styled(NavLink)<{
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   display: flex;
   max-width: 170px;
@@ -52,7 +49,7 @@ const PageTab = styled(NavLink)<{
 
 const StyleTabText = styled.div<{
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   overflow: hidden;
   display: flex;
@@ -87,7 +84,7 @@ function PageTabName({
 }: {
   name: string;
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
@@ -174,10 +171,8 @@ export function PageTabs(props: Props) {
             tabsScrollable={props.tabsScrollable}
           >
             <PageTabItem
+              navigationSetting={currentApplicationDetails?.navigationSetting}
               page={page}
-              publishedNavigationSetting={
-                currentApplicationDetails?.publishedNavigationSetting
-              }
               query={query}
             />
           </PageTabContainer>
@@ -188,13 +183,13 @@ export function PageTabs(props: Props) {
 }
 
 function PageTabItem({
+  navigationSetting,
   page,
-  publishedNavigationSetting,
   query,
 }: {
   page: Page;
   query: string;
-  publishedNavigationSetting?: PublishedNavigationSetting;
+  navigationSetting?: NavigationSetting;
 }) {
   const appMode = useSelector(getAppMode);
   const pageURL = useHref(
@@ -205,8 +200,7 @@ function PageTabItem({
   // TODO - @Dhruvik - ImprovedAppNav
   // Use published and unpublished nav settings as needed
   const navColorStyle =
-    publishedNavigationSetting?.colorStyle ||
-    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+    navigationSetting?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
 
   return (
     <PageTab

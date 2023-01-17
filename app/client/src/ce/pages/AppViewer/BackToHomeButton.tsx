@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import AppsIcon from "remixicon-react/AppsLineIcon";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { PublishedNavigationSetting } from "constants/AppConstants";
+import { NavigationSetting } from "constants/AppConstants";
 import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
@@ -12,7 +12,7 @@ import styled from "styled-components";
 
 type BackToHomeButtonProps = {
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 };
 
 const StyledLabel = styled.span<BackToHomeButtonProps>`

@@ -39,10 +39,7 @@ import {
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import {
-  PublishedNavigationSetting,
-  NAVIGATION_SETTINGS,
-} from "constants/AppConstants";
+import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getApplicationNameTextColor,
   getMenuContainerBackgroundColor,
@@ -82,7 +79,7 @@ type AppViewerHeaderProps = {
 
 const StyledNav = styled.div<{
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   background-color: ${({ navColorStyle, primaryColor }) =>
     getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
@@ -90,7 +87,7 @@ const StyledNav = styled.div<{
 
 const StyledApplicationName = styled.div<{
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   color: ${({ navColorStyle, primaryColor }) =>
     getApplicationNameTextColor(primaryColor, navColorStyle)};
@@ -118,7 +115,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   // TODO - @Dhruvik - ImprovedAppNav
   // Use published and unpublished nav settings as needed
   const navColorStyle =
-    currentApplicationDetails?.publishedNavigationSetting?.colorStyle ||
+    currentApplicationDetails?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
@@ -178,11 +175,11 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
                 <div className="hidden space-x-1 md:flex">
-                  {/* Since the Backend doesn't have publishedNavigationSetting field by default
+                  {/* Since the Backend doesn't have navigationSetting field by default
                   and we are creating the default values only when any nav settings via the
                   settings pane has changed, we need to hide the share button ONLY when the showShareApp
                   setting is explicitly set to false by the user via the settings pane. */}
-                  {currentApplicationDetails?.publishedNavigationSetting
+                  {currentApplicationDetails?.navigationSetting
                     ?.showShareApp !== false && (
                     <FormDialogComponent
                       Form={AppInviteUsersForm}

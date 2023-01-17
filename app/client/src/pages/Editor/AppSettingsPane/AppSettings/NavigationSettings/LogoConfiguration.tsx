@@ -2,10 +2,7 @@ import {
   APP_NAVIGATION_SETTING,
   createMessage,
 } from "@appsmith/constants/messages";
-import {
-  NAVIGATION_SETTINGS,
-  PublishedNavigationSetting,
-} from "constants/AppConstants";
+import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
 import { Dropdown } from "design-system";
 import _ from "lodash";
 import React from "react";
@@ -13,7 +10,7 @@ import { UpdateSetting } from ".";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 
 const LogoConfiguration = (props: {
-  publishedNavigationSetting: PublishedNavigationSetting;
+  navigationSetting: NavigationSetting;
   updateSetting: UpdateSetting;
 }) => {
   const options = [
@@ -61,8 +58,7 @@ const LogoConfiguration = (props: {
         onSelect={handleOnSelect}
         options={options}
         selected={options.find(
-          (item) =>
-            item.value === props.publishedNavigationSetting?.logoConfiguration,
+          (item) => item.value === props.navigationSetting?.logoConfiguration,
         )}
         showLabelOnly
         width="100%"

@@ -77,7 +77,7 @@ export const NAVIGATION_SETTINGS = {
   },
 };
 
-export type PublishedNavigationSetting = {
+export type NavigationSetting = {
   showNavbar: boolean;
   showSignIn: boolean;
   showShareApp: boolean;
@@ -89,7 +89,7 @@ export type PublishedNavigationSetting = {
   logoConfiguration: typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION[keyof typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION];
 };
 
-export type StringsFromPublishedNavigationSetting = Omit<
-  PublishedNavigationSetting,
+export type StringsFromNavigationSetting = Omit<
+  NavigationSetting,
   "showNavbar" | "showSignIn" | "showShareApp"
 >;

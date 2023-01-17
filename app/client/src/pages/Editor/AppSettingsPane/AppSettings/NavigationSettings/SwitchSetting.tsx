@@ -1,5 +1,5 @@
 import React from "react";
-import { PublishedNavigationSetting } from "constants/AppConstants";
+import { NavigationSetting } from "constants/AppConstants";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 import SwitchWrapper from "../../Components/SwitchWrapper";
 import { Switch } from "design-system";
@@ -8,7 +8,7 @@ import _ from "lodash";
 
 const SwitchSetting = (props: {
   label: string;
-  keyName: keyof PublishedNavigationSetting;
+  keyName: keyof NavigationSetting;
   value: boolean;
   updateSetting: UpdateSetting;
 }) => {

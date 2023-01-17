@@ -19,14 +19,11 @@ import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
 } from "../utils";
-import {
-  NAVIGATION_SETTINGS,
-  PublishedNavigationSetting,
-} from "constants/AppConstants";
+import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
 
 const StyledMenuItem = styled(NavLink)<{
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   display: flex;
   max-width: 220px;
@@ -75,7 +72,7 @@ const StyledMenuItem = styled(NavLink)<{
 
 const StyledMenuItemText = styled.div<{
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 }>`
   overflow: hidden;
   display: flex;
@@ -107,7 +104,7 @@ const StyledMenuItemText = styled.div<{
 type MenuTextProps = {
   name: string;
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
 };
 
 const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {
@@ -176,14 +173,10 @@ const MenuContainer = ({
 type MenuItemProps = {
   page: Page;
   query: string;
-  publishedNavigationSetting?: PublishedNavigationSetting;
+  navigationSetting?: NavigationSetting;
 };
 
-const MenuItem = ({
-  page,
-  publishedNavigationSetting,
-  query,
-}: MenuItemProps) => {
+const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
   const appMode = useSelector(getAppMode);
   const pageURL = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
@@ -193,8 +186,7 @@ const MenuItem = ({
   // TODO - @Dhruvik - ImprovedAppNav
   // Use published and unpublished nav settings as needed
   const navColorStyle =
-    publishedNavigationSetting?.colorStyle ||
-    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+    navigationSetting?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -212,12 +204,11 @@ const MenuItem = ({
         search: query,
       }}
     >
-      {publishedNavigationSetting?.itemStyle !==
-        NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (
+      {navigationSetting?.itemStyle !== NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (
         <Icon
           className={`page-icon ${
-            !publishedNavigationSetting ||
-            publishedNavigationSetting?.itemStyle ===
+            !navigationSetting ||
+            navigationSetting?.itemStyle ===
               NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON
               ? "mr-2"
               : ""
@@ -226,8 +217,7 @@ const MenuItem = ({
           size="large"
         />
       )}
-      {publishedNavigationSetting?.itemStyle !==
-        NAVIGATION_SETTINGS.ITEM_STYLE.ICON && (
+      {navigationSetting?.itemStyle !== NAVIGATION_SETTINGS.ITEM_STYLE.ICON && (
         <MenuText
           name={page.pageName}
           navColorStyle={navColorStyle}
@@ -273,10 +263,8 @@ const TopStacked = (props: TopStackedProps) => {
             tabsScrollable={props.tabsScrollable}
           >
             <MenuItem
+              navigationSetting={currentApplicationDetails?.navigationSetting}
               page={page}
-              publishedNavigationSetting={
-                currentApplicationDetails?.publishedNavigationSetting
-              }
               query={query}
             />
           </MenuContainer>

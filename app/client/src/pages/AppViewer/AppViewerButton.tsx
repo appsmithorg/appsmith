@@ -1,5 +1,5 @@
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
-import { PublishedNavigationSetting } from "constants/AppConstants";
+import { NavigationSetting } from "constants/AppConstants";
 import styled from "styled-components";
 import { StyledButton as Button } from "widgets/ButtonWidget/component";
 import {
@@ -9,7 +9,7 @@ import {
 
 const StyledButton = styled(Button)<{
   primaryColor: string;
-  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  navColorStyle: NavigationSetting["colorStyle"];
   varient?: ButtonVariant;
 }>`
   padding: 6px 12px;
