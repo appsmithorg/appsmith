@@ -193,6 +193,7 @@ export const updateDependencyMap = ({
               entity,
               entityName,
               dataTreeEvalRef.allKeys,
+              unEvalDataTree,
             );
             if (Object.keys(entityDependencyMap).length) {
               didUpdateDependencyMap = true;
@@ -395,6 +396,7 @@ export const updateDependencyMap = ({
               entity,
               entityName,
               dataTreeEvalRef.allKeys,
+              unEvalDataTree,
             );
             Object.keys(entityDependencies).forEach((widgetDep) => {
               didUpdateDependencyMap = true;
