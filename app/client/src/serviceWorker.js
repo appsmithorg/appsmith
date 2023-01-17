@@ -1,4 +1,4 @@
-/* eslint no-use-before-define: 0 */
+/* eslint-disable */
 import { precacheAndRoute } from "workbox-precaching";
 import { clientsClaim, setCacheNameDetails, skipWaiting } from "workbox-core";
 import { registerRoute, Route } from "workbox-routing";
