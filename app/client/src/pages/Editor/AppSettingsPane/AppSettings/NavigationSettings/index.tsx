@@ -207,6 +207,37 @@ function NavigationSettings() {
 
       <LogoConfiguration
         navigationSetting={navigationSetting}
+        options={[
+          {
+            label: _.startCase(
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+            ),
+            value:
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+          },
+          {
+            label: _.startCase(
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
+            ),
+            value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
+          },
+          {
+            label: _.startCase(
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
+            ),
+            value:
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
+          },
+          {
+            label: _.startCase(
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                .NO_LOGO_OR_APPLICATION_TITLE,
+            ),
+            value:
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                .NO_LOGO_OR_APPLICATION_TITLE,
+          },
+        ]}
         updateSetting={updateSetting}
       />
 

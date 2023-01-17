@@ -2,42 +2,20 @@ import {
   APP_NAVIGATION_SETTING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
-import { Dropdown } from "design-system";
+import { NavigationSetting } from "constants/AppConstants";
+import { Dropdown, DropdownOption } from "design-system";
 import _ from "lodash";
 import React from "react";
 import { UpdateSetting } from ".";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 
 const LogoConfiguration = (props: {
+  options: DropdownOption[];
   navigationSetting: NavigationSetting;
   updateSetting: UpdateSetting;
 }) => {
-  const options = [
-    {
-      label: _.startCase(
-        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
-      ),
-      value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
-    },
-    {
-      label: _.startCase(NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY),
-      value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
-    },
-    {
-      label: _.startCase(
-        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
-      ),
-      value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
-    },
-    {
-      label: _.startCase(
-        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE,
-      ),
-      value:
-        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE,
-    },
-  ];
+  const { options } = props;
+
   const doesntWorkRightNowLabel = " - [Doesn't work (...right now)]";
 
   const handleOnSelect = (value?: { label: string; value: string }) => {
