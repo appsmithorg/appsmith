@@ -5,7 +5,6 @@ import {
     ERROR_ACTION_EXECUTE_FAIL,
     createMessage,
   } from "../../../../../support/Objects/CommonErrorMessages";
-import { __esModule } from "cypress-image-snapshot/constants";
 
 let dsName : any;
 
@@ -46,12 +45,12 @@ it("2. Verify 'onListitemClick' functionality of Show messgage event on deploy m
     _.agHelper.WaitUntilAllToastsDisappear()
     _.agHelper.GetNClick(_.locators._containerWidget,1,true)
     _.agHelper.ValidateToastMessage("ListWidget_House Tarly_1")
+    _.agHelper.WaitUntilAllToastsDisappear()
     _.deployMode.NavigateBacktoEditor()
-    _.agHelper.Sleep()
 })
 
 it("3. Verify pagination and also verify Next_Page/Prev_Page disabled when List reach to last/first page", function(){
-    _.agHelper.GetNClick(_.locators._listWidget,0,true)
+    _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
     _.ee.NavigateToSwitcher("explorer")
     _.dataSources.CreateDataSource("MySql")
     cy.get("@dsName").then(($dsName) => {
@@ -162,8 +161,7 @@ it("8. Verify onPageSizeChange functionality in SSP of list widget", function(){
     _.propPane.ToggleOnOrOff("Server Side Pagination","Off")
     _.propPane.ToggleOnOrOff("Server Side Pagination","On")
     _.agHelper.ValidateToastMessage("Page size changed 2")
-    _.agHelper.Sleep()
-    
+    _.agHelper.Sleep()  
 })
 
 })
