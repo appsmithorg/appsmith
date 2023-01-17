@@ -1,15 +1,15 @@
-import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
-import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { useWidgetSelection } from "./useWidgetSelection";
+import equal from "fast-deep-equal/es6";
 import React, { ReactNode, useCallback } from "react";
-import { stopEventPropagation } from "utils/AppsmithUtils";
+import { useSelector } from "react-redux";
+import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {
   getFocusedParentToOpen,
   isWidgetSelected,
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
-import equal from "fast-deep-equal/es6";
+import { stopEventPropagation } from "utils/AppsmithUtils";
+import { useWidgetSelection } from "./useWidgetSelection";
 
 export function ClickContentToOpenPropPane({
   children,
@@ -49,7 +49,7 @@ export function ClickContentToOpenPropPane({
   return (
     <div
       onClick={stopEventPropagation}
-      onClickCapture={clickToSelectWidget}
+      onMouseDownCapture={clickToSelectWidget}
       onMouseOver={handleMouseOver}
       style={styles}
     >
