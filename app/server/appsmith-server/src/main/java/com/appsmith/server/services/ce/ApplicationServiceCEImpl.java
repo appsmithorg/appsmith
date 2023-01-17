@@ -315,9 +315,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                      * Retaining the logoAssetId field value while updating NavigationSetting
                      */
                     Application.NavigationSetting requestNavSetting = application.getUnpublishedNavigationSetting();
-                    Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
-                    requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), ""));
-                    application.setUnpublishedNavigationSetting(requestNavSetting);
+                    if (requestNavSetting != null) {
+                        Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
+                        requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), ""));
+                        application.setUnpublishedNavigationSetting(requestNavSetting);
+                    }
                     return this.update(branchedApplication.getId(), application);
                 });
     }
