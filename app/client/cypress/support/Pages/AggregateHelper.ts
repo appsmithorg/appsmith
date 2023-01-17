@@ -941,19 +941,11 @@ export class AggregateHelper {
       .should("be.visible");
   }
 
-  public CheckForErrorToast(error: string, errorMsg: string) {
+  public CheckForErrorToast(error: string) {
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._toastMsg).length) {
-        if (
-          $ele.find(
-            this.locator._specificToast(
-              error,
-            ),
-          )
-        ) {
-          throw new Error(
-            errorMsg,
-          );
+        if ($ele.find(this.locator._specificToast(error)).length) {
+          throw new Error("Error Toast from Application:" + error);
         }
       }
     });

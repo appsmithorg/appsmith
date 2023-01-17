@@ -14,7 +14,7 @@ const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const formControls = require("../locators/FormControl.json");
 const queryLocators = require("../locators/QueryEditor.json");
-const { AggregateHelper} = ObjectsRegistry;
+const { AggregateHelper } = ObjectsRegistry;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -78,7 +78,9 @@ Cypress.Commands.add("fillAuthenticatedAPIForm", () => {
 
 Cypress.Commands.add("runQuery", (expectedRes = true) => {
   cy.onlyQueryRun();
-  AggregateHelper.CheckForErrorToast("Failed to initialize pool: The connection attempt failed.","'Failed to initialize pool error toast seen' from application",)
+  AggregateHelper.CheckForErrorToast(
+    "Failed to initialize pool",
+  );
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.data.isExecutionSuccess",
