@@ -69,3 +69,5 @@ export enum FlexVerticalAlignment {
   Center = "center",
   Bottom = "end",
 }
+
+export const defaultAutoLayoutWidgets = ["CONTAINER_WIDGET", "TABS_WIDGET"];
