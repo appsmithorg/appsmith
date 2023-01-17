@@ -28,6 +28,11 @@ import {
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import {
+  defaultAutoLayoutWidgets,
+  Positioning,
+} from "utils/autoLayout/constants";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -112,6 +117,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         // Form Widget Props
         widgetProps.onReset = props.onReset;
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
+      }
+
+      if (defaultAutoLayoutWidgets.includes(props.type)) {
+        widgetProps.positioning =
+          appPositioningType && appPositioningType === AppPositioningTypes.AUTO
+            ? Positioning.Vertical
+            : Positioning.Fixed;
       }
 
       widgetProps.children = children;
