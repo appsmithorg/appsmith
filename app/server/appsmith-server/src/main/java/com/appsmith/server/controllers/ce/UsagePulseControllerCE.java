@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.services.UsagePulseService;
@@ -8,10 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
+@RequestMapping(Url.USAGE_PULSE_URL)
 public class UsagePulseControllerCE {
 
     private final UsagePulseService service;
