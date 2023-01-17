@@ -2303,7 +2303,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any());
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.just("connection_1"));
 
         Datasource datasource = new Datasource();
@@ -2422,7 +2422,7 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
-        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any());
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.just("connection_1"));
 
         Datasource datasource = new Datasource();
