@@ -49,6 +49,7 @@ export const handlers = {
     ...state,
     userPermissions: action.payload.userPermissions || [],
     tenantConfiguration: {
+      ...state.tenantConfiguration,
       ...action.payload.tenantConfiguration,
     },
     isLoading: false,
