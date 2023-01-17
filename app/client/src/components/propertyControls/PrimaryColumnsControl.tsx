@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { Indices } from "constants/Layers";
 import { Size, Category } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";

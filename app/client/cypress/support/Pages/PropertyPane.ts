@@ -224,6 +224,17 @@ export class PropertyPane {
     toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
 
+  public ValidatePropertyFieldValue(
+    propFieldName: string,
+    valueToValidate: string,
+  ) {
+    cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
+      ($field: any) => {
+        this.agHelper.ValidateCodeEditorContent($field, valueToValidate);
+      },
+    );
+  }
+
   public RemoveText(endp: string, toVerifySave = true) {
     cy.get(
       this.locator._propertyControl +
@@ -259,6 +270,21 @@ export class PropertyPane {
           parseSpecialCharSequences: false,
           force: true,
         });
+      });
+
+    this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
+  }
+
+  public ToggleCommentInTextField(endp: string) {
+    cy.get(
+      this.locator._propertyControl +
+        endp.replace(/ +/g, "").toLowerCase() +
+        " " +
+        this.locator._codeMirrorTextArea,
+    )
+      .first()
+      .then((el: any) => {
+        cy.get(el).type(this.agHelper.isMac ? "{meta}/" : "{ctrl}/");
       });
 
     this.agHelper.AssertAutoSave(); //Allowing time for saving entered value

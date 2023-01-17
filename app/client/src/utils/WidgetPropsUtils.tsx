@@ -19,9 +19,9 @@ import { transformDSL } from "./DSLMigrations";
 import { WidgetType } from "./WidgetFactory";
 import { DSLWidget } from "widgets/constants";
 import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { GridProps } from "reflow/reflowTypes";
+import { BlockSpace, GridProps } from "reflow/reflowTypes";
 import { areIntersecting, Rect } from "./boxHelpers";
 
 export type WidgetOperationParams = {
@@ -54,7 +54,7 @@ export function getDraggingSpacesFromBlocks(
   draggingBlocks: WidgetDraggingBlock[],
   snapColumnSpace: number,
   snapRowSpace: number,
-): OccupiedSpace[] {
+): BlockSpace[] {
   const draggingSpaces = [];
   for (const draggingBlock of draggingBlocks) {
     //gets top and left position of the block
@@ -76,6 +76,10 @@ export function getDraggingSpacesFromBlocks(
       right: leftColumn + draggingBlock.width / snapColumnSpace,
       bottom: topRow + draggingBlock.height / snapRowSpace,
       id: draggingBlock.widgetId,
+      fixedHeight:
+        draggingBlock.fixedHeight !== undefined
+          ? draggingBlock.rowHeight
+          : undefined,
     });
   }
   return draggingSpaces;

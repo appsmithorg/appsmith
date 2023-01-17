@@ -1,5 +1,4 @@
-import * as styledComponents from "styled-components";
-import { ThemedStyledComponentsModule } from "styled-components";
+import { css } from "styled-components";
 import { Colors, Color } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
@@ -11,22 +10,6 @@ import { typography, Typography, TypographyKeys } from "./typography";
 
 import { LabelPosition } from "components/constants";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
-
-const themedStyled = {
-  default: styledComponents.default,
-  css: styledComponents.css,
-  createGlobalStyle: styledComponents.createGlobalStyle,
-  keyframes: styledComponents.keyframes,
-  ThemeProvider: styledComponents.ThemeProvider,
-} as ThemedStyledComponentsModule<Theme>;
-
-const {
-  createGlobalStyle,
-  css,
-  default: styled,
-  keyframes,
-  ThemeProvider,
-} = themedStyled;
 
 export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
@@ -415,6 +398,7 @@ export type Theme = {
   headerHeight: string;
   smallHeaderHeight: string;
   bottomBarHeight: string;
+  pageTabsHeight: string;
   integrationsPageUnusableHeight: string;
   backBanner: string;
   homePage: any;
@@ -2145,9 +2129,9 @@ export const light: ColorType = {
   globalSearch: {
     ...globalSearch,
     helpBarBackground: "#F0F0F0",
-    helpBarText: "#A9A7A7",
+    helpBarText: Colors.GRAY_400,
     helpButtonBackground: "#F0F0F0",
-    helpIcon: "#939090",
+    helpIcon: Colors.GRAY_700,
   },
   navigationMenu: {
     contentActive: "#090707",
@@ -2162,7 +2146,7 @@ export const light: ColorType = {
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
-    background: lightShades[0],
+    background: lightShades[11],
     deployToolTipText: lightShades[8],
     deployToolTipBackground: "#FFF",
     shareBtnHighlight: "#F86A2B",
@@ -2902,8 +2886,9 @@ export const theme: Theme = {
     sidebar: 256,
   },
   headerHeight: "48px",
-  smallHeaderHeight: "32px",
+  smallHeaderHeight: "40px",
   bottomBarHeight: "34px",
+  pageTabsHeight: "32px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
@@ -3029,7 +3014,3 @@ export const theme: Theme = {
     linkBg: lightShades[2],
   },
 };
-
-export { css, createGlobalStyle, keyframes, ThemeProvider };
-
-export default styled;

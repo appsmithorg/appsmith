@@ -622,6 +622,7 @@ describe("5. overrideWidgetProperties", () => {
         propertyPath: "defaultText",
         value: "abcde",
         evalMetaUpdates,
+        isNewWidget: false,
       });
 
       expect(overwriteObj).toStrictEqual(undefined);
@@ -656,6 +657,7 @@ describe("5. overrideWidgetProperties", () => {
         propertyPath: "meta.text",
         value: "abcdefg",
         evalMetaUpdates,
+        isNewWidget: false,
       });
 
       expect(overwriteObj).toStrictEqual(undefined);
@@ -699,6 +701,7 @@ describe("5. overrideWidgetProperties", () => {
         propertyPath: "defaultSelectedRow",
         value: [0, 1],
         evalMetaUpdates,
+        isNewWidget: false,
       });
 
       expect(overwriteObj).toStrictEqual(undefined);
@@ -732,6 +735,7 @@ describe("5. overrideWidgetProperties", () => {
         propertyPath: "meta.selectedRowIndex",
         value: 0,
         evalMetaUpdates,
+        isNewWidget: false,
       });
 
       expect(overwriteObj).toStrictEqual(undefined);
