@@ -34,7 +34,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isStack } from "./AutoLayoutUtils";
+import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidget, getWidgets } from "./selectors";
 import {
   buildWidgetBlueprint,

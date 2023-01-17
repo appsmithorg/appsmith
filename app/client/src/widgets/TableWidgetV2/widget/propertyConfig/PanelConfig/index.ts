@@ -16,6 +16,7 @@ import SaveButtonProperties, {
 import Select from "./Select";
 import TextFormatting from "./TextFormatting";
 import Validations from "./Validation";
+import DateProperties from "./DateProperties";
 
 export default {
   editableTitle: true,
@@ -32,6 +33,7 @@ export default {
     DiscardButtonproperties,
     Select,
     Events,
+    DateProperties,
   ],
   styleChildren: [
     GeneralStyle,

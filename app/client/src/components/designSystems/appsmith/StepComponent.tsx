@@ -1,11 +1,8 @@
 import React from "react";
 import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 
-const StyledIncreaseIcon = styled(
-  ControlIcons.INCREASE_CONTROL as AnyStyledComponent,
-)`
+const StyledIncreaseIcon = styled(ControlIcons.INCREASE_CONTROL)`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -20,9 +17,7 @@ const StyledIncreaseIcon = styled(
   }
 `;
 
-const StyledDecreaseIcon = styled(
-  ControlIcons.DECREASE_CONTROL as AnyStyledComponent,
-)`
+const StyledDecreaseIcon = styled(ControlIcons.DECREASE_CONTROL)`
   display: flex;
   justify-content: center;
   align-items: center;

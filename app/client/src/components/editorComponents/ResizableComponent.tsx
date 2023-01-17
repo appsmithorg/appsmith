@@ -1,15 +1,16 @@
 import { AppState } from "@appsmith/reducers";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { GridDefaults } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import Resizable from "resizable/resizenreflow";
 import {
+  getCurrentAppPositioningType,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -21,6 +22,7 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
@@ -66,7 +68,9 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
-
+  const currentAppPositioningType = useSelector(getCurrentAppPositioningType);
+  const isAutoLayoutMode =
+    currentAppPositioningType === AppPositioningTypes.AUTO;
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
@@ -316,8 +320,10 @@ export const ResizableComponent = memo(function ResizableComponent(
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
   const allowResize: boolean =
-    !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
-    !props.isFlexChild;
+    !(
+      (isAutoLayoutMode && NonResizableWidgets.includes(props.type)) ||
+      isMultiSelected
+    ) || !(isAutoLayoutMode && props.isFlexChild);
   return (
     <Resizable
       allowResize={allowResize}
