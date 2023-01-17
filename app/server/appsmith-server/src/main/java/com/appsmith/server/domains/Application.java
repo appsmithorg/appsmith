@@ -110,8 +110,10 @@ public class Application extends BaseDomain {
 
     EmbedSetting embedSetting;
 
+    @JsonIgnore
     NavigationSetting unpublishedNavigationSetting;
 
+    @JsonIgnore
     NavigationSetting publishedNavigationSetting;
 
     @JsonIgnore
@@ -186,6 +188,8 @@ public class Application extends BaseDomain {
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
         this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
         this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
+        this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
+        this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
     }
 
@@ -270,6 +274,17 @@ public class Application extends BaseDomain {
         private Boolean showNavigationBar;
     }
 
+    public NavigationSetting getNavigationSetting() {
+        return Boolean.TRUE.equals(viewMode) ? publishedNavigationSetting : unpublishedNavigationSetting;
+    }
+
+    public void setNavigationSetting(NavigationSetting navigationSetting) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedNavigationSetting = navigationSetting;
+        } else {
+            unpublishedNavigationSetting = navigationSetting;
+        }
+    }
 
     /**
      * NavigationSetting stores the navigation configuration for the app
