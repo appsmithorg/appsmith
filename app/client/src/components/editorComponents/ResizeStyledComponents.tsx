@@ -67,8 +67,6 @@ export const EdgeHandleStyles = css<{
     background: ${(props) => {
       if (props.showLightBorder) return theme.colors.widgetLightBorder;
 
-      if (props.showAsBorder) return theme.colors.widgetMultiSelectBorder;
-
       if (props.isHovered) {
         return Colors.WATUSI;
       }
