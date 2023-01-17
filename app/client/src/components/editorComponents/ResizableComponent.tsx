@@ -135,8 +135,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     let canResizeVertically = true;
     let canResizeHorizontally = true;
 
-    // TODO: Ashok - remove this check when reflow is reintroduced.
-    if (props.ignoreCollision || props.isFlexChild)
+    // this is required for list widget so that template have no collision
+    if (props.ignoreCollision)
       return {
         canResizeHorizontally,
         canResizeVertically,
@@ -324,6 +324,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       (isAutoLayoutMode && NonResizableWidgets.includes(props.type)) ||
       isMultiSelected
     ) || !(isAutoLayoutMode && props.isFlexChild);
+  const isHovered = isFocused && !isSelected;
   return (
     <Resizable
       allowResize={allowResize}
@@ -336,6 +337,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       gridProps={gridProps}
       handles={handles}
       isFlexChild={props.isFlexChild}
+      isHovered={isHovered}
       isMobile={props.isMobile || false}
       onStart={handleResizeStart}
       onStop={updateSize}

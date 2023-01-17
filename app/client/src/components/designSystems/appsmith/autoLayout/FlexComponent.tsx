@@ -98,6 +98,7 @@ export function FlexComponent(props: AutoLayoutProps) {
   return (
     <FlexWidget
       className={className}
+      id={props.widgetId}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
       style={flexComponentStyle}
