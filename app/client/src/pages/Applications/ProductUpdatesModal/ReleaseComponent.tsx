@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import styled, { withTheme } from "styled-components";
+import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
 import { Colors } from "constants/Colors";
@@ -18,7 +18,7 @@ const TagContainer = styled.div`
 
 const Tag = styled.div`
   display: flex;
-  align-item: center;
+  align-items: center;
   justify-content: center;
   padding: 4px 8px;
   font-size: 13px;
@@ -126,34 +126,31 @@ const ReadMoreContainer = styled.div`
   padding: ${(props) => props.theme.spaces[8]}px 0;
 `;
 
-const ReadMore = withTheme(
-  ({
-    currentState,
-    onClick,
-  }: {
-    currentState: ReleaseComponentViewState;
-    onClick: () => void;
-    theme: any;
-  }) => (
-    <ReadMoreContainer>
-      <StyledReadMore onClick={onClick}>
-        <Text case={Case.UPPERCASE} color={Colors.GREY_8} type={TextType.P2}>
-          {currentState === ReleaseComponentViewState.collapsed
-            ? "read more"
-            : "read less"}
-        </Text>
-        <Icon
-          fillColor={Colors.GREY_8}
-          name={
-            currentState === ReleaseComponentViewState.collapsed
-              ? "view-all"
-              : "view-less"
-          }
-          size={IconSize.SMALL}
-        />
-      </StyledReadMore>
-    </ReadMoreContainer>
-  ),
+const ReadMore = ({
+  currentState,
+  onClick,
+}: {
+  currentState: ReleaseComponentViewState;
+  onClick: () => void;
+}) => (
+  <ReadMoreContainer>
+    <StyledReadMore onClick={onClick}>
+      <Text case={Case.UPPERCASE} color={Colors.GREY_8} type={TextType.P2}>
+        {currentState === ReleaseComponentViewState.collapsed
+          ? "read more"
+          : "read less"}
+      </Text>
+      <Icon
+        fillColor={Colors.GREY_8}
+        name={
+          currentState === ReleaseComponentViewState.collapsed
+            ? "view-all"
+            : "view-less"
+        }
+        size={IconSize.SMALL}
+      />
+    </StyledReadMore>
+  </ReadMoreContainer>
 );
 
 function ReleaseComponent({ release }: ReleaseProps) {

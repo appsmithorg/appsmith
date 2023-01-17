@@ -712,6 +712,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                             data={props.datasourceHeaders}
                           />
                         )}
+
                         <KeyValueFieldArray
                           actionConfig={actionConfigurationHeaders}
                           dataTreePath={`${actionName}.config.headers`}

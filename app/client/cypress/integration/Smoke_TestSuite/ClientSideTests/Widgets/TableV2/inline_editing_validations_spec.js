@@ -57,7 +57,7 @@ describe("Table widget inline editing validation functionality", () => {
       .contains("Date")
       .click();
     cy.wait("@updateLayout");
-    cy.get(".t--property-pane-section-collapse-validation").should("not.exist");
+    cy.get(".t--property-pane-section-collapse-validation").should("exist");
     cy.get(commonlocators.changeColType)
       .last()
       .click();

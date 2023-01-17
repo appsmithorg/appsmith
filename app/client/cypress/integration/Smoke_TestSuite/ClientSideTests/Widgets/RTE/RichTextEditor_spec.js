@@ -286,6 +286,35 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get('[aria-label="Text color"]').should("have.length", 1);
   });
 
+  it("17. Check if able to add an emoji through toolbar", () => {
+    cy.get('[aria-label="More..."]').click({ force: true });
+    cy.wait(500);
+    cy.get('[aria-label="Emoticons"]').click({ force: true });
+    cy.wait(500);
+    cy.get('[aria-label="grinning"]').click({ force: true });
+    const getEditorContent = (win) => {
+      const tinyMceId = "rte-6h8j08u7ea";
+      const editor = win.tinymce.editors[tinyMceId];
+      return editor.getContent();
+    };
+
+    //contains emoji
+    cy.window().then((win) => {
+      expect(getEditorContent(win)).contains("😀");
+    });
+
+    //trigger a backspace
+    cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
+      const $body = $iframe.contents().find("body");
+      cy.get($body).type("{backspace}");
+    });
+
+    // after backspace the emoji should not be present
+    cy.window().then((win) => {
+      expect(getEditorContent(win)).not.contains("😀");
+    });
+  });
+
   afterEach(() => {
     cy.goToEditFromPublish();
   });

@@ -42,6 +42,7 @@ import { useActiveHoverIndex, useFilteredBranches } from "../hooks";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
+import { Theme } from "constants/DefaultTheme";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -119,7 +120,7 @@ function CreateNewBranch({
       });
   }, [shouldScrollIntoView]);
   const itemRef = React.useRef<HTMLDivElement>(null);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <div
@@ -174,7 +175,7 @@ export function Header({
   fetchBranches: () => void;
 }) {
   const title = createMessage(SWITCH_BRANCHES);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <div
