@@ -133,6 +133,31 @@ import {
 import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import defineTextHoverOption from "./utils/defineTextHoverOption";
+
+defineTextHoverOption();
+
+console.log("text hover - register called");
+CodeMirror.registerHelper("textHover", "javascript", function(
+  cm: any,
+  data: any,
+  node: any,
+) {
+  let html = "token null";
+  if (data && data.token) {
+    const token = data.token;
+    html = "node.innerText: " + (node.innerText || node.textContent);
+    html += "</br>node.className: " + node.className;
+    html += "</br>className: " + token.className;
+    html += "</br>end: " + token.end;
+    html += "</br>start: " + token.start;
+    html += "</br>string: " + token.string;
+    html += "</br>type: " + token.type;
+  }
+  const result = document.createElement("div");
+  result.innerHTML = html;
+  return result;
+});
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
