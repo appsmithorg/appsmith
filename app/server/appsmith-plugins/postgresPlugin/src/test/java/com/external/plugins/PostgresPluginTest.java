@@ -86,9 +86,19 @@ public class PostgresPluginTest {
             .withUsername("postgres")
             .withPassword("password");
 
+    @Container
+    public static final PostgreSQLContainer pgsqlContainerNoPwdAuth =
+            new PostgreSQLContainer<>("postgres:alpine")
+            .withExposedPorts(5432)
+            .withUsername("postgres_no_pwd_auth")
+            .withEnv("POSTGRES_HOST_AUTH_METHOD","trust");
+
     private static String address;
     private static Integer port;
     private static String username, password;
+    private static String addressNoPwdAuth;
+    private static String usernameNoPwdAuth;
+    private static Integer portNoPwdAuth;
 
     @BeforeAll
     public static void setUp() {
@@ -100,6 +110,10 @@ public class PostgresPluginTest {
         port = pgsqlContainer.getFirstMappedPort();
         username = pgsqlContainer.getUsername();
         password = pgsqlContainer.getPassword();
+
+        addressNoPwdAuth = pgsqlContainerNoPwdAuth.getContainerIpAddress();
+        usernameNoPwdAuth = pgsqlContainerNoPwdAuth.getUsername();
+        portNoPwdAuth = pgsqlContainerNoPwdAuth.getFirstMappedPort();
 
         Properties properties = new Properties();
         properties.putAll(Map.of(
@@ -256,6 +270,28 @@ public class PostgresPluginTest {
         return dsConfig;
     }
 
+    private DatasourceConfiguration createDatasourceConfigurationWithoutPwd() {
+        DBAuth authDTO = new DBAuth();
+        authDTO.setUsername(usernameNoPwdAuth);
+        authDTO.setDatabaseName("postgres");
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(addressNoPwdAuth);
+        endpoint.setPort(portNoPwdAuth.longValue());
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(authDTO);
+        dsConfig.setEndpoints(List.of(endpoint));
+
+        /* set ssl mode and read/write mode */
+        dsConfig.setConnection(new com.appsmith.external.models.Connection());
+        dsConfig.getConnection().setSsl(new SSLDetails());
+        dsConfig.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+        dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
+
+        return dsConfig;
+    }
+
     @Test
     public void testConnectPostgresContainer() {
 
@@ -271,6 +307,22 @@ public class PostgresPluginTest {
     @Test
     public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testTestDatasource_withCorrectCredentialsNoPwd_returnsWithoutInvalids() {
+        DatasourceConfiguration dsConfig = createDatasourceConfigurationWithoutPwd();
 
         final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
 

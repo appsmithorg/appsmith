@@ -37,12 +37,11 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { limitDecimalValue, getSeparators } from "./utilities";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import {
-  Icon,
-  LabelWithTooltip,
+import { Icon } from "design-system";
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
+} from "widgets/components/LabelWithTooltip";
 
 /**
  * All design system component specific logic goes here.

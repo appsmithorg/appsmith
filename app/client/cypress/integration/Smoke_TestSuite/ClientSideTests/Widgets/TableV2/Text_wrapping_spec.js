@@ -74,7 +74,7 @@ describe("Table Widget text wrapping functionality", function() {
     });
   });
 
-  it("4. should check that cell wrapping option is only available for plain text, number, date and URL", () => {
+  it("4. should check that cell wrapping option is only available for plain text, number and URL", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("email");
     [
@@ -92,7 +92,7 @@ describe("Table Widget text wrapping functionality", function() {
       },
       {
         columnType: "Date",
-        expected: "exist",
+        expected: "not.exist",
       },
       {
         columnType: "Image",
@@ -127,11 +127,11 @@ describe("Table Widget text wrapping functionality", function() {
     });
   });
 
-  it("5. should check that plain text, number, date and URL column is getting wrapped when cell wrapping is enabled", () => {
+  it("5. should check that plain text, number and URL column is getting wrapped when cell wrapping is enabled", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("id");
 
-    ["URL", "Number", "Date", "Plain Text"].forEach((data, i) => {
+    ["URL", "Number", "Plain Text"].forEach((data, i) => {
       cy.get(commonlocators.changeColType)
         .last()
         .click();
