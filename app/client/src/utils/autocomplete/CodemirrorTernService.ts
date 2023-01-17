@@ -48,6 +48,7 @@ export type Completion = Hint & {
   };
   render?: any;
   isHeader?: boolean;
+  parentProperty: string;
 };
 
 export type CommandsCompletion = Completion & {
@@ -214,6 +215,7 @@ class CodeMirrorTernService {
     }
     const doc = this.findDoc(cm.getDoc());
     const lineValue = this.lineValue(doc);
+    const parentProperty = this.getParentPropertyFromLine(lineValue);
     const cursor = cm.getCursor();
     const { extraChars } = this.getFocusedDocValueAndPos(doc);
 
@@ -255,6 +257,7 @@ class CodeMirrorTernService {
         origin: completion.origin,
         type: dataType,
         isHeader: false,
+        parentProperty,
       };
       if (completion.isKeyword) {
         codeMirrorCompletion.render = (
@@ -561,6 +564,10 @@ class CodeMirrorTernService {
 
   docValue(doc: TernDoc) {
     return doc.doc.getValue();
+  }
+
+  getParentPropertyFromLine(lineValue: string) {
+    return lineValue.trim().split(".")[0] || "";
   }
 
   getFocusedDocValueAndPos(

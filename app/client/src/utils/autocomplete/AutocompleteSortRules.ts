@@ -75,9 +75,15 @@ class BlockSuggestionsRule implements AutocompleteRule {
     const { blockCompletions } = currentFieldInfo;
 
     if (blockCompletions) {
+      const parentPaths = blockCompletions.map((b) => b.parentPath);
+
       for (let index = 0; index < blockCompletions.length; index++) {
         const { subPath } = blockCompletions[index];
-        if (completion.text === subPath) {
+
+        if (
+          completion.text === subPath &&
+          parentPaths.includes(completion.parentProperty)
+        ) {
           score = BlockSuggestionsRule.threshold;
           break;
         }
