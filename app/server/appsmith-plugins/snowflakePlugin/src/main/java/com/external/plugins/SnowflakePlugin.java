@@ -98,6 +98,7 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
             properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
             properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
+            properties.setProperty("jdbc_query_result_format", "json");
 
             return Mono
                     .fromCallable(() -> {
