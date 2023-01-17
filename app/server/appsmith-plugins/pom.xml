@@ -120,6 +120,7 @@
         <module>restApiPlugin</module>
         <module>mongoPlugin</module>
         <module>mysqlPlugin</module>
+        <module>mariadbPlugin</module>
         <module>elasticSearchPlugin</module>
         <module>dynamoPlugin</module>
         <module>redisPlugin</module>

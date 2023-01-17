@@ -2791,4 +2791,24 @@ public class DatabaseChangelog2 {
         update.set("datasourceConfiguration.connection.ssl.authType", "DEFAULT");
         mongoTemplate.updateMulti(queryToGetDatasources, update, Datasource.class);
     }
+
+    @ChangeSet(order = "040", id = "add-mariadb-plugin", author = "")
+    public void addMariaDBPlugin(MongoTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("MariaDB");
+        plugin.setPackageName("mariadb-plugin");
+        plugin.setType(PluginType.DB);
+        plugin.setUiComponent("DbEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.TABLE);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/graphql.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-graphql-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
 }
