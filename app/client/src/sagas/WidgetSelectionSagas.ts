@@ -226,11 +226,7 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
 
 export function* widgetSelectionSagas() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.SELECT_WIDGET_INIT,
-      canPerformSelectionSaga,
-      selectWidgetSaga,
-    ),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
     takeLatest(
       ReduxActionTypes.SET_SELECTED_WIDGETS,
       canPerformSelectionSaga,
