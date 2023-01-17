@@ -20,14 +20,13 @@ import {
   getMenuItemTextColor,
 } from "./utils";
 import {
-  NavigationSettingsColorStyle,
   NAVIGATION_SETTINGS,
   PublishedNavigationSetting,
 } from "constants/AppConstants";
 
 const PageTab = styled(NavLink)<{
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 }>`
   display: flex;
   max-width: 170px;
@@ -53,7 +52,7 @@ const PageTab = styled(NavLink)<{
 
 const StyleTabText = styled.div<{
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 }>`
   overflow: hidden;
   display: flex;
@@ -88,7 +87,7 @@ function PageTabName({
 }: {
   name: string;
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);

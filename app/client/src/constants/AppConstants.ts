@@ -77,26 +77,16 @@ export const NAVIGATION_SETTINGS = {
   },
 };
 
-export type NavigationSettingsOrientation = typeof NAVIGATION_SETTINGS.ORIENTATION[keyof typeof NAVIGATION_SETTINGS.ORIENTATION];
-export type NavigationSettingsStyle = typeof NAVIGATION_SETTINGS.NAV_STYLE[keyof typeof NAVIGATION_SETTINGS.NAV_STYLE];
-export type NavigationSettingsPosition = typeof NAVIGATION_SETTINGS.POSITION[keyof typeof NAVIGATION_SETTINGS.POSITION];
-export type NavigationSettingsItemStyle = typeof NAVIGATION_SETTINGS.ITEM_STYLE[keyof typeof NAVIGATION_SETTINGS.ITEM_STYLE];
-export type NavigationSettingsColorStyle = typeof NAVIGATION_SETTINGS.COLOR_STYLE[keyof typeof NAVIGATION_SETTINGS.COLOR_STYLE];
-export type NavigationSettingsLogoConfiguration = typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION[keyof typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION];
-export type NavigationSettingsShowNavbar = boolean;
-export type NavigationSettingsShowSignIn = boolean;
-export type NavigationSettingsShowShareApp = boolean;
-
 export type PublishedNavigationSetting = {
-  showNavbar: NavigationSettingsShowNavbar;
-  orientation: NavigationSettingsOrientation;
-  navStyle: NavigationSettingsStyle;
-  position: NavigationSettingsPosition;
-  itemStyle: NavigationSettingsItemStyle;
-  colorStyle: NavigationSettingsColorStyle;
-  logoConfiguration: NavigationSettingsLogoConfiguration;
-  showSignIn: NavigationSettingsShowSignIn;
-  showShareApp: NavigationSettingsShowShareApp;
+  showNavbar: boolean;
+  showSignIn: boolean;
+  showShareApp: boolean;
+  orientation: typeof NAVIGATION_SETTINGS.ORIENTATION[keyof typeof NAVIGATION_SETTINGS.ORIENTATION];
+  navStyle: typeof NAVIGATION_SETTINGS.NAV_STYLE[keyof typeof NAVIGATION_SETTINGS.NAV_STYLE];
+  position: typeof NAVIGATION_SETTINGS.POSITION[keyof typeof NAVIGATION_SETTINGS.POSITION];
+  itemStyle: typeof NAVIGATION_SETTINGS.ITEM_STYLE[keyof typeof NAVIGATION_SETTINGS.ITEM_STYLE];
+  colorStyle: typeof NAVIGATION_SETTINGS.COLOR_STYLE[keyof typeof NAVIGATION_SETTINGS.COLOR_STYLE];
+  logoConfiguration: typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION[keyof typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION];
 };
 
 export type StringsFromPublishedNavigationSetting = Omit<

@@ -1,5 +1,5 @@
 import {
-  NavigationSettingsColorStyle,
+  PublishedNavigationSetting,
   NAVIGATION_SETTINGS,
 } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
@@ -9,8 +9,8 @@ import { calulateHoverColor } from "widgets/WidgetUtils";
 // Menu Item Background Color - Active
 export const getMenuItemBackgroundColorWhenActive = (
   color: string,
-  navColorStyle: NavigationSettingsColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE
-    .LIGHT,
+  navColorStyle: PublishedNavigationSetting["colorStyle"] = NAVIGATION_SETTINGS
+    .COLOR_STYLE.LIGHT,
 ) => {
   const colorHsl = tinycolor(color).toHsl();
 
@@ -28,8 +28,8 @@ export const getMenuItemBackgroundColorWhenActive = (
 // Menu Item Background Color - Hover
 export const getMenuItemBackgroundColorOnHover = (
   color: string,
-  navColorStyle: NavigationSettingsColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE
-    .LIGHT,
+  navColorStyle: PublishedNavigationSetting["colorStyle"] = NAVIGATION_SETTINGS
+    .COLOR_STYLE.LIGHT,
 ) => {
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     return Colors.GREY_3;
@@ -47,8 +47,8 @@ export const getMenuItemBackgroundColorOnHover = (
 // Menu Item Text Color - Default, Hover, Active
 export const getMenuItemTextColor = (
   color: string,
-  navColorStyle: NavigationSettingsColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE
-    .LIGHT,
+  navColorStyle: PublishedNavigationSetting["colorStyle"] = NAVIGATION_SETTINGS
+    .COLOR_STYLE.LIGHT,
   isDefaultState = false,
 ) => {
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
@@ -64,8 +64,8 @@ export const getMenuItemTextColor = (
 // Menu Container Background Color
 export const getMenuContainerBackgroundColor = (
   color: string,
-  navColorStyle: NavigationSettingsColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE
-    .LIGHT,
+  navColorStyle: PublishedNavigationSetting["colorStyle"] = NAVIGATION_SETTINGS
+    .COLOR_STYLE.LIGHT,
 ) => {
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     return Colors.WHITE;
@@ -76,8 +76,8 @@ export const getMenuContainerBackgroundColor = (
 
 export const getApplicationNameTextColor = (
   color: string,
-  navColorStyle: NavigationSettingsColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE
-    .LIGHT,
+  navColorStyle: PublishedNavigationSetting["colorStyle"] = NAVIGATION_SETTINGS
+    .COLOR_STYLE.LIGHT,
 ) => {
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
     return Colors.GREY_9;
@@ -88,8 +88,8 @@ export const getApplicationNameTextColor = (
 
 export const getSignInButtonStyles = (
   color: string,
-  navColorStyle: NavigationSettingsColorStyle = NAVIGATION_SETTINGS.COLOR_STYLE
-    .LIGHT,
+  navColorStyle: PublishedNavigationSetting["colorStyle"] = NAVIGATION_SETTINGS
+    .COLOR_STYLE.LIGHT,
 ) => {
   const styles = {
     background: Colors.WHITE,

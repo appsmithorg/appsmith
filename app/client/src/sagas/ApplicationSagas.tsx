@@ -48,7 +48,7 @@ import {
   showReconnectDatasourceModal,
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
-  updateCurrentApplicationPublishedNavigationSetting,
+  updateApplicationNavigationSettingAction,
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -384,7 +384,7 @@ export function* updateApplicationSaga(
         }
         if (request.publishedNavigationSetting) {
           yield put(
-            updateCurrentApplicationPublishedNavigationSetting(
+            updateApplicationNavigationSettingAction(
               response.data.publishedNavigationSetting,
             ),
           );

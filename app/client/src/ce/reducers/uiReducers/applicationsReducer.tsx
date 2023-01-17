@@ -522,7 +522,7 @@ export const handlers = {
       },
     };
   },
-  [ReduxActionTypes.CURRENT_APPLICATION_PUBLISHED_NAVIGATION_SETTING_UPDATE]: (
+  [ReduxActionTypes.UPDATE_PUBLISHED_NAVIGATION_SETTING]: (
     state: ApplicationsReduxState,
     action: ReduxAction<PublishedNavigationSetting>,
   ) => {

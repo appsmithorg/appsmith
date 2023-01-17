@@ -20,14 +20,13 @@ import {
   getMenuItemTextColor,
 } from "../utils";
 import {
-  NavigationSettingsColorStyle,
   NAVIGATION_SETTINGS,
   PublishedNavigationSetting,
 } from "constants/AppConstants";
 
 const StyledMenuItem = styled(NavLink)<{
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 }>`
   display: flex;
   max-width: 220px;
@@ -76,7 +75,7 @@ const StyledMenuItem = styled(NavLink)<{
 
 const StyledMenuItemText = styled.div<{
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 }>`
   overflow: hidden;
   display: flex;
@@ -108,7 +107,7 @@ const StyledMenuItemText = styled.div<{
 type MenuTextProps = {
   name: string;
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 };
 
 const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {

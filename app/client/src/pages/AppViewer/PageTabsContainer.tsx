@@ -8,7 +8,7 @@ import { Icon, IconSize } from "design-system";
 import Navigation from "./Navigation";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import {
-  NavigationSettingsColorStyle,
+  PublishedNavigationSetting,
   NAVIGATION_SETTINGS,
 } from "constants/AppConstants";
 import { get } from "lodash";
@@ -18,7 +18,7 @@ import { getMenuContainerBackgroundColor, getMenuItemTextColor } from "./utils";
 
 const Container = styled.div<{
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 }>`
   width: 100%;
   align-items: center;
@@ -41,7 +41,7 @@ const Container = styled.div<{
 const ScrollBtnContainer = styled.div<{
   visible: boolean;
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 }>`
   cursor: pointer;
   display: flex;

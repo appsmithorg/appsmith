@@ -176,7 +176,7 @@ export const ENABLE_TIME = () => `Enable Time`;
 
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
-export const SIGN_IN = () => `Sign In`;
+export const SIGN_IN = () => `Sign in`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",

@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  NavigationSettingsColorStyle,
+  PublishedNavigationSetting,
   NAVIGATION_SETTINGS,
 } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 const ColorStyleIcon = (props: {
-  colorStyle: NavigationSettingsColorStyle;
+  colorStyle: PublishedNavigationSetting["colorStyle"];
 }) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
 

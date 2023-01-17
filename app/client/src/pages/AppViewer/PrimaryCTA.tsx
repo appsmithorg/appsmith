@@ -12,12 +12,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import {
-  createMessage,
-  EDIT_APP,
-  FORK_APP,
-  SIGN_IN,
-} from "@appsmith/constants/messages";
+import { createMessage, FORK_APP, SIGN_IN } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
@@ -25,9 +20,10 @@ import { getAllApplications } from "actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
-import { NavigationSettingsColorStyle } from "constants/AppConstants";
+import { PublishedNavigationSetting } from "constants/AppConstants";
 import { Icon } from "design-system";
 import { getApplicationNameTextColor } from "./utils";
+import { ButtonVariantTypes } from "components/constants";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -38,7 +34,7 @@ type Props = {
   url?: string;
   className?: string;
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 };
 
 /**
@@ -162,13 +158,13 @@ function PrimaryCTA(props: Props) {
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
           className="t--sign-in"
-          isSignInButton
           navColorStyle={navColorStyle}
           onClick={() => {
             window.location.href = LOGIN_URL;
           }}
           primaryColor={primaryColor}
           text={createMessage(SIGN_IN)}
+          varient={ButtonVariantTypes.SECONDARY}
         />
       );
     }

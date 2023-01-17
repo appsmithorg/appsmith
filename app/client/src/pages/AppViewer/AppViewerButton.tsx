@@ -1,6 +1,6 @@
-import { NavigationSettingsColorStyle } from "constants/AppConstants";
+import { ButtonVariant, ButtonVariantTypes } from "components/constants";
+import { PublishedNavigationSetting } from "constants/AppConstants";
 import styled from "styled-components";
-
 import { StyledButton as Button } from "widgets/ButtonWidget/component";
 import {
   getMenuItemBackgroundColorOnHover,
@@ -9,8 +9,8 @@ import {
 
 const StyledButton = styled(Button)<{
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
-  isSignInButton?: boolean;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
+  varient?: ButtonVariant;
 }>`
   padding: 6px 12px;
   min-width: 2rem;
@@ -33,11 +33,11 @@ const StyledButton = styled(Button)<{
       )} !important;
   }
 
-  // Sign In Button Styles
-  ${({ isSignInButton, navColorStyle, primaryColor }) => {
+  // Secondary button styles (such as the sign in button)
+  ${({ navColorStyle, primaryColor, varient }) => {
     const styles = getSignInButtonStyles(primaryColor, navColorStyle);
 
-    const signInStyles = `
+    const secondaryVarientStyles = `
       background-color: ${styles.background} !important;
 
       span {
@@ -51,7 +51,9 @@ const StyledButton = styled(Button)<{
       }
     `;
 
-    return isSignInButton ? signInStyles : "";
+    return varient === ButtonVariantTypes.SECONDARY
+      ? secondaryVarientStyles
+      : "";
   }}
 `;
 

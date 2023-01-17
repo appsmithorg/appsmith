@@ -94,12 +94,11 @@ export const updateCurrentApplicationEmbedSetting = (
   };
 };
 
-export const updateCurrentApplicationPublishedNavigationSetting = (
+export const updateApplicationNavigationSettingAction = (
   publishedNavigationSetting: PublishedNavigationSetting,
 ) => {
   return {
-    type:
-      ReduxActionTypes.CURRENT_APPLICATION_PUBLISHED_NAVIGATION_SETTING_UPDATE,
+    type: ReduxActionTypes.UPDATE_PUBLISHED_NAVIGATION_SETTING,
     payload: publishedNavigationSetting,
   };
 };

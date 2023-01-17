@@ -40,7 +40,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import {
-  NavigationSettingsColorStyle,
+  PublishedNavigationSetting,
   NAVIGATION_SETTINGS,
 } from "constants/AppConstants";
 import {
@@ -82,7 +82,7 @@ type AppViewerHeaderProps = {
 
 const StyledNav = styled.div<{
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 }>`
   background-color: ${({ navColorStyle, primaryColor }) =>
     getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
@@ -90,7 +90,7 @@ const StyledNav = styled.div<{
 
 const StyledApplicationName = styled.div<{
   primaryColor: string;
-  navColorStyle: NavigationSettingsColorStyle;
+  navColorStyle: PublishedNavigationSetting["colorStyle"];
 }>`
   color: ${({ navColorStyle, primaryColor }) =>
     getApplicationNameTextColor(primaryColor, navColorStyle)};
