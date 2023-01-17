@@ -133,12 +133,24 @@ describe("Text-Table Binding Functionality", function() {
       cy.validateEvaluatedValue(tabValue);
       cy.PublishtheApp();
       cy.isSelectRow(1);
+
+      // cy.readTabledataPublish("1", "2").then((tabDataP) => {
+      //   const tabValueP = `\"${tabDataP}\"`;
+      //   cy.get(commonlocators.TextInside).contains(tabValueP);
+      // });
+    });
+  });
+  let phones = ["iphone-3", "iphone-4", "iphone-5", "iphone-6", "iphone-6+", "iphone-7",
+  "iphone-8", "iphone-x", "samsung-note9", "samsung-s10"]
+  phones.forEach((phone) => {
+  it(`${phone}`, function() {
+      cy.viewport(phone);
       cy.readTabledataPublish("1", "2").then((tabDataP) => {
         const tabValueP = `\"${tabDataP}\"`;
         cy.get(commonlocators.TextInside).contains(tabValueP);
       });
-    });
-  });
+    })
+  })
 });
 afterEach(() => {
   // put your clean up code if any
