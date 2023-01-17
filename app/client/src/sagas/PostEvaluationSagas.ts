@@ -19,7 +19,6 @@ import {
   EvalErrorTypes,
   EvaluationError,
   getEvalErrorPath,
-  getEvalValuePath,
 } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -76,14 +75,6 @@ function logLatestEvalPropertyErrors(
           isPopulated: false,
         }),
         [],
-      );
-
-      const evaluatedValue = get(
-        entity,
-        getEvalValuePath(evaluatedPath, {
-          isPopulated: false,
-          fullPath: false,
-        }),
       );
       const evalErrors: EvaluationError[] = [];
       const evalWarnings: EvaluationError[] = [];
@@ -173,9 +164,6 @@ function logLatestEvalPropertyErrors(
                   propertyPath: logPropertyPath,
                   pluginType: pluginTypeField,
                   httpMethod,
-                },
-                state: {
-                  [logPropertyPath]: evaluatedValue,
                 },
                 analytics: analyticsData,
               },
