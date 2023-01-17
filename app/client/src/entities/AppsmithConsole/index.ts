@@ -109,6 +109,8 @@ export interface LogActionPayload {
   state?: Record<string, any>;
   // Any other data required for analytics
   analytics?: Record<string, any>;
+  // plugin execution error details
+  pluginErrorDetails?: any;
 }
 
 export interface Message {

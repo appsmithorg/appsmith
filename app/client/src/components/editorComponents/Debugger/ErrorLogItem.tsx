@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import { Collapse } from "@blueprintjs/core";
+import React, { useState, useMemo, PropsWithChildren } from "react";
 import { useSelector } from "react-redux";
 import { get, keyBy } from "lodash";
 import {
@@ -11,6 +12,7 @@ import {
 } from "entities/AppsmithConsole";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
+import ReactJson from "react-json-view";
 import { getLogIcon } from "./helpers";
 import {
   Classes,
@@ -171,6 +173,42 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
+type StyledCollapseProps = PropsWithChildren<{
+  category: LOG_CATEGORY;
+}>;
+
+const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
+  padding-top: ${(props) =>
+    props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
+      ? " -20px"
+      : " 4px"};
+  padding-left: 78px;
+`;
+
+const MessageInfo = styled.div`
+  ${getTypographyByKey("h6")}
+  font-weight: 400;
+  letter-spacing: -0.195px;
+  color: ${Colors.GRAY_800};
+`;
+
+const MessageWrapper = styled.div`
+  padding-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const JsonWrapper = styled.div`
+  padding-top: ${(props) => props.theme.spaces[1]}px;
+  svg {
+    color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
+    height: 12px !important;
+    width: 12px !important;
+    vertical-align: baseline !important;
+  }
+`;
+
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
   color: ${Colors.CHARCOAL};
@@ -193,10 +231,11 @@ const LineNumber = styled.div`
   font-weight: 400;
   letter-spacing: -0.195px;
   color: ${Colors.GRAY_500};
+  min-width: 90px;
 `;
 
 const showToggleIcon = (e: Log) => {
-  let output = !!e.state || !!e.messages;
+  let output = !!e.state || !!e.pluginErrorDetails;
   if (!output && e.logData && e.logData.length > 0) {
     e.logData.forEach((item) => {
       if (typeof item === "object") {
@@ -225,6 +264,7 @@ export const getLogItemProps = (e: Log) => {
     messages: e.messages,
     collapsable: showToggleIcon(e),
     occurences: e.occurrenceCount || 1,
+    pluginErrorDetails: e.pluginErrorDetails,
   };
 };
 
@@ -246,14 +286,31 @@ type LogItemProps = {
   expand?: boolean;
   messages?: Message[];
   occurences: number;
+  pluginErrorDetails?: any;
 };
 
-function LogItem(props: LogItemProps) {
+function ErrorLogItem(props: LogItemProps) {
   const [isOpen, setIsOpen] = useState(!!props.expand);
   const { collapsable } = props;
   const theme = useTheme();
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+
+  const reactJsonProps = {
+    name: null,
+    enableClipboard: false,
+    displayObjectSize: false,
+    displayDataTypes: false,
+    style: {
+      fontFamily:
+        "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
+      fontSize: "12px",
+      fontWeight: "400",
+      letterSpacing: "-0.195px",
+      lineHeight: "14px",
+    },
+    collapsed: 1,
+  };
 
   const getIcon = () => {
     if (props.source) {
@@ -269,7 +326,7 @@ function LogItem(props: LogItemProps) {
           props.source.httpMethod
         ) {
           return ApiMethodIcon(props.source.httpMethod, "9px", "17px", 28);
-        } else if (props.iconId) {
+        } else if (props.iconId && pluginGroups[props.iconId]) {
           return (
             <EntityIcon height={"12px"} width={"12px"}>
               <img
@@ -310,7 +367,7 @@ function LogItem(props: LogItemProps) {
               {props.timestamp}
             </span>
           )}
-        {/* {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
+        {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
           <Icon
             className={`${Classes.ICON} debugger-toggle`}
             clickable={collapsable}
@@ -319,7 +376,7 @@ function LogItem(props: LogItemProps) {
             onClick={() => setIsOpen(!isOpen)}
             size={IconSize.SMALL}
           />
-        )} */}
+        )}
         <span className={`debugger-error-type`}>
           {`${props.messages && props.messages[0].message.name}:`}
         </span>
@@ -349,28 +406,17 @@ function LogItem(props: LogItemProps) {
           props.category === LOG_CATEGORY.USER_GENERATED
         ) && (
           <div className="debugger-description">
-            {props.occurences > 1 && (
-              <span
-                className={`t--debugger-log-message-occurence debugger-occurences ${props.severity}`}
-              >
-                {props.occurences}
-              </span>
-            )}
             <span
               className="debugger-label t--debugger-log-message"
               onClick={(e) => e.stopPropagation()}
             >
-              {props.messages && props.messages[0].message.text}
+              {props.pluginErrorDetails
+                ? props.pluginErrorDetails.title
+                : props.messages && props.messages[0].message.text}
             </span>
-
-            {props.timeTaken && (
-              <span className={`debugger-timetaken ${props.severity}`}>
-                {props.timeTaken}
-              </span>
-            )}
           </div>
         )}
-        {props.messages && props.messages[0].lineNumber && (
+        {props.messages && props.messages[0].lineNumber ? (
           <LineNumber>
             [Ln{" "}
             {props.messages[0].lineNumber < 10
@@ -378,10 +424,54 @@ function LogItem(props: LogItemProps) {
               : props.messages[0].lineNumber + 1}
             ]
           </LineNumber>
+        ) : (
+          props.pluginErrorDetails &&
+          props.pluginErrorDetails.appsmithErrorCode && (
+            <LineNumber>
+              [{props.pluginErrorDetails.appsmithErrorCode}]
+            </LineNumber>
+          )
         )}
       </InnerWrapper>
+      {collapsable && isOpen && (
+        <StyledCollapse
+          category={props.category}
+          isOpen={isOpen}
+          keepChildrenMounted
+        >
+          {props.pluginErrorDetails && (
+            <MessageWrapper>
+              <MessageInfo>
+                {props.pluginErrorDetails.appsmithErrorMessage}
+              </MessageInfo>
+              <MessageInfo>
+                {/* <span
+                  style={{
+                    fontWeight: 500,
+                    fontSize: "12px",
+                    lineHeight: "14px",
+                    letterSpacing: "-0.195px",
+                    color: "#393939",
+                  }}
+                >
+                  Database Error:{" "}
+                </span> */}
+                {props.pluginErrorDetails.downstreamErrorMessage}
+              </MessageInfo>
+            </MessageWrapper>
+          )}
+          {props.state && (
+            <JsonWrapper
+              className="t--debugger-log-state"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ReactJson src={props.state} {...reactJsonProps} />
+            </JsonWrapper>
+          )}
+        </StyledCollapse>
+      )}
     </Wrapper>
   );
 }
 
-export default LogItem;
+export default ErrorLogItem;
