@@ -167,6 +167,15 @@ class DatePickerComponent extends React.Component<
     return _date.isValid() ? _date.toDate() : undefined;
   };
 
+  getConditionalPopoverProps = (props: DatePickerComponentProps) => {
+    if (typeof props.isPopoverOpen === "boolean") {
+      return {
+        isOpen: props.isPopoverOpen,
+      };
+    }
+    return {};
+  };
+
   render() {
     const {
       compactMode,
@@ -357,6 +366,14 @@ class DatePickerComponent extends React.Component<
                 usePortal: !this.props.withoutPortal,
                 canEscapeKeyClose: true,
                 portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
+                onClose: this.props.onPopoverClosed,
+                /* 
+                  Conditional popover props are the popover props that should not be sent to
+                  DateInput in any way if they are not applicable.
+                  Here isOpen prop if sent in any way will interfere with the normal functionality
+                  of Date Picker widget's popover but is required for Table Widget's date cell popover
+                */
+                ...this.getConditionalPopoverProps(this.props),
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
@@ -403,6 +420,9 @@ class DatePickerComponent extends React.Component<
       ) {
         isValid = false;
       }
+    }
+    if (!isValid && this.props?.onDateOutOfRange) {
+      this.props.onDateOutOfRange();
     }
     return isValid;
   };
@@ -474,6 +494,9 @@ interface DatePickerComponentProps extends ComponentProps {
   labelTooltip?: string;
   onFocus?: () => void;
   onBlur?: () => void;
+  onPopoverClosed?: (e: unknown) => void;
+  isPopoverOpen?: boolean;
+  onDateOutOfRange?: () => void;
 }
 
 interface DatePickerComponentState {
