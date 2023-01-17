@@ -1271,12 +1271,14 @@ type ColorType = {
     };
     error: {
       time: string;
+      type: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
       hoverIconColor: string;
     };
     jsonIcon: string;
+    collapseIcon: string;
     message: string;
   };
   helpModal: {
@@ -2053,6 +2055,7 @@ export const dark: ColorType = {
     entity: "rgba(212, 212, 212, 0.5)",
     entityLink: "#D4D4D4",
     jsonIcon: "#9F9F9F",
+    collapseIcon: lightShades[20],
     message: "#D4D4D4",
     evalDebugButton: {
       hover: "#fafafaaa",
@@ -2074,18 +2077,19 @@ export const dark: ColorType = {
       shortcut: "#D4D4D4",
     },
     info: {
-      time: "#D4D4D4",
+      time: Colors.GRAY_500,
       borderBottom: "black",
     },
     warning: {
-      time: "#D4D4D4",
+      time: Colors.GRAY_500,
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
-      time: "#D4D4D4",
+      time: Colors.GRAY_500,
+      type: "#393939",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
       borderBottom: "black",
@@ -2687,6 +2691,7 @@ export const light: ColorType = {
     entityLink: "#575757",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
+    collapseIcon: lightShades[20],
     evalDebugButton: {
       hover: "#fafafaaa",
       active: "#fafafaff",
@@ -2707,18 +2712,19 @@ export const light: ColorType = {
       shortcut: "black",
     },
     info: {
-      time: "#939393",
+      time: Colors.GRAY_500,
       borderBottom: "#E8E8E8",
     },
     warning: {
-      time: "#575757",
+      time: Colors.GRAY_500,
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "#E8E8E8",
       backgroundColor: "#FFF8E2",
     },
     error: {
-      time: "#575757",
+      time: Colors.GRAY_500,
+      type: "#393939",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
       borderBottom: "#E8E8E8",

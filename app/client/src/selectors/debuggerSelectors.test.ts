@@ -1,4 +1,5 @@
 import { Severity, ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
@@ -10,12 +11,14 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "main_input_id-defaultText": {
           id: "main_input_id-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -69,12 +72,14 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "modal_input-defaultText": {
           id: "modal_input-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -154,12 +159,14 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "tab2_input-defaultText": {
           id: "tab2_input-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -263,12 +270,14 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "tab2_input-defaultText": {
           id: "tab2_input-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -372,12 +381,14 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "tab2_input-defaultText": {
           id: "tab2_input-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -507,12 +518,14 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "container1_input_id-defaultText": {
           id: "container1_input_id-defaultText",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at defaultText is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -592,12 +605,14 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "main_input_id-isVisible": {
           id: "main_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -638,13 +653,15 @@ describe("getFilteredErrors", () => {
       expectedResult: {
         "main_input_id-isVisible": {
           id: "main_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -679,12 +696,14 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "container1_input_id-isVisible": {
           id: "container1_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -751,12 +770,14 @@ describe("getFilteredErrors", () => {
       expectedResult: {
         "container1_input_id-isVisible": {
           id: "container1_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
@@ -793,12 +814,14 @@ describe("getFilteredErrors", () => {
       debuggerErrors: {
         "container1_input_id-isVisible": {
           id: "container1_input_id-isVisible",
-          logType: 5,
+          logType: LOG_TYPE.EVAL_ERROR,
           text: "The value at isVisible is invalid",
           messages: [
             {
-              message:
-                "TypeError: Cannot read properties of undefined (reading 'users')",
+              message: {
+                name: "TypeError",
+                text: "Cannot read properties of undefined (reading 'users')",
+              },
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],

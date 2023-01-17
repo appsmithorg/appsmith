@@ -28,7 +28,9 @@ export function selectedTabValidation(
   return {
     isValid: value === "" ? true : tabNames.includes(value as string),
     parsed: value,
-    messages: [`Tab name ${value} does not exist`],
+    messages: [
+      { name: "ValidationError", text: `Tab name ${value} does not exist` },
+    ],
   };
 }
 class TabsWidget extends BaseWidget<
