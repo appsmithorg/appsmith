@@ -247,10 +247,15 @@ export const getMainCanvasPositioning = createSelector(
   },
 );
 
+export const isAutoLayoutEnabled = (state: AppState): boolean => {
+  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
+};
+
 export const getCurrentAppPositioningType = createSelector(
   getMainCanvasPositioning,
-  (positioning: any): AppPositioningTypes => {
-    return positioning && positioning !== Positioning.Fixed
+  isAutoLayoutEnabled,
+  (positioning: any, autoLayoutEnabled: boolean): AppPositioningTypes => {
+    return positioning && positioning !== Positioning.Fixed && autoLayoutEnabled
       ? AppPositioningTypes.AUTO
       : AppPositioningTypes.FIXED;
   },
@@ -265,10 +270,6 @@ export const getCurrentApplicationLayout = createSelector(
       : defaultLayout;
   },
 );
-
-export const isAutoLayoutEnabled = (state: AppState): boolean => {
-  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
-};
 
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
 export const getCanvasScale = (state: AppState) => state.ui.mainCanvas.scale;
