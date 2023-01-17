@@ -30,6 +30,7 @@ import {
 } from "../component/utilities";
 import { LabelPosition } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
+import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 
 export function defaultValueValidation(
   value: any,
@@ -224,7 +225,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
             hidden: (props: InputWidgetProps) => {
-              return props.inputType !== InputTypes.TEXT;
+              return !checkInputTypeTextByProps(props);
             },
             dependencies: ["inputType"],
           },
@@ -377,7 +378,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: (props: InputWidgetProps) => {
-              return props.inputType !== InputTypes.TEXT;
+              return !checkInputTypeTextByProps(props);
             },
             dependencies: ["inputType"],
           },
