@@ -41,12 +41,13 @@
     </repositories>
 
     <dependencies>
+
         <!--
-    Ideally this dependency should have been added in the pom.xml file of GraphQLPlugin module, but it is
-    causing 'java.lang.NoClassDefFoundError' error. Hence, adding it here after many attempts of fixing it the right
-    way. Somehow adding it here makes it work. GraphQLPlugin module's pom.xml file also has this dependency
-    defined with 'provided' scope
- -->
+            Ideally this dependency should have been added in the pom.xml file of GraphQLPlugin module, but it is
+            causing 'java.lang.NoClassDefFoundError' error. Hence, adding it here after many attempts of fixing it the right
+            way. Somehow adding it here makes it work. GraphQLPlugin module's pom.xml file also has this dependency
+            defined with 'provided' scope
+        -->
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java</artifactId>

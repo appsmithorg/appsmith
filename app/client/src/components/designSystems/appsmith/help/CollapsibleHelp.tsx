@@ -1,8 +1,6 @@
 import React, { ReactNode } from "react";
-// import { Button, Collapse, Pre } from "@blueprintjs/core";
+import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
-import styled from "constants/DefaultTheme";
-
 interface CollapsibleHelpProps {
   children?: ReactNode;
 }

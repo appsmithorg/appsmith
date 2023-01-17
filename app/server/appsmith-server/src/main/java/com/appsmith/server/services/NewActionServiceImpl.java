@@ -45,13 +45,14 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 DatasourcePermission datasourcePermission,
                                 ApplicationPermission applicationPermission,
                                 PagePermission pagePermission,
-                                ActionPermission actionPermission) {
+                                ActionPermission actionPermission,
+                                ObservationRegistry observationRegistry) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 datasourceService, pluginService, datasourceContextService, pluginExecutorHelper, marketplaceService,
                 policyGenerator, newPageService, applicationService, sessionUserService, policyUtils,
                 authenticationValidator, configService, responseUtils, permissionGroupService, datasourcePermission,
-                applicationPermission, pagePermission, actionPermission);
+                applicationPermission, pagePermission, actionPermission, observationRegistry);
 
     }
 }
