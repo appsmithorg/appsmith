@@ -1257,3 +1257,37 @@ describe("#getMetaContainers", () => {
     expect(containers.names[1]).not.toEqual("Container1");
   });
 });
+
+describe("#updateWidgetNameInDynamicBinding", () => {
+  const { generator } = init();
+  const data = [
+    {
+      binding: "Text1.isValid + Text1 + Text1.text",
+      metaWidgetName: "List12_Text1_szn8dmq3qq_txbxl5n484",
+      templateWidgetName: "Text1",
+      expected:
+        "List12_Text1_szn8dmq3qq_txbxl5n484.isValid + Text1 + List12_Text1_szn8dmq3qq_txbxl5n484.text",
+    },
+    {
+      binding:
+        '{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow["name"]))}}',
+      metaWidgetName: "List1_Table1_szn8dmq3qq_l21enk0im8",
+      templateWidgetName: "Table1",
+      expected:
+        '{{List1_Table1_szn8dmq3qq_l21enk0im8.processedTableData.map((currentRow, currentIndex) => ( currentRow["name"]))}}',
+    },
+  ];
+
+  it("returns meta containers", () => {
+    data.forEach(
+      ({ binding, expected, metaWidgetName, templateWidgetName }) => {
+        const updatedBinding = generator.updateWidgetNameInDynamicBinding(
+          binding,
+          metaWidgetName,
+          templateWidgetName,
+        );
+        expect(updatedBinding).toBe(expected);
+      },
+    );
+  });
+});

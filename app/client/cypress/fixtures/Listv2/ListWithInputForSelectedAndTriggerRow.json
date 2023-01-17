@@ -76,7 +76,7 @@
                 "isCanvas": true,
                 "dynamicPropertyPathList": [
                     {
-                        "key": "onRowClick"
+                        "key": "onItemClick"
                     }
                 ],
                 "displayName": "List V2",
@@ -94,7 +94,7 @@
                 "parentColumnSpace": 6.9375,
                 "dynamicTriggerPathList": [
                     {
-                        "key": "onRowClick"
+                        "key": "onItemClick"
                     }
                 ],
                 "dynamicBindingPathList": [
@@ -802,7 +802,7 @@
                 "itemBackgroundColor": "#FFFFFF",
                 "widgetId": "iex9nvgttc",
                 "accentColor": "{{appsmith.theme.colors.primaryColor}}",
-                "onRowClick": "{{showAlert('ListWidget_' + currentItem.name + '_' + currentIndex,'success')}}",
+                "onItemClick": "{{showAlert('ListWidget_' + currentItem.name + '_' + currentIndex,'success')}}",
                 "isVisible": true,
                 "parentId": "0",
                 "hasMetaWidgets": true,

@@ -150,6 +150,7 @@ class ListWidget extends BaseWidget<
   static getDerivedPropertiesMap() {
     return {
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
+      triggeredItem: `{{(()=>{${derivedProperties.getTriggeredItem}})()}}`,
       items: `{{(() => {${derivedProperties.getItems}})()}}`,
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
     };
@@ -637,15 +638,15 @@ class ListWidget extends BaseWidget<
     this.updateMetaGeneratorRowDataCache(rowDataCache);
   };
 
-  onRowClick = (rowIndex: number) => {
+  onItemClick = (rowIndex: number) => {
     this.updateSelectedItemViewIndex(rowIndex);
     this.updateSelectedItemView(rowIndex);
 
-    if (!this.props.onRowClick) return;
+    if (!this.props.onItemClick) return;
 
     try {
       const rowData = this.props.listData?.[rowIndex];
-      const { jsSnippets } = getDynamicBindings(this.props.onRowClick);
+      const { jsSnippets } = getDynamicBindings(this.props.onItemClick);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{${next}}} `;
       }, "");
@@ -667,7 +668,7 @@ class ListWidget extends BaseWidget<
     }
   };
 
-  onRowClickCapture = (rowIndex: number) => {
+  onItemClickCapture = (rowIndex: number) => {
     this.updateTriggeredItemViewIndex(rowIndex);
     this.updateTriggeredItemView(rowIndex);
     this.setRowDataCache();
@@ -792,10 +793,10 @@ class ListWidget extends BaseWidget<
               selected: selectedItemIndex === rowIndex,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation();
-                this.onRowClick(rowIndex);
+                this.onItemClick(rowIndex);
               },
               onClickCapture: () => {
-                this.onRowClickCapture(rowIndex);
+                this.onItemClickCapture(rowIndex);
               },
             };
           });
@@ -831,9 +832,22 @@ class ListWidget extends BaseWidget<
     const templateWidgetId = this.metaWidgetGenerator.getTemplateWidgetIdByMetaWidgetId(
       metaWidgetId,
     );
-    const widgetId = templateWidgetId || metaWidgetId;
 
-    this.context?.batchUpdateWidgetProperty?.(widgetId, updates, shouldReplay);
+    // Only update the template/canvas widget properties here.
+    if (!templateWidgetId) {
+      this.context?.batchUpdateWidgetProperty?.(
+        metaWidgetId,
+        updates,
+        shouldReplay,
+      );
+    }
+    // All meta widget property updates goes to the MetaWidget Reducers
+    else {
+      this.updateMetaWidgetProperty?.({
+        updates,
+        widgetId: metaWidgetId,
+      });
+    }
   };
 
   overrideUpdateWidget = (
@@ -1005,7 +1019,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   listData?: Array<Record<string, unknown>>;
   mainCanvasId?: string;
   mainContainerId?: string;
-  onRowClick?: string;
+  onItemClick?: string;
   pageNo: number;
   pageSize: number;
   prefixMetaWidgetId?: string;
