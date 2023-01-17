@@ -40,7 +40,7 @@ export const PortalStyles = createGlobalStyle`
     border-radius: 4px;
     filter: drop-shadow(0px 1px 3px rgba(16, 24, 40, 0.1)) drop-shadow(0px 1px 2px rgba(16, 24, 40, 0.06));
     transition: all 1s;
-    z-index: 10;
+    z-index: ${Layers.guidedTourOverlay};
     pointer-events: none;
   }
 

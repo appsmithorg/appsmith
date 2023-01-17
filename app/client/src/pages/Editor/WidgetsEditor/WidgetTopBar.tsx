@@ -7,7 +7,6 @@ import {
   previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -17,7 +16,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { TooltipComponent } from "design-system";
 
 const Wrapper = styled.div`
-  height: 40px;
+  height: ${(props) => props.theme.widgetTopBar};
   width: 100%;
   background-color: white;
   border-bottom: 1px solid ${Colors.GRAY_200};
@@ -28,16 +27,17 @@ const WidgetWrapper = styled.div`
   align-items: center;
   justify-content: center;
   width: 32px;
-  height: 40px;
+  height: ${(props) => props.theme.widgetTopBar};
   :hover {
-    background-color: #f1f1f1;
+    background-color: ${Colors.GRAY_100};
     cursor: grab;
   }
   :active {
-    background-color: #e7e7e7;
+    background-color: ${Colors.GREY_200};
   }
 `;
 
+// To make the icons dimensions look the same
 const WIDGET_ICON_SIZE: Record<string, number> = {
   TEXT_WIDGET: 5,
   TABLE_WIDGET_V2: 4,
@@ -58,10 +58,6 @@ function WidgetTopBar() {
     e.preventDefault();
     e.stopPropagation();
     deselectAll();
-    AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
-      widgetType: widget.type,
-      widgetName: widget.displayName,
-    });
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...widget,

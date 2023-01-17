@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import { useDispatch, useSelector } from "react-redux";
-import { selectForceOpenWidgetPanel } from "../Explorer";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getDragDetails } from "sagas/selectors";
 import { AppState } from "@appsmith/reducers";
@@ -10,25 +9,28 @@ import styled from "styled-components";
 import { Icon, IconSize, TooltipComponent } from "design-system";
 import { Popover2 } from "@blueprintjs/popover2";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { selectForceOpenWidgetPanel } from "selectors/editorSelectors";
+import { Colors } from "constants/Colors";
+import { ADD_WIDGET_TOOLTIP, createMessage } from "ce/constants/messages";
 
 const WIDGET_PANE_WIDTH = 246;
 const WIDGET_PANE_HEIGHT = 600;
 
 const StyledTrigger = styled.div<{ active: boolean }>`
-  height: 40px;
+  height: ${(props) => props.theme.widgetTopBar};
   width: 36px;
 
   :hover {
-    background-color: #f1f1f1;
+    background-color: ${Colors.GRAY_100};
   }
   :active {
-    background-color: #e7e7e7;
+    background-color: ${Colors.GREY_200};
   }
 
   ${(props) =>
     props.active &&
     `
-  background-color: #e7e7e7;
+  background-color: ${Colors.GREY_200};
   `}
 
   cursor: pointer;
@@ -59,11 +61,13 @@ function WidgetPaneTrigger() {
     if (ref.current) {
       ctaPosition = ref.current.getBoundingClientRect();
     }
-
+    // Horizontal buffer distance
     const hbufferOffset = 200;
+    // The distance from the left of the viewport + buffer + widget pane width
+    // If the cursor is in this area we don't open the pane after drop
     const hOffset = ctaPosition.left + hbufferOffset + WIDGET_PANE_WIDTH;
     const vOffset = ctaPosition.top + WIDGET_PANE_HEIGHT;
-
+    // The CTA is always on the left and top of the canvas.
     if (x < hOffset && y < vOffset) {
       return true;
     }
@@ -71,13 +75,16 @@ function WidgetPaneTrigger() {
     return false;
   };
 
+  // To close the pane when we see a drag of a new widget
   useEffect(() => {
     if (isDragging && dragDetails.newWidget) {
       dispatch(forceOpenWidgetPanel(false));
+      // We use a ref to keep track of whether we want to reopen on drop
       toOpen.current = true;
     }
   }, [isDragging, dragDetails.newWidget]);
 
+  // To open the pane on drop
   useEffect(() => {
     if (!isDragging && toOpen.current) {
       if (!isOverlappingWithPane() && !isInGuidedTour) {
@@ -93,7 +100,7 @@ function WidgetPaneTrigger() {
         canEscapeKeyClose
         content={
           <PopoverContentWrapper>
-            <WidgetSidebar isActive={false} />
+            <WidgetSidebar isActive />
           </PopoverContentWrapper>
         }
         isOpen={openWidgetPanel}
@@ -110,7 +117,7 @@ function WidgetPaneTrigger() {
         placement="bottom-start"
       >
         <TooltipComponent
-          content={"Find and add a widget"}
+          content={createMessage(ADD_WIDGET_TOOLTIP)}
           disabled={openWidgetPanel}
         >
           <StyledTrigger
@@ -119,9 +126,9 @@ function WidgetPaneTrigger() {
             onClick={() => dispatch(forceOpenWidgetPanel(true))}
             ref={ref}
           >
-            <Icon fillColor={"#575757"} name="plus" size={IconSize.XXL} />
+            <Icon fillColor={Colors.GRAY_700} name="plus" size={IconSize.XXL} />
             <Icon
-              fillColor={"#858282"}
+              fillColor={Colors.GREY_7}
               name="arrow-down-s-fill"
               size={IconSize.XXS}
             />

@@ -191,6 +191,7 @@ export function highlightSection(
   function updatePosition(element: Element) {
     const coordinates = getCoordinates(element);
 
+    // If the element is not visible fade off the border
     if (!document.body.contains(element)) {
       highlightBorder.classList.remove(
         GuidedTourClasses.GUIDED_TOUR_SHOW_BORDER,
