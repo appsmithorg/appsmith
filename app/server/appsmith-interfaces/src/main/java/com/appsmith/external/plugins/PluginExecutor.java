@@ -12,8 +12,10 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
+import io.micrometer.observation.ObservationRegistry;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
@@ -169,6 +171,17 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
                                                              ActionConfiguration actionConfiguration) {
         prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
         return this.execute(connection, datasourceConfiguration, actionConfiguration);
+    }
+
+    default Mono<ActionExecutionResult> executeParameterizedWithMetrics(C connection,
+                                                                        ExecuteActionDTO executeActionDTO,
+                                                                        DatasourceConfiguration datasourceConfiguration,
+                                                                        ActionConfiguration actionConfiguration,
+                                                                        ObservationRegistry observationRegistry) {
+        return this.executeParameterized(connection, executeActionDTO, datasourceConfiguration, actionConfiguration)
+                .tag("plugin", this.getClass().getName())
+                .name("action_execution.parameterized_execution")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**

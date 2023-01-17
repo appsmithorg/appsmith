@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.codec.ByteBufferDecoder;
 import org.springframework.core.codec.StringDecoder;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -133,7 +134,7 @@ public class NewActionServiceCEImplTest {
     PagePermission pagePermission;
     @MockBean
     ActionPermission actionPermission;
-    @MockBean
+    @SpyBean
     ObservationRegistry observationRegistry;
 
     private BodyExtractor.Context context;

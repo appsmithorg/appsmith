@@ -658,6 +658,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return repository.findById(actionId, actionPermission.getExecutePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
+                .name("action.execution.cached.action")
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
     }
 
@@ -697,6 +699,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     // The external datasource have already been validated. No need to validate again.
                     return Mono.just(datasource);
                 })
+                .name("action.execution.cached.datasource")
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
     }
 
@@ -721,6 +725,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return pluginService.findById(datasource.getPluginId());
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN)))
+                .name("action.execution.cached.plugin")
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
     }
 
@@ -739,7 +745,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
 
                     return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
-                });
+                })
+                .name("action.execution.editor.config")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -776,10 +784,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         .flatMap(datasource1 -> {
                             final Instant requestedAt = Instant.now();
                             return ((Mono<ActionExecutionResult>) pluginExecutor.
-                                    executeParameterized(resourceContext.getConnection(),
+                                    executeParameterizedWithMetrics(resourceContext.getConnection(),
                                             executeActionDTO,
                                             datasource1.getDatasourceConfiguration(),
-                                            actionDTO.getActionConfiguration()))
+                                            actionDTO.getActionConfiguration(),
+                                            observationRegistry))
                                     .map(actionExecutionResult -> {
                                         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
                                         if (actionExecutionRequest == null) {
@@ -809,7 +818,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     protected Mono<Datasource> getValidatedDatasourceForActionExecution(Datasource datasource, String environmentName) {
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
-        return authenticationValidator.validateAuthentication(datasource).cache();
+        return authenticationValidator.validateAuthentication(datasource)
+                .name("action.execution.validate.authentication")
+                .tap(Micrometer.observation(observationRegistry))
+                .cache();
     }
 
     /**
@@ -825,9 +837,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // the environmentName argument is not consumed over here
         // See EE override for usage of variable
         if (plugin.isRemotePlugin()) {
-            return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource);
+            return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource)
+                    .tag("plugin", plugin.getPackageName())
+                    .name("action.execution.datasource.context.remote")
+                    .tap(Micrometer.observation(observationRegistry));
         }
-        return datasourceContextService.getDatasourceContext(validatedDatasource);
+        return datasourceContextService.getDatasourceContext(validatedDatasource)
+                .tag("plugin", plugin.getPackageName())
+                .name("action.execution.datasource.context")
+                .tap(Micrometer.observation(observationRegistry));
 
     }
 
@@ -1163,7 +1181,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             executeActionDTO.setActionId(branchedAction.getId());
                             return executeActionDTO;
                         }))
-                .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, environmentName));
+                .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, environmentName))
+                .name("action.execution")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
 
