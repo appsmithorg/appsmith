@@ -5,7 +5,12 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import store from "store";
 import { render } from "test/testUtils";
-import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
+import {
+  getUpdatedRoute,
+  isURLDeprecated,
+  matchPath_CustomSlug,
+  matchPath_Slug,
+} from "utils/helpers";
 import {
   fetchApplicationMockResponse,
   setMockApplication,
@@ -174,5 +179,27 @@ describe("URL slug names", () => {
         pageSlug: "page",
       }),
     ).toBe("/app/my-app/page-605c435a91dea93f0eaf91ba/edit");
+  });
+
+  it("getUpdatedRoute - handles pattern match overlap with slug url and custom slug url", () => {
+    // this path will match with VIEWER_PATH and BUILDER_CUSTOM_PATH
+    const customSlug_pathname =
+      "/app/custom-63c63d944ae4345e31af12a7/edit/saas/google-sheets-plugin/api/63c63d984ae4345e31af12e5";
+
+    // verify path match overlap
+    const matchSlugObj = matchPath_Slug(customSlug_pathname);
+    const matchCustomObj = matchPath_CustomSlug(customSlug_pathname);
+    expect(matchSlugObj).not.toBeNull();
+    expect(matchCustomObj).not.toBeNull();
+
+    // verify proper url is returned regarless of match overlap
+    expect(
+      getUpdatedRoute(customSlug_pathname, {
+        applicationSlug: "gsheetreleasetesting-copy",
+        customSlug: "custom",
+        pageId: "63c63d944ae4345e31af12a7",
+        pageSlug: "basicpagination",
+      }),
+    ).toBe(customSlug_pathname);
   });
 });

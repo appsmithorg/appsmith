@@ -827,37 +827,55 @@ export const isURLDeprecated = (url: string) => {
   });
 };
 
+export const matchPath_Slug = (path: string) =>
+  matchPath<{ applicationSlug: string; pageSlug: string; pageId: string }>(
+    path,
+    {
+      path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
+      strict: false,
+      exact: false,
+    },
+  );
+
+export const matchPath_CustomSlug = (path: string) =>
+  matchPath<{ customSlug: string }>(path, {
+    path: [BUILDER_CUSTOM_PATH, VIEWER_CUSTOM_PATH],
+  });
+
 export const getUpdatedRoute = (
   path: string,
   params: Record<string, string>,
 ) => {
   let updatedPath = path;
-  const match = matchPath<{ applicationSlug: string; pageSlug: string }>(path, {
-    path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
-    strict: false,
-    exact: false,
-  });
+
+  const match = matchPath_Slug(path);
   if (match?.params) {
-    const { applicationSlug, pageSlug } = match?.params;
-    if (params.customSlug) {
-      updatedPath = updatedPath.replace(
-        `${applicationSlug}/${pageSlug}`,
-        `${params.customSlug}-`,
-      );
+    const { applicationSlug, pageId, pageSlug } = match?.params;
+    /* pageId === params.pageId - check to deal with match overlap between matchPath_Slug & matchPath_CustomSlug
+     * if pageId is not equal then it is a customSlug path
+     * which happens to match with a regular slug path pattern
+     * proceed with customSlug path update.
+     */
+    if (pageId === params.pageId) {
+      if (params.customSlug) {
+        updatedPath = updatedPath.replace(
+          `${applicationSlug}/${pageSlug}`,
+          `${params.customSlug}-`,
+        );
+        return updatedPath;
+      }
+      if (params.applicationSlug)
+        updatedPath = updatedPath.replace(
+          applicationSlug,
+          params.applicationSlug,
+        );
+      if (params.pageSlug)
+        updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
       return updatedPath;
     }
-    if (params.applicationSlug)
-      updatedPath = updatedPath.replace(
-        applicationSlug,
-        params.applicationSlug,
-      );
-    if (params.pageSlug)
-      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
-    return updatedPath;
   }
-  const matchCustomPath = matchPath<{ customSlug: string }>(path, {
-    path: [BUILDER_CUSTOM_PATH, VIEWER_CUSTOM_PATH],
-  });
+
+  const matchCustomPath = matchPath_CustomSlug(path);
   if (matchCustomPath?.params) {
     const { customSlug } = matchCustomPath.params;
     if (params.customSlug) {
