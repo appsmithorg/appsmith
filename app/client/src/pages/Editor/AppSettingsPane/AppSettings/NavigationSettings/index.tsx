@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
@@ -33,30 +33,7 @@ function NavigationSettings() {
   const applicationId = useSelector(getCurrentApplicationId);
   const dispatch = useDispatch();
   const navigationSetting = application?.navigationSetting;
-  const defaultSettings = {
-    showNavbar: true,
-    orientation: NAVIGATION_SETTINGS.ORIENTATION.TOP,
-    navStyle: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
-    position: NAVIGATION_SETTINGS.POSITION.STATIC,
-    itemStyle: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
-    colorStyle: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
-    logoConfiguration:
-      NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
-    showSignIn: true,
-    showShareApp: true,
-  };
   const doesntWorkRightNowLabel = " - [Doesn't work (...right now)]";
-
-  useEffect(() => {
-    // Set default values
-    if (!navigationSetting) {
-      const payload: UpdateApplicationPayload = { currentApp: true };
-
-      payload.navigationSetting = defaultSettings;
-
-      dispatch(updateApplication(applicationId, payload));
-    }
-  }, [navigationSetting]);
 
   const updateSetting = useCallback(
     debounce(

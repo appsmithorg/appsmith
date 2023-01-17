@@ -112,8 +112,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   );
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
-  // TODO - @Dhruvik - ImprovedAppNav
-  // Use published and unpublished nav settings as needed
   const navColorStyle =
     currentApplicationDetails?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;

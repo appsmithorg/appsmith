@@ -183,8 +183,6 @@ const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
     { pageId: page.pageId },
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
-  // TODO - @Dhruvik - ImprovedAppNav
-  // Use published and unpublished nav settings as needed
   const navColorStyle =
     navigationSetting?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
   const primaryColor = get(

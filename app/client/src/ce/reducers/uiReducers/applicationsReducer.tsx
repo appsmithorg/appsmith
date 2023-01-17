@@ -22,7 +22,10 @@ import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { ConnectToGitResponse } from "actions/gitSyncActions";
 import { AppIconName } from "design-system";
-import { NavigationSetting } from "constants/AppConstants";
+import {
+  defaultNavigationSetting,
+  NavigationSetting,
+} from "constants/AppConstants";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -133,7 +136,10 @@ export const handlers = {
     action: ReduxAction<{ applicationList: ApplicationPayload[] }>,
   ) => ({
     ...state,
-    currentApplication: action.payload,
+    currentApplication: {
+      navigationSetting: defaultNavigationSetting,
+      ...action.payload,
+    },
     isFetchingApplication: false,
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
@@ -530,7 +536,10 @@ export const handlers = {
       ...state,
       currentApplication: {
         ...state.currentApplication,
-        navigationSetting: action.payload,
+        navigationSetting: {
+          ...defaultNavigationSetting,
+          ...action.payload,
+        },
       },
     };
   },

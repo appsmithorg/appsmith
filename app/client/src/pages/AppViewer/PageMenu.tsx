@@ -54,8 +54,6 @@ export function PageMenu(props: AppViewerHeaderProps) {
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
   const { hideWatermark } = getAppsmithConfigs();
-  // TODO - @Dhruvik - ImprovedAppNav
-  // Use published and unpublished nav settings as needed
   const navColorStyle =
     application?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;

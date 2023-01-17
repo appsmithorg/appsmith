@@ -197,8 +197,6 @@ function PageTabItem({
     { pageId: page.pageId },
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
-  // TODO - @Dhruvik - ImprovedAppNav
-  // Use published and unpublished nav settings as needed
   const navColorStyle =
     navigationSetting?.colorStyle || NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
 

@@ -76,8 +76,6 @@ type AppViewerHeaderProps = {
 export function PageTabsContainer(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, pages } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
-  // TODO - @Dhruvik - ImprovedAppNav
-  // Use published and unpublished nav settings as needed
   const navColorStyle =
     currentApplicationDetails?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
