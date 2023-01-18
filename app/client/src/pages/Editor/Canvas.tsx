@@ -21,6 +21,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
+import { getViewportClassName } from "utils/autoLayout/AutoLayoutUtils";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -109,7 +110,9 @@ const Canvas = memo((props: CanvasProps) => {
     return (
       <Container
         background={backgroundForCanvas}
-        className="relative mx-auto t--canvas-artboard pb-52"
+        className={`relative mx-auto t--canvas-artboard pb-52 ${getViewportClassName(
+          canvasWidth,
+        )}`}
         data-testid="t--canvas-artboard"
         id="art-board"
         onMouseMove={(e) => {

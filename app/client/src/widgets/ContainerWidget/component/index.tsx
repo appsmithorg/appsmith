@@ -23,10 +23,6 @@ const StyledContainerComponent = styled.div<
     ref: RefObject<HTMLDivElement>;
   }
 >`
-  &.auto-layout {
-    container-name: canvas-container;
-    container-type: inline-size;
-  }
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};

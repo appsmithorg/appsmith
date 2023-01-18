@@ -20,7 +20,6 @@ import {
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
 import { InputTypes, NumberInputStepButtonPosition } from "../constants";
-import styles from "./styles.module.css";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -80,6 +79,10 @@ const InputComponentWrapper = styled((props) => (
   isMultiline?: boolean;
 }>`
   ${labelLayoutStyles}
+
+  .auto-layout & {
+    min-width: 60px;
+  }
 
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
   .${Classes.INPUT_GROUP} {
@@ -368,8 +371,15 @@ const TextInputWrapper = styled.div<{
   border-radius: ${({ borderRadius }) => borderRadius} !important;
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   min-height: 32px;
-  .auto-layout & {
+
+  .auto-layout && {
     min-height: 40px;
+    flex: 0 40px;
+  }
+
+  .mobile-view .auto-layout && {
+    min-height: 36px;
+    flex: 0 36px;
   }
 
   &:hover {
@@ -670,7 +680,6 @@ class BaseInputComponent extends React.Component<
 
     return (
       <InputComponentWrapper
-        className={styles.inputComponentWrapper}
         compactMode={compactMode}
         data-testid="input-container"
         disabled={disabled}
@@ -689,7 +698,7 @@ class BaseInputComponent extends React.Component<
         {showLabelHeader && (
           <LabelWithTooltip
             alignment={labelAlignment}
-            className={`t--input-widget-label ${styles.label}`}
+            className="t--input-widget-label"
             color={labelTextColor}
             compact={compactMode}
             cyHelpTextClassName="t--input-widget-tooltip"
@@ -708,7 +717,7 @@ class BaseInputComponent extends React.Component<
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
-          className={`text-input-wrapper ${styles.textInputWrapper}`}
+          className="text-input-wrapper"
           compact={compactMode}
           disabled={this.props.disabled}
           hasError={this.props.isInvalid}
