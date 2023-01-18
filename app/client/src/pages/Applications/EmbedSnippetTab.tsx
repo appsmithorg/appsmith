@@ -8,7 +8,7 @@ import {
   Classes,
   Icon,
   IconWrapper,
-} from "design-system";
+} from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";

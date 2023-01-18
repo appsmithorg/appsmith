@@ -8,7 +8,7 @@ import {
   Text,
   TextType,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 import styled from "styled-components";
 import {
   Classes as BlueprintClasses,

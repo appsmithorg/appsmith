@@ -2,7 +2,7 @@ import React from "react";
 import Pagination from "rc-pagination";
 import styled, { css } from "styled-components";
 
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 
 const locale = {
   // Options.jsx

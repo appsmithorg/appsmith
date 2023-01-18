@@ -37,7 +37,7 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { limitDecimalValue, getSeparators } from "./utilities";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,

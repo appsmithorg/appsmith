@@ -16,7 +16,7 @@ import {
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import { Colors } from "constants/Colors";
 
 describe("URL slug names", () => {

@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import { TextInput } from "design-system";
+import { TextInput } from "design-system-old";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { InputType } from "components/constants";

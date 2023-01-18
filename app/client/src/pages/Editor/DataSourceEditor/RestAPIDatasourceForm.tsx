@@ -17,7 +17,7 @@ import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, Category, Toaster, Variant } from "design-system";
+import { Button, Category, Toaster, Variant } from "design-system-old";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -44,7 +44,7 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { Callout } from "design-system";
+import { Callout } from "design-system-old";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
