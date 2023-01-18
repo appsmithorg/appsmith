@@ -1023,6 +1023,7 @@ export interface ShowPropertyPanePayload {
 
 export interface Page {
   pageName: string;
+  description?: string;
   pageId: string;
   isDefault: boolean;
   latest?: boolean;
@@ -1034,6 +1035,7 @@ export interface Page {
 
 export interface ClonePageSuccessPayload {
   pageName: string;
+  description?: string;
   pageId: string;
   layoutId: string;
   isDefault: boolean;

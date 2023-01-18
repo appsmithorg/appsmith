@@ -420,7 +420,7 @@ function* formValueChangeSaga(
       });
     }
 
-    const contentTypeHeaderIndex = values.actionConfiguration.headers.findIndex(
+    const contentTypeHeaderIndex = values?.actionConfiguration?.headers?.findIndex(
       (header: { key: string; value: string }) =>
         header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
