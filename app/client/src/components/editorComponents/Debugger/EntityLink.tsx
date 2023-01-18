@@ -159,7 +159,7 @@ function Link(props: {
       );
     case DebuggerLinkUI.ENTITY_NAME:
       const link =
-        props.entityType === "JSACTION"
+        props.entityType === "JSACTION" || props.entityType === "WIDGET"
           ? props.name
           : props.name + "." + props.entityType.toLowerCase();
       return (
