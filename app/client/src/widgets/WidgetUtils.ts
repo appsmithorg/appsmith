@@ -742,7 +742,7 @@ export const isAutoHeightEnabledForWidget = (
   props: WidgetProps,
   shouldCheckIfEnabledWithLimits = false,
 ) => {
-  if (props.useAutoLayout) {
+  if (props.isFlexChild) {
     return false;
   }
   if (shouldCheckIfEnabledWithLimits) {

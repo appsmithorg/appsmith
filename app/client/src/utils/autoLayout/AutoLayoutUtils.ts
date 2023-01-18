@@ -1,4 +1,5 @@
 import {
+  defaultAutoLayoutWidgets,
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
@@ -82,7 +83,8 @@ export function updateFlexLayersOnDelete(
   const widgets = { ...allWidgets };
   if (
     widgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
-    AppPositioningTypes.FIXED
+      AppPositioningTypes.FIXED ||
+    widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Fixed
   )
     return widgets;
   let parent = widgets[parentId];
@@ -363,7 +365,7 @@ export function isStack(
     parent = allWidgets[parent.parentId];
   return (
     widget.positioning === Positioning.Vertical ||
-    ((parent && ["CONTAINER_WIDGET", "TABS_WIDGET"].includes(parent.type)) ||
+    ((parent && defaultAutoLayoutWidgets.includes(parent.type)) ||
     parent?.widgetId === MAIN_CONTAINER_WIDGET_ID
       ? allWidgets[MAIN_CONTAINER_WIDGET_ID].positioning ===
         Positioning.Vertical

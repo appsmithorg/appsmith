@@ -1,6 +1,7 @@
 import classNames from "classnames";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
@@ -11,8 +12,10 @@ import {
   AppPositioningTypeConfig,
   AppPositioningTypes,
 } from "reducers/entityReducers/pageListReducer";
-import { getCurrentAppPositioningType } from "selectors/editorSelectors";
-import { Title } from "./CanvasPropertyPane";
+import {
+  getCurrentAppPositioningType,
+  isAutoLayoutEnabled,
+} from "selectors/editorSelectors";
 import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
 
 interface ApplicationPositionTypeConfigOption {
@@ -38,10 +41,15 @@ const AppsmithLayoutTypes: ApplicationPositionTypeConfigOption[] = [
   },
 ];
 
+export const Title = styled.p`
+  color: ${Colors.GRAY_800};
+`;
+
 export function AppPositionTypeControl() {
   const dispatch = useDispatch();
   const buttonRefs: Array<HTMLButtonElement | null> = [];
   const selectedOption = useSelector(getCurrentAppPositioningType);
+  const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
   /**
    * return selected layout index. if there is no app
    * layout, use the default one ( fluid )
@@ -54,6 +62,15 @@ export function AppPositionTypeControl() {
   }, [selectedOption]);
 
   const [focusedIndex, setFocusedIndex] = React.useState(selectedIndex);
+
+  useEffect(() => {
+    if (!isAutoLayoutActive) {
+      /**
+       * if feature flag is disabled, set the layout to fixed.
+       */
+      updateAppPositioningLayout(AppsmithLayoutTypes[0]);
+    }
+  }, [isAutoLayoutActive]);
 
   const updateAppPositioningLayout = (
     layoutOption: ApplicationPositionTypeConfigOption,
@@ -97,8 +114,11 @@ export function AppPositionTypeControl() {
     }
   };
 
+  if (!isAutoLayoutActive) return null;
+
   return (
     <>
+      <Title className="text-sm">App Positioning Type</Title>
       <div className="pb-6 space-y-2 t--layout-control-wrapper">
         <div
           className="flex justify-around"

@@ -1,36 +1,44 @@
 import { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { Layers } from "constants/Layers";
-import { WidgetType } from "constants/WidgetConstants";
+import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
+import Popper from "pages/Editor/Popper";
+import { Data } from "popper.js";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { hideErrors } from "selectors/debuggerSelectors";
 import {
+  getCurrentAppPositioningType,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
+import {
+  isCurrentWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
+import {
+  useShowTableFilterPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import WidgetFactory from "utils/WidgetFactory";
+import { canDrag } from "../DraggableComponent";
 import SettingsControl, { Activities } from "./SettingsControl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
-  position: absolute;
-  top: ${(props) =>
-    props.topRow > 2 ? `${-1 * props.theme.spaces[10]}px` : "calc(100%)"};
   height: ${(props) => props.theme.spaces[10]}px;
-  ${(props) => (props.isSnipingMode ? "left: -7px" : "right: 0")};
+  ${(props) => (props.isSnipingMode ? "left: -7px" : "left: 0px")};
   display: flex;
-  padding: 0 4px;
   cursor: pointer;
   z-index: ${Layers.widgetName};
 `;
@@ -55,6 +63,7 @@ type WidgetNameComponentProps = {
   topRow: number;
   errorCount: number;
   isFlexChild: boolean;
+  widgetProps: any;
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
@@ -161,23 +170,114 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     propertyPaneWidgetId === props.widgetId
   )
     currentActivity = Activities.ACTIVE;
+  const targetNode: any = document.getElementById(`${props.widgetId}`);
 
+  // This state tells us to disable dragging,
+  // This is usually true when widgets themselves implement drag/drop
+  // This flag resolves conflicting drag/drop triggers.
+  const isDraggingDisabled: boolean = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDraggingDisabled,
+  );
+
+  // True when any widget is dragging or resizing, including this one
+  const isResizingOrDragging = !!isResizing || !!isDragging;
+  const allowDrag = canDrag(
+    isResizingOrDragging,
+    isDraggingDisabled,
+    props.widgetProps,
+    isSnipingMode,
+    isPreviewMode,
+  );
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  // This state tels us which widget is focused
+  // The value is the widgetId of the focused widget.
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  const { setDraggingState } = useWidgetDragResize();
+
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // allowDrag check is added as react jest test simulation is not respecting default behaviour
+    // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
+    if (allowDrag && targetNode && !(e.metaKey || e.ctrlKey)) {
+      if (!isFocused) return;
+
+      if (!isSelected) {
+        selectWidget(props.widgetId);
+      }
+      const widgetHeight =
+        props.widgetProps.bottomRow - props.widgetProps.topRow;
+      const widgetWidth =
+        props.widgetProps.rightColumn - props.widgetProps.leftColumn;
+      const bounds = targetNode.getBoundingClientRect();
+      const startPoints = {
+        top: Math.min(
+          Math.max(
+            (e.clientY - bounds.top) / props.widgetProps.parentRowSpace,
+            0,
+          ),
+          widgetHeight - 1,
+        ),
+        left: Math.min(
+          Math.max(
+            (e.clientX - bounds.left) / props.widgetProps.parentColumnSpace,
+            0,
+          ),
+          widgetWidth - 1,
+        ),
+      };
+      showTableFilterPane();
+      setDraggingState({
+        isDragging: true,
+        dragGroupActualParent: props.widgetProps.parentId || "",
+        draggingGroupCenter: { widgetId: props.widgetProps.widgetId },
+        startPoints,
+        draggedOn: props.widgetProps.parentId,
+      });
+    }
+  };
+  const currentAppPositioningType = useSelector(getCurrentAppPositioningType);
+  const isAutoLayout = currentAppPositioningType === AppPositioningTypes.AUTO;
+  const popperOffset = {
+    left: isAutoLayout ? WIDGET_PADDING : 0,
+    top: isAutoLayout ? WIDGET_PADDING : 0,
+  };
   return showWidgetName ? (
-    <PositionStyle
-      className={isSnipingMode ? "t--settings-sniping-control" : ""}
-      data-testid="t--settings-controls-positioned-wrapper"
-      isSnipingMode={isSnipingMode}
-      topRow={props.isFlexChild ? 0 : props.topRow}
+    <Popper
+      isOpen={!isResizingOrDragging}
+      modifiers={{
+        offset: {
+          enabled: true,
+          fn: (data: Data) => {
+            const left = data.offsets.popper.left - popperOffset.left;
+            const top = data.offsets.popper.top - popperOffset.top;
+            data.styles.transform = `translate3d(${left}px,${top}px , 0px)`;
+            return data;
+          },
+        },
+      }}
+      placement="top-start"
+      targetNode={targetNode}
+      zIndex={Layers.widgetName - 1}
     >
-      <ControlGroup>
-        <SettingsControl
-          activity={currentActivity}
-          errorCount={shouldHideErrors ? 0 : props.errorCount}
-          name={props.widgetName}
-          toggleSettings={togglePropertyEditor}
-        />
-      </ControlGroup>
-    </PositionStyle>
+      <PositionStyle
+        className={isSnipingMode ? "t--settings-sniping-control" : ""}
+        data-testid="t--settings-controls-positioned-wrapper"
+        draggable={allowDrag}
+        isSnipingMode={isSnipingMode}
+        onDragStart={onDragStart}
+        topRow={3}
+      >
+        <ControlGroup>
+          <SettingsControl
+            activity={currentActivity}
+            errorCount={shouldHideErrors ? 0 : props.errorCount}
+            name={props.widgetName}
+            toggleSettings={togglePropertyEditor}
+          />
+        </ControlGroup>
+      </PositionStyle>
+    </Popper>
   ) : null;
 }
 

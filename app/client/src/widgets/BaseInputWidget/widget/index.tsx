@@ -14,6 +14,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
+import { checkInputTypeTextByProps } from "../utils";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -150,7 +151,7 @@ class BaseInputWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: (props: BaseInputWidgetProps) => {
-              return props.inputType !== InputTypes.TEXT;
+              return !checkInputTypeTextByProps(props);
             },
             dependencies: ["inputType"],
           },
@@ -493,27 +494,46 @@ class BaseInputWidget<
   ) {
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
-      /**
-       * Originally super.executeAction was used to trigger the ON_SUBMIT action and
-       * updateMetaProperty to update the text.
-       * Since executeAction is not queued and updateMetaProperty is,
-       * the user would observe that the data tree only gets partially updated with text
-       * before the ON_SUBMIT would get triggered,
-       * if they type {enter} really fast after typing some input text.
-       * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
-       * before we actually execute the action.
-       * Since updateMetaProperty expects a meta property to be updated,
-       * we are redundantly updating the common meta property, isDirty which is common on its child widgets here. But the main part is the action execution payload.
-       */
-      this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
-        triggerPropertyName: "onSubmit",
-        dynamicString: onSubmit,
-        event: {
-          type: EventType.ON_SUBMIT,
-          callback: this.onSubmitSuccess,
-        },
-      });
+
+    if (this.props.inputType === InputTypes.MULTI_LINE_TEXT) {
+      if (
+        isEnterKey &&
+        (e.metaKey || e.ctrlKey) &&
+        typeof onSubmit === "string" &&
+        onSubmit
+      ) {
+        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
+          event: {
+            type: EventType.ON_SUBMIT,
+            callback: this.onSubmitSuccess,
+          },
+        });
+      }
+    } else {
+      if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
+        /**
+         * Originally super.executeAction was used to trigger the ON_SUBMIT action and
+         * updateMetaProperty to update the text.
+         * Since executeAction is not queued and updateMetaProperty is,
+         * the user would observe that the data tree only gets partially updated with text
+         * before the ON_SUBMIT would get triggered,
+         * if they type {enter} really fast after typing some input text.
+         * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
+         * before we actually execute the action.
+         * Since updateMetaProperty expects a meta property to be updated,
+         * we are redundantly updating the common meta property, isDirty which is common on its child widgets here. But the main part is the action execution payload.
+         */
+        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
+          event: {
+            type: EventType.ON_SUBMIT,
+            callback: this.onSubmitSuccess,
+          },
+        });
+      }
     }
   }
 

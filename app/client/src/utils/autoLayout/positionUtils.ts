@@ -1,5 +1,6 @@
 import {
   FlexLayerAlignment,
+  Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
@@ -8,7 +9,6 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   getBottomRow,
@@ -48,10 +48,7 @@ export function updateWidgetPositions(
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
-    if (
-      widgets[MAIN_CONTAINER_WIDGET_ID].appPositioningType ===
-      AppPositioningTypes.FIXED
-    )
+    if (widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Fixed)
       return widgets;
     const parent = widgets[parentId];
     if (!parent) return widgets;
@@ -112,7 +109,6 @@ export function updateWidgetPositions(
       if (shouldUpdateHeight && parent.parentId)
         return updateWidgetPositions(widgets, parent.parentId, isMobile);
     }
-
     return widgets;
   } catch (e) {
     // console.error(e);

@@ -2,17 +2,18 @@ import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import {
-  FlexVerticalAlignment,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
-import {
   WidgetType,
   widgetTypeClassname,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { getIsResizing } from "selectors/widgetSelectors";
+import {
+  FlexVerticalAlignment,
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
@@ -67,12 +68,18 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.widgetId
   } ${widgetTypeClassname(props.widgetType)}`;
 
+  const isResizing = useSelector(getIsResizing);
+
   const flexComponentStyle: CSSProperties = useMemo(() => {
     return {
       display: "flex",
       zIndex,
-      width: `${props.componentWidth - WIDGET_PADDING * 2}px`,
-      height: props.componentHeight - WIDGET_PADDING * 2 + "px",
+      width: isResizing
+        ? "auto"
+        : `${props.componentWidth - WIDGET_PADDING * 2}px`,
+      height: isResizing
+        ? "auto"
+        : props.componentHeight - WIDGET_PADDING * 2 + "px",
       minHeight: "30px",
       margin: WIDGET_PADDING + "px",
       alignSelf: props.flexVerticalAlignment,
@@ -86,12 +93,14 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.componentHeight,
     props.flexVerticalAlignment,
     zIndex,
+    isResizing,
     onHoverZIndex,
   ]);
 
   return (
     <FlexWidget
       className={className}
+      id={props.widgetId}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
       style={flexComponentStyle}
