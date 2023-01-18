@@ -75,27 +75,21 @@ function WidgetPaneTrigger() {
     return false;
   };
 
-  useEffect(() => {
-    // We use a ref to keep track of whether we want to reopen on drop
-    if (openWidgetPanel) {
-      toOpen.current = true;
-    }
-  }, [openWidgetPanel]);
-
   // To close the pane when we see a drag of a new widget
   useEffect(() => {
-    if (isDragging && dragDetails.newWidget) {
+    if (isDragging && dragDetails.newWidget && openWidgetPanel) {
+      toOpen.current = true;
       dispatch(forceOpenWidgetPanel(false));
     }
-  }, [isDragging, dragDetails.newWidget]);
+  }, [isDragging, dragDetails.newWidget, openWidgetPanel]);
 
   // To open the pane on drop
   useEffect(() => {
     if (!isDragging && toOpen.current) {
       if (!isOverlappingWithPane() && !isInGuidedTour) {
+        toOpen.current = false;
         dispatch(forceOpenWidgetPanel(true));
       }
-      toOpen.current = false;
     }
   }, [isDragging, isInGuidedTour]);
 
