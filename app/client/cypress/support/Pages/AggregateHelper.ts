@@ -495,6 +495,11 @@ export class AggregateHelper {
     });
   }
 
+  public VerifyCallCount(alias: string, expectedNumberOfCalls: number) {
+    cy.wait(alias);
+    cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
+  }
+
   public GetNClick(
     selector: string,
     index = 0,

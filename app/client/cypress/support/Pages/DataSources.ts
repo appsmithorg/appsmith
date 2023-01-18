@@ -779,13 +779,13 @@ export class DataSources {
   }
 
   //Update with new password in the datasource conf page
-  public updatePassword(newPassword: string) {
+  public UpdatePassword(newPassword: string) {
     this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._password).type(newPassword);
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(
+  public VerifySchema(
     dataSourceName: string,
     schema: string,
     isUpdate = false,
