@@ -276,4 +276,37 @@ describe("Autocomplete tests", () => {
       agHelper.GetNAssertElementText(CommonLocators._hints, "geolocation");
     });
   });
+
+  it("9. Bug #17059 Autocomplete does not suggest same function name that belongs to a different object", () => {
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    // focus on 5th line
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5));
+
+    // 1. Button group widget autocomplete verification
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "JSObject1.");
+
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "myFun1()",
+      "have.text",
+      2,
+    );
+  });
 });

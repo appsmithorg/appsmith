@@ -216,6 +216,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
 
   const sameEntityCompletion: Completion = {
@@ -225,6 +226,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
   defEntityInformation.set("sameEntity", {
     type: ENTITY_TYPE.WIDGET,
@@ -242,6 +244,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
   defEntityInformation.set("sameType", {
     type: ENTITY_TYPE.WIDGET,
@@ -259,6 +262,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
 
   defEntityInformation.set("diffType", {
@@ -277,6 +281,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
 
   defEntityInformation.set("diffEntity", {
@@ -291,6 +296,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
 
   defEntityInformation.set("otherDataTree", {
@@ -305,6 +311,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
 
   const ecmascriptCompletion: Completion = {
@@ -314,6 +321,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
 
   const libCompletion: Completion = {
@@ -323,6 +331,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
 
   const unknownCompletion: Completion = {
@@ -332,6 +341,7 @@ describe("Tern server sorting", () => {
     data: {
       doc: "",
     },
+    parentProperty: "",
   };
 
   const completions = [

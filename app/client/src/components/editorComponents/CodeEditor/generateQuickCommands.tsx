@@ -53,6 +53,7 @@ const commandsHeader = (
   type: AutocompleteDataType.UNKNOWN,
   isHeader: true,
   shortcut: "",
+  parentProperty: "",
 });
 
 const generateCreateNewCommand = ({
@@ -80,6 +81,7 @@ const generateCreateNewCommand = ({
       element,
     );
   },
+  parentProperty: "",
 });
 
 const iconsByType = {

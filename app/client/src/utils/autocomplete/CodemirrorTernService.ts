@@ -848,6 +848,7 @@ export const createCompletionHeader = (name: string): Completion => ({
   origin: "",
   type: AutocompleteDataType.UNKNOWN,
   isHeader: true,
+  parentProperty: "",
 });
 
 export default new CodeMirrorTernService({

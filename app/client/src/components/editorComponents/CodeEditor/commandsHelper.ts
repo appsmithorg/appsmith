@@ -71,6 +71,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
           },
           text: "",
           shortcut: "",
+          parentProperty: "",
         };
         const cursor = editor.getCursor();
         editor.showHint({
