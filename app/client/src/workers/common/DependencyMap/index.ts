@@ -560,7 +560,7 @@ export const updateDependencyMap = ({
             const entity:
               | DataTreeAction
               | DataTreeWidget
-              | DataTreeJSAction = unEvalDataTree[entityName] as
+              | DataTreeJSAction = configTree[entityName] as
               | DataTreeAction
               | DataTreeWidget
               | DataTreeJSAction;
