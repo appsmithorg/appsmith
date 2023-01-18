@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
-import LogItem, { getLogItemProps } from "./LogItem";
+import ErrorLogItem, { getLogItemProps } from "./ErrorLogItem";
 import { BlankState } from "./helpers";
 import { createMessage, NO_ERRORS } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -40,10 +40,22 @@ function Errors(props: { hasShortCut?: boolean }) {
         ) : (
           Object.values(errors).map((e, index) => {
             const logItemProps = getLogItemProps(e);
-            // Expand all errors by default
-            return (
-              <LogItem key={`debugger-${index}`} {...logItemProps} expand />
-            );
+            const messages = e.messages || [];
+            const logItems = [];
+            if (messages) {
+              messages.forEach((message) => {
+                logItemProps.messages = [message];
+                logItems.push(
+                  <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
+                );
+              });
+            } else {
+              // Expand all errors by default
+              logItems.push(
+                <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
+              );
+            }
+            return logItems;
           })
         )}
       </ListWrapper>
