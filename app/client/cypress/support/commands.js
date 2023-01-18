@@ -1166,6 +1166,9 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 });
 
 Cypress.Commands.add("CheckForPageSaveError", () => {
+  // Wait for "saving" status to disappear
+  cy.get(commonlocators.statusSaving).should("not.exist");
+  // Check for page save error
   cy.get("body").then(($ele) => {
     if ($ele.find(commonlocators.saveStatusError).length) {
       cy.reload();
@@ -1174,6 +1177,7 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
+  cy.CheckForPageSaveError();
   cy.get(commonlocators.saveStatusContainer).should("not.exist", {
     timeout: 40000,
   });
