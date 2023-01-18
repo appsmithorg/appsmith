@@ -11,6 +11,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.UsagePulseService;
 import com.appsmith.server.solutions.ce.PingScheduledTaskCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -30,6 +31,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
     private final LicenseValidator licenseValidator;
     private final TenantService tenantService;
     private final LicenseConfig licenseConfig;
+    private final UsagePulseService usagePulseService;
 
     public PingScheduledTaskImpl(
             ConfigService configService,
@@ -42,7 +44,9 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
             LicenseValidator licenseValidator,
-            TenantService tenantService, LicenseConfig licenseConfig) {
+            TenantService tenantService,
+            LicenseConfig licenseConfig,
+            UsagePulseService usagePulseService) {
 
         super(
                 configService,
@@ -58,6 +62,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
         this.licenseValidator = licenseValidator;
         this.tenantService = tenantService;
         this.licenseConfig = licenseConfig;
+        this.usagePulseService = usagePulseService;
     }
 
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 12 * 60 * 60 * 1000 /* twelve hours */)
@@ -77,4 +82,25 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                     .block();
         }
     }
+
+    /**
+     * To send the usage pulse to Cloud Services for usage and billing
+     */
+    @Scheduled(initialDelay = 4 * 60 * 1000 /* four minutes */, fixedRate = 30 * 60 * 1000 /* thirty minutes */)
+    public void sendUsagePulse() throws InterruptedException {
+        // Only run scheduled tasks with feature flag
+        // TODO: Remove this check when usage and billing feature is ready to ship
+        Boolean licenseDbEnabled = licenseConfig.getLicenseDbEnabled();
+        if (licenseDbEnabled) {
+            log.debug("Sending Usage Pulse");
+            while(usagePulseService.sendAndUpdateUsagePulse()
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .block() == true) {
+                // Sleep to delay continues requests
+                Thread.sleep(2000);
+            }
+            log.debug("Completed Sending Usage Pulse");
+        }
+    }
+
 }

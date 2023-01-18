@@ -129,4 +129,16 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
         return tenant;
     }
+
+    /**
+     * To check whether a tenant have valid license configuration
+     * @param tenant Tenant
+     * @return
+     */
+    public Boolean isValidLicenseConfiguration(Tenant tenant) {
+        return tenant.getTenantConfiguration() != null &&
+                tenant.getTenantConfiguration().getLicense() != null &&
+                tenant.getTenantConfiguration().getLicense().getKey() != null &&
+                tenant.getTenantConfiguration().getLicense().getCsInstanceId() != null;
+    }
 }
