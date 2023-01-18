@@ -8,7 +8,19 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.*;
+import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -22,7 +34,13 @@ import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.*;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
+import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.mongodb.client.result.UpdateResult;
@@ -49,8 +67,8 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-
 @Slf4j
 public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String> implements ApplicationServiceCE {
 
@@ -69,8 +87,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final UserRepository userRepository;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
-
-    private static final int MAX_LOGO_SIZE_KB = 1024;
 
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
@@ -765,15 +781,21 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Application> saveAppNavigationLogo(String applicationId, Part filePart) {
+    public Mono<Application> saveAppNavigationLogo(String branchName, String applicationId, Part filePart) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+                .flatMap(branchedApplication -> {
 
-        return repository.findById(applicationId)
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
-                )
-                .flatMap(rootApplication -> {
-                    final Mono<String> prevAssetIdMono = Mono.just(ObjectUtils.defaultIfNull(
-                            ObjectUtils.defaultIfNull(rootApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting()).getLogoAssetId(), ""));
+                    Application.NavigationSetting rootAppUnpublishedNavigationSetting = ObjectUtils.defaultIfNull(
+                            branchedApplication.getUnpublishedNavigationSetting(),
+                            new Application.NavigationSetting()
+                    );
+
+                    String rootAppLogoAssetId = ObjectUtils.defaultIfNull(
+                            rootAppUnpublishedNavigationSetting.getLogoAssetId(),
+                            ""
+                    );
+
+                    final Mono<String> prevAssetIdMono = Mono.just(rootAppLogoAssetId);
 
                     final Mono<Asset> uploaderMono = assetService.upload(List.of(filePart), MAX_LOGO_SIZE_KB, true);
 
@@ -781,12 +803,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             .flatMap(tuple -> {
                                 final String oldAssetId = tuple.getT1();
                                 final Asset uploadedAsset = tuple.getT2();
-                                Application.NavigationSetting navSetting = rootApplication.getUnpublishedNavigationSetting();
-
+                                Application.NavigationSetting navSetting = ObjectUtils.defaultIfNull(
+                                        branchedApplication.getUnpublishedNavigationSetting(),
+                                        new Application.NavigationSetting());
                                 navSetting.setLogoAssetId(uploadedAsset.getId());
-                                rootApplication.setUnpublishedNavigationSetting(navSetting);
+                                branchedApplication.setUnpublishedNavigationSetting(navSetting);
 
-                                final Mono<Application> updateMono = this.update(applicationId, rootApplication);
+                                final Mono<Application> updateMono = this.update(applicationId, branchedApplication);
                                 if (!StringUtils.hasLength(oldAssetId)){
                                     return updateMono;
                                 } else {

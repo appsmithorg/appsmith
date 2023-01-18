@@ -223,9 +223,11 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @PostMapping(value = "/{defaultApplicationId}/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<Application>> uploadAppNavigationLogo(@PathVariable String defaultApplicationId, @RequestPart("file") Mono<Part> fileMono) {
+    public Mono<ResponseDTO<Application>> uploadAppNavigationLogo(@PathVariable String defaultApplicationId,
+                                                                  @RequestPart("file") Mono<Part> fileMono,
+                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return fileMono
-                .flatMap(part -> service.saveAppNavigationLogo(defaultApplicationId, part))
+                .flatMap(part -> service.saveAppNavigationLogo(branchName, defaultApplicationId, part))
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
     }
 
