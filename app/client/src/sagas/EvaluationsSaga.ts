@@ -198,8 +198,9 @@ export function* evaluateTreeSaga(
   const oldDataTree: DataTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
-  // Replace empty object below with list of current metaWidgets present in the viewport
-  const hiddenStaleMetaIds = difference(staleMetaIds, Object.keys({}));
+
+  const currentViewMetaWidgetIds = Object.keys(metaWidgets);
+  const hiddenStaleMetaIds = difference(staleMetaIds, currentViewMetaWidgetIds);
   if (!isEmpty(hiddenStaleMetaIds)) {
     yield put(resetWidgetsMetaState(hiddenStaleMetaIds));
   }
