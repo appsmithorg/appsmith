@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
@@ -35,6 +36,12 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEIm
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
+
+        // If the user is anonymous, then we don't need to fetch the permission groups from the database. We can just
+        // return the cached permission group ids.
+        if (ANONYMOUS_USER.equals(user.getUsername())) {
+            return getPermissionGroupsOfAnonymousUser();
+        }
 
         if (user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null || user.getId().isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
