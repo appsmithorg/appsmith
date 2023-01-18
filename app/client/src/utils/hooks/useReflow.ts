@@ -53,6 +53,7 @@ export interface ReflowInterface {
     reflowAfterTimeoutCallback?: (reflowParams: {
       movementMap: ReflowedSpaceMap;
       spacePositionMap: SpaceMap | undefined;
+      movementLimitMap: MovementLimitMap | undefined;
     }) => void,
   ): {
     movementLimitMap?: MovementLimitMap;
@@ -131,6 +132,7 @@ export const useReflow = (
       reflowAfterTimeoutCallback?: (reflowParams: {
         movementMap: ReflowedSpaceMap;
         spacePositionMap: SpaceMap | undefined;
+        movementLimitMap: MovementLimitMap | undefined;
       }) => void,
     ) => {
       clearTimeout(timeOutFunction.current);
@@ -230,6 +232,7 @@ export const useReflow = (
                 reflowAfterTimeoutCallback({
                   movementMap: prevMovementMap.current,
                   spacePositionMap: undefined,
+                  movementLimitMap,
                 });
 
               prevCollidingSpaces.current = collidingSpaceMap as WidgetCollidingSpaceMap;
