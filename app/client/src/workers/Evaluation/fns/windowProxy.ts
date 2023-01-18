@@ -1,5 +1,3 @@
-import { _internalSetTimeout } from "./timeout";
-
 const _internalXHR = XMLHttpRequest;
 
 export function initWindowProxy() {
@@ -12,11 +10,6 @@ export function initWindowProxy() {
       },
     },
   );
-
-  _internalSetTimeout(() => {
-    self.document = window.document;
-    self.location = window.location;
-  }, 1000);
 }
 
 function getPropertyFromMainThread(
