@@ -86,8 +86,9 @@ describe("Content Management System App", function() {
     cy.xpath(appPage.sendMailText).should("be.visible");
     cy.xpath("//input[@value='Curt50@gmail.com']").should("be.visible");
     cy.xpath(appPage.subjectField).type("Test");
-    cy.xpath(appPage.contentField)
+    cy.get(appPage.contentField)
       .last()
+      .find("textarea")
       .type("Task completed", { force: true });
     cy.get(appPage.confirmButton)
       .closest("div")
