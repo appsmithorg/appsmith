@@ -6,6 +6,8 @@ import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ce.CacheableRepositoryHelperCEImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -17,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
@@ -33,18 +36,18 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEIm
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
-        Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
-        Criteria notDeletedCriteria = notDeleted();
 
-        Criteria andCriteria = new Criteria();
-        andCriteria.andOperator(assignedToUserIdsCriteria, notDeletedCriteria);
+        // If the user is anonymous, then we don't need to fetch the permission groups from the database. We can just
+        // return the cached permission group ids.
+        if (ANONYMOUS_USER.equals(user.getUsername())) {
+            return getPermissionGroupsOfAnonymousUser();
+        }
 
-        Query query = new Query();
-        query.addCriteria(andCriteria);
+        if (user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null || user.getId().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.SESSION_BAD_STATE));
+        }
 
-        Mono<Set<String>> userPermissionGroupIds = mongoOperations.find(query, PermissionGroup.class)
-                .map(permissionGroup -> permissionGroup.getId())
-                .collect(Collectors.toSet());
+        Mono<Set<String>> userPermissionGroupIds = super.getPermissionGroupsOfUser(user);
 
         Mono<Set<String>> userGroupPermissionIds = getPermissionGroupsOfGroupsForUser(user.getId());
 
