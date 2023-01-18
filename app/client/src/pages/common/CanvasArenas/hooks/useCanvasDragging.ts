@@ -7,7 +7,6 @@ import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   MovementLimitMap,
   ReflowDirection,
@@ -16,7 +15,6 @@ import {
 } from "reflow/reflowTypes";
 import { getParentOffsetTop } from "selectors/autoLayoutSelectors";
 import { getCanvasScale } from "selectors/editorSelectors";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
@@ -28,7 +26,6 @@ import {
 import {
   getEdgeDirection,
   getInterpolatedMoveDirection,
-  getLastDraggedCanvasSpace,
   getMoveDirection,
   getReflowedSpaces,
   modifyBlockDimension,
@@ -67,7 +64,6 @@ export const useCanvasDragging = (
   let { devicePixelRatio: scale = 1 } = window;
   scale *= canvasScale;
   const parentOffsetTop = useSelector(getParentOffsetTop(widgetId));
-  const allWidgets: CanvasWidgetsReduxState = useSelector(getCanvasWidgets);
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -81,7 +77,6 @@ export const useCanvasDragging = (
     isResizing,
     lastDraggedCanvas,
     occSpaces,
-    occupiedSpaces,
     onDrop,
     parentDiff,
     relativeStartPoints,
@@ -200,7 +195,8 @@ export const useCanvasDragging = (
         bottom: 0,
         id: "",
       };
-      let lastSnappedPositions: OccupiedSpace[] = [];
+
+      let lastMousePositions: { x: number; y: number }[] = [];
 
       const resetCanvasState = () => {
         throttledStopReflowing();
@@ -389,6 +385,9 @@ export const useCanvasDragging = (
           );
           rowRef.current = newRows ? newRows : rowRef.current;
         };
+        const updateMousePosition = ({ x, y }: { x: number; y: number }) => {
+          lastMousePositions = [{ x, y }, ...lastMousePositions.slice(0, 4)];
+        };
 
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && slidingArenaRef.current) {
@@ -442,39 +441,12 @@ export const useCanvasDragging = (
               triggerReflow(e, firstMove);
 
               if (useAutoLayout && isCurrentDraggedCanvas) {
-                const currentSnappedPosition = getDraggingSpacesFromBlocks(
-                  currentRectanglesToDraw,
-                  snapColumnSpace,
-                  snapRowSpace,
-                )[0];
-                const currentOccupiedSpace: any[] = occupiedSpaces[widgetId];
-                let exitContainer: OccupiedSpace | undefined = undefined;
-                if (lastDraggedCanvas.current && currentOccupiedSpace) {
-                  const occupiedSpaceMap = currentOccupiedSpace.reduce(
-                    (acc, curr) => {
-                      acc[curr.id] = curr;
-                      return acc;
-                    },
-                    {},
-                  );
-                  exitContainer = getLastDraggedCanvasSpace(
-                    allWidgets,
-                    widgetId,
-                    lastDraggedCanvas.current,
-                    occupiedSpaceMap,
-                  );
-                }
                 currentDirection.current = getInterpolatedMoveDirection(
-                  lastSnappedPositions,
-                  currentSnappedPosition,
+                  lastMousePositions,
+                  { x: e.clientX, y: e.clientY },
                   currentDirection.current,
-                  exitContainer,
-                  getMousePositionsOnCanvas(e, gridProps),
+                  updateMousePosition,
                 );
-                lastSnappedPositions = [
-                  currentSnappedPosition,
-                  ...lastSnappedPositions.slice(0, 9),
-                ];
                 if (currentDirection.current !== ReflowDirection.UNSET)
                   highlight = highlightDropPosition(
                     e,
