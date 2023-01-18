@@ -6,11 +6,30 @@ import {
     createMessage,
   } from "../../../../../support/Objects/CommonErrorMessages";
 
+  const listData = [
+    {
+      id: 10,
+      name: "okbuddy",
+    },
+    {
+      id: 11,
+      name: "Aliess",
+    },
+    {
+      id: 14,
+      name: "Aliess123",
+    },
+    {
+      id: 15,
+      name: "Aliess",
+    }
+]
+
 let dsName : any;
 
 describe("Verify List widget binding & functionalities with Queries and API", function() {
 
-it("1. Create new API validate binding on List widget", function(){
+it("1. Create new API & verify data on List widget", function(){
     const apiUrl = `https://thronesapi.com/api/v2/Characters`
     _.apiPage.CreateAndFillApi(apiUrl,"API1")
     _.apiPage.RunAPI()
@@ -50,21 +69,9 @@ it("2. Verify 'onListitemClick' functionality of Show messgage event on deploy m
 })
 
 it("3. Verify pagination and also verify Next_Page/Prev_Page disabled when List reach to last/first page", function(){
-    _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
-    _.ee.NavigateToSwitcher("explorer")
-    _.dataSources.CreateDataSource("MySql")
-    cy.get("@dsName").then(($dsName) => {
-        dsName = $dsName;
-        _.dataSources.CreateNewQueryInDS(
-            dsName,
-            "SELECT * FROM users LIMIT 4",
-            "Query1_mysql",
-        )
-        _.dataSources.ToggleUsePreparedStatement(false)
-        _.dataSources.RunQuery(true)
-        _.ee.NavigateToSwitcher("widgets")
+        _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
         _.agHelper.GetNClick(_.locators._listWidget,0,true)
-        _.propPane.UpdatePropertyFieldValue("Items", "{{Query1_mysql.data}}")
+        _.propPane.UpdatePropertyFieldValue("Items",JSON.stringify(listData))
         _.deployMode.DeployApp()
         _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
         _.agHelper.GetNAssertElementText(_.locators._listPaginateActivePage,"1","have.text")
@@ -78,7 +85,6 @@ it("3. Verify pagination and also verify Next_Page/Prev_Page disabled when List 
         _.agHelper.Sleep()
        
     })
-})
 
 it("4. Delete the List widget from canvas and verify it",function(){
     _.agHelper.GetNClick(_.locators._listWidget,0,true)
@@ -106,7 +112,7 @@ it("5. Verify List widget with error message on wrong input", function(){
     _.agHelper.Sleep()
 })
 
-it("6. Copy/Paste List widget", function(){
+it("6. Verify Copy/Paste List widget", function(){
     _.agHelper.GetNClick(_.locators._listWidget,0,true)
     _.ee.CopyPasteWidget("List1")
     _.agHelper.AssertElementExist(_.locators._listWidget,1)
@@ -115,7 +121,7 @@ it("6. Copy/Paste List widget", function(){
 })
 
 
-it("7. Verify Pagination in SSP and no pagination visible on disabling SSP", function(){
+it("7. Verify Pagination in SSP and verify no pagination visible when SSP is disabled", function(){
     _.agHelper.GetNClick(_.locators._listWidget,1,true)
     _.ee.NavigateToSwitcher("explorer")
     _.dataSources.CreateDataSource("Postgres")
@@ -123,7 +129,7 @@ it("7. Verify Pagination in SSP and no pagination visible on disabling SSP", fun
         dsName = $dsName
         _.dataSources.CreateNewQueryInDS(
             dsName,
-            "SELECT * FROM mockusers_v2 LIMIT {{List1Copy.pageSize}} offset {{(List1Copy.pageNo-1)*List1Copy.pageSize}}",
+            "SELECT * FROM users LIMIT {{List1Copy.pageSize}} offset {{(List1Copy.pageNo-1)*List1Copy.pageSize}}",
             "postgres_ssp",
         )
         _.dataSources.ToggleUsePreparedStatement(false)
@@ -137,10 +143,8 @@ it("7. Verify Pagination in SSP and no pagination visible on disabling SSP", fun
         _.ee.ExpandCollapseEntity("Widgets")
         _.ee.ExpandCollapseEntity("List1Copy")
         _.ee.ExpandCollapseEntity("Container1Copy")
-        _.ee.SelectEntityByName("Text2Copy")
-        _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.phone}}")
-        _.ee.SelectEntityByName("Image1Copy")
-        _.propPane.UpdatePropertyFieldValue("Image", "{{currentItem.image}}")
+        _.ee.SelectEntityByName("Text1Copy")
+        _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}")
         _.deployMode.DeployApp()
         _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
         _.agHelper.GetNAssertElementText(_.locators._listPaginateActivePage,"1","have.text")
@@ -165,3 +169,4 @@ it("8. Verify onPageSizeChange functionality in SSP of list widget", function(){
 })
 
 })
+
