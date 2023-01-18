@@ -65,12 +65,6 @@ registerRoute(
   }),
 );
 
-registerRoute(
-  new Route(({ request, sameOrigin }) => {
-    return sameOrigin && request.destination === "document";
-  }, new NetworkOnly()),
-);
-
 registerRoute(({ request }) => {
   return request.url.indexOf('/windowProxy/') !== -1;
 }, function (event) {
@@ -101,3 +95,9 @@ registerRoute(({ request }) => {
   });
   event.respondWith(response);
 });
+
+registerRoute(
+  new Route(({ request, sameOrigin }) => {
+    return sameOrigin && request.destination === "document";
+  }, new NetworkOnly()),
+);
