@@ -13,6 +13,7 @@ export default {
           return false;
         }
       case "TEXT":
+      case "MULTI_LINE_TEXT":
       case "EMAIL":
       case "PASSWORD":
         value = props.inputText;
@@ -79,6 +80,7 @@ export default {
           return true;
         }
       case "TEXT":
+      case "MULTI_LINE_TEXT":
       case "PASSWORD":
         if (parsedRegex) {
           return parsedRegex.test(props.inputText);

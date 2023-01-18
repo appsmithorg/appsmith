@@ -1012,6 +1012,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
                     application.setPublishedAppPositioning(application.getUnpublishedAppPositioning());
+                    application.setPublishedNavigationSetting(application.getUnpublishedNavigationSetting());
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
