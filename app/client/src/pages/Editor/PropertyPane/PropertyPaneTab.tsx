@@ -61,7 +61,7 @@ const StyledTabs = styled(Tabs)`
     border-width: 2px;
     border-radius: 0;
     border-color: transparent;
-    border-bottom: 2px solid ${Colors.PRIMARY_ORANGE};
+    border-bottom: 2px solid var(--ads-color-brand);
   }
 
   .tab-title {

@@ -1,4 +1,4 @@
-package com.appsmith.caching.configuration;
+package com.appsmith.testcaching.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

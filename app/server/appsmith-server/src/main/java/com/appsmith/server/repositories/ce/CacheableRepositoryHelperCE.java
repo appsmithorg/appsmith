@@ -9,6 +9,8 @@ public interface CacheableRepositoryHelperCE {
 
     Mono<Set<String>> getPermissionGroupsOfUser(User user);
 
+    Mono<Set<String>> preFillAnonymousUserPermissionGroupIdsCache();
+
     Mono<Set<String>> getPermissionGroupsOfAnonymousUser();
 
     Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
