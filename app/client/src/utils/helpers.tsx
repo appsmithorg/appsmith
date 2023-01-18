@@ -848,33 +848,6 @@ export const getUpdatedRoute = (
 ) => {
   let updatedPath = path;
 
-  const match = matchPath_Slug(path);
-  if (match?.params) {
-    const { applicationSlug, pageId, pageSlug } = match?.params;
-    /* pageId === params.pageId - check to deal with match overlap between matchPath_Slug & matchPath_CustomSlug
-     * if pageId is not equal then it is a customSlug path
-     * which happens to match with a regular slug path pattern
-     * proceed with customSlug path update.
-     */
-    if (pageId === params.pageId) {
-      if (params.customSlug) {
-        updatedPath = updatedPath.replace(
-          `${applicationSlug}/${pageSlug}`,
-          `${params.customSlug}-`,
-        );
-        return updatedPath;
-      }
-      if (params.applicationSlug)
-        updatedPath = updatedPath.replace(
-          applicationSlug,
-          params.applicationSlug,
-        );
-      if (params.pageSlug)
-        updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
-      return updatedPath;
-    }
-  }
-
   const matchCustomPath = matchPath_CustomSlug(path);
   if (matchCustomPath?.params) {
     const { customSlug } = matchCustomPath.params;
@@ -883,12 +856,34 @@ export const getUpdatedRoute = (
         `${customSlug}`,
         `${params.customSlug}-`,
       );
+      return updatedPath;
     } else if (params.applicationSlug && params.pageSlug) {
       updatedPath = updatedPath.replace(
         `${customSlug}`,
         `${params.applicationSlug}/${params.pageSlug}-`,
       );
+      return updatedPath;
     }
+  }
+
+  const match = matchPath_Slug(path);
+  if (match?.params) {
+    const { applicationSlug, pageSlug } = match?.params;
+    if (params.customSlug) {
+      updatedPath = updatedPath.replace(
+        `${applicationSlug}/${pageSlug}`,
+        `${params.customSlug}-`,
+      );
+      return updatedPath;
+    }
+    if (params.applicationSlug)
+      updatedPath = updatedPath.replace(
+        applicationSlug,
+        params.applicationSlug,
+      );
+    if (params.pageSlug)
+      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+    return updatedPath;
   }
   return updatedPath;
 };
