@@ -287,6 +287,18 @@ export default function evaluateSync(
     // entity properties from the global context
     Object.assign(self, evalContext);
 
+    for (const key in evalContext) {
+      if (evalContext.hasOwnProperty(key)) {
+        if (evalContext[key] && typeof evalContext[key] === "object") {
+          // @ts-expect-error: Types are not available
+          self[key] = new Proxy(evalContext[key], proxyHandler);
+        } else {
+          // @ts-expect-error: Types are not available
+          self[key] = evalContext[key];
+        }
+      }
+    }
+
     try {
       result = indirectEval(script);
       if (result instanceof Promise) {
@@ -388,4 +400,22 @@ export async function evaluateAsync(
       };
     }
   })();
+}
+
+const proxyHandler = {
+  get<T extends Record<string, unknown>>(target: T, prop: string): unknown {
+    if (target[prop] && typeof target[prop] === "object") {
+      return new Proxy(target, proxyHandler);
+    }
+    return Reflect.get(target, prop);
+  },
+  set() {
+    throw new MutationDisallowedError();
+  },
+};
+
+class MutationDisallowedError extends Error {
+  constructor() {
+    super("Assignments are not allowed");
+  }
 }
