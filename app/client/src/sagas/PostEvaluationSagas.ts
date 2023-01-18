@@ -342,6 +342,7 @@ export function* updateTernDefinitions(
   dataTree: DataTree,
   updates: DataTreeDiff[],
   isCreateFirstTree: boolean,
+  jsData: Record<string, unknown> = {},
 ) {
   const shouldUpdate: boolean =
     isCreateFirstTree ||
@@ -365,6 +366,7 @@ export function* updateTernDefinitions(
   const { def, entityInfo } = dataTreeTypeDefCreator(
     filteredDataTree,
     !!featureFlags.JS_EDITOR,
+    jsData,
   );
   CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
   const end = performance.now();

@@ -34,7 +34,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
   it("2. Login as Administrator and search for users using search bar", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     homePage.FilterApplication(appid, workspaceId);
-    cy.xpath("//span[text()='Share']/parent::button").click();
+    cy.xpath("//span[text()='Share']/parent::button").first().click();
     cy.xpath(homePage._visibleTextSpan("MANAGE USERS")).click({
       force: true,
     });

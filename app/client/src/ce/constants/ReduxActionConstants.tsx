@@ -125,10 +125,7 @@ export const ReduxActionTypes = {
   RESET_ACTIVE_TOUR: "RESET_ACTIVE_TOUR",
   SET_ACTIVE_TOUR_INDEX: "SET_ACTIVE_TOUR_INDEX",
   INIT_APP_LEVEL_SOCKET_CONNECTION: "INIT_APP_LEVEL_SOCKET_CONNECTION",
-  RETRY_APP_LEVEL_WEBSOCKET_CONNECTION: "RETRY_APP_LEVEL_WEBSOCKET_CONNECTION",
   INIT_PAGE_LEVEL_SOCKET_CONNECTION: "INIT_PAGE_LEVEL_SOCKET_CONNECTION",
-  RETRY_PAGE_LEVEL_WEBSOCKET_CONNECTION:
-    "RETRY_PAGE_LEVEL_WEBSOCKET_CONNECTION",
   SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED: "SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED",
   SET_IS_PAGE_LEVEL_WEBSOCKET_CONNECTED:
     "SET_IS_PAGE_LEVEL_WEBSOCKET_CONNECTED",
@@ -1029,6 +1026,7 @@ export interface ShowPropertyPanePayload {
 
 export interface Page {
   pageName: string;
+  description?: string;
   pageId: string;
   isDefault: boolean;
   latest?: boolean;
@@ -1040,6 +1038,7 @@ export interface Page {
 
 export interface ClonePageSuccessPayload {
   pageName: string;
+  description?: string;
   pageId: string;
   layoutId: string;
   isDefault: boolean;
