@@ -44,7 +44,9 @@ spec:
       secretName: {{ .secretName }}
     {{- end }}
   {{- end }}
-  ingressClassName: {{ .Values.ingress.className }}
+  {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+  ingressClassName: {{ .Values.ingress.className |  default "nginx" }}
+  {{- end }}
   rules:
     {{- if not .Values.ingress.hosts }}
     - host:
