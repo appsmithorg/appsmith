@@ -29,8 +29,11 @@ import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
-import { setSelectedWidgets } from "actions/widgetSelectionActions";
-import { getWidgetsByName } from "sagas/selectors";
+import {
+  setLastSelectedWidget,
+  setSelectedWidgets,
+} from "actions/widgetSelectionActions";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 let previousPath: string;
 
@@ -253,16 +256,16 @@ function* getEntitySubType(entityInfo: FocusEntityInfo) {
 
 function* setSelectedWidgetsSaga(pathname: string) {
   const entityInfo = identifyEntityFromPath(pathname);
+  let widgets: string[] = [];
+  let lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
   if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
-    const widgets: Record<string, { widgetId: string }> = yield select(
-      getWidgetsByName,
-    );
-    yield put(
-      setSelectedWidgets(
-        entityInfo.id.split(",").map((w) => widgets[w].widgetId),
-      ),
-    );
+    widgets = entityInfo.id.split(",");
+    if (widgets.length) {
+      lastSelectedWidget = widgets[widgets.length - 1];
+    }
   }
+  yield put(setSelectedWidgets(widgets));
+  yield put(setLastSelectedWidget(lastSelectedWidget));
 }
 
 /**

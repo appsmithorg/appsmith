@@ -9,10 +9,7 @@ import {
   getWidgetImmediateChildren,
   getWidgets,
 } from "./selectors";
-import {
-  setLastSelectedWidget,
-  WidgetSelectionRequestPayload,
-} from "actions/widgetSelectionActions";
+import { WidgetSelectionRequestPayload } from "actions/widgetSelectionActions";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppState } from "@appsmith/reducers";
@@ -37,7 +34,6 @@ import {
   shiftSelectWidgets,
 } from "sagas/WidgetSelectUtils";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
@@ -65,10 +61,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       // Deselect everything and set the lastSelected to the main container
       // This will reset the last selected canvas and can be pasted into
       case SelectionRequestType.EMPTY: {
-        newSelection = {
-          widgets: [],
-          lastWidgetSelected: MAIN_CONTAINER_WIDGET_ID,
-        };
+        newSelection = [];
         break;
       }
       //
@@ -120,30 +113,27 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         SelectionRequestType.PushPop,
         SelectionRequestType.SHIFT_SELECT,
       ].includes(selectionRequestType) &&
-      newSelection.widgets[0] in allWidgets
+      newSelection[0] in allWidgets
     ) {
-      const selectionWidgetId = newSelection.widgets[0];
+      const selectionWidgetId = newSelection[0];
       const parentId = allWidgets[selectionWidgetId].parentId;
       if (parentId) {
         const selectionSiblingWidgets: string[] = yield select(
           getWidgetImmediateChildren,
           parentId,
         );
-        newSelection.widgets = newSelection.widgets.filter((each) =>
+        newSelection = newSelection.filter((each) =>
           selectionSiblingWidgets.includes(each),
         );
       }
     }
 
     // yield put(setSelectedWidgets(newSelection.widgets));
-    if (parentId && newSelection.widgets.length === 1) {
+    if (parentId && newSelection.length === 1) {
       yield call(setWidgetAncestry, parentId, allWidgets);
-      quickScrollToWidget(newSelection.lastWidgetSelected);
+      quickScrollToWidget(newSelection[0]);
     }
-    if (newSelection.lastWidgetSelected) {
-      yield put(setLastSelectedWidget(newSelection.lastWidgetSelected));
-    }
-    yield call(appendSelectedWidgetToUrlSaga, newSelection.widgets, invokedBy);
+    yield call(appendSelectedWidgetToUrlSaga, newSelection, invokedBy);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
@@ -170,11 +160,10 @@ function* appendSelectedWidgetToUrlSaga(
   const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
   const currentURL = pathname;
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgetsUrl = widgetURL({
     pageId: currentPageId,
     persistExistingParams: true,
-    selectedWidgets: selectedWidgets.map((w) => allWidgets[w].widgetName),
+    selectedWidgets,
   });
   if (currentURL !== widgetsUrl) {
     history.push(widgetsUrl, { invokedBy });

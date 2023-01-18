@@ -137,11 +137,6 @@ export function* showModalSaga(
     },
   });
 
-  const pageId: string = yield select(getCurrentPageId);
-  const appMode: APP_MODE = yield select(getAppMode);
-
-  if (appMode === APP_MODE.EDIT) navigateToCanvas(pageId);
-
   yield put(focusWidget(action.payload.modalId));
 
   const metaProps: Record<string, unknown> = yield select(

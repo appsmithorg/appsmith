@@ -51,12 +51,7 @@ export enum SelectionRequestType {
 
 export type SelectionPayload = string[];
 
-export type SetSelectionResult =
-  | {
-      widgets: string[];
-      lastWidgetSelected?: string;
-    }
-  | undefined;
+export type SetSelectionResult = string[] | undefined;
 
 // Main container cannot be a selection, dont honour this request
 export const isInvalidSelectionRequest = (id: unknown) =>
@@ -86,7 +81,7 @@ export const deselectAll = (request: SelectionPayload): SetSelectionResult => {
       SelectionRequestType.EMPTY,
     );
   }
-  return { widgets: [], lastWidgetSelected: "" };
+  return [];
 };
 
 export const selectOneWidget = (
@@ -99,7 +94,7 @@ export const selectOneWidget = (
       SelectionRequestType.ONE,
     );
   }
-  return { widgets: request, lastWidgetSelected: request[0] };
+  return request;
 };
 
 export const selectMultipleWidgets = (
@@ -111,7 +106,7 @@ export const selectMultipleWidgets = (
     return allWidgets[each]?.parentId === parentToMatch;
   });
   if (!areSiblings) return;
-  return { widgets: request, lastWidgetSelected: request[0] };
+  return request;
 };
 
 export const shiftSelectWidgets = (
@@ -125,13 +120,10 @@ export const shiftSelectWidgets = (
     lastSelectedWidget,
   );
   if (siblingIndexOfLastSelectedWidget === -1) {
-    return { widgets: request, lastWidgetSelected: request[0] };
+    return request;
   }
   if (currentlySelectedWidgets.includes(request[0])) {
-    return {
-      widgets: currentlySelectedWidgets.filter((w) => request[0] !== w),
-      lastWidgetSelected: "",
-    };
+    return currentlySelectedWidgets.filter((w) => request[0] !== w);
   }
   let widgets: string[] = [...request, ...currentlySelectedWidgets];
   const start =
@@ -146,7 +138,7 @@ export const shiftSelectWidgets = (
   if (unSelectedSiblings && unSelectedSiblings.length) {
     widgets = widgets.concat(...unSelectedSiblings);
   }
-  return { widgets: uniq(widgets), lastWidgetSelected: widgets[0] };
+  return uniq(widgets);
 };
 
 export const pushPopWidgetSelection = (
@@ -158,18 +150,11 @@ export const pushPopWidgetSelection = (
   const alreadySelected = currentlySelectedWidgets.includes(widgetId);
 
   if (alreadySelected) {
-    return {
-      lastWidgetSelected: "",
-      widgets: currentlySelectedWidgets.filter((each) => each !== widgetId),
-    };
+    return currentlySelectedWidgets.filter((each) => each !== widgetId);
   } else if (!!widgetId) {
-    const widgets = [...currentlySelectedWidgets, widgetId].filter((w) =>
+    return [...currentlySelectedWidgets, widgetId].filter((w) =>
       siblingWidgets.includes(w),
     );
-    return {
-      widgets,
-      lastWidgetSelected: widgetId,
-    };
   }
 };
 
