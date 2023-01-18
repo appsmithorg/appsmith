@@ -28,7 +28,7 @@ describe("JSEditor Comment - Visual tests", () => {
     agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     agHelper.WaitUntilAllToastsDisappear();
 
-    //cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforeCommenting1");
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforeCommenting1");
 
     // Comment out lines 2,3,4
     for (let i = 2; i < 5; i++) {
@@ -45,6 +45,6 @@ describe("JSEditor Comment - Visual tests", () => {
     // Allow time to comment out lines
     agHelper.Sleep(1000);
 
-    //cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterCommenting1");
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterCommenting1");
   });
 });
