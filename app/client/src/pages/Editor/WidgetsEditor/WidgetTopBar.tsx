@@ -26,7 +26,7 @@ const WidgetWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  width: 40px;
   height: ${(props) => props.theme.widgetTopBar};
   :hover {
     background-color: ${Colors.GRAY_100};
@@ -74,7 +74,7 @@ function WidgetTopBar() {
     >
       <WidgetPaneTrigger />
       {showPopularWidgets && (
-        <div className="flex flex-1 gap-6	justify-center">
+        <div className="flex flex-1	justify-center">
           {widgets.map((widget) => {
             return (
               <TooltipComponent content={widget.displayName} key={widget.type}>

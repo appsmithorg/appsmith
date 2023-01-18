@@ -75,12 +75,17 @@ function WidgetPaneTrigger() {
     return false;
   };
 
+  useEffect(() => {
+    // We use a ref to keep track of whether we want to reopen on drop
+    if (openWidgetPanel) {
+      toOpen.current = true;
+    }
+  }, [openWidgetPanel]);
+
   // To close the pane when we see a drag of a new widget
   useEffect(() => {
     if (isDragging && dragDetails.newWidget) {
       dispatch(forceOpenWidgetPanel(false));
-      // We use a ref to keep track of whether we want to reopen on drop
-      toOpen.current = true;
     }
   }, [isDragging, dragDetails.newWidget]);
 
@@ -117,8 +122,10 @@ function WidgetPaneTrigger() {
         placement="bottom-start"
       >
         <TooltipComponent
+          boundary="viewport"
           content={createMessage(ADD_WIDGET_TOOLTIP)}
           disabled={openWidgetPanel}
+          position="bottom-left"
         >
           <StyledTrigger
             active={openWidgetPanel}
