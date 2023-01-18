@@ -2331,12 +2331,13 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
+        Application application1 = createApplicationConnectedToGit("createBranch_cancelledMidway_newApplicationCreated", "master");
         gitService
-                .createBranch(gitConnectedApplication.getId(), createGitBranchDTO, gitConnectedApplication.getGitApplicationMetadata().getBranchName())
+                .createBranch(application1.getId(), createGitBranchDTO, application1.getGitApplicationMetadata().getBranchName())
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
-        Mono<Application> branchedAppMono = Mono.just(gitConnectedApplication)
+        Mono<Application> branchedAppMono = Mono.just(application1)
                 .flatMap(application -> {
                     try {
                         // Before fetching the git connected application, sleep for 5 seconds to ensure that the clone
@@ -2356,7 +2357,7 @@ public class GitServiceTest {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     assertThat(application).isNotNull();
                     assertThat(application.getId()).isNotEqualTo(gitData.getDefaultApplicationId());
-                    assertThat(gitData.getDefaultApplicationId()).isEqualTo(gitConnectedApplication.getId());
+                    assertThat(gitData.getDefaultApplicationId()).isEqualTo(application1.getId());
                     assertThat(gitData.getBranchName()).isEqualTo(createGitBranchDTO.getBranchName());
                     assertThat(gitData.getDefaultBranchName()).isNotEmpty();
                     assertThat(gitData.getRemoteUrl()).isNotEmpty();
