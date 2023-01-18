@@ -78,6 +78,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     margin-left: 4px;
+    cursor: default;
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
     }
@@ -96,6 +97,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     letter-spacing: -0.24px;
     margin-left: 4px;
     margin-right: 4px;
+    cursor: default;
     color: ${(props) => props.theme.colors.debugger.error.type};
   }
 
@@ -187,10 +189,6 @@ const IconWrapper = styled.span`
   color: ${Colors.CHARCOAL};
   display: flex;
   align-items: center;
-
-  div {
-    cursor: pointer;
-  }
 
   svg {
     width: 12px;

@@ -676,7 +676,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         parsed: config.params.default || parsed || 0,
         messages: [
           {
-            name: "TypeError",
+            name: "ValidationError",
             text: `Value should be a positive integer`,
           },
         ],
