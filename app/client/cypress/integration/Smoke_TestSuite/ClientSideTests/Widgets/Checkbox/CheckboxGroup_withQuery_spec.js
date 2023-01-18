@@ -14,8 +14,8 @@ const isMac = Cypress.platform === "darwin";
 const selectAll = `${isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
 describe("Checkbox Group Widget Functionality", function() {
-  it("1. Creates a new Postgres datasource", function() {
-    dataSources.CreateMockDB("users").then((mockDBName) => {
+  it("Check checkbox group with dynamic query", function() {
+    dataSources.CreateMockDB("Users").then((mockDBName) => {
       // add Query 1 with limit 10
       dataSources.CreateQuery(mockDBName);
       agHelper.GetNClick(dataSources._templateMenuOption("Select"));
