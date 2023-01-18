@@ -30,11 +30,11 @@ const ErrorContainer = styled.div`
 const Player = styled(ReactPlayer)`
   .auto-layout && {
     min-width: 70px;
-    min-height: 50px;
+    height: 50px !important;
   }
 
   .mobile-view .auto-layout && {
-    min-height: 40px;
+    height: 40px !important;
   }
 `;
 

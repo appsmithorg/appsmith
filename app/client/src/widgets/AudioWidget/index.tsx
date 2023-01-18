@@ -27,6 +27,14 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
   },
+  autoLayout: {
+    defaults: {
+      rows: 6,
+    },
+    mobile: {
+      rows: 4,
+    },
+  },
 };
 
 export default Widget;
