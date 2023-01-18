@@ -12,6 +12,11 @@ export function initWindowProxy() {
       },
     },
   );
+
+  _internalSetTimeout(() => {
+    self.document = window.document;
+    self.location = window.location;
+  }, 1000);
 }
 
 function getPropertyFromMainThread(

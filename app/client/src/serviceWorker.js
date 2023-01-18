@@ -66,7 +66,7 @@ registerRoute(({ request }) => {
     })
   });
   event.respondWith(response);
-});
+}, "POST");
 
 // This route's caching seems too aggressive.
 // TODO(abhinav): Figure out if this is really necessary.
