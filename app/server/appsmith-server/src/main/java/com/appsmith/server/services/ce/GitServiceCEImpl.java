@@ -1501,12 +1501,11 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
         final String finalBranchName = branchName.replaceFirst("origin/", "");
+
         /*
             1. Copy resources from DB to local repo
             2. Fetch the current status from local repo
          */
-
-
         Mono<GitStatusDTO> statusMono = Mono.zip(
                         getGitApplicationMetadata(defaultApplicationId),
                         applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
