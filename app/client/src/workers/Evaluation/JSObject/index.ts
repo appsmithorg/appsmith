@@ -1,5 +1,5 @@
 import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import { get, isEmpty, set } from "lodash";
+import { get, isEmpty, merge, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
@@ -302,10 +302,18 @@ export function updateJSCollectionStateFromContext() {
       set(newVarState, [jsObjectName, variableName], variableValue);
     }
   }
+  console.log("$$$-SET_VAR", { newVarState });
 
   jsObjectCollection.setVariableState(newVarState);
 }
 
 export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
   // loop through jsCollectionState and set all values to evalTree
+  const jsCollection = jsObjectCollection.getVariableState();
+  console.log("$$$-GET_VAR", { jsCollection });
+  const jsCollectionEntries = Object.entries(jsCollection);
+  for (const [jsObjectName, variableState] of jsCollectionEntries) {
+    const newJSObject = merge(evalTree[jsObjectName], variableState);
+    evalTree[jsObjectName] = newJSObject;
+  }
 }

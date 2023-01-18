@@ -309,6 +309,9 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
+      if (isJSCollection) {
+        updateJSCollectionStateFromContext();
+      }
       if (!skipLogsOperations) logs = userLogs.flushLogs();
       for (const entityName in evalContext) {
         if (evalContext.hasOwnProperty(entityName)) {
