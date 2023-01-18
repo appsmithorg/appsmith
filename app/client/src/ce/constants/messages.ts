@@ -1131,6 +1131,10 @@ export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
+export const API_PANE_INVALID_CONTENT_TYPE = () =>
+  "Seems the language selected here is different from the value inferred from the content-type selected";
+export const API_PANE_DUPLICATE_HEADER = (headerName: string) =>
+  `This is a duplicate header and will be overridden by the ${headerName} header added by you.`;
 
 export const TABLE_WIDGET_TOTAL_RECORD_TOOLTIP = () =>
   "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.";
