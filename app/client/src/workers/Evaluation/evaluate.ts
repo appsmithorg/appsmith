@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
   PropertyEvaluationErrorType,
@@ -396,28 +396,33 @@ export async function evaluateAsync(
   })();
 }
 
-function immutableEntity(entity: DataTreeEntity) {
+function immutableEntity(entity: any) {
   if (typeof entity !== "object") return entity;
   if (isAppsmithEntity(entity)) return entity;
   return new Proxy(entity, immutablesTrap);
 }
 
 const immutablesTrap = {
-  get<T extends Record<string, unknown>>(target: T, prop: string): unknown {
-    if (target.hasOwnProperty(prop)) {
-      if (target[prop] && typeof target[prop] === "object") {
-        return new Proxy(target, immutablesTrap);
-      }
+  get<T extends Record<string, any>>(
+    target: T,
+    prop: string,
+    receiver: unknown,
+  ): unknown {
+    if (target[prop] && typeof target[prop] === "object") {
+      return new Proxy(target[prop], immutablesTrap);
     }
-    return Reflect.get(target, prop);
+    return Reflect.get(target, prop, receiver);
   },
-  set(target: any, value: any) {
-    throw new MutationDisallowedError();
+  set<T extends Record<string, any>>(target: T, prop: string, value: unknown) {
+    throw new MutationDisallowedError(target, prop, value);
   },
 };
 
 class MutationDisallowedError extends Error {
-  constructor() {
-    super("Assignments are not allowed");
+  constructor(source: any, prop: string, value: any) {
+    super(
+      `Cannot mutate ${source.name ||
+        source.widgetName}. Tried to set '${prop}' to ${value}`,
+    );
   }
 }
