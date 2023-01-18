@@ -40,9 +40,8 @@ export function validateAndParseWidgetProperty({
     // TODO find a way to validate triggers
     return unEvalPropertyValue;
   }
-  // const validation = widget.validationPaths[propertyPath];
   const validation =
-    configTree[widget.widgetName]?.validationPaths?.propertyPath;
+    configTree[widget.widgetName].validationPaths[propertyPath];
 
   const { isValid, messages, parsed, transformed } = validateWidgetProperty(
     validation,
