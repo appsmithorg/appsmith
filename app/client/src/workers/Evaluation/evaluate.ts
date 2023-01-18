@@ -286,12 +286,7 @@ export default function evaluateSync(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    for (const entityName in evalContext) {
-      if (evalContext.hasOwnProperty(entityName)) {
-        // @ts-expect-error: Types are not available
-        self[entityName] = immutableEntity(evalContext[entityName]);
-      }
-    }
+    Object.assign(self, evalContext);
 
     try {
       result = indirectEval(script);
@@ -394,35 +389,4 @@ export async function evaluateAsync(
       };
     }
   })();
-}
-
-function immutableEntity(entity: any) {
-  if (typeof entity !== "object") return entity;
-  if (isAppsmithEntity(entity)) return entity;
-  return new Proxy(entity, immutablesTrap);
-}
-
-const immutablesTrap = {
-  get<T extends Record<string, any>>(
-    target: T,
-    prop: string,
-    receiver: unknown,
-  ): unknown {
-    if (target[prop] && typeof target[prop] === "object") {
-      return new Proxy(target[prop], immutablesTrap);
-    }
-    return Reflect.get(target, prop, receiver);
-  },
-  set<T extends Record<string, any>>(target: T, prop: string, value: unknown) {
-    throw new MutationDisallowedError(target, prop, value);
-  },
-};
-
-class MutationDisallowedError extends Error {
-  constructor(source: any, prop: string, value: any) {
-    super(
-      `Cannot mutate ${source.name ||
-        source.widgetName}. Tried to set '${prop}' to ${value}`,
-    );
-  }
 }
