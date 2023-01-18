@@ -16,7 +16,6 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { isAppsmithEntity } from "ce/workers/Evaluation/evaluationUtils";
 
 export type EvalResult = {
   result: any;
