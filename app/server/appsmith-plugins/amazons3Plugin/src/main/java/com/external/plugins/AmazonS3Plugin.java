@@ -698,9 +698,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 actionResult = new HashMap<String, Object>();
                                 ((HashMap<String, Object>) actionResult).put("signedUrl", signedUrl);
                                 ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
-
-                                requestParams.add(new RequestParamDTO(CREATE_EXPIRY,
-                                        expiryDateTimeString, null, null, null));
+                                requestParams.add(new RequestParamDTO(CREATE_EXPIRY, expiryDateTimeString, null, null, null));
                                 requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, body, null, null, null));
                                 break;
                             }
@@ -808,7 +806,12 @@ public class AmazonS3Plugin extends BasePlugin {
                                 ));
                         }
                         return Mono.just(actionResult);
-                    })
+                    }).onErrorMap(
+                            IllegalStateException.class,
+                            error ->{
+                                throw new StaleConnectionException();
+                            }
+                    )
                     .flatMap(obj -> obj)
                     .flatMap(result -> {
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
@@ -1017,6 +1020,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                     "Appsmith server has failed to fetch list of buckets from database. Please check if " +
                                             "the database credentials are valid and/or you have the required permissions."
                             );
+                        } catch (IllegalStateException s) {
+                            throw new StaleConnectionException();
                         }
 
                         return new DatasourceStructure(tableList);
