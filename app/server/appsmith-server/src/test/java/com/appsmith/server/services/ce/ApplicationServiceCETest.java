@@ -2211,6 +2211,9 @@ public class ApplicationServiceCETest {
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+        Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
+        appNavigationSetting.setOrientation("top");
+        testApplication.setNavigationSetting(appNavigationSetting);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
@@ -2243,6 +2246,7 @@ public class ApplicationServiceCETest {
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
                     assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
+                    assertThat(application.getPublishedNavigationSetting()).isEqualTo(application.getUnpublishedNavigationSetting());
                 })
                 .verifyComplete();
     }
@@ -2267,6 +2271,9 @@ public class ApplicationServiceCETest {
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         testApplication.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
+        Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
+        appNavigationSetting.setOrientation("top");
+        testApplication.setNavigationSetting(appNavigationSetting);
         Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -2369,6 +2376,10 @@ public class ApplicationServiceCETest {
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         gitConnectedApp.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
 
+        Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
+        appNavigationSetting.setOrientation("top");
+        gitConnectedApp.setNavigationSetting(appNavigationSetting);
+
         Mono<Application> applicationMono = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
                 .flatMap(updatedApp -> applicationPageService.publish(updatedApp.getId(), gitData.getBranchName(), true))
                 .flatMap(application -> applicationService.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS))
@@ -2399,6 +2410,7 @@ public class ApplicationServiceCETest {
 
                     assertThat(application.getPublishedAppLayout()).isEqualTo(application.getUnpublishedAppLayout());
                     assertThat(application.getPublishedAppPositioning()).isEqualTo(application.getUnpublishedAppPositioning());
+                    assertThat(application.getPublishedNavigationSetting()).isEqualTo(application.getUnpublishedNavigationSetting());
                 })
                 .verifyComplete();
     }
