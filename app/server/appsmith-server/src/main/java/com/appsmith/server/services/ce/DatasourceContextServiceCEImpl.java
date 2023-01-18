@@ -98,7 +98,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
              * evaluated multiple times the actual datasource creation will only happen once and get cached and the same
              * value would directly be returned to further evaluations / subscriptions.
              */
-            if (datasourceContextIdentifier.getDatasourceId() != null && datasourceContextMonoMap.get(datasourceContextIdentifier) != null) {
+            if (datasourceContextIdentifier.getDatasourceId() != null
+                    && datasourceContextMonoMap.get(datasourceContextIdentifier) != null) {
                 log.debug("Cached resource context mono exists. Returning the same.");
                 return datasourceContextMonoMap.get(datasourceContextIdentifier);
             }
@@ -114,7 +115,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration()).cache();
 
             Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMono
-                    .flatMap(connection -> updateDatasourceAndSetAuthentication(connection, datasource, datasourceContextIdentifier))
+                    .flatMap(connection -> updateDatasourceAndSetAuthentication(connection, datasource,
+                                                                                datasourceContextIdentifier))
                     .map(connection -> {
                         /* When a connection object exists and makes sense for the plugin, we put it in the
                         context. Example, DB plugins. */
@@ -150,7 +152,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         return datasourceMono1.thenReturn(connection);
     }
 
-    Mono<Datasource> retrieveDatasourceFromDB( Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier) {
+    protected Mono<Datasource> retrieveDatasourceFromDB( Datasource datasource,
+                                                         DatasourceContextIdentifier datasourceContextIdentifier) {
         if (datasourceContextIdentifier.isKeyValid()) {
             return datasourceService.findById(datasourceContextIdentifier.getDatasourceId(),
                                               datasourcePermission.getExecutePermission());
@@ -159,7 +162,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         }
     }
 
-    protected Mono<DatasourceContext<?>> createNewDatasourceContext(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier) {
+    protected Mono<DatasourceContext<?>> createNewDatasourceContext(Datasource datasource,
+                                                                    DatasourceContextIdentifier datasourceContextIdentifier) {
         log.debug("Datasource context doesn't exist. Creating connection.");
         Mono<Datasource> datasourceMono = retrieveDatasourceFromDB(datasource, datasourceContextIdentifier);
 
@@ -208,7 +212,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 && datasource.getUpdatedAt().isAfter(datasourceContextMap.get(datasourceContextIdentifier).getCreationTime());
     }
 
-    protected  boolean isValidDatasourceContextAvailable(Datasource datasource, DatasourceContextIdentifier datasourceContextIdentifier) {
+    protected boolean isValidDatasourceContextAvailable(Datasource datasource,
+                                                        DatasourceContextIdentifier datasourceContextIdentifier) {
         boolean isStale = getIsStale(datasource, datasourceContextIdentifier);
         return datasourceContextMap.get(datasourceContextIdentifier) != null
                 // The following condition happens when there's a timeout in the middle of destroying a connection and
@@ -265,8 +270,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         return datasourceService
                 .findById(datasourceId, datasourcePermission.getExecutePermission())
                 .zipWhen(datasource1 ->
-                        pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource1.getPluginId()))
-                )
+                                 pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource1.getPluginId())))
                 .map(tuple -> {
                     final Datasource datasource = tuple.getT1();
                     final PluginExecutor<Object> pluginExecutor = tuple.getT2();
@@ -288,7 +292,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     executePluginDTO.setInstallationKey(instanceId);
                     executePluginDTO.setPluginName(plugin.getPluginName());
                     executePluginDTO.setPluginVersion(plugin.getVersion());
-                    executePluginDTO.setDatasource(new DatasourceDTO(datasource.getId(), datasource.getDatasourceConfiguration()));
+                    executePluginDTO.setDatasource(new DatasourceDTO(datasource.getId(),
+                                                                     datasource.getDatasourceConfiguration()));
                     datasourceContext.setConnection(executePluginDTO);
 
                     return datasourceContext;
