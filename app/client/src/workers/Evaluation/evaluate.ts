@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
   PropertyEvaluationErrorType,
@@ -16,6 +16,7 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import { isAppsmithEntity } from "ce/workers/Evaluation/evaluationUtils";
 
 export type EvalResult = {
   result: any;
@@ -285,17 +286,10 @@ export default function evaluateSync(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    Object.assign(self, evalContext);
-
-    for (const key in evalContext) {
-      if (evalContext.hasOwnProperty(key)) {
-        if (evalContext[key] && typeof evalContext[key] === "object") {
-          // @ts-expect-error: Types are not available
-          self[key] = new Proxy(evalContext[key], proxyHandler);
-        } else {
-          // @ts-expect-error: Types are not available
-          self[key] = evalContext[key];
-        }
+    for (const entityName in evalContext) {
+      if (evalContext.hasOwnProperty(entityName)) {
+        // @ts-expect-error: Types are not available
+        self[entityName] = immutableEntity(evalContext[entityName]);
       }
     }
 
@@ -402,14 +396,22 @@ export async function evaluateAsync(
   })();
 }
 
-const proxyHandler = {
+function immutableEntity(entity: DataTreeEntity) {
+  if (typeof entity !== "object") return entity;
+  if (isAppsmithEntity(entity)) return entity;
+  return new Proxy(entity, immutablesTrap);
+}
+
+const immutablesTrap = {
   get<T extends Record<string, unknown>>(target: T, prop: string): unknown {
-    if (target[prop] && typeof target[prop] === "object") {
-      return new Proxy(target, proxyHandler);
+    if (target.hasOwnProperty(prop)) {
+      if (target[prop] && typeof target[prop] === "object") {
+        return new Proxy(target, immutablesTrap);
+      }
     }
     return Reflect.get(target, prop);
   },
-  set() {
+  set(target: any, value: any) {
     throw new MutationDisallowedError();
   },
 };
