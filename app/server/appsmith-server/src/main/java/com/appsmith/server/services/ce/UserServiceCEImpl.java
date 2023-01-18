@@ -585,20 +585,36 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Mono<User> userFromRepository = repository.findById(id, MANAGE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
+        return userFromRepository
+                .flatMap(existingUser -> this.update(existingUser, userUpdate));
+    }
+
+    /**
+     * Method to update user without ACL permission. This will be used internally to update the user
+     * @param id        UserId which needs to be updated
+     * @param update    User object
+     * @return          Updated user
+     */
+    @Override
+    public Mono<User> updateWithoutPermission(String id, User update) {
+        Mono<User> userFromRepository = repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
+
+        return userFromRepository
+                .flatMap(existingUser -> this.update(existingUser, update));
+    }
+
+    private Mono<User> update(User existingUser, User userUpdate) {
+
+        // The password is being updated. Hash it first and then store it
         if (userUpdate.getPassword() != null) {
-            // The password is being updated. Hash it first and then store it
             userUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
         }
 
-        return userFromRepository
-                .map(existingUser -> {
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
-                    return existingUser;
-                })
-                .flatMap(repository::save)
+        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
+        return repository.save(existingUser)
                 .map(userChangedHandler::publish);
     }
-
 
     @Override
     public Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
