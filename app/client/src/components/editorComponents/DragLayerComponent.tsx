@@ -42,6 +42,7 @@ type DragLayerProps = {
 function DragLayerComponent(props: DragLayerProps) {
   return (
     <WrappedDragLayer
+      className="drag-layer"
       columnWidth={props.parentColumnWidth}
       noPad={props.noPad}
     />

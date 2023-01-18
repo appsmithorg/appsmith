@@ -11,7 +11,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
-import { getCanvasHeightOffset } from "selectors/editorSelectors";
+import { getCanvasHeightOffset } from "utils/WidgetPropsUtils";
 import { FlattenedWidgetProps } from "widgets/constants";
 import {
   getWidgetMaxAutoHeight,
@@ -91,6 +91,8 @@ export function* updateWidgetAutoHeightSaga(
     } = yield getLayoutTree(false);
     dynamicHeightLayoutTree = result.tree;
   }
+
+  console.log("Auto Height: computing:", { dynamicHeightLayoutTree });
 
   // Get all widgets from canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);

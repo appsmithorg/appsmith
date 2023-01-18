@@ -7,11 +7,9 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
-import {
-  getCanvasHeightOffset,
-  previewModeSelector,
-} from "selectors/editorSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
+import { getCanvasHeightOffset } from "utils/WidgetPropsUtils";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(previewModeSelector);

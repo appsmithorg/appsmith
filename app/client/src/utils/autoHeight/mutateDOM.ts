@@ -61,6 +61,8 @@ export function directlyMutateDOMNodes(
     string,
     Record<string, number>
   > = getNodesAndStylesToUpdate(widgetsToUpdate, widgetsMeasuredInPixels);
+
+  console.log("Auto Height: Updating:::", { updates });
   for (const widgetId in updates) {
     let idSelector = widgetId;
     let height = updates[widgetId].height;

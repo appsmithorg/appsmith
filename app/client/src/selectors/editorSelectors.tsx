@@ -241,33 +241,6 @@ export const getCurrentPageName = createSelector(
       ?.pageName,
 );
 
-/**
- * This returns the number of rows which is not occupied by a Canvas Widget within
- * a parent container like widget of type widgetType
- * For example, the Tabs Widget takes 4 rows for the tabs
- * @param widgetType Type of widget
- * @param props Widget properties
- * @returns the offset in rows
- */
-export const getCanvasHeightOffset = (
-  widgetType: WidgetType,
-  props: WidgetProps,
-) => {
-  // Get the non serialisable configs for the widget type
-  const config:
-    | Record<NonSerialisableWidgetConfigs, unknown>
-    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
-  let offset = 0;
-  // If this widget has a registered canvasHeightOffset function
-  if (config?.canvasHeightOffset) {
-    // Run the function to get the offset value
-    offset = (config.canvasHeightOffset as (props: WidgetProps) => number)(
-      props,
-    );
-  }
-  return offset;
-};
-
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
   (widgetConfigs: WidgetConfigReducerState) => {
@@ -795,40 +768,41 @@ export const showCanvasTopSectionSelector = createSelector(
   },
 );
 
-export const getCanvasBottomRow = (canvasWidgetId: string) =>
-  createSelector(
-    getCanvasWidgets,
-    (widgets: CanvasWidgetsReduxState): number => {
-      const canvasWidget = widgets[canvasWidgetId];
-      if (canvasWidget === undefined) return 0;
-      if (canvasWidget.type !== "CANVAS_WIDGET") return canvasWidget.bottomRow;
-      const children = canvasWidget.children;
-      if (canvasWidget.parentId) {
-        const parentWidget = widgets[canvasWidget.parentId];
-        if (parentWidget.type === "LIST_WIDGET") return canvasWidget.bottomRow;
-        const parentHeightOffset = getCanvasHeightOffset(
-          parentWidget.type,
-          parentWidget,
-        );
-        let parentHeightInRows = parentWidget.bottomRow - parentWidget.topRow;
+// export const getCanvasBottomRow = (canvasWidgetId: string) =>
+//   createSelector(
+//     getCanvasWidgets,
+//     (widgets: CanvasWidgetsReduxState): number => {
+//       const canvasWidget = widgets[canvasWidgetId];
+//       if (canvasWidget === undefined) return 0;
+//       if (canvasWidget.type !== "CANVAS_WIDGET") return canvasWidget.bottomRow;
+//       const children = canvasWidget.children;
+//       let parentHeightInRows = canvasWidget.bottomRow;
+//       if (canvasWidget.parentId) {
+//         const parentWidget = widgets[canvasWidget.parentId];
+//         if (parentWidget.type === "LIST_WIDGET") return canvasWidget.bottomRow;
+//         const parentHeightOffset = getCanvasHeightOffset(
+//           parentWidget.type,
+//           parentWidget,
+//         );
+//         parentHeightInRows = parentWidget.bottomRow - parentWidget.topRow;
 
-        if (parentWidget.type === "MODAL_WIDGET") {
-          parentHeightInRows = Math.floor(
-            parentHeightInRows / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          );
-        }
-        parentHeightInRows -= parentHeightOffset;
+//         if (parentWidget.type === "MODAL_WIDGET") {
+//           parentHeightInRows = Math.floor(
+//             parentHeightInRows / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+//           );
+//         }
+//         parentHeightInRows -= parentHeightOffset;
+//       }
 
-        if (Array.isArray(children) && children.length > 0) {
-          const bottomRow = children.reduce((prev, next) => {
-            return widgets[next].bottomRow > prev
-              ? widgets[next].bottomRow
-              : prev;
-          }, parentHeightInRows);
-          return bottomRow;
-        }
-        return parentHeightInRows;
-      }
-      return canvasWidget.bottomRow;
-    },
-  );
+//       if (Array.isArray(children) && children.length > 0) {
+//         const bottomRow = children.reduce((prev, next) => {
+//           return widgets[next].bottomRow > prev
+//             ? widgets[next].bottomRow
+//             : prev;
+//         }, parentHeightInRows);
+
+//         return bottomRow;
+//       }
+//       return parentHeightInRows;
+//     },
+//   );

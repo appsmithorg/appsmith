@@ -58,7 +58,6 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
   getContainerWidgetSpacesSelector,
-  getCanvasHeightOffset,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -147,53 +146,6 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
 import { MetaState } from "reducers/entityReducers/metaReducer";
 
-export function* updateAllChildCanvasHeights(
-  currentContainerLikeWidgetId: string,
-  topRow: number,
-  bottomRow: number,
-  allWidgets?: CanvasWidgetsReduxState,
-) {
-  const containerLikeWidget: FlattenedWidgetProps = yield select(
-    getWidget,
-    currentContainerLikeWidgetId,
-  );
-  let stateWidgets: CanvasWidgetsReduxState | undefined = allWidgets;
-  if (!stateWidgets) stateWidgets = yield select(getWidgets);
-  const canvasHeightOffset: number = getCanvasHeightOffset(
-    containerLikeWidget.type,
-    containerLikeWidget,
-  );
-  const containerLikeWidgetHeightInPx: number =
-    (bottomRow - topRow - canvasHeightOffset) *
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-  const widgets = { ...stateWidgets };
-  if (Array.isArray(containerLikeWidget.children)) {
-    containerLikeWidget.children.forEach((childWidgetId: string) => {
-      const childWidget = { ...widgets[childWidgetId] };
-      if (Array.isArray(childWidget.children)) {
-        const maxChildBottomRow = childWidget.children.reduce((prev, next) => {
-          return widgets[next].bottomRow > prev
-            ? widgets[next].bottomRow
-            : prev;
-        }, 0);
-        const maxHeightBasedOnChildrenInPx =
-          maxChildBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-        const finalHeight = Math.max(
-          containerLikeWidgetHeightInPx,
-          maxHeightBasedOnChildrenInPx,
-        );
-        widgets[childWidgetId] = {
-          ...childWidget,
-          bottomRow: finalHeight,
-          minHeight: finalHeight,
-        };
-      }
-    });
-  }
-  return widgets;
-}
-
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
     Toaster.clear();
@@ -215,7 +167,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
-    let movedWidgets: {
+    const movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(
       reflowWidgets,
@@ -223,13 +175,6 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       widget,
       snapColumnSpace,
       snapRowSpace,
-    );
-
-    movedWidgets = yield updateAllChildCanvasHeights(
-      widgetId,
-      topRow,
-      bottomRow,
-      movedWidgets,
     );
 
     const updatedCanvasBottomRow: number = yield call(

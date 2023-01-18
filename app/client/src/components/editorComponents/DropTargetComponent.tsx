@@ -1,7 +1,6 @@
 import React, {
   Context,
   createContext,
-  // memo,
   useEffect,
   useRef,
   useCallback,
@@ -10,7 +9,7 @@ import React, {
 } from "react";
 import styled from "styled-components";
 import equal from "fast-deep-equal/es6";
-// import { WidgetProps } from "widgets/BaseWidget";
+
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import {
   MAIN_CONTAINER_WIDGET_ID,
@@ -20,10 +19,7 @@ import { calculateDropTargetRows } from "./DropTargetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  useShowPropertyPane,
-  // useCanvasSnapRowsUpdateHook,
-} from "utils/hooks/dragResizeHooks";
+import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
   getOccupiedSpacesSelectorForContainer,
   previewModeSelector,
@@ -131,6 +127,7 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
     widgetIdsToExclude: string[],
     widgetBottomRow: number,
   ) => {
+    // Compute expected number of rows this drop target must have
     const newRows = calculateDropTargetRows(
       widgetIdsToExclude,
       widgetBottomRow,
@@ -138,15 +135,32 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
       widgetId,
     );
 
+    // If the current number of rows in the drop target is less
+    // than the expected number of rows in the drop target
     if (rowRef.current < newRows) {
+      // Set the new value locally
       rowRef.current = newRows;
+      // If the parent container like widget has auto height enabled
+      // or if the parent is the MainContainer
+      // We'd like to immediately update the parent's height
+      // based on the auto height computations
+      // This also updates any "dropTargets" that need to change height
+      // hence, this and the `updateHeight` function are mutually exclusive.
       if (isParentAutoHeightEnabled || widgetId === MAIN_CONTAINER_WIDGET_ID) {
         dispatch(
           immediatelyUpdateAutoHeightAction(parentId || widgetId, newRows),
         );
-      }
-      if (!isParentAutoHeightEnabled && widgetId !== MAIN_CONTAINER_WIDGET_ID)
+      } else {
+        // Basically, we don't have auto height triggering, so the dropTarget height should be updated using
+        // the `updateHeight` function
+        // The difference here is that the `updateHeight` function only updates the "canvas" or the "dropTarget"
+        // and doesn't effect the parent container
+
+        // We can't update the height of the "Canvas" or "dropTarget" using this function
+        // in the previous if clause, because, there could be more "dropTargets" updating
+        // and this information can only be computed using auto height
         updateHeight(dropTargetRef, rowRef.current, isParentAutoHeightEnabled);
+      }
       return newRows;
     }
     return false;

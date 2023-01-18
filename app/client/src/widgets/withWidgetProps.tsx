@@ -3,7 +3,6 @@ import React from "react";
 
 import BaseWidget, { WidgetProps } from "./BaseWidget";
 import {
-  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
@@ -17,7 +16,6 @@ import {
   getChildWidgets,
   getRenderMode,
   previewModeSelector,
-  getCanvasBottomRow,
 } from "selectors/editorSelectors";
 import { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
@@ -51,8 +49,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
-
-    const canvasBottomRow = useSelector(getCanvasBottomRow(props.widgetId));
 
     const dispatch = useDispatch();
 
@@ -98,11 +94,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if (isListWidgetCanvas) {
           widgetProps.bottomRow = props.bottomRow;
           widgetProps.minHeight = props.minHeight;
-        } else if (canvasBottomRow !== undefined) {
-          widgetProps.bottomRow =
-            canvasBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-          widgetProps.minHeight =
-            canvasBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
         }
 
         widgetProps.shouldScrollContents = props.shouldScrollContents;

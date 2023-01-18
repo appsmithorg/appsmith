@@ -6,7 +6,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { call, put, select } from "redux-saga/effects";
 import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
 import { getWidgets } from "sagas/selectors";
-import { getCanvasHeightOffset } from "selectors/editorSelectors";
+import { getCanvasHeightOffset } from "utils/WidgetPropsUtils";
 import { getAutoHeightLayoutTree } from "selectors/autoHeightSelectors";
 import { FlattenedWidgetProps } from "widgets/constants";
 import {
@@ -152,12 +152,12 @@ export function* dynamicallyUpdateContainersSaga() {
         }
 
         // If we have a new height to set and
-        if (maxBottomRow !== bottomRow - topRow) {
-          if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
-            updates[parentContainerWidget.widgetId] =
-              maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-          }
+        // if (maxBottomRow !== bottomRow - topRow) {
+        if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
+          updates[parentContainerWidget.widgetId] =
+            maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
         }
+        // }
       }
     }
   }

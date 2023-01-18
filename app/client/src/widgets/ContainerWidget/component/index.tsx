@@ -26,7 +26,9 @@ const scrollCSS = css`
   }
 `;
 
-const StyledContainerComponent = styled.div<ContainerWrapperProps>`
+const StyledContainerComponent = styled.div<
+  Omit<ContainerWrapperProps, "type" | "widgetId">
+>`
   height: 100%;
   width: 100%;
   ${(props) => (props.noScroll ? `` : scrollCSS)}
@@ -58,13 +60,15 @@ function ContainerComponentWrapper(
 ) {
   return (
     <StyledContainerComponent
-      {...props}
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
       // getCanvasClassName is used to add a scrollable parent.
+      backgroundColor={props.backgroundColor}
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} container-with-scrollbar`}
       noScroll={props.noScroll}
+      onClickCapture={props.onClickCapture}
+      resizeDisabled={props.resizeDisabled}
       tabIndex={props.shouldScrollContents ? undefined : 0}
     >
       {props.children}

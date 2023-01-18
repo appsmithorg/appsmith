@@ -113,7 +113,9 @@ const HeaderWrapper = styled.div`
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
   box-shadow: none;
-  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
+  border-bottom: ${(props) => props.theme.borders[0].thickness}px solid ${(
+  props,
+) => props.theme.colors.menuBorder};
   & .editable-application-name {
     ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};
@@ -218,7 +220,10 @@ const HamburgerContainer = styled.div`
 
 const StyledButton = styled(Button)`
   padding: 0 6px;
-  height: ${(props) => props.theme.smallHeaderHeight};
+  height: calc(
+    ${(props) => props.theme.smallHeaderHeight} -
+      ${(props) => props.theme.borders[0].thickness}px
+  );
   color: ${Colors.GREY_900};
 
   svg {
