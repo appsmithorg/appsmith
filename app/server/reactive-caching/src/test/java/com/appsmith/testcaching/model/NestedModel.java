@@ -1,4 +1,4 @@
-package com.appsmith.caching.model;
+package com.appsmith.testcaching.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
