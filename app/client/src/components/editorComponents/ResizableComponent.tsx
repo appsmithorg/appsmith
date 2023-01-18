@@ -7,10 +7,8 @@ import { get, omit } from "lodash";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import Resizable from "resizable/resizenreflow";
 import {
-  getCurrentAppPositioningType,
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
@@ -68,9 +66,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
-  const currentAppPositioningType = useSelector(getCurrentAppPositioningType);
-  const isAutoLayoutMode =
-    currentAppPositioningType === AppPositioningTypes.AUTO;
+
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
@@ -135,8 +131,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     let canResizeVertically = true;
     let canResizeHorizontally = true;
 
-    // TODO: Ashok - remove this check when reflow is reintroduced.
-    if (props.ignoreCollision || props.isFlexChild)
+    // this is required for list widget so that template have no collision
+    if (props.ignoreCollision)
       return {
         canResizeHorizontally,
         canResizeVertically,
@@ -320,10 +316,9 @@ export const ResizableComponent = memo(function ResizableComponent(
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
   const allowResize: boolean =
-    !(
-      (isAutoLayoutMode && NonResizableWidgets.includes(props.type)) ||
-      isMultiSelected
-    ) || !(isAutoLayoutMode && props.isFlexChild);
+    !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
+    !props.isFlexChild;
+  const isHovered = isFocused && !isSelected;
   return (
     <Resizable
       allowResize={allowResize}
@@ -336,6 +331,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       gridProps={gridProps}
       handles={handles}
       isFlexChild={props.isFlexChild}
+      isHovered={isHovered}
       isMobile={props.isMobile || false}
       onStart={handleResizeStart}
       onStop={updateSize}

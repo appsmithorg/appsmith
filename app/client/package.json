@@ -147,7 +147,6 @@
     "remixicon-react": "^1.0.0",
     "reselect": "^4.0.0",
     "scroll-into-view-if-needed": "^2.2.26",
-    "shadow-container-query-polyfill": "^1.1.7",
     "shallowequal": "^1.1.0",
     "showdown": "^1.9.1",
     "smartlook-client": "^8.0.0",

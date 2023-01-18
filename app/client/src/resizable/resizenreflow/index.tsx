@@ -60,6 +60,7 @@ type ResizableHandleProps = {
   allowResize: boolean;
   scrollParent: HTMLDivElement | null;
   disableDot: boolean;
+  isHovered: boolean;
   checkForCollision: (widgetNewSize: {
     left: number;
     top: number;
@@ -120,6 +121,7 @@ function ResizableHandle(props: ResizableHandleProps) {
     ...bind(),
     showAsBorder: !props.allowResize,
     disableDot: props.disableDot,
+    isHovered: props.isHovered,
   };
 
   return (
@@ -170,6 +172,7 @@ type ResizableProps = {
   zWidgetType?: string;
   zWidgetId?: string;
   isFlexChild?: boolean;
+  isHovered: boolean;
   responsiveBehavior?: ResponsiveBehavior;
   direction?: LayoutDirection;
   paddingOffset: number;
@@ -265,6 +268,7 @@ export function ReflowResizable(props: ResizableProps) {
           movementLimitMap: MovementLimitMap | undefined = {};
 
         if (resizedPositions) {
+          console.log({ resizedPositions });
           //calling reflow to update movements of reflowing widgets and get movementLimit of current resizing widget
           ({ bottomMostRow, movementLimitMap } = reflow.reflowSpaces(
             [resizedPositions],
@@ -502,6 +506,7 @@ export function ReflowResizable(props: ResizableProps) {
         checkForCollision={checkForCollision}
         direction={handle.handleDirection}
         disableDot={disableDot}
+        isHovered={props.isHovered}
         key={index}
         onStart={() => {
           togglePointerEvents(false);
@@ -545,6 +550,7 @@ export function ReflowResizable(props: ResizableProps) {
         <ResizeWrapper
           $prevents={pointerEvents}
           className={props.className}
+          id={`resize-${props.widgetId}`}
           ref={resizableRef}
           style={_props}
         >

@@ -727,6 +727,15 @@ const migrations: Migration[] = [
     ],
     version: 74,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateAutoHeight,
+        functionName: "migrateInputWidgetsMultiLineInputType",
+      },
+    ],
+    version: 75,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};

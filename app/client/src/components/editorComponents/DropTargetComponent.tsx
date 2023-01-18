@@ -18,6 +18,7 @@ import { useSelector } from "react-redux";
 import { getDragDetails } from "sagas/selectors";
 import {
   getOccupiedSpacesSelectorForContainer,
+  isAutoLayoutEnabled,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -117,7 +118,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   );
   // Are we changing the auto height limits by dragging the signifiers?
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
-
+  const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
   // which canvas is active(being dragged on),
@@ -162,6 +163,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       props.canExtend && !isPreviewMode,
       props.mobileBottomRow,
       props.isMobile,
+      isAutoLayoutActive,
     );
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows) {
