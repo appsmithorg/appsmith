@@ -37,34 +37,6 @@ self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
 skipWaiting();
 clientsClaim();
 
-// This route's caching seems too aggressive.
-// TODO(abhinav): Figure out if this is really necessary.
-// Maybe add the assets locally?
-registerRoute(({ url }) => {
-  return (
-    regexMap.shims.test(url.pathname) || regexMap.static3PAssets.test(url.href)
-  );
-}, new CacheFirst());
-
-registerRoute(({ url }) => {
-  return regexMap.profile.test(url.pathname);
-}, new NetworkOnly());
-
-registerRoute(({ url }) => {
-  return regexMap.appViewPage.test(url.pathname);
-}, new StaleWhileRevalidate());
-
-registerRoute(
-  ({ url }) => regexMap.providers.test(url.pathname),
-  new CacheFirst({
-    plugins: [
-      new ExpirationPlugin({
-        maxAgeSeconds: 1 * 60 * 60,
-      }),
-    ],
-  }),
-);
-
 registerRoute(({ request }) => {
   return request.url.indexOf('/windowProxy/') !== -1;
 }, function (event) {
@@ -95,6 +67,34 @@ registerRoute(({ request }) => {
   });
   event.respondWith(response);
 });
+
+// This route's caching seems too aggressive.
+// TODO(abhinav): Figure out if this is really necessary.
+// Maybe add the assets locally?
+registerRoute(({ url }) => {
+  return (
+    regexMap.shims.test(url.pathname) || regexMap.static3PAssets.test(url.href)
+  );
+}, new CacheFirst());
+
+registerRoute(({ url }) => {
+  return regexMap.profile.test(url.pathname);
+}, new NetworkOnly());
+
+registerRoute(({ url }) => {
+  return regexMap.appViewPage.test(url.pathname);
+}, new StaleWhileRevalidate());
+
+registerRoute(
+  ({ url }) => regexMap.providers.test(url.pathname),
+  new CacheFirst({
+    plugins: [
+      new ExpirationPlugin({
+        maxAgeSeconds: 1 * 60 * 60,
+      }),
+    ],
+  }),
+);
 
 registerRoute(
   new Route(({ request, sameOrigin }) => {
