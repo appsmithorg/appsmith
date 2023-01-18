@@ -79,7 +79,7 @@ class BlockSuggestionsRule implements AutocompleteRule {
 
       for (let index = 0; index < blockCompletions.length; index++) {
         const { subPath } = blockCompletions[index];
-        debugger;
+
         if (
           completion.text === subPath &&
           parentPaths.includes(completion.parentProperty)
