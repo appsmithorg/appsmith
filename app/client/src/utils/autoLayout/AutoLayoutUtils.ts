@@ -389,3 +389,11 @@ export function getLayerIndexOfWidget(
     );
   });
 }
+
+export function getViewportClassName(viewportWidth: number) {
+  if (viewportWidth > 360) {
+    return "desktop-view";
+  } else {
+    return "mobile-view";
+  }
+}
