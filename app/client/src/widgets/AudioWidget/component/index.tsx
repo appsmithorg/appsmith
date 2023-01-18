@@ -1,7 +1,9 @@
 import ReactPlayer from "react-player";
 import React, { Ref } from "react";
 import styled from "styled-components";
+
 import { createMessage, ENTER_AUDIO_URL } from "@appsmith/constants/messages";
+
 export interface AudioComponentProps {
   url?: string;
   playing?: boolean;
@@ -25,7 +27,16 @@ const ErrorContainer = styled.div`
   height: 100%;
 `;
 
-const Error = styled.span``;
+const Player = styled(ReactPlayer)`
+  .auto-layout && {
+    min-width: 70px;
+    min-height: 50px;
+  }
+
+  .mobile-view .auto-layout && {
+    min-height: 40px;
+  }
+`;
 
 export default function AudioComponent(props: AudioComponentProps) {
   const {
@@ -43,7 +54,7 @@ export default function AudioComponent(props: AudioComponentProps) {
     url,
   } = props;
   return url ? (
-    <ReactPlayer
+    <Player
       config={{
         file: {
           attributes: {
@@ -70,7 +81,7 @@ export default function AudioComponent(props: AudioComponentProps) {
     />
   ) : (
     <ErrorContainer>
-      <Error>{createMessage(ENTER_AUDIO_URL)}</Error>
+      <span>{createMessage(ENTER_AUDIO_URL)}</span>
     </ErrorContainer>
   );
 }
