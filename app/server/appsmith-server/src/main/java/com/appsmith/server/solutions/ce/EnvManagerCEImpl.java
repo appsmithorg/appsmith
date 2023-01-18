@@ -501,7 +501,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .flatMap(entry -> {
                     final String key = entry.getKey();
                     final List<Part> parts = entry.getValue();
-                    final boolean isFile = CollectionUtils.isNullOrEmpty(parts) && parts.get(0) instanceof FilePart;
+                    final boolean isFile = !CollectionUtils.isNullOrEmpty(parts) && parts.get(0) instanceof FilePart;
 
                     if (isFile) {
                         return handleFileUpload(key, parts);
