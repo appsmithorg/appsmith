@@ -23,13 +23,6 @@ import "codemirror/addon/selection/active-line";
 import "codemirror/theme/eclipse.css";
 import "codemirror/mode/javascript/javascript";
 
-{
-  /* <script src="../node_modules/codemirror/lib/codemirror.js"></script> */
-}
-{
-  /* <script src="../node_modules/codemirror/mode/javascript/javascript.js"></script>  */
-}
-
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";

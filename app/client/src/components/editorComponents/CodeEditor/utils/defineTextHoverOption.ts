@@ -9,6 +9,8 @@ class TextHoverState {
   keyMap = null;
   cm: any;
   readonly HOVER_CLASS = " CodeMirror-hover";
+  eventListener: any;
+  removeEventListener: any;
 
   constructor(cm: any, options: any) {
     this.cm = cm;
@@ -24,20 +26,36 @@ class TextHoverState {
     }
   }
 
-  onMouseOver(e: any) {
-    const node = e.target || e.srcElement;
-    if (node) {
-      if (/\bCodeMirror-lint-mark-/.test(node.className)) return; // hack if lint addon is used to give it a higher priority
-      const data = this.getTokenAndPosAt(e);
-      const content = this.options.getTextHover(this.cm, data, e);
-      console.log("text hover - mouse over", content);
-      if (content) {
-        node.className += this.HOVER_CLASS;
-        if (typeof content == "function")
-          content(this.showTooltipFor, data, e, node);
-        else this.showTooltipFor(e, content, node);
+  registerMouseOver() {
+    console.log(
+      "text hover - register mouse over",
+      this.cm.getWrapperElement(),
+    );
+    const eventListener = (e: any) => {
+      console.log("text hover - on mouseover", this);
+      const node = e.target || e.srcElement;
+      if (node) {
+        if (/\bCodeMirror-lint-mark-/.test(node.className)) return; // hack if lint addon is used to give it a higher priority
+        const data = this.getTokenAndPosAt(e);
+        const content = this.options.getTextHover(this.cm, data, e);
+        console.log("text hover - mouse over", content);
+        if (content) {
+          node.className += this.HOVER_CLASS;
+          if (typeof content == "function")
+            content(this.showTooltipFor, data, e, node);
+          else this.showTooltipFor(e, content, node);
+        }
       }
-    }
+    };
+    CodeMirror.on(this.cm.getWrapperElement(), "mouseover", eventListener);
+    this.removeEventListener = () => {
+      CodeMirror.off(this.cm.getWrapperElement(), "mouseover", eventListener);
+    };
+  }
+
+  unregisterMouseOver() {
+    this.removeEventListener?.();
+    this.removeEventListener = undefined;
   }
 
   getTokenAndPosAt(e: any) {
@@ -98,6 +116,9 @@ class TextHoverState {
       content = document.createTextNode(content);
     }
     tt.appendChild(content);
+    tt.style.position = "absolute";
+    tt.style.zIndex = "3";
+    tt.style.backgroundColor = "white";
     document.body.appendChild(tt);
 
     const position = (e: any) => {
@@ -138,7 +159,7 @@ function parseOptions(cm: any, options: any) {
   if (!options.getTextHover)
     options.getTextHover = cm?.getHelper(CodeMirror.Pos(0, 0), "textHover");
   if (!options.getTextHover)
-    options.getTextHover = (CodeMirror as any).textHover;
+    options.getTextHover = (CodeMirror as any).textHover.javascript;
   if (!options.getTextHover) {
     console.error("Required option 'getTextHover' missing (text-hover addon)");
     return;
@@ -148,23 +169,17 @@ function parseOptions(cm: any, options: any) {
 
 export default function defineTextHoverOption() {
   CodeMirror.defineOption("textHover", false, (cm: any, val: any, old: any) => {
-    console.log("text hover", cm, val, old.toString());
+    console.log("text hover", val, old.toString());
 
     if (old && old.toString() !== "CodeMirror.Init") {
-      CodeMirror.off(
-        cm.getWrapperElement(),
-        "mouseover",
-        cm.state.textHover.onMouseOver,
-      );
+      cm.state.textHover.unregisterMouseOver();
     }
 
     if (val) {
       const options = parseOptions(cm, val);
       if (!options) return;
       cm.state.textHover = new TextHoverState(cm, options);
-      CodeMirror.on(cm.getWrapperElement(), "mouseover", (e: any) =>
-        cm.state.textHover.onMouseOver(e),
-      );
+      cm.state.textHover.registerMouseOver();
     }
   });
 }
