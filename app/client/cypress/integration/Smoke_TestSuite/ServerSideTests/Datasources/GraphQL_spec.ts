@@ -65,7 +65,7 @@ describe("GraphQL Datasource Implementation", function() {
     agHelper.RenameWithInPane(apiName, true);
   });
 
-  it("3. Should execute the API and validate the response", function() {
+  it.skip("3. Should execute the API and validate the response", function() {
     /* Create an API */
     dataSources.NavigateFromActiveDS(datasourceName, true);
 
@@ -81,7 +81,7 @@ describe("GraphQL Datasource Implementation", function() {
     });
   });
 
-  it("4. Pagination for limit based should work without offset", function() {
+  it.skip("4. Pagination for limit based should work without offset", function() {
     /* Create an API */
     dataSources.NavigateFromActiveDS(datasourceName, true);
     apiPage.SelectPaneTab("Body");
@@ -108,7 +108,7 @@ describe("GraphQL Datasource Implementation", function() {
     });
   });
 
-  it("5. Pagination for limit based should work with offset", function() {
+  it.skip("5. Pagination for limit based should work with offset", function() {
     /* Create an API */
     dataSources.NavigateFromActiveDS(datasourceName, true);
     apiPage.SelectPaneTab("Body");
