@@ -73,9 +73,10 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
 
     @GetMapping("/{datasourceId}/structure")
     public Mono<ResponseDTO<DatasourceStructure>> getStructure(@PathVariable String datasourceId,
-                                                               @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache) {
+                                                               @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache,
+                                                               @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
         log.debug("Going to get structure for datasource with id: '{}'.", datasourceId);
-        return datasourceStructureSolution.getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache))
+        return datasourceStructureSolution.getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache), environmentName)
                 .map(structure -> new ResponseDTO<>(HttpStatus.OK.value(), structure, null));
     }
 
@@ -123,9 +124,10 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
 
     @PostMapping("/{datasourceId}/trigger")
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(@PathVariable String datasourceId,
-                                                       @RequestBody TriggerRequestDTO triggerRequestDTO) {
+                                                       @RequestBody TriggerRequestDTO triggerRequestDTO,
+                                                       @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
         log.debug("Trigger received for datasource {}", datasourceId);
-        return datasourceTriggerSolution.trigger(datasourceId, triggerRequestDTO)
+        return datasourceTriggerSolution.trigger(datasourceId, triggerRequestDTO, environmentName)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
 
