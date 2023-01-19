@@ -248,6 +248,7 @@ abstract class BaseWidget<
       this.props.mobileTopRow,
       this.props.mobileBottomRow,
       this.props.isMobile,
+      this.props.isFlexChild,
     );
   };
 
@@ -263,26 +264,41 @@ abstract class BaseWidget<
     mobileTopRow?: number,
     mobileBottomRow?: number,
     isMobile?: boolean,
+    isFlexChild?: boolean,
   ): {
     componentWidth: number;
     componentHeight: number;
   } {
-    const right =
-      isMobile && mobileRightColumn !== undefined && parentColumnSpace !== 1
-        ? mobileRightColumn
-        : rightColumn;
-    const left =
-      isMobile && mobileLeftColumn !== undefined && parentColumnSpace !== 1
-        ? mobileLeftColumn
-        : leftColumn;
-    const top =
-      isMobile && mobileTopRow !== undefined && parentRowSpace !== 1
-        ? mobileTopRow
-        : topRow;
-    const bottom =
-      isMobile && mobileBottomRow !== undefined && parentRowSpace !== 1
-        ? mobileBottomRow
-        : bottomRow;
+    let left = leftColumn;
+    let right = rightColumn;
+    let top = topRow;
+    let bottom = bottomRow;
+    if (isFlexChild && isMobile) {
+      if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
+        left = mobileLeftColumn;
+      }
+      if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
+        right = mobileRightColumn;
+      }
+      if (mobileTopRow !== undefined && parentRowSpace !== 1) {
+        top = mobileTopRow;
+      }
+      if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
+        bottom = mobileBottomRow;
+      }
+    }
+    console.log(
+      "#### left",
+      left,
+      "right",
+      right,
+      "top",
+      top,
+      "bottom",
+      bottom,
+      "widget",
+      this.props.widgetName,
+    );
     return {
       componentWidth: (right - left) * parentColumnSpace,
       componentHeight: (bottom - top) * parentRowSpace,
