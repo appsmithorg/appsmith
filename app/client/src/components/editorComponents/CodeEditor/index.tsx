@@ -139,9 +139,9 @@ CodeMirror.registerHelper("textHover", "javascript", function(
   let html = "token null";
   if (data && data.token) {
     const token = data.token;
-    html = "node.innerText: " + (node.innerText || node.textContent);
-    html += "</br>node.className: " + node.className;
-    html += "</br>className: " + token.className;
+    // html = "node.innerText: " + (node.innerText || node.textContent);
+    // html += "</br>node.className: " + node.className;
+    // html += "</br>className: " + token.className;
     html += "</br>end: " + token.end;
     html += "</br>start: " + token.start;
     html += "</br>string: " + token.string;
