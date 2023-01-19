@@ -1,17 +1,27 @@
-import React, { useState } from "react";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import SearchBox from "react-google-maps/lib/components/places/SearchBox";
-import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
-import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
-import { StyledInputGroup } from "./StyledControls";
 import log from "loglevel";
+import React, { useState } from "react";
+import styled from "styled-components";
+import { Wrapper, Status } from "@googlemaps/react-wrapper";
+
+import { StyledInputGroup } from "./StyledControls";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { useSelector } from "react-redux";
-import { getMapsApiKey } from "@appsmith/selectors/tenantSelectors";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 
+const MapStatusText = styled.span`
+  font-size: 14px;
+`;
+
+const renderMapStatus = (status: Status) => {
+  switch (status) {
+    case Status.LOADING:
+      return <MapStatusText>Loading...</MapStatusText>;
+    case Status.FAILURE:
+      return <MapStatusText>Error in the component</MapStatusText>;
+    case Status.SUCCESS:
+      return <MapStatusText>Component loaded....</MapStatusText>;
+  }
+};
 class LocationSearchControl extends BaseControl<ControlProps> {
-  searchBox: any = null;
-
   clearLocation = () => {
     this.updateProperty(this.props.propertyName, {
       lat: -34.397,
@@ -20,10 +30,10 @@ class LocationSearchControl extends BaseControl<ControlProps> {
     });
   };
 
-  onLocationSelection = () => {
+  onLocationSelection = (ref: any) => {
     try {
       // For some places, the length is zero
-      const places = this.searchBox.getPlaces();
+      const places = ref.getPlaces();
       const location = places[0].geometry.location;
       const title = places[0].formatted_address;
       const lat = location.lat();
@@ -31,26 +41,36 @@ class LocationSearchControl extends BaseControl<ControlProps> {
       const value = { lat, long, title };
       this.updateProperty(this.props.propertyName, value, true);
     } catch (e) {
-      if (this.searchBox && this.searchBox.getPlaces)
-        log.debug("Error selecting location:", this.searchBox.getPlaces());
+      if (ref && ref.getPlaces)
+        log.debug("Error selecting location:", ref.getPlaces());
       else {
         log.debug("Error selecting location - searchBox not found");
       }
     }
   };
 
-  onSearchBoxMounted = (ref: SearchBox) => {
-    this.searchBox = ref;
+  onSearchBoxMounted = (ref: any) => {
+    if (window) {
+      const searchBox = new window.google.maps.places.SearchBox(ref);
+      searchBox.addListener("places_changed", () => {
+        this.onLocationSelection(searchBox);
+      });
+    }
   };
 
   render() {
     return (
-      <MapScriptWrapper
-        clearLocation={this.clearLocation}
-        onPlacesChanged={this.onLocationSelection}
-        onSearchBoxMounted={this.onSearchBoxMounted}
-        propertyValue={this.props.propertyValue}
-      />
+      <Wrapper
+        apiKey={this.props.widgetProperties.googleMapsApiKey}
+        libraries={["geometry", "drawing", "places"]}
+        render={renderMapStatus}
+      >
+        <MapScriptWrapper
+          clearLocation={this.clearLocation}
+          onSearchBoxMounted={this.onSearchBoxMounted}
+          propertyValue={this.props.propertyValue}
+        />
+      </Wrapper>
     );
   }
 
@@ -64,46 +84,29 @@ class LocationSearchControl extends BaseControl<ControlProps> {
 }
 
 interface MapScriptWrapperProps {
-  onSearchBoxMounted: (ref: SearchBox) => void;
-  onPlacesChanged: () => void;
+  onSearchBoxMounted: (ref: any) => void;
   clearLocation: () => void;
   propertyValue: any;
 }
 
 function MapScriptWrapper(props: MapScriptWrapperProps) {
-  const apiKey = useSelector(getMapsApiKey);
-  const status = useScript(
-    apiKey
-      ? `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=3.exp&libraries=geometry,drawing,places`
-      : "",
-    AddScriptTo.HEAD,
-  );
   const [title, setTitle] = useState("");
 
   return (
     <div data-standalone-searchbox="">
-      {status === ScriptStatus.READY && (
-        <StandaloneSearchBox
-          onPlacesChanged={() => {
-            props.onPlacesChanged();
-            setTitle("");
-          }}
-          ref={props.onSearchBoxMounted}
-        >
-          <StyledInputGroup
-            dataType="text"
-            defaultValue={title || props.propertyValue?.title}
-            onChange={(value: string) => {
-              if (value === "") {
-                props.clearLocation();
-              }
-              setTitle(value);
-            }}
-            placeholder="Enter location"
-            tabIndex={-1}
-          />
-        </StandaloneSearchBox>
-      )}
+      <StyledInputGroup
+        dataType="text"
+        defaultValue={title || props.propertyValue?.title}
+        onChange={(value: string) => {
+          if (value === "") {
+            props.clearLocation();
+          }
+          setTitle(value);
+        }}
+        placeholder="Enter location"
+        ref={props.onSearchBoxMounted}
+        tabIndex={-1}
+      />
     </div>
   );
 }

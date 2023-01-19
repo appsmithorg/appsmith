@@ -26,6 +26,7 @@ import {
 } from "utils/widgetRenderUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
+import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -35,13 +36,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   ) {
     const { children, skipWidgetPropsHydration, type, widgetId } = props;
     const isPreviewMode = useSelector(previewModeSelector);
-
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
     );
+    const googleMapsApiKey = useSelector(getGoogleMapsApiKey);
     const renderMode = useSelector(getRenderMode);
     const evaluatedWidget = useSelector((state: AppState) =>
       getWidgetEvalValues(state, canvasWidget?.widgetName),
@@ -116,6 +117,12 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     //merging with original props
     widgetProps = { ...props, ...widgetProps, renderMode };
+
+    // add google mapi key to widget props if it's amap widget
+    // Note: This is a temporary fix. It's abstraction leak
+    if (widgetProps.type === "MAP_WIDGET") {
+      widgetProps.googleMapsApiKey = googleMapsApiKey;
+    }
 
     // isVisible prop defines whether to render a detached widget
     if (widgetProps.detachFromLayout && !widgetProps.isVisible) {

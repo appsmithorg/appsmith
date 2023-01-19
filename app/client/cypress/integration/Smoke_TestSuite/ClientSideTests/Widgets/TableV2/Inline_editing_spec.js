@@ -141,7 +141,7 @@ describe("Table widget inline editing functionality", () => {
       },
       {
         columnType: "Date",
-        expected: "be.disabled",
+        expected: "not.be.disabled",
       },
       {
         columnType: "Image",
@@ -198,7 +198,7 @@ describe("Table widget inline editing functionality", () => {
       },
       {
         columnType: "Date",
-        expected: "not.exist",
+        expected: "exist",
       },
       {
         columnType: "Image",
@@ -765,7 +765,7 @@ describe("Table widget inline editing functionality", () => {
     cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
   });
 
-  it.only("27. should check if updatedRowIndex is getting updated for multi row update mode", () => {
+  it("27. should check if updatedRowIndex is getting updated for multi row update mode", () => {
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
     cy.get(".t--widget-textwidget").should("exist");
     cy.updateCodeInput(

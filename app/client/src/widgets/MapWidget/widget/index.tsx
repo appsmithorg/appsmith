@@ -11,9 +11,6 @@ import { MarkerProps } from "../constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Stylesheet } from "entities/AppTheming";
-import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import { getMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
@@ -60,6 +57,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               "Default location for the map. Search for a location directly in the field.",
             isJSConvertible: true,
             controlType: "LOCATION_SEARCH",
+            dependencies: ["googleMapsApiKey"],
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -306,7 +304,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     };
   }
 
-  updateCenter = (lat: number, long: number, title?: string) => {
+  updateCenter = (lat?: number, long?: number, title?: string) => {
     this.props.updateWidgetMetaProperty("center", { lat, long, title });
   };
 
@@ -323,7 +321,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("markers", markers);
   };
 
-  onCreateMarker = (lat: number, long: number) => {
+  onCreateMarker = (lat?: number, long?: number) => {
     this.disableDrag(true);
     const marker = { lat, long, title: "" };
 
@@ -346,7 +344,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("selectedMarker", undefined);
   };
 
-  onMarkerClick = (lat: number, long: number, title: string) => {
+  onMarkerClick = (lat?: number, long?: number, title?: string) => {
     this.disableDrag(true);
     const selectedMarker = {
       lat: lat,
@@ -404,13 +402,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   getPageView() {
     return (
       <>
-        {!this.props.apiKey && (
+        {!this.props.googleMapsApiKey && (
           <DisabledContainer
             borderRadius={this.props.borderRadius}
             boxShadow={this.props.boxShadow}
           >
             <h1>{"Map Widget disabled"}</h1>
-            <mark>Key: x{this.props.apiKey}x</mark>
+            <mark>Key: x{this.props.googleMapsApiKey}x</mark>
             <p>{"Map widget requires a Google Maps API Key"}</p>
             <p>
               {"See our"}
@@ -425,10 +423,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             </p>
           </DisabledContainer>
         )}
-        {this.props.apiKey && (
+        {this.props.googleMapsApiKey && (
           <MapComponent
             allowZoom={this.props.allowZoom}
-            apiKey={this.props.apiKey}
+            apiKey={this.props.googleMapsApiKey}
             borderRadius={this.props.borderRadius}
             boxShadow={this.props.boxShadow}
             center={this.getCenter()}
@@ -460,7 +458,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
 }
 
 export interface MapWidgetProps extends WidgetProps {
-  apiKey?: string;
+  googleMapsApiKey?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   enableSearch: boolean;
@@ -490,10 +488,4 @@ export interface MapWidgetProps extends WidgetProps {
   boxShadow?: string;
 }
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    apiKey: getMapsApiKey(state),
-  };
-};
-
-export default connect(mapStateToProps)(MapWidget);
+export default MapWidget;
