@@ -203,7 +203,7 @@ function* handleUpdateBodyContentType(
 
   const headers = cloneDeep(values.actionConfiguration.headers);
 
-  const contentTypeHeaderIndex = headers.findIndex(
+  const contentTypeHeaderIndex = headers?.findIndex(
     (element: { key: string; value: string }) =>
       element &&
       element.key &&
@@ -411,7 +411,7 @@ export function* updateFormFields(
     if (!actionConfiguration.headers) return;
 
     const actionConfigurationHeaders = cloneDeep(actionConfiguration.headers);
-    const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
+    const contentTypeHeaderIndex = actionConfigurationHeaders?.findIndex(
       (header: { key: string; value: string }) =>
         header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
@@ -466,7 +466,7 @@ function* formValueChangeSaga(
       });
     }
 
-    const contentTypeHeaderIndex = values.actionConfiguration.headers.findIndex(
+    const contentTypeHeaderIndex = values?.actionConfiguration?.headers?.findIndex(
       (header: { key: string; value: string }) =>
         header?.key?.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
@@ -493,6 +493,7 @@ function* formValueChangeSaga(
       // when user types a content type value, update actionConfiguration.formData.apiContent type as well.
       // we don't do this initally because we want to specifically catch user editing the content-type value
       if (
+        contentTypeHeaderIndex &&
         field === `actionConfiguration.headers[${contentTypeHeaderIndex}].value`
       ) {
         yield put(

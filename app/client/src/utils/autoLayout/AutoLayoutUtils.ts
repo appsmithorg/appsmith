@@ -169,7 +169,7 @@ export function alterLayoutForMobile(
   const parent = widgets[parentId];
   const children = parent.children;
 
-  if (checkIsNotVerticalStack(parent) && parent.widgetId !== "0") {
+  if (!isStack(allWidgets, parent)) {
     return widgets;
   }
   if (!children || !children.length) return widgets;
@@ -212,8 +212,7 @@ export function alterLayoutForDesktop(
   const parent = widgets[parentId];
   const children = parent.children;
 
-  if (checkIsNotVerticalStack(parent) && parent.widgetId !== "0")
-    return widgets;
+  if (!isStack(allWidgets, parent)) return widgets;
   if (!children || !children.length) return widgets;
 
   widgets = updateWidgetPositions(widgets, parentId, false);
@@ -221,13 +220,6 @@ export function alterLayoutForDesktop(
     widgets = alterLayoutForDesktop(widgets, child);
   }
   return widgets;
-}
-
-function checkIsNotVerticalStack(widget: any): boolean {
-  return (
-    widget.positioning !== undefined &&
-    widget.positioning !== Positioning.Vertical
-  );
 }
 
 /**

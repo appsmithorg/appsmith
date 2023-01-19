@@ -48,7 +48,10 @@ export function updateWidgetPositions(
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
-    if (widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Fixed)
+    if (
+      !widgets[MAIN_CONTAINER_WIDGET_ID].positioning ||
+      widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Fixed
+    )
       return widgets;
     const parent = widgets[parentId];
     if (!parent) return widgets;

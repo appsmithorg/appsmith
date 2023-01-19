@@ -95,16 +95,18 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     private AppsmithException populateSchemaMismatchError(Integer currentInstanceSchemaVersion) {
 
         List<String> versions = new LinkedList<>();
+        List<String> docs = new LinkedList<>();
 
         // Keep adding version numbers that brought in breaking instance schema migrations here
         switch (currentInstanceSchemaVersion) {
             // Example, we expect that in v1.8.14, all instances will have been migrated to instanceSchemaVer 2
             case 1:
-                versions.add("v1.9.1");
+                versions.add("v1.9.2");
+                docs.add("https://docs.appsmith.com/help-and-support/troubleshooting-guide/deployment-errors#server-shuts-down-with-schema-mismatch-error");
             default:
         }
 
-        return new AppsmithException(AppsmithError.SCHEMA_MISMATCH_ERROR, versions);
+        return new AppsmithException(AppsmithError.SCHEMA_MISMATCH_ERROR, versions, docs);
     }
 
     private Mono<? extends Config> registerInstance() {
