@@ -1271,8 +1271,8 @@ public class AmazonS3PluginTest {
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        ActionConfiguration actionConfiguration = mock(ActionConfiguration.class);
-        Mockito.when(actionConfiguration.getFormData()).thenCallRealMethod().thenThrow(new IllegalStateException());
+        ActionConfiguration mockActionConfiguration = mock(ActionConfiguration.class);
+        Mockito.when(mockActionConfiguration.getFormData()).thenCallRealMethod().thenThrow(new IllegalStateException());
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new AmazonS3Plugin.S3PluginExecutor());
         Mono<ActionExecutionResult> resultMono = pluginExecutorMono
                 .flatMap(executor -> {
@@ -1280,7 +1280,7 @@ public class AmazonS3PluginTest {
                             null,
                             executeActionDTO,
                             datasourceConfiguration,
-                            actionConfiguration);
+                            mockActionConfiguration);
                 });
 
         StepVerifier.create(resultMono)
