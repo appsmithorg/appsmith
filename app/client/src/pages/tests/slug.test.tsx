@@ -8,8 +8,8 @@ import { render } from "test/testUtils";
 import {
   getUpdatedRoute,
   isURLDeprecated,
-  matchPath_CustomSlug,
-  matchPath_Slug,
+  matchPath_BuilderCustomSlug,
+  matchPath_ViewerSlug,
 } from "utils/helpers";
 import {
   fetchApplicationMockResponse,
@@ -187,10 +187,12 @@ describe("URL slug names", () => {
       "/app/custom-63c63d944ae4345e31af12a7/edit/saas/google-sheets-plugin/api/63c63d984ae4345e31af12e5";
 
     // verify path match overlap
-    const matchSlugObj = matchPath_Slug(customSlug_pathname);
-    const matchCustomObj = matchPath_CustomSlug(customSlug_pathname);
-    expect(matchSlugObj).not.toBeNull();
-    expect(matchCustomObj).not.toBeNull();
+    const matchBuilderCustomPath = matchPath_BuilderCustomSlug(
+      customSlug_pathname,
+    );
+    const matchViewerSlugPath = matchPath_ViewerSlug(customSlug_pathname);
+    expect(matchViewerSlugPath).not.toBeNull();
+    expect(matchBuilderCustomPath).not.toBeNull();
 
     // verify proper url is returned regarless of match overlap
     expect(

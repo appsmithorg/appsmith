@@ -827,64 +827,117 @@ export const isURLDeprecated = (url: string) => {
   });
 };
 
-export const matchPath_Slug = (path: string) =>
+export const matchPath_BuilderSlug = (path: string) =>
   matchPath<{ applicationSlug: string; pageSlug: string; pageId: string }>(
     path,
     {
-      path: [trimQueryString(BUILDER_PATH), trimQueryString(VIEWER_PATH)],
+      path: trimQueryString(BUILDER_PATH),
       strict: false,
       exact: false,
     },
   );
 
-export const matchPath_CustomSlug = (path: string) =>
+export const matchPath_ViewerSlug = (path: string) =>
+  matchPath<{ applicationSlug: string; pageSlug: string; pageId: string }>(
+    path,
+    {
+      path: trimQueryString(VIEWER_PATH),
+      strict: false,
+      exact: false,
+    },
+  );
+
+export const matchPath_BuilderCustomSlug = (path: string) =>
   matchPath<{ customSlug: string }>(path, {
-    path: [BUILDER_CUSTOM_PATH, VIEWER_CUSTOM_PATH],
+    path: trimQueryString(BUILDER_CUSTOM_PATH),
+  });
+
+export const matchPath_ViewerCustomSlug = (path: string) =>
+  matchPath<{ customSlug: string }>(path, {
+    path: trimQueryString(VIEWER_CUSTOM_PATH),
   });
 
 export const getUpdatedRoute = (
   path: string,
   params: Record<string, string>,
 ) => {
-  let updatedPath = path;
+  const updatedPath = path;
 
-  const matchCustomPath = matchPath_CustomSlug(path);
-  if (matchCustomPath?.params) {
-    const { customSlug } = matchCustomPath.params;
-    if (params.customSlug) {
-      updatedPath = updatedPath.replace(
-        `${customSlug}`,
-        `${params.customSlug}-`,
-      );
-      return updatedPath;
-    } else if (params.applicationSlug && params.pageSlug) {
-      updatedPath = updatedPath.replace(
-        `${customSlug}`,
-        `${params.applicationSlug}/${params.pageSlug}-`,
-      );
-      return updatedPath;
-    }
+  const matchBuilderSlugPath = matchPath_BuilderSlug(path);
+  const matchBuilderCustomPath = matchPath_BuilderCustomSlug(path);
+  const matchViewerSlugPath = matchPath_ViewerSlug(path);
+  const matchViewerCustomPath = matchPath_ViewerCustomSlug(path);
+
+  /*
+   * Note: When making changes to the order of these conditions
+   * Be sure to check if it is sync with the order of paths AppRouter.ts
+   * Context: https://github.com/appsmithorg/appsmith/pull/19833
+   */
+  if (matchBuilderSlugPath?.params) {
+    return getUpdateRouteForSlugPath(
+      path,
+      matchBuilderSlugPath.params.applicationSlug,
+      matchBuilderSlugPath.params.pageSlug,
+      params,
+    );
+  } else if (matchBuilderCustomPath?.params) {
+    return getUpdatedRouteForCustomSlugPath(
+      path,
+      matchBuilderCustomPath.params.customSlug,
+      params,
+    );
+  } else if (matchViewerSlugPath) {
+    return getUpdateRouteForSlugPath(
+      path,
+      matchViewerSlugPath.params.applicationSlug,
+      matchViewerSlugPath.params.pageSlug,
+      params,
+    );
+  } else if (matchViewerCustomPath) {
+    return getUpdatedRouteForCustomSlugPath(
+      path,
+      matchViewerCustomPath.params.customSlug,
+      params,
+    );
   }
+  return updatedPath;
+};
 
-  const match = matchPath_Slug(path);
-  if (match?.params) {
-    const { applicationSlug, pageSlug } = match?.params;
-    if (params.customSlug) {
-      updatedPath = updatedPath.replace(
-        `${applicationSlug}/${pageSlug}`,
-        `${params.customSlug}-`,
-      );
-      return updatedPath;
-    }
-    if (params.applicationSlug)
-      updatedPath = updatedPath.replace(
-        applicationSlug,
-        params.applicationSlug,
-      );
-    if (params.pageSlug)
-      updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+const getUpdatedRouteForCustomSlugPath = (
+  path: string,
+  customSlug: string,
+  params: Record<string, string>,
+) => {
+  let updatedPath = path;
+  if (params.customSlug) {
+    updatedPath = updatedPath.replace(`${customSlug}`, `${params.customSlug}-`);
+  } else if (params.applicationSlug && params.pageSlug) {
+    updatedPath = updatedPath.replace(
+      `${customSlug}`,
+      `${params.applicationSlug}/${params.pageSlug}-`,
+    );
+  }
+  return updatedPath;
+};
+
+const getUpdateRouteForSlugPath = (
+  path: string,
+  applicationSlug: string,
+  pageSlug: string,
+  params: Record<string, string>,
+) => {
+  let updatedPath = path;
+  if (params.customSlug) {
+    updatedPath = updatedPath.replace(
+      `${applicationSlug}/${pageSlug}`,
+      `${params.customSlug}-`,
+    );
     return updatedPath;
   }
+  if (params.applicationSlug)
+    updatedPath = updatedPath.replace(applicationSlug, params.applicationSlug);
+  if (params.pageSlug)
+    updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
   return updatedPath;
 };
 
