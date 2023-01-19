@@ -83,7 +83,6 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             placeholderText: "5",
             isBindProperty: true,
             isTriggerProperty: false,
-            hidden: isAutoLayout,
             validation: {
               type: ValidationTypes.NUMBER,
               params: { natural: true },
