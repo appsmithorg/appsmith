@@ -68,6 +68,7 @@ function* handleInstallationFailure(
     payload: { url, show: false },
   });
   AnalyticsUtil.logEvent("INSTALL_LIBRARY", { url, success: false });
+  log.error(message);
 }
 
 export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
@@ -108,6 +109,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const versionMatch = (url as string).match(/(?:@)(\d+\.)(\d+\.)(\d+)/);
   let [version = ""] = versionMatch ? versionMatch : [];
   version = version.startsWith("@") ? version.slice(1) : version;
+  version = version || lib?.version || "";
 
   let stringifiedDefs = "";
 
