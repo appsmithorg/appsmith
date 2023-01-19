@@ -27,6 +27,9 @@ const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
+import { ObjectsRegistry } from "../support/Objects/Registry";
+
+const { CanvasHelper } = ObjectsRegistry;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -740,6 +743,7 @@ Cypress.Commands.add("deleteDataSource", () => {
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
+  CanvasHelper.OpenWidgetPane();
   cy.wait(500);
   cy.get(selector)
     .trigger("dragstart", { force: true })

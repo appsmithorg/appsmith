@@ -124,6 +124,7 @@ function WidgetPaneTrigger() {
           <StyledTrigger
             active={openWidgetPanel}
             className="flex ml-3 justify-center"
+            data-cy="widget-page-cta"
             onClick={() => dispatch(forceOpenWidgetPanel(true))}
             ref={ref}
           >

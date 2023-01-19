@@ -15,3 +15,4 @@ export const theme = ObjectsRegistry.ThemeSettings;
 export const dataSources = ObjectsRegistry.DataSources;
 export const apiPage = ObjectsRegistry.ApiPage;
 export const inviteModal = ObjectsRegistry.InviteModal;
+export const canvasHelper = ObjectsRegistry.CanvasHelper;

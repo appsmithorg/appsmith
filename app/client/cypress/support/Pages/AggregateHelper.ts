@@ -59,6 +59,16 @@ export class AggregateHelper {
     LOCAL_STORAGE_MEMORY = {};
   }
 
+  public DoesElementExist(selector: string) {
+    let exists = false;
+    cy.get("body").then((body) => {
+      if (body.find(selector).length > 0) {
+        exists = true;
+      }
+    });
+    return exists;
+  }
+
   public TypeTab(shiftKey = false, ctrlKey = false) {
     cy.focused().trigger("keydown", {
       keyCode: 9,
