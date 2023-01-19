@@ -45,8 +45,8 @@ describe("Checkbox Group Widget Functionality", function() {
         ".t--property-control-options",
         `{{Query1.data.map((item) => {
           return {
-            label: item.name,
-            value: item.id.toString(),
+            label: "Option " + item.id,
+            value: item.id,
           };
         })}}`,
       );
@@ -54,7 +54,7 @@ describe("Checkbox Group Widget Functionality", function() {
       // update default value
       cy.updateCodeInput(
         ".t--property-control-defaultselectedvalues",
-        "{{Query2.data.map((item) => item.id.toString())}}",
+        "{{Query2.data.map((item) => item.id)}}",
       );
 
       cy.wait(2000);
