@@ -1192,6 +1192,45 @@ describe("#generate", () => {
     expect(count2).toEqual(12);
     expect(result2.removedMetaWidgetIds.length).toEqual(6);
   });
+
+  it("in edit mode it updates siblingMetaWidgets in the template widget", () => {
+    const { generator, initialResult, options } = init();
+
+    options.pageNo = 2;
+    const result1 = generator.withOptions(options).generate();
+
+    Object.values(result1.metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.widgetId === metaWidget.originalMetaWidgetId) {
+        expect(metaWidget.siblingMetaWidgets).toBe(undefined);
+      } else {
+        const prevPageMetaWidgetIds = Object.values(
+          initialResult.metaWidgets,
+        ).filter(
+          ({ referencedWidgetId }) =>
+            referencedWidgetId === metaWidget.widgetId,
+        );
+
+        console.log(prevPageMetaWidgetIds);
+        expect(metaWidget.siblingMetaWidgets).toBe(prevPageMetaWidgetIds);
+      }
+    });
+  });
+
+  it("in viw mode it updates siblingMetaWidgets in the meta widget", () => {
+    //
+  });
+
+  it("on addition of new item, it updates the siblingMetaWidgets", () => {
+    //
+  });
+
+  it("in nested list it captures all siblingMetaWidgets in the first inner list's widget", () => {
+    //
+  });
+
+  it("does not modify the siblingMetaWidgets candidate's properties", () => {
+    //
+  });
 });
 
 describe("#getStartIndex", () => {

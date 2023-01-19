@@ -44,6 +44,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 
 type TemplateWidgets = ListWidgetProps<
   WidgetProps
@@ -101,7 +102,9 @@ export type ConstructorProps = {
   isListCloned: boolean;
   level: number;
   onVirtualListScroll: () => void;
-  onMetaWidgetsUpdate: (metaWidgets: MetaWidgets) => void;
+  onMetaWidgetsUpdate: (
+    updates: ModifyMetaWidgetPayload["propertyUpdates"],
+  ) => void;
   prefixMetaWidgetId: string;
   primaryWidgetType: string;
   renderMode: string;
@@ -201,7 +204,7 @@ const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
 class MetaWidgetGenerator {
-  private batchSiblingUpdates: MetaWidgets;
+  private batchSiblingUpdates: ModifyMetaWidgetPayload["propertyUpdates"];
   private cacheIndexArr: number[];
   private cachedRows: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
@@ -243,7 +246,7 @@ class MetaWidgetGenerator {
   private widgetName: GeneratorOptions["widgetName"];
 
   constructor(props: ConstructorProps) {
-    this.batchSiblingUpdates = {};
+    this.batchSiblingUpdates = [];
     this.cacheIndexArr = [];
     this.cachedRows = {
       prev: new Set(),
@@ -1331,14 +1334,27 @@ class MetaWidgetGenerator {
     this.setCache(updatedCache);
   };
 
-  queueMetaWidgetUpdate = (metaWidget: MetaWidget) => {
-    this.batchSiblingUpdates[metaWidget.widgetId] = metaWidget;
+  queueMetaWidgetUpdate = (path: string, value: unknown) => {
+    if (!this.batchSiblingUpdates) {
+      this.batchSiblingUpdates = [];
+    }
+
+    this.batchSiblingUpdates.push({
+      path,
+      value,
+    });
 
     this.onMetaWidgetsUpdateDebounced();
   };
 
+  /**
+   * A high value of 2000ms is used to give react time to render all the
+   * items added/removed. If a shorter duration is chosen then this debounced
+   * function may timeout early and eventually get called multiple times
+   *  */
   onMetaWidgetsUpdateDebounced = debounce(() => {
     this.onMetaWidgetsUpdate(this.batchSiblingUpdates);
+    this.batchSiblingUpdates = [];
   }, 2000);
 
   private buildReferenceUpdateCb = (
@@ -1347,10 +1363,9 @@ class MetaWidgetGenerator {
   ) => {
     return () => {
       const siblings = this.getSiblings(templateWidgetId);
-      const updatedMetaWidget = klona(metaWidget);
-      updatedMetaWidget.siblingMetaWidgets = siblings;
+      const path = `${metaWidget.widgetId}.siblingMetaWidgets`;
 
-      this.queueMetaWidgetUpdate(updatedMetaWidget);
+      this.queueMetaWidgetUpdate(path, siblings);
     };
   };
 

@@ -352,10 +352,13 @@ class ListWidget extends BaseWidget<
     }
   };
 
-  onMetaWidgetsUpdate = (metaWidgets: MetaWidgets) => {
+  onMetaWidgetsUpdate = (
+    propertyUpdates: ModifyMetaWidgetPayload["propertyUpdates"],
+  ) => {
     this.modifyMetaWidgets({
-      addOrUpdate: metaWidgets,
+      addOrUpdate: {},
       deleteIds: [],
+      propertyUpdates,
     });
   };
 
