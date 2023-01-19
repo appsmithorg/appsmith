@@ -38,7 +38,7 @@ describe("Input widget V2 - ", () => {
   });
 
   it("3. Validate DataType - TEXT can be entered into Input widget", () => {
-    cy.selectDropdownValue(".t--property-control-datatype", "Text");
+    cy.selectDropdownValue(".t--property-control-datatype", "Single-line text");
     [
       {
         input: "test",
@@ -355,7 +355,7 @@ describe("Input widget V2 - ", () => {
 
   it("8. onSubmit should be triggered with the whole input value", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Text");
+    cy.selectDropdownValue(".t--property-control-datatype", "Single-line text");
     cy.get(".t--property-control-required label")
       .last()
       .click({ force: true });
@@ -429,7 +429,7 @@ describe("Input widget V2 - ", () => {
     cy.updateCodeInput(".t--property-control-text", `{{Input1.isDirty}}`);
     // Init isDirty
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Text");
+    cy.selectDropdownValue(".t--property-control-datatype", "Single-line text");
     cy.updateCodeInput(".t--property-control-defaultvalue", "a");
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");
