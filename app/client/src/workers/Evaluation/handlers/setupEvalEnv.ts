@@ -7,7 +7,13 @@ import { EvalWorkerSyncRequest } from "../types";
 import userLogs from "../UserLog";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 
-export default function() {
+export class DerivedProperties {
+  static data: Record<string, any> = {};
+}
+
+export default function(request: EvalWorkerSyncRequest) {
+  const { data } = request;
+  const { derivedPropertiesMap } = data;
   const libraries = resetJSLibraries();
   ///// Adding extra libraries separately
   libraries.forEach((library) => {
@@ -26,6 +32,7 @@ export default function() {
   interceptAndOverrideHttpRequest();
   setupDOM();
   addPlatformFunctionsToEvalContext(self);
+  DerivedProperties.data = derivedPropertiesMap;
   return true;
 }
 

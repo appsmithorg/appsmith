@@ -246,6 +246,7 @@ export default function evaluateSync(
   context?: EvaluateContext,
   evalArguments?: Array<any>,
   skipLogsOperations = false,
+  allowMutation = true,
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
@@ -289,7 +290,10 @@ export default function evaluateSync(
     for (const entityName in evalContext) {
       if (evalContext.hasOwnProperty(entityName)) {
         // @ts-expect-error: Types are not available
-        self[entityName] = immutableEntity(evalContext[entityName]);
+        self[entityName] = immutableEntity(
+          evalContext[entityName],
+          allowMutation,
+        );
       }
     }
 
@@ -396,27 +400,28 @@ export async function evaluateAsync(
   })();
 }
 
-function immutableEntity(entity: any) {
+function immutableEntity(entity: any, allowMutation: boolean) {
   if (typeof entity !== "object") return entity;
   if (isAppsmithEntity(entity)) return entity;
-  return new Proxy(entity, immutablesTrap);
+  return new Proxy(entity, immutablesTrap(allowMutation));
 }
 
-const immutablesTrap = {
+const immutablesTrap = (allowMutation: boolean) => ({
   get<T extends Record<string, any>>(
     target: T,
     prop: string,
     receiver: unknown,
   ): unknown {
     if (target[prop] && typeof target[prop] === "object") {
-      return new Proxy(target[prop], immutablesTrap);
+      return new Proxy(target[prop], immutablesTrap(allowMutation));
     }
     return Reflect.get(target, prop, receiver);
   },
   set<T extends Record<string, any>>(target: T, prop: string, value: unknown) {
+    if (allowMutation) return Reflect.set(target, prop, value);
     throw new MutationDisallowedError(target, prop, value);
   },
-};
+});
 
 class MutationDisallowedError extends Error {
   constructor(source: any, prop: string, value: any) {

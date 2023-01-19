@@ -104,6 +104,7 @@ import {
   isMetaWidgetTemplate,
   isWidgetDefaultPropertyPath,
 } from "entities/DataTree/utils";
+import { DerivedProperties } from "workers/Evaluation/handlers/setupEvalEnv";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -922,7 +923,7 @@ export default class DataTreeEvaluator {
   ) {
     // Get the {{binding}} bound values
     let entity: DataTreeEntity | undefined = undefined;
-    let propertyPath: string;
+    let propertyPath = "";
     if (fullPropertyPath) {
       const entityName = fullPropertyPath.split(".")[0];
       propertyPath = fullPropertyPath.split(".")[1];
@@ -933,6 +934,12 @@ export default class DataTreeEvaluator {
       dynamicBinding,
       entity,
     );
+    let allowMutation = true;
+    if (entity && propertyPath && isWidget(entity)) {
+      const derivedPropertyMap = DerivedProperties.data.get(entity.type);
+      const derivedProperties = Object.keys(derivedPropertyMap || {});
+      allowMutation = derivedProperties.includes(propertyPath);
+    }
     if (stringSegments.length) {
       // Get the Data Tree value of those "binding "paths
       const values = jsSnippets.map((jsSnippet, index) => {
@@ -950,6 +957,7 @@ export default class DataTreeEvaluator {
             callBackData,
             fullPropertyPath?.includes("body") ||
               !toBeSentForEval.includes("console."),
+            allowMutation,
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty({
@@ -1063,6 +1071,7 @@ export default class DataTreeEvaluator {
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
     skipUserLogsOperations = false,
+    allowMutation = true,
   ): EvalResult {
     try {
       return evaluateSync(
@@ -1073,6 +1082,7 @@ export default class DataTreeEvaluator {
         contextData,
         callbackData,
         skipUserLogsOperations,
+        allowMutation,
       );
     } catch (error) {
       return {

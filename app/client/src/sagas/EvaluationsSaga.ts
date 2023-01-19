@@ -551,7 +551,9 @@ function* evaluationChangeListenerSaga(): any {
     call(lintWorker.start),
   ]);
 
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
+    derivedPropertiesMap: WidgetFactory.derivedPropertiesMap,
+  });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
