@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 const GITHUB_API_BASE = "https://api.github.com";
+const GITEA_API_BASE = "http://35.154.225.218";
 import datasourceFormData from "../../fixtures/datasources.json";
 
 export class GitSync {
@@ -31,17 +32,17 @@ export class GitSync {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       repoName += uid;
-      //this.CreateTestGithubRepo(repoName);
-      this.CreateLocalGithubRepo(repoName);
-      //this.ConnectToGitRepo(repoName);
-      cy.get("@remoteUrl").then((remoteUrl: any) => {
-        this.AuthorizeLocalGitSSH(remoteUrl);
-      });
+      this.CreateTestGiteaRepo(repoName);
+      //this.CreateLocalGithubRepo(repoName);
+      this.AuthorizeKeyToGitea(repoName);
+      // cy.get("@remoteUrl").then((remoteUrl: any) => {
+      //   this.AuthorizeLocalGitSSH(remoteUrl);
+      // });
       cy.wrap(repoName).as("gitRepoName");
     });
   }
 
-  private ConnectToGitRepo(repo: string, assertConnect = true) {
+  private AuthorizeKeyToGitea(repo: string, assertConnect = true) {
     // const testEmail = "test@test.com";
     // const testUsername = "testusername";
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
@@ -58,7 +59,8 @@ export class GitSync {
     );
     this.agHelper.TypeText(
       this._gitRepoInput,
-      `git@github.com:${owner}/${repo}.git`,
+      `git@35.154.225.218:CI-Gitea/${repo}.git`,
+      //`git@github.com:${owner}/${repo}.git`,
     );
 
     this.agHelper.ClickButton("Generate key");
@@ -69,15 +71,14 @@ export class GitSync {
       // fetch the generated key and post to the github repo
       cy.request({
         method: "POST",
-        url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-          "TEST_GITHUB_USER_NAME",
-        )}/${repo}/keys`,
+        url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repo}/keys`,
         headers: {
           Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
         },
         body: {
           title: "key0",
           key: generatedKey,
+          read_only: false,
         },
       });
 
@@ -173,16 +174,16 @@ export class GitSync {
     });
   }
 
-  private CreateTestGithubRepo(repo: string, privateFlag = false) {
+  private CreateTestGiteaRepo(repo: string, privateFlag = false) {
     cy.request({
       method: "POST",
-      url: `${GITHUB_API_BASE}/user/repos`,
+      url: `${GITEA_API_BASE}:3000/api/v1/org/CI-Gitea/repos`,
       headers: {
         Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
       },
       body: {
         name: repo,
-        private: privateFlag,
+        //private: privateFlag,
       },
     });
   }
