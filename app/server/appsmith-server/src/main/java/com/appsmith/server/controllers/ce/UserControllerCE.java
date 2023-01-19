@@ -140,6 +140,12 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     }
 
     @GetMapping("/me")
+    public Mono<ResponseDTO<User>> getCurrentUser() {
+        return sessionUserService.getCurrentUser()
+                .map(profile -> new ResponseDTO<>(HttpStatus.OK.value(), profile, null));
+    }
+
+    @GetMapping("/profile")
     public Mono<ResponseDTO<UserProfileDTO>> getUserProfile() {
         return sessionUserService.getCurrentUser()
                 .flatMap(service::buildUserProfileDTO)
