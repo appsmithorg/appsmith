@@ -532,7 +532,6 @@ export function* updateWidgetAutoHeightSaga(
         Array<{ propertyPath: string; propertyValue: number }>
       >,
       widgetsMeasuredInPixels,
-      widgetOffsets,
     );
   }
 
