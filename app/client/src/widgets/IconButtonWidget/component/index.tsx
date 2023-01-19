@@ -136,6 +136,16 @@ export const StyledButton = styled((props) => (
     compactMode === "SHORT" ? "24px" : "28px"};
 
 
+  .auto-layout && {
+    height: 50px;
+    min-width: 50px;
+  }
+  
+  .mobile-view .auto-layout && {
+    height: 40px;
+    min-width: 40px;
+  }
+
 
   ${({ buttonColor, buttonVariant, compactMode, hasOnClickAction, theme }) => `
     &:enabled {
