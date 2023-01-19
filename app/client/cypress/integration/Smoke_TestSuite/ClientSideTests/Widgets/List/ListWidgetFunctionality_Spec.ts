@@ -172,7 +172,6 @@ after(() => {
     _.ee.ExpandCollapseEntity("Queries/JS")
     _.ee.ActionContextMenuByEntityName("API1","Delete","Are you sure?")
     _.ee.ActionContextMenuByEntityName("postgres_ssp","Delete","Are you sure?")
-    _.dataSources.DeleteDatasouceFromActiveTab(dsName)
 })
 })
 
