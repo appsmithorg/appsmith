@@ -511,7 +511,6 @@ class ListWidget extends BaseWidget<
     metaMainCanvas.widgetId = metaWidgetId;
     metaMainCanvas.widgetName = metaWidgetName;
     metaMainCanvas.canExtend = true;
-    metaMainCanvas.isVisible = this.props.isVisible;
     metaMainCanvas.minHeight = componentHeight;
     metaMainCanvas.rightColumn = componentWidth;
     metaMainCanvas.noPad = true;
