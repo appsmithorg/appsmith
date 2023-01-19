@@ -1270,22 +1270,21 @@ public class AmazonS3PluginTest {
     public void testExecuteCommonForIllegalStateException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class
-                .getDeclaredMethod("executeCommon", AmazonS3.class,
-                        DatasourceConfiguration.class, ActionConfiguration.class);
-        executeCommon.setAccessible(true);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        ActionConfiguration actionConfiguration = mock(ActionConfiguration.class);
+        Mockito.when(actionConfiguration.getFormData()).thenCallRealMethod().thenThrow(new IllegalStateException());
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new AmazonS3Plugin.S3PluginExecutor());
+        Mono<ActionExecutionResult> resultMono = pluginExecutorMono
+                .flatMap(executor -> {
+                    return executor.executeParameterized(
+                            null,
+                            executeActionDTO,
+                            datasourceConfiguration,
+                            actionConfiguration);
+                });
 
-        ActionConfiguration mockAction = mock(ActionConfiguration.class);
-        when(mockAction.getFormData()).thenThrow(new IllegalStateException());
-        Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
-                .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
-        try {
-            ActionExecutionResult actionExecutionResult = invoke.block();
-        } catch (Exception e){
-            assertEquals(e.getClass(),StaleConnectionException.class);
-        }
+        StepVerifier.create(resultMono)
+                .verifyError(StaleConnectionException.class);
     }
 
     @Test

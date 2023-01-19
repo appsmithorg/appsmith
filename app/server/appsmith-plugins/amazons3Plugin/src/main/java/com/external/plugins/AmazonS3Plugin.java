@@ -477,7 +477,6 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
 
                         Map<String, Object> formData = actionConfiguration.getFormData();
-
                         String command = getDataValueSafelyFromFormData(formData, COMMAND, STRING_TYPE);
 
                         if (StringUtils.isNullOrEmpty(command)) {
@@ -544,7 +543,6 @@ public class AmazonS3Plugin extends BasePlugin {
                                     )
                             );
                         }
-
                         Object actionResult;
                         switch (s3Action) {
                             case LIST:
@@ -806,12 +804,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                 ));
                         }
                         return Mono.just(actionResult);
-                    }).onErrorMap(
-                            IllegalStateException.class,
-                            error ->{
-                                throw new StaleConnectionException();
-                            }
-                    )
+                    })
+                    .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException())
                     .flatMap(obj -> obj)
                     .flatMap(result -> {
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
