@@ -305,13 +305,3 @@ export function updateJSCollectionStateFromContext() {
 
   jsObjectCollection.setVariableState(newVarState);
 }
-
-export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
-  // loop through jsCollectionState and set all values to evalTree
-  const jsCollection = jsObjectCollection.getVariableState();
-  const jsCollectionEntries = Object.entries(jsCollection);
-  for (const [jsObjectName, variableState] of jsCollectionEntries) {
-    const newJSObject = merge(evalTree[jsObjectName], variableState);
-    evalTree[jsObjectName] = newJSObject;
-  }
-}

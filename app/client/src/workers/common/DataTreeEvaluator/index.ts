@@ -91,7 +91,6 @@ import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
-  updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
 import { getFixedTimeDifference } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
@@ -518,8 +517,6 @@ export default class DataTreeEvaluator {
     };
 
     this.logs.push({ timeTakenForSetupUpdateTree });
-
-    updateEvalTreeWithJSCollectionState(this.evalTree);
 
     return {
       unEvalUpdates: translatedDiffs,
