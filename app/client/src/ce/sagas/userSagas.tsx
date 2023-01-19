@@ -137,11 +137,13 @@ export function* initiateUsageTracking(payload: {
   isAnonymousUser: boolean;
   enableTelemetry: boolean;
 }) {
+  const appsmithConfigs = getAppsmithConfigs();
+
   //To make sure that we're not tracking from previous session.
   UsagePulse.stopTrackingActivity();
 
   if (payload.isAnonymousUser) {
-    if (payload.enableTelemetry) {
+    if (payload.enableTelemetry && appsmithConfigs.segment.enabled) {
       UsagePulse.userAnonymousId = AnalyticsUtil.getAnonymousId();
     } else {
       yield initializeSegmentWithoutTracking();
