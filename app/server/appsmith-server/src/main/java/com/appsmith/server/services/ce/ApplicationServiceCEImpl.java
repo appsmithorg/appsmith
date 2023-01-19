@@ -324,7 +324,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     Application.NavigationSetting requestNavSetting = application.getUnpublishedNavigationSetting();
                     if (requestNavSetting != null) {
                         Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
-                        requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), ""));
+                        String presetLogoAssetId = ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), "");
+                        String requestLogoAssetId = ObjectUtils.defaultIfNull(requestNavSetting.getLogoAssetId(), null);
+                        requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(requestLogoAssetId, presetLogoAssetId));
                         application.setUnpublishedNavigationSetting(requestNavSetting);
                     }
                     return this.update(branchedApplication.getId(), application);
@@ -809,7 +811,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                 navSetting.setLogoAssetId(uploadedAsset.getId());
                                 branchedApplication.setUnpublishedNavigationSetting(navSetting);
 
-                                final Mono<Application> updateMono = this.update(applicationId, branchedApplication);
+                                final Mono<Application> updateMono = this.update(applicationId, branchedApplication, branchName);
+
                                 if (!StringUtils.hasLength(oldAssetId)){
                                     return updateMono;
                                 } else {
@@ -823,21 +826,17 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Void> deleteAppNavigationLogo(String applicationId){
-        return repository.findById(applicationId)
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
-                )
-                .flatMap(rootApplication -> {
+    public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId){
+        return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
+                .flatMap(branchedApplication -> {
 
-                    Application.NavigationSetting unpublishedNavSetting = ObjectUtils.defaultIfNull(rootApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
+                    Application.NavigationSetting unpublishedNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
 
                     String navLogoAssetId = ObjectUtils.defaultIfNull(unpublishedNavSetting.getLogoAssetId(), "");
 
                     unpublishedNavSetting.setLogoAssetId(null);
-                    rootApplication.setUnpublishedNavigationSetting(unpublishedNavSetting);
-
-                    return repository.save(rootApplication).thenReturn(navLogoAssetId);
+                    branchedApplication.setUnpublishedNavigationSetting(unpublishedNavSetting);
+                    return repository.save(branchedApplication).thenReturn(navLogoAssetId);
                 })
                 .flatMap(assetService::remove);
     }

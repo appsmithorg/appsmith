@@ -232,8 +232,9 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     }
 
     @DeleteMapping("/{defaultApplicationId}/logo")
-    public Mono<ResponseDTO<Void>> deleteAppNavigationLogo(@PathVariable String defaultApplicationId){
-        return service.deleteAppNavigationLogo(defaultApplicationId)
+    public Mono<ResponseDTO<Void>> deleteAppNavigationLogo(@PathVariable String defaultApplicationId,
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName){
+        return service.deleteAppNavigationLogo(branchName, defaultApplicationId)
                 .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 

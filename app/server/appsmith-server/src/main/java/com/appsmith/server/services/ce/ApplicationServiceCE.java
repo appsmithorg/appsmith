@@ -97,6 +97,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> saveAppNavigationLogo(String branchName, String applicationId, Part filePart);
 
-    public Mono<Void> deleteAppNavigationLogo(String applicationId);
+    public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId);
 
 }
