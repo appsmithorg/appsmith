@@ -1235,7 +1235,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         return applicationPageService.deleteApplication(importedApplication.getId())
                                 .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE));
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
