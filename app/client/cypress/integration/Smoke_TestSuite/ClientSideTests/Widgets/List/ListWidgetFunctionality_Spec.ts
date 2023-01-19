@@ -1,6 +1,6 @@
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { getWidgetSelector, PROPERTY_SELECTOR, WIDGET } from "../../../../../locators/WidgetLocators";
+import { WIDGET } from "../../../../../locators/WidgetLocators";
 import {
     ERROR_ACTION_EXECUTE_FAIL,
     createMessage,
@@ -168,5 +168,12 @@ it("8. Verify onPageSizeChange functionality in SSP of list widget", function(){
     _.agHelper.Sleep()  
 })
 
+after(() => {
+    _.ee.ExpandCollapseEntity("Queries/JS")
+    _.ee.ActionContextMenuByEntityName("API1","Delete","Are you sure?")
+    _.ee.ActionContextMenuByEntityName("postgres_ssp","Delete","Are you sure?")
+    _.dataSources.DeleteDatasouceFromActiveTab(dsName)
 })
+})
+
 
