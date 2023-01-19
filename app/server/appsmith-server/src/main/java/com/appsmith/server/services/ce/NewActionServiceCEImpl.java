@@ -796,8 +796,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                             return getValidatedDatasourceForActionExecution(datasource1, environmentName)
                                     .zipWhen(validatedDatasource -> getDsContextForActionExecution(validatedDatasource,
-                                            plugin, datasourceContextIdentifier,
-                                            environmentMap))
+                                                                                                   plugin,
+                                                                                                   datasourceContextIdentifier,
+                                                                                                   environmentMap))
                                     .flatMap(tuple2 -> {
                                         Datasource validatedDatasource = tuple2.getT1();
                                         DatasourceContext<?> resourceContext = tuple2.getT2();
