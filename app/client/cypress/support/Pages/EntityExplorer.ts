@@ -16,6 +16,7 @@ type templateActions =
 
 export class EntityExplorer {
   public agHelper = ObjectsRegistry.AggregateHelper;
+  public canvasHelper = ObjectsRegistry.CanvasHelper;
   public locator = ObjectsRegistry.CommonLocators;
   private modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
@@ -63,7 +64,6 @@ export class EntityExplorer {
     section: "Widgets" | "Queries/JS" | "Datasources" | "Pages" | "" = "",
     ctrlKey = false,
   ) {
-    this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
@@ -76,7 +76,6 @@ export class EntityExplorer {
     section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
     ctrlKey = false,
   ) {
-    this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     this.ExpandCollapseEntity(modalNameinEE);
     cy.xpath(this._modalTextWidget(modalNameinEE))
@@ -96,10 +95,6 @@ export class EntityExplorer {
     if (option === "add-page") {
       this.agHelper.ValidateNetworkStatus("@createPage", 201);
     }
-  }
-
-  public NavigateToSwitcher(navigationTab: "explorer" | "widgets") {
-    cy.get(this.locator._openNavigationTab(navigationTab)).click();
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
@@ -175,7 +170,7 @@ export class EntityExplorer {
     x: number = 200,
     y: number = 200,
   ) {
-    this.NavigateToSwitcher("widgets");
+    this.canvasHelper.OpenWidgetPane();
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
@@ -211,7 +206,7 @@ export class EntityExplorer {
   }
 
   public CopyPasteWidget(widgetName: string) {
-    this.NavigateToSwitcher("widgets");
+    this.canvasHelper.OpenWidgetPane();
     this.SelectEntityByName(widgetName);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);
