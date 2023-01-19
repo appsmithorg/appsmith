@@ -34,43 +34,33 @@ import { PluginType } from "entities/Action";
 
 const InnerWrapper = styled.div`
   display: flex;
-<<<<<<< HEAD
-  align-items: center;
-=======
   align-items: flex-start;
->>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
 `;
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 6px 12px 6px 12px;
-
   &.${Severity.INFO} {
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.info.borderBottom};
   }
-
   &.${Severity.ERROR} {
     background-color: #fff8f8;
     border-bottom: 1px solid #ffecec;
   }
-
   &.${Severity.WARNING} {
     background-color: ${(props) =>
       props.theme.colors.debugger.warning.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.warning.borderBottom};
   }
-
   .bp3-popover-target {
     display: inline;
   }
-
   .${Classes.ICON} {
     display: inline-block;
   }
-
   .debugger-toggle {
     margin-right: -4px;
     ${(props) =>
@@ -82,69 +72,31 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     margin-left: 4px;
-<<<<<<< HEAD
-=======
     cursor: default;
->>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
     }
-
     &.${Severity.ERROR} {
       color: ${(props) => props.theme.colors.debugger.error.time};
     }
-
     &.${Severity.WARNING} {
       color: ${(props) => props.theme.colors.debugger.warning.time};
     }
   }
-
   .debugger-error-type {
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     margin-left: 4px;
     margin-right: 4px;
-<<<<<<< HEAD
-    color: ${(props) => props.theme.colors.debugger.error.type};
-  }
-
-  .debugger-occurences {
-    height: 18px;
-    width: 18px;
-    border-radius: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: ${Colors.GRAY_900};
-    &.${Severity.INFO} {
-      background-color: ${Colors.GREY_200};
-    }
-    margin-right: 4px;
-    &.${Severity.ERROR} {
-      background-color: ${Colors.RED_150};
-    }
-    &.${Severity.WARNING} {
-      background-color: ${Colors.WARNING_DEBUGGER_GROUPING_BADGE};
-    }
-    ${getTypographyByKey("u2")}
-  }
-=======
     cursor: default;
     color: ${(props) => props.theme.colors.debugger.error.type};
   }
-
->>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
   .debugger-description {
     display: flex;
     align-items: center;
     overflow-wrap: anywhere;
     word-break: break-word;
-<<<<<<< HEAD
-    max-width: 60%;
-=======
->>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
     margin-right: 4px;
-
     .debugger-label {
       ${getTypographyByKey("h6")}
       font-weight: 400;
@@ -152,11 +104,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       color: ${Colors.GRAY_800};
       text-overflow: ellipsis;
       overflow: hidden;
-<<<<<<< HEAD
-      white-space: nowrap;
-=======
       white-space: normal;
->>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
       -webkit-user-select: all; /* Chrome 49+ */
       -moz-user-select: all; /* Firefox 43+ */
       -ms-user-select: all; /* No support yet */
@@ -166,10 +114,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       color: ${(props) => props.theme.colors.debugger.entity};
       ${getTypographyByKey("h6")}
       margin-left: 6px;
-
       & > span {
         cursor: pointer;
-
         &:hover {
           text-decoration: underline;
           text-decoration-color: ${(props) =>
@@ -178,16 +124,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       }
     }
   }
-<<<<<<< HEAD
-  .debugger-timetaken {
-    color: ${(props) => props.theme.colors.debugger.entity};
-    margin-left: 5px;
-    ${getTypographyByKey("p2")}
-    line-height: 19px;
-  }
-=======
->>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
-
   .debugger-entity-link {
     ${getTypographyByKey("h6")}
     font-weight: 400;
@@ -218,9 +154,8 @@ const MessageInfo = styled.div`
 `;
 
 const MessageWrapper = styled.div`
-  <<<<<<<headpadding-bottom: 4px;
-  =======cpadding-bottom: 4px;
-  >>>>>>>52fdc784e094ab0becbd20cb92d2b619b49aba45display: flex;
+  cpadding-bottom: 4px;
+  display: flex;
   flex-direction: column;
   gap: 4px;
 `;
@@ -240,12 +175,8 @@ const IconWrapper = styled.span`
   color: ${Colors.CHARCOAL};
   display: flex;
   align-items: center;
-
-  <<<<<<< head div {
-    cursor: pointer;
-  }
-
-  =======>>>>>>>52fdc784e94ab0becbd20cb92d2b619b49aba45 svg {
+  cursor: default;
+  svg {
     width: 12px;
     height: 12px;
   }
