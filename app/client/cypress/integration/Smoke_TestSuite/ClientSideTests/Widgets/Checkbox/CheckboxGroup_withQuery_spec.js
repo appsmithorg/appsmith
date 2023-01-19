@@ -57,8 +57,12 @@ describe("Checkbox Group Widget Functionality", function() {
         "{{Query2.data.map((item) => item.id)}}",
       );
 
+      cy.wait(2000);
+
       // deploy the app
       cy.PublishtheApp();
+
+      cy.wait(2000);
 
       // checked checkbox should be 2
       cy.get(publish.checkboxGroupWidget)
