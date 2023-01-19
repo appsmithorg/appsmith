@@ -92,6 +92,16 @@ export interface BaseStyleProps {
 }
 
 const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
+  .auto-layout && {
+    height: 50px;
+    min-width: 42px;
+    max-width: 320px;
+  }
+
+  .mobile-view .auto-layout && {
+    height: 40px;
+  }
+
   height: 100%;
   background-image: none !important;
   font-weight: ${(props) => props.theme.fontWeights[2]};
@@ -148,14 +158,14 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
-    & > span {
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
 
-      max-height: 100%;
+    & > span {
+      display: inline-block;
+      text-overflow: ellipsis;
       overflow: hidden;
+      white-space: nowrap;
+      line-height: normal;
+
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
           ? getComplementaryGrayscaleColor(buttonColor)
