@@ -7,7 +7,12 @@ import {
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
+import {
+  isAction,
+  isAppsmithEntity,
+  isJSAction,
+  isTrueObject,
+} from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 import { initStoreFns } from "workers/Evaluation/fns/storeFns";
@@ -16,6 +21,7 @@ import {
   ActionDispatcherWithExecutionType,
   PLATFORM_FUNCTIONS,
 } from "@appsmith/workers/Evaluation/PlatformFunctions";
+import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -194,7 +200,14 @@ export const addDataTreeToContext = (args: {
   self.TRIGGER_COLLECTOR = [];
 
   for (const [entityName, entity] of dataTreeEntries) {
-    EVAL_CONTEXT[entityName] = entity;
+    if (isJSAction(entity) && jsObjectCollection.getVariableState(entityName)) {
+      EVAL_CONTEXT[entityName] = jsObjectCollection.getVariableState(
+        entityName,
+      );
+    } else {
+      EVAL_CONTEXT[entityName] = entity;
+    }
+
     if (skipEntityFunctions || !isTriggerBased) continue;
 
     for (const [functionName, funcCreator] of entityFunctionEntries) {
