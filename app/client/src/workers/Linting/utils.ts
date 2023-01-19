@@ -53,7 +53,7 @@ import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
 import { MessageType, sendMessage } from "utils/MessageUtil";
-import { ActionTriggerFunctionNames } from "ce/entities/DataTree/actionTriggers";
+import { ActionTriggerFunctionNames } from "@appsmith/entities/DataTree/actionTriggers";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],

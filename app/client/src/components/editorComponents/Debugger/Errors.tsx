@@ -46,21 +46,13 @@ function Errors(props: { hasShortCut?: boolean }) {
               messages.forEach((message) => {
                 logItemProps.messages = [message];
                 logItems.push(
-                  <ErrorLogItem
-                    key={`debugger-${index}`}
-                    {...logItemProps}
-                    expand
-                  />,
+                  <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
                 );
               });
             } else {
               // Expand all errors by default
               logItems.push(
-                <ErrorLogItem
-                  key={`debugger-${index}`}
-                  {...logItemProps}
-                  expand
-                />,
+                <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
               );
             }
             return logItems;

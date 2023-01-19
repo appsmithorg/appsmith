@@ -34,7 +34,11 @@ import { PluginType } from "entities/Action";
 
 const InnerWrapper = styled.div`
   display: flex;
+<<<<<<< HEAD
   align-items: center;
+=======
+  align-items: flex-start;
+>>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
 `;
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
@@ -78,6 +82,10 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     margin-left: 4px;
+<<<<<<< HEAD
+=======
+    cursor: default;
+>>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
     }
@@ -96,6 +104,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     letter-spacing: -0.24px;
     margin-left: 4px;
     margin-right: 4px;
+<<<<<<< HEAD
     color: ${(props) => props.theme.colors.debugger.error.type};
   }
 
@@ -119,12 +128,21 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     }
     ${getTypographyByKey("u2")}
   }
+=======
+    cursor: default;
+    color: ${(props) => props.theme.colors.debugger.error.type};
+  }
+
+>>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
   .debugger-description {
     display: flex;
     align-items: center;
     overflow-wrap: anywhere;
     word-break: break-word;
+<<<<<<< HEAD
     max-width: 60%;
+=======
+>>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
     margin-right: 4px;
 
     .debugger-label {
@@ -134,7 +152,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       color: ${Colors.GRAY_800};
       text-overflow: ellipsis;
       overflow: hidden;
+<<<<<<< HEAD
       white-space: nowrap;
+=======
+      white-space: normal;
+>>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
       -webkit-user-select: all; /* Chrome 49+ */
       -moz-user-select: all; /* Firefox 43+ */
       -ms-user-select: all; /* No support yet */
@@ -156,12 +178,15 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       }
     }
   }
+<<<<<<< HEAD
   .debugger-timetaken {
     color: ${(props) => props.theme.colors.debugger.entity};
     margin-left: 5px;
     ${getTypographyByKey("p2")}
     line-height: 19px;
   }
+=======
+>>>>>>> 52fdc784e094ab0becbd20cb92d2b619b49aba45
 
   .debugger-entity-link {
     ${getTypographyByKey("h6")}
@@ -193,8 +218,9 @@ const MessageInfo = styled.div`
 `;
 
 const MessageWrapper = styled.div`
-  padding-bottom: 4px;
-  display: flex;
+  <<<<<<<headpadding-bottom: 4px;
+  =======cpadding-bottom: 4px;
+  >>>>>>>52fdc784e094ab0becbd20cb92d2b619b49aba45display: flex;
   flex-direction: column;
   gap: 4px;
 `;
@@ -215,11 +241,11 @@ const IconWrapper = styled.span`
   display: flex;
   align-items: center;
 
-  div {
+  <<<<<<< head div {
     cursor: pointer;
   }
 
-  svg {
+  =======>>>>>>>52fdc784e94ab0becbd20cb92d2b619b49aba45 svg {
     width: 12px;
     height: 12px;
   }
@@ -235,15 +261,7 @@ const LineNumber = styled.div`
 `;
 
 const showToggleIcon = (e: Log) => {
-  let output = !!e.state || !!e.pluginErrorDetails;
-  if (!output && e.logData && e.logData.length > 0) {
-    e.logData.forEach((item) => {
-      if (typeof item === "object") {
-        output = true;
-      }
-    });
-  }
-  return output;
+  return !!e.state || !!e.pluginErrorDetails;
 };
 
 export const getLogItemProps = (e: Log) => {
@@ -283,14 +301,13 @@ type LogItemProps = {
   state?: Record<string, any>;
   id?: string;
   source?: SourceEntity;
-  expand?: boolean;
   messages?: Message[];
   occurences: number;
   pluginErrorDetails?: any;
 };
 
 function ErrorLogItem(props: LogItemProps) {
-  const [isOpen, setIsOpen] = useState(!!props.expand);
+  const [isOpen, setIsOpen] = useState(false);
   const { collapsable } = props;
   const theme = useTheme();
   const plugins = useSelector(getPlugins);
@@ -304,10 +321,10 @@ function ErrorLogItem(props: LogItemProps) {
     style: {
       fontFamily:
         "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
-      fontSize: "12px",
+      fontSize: "11px",
       fontWeight: "400",
       letterSpacing: "-0.195px",
-      lineHeight: "14px",
+      lineHeight: "13px",
     },
     collapsed: 1,
   };

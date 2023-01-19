@@ -76,7 +76,6 @@ function logLatestEvalPropertyErrors(
         }),
         [],
       );
-
       const evalErrors: EvaluationError[] = [];
       const evalWarnings: EvaluationError[] = [];
 
