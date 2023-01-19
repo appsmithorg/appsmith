@@ -36,10 +36,16 @@ const StyledTrigger = styled.div<{ active: boolean }>`
   cursor: pointer;
 `;
 
-const PopoverContentWrapper = styled.div`
+const PopoverContentWrapper = styled.div<{ isInGuidedTour: boolean }>`
   display: flex;
   width: 246px;
   height: min(70vh, 600px);
+
+  ${(props) =>
+    props.isInGuidedTour &&
+    `
+    height: min(60vh, 600px);
+  `}
 `;
 
 function WidgetPaneTrigger() {
@@ -98,7 +104,7 @@ function WidgetPaneTrigger() {
       <Popover2
         canEscapeKeyClose
         content={
-          <PopoverContentWrapper>
+          <PopoverContentWrapper isInGuidedTour>
             <WidgetSidebar isActive />
           </PopoverContentWrapper>
         }

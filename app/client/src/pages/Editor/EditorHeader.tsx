@@ -219,7 +219,6 @@ const HamburgerContainer = styled.div`
 
 const StyledButton = styled(Button)`
   padding: 0 6px;
-  height: ${(props) => props.theme.smallHeaderHeight};
   color: ${Colors.GREY_900};
 
   svg {
@@ -256,7 +255,7 @@ export function ShareButtonComponent() {
       className="t--application-share-btn"
       icon={"share-line"}
       iconPosition={IconPositions.left}
-      size={Size.medium}
+      size={Size.large}
       tag={"button"}
       text={createMessage(EDITOR_HEADER.share)}
     />
@@ -526,7 +525,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   iconPosition={IconPositions.left}
                   isLoading={isPublishing}
                   onClick={() => handleClickDeploy(true)}
-                  size={Size.medium}
+                  size={Size.large}
                   tag={"button"}
                   text={DEPLOY_MENU_OPTION()}
                   width={"88px"}
