@@ -4,7 +4,10 @@ import {
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
 import React from "react";
-import { MockPageDSL } from "test/testCommon";
+import {
+  dispatchTestKeyboardEventWithCode,
+  MockPageDSL,
+} from "test/testCommon";
 import Sidebar from "components/editorComponents/Sidebar";
 import { generateReactKey } from "utils/generators";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
@@ -227,9 +230,7 @@ describe("Entity Explorer tests", () => {
     const buttonWidget: any = component.queryByText(children[2].widgetName);
 
     act(() => {
-      fireEvent.click(checkboxWidget, {
-        shiftKey: true,
-      });
+      fireEvent.click(checkboxWidget);
       jest.runAllTimers();
     });
 

@@ -23,9 +23,9 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { getParentModalId } from "selectors/entitiesSelector";
 import {
-  pushPopWidgetSelection,
   assertParentId,
   isInvalidSelectionRequest,
+  pushPopWidgetSelection,
   selectAllWidgetsInCanvasSaga,
   SelectionRequestType,
   selectMultipleWidgets,
@@ -33,6 +33,7 @@ import {
   SetSelectionResult,
   setWidgetAncestry,
   shiftSelectWidgets,
+  unselectWidget,
 } from "sagas/WidgetSelectUtils";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -61,7 +62,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     switch (selectionRequestType) {
       // Deselect everything and set the lastSelected to the main container
       // This will reset the last selected canvas and can be pasted into
-      case SelectionRequestType.EMPTY: {
+      case SelectionRequestType.Empty: {
         newSelection = {
           widgets: [],
           lastWidgetSelected: MAIN_CONTAINER_WIDGET_ID,
@@ -69,16 +70,16 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         break;
       }
       //
-      case SelectionRequestType.ONE: {
+      case SelectionRequestType.One: {
         assertParentId(parentId);
         newSelection = selectOneWidget(payload);
         break;
       }
-      case SelectionRequestType.MULTIPLE: {
+      case SelectionRequestType.Multiple: {
         newSelection = selectMultipleWidgets(payload, allWidgets);
         break;
       }
-      case SelectionRequestType.SHIFT_SELECT: {
+      case SelectionRequestType.ShiftSelect: {
         assertParentId(parentId);
         const siblingWidgets: string[] = yield select(
           getWidgetImmediateChildren,
@@ -105,7 +106,11 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         );
         break;
       }
-      case SelectionRequestType.ALL: {
+      case SelectionRequestType.Unselect: {
+        newSelection = unselectWidget(payload, selectedWidgets);
+        break;
+      }
+      case SelectionRequestType.All: {
         newSelection = yield call(selectAllWidgetsInCanvasSaga);
       }
     }
@@ -113,10 +118,9 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     if (!newSelection) return;
 
     if (
-      [
-        SelectionRequestType.PushPop,
-        SelectionRequestType.SHIFT_SELECT,
-      ].includes(selectionRequestType) &&
+      [SelectionRequestType.PushPop, SelectionRequestType.ShiftSelect].includes(
+        selectionRequestType,
+      ) &&
       newSelection.widgets[0] in allWidgets
     ) {
       const selectionWidgetId = newSelection.widgets[0];
@@ -193,7 +197,7 @@ function* canPerformSelectionSaga(saga: any, action: any) {
 }
 
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
-  if (action.payload.widgetIds.length > 1) return;
+  if (action.payload.widgetIds.length !== 1) return;
 
   const selectedWidget = action.payload.widgetIds[0];
 

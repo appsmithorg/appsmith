@@ -1727,7 +1727,7 @@ function* pasteWidgetSaga(
 
   yield put(
     selectWidgetInitAction(
-      SelectionRequestType.MULTIPLE,
+      SelectionRequestType.Multiple,
       newlyCreatedWidgetIds,
     ),
   );

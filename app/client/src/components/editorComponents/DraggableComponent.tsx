@@ -157,7 +157,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       if (!isFocused) return;
 
       if (!isSelected) {
-        selectWidget(SelectionRequestType.ONE, [props.widgetId]);
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
       const widgetHeight = props.bottomRow - props.topRow;
       const widgetWidth = props.rightColumn - props.leftColumn;

@@ -746,7 +746,7 @@ export function* clonePageSaga(
 
       yield put(fetchActionsForPage(response.data.id));
       yield put(fetchJSCollectionsForPage(response.data.id));
-      yield put(selectWidgetInitAction(SelectionRequestType.EMPTY));
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       // TODO: Update URL params here.
 

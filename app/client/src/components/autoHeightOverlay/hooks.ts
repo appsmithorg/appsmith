@@ -285,7 +285,7 @@ export function useDragCallbacksForHandles({
       setIsAutoHeightWithLimitsChanging(true);
     selectWidget &&
       selectedWidget !== widgetId &&
-      selectWidget(SelectionRequestType.ONE, [widgetId]);
+      selectWidget(SelectionRequestType.One, [widgetId]);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
   }, [widgetId]);
@@ -298,17 +298,17 @@ export function useDragCallbacksForHandles({
         setIsAutoHeightWithLimitsChanging(false);
     }, 0);
 
-    selectWidget && selectWidget(SelectionRequestType.ONE, [widgetId]);
+    selectWidget && selectWidget(SelectionRequestType.One, [widgetId]);
 
     if (parentWidgetToSelect) {
       selectWidget &&
         selectedWidget !== parentWidgetToSelect.widgetId &&
-        selectWidget(SelectionRequestType.ONE, [parentWidgetToSelect.widgetId]);
+        selectWidget(SelectionRequestType.One, [parentWidgetToSelect.widgetId]);
       focusWidget(parentWidgetToSelect.widgetId);
     } else {
       selectWidget &&
         selectedWidget !== widgetId &&
-        selectWidget(SelectionRequestType.ONE, [widgetId]);
+        selectWidget(SelectionRequestType.One, [widgetId]);
     }
     // Property pane closes after a resize/drag
     showPropertyPane && showPropertyPane();

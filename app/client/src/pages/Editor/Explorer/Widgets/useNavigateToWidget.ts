@@ -30,7 +30,7 @@ export const useNavigateToWidget = () => {
     pageId: string,
     navigationMethod?: NavigationMethod,
   ) => {
-    selectWidget(SelectionRequestType.ONE, [widgetId]);
+    selectWidget(SelectionRequestType.One, [widgetId]);
     navigateToCanvas(pageId, widgetId, navigationMethod);
     quickScrollToWidget(widgetId);
     // Navigating to a widget from query pane seems to make the property pane
@@ -61,7 +61,7 @@ export const useNavigateToWidget = () => {
         return;
 
       if (isShiftSelect) {
-        selectWidget(SelectionRequestType.SHIFT_SELECT, [widgetId]);
+        selectWidget(SelectionRequestType.ShiftSelect, [widgetId]);
       } else if (isMultiSelect) {
         multiSelectWidgets(widgetId, pageId);
       } else {

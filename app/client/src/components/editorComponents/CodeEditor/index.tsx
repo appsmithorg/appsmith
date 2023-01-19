@@ -1217,7 +1217,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(setEditorFieldFocusAction(payload)),
   selectWidget: (widgetId: string) =>
-    dispatch(selectWidgetInitAction(SelectionRequestType.ONE, [widgetId])),
+    dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId])),
 });
 
 export default Sentry.withProfiler(

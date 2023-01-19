@@ -19,7 +19,7 @@ export const useWidgetSelection = () => {
       [dispatch],
     ),
     deselectAll: useCallback(
-      () => dispatch(selectWidgetInitAction(SelectionRequestType.EMPTY)),
+      () => dispatch(selectWidgetInitAction(SelectionRequestType.Empty)),
       [dispatch],
     ),
   };

@@ -103,7 +103,7 @@ function* selectAllWidgetsInAreaSaga(
     if (!equal(filteredWidgetsToSelect, currentSelectedWidgets)) {
       yield put(
         selectWidgetInitAction(
-          SelectionRequestType.MULTIPLE,
+          SelectionRequestType.Multiple,
           filteredWidgetsToSelect,
         ),
       );

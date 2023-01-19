@@ -403,9 +403,9 @@ const mapDispatchToProps = (dispatch: any) => {
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () =>
-      dispatch(selectWidgetInitAction(SelectionRequestType.ALL)),
+      dispatch(selectWidgetInitAction(SelectionRequestType.All)),
     deselectAllWidgets: () =>
-      dispatch(selectWidgetInitAction(SelectionRequestType.EMPTY)),
+      dispatch(selectWidgetInitAction(SelectionRequestType.Empty)),
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),

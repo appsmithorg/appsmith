@@ -203,7 +203,7 @@ function PaneDrawer(props: PaneDrawerProps) {
         // delaying setting select and focus state,
         // so that the focus history has time to store the selected values
         setTimeout(() => {
-          selectWidget(SelectionRequestType.EMPTY);
+          selectWidget(SelectionRequestType.Empty);
           focusWidget(undefined);
         }, 0);
       }

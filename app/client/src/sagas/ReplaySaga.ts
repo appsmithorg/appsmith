@@ -111,7 +111,7 @@ export function* openPropertyPaneSaga(replay: any) {
     //if property pane is not visible, select the widget and force open property pane
     if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {
       yield put(
-        selectWidgetInitAction(SelectionRequestType.ONE, [replayWidgetId]),
+        selectWidgetInitAction(SelectionRequestType.One, [replayWidgetId]),
       );
     }
 
@@ -150,7 +150,7 @@ export function* postUndoRedoSaga(replay: any) {
 
     const widgetIds = Object.keys(replay.widgets);
 
-    yield put(selectWidgetInitAction(SelectionRequestType.MULTIPLE, widgetIds));
+    yield put(selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds));
     scrollWidgetIntoView(widgetIds[0]);
   } catch (e) {
     log.error(e);
@@ -260,7 +260,7 @@ function* replayThemeSaga(replayEntity: Canvas, replay: any) {
     yield put(setAppThemingModeStackAction([]));
   }
 
-  yield put(selectWidgetInitAction(SelectionRequestType.EMPTY));
+  yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
   // todo(pawan): check with arun/rahul on how we can get rid of this check
   // better way to do is set shouldreplay = false when evaluating tree
