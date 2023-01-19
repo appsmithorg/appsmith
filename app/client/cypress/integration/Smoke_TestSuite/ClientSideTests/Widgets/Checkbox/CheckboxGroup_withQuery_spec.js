@@ -23,13 +23,13 @@ describe("Checkbox Group Widget Functionality", function() {
 
       // add Query 2 with limit 2
       cy.get(".t--entity-add-btn.group.files").click({ force: true });
-      cy.get("span:contains('users Query')").click({ force: true });
+      cy.get("span:contains('Users Query')").click({ force: true });
       agHelper.GetNClick(dataSources._templateMenuOption("Select"));
       cy.get(".CodeMirror textarea")
         .first()
         .focus()
         .type(selectAll)
-        .type("select * from users order by id limit 2");
+        .type("select * from Users order by id limit 2");
       cy.runQuery();
 
       // add checkbox group widget
