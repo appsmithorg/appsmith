@@ -35,14 +35,21 @@ export const CONFIG = {
     {
       viewportMinWidth: 0,
       configuration: (props: RateWidgetProps) => {
-        // 20 is the size of a star, 5 is the margin between stars, 8 is the total padding of the widget
-        return `${props.maxCount * 20 + (props.maxCount + 1) * 5 + 8}px`;
+        return {
+          // 20 is the size of a star, 5 is the margin between stars, 8 is the total padding of the widget
+          minWidth: `${props.maxCount * 20 + (props.maxCount + 1) * 5 + 8}px`,
+          minHeight: "20px",
+        };
       },
     },
     {
       viewportMinWidth: 600,
       configuration: (props: RateWidgetProps) => {
-        return `${props.maxCount * 24 + (props.maxCount + 1) * 5 + 8}px`;
+        return {
+          // 20 is the size of a star, 5 is the margin between stars, 8 is the total padding of the widget
+          minWidth: `${props.maxCount * 24 + (props.maxCount + 1) * 5 + 8}px`,
+          minHeight: "24px",
+        };
       },
     },
   ],
