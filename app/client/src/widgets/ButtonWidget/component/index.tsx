@@ -389,6 +389,10 @@ function RecaptchaV3Component(
   );
 }
 
+const Wrapper = styled.div`
+  height: 100%;
+`;
+
 function BtnWrapper(
   props: {
     children: any;
@@ -400,14 +404,14 @@ function BtnWrapper(
 ) {
   if (!props.googleRecaptchaKey) {
     return (
-      <div
+      <Wrapper
         className={props.className}
         onClick={(e: React.MouseEvent<HTMLElement>) =>
           props.onClick && !props.isLoading && props.onClick(e)
         }
       >
         {props.children}
-      </div>
+      </Wrapper>
     );
   } else {
     const handleError = (

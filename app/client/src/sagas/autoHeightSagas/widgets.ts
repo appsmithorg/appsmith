@@ -38,6 +38,8 @@ import { getLayoutTree } from "./layoutTree";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { TreeNode } from "utils/autoHeight/constants";
 import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
+import { getAppMode } from "selectors/entitiesSelector";
+import { APP_MODE } from "entities/App";
 
 /* TODO(abhinav)
   hasScroll is no longer needed, as the only way we will be computing for hasScroll, is when we get the updates
@@ -71,6 +73,7 @@ export function* updateWidgetAutoHeightSaga(
   let shouldRecomputeContainers = false;
 
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
+  const appMode: APP_MODE = yield select(getAppMode);
 
   let updates = getAutoHeightUpdateQueue();
 
@@ -91,8 +94,6 @@ export function* updateWidgetAutoHeightSaga(
     } = yield getLayoutTree(false);
     dynamicHeightLayoutTree = result.tree;
   }
-
-  console.log("Auto Height: computing:", { dynamicHeightLayoutTree });
 
   // Get all widgets from canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -445,8 +446,14 @@ export function* updateWidgetAutoHeightSaga(
       }
     }
     // Let's consider the minimum Canvas Height
+    const canvasMinHeight =
+      appMode === APP_MODE.EDIT &&
+      !!stateWidgets[MAIN_CONTAINER_WIDGET_ID].minHeight
+        ? stateWidgets[MAIN_CONTAINER_WIDGET_ID].minHeight
+        : CANVAS_DEFAULT_MIN_HEIGHT_PX;
     let maxCanvasHeightInRows =
-      CANVAS_DEFAULT_MIN_HEIGHT_PX / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+      canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     // The same logic to compute the minimum height of the MainContainer
     // Based on how many rows are being occuped by children.
 
@@ -469,8 +476,7 @@ export function* updateWidgetAutoHeightSaga(
       {
         propertyPath: "bottomRow",
         propertyValue:
-          (maxCanvasHeightInRows + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET) *
-          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          maxCanvasHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       },
     ];
 
@@ -513,7 +519,11 @@ export function* updateWidgetAutoHeightSaga(
       yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
       resetAutoHeightUpdateQueue();
       yield put(
-        generateAutoHeightLayoutTreeAction(shouldRecomputeContainers, false),
+        generateAutoHeightLayoutTreeAction(
+          false,
+          false,
+          shouldRecomputeContainers,
+        ),
       );
     }
     directlyMutateDOMNodes(
@@ -522,6 +532,7 @@ export function* updateWidgetAutoHeightSaga(
         Array<{ propertyPath: string; propertyValue: number }>
       >,
       widgetsMeasuredInPixels,
+      widgetOffsets,
     );
   }
 

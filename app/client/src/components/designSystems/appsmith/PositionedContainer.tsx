@@ -64,9 +64,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       positionType: PositionTypes.ABSOLUTE,
       componentHeight,
       componentWidth,
-      yPosition:
-        props.topRow * props.parentRowSpace +
-        (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+      yPosition: props.topRow * props.parentRowSpace,
       xPosition:
         props.leftColumn * props.parentColumnSpace +
         (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),

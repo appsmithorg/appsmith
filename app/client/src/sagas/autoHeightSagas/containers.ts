@@ -57,33 +57,6 @@ export function* dynamicallyUpdateContainersSaga() {
       )
         continue;
 
-      let bottomRow, topRow;
-      // If the parent exists in the layout tree
-      if (dynamicHeightLayoutTree[parentContainerWidget.widgetId]) {
-        // Get the tree node for the parent
-        const layoutNode =
-          dynamicHeightLayoutTree[parentContainerWidget.widgetId];
-        // Get all the dimensions from the tree node
-        bottomRow = layoutNode.bottomRow;
-        topRow = layoutNode.topRow;
-      } else {
-        // If it doesn't exist in the layout tree
-        // It is most likely a Modal Widget
-        // Use the dimensions as they exist in the widget.
-        bottomRow = parentContainerWidget.bottomRow;
-        topRow = parentContainerWidget.topRow;
-      }
-
-      // If this is a Modal widget or some other widget
-      // which is detached from layout
-      // use the value 0, as the starting point.
-      if (
-        parentContainerWidget.detachFromLayout &&
-        parentContainerWidget.height
-      ) {
-        topRow = 0;
-      }
-
       if (isAutoHeightEnabledForWidget(parentContainerWidget)) {
         // Get the child we need to consider
         // For a container widget, it will be the child canvas
@@ -152,12 +125,10 @@ export function* dynamicallyUpdateContainersSaga() {
         }
 
         // If we have a new height to set and
-        // if (maxBottomRow !== bottomRow - topRow) {
         if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
           updates[parentContainerWidget.widgetId] =
             maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
         }
-        // }
       }
     }
   }

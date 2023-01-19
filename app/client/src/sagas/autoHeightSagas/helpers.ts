@@ -1,4 +1,7 @@
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import {
@@ -159,6 +162,9 @@ export function* getMinHeightBasedOnChildren(
         minHeightInRows = Math.max(minHeightInRows, bottomRow);
     }
   }
+
+  if (widgetId === MAIN_CONTAINER_WIDGET_ID)
+    return minHeightInRows + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET;
 
   return minHeightInRows;
 }

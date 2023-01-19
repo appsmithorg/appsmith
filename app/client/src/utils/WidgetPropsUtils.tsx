@@ -378,25 +378,29 @@ export function getCanvasWidgetHeightsToUpdate(
   const updatedCanvasWidgets: Record<string, number> = {};
   for (const widgetId of updatedWidgetIds) {
     const widget = canvasWidgets[widgetId];
-    if (
-      widget.type !== "CANVAS_WIDGET" &&
-      Array.isArray(widget.children) &&
-      widget.children.length > 0
-    ) {
-      for (const childCanvasWidgetId of widget.children) {
-        if (!updatedCanvasWidgets.hasOwnProperty(childCanvasWidgetId)) {
-          updatedCanvasWidgets[childCanvasWidgetId] = getCanvasBottomRow(
-            childCanvasWidgetId,
+    if (widget) {
+      if (
+        widget.type !== "CANVAS_WIDGET" &&
+        Array.isArray(widget.children) &&
+        widget.children.length > 0
+      ) {
+        for (const childCanvasWidgetId of widget.children) {
+          if (!updatedCanvasWidgets.hasOwnProperty(childCanvasWidgetId)) {
+            updatedCanvasWidgets[childCanvasWidgetId] = getCanvasBottomRow(
+              childCanvasWidgetId,
+              canvasWidgets,
+            );
+          }
+        }
+      }
+      if (widget.parentId && widget.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+        if (!updatedCanvasWidgets.hasOwnProperty(widget.parentId)) {
+          updatedCanvasWidgets[widget.parentId] = getCanvasBottomRow(
+            widget.parentId,
             canvasWidgets,
           );
         }
       }
-    }
-    if (widget.parentId && widget.parentId !== MAIN_CONTAINER_WIDGET_ID) {
-      updatedCanvasWidgets[widget.parentId] = getCanvasBottomRow(
-        widget.parentId,
-        canvasWidgets,
-      );
     }
   }
   return updatedCanvasWidgets;
@@ -410,7 +414,9 @@ export function getCanvasBottomRow(
   if (canvasWidget === undefined) return 0;
   if (canvasWidget.type !== "CANVAS_WIDGET") return canvasWidget.bottomRow;
   const children = canvasWidget.children;
-  let parentHeightInRows = canvasWidget.bottomRow;
+  let parentHeightInRows = Math.ceil(
+    canvasWidget.bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
   if (canvasWidget.parentId) {
     const parentWidget = canvasWidgets[canvasWidget.parentId];
     if (parentWidget.type === "LIST_WIDGET") return canvasWidget.bottomRow;
@@ -425,7 +431,7 @@ export function getCanvasBottomRow(
         parentHeightInRows / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       );
     }
-    parentHeightInRows -= parentHeightOffset;
+    parentHeightInRows = parentHeightInRows - parentHeightOffset;
   }
 
   if (Array.isArray(children) && children.length > 0) {
@@ -435,7 +441,7 @@ export function getCanvasBottomRow(
         : prev;
     }, parentHeightInRows);
 
-    return bottomRow;
+    return bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   }
-  return parentHeightInRows;
+  return parentHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 }

@@ -7,7 +7,10 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { uniq, get, set } from "lodash";
 import { Diff, diff } from "deep-diff";
-import { getCanvasWidgetHeightsToUpdate } from "utils/WidgetPropsUtils";
+import {
+  getCanvasBottomRow,
+  getCanvasWidgetHeightsToUpdate,
+} from "utils/WidgetPropsUtils";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values 
@@ -55,7 +58,20 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
-    return action.payload.widgets;
+    const { widgets } = action.payload;
+    for (const [widgetId, widgetProps] of Object.entries(widgets)) {
+      if (widgetProps.type === "CANVAS_WIDGET") {
+        const bottomRow = getCanvasBottomRow(widgetId, widgets);
+        console.log("Auto Height: init layout", {
+          widgetId,
+          widgetName: widgets[widgetId]?.widgetName,
+          bottomRow: bottomRow,
+        });
+        widgets[widgetId].bottomRow = bottomRow;
+        widgets[widgetId].minHeight = bottomRow;
+      }
+    }
+    return widgets;
   },
   [ReduxActionTypes.UPDATE_LAYOUT]: (
     state: CanvasWidgetsReduxState,
@@ -118,6 +134,11 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
       number
     > = getCanvasWidgetHeightsToUpdate(Object.keys(action.payload), state);
     for (const widgetId in canvasWidgetHeightsToUpdate) {
+      console.log("Auto Height: ", {
+        widgetId,
+        widgetName: state[widgetId].widgetName,
+        bottomRow: canvasWidgetHeightsToUpdate[widgetId],
+      });
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
       state[widgetId].minHeight = canvasWidgetHeightsToUpdate[widgetId];
     }
