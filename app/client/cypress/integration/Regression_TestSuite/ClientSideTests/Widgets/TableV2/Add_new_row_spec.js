@@ -180,17 +180,17 @@ describe("Table widget Add new row feature's", () => {
       });
       cy.wait(1000);
 
-      //intially enable 2 sections show pagination and add a row header section
+      //intially enable 2 sections to show pagination and "add new row" button to the header section
       propPane.ToggleOnOrOff("Show Pagination", "On");
       propPane.ToggleOnOrOff("Allow adding a row", "On");
 
-      //add new row button should be present
+      //"add new row" button should be present
       cy.get(".t--add-new-row").should("exist");
-      //turn off pagination and now add new row button should be the only section left
+      //turn off pagination and now the "add new row" button should be the only component left in the header section
       propPane.ToggleOnOrOff("Show Pagination", "Off");
-      //add new row button should continue to be present
+      //"add new row" should continue to be present
       cy.get(".t--add-new-row").should("exist");
-      //finally turn off add new row button should be removed from the widget
+      //finally turn off allow adding a row then the "add new row" button should be removed from the header section
       propPane.ToggleOnOrOff("Allow adding a row", "Off");
       cy.get(".t--add-new-row").should("not.exist");
     });
