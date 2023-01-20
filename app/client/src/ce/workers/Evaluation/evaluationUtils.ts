@@ -856,7 +856,7 @@ export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
   });
 };
 
-export const widgetPathsNotToOverride = (
+const widgetPathsNotToOverride = (
   isNewWidget: boolean,
   entity: DataTreeWidget,
   propertyPath: string,
@@ -888,7 +888,7 @@ export const widgetPathsNotToOverride = (
   return pathsNotToOverride;
 };
 
-export const isWidgetDefaultPropertyPath = (
+const isWidgetDefaultPropertyPath = (
   widget: DataTreeWidget,
   propertyPath: string,
 ) => {
@@ -899,7 +899,7 @@ export const isWidgetDefaultPropertyPath = (
   return false;
 };
 
-export const isMetaWidgetTemplate = (widget: DataTreeWidget) => {
+const isMetaWidgetTemplate = (widget: DataTreeWidget) => {
   return !!widget.siblingMetaWidgets;
 };
 
