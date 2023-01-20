@@ -188,9 +188,9 @@ Lets build great software together.
 [![Aishwarya-U-R](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/91450662?v=4&w=50&h=50&mask=circle)](https://github.com/Aishwarya-U-R)
 [![Irongade](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/37867493?v=4&w=50&h=50&mask=circle)](https://github.com/Irongade)
 [![SatishGandham](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/441914?v=4&w=50&h=50&mask=circle)](https://github.com/SatishGandham)
+[![yatinappsmith](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/84702014?v=4&w=50&h=50&mask=circle)](https://github.com/yatinappsmith)
 [![prsidhu](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/5424788?v=4&w=50&h=50&mask=circle)](https://github.com/prsidhu)
 [![pranavkanade](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13262095?v=4&w=50&h=50&mask=circle)](https://github.com/pranavkanade)
-[![yatinappsmith](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/84702014?v=4&w=50&h=50&mask=circle)](https://github.com/yatinappsmith)
 [![somangshu](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/11089579?v=4&w=50&h=50&mask=circle)](https://github.com/somangshu)
 [![ApekshaBhosale](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/7846888?v=4&w=50&h=50&mask=circle)](https://github.com/ApekshaBhosale)
 [![sidhantgoel](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/3933675?v=4&w=50&h=50&mask=circle)](https://github.com/sidhantgoel)
@@ -426,9 +426,6 @@ Lets build great software together.
 [![nzidol](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13618973?v=4&w=50&h=50&mask=circle)](https://github.com/nzidol)
 [![onifs10](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48095055?v=4&w=50&h=50&mask=circle)](https://github.com/onifs10)
 [![ps-xaf](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/4478450?v=4&w=50&h=50&mask=circle)](https://github.com/ps-xaf)
-
-
-This project is tested with [BrowserStack](https://email.browserstack.com/c/eJwdjUuOwyAQRE9jdlgGmsZesJjNXGPEpz1mEtsEiCzN6UMi1aqeqh5ZgagNgjCGRau9joYliwqW2esJ1IziR6pZeillBEGTCYsGQCPGmiLd0oOvhR5POhpfI89nfFZytQm-u3Qo_luIDo4YAuo468D_y18-Bpio8_vYt3WLVG9jOHe2Wa9dRPDoV1iDAKC4Ts7IJSC99ZLd7dZaroP6GuR3z3Vdoy_nVanU5sLnp9es2Opyc3vqKpdz3VPb3uwFHrhMRQ)
 
 ## License
 
