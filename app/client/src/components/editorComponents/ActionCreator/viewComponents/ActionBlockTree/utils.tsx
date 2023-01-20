@@ -128,7 +128,9 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
       return FIELD_CONFIG[FieldType.KEY_TEXT_FIELD_REMOVE_VALUE].getter(code);
 
     case AppsmithFunction.setInterval:
-      return FIELD_CONFIG[FieldType.DELAY_FIELD].getter(code) + "ms";
+      return (
+        stringToJS(FIELD_CONFIG[FieldType.DELAY_FIELD].getter(code)) + "ms"
+      );
 
     case AppsmithFunction.clearInterval:
       return FIELD_CONFIG[FieldType.ID_FIELD].getter(code);

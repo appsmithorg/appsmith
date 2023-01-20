@@ -118,18 +118,14 @@ export const Action: React.FC<Props> = ({
     );
   }, [actionTree.actionType]);
 
-  console.log("** Actions **", actionTree, "******", "******");
-
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
       return;
     }
-    console.log("actionTree", actionTree, "****", actionToCode(actionTree));
+
     onValueChange(`{{${actionToCode(actionTree)}}}`, false);
   }, [actionTree]);
-
-  console.log("success** actionTree", actionTree);
 
   const addSuccessAction = useCallback(() => {
     setActionTree((prevActionTree) => {
@@ -154,6 +150,33 @@ export const Action: React.FC<Props> = ({
         errorCallbacks: [],
       });
       return newActionTree;
+    });
+  }, []);
+
+  const deleteCallbackBlock = useCallback(() => {
+    if (!selectedCallbackBlock) return;
+
+    const { index, type } = selectedCallbackBlock;
+
+    setSelectedCallbackBlock(null);
+
+    setActionTree((prevActionTree) => {
+      const newActionTree = cloneDeep(prevActionTree);
+      if (type === "success") {
+        newActionTree.successCallbacks.splice(index, 1);
+      } else {
+        newActionTree.errorCallbacks.splice(index, 1);
+      }
+      return newActionTree;
+    });
+  }, [selectedCallbackBlock]);
+
+  const deleteMainAction = useCallback(() => {
+    setActionTree({
+      code: "",
+      actionType: AppsmithFunction.none,
+      successCallbacks: [],
+      errorCallbacks: [],
     });
   }, []);
 
@@ -292,11 +315,26 @@ export const Action: React.FC<Props> = ({
                 Configure {isCallbackBlockSelected ? "action" : action}
               </div>
               <Icon
-                className="t--close-action-creator"
                 fillColor="var(--ads-color-gray-700)"
                 name="cross"
                 onClick={() => handleClose()}
-                size="extraExtraSmall"
+                size="extraSmall"
+              />
+            </div>
+
+            <div className="flex w-full justify-between px-2">
+              <div className="text-sm text-gray-800">Action</div>
+              <Icon
+                fillColor="var(--ads-color-gray-500)"
+                name="delete"
+                onClick={() => {
+                  if (isCallbackBlockSelected) {
+                    deleteCallbackBlock();
+                  } else {
+                    deleteMainAction();
+                  }
+                }}
+                size="extraExtraLarge"
               />
             </div>
 
