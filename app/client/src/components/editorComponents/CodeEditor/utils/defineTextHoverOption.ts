@@ -5,7 +5,6 @@ class TextHoverState {
   timeout: any = null;
   keyMap = null;
   cm: any;
-  readonly HOVER_CLASS = " CodeMirror-hover";
   eventListener: any;
   removeEventListener: any;
 
@@ -28,7 +27,6 @@ class TextHoverState {
         const content = this.options.getTextHover(this.cm, data, e);
         console.log("text hover - mouse over", content);
         if (content) {
-          node.className += this.HOVER_CLASS;
           if (typeof content == "function")
             content(this.showTooltipFor, data, e, node);
           else this.showTooltipFor(e, content, node);
@@ -73,7 +71,6 @@ class TextHoverState {
     const hide = () => {
       CodeMirror.off(node, "mouseout", hide);
       CodeMirror.off(node, "click", hide);
-      node.className = node.className.replace(this.HOVER_CLASS, "");
       if (tooltip) {
         this.hideTooltip(tooltip);
         tooltip = null;
