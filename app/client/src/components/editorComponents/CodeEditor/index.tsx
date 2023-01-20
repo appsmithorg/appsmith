@@ -130,27 +130,6 @@ import defineTextHoverOption from "./utils/defineTextHoverOption";
 
 defineTextHoverOption();
 
-CodeMirror.registerHelper("textHover", "javascript", function(
-  cm: any,
-  data: any,
-  node: any,
-) {
-  // make this a part of code editor init config
-  // have a way to update this whenever entities get updated
-  // use react component instead of plain html
-  let html = "token null";
-  if (data && data.token) {
-    const token = data.token;
-    html += "</br>end: " + token.end;
-    html += "</br>start: " + token.start;
-    html += "</br>string: " + token.string;
-    html += "</br>type: " + token.type;
-  }
-  const result = document.createElement("div");
-  result.innerHTML = html;
-  return result;
-});
-
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
 
@@ -312,7 +291,24 @@ class CodeEditor extends Component<Props, State> {
             addNew: false,
           };
         },
-        textHover: true,
+        textHover: {
+          getTextHover: function(data: any, node: any) {
+            // make this a part of code editor init config
+            // have a way to update this whenever entities get updated
+            // use react component instead of plain html
+            let html = "token null";
+            if (data && data.token) {
+              const token = data.token;
+              html += "</br>end: " + token.end;
+              html += "</br>start: " + token.start;
+              html += "</br>string: " + token.string;
+              html += "</br>type: " + token.type;
+            }
+            const result = document.createElement("div");
+            result.innerHTML = html;
+            return result;
+          },
+        },
       };
 
       const gutters = new Set<string>();
