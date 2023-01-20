@@ -1,13 +1,4 @@
-import {
-  getWidgetSelector,
-  WIDGET,
-} from "../../../../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-const agHelper = ObjectsRegistry.AggregateHelper;
-const ee = ObjectsRegistry.EntityExplorer;
-const propPane = ObjectsRegistry.PropertyPane;
-const locator = ObjectsRegistry.CommonLocators;
+import * as _ from '../../../../../support/Objects/ObjectsCore';
 
 describe("List widget v1 spec", () => {
   before(() => {
@@ -15,16 +6,16 @@ describe("List widget v1 spec", () => {
      * On the canvas we have a List Widget
      */
     cy.fixture("listWidgetDsl").then((dsl: string) => {
-      agHelper.AddDsl(dsl);
+      _.agHelper.AddDsl(dsl);
     });
   });
 
   it("1. Validate if the 'items', 'server-side pagination', 'Visible', 'Animate Loading' and 'OnListItemClick' properties are present in the property pane", () => {
-    ee.SelectEntityByName("List1", "Widgets");
-    agHelper.AssertElementVisible(locator._listWidgetItemsDatalabel);
-    agHelper.AssertElementVisible(locator._listWidgetPaginationlabel);
-    agHelper.AssertElementVisible(locator._listWidgetVisiblelabel);
-    agHelper.AssertElementVisible(locator._listWidgetAnimateLoadinglabel);
-    agHelper.AssertElementVisible(locator._listWidgetClickEventlabel);
+    _.ee.SelectEntityByName("List1", "Widgets");
+    _.agHelper.AssertElementVisible(_.locators._listWidgetItemsDatalabel);
+    _.agHelper.AssertElementVisible(_.locators._listWidgetPaginationlabel);
+    _.agHelper.AssertElementVisible(_.locators._listWidgetVisiblelabel);
+    _.agHelper.AssertElementVisible(_.locators._listWidgetAnimateLoadinglabel);
+    _.agHelper.AssertElementVisible(_.locators._listWidgetClickEventlabel);
   });
 });
