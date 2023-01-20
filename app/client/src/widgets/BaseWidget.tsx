@@ -287,18 +287,7 @@ abstract class BaseWidget<
         bottom = mobileBottomRow;
       }
     }
-    console.log(
-      "#### left",
-      left,
-      "right",
-      right,
-      "top",
-      top,
-      "bottom",
-      bottom,
-      "widget",
-      this.props.widgetName,
-    );
+
     return {
       componentWidth: (right - left) * parentColumnSpace,
       componentHeight: (bottom - top) * parentRowSpace,
