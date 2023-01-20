@@ -293,12 +293,17 @@ export default function evaluateSync(
         self[entityName] = immutableEntity(
           evalContext[entityName],
           allowMutation,
+          userScript,
         );
       }
     }
 
     try {
       result = indirectEval(script);
+      if (result.__isProxy) {
+        delete result.__isProxy;
+        result = JSON.parse(JSON.stringify(result));
+      }
       if (result instanceof Promise) {
         /**
          * If a promise is returned in sync field then show the error to help understand sync field doesn't await to resolve promise.
@@ -400,20 +405,27 @@ export async function evaluateAsync(
   })();
 }
 
-function immutableEntity(entity: any, allowMutation: boolean) {
+function immutableEntity(
+  entity: any,
+  allowMutation: boolean,
+  userScript: string,
+) {
   if (typeof entity !== "object") return entity;
   if (isAppsmithEntity(entity)) return entity;
-  return new Proxy(entity, immutablesTrap(allowMutation));
+  entity.__isProxy = true;
+  return new Proxy(entity, immutablesTrap(allowMutation, userScript));
 }
 
-const immutablesTrap = (allowMutation: boolean) => ({
+const immutablesTrap = (allowMutation: boolean, userScript: string) => ({
   get<T extends Record<string, any>>(
     target: T,
     prop: string,
     receiver: unknown,
   ): unknown {
     if (target[prop] && typeof target[prop] === "object") {
-      return new Proxy(target[prop], immutablesTrap(allowMutation));
+      const value = target[prop];
+      value.__isProxy = true;
+      return new Proxy(value, immutablesTrap(allowMutation, userScript));
     }
     return Reflect.get(target, prop, receiver);
   },
