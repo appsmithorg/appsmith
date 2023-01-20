@@ -1,6 +1,7 @@
 import { AppsmithFunction, FieldType, ViewTypes } from "../constants";
-import { TreeDropdownOption } from "design-system";
+import { Button, TreeDropdownOption } from "design-system";
 import {
+  ButtonViewProps,
   FieldProps,
   KeyValueViewProps,
   SelectorViewProps,
@@ -71,12 +72,12 @@ export function Field(props: FieldProps) {
           option: TreeDropdownOption,
           displayValue?: string,
         ) => {
-          if (displayValue) {
-            return (
-              <HightlightedCode codeText={displayValue} skin={Skin.LIGHT} />
-            );
-          }
-          return <span>{option.label}</span>;
+          // if (displayValue) {
+          //   return (
+          //     <HightlightedCode codeText={displayValue} skin={Skin.LIGHT} />
+          //   );
+          // }
+          return <span>{fieldConfig.getter(value)}</span>;
         },
         displayValue:
           field.value !== "{{undefined}}" &&
@@ -194,6 +195,28 @@ export function Field(props: FieldProps) {
         get: getterFunction,
         set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
+          props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
+        },
+        value: value,
+        additionalAutoComplete: props.additionalAutoComplete,
+      });
+      break;
+    case FieldType.CALLBACK_FUNCTION_API_AND_QUERY:
+      viewElement = (view as (props: TextViewProps) => JSX.Element)({
+        label: label,
+        toolTip: toolTip,
+        exampleText: exampleText,
+        get: (val) =>
+          getterFunction(
+            val,
+            props.activeTabApiAndQueryCallback.id === "onSuccess" ? 0 : 1,
+          ),
+        set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
+          const finalValueToSet = fieldConfig.setter(
+            value,
+            props.value,
+            props.activeTabApiAndQueryCallback.id === "onSuccess" ? 0 : 1,
+          );
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: value,

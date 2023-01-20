@@ -1,7 +1,15 @@
 import { SwitcherProps, TreeDropdownOption } from "design-system";
 import { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
 import React from "react";
-import { FieldType, ViewTypes, AppsmithFunction } from "./constants";
+import {
+  FieldType,
+  ViewTypes,
+  AppsmithFunction,
+  APPSMITH_GLOBAL_FUNCTIONS,
+  APPSMITH_INTEGRATIONS,
+  APPSMITH_NAMESPACED_FUNCTIONS,
+} from "./constants";
+import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 
 export type GenericFunction = (...args: any[]) => any;
 
@@ -45,6 +53,10 @@ export type TextViewProps = ViewProps & {
 
 export type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;
 
+export type ButtonViewProps = Omit<ViewProps, "get" | "set"> & {
+  onClick: () => void;
+};
+
 export type FieldConfig = {
   getter: GenericFunction;
   setter: GenericFunction;
@@ -83,8 +95,6 @@ export type FieldProps = {
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
   integrationOptions: TreeDropdownOption[];
-  depth: number;
-  maxDepth: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
   activeNavigateToTab: SwitchType;
   navigateToSwitches: Array<SwitchType>;
@@ -92,8 +102,15 @@ export type FieldProps = {
   apiAndQueryCallbackTabSwitches: SwitchType[];
 };
 
-export type FieldGroupProps = Omit<FieldProps, "field"> & {
-  fields: Array<Field>;
+export type FieldGroupProps = Omit<
+  FieldProps,
+  | "field"
+  | "activeNavigateToTab"
+  | "navigateToSwitches"
+  | "activeTabApiAndQueryCallback"
+  | "apiAndQueryCallbackTabSwitches"
+> & {
+  isChainedAction?: boolean;
 };
 
 export type OptionListType = { label: string; value: string; id: string };
@@ -102,7 +119,7 @@ export type AppsmithFunctionConfigValues = {
   label: (args: FieldProps) => string;
   defaultText: string;
   options: (args: FieldProps) => null | TreeDropdownOption[] | OptionListType;
-  getter: (arg1: string, arg2: number) => string;
+  getter: (arg1: string, arg2?: number) => string;
   setter: (
     arg1: string | TreeDropdownOption,
     arg2: string,
@@ -111,7 +128,6 @@ export type AppsmithFunctionConfigValues = {
   view: ViewType;
   exampleText: string;
   toolTip?: string;
-  actionType: ActionType;
 };
 
 export type AppsmithFunctionConfigType = {
@@ -135,4 +151,16 @@ export type FieldGroupValueType = {
 
 export type FieldGroupConfig = {
   [key: string]: FieldGroupValueType;
+};
+
+export type ActionTree = {
+  code: string;
+  actionType: typeof AppsmithFunction[keyof typeof AppsmithFunction];
+  successCallbacks: ActionTree[];
+  errorCallbacks: ActionTree[];
+};
+
+export type SelectedActionBlock = {
+  type: "success" | "failure";
+  index: number;
 };

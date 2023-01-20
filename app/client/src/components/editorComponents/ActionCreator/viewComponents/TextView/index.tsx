@@ -12,7 +12,12 @@ export function TextView(props: TextViewProps) {
     <FieldWrapper>
       <ControlWrapper isAction key={props.label}>
         {props.label && (
-          <label data-testid="text-view-label">{props.label}</label>
+          <label
+            className="!text-gray-600 !text-xs"
+            data-testid="text-view-label"
+          >
+            {props.label}
+          </label>
         )}
         <InputText
           additionalAutocomplete={props.additionalAutoComplete}

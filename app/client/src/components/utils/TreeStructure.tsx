@@ -30,7 +30,8 @@ const TreeStructureWrapper = styled.div`
     top: 0;
     bottom: 0;
     left: 0;
-    border-left: 2px solid;
+    border-left: 1px solid;
+    border-color: var(--ads-color-gray-50);
   }
 
   .tree li {
@@ -41,22 +42,27 @@ const TreeStructureWrapper = styled.div`
     position: relative;
   }
 
+  .tree li div {
+    position: relative;
+    z-index: 10;
+  }
+
   .tree li:before {
     content: "";
     display: block;
     width: 9px;
     height: 0;
-    border-top: 2px solid;
-    margin-top: 36px;
+    border-top: 1px solid;
+    margin-top: 0px;
     position: absolute;
-    top: 18px;
+    top: 22px;
     left: 0;
+    border-color: var(--ads-color-gray-50);
   }
 
   .tree li:last-child:before {
-    background: #a9a7a7;
+    background: white;
     height: auto;
-    top: 18px;
     bottom: 0;
   }
 `;

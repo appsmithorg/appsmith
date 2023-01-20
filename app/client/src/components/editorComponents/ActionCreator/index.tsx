@@ -1,742 +1,81 @@
-import { createModalAction } from "actions/widgetActions";
-import {
-  TreeDropdownOption,
-  TooltipComponent,
-  Icon,
-  TreeDropdown,
-} from "design-system";
-import { Popover2 } from "@blueprintjs/popover2";
-import TreeStructure from "components/utils/TreeStructure";
-import { PluginType } from "entities/Action";
-import { isString, keyBy } from "lodash";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import {
-  JsFileIconV2,
-  jsFunctionIcon,
-} from "pages/Editor/Explorer/ExplorerIcons";
-import React, { useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import {
-  getDataTreeForActionCreator,
-  getWidgetOptionsTree,
-} from "sagas/selectors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import {
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-  getPageListAsOptions,
-} from "selectors/entitiesSelector";
-import {
-  getModalDropdownList,
-  getNextModalName,
-} from "selectors/widgetSelectors";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import FieldGroup from "./FieldGroup";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { createNewJSCollection } from "actions/jsPaneActions";
-import { JSAction, Variable } from "entities/JSCollection";
-import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { ACTION_TRIGGER_REGEX } from "./regex";
-import {
-  NAVIGATE_TO_TAB_OPTIONS,
-  AppsmithFunction,
-  FieldType,
-  AppsmithFunctionsWithFields,
-} from "./constants";
-import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
-import { isValueValidURL } from "./utils";
-import {
-  getFuncExpressionAtPosition,
-  getFunction,
-  replaceActionInQuery,
-} from "@shared/ast";
-import { ActionBlock } from "./viewComponents/ActionBlock";
-import { TabView } from "./viewComponents/TabView";
-import { SelectorDropdown } from "./viewComponents/SelectorDropdown";
-import {
-  SwitchType,
-  ActionCreatorProps,
-  GenericFunction,
-  DataTreeForActionCreator,
-  Field,
-  SelectorField,
-} from "./types";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { getActionBlocks } from "@shared/ast";
+import { ActionCreatorProps } from "./types";
 import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
-import { FIELD_CONFIG } from "./Field/FieldConfig";
+import { Action } from "./viewComponents/Action";
 
-const actionList: {
-  label: string;
-  value: string;
-  children?: TreeDropdownOption[];
-}[] = Object.entries(FIELD_GROUP_CONFIG).map((action) => ({
-  label: action[1].label,
-  value: action[0],
-  children: action[1].children,
-}));
+function getBlocks(value: string) {
+  const currentBlocks = getActionBlocks(
+    getDynamicBindings(value).jsSnippets[0],
+    window.evaluationVersion,
+  );
 
-function getFieldFromValue(
-  value: string | undefined,
-  activeTabApiAndQueryCallback: SwitchType,
-  activeTabNavigateTo: SwitchType,
-  getParentValue?: (changeValue: string) => string,
-  dataTree?: DataTreeForActionCreator,
-  showActionSelector = false,
-): SelectorField[] {
-  const fields: SelectorField[] = [];
-
-  // No value case - no action has been selected, show the action selector field
-  if (!value) {
-    return [
-      {
-        field: FieldType.ACTION_SELECTOR_FIELD,
-        getParentValue,
-        value,
-      },
-    ];
+  if (currentBlocks.length === 0) {
+    return [""];
   }
 
-  console.log("Value: ", value);
-
-  let entity;
-
-  if (isString(value)) {
-    const trimmedVal = value && value.replace(/(^{{)|(}}$)/g, "");
-    const entityProps = getEntityNameAndPropertyPath(trimmedVal);
-    entity = dataTree && dataTree[entityProps.entityName];
-    console.log({ trimmedVal: value, entityProps, entity });
-  }
-
-  // 1. JS functions
-  // 2. APIs, Queries
-  // 3. SetInterval, ShowAlert etc.
-
-  console.log("Entity: ", entity);
-
-  if (entity && "ENTITY_TYPE" in entity) {
-    if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-      // get fields for API action
-      return getActionEntityFields(
-        fields,
-        getParentValue as (changeValue: string) => string,
-        value,
-        activeTabNavigateTo,
-        activeTabApiAndQueryCallback,
-        dataTree as DataTreeForActionCreator,
-        showActionSelector,
-      );
-    }
-
-    if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
-      // get fields for js action execution
-      return getJsFunctionExecutionFields(
-        fields,
-        getParentValue as (changeValue: string) => string,
-        value,
-        entity,
-        showActionSelector,
-      );
-    }
-  }
-
-  getFieldsForSelectedAction(
-    fields,
-    getParentValue as (changeValue: string) => string,
-    value,
-    activeTabNavigateTo,
-    showActionSelector,
-  );
-
-  return fields;
-}
-
-function replaceAction(value: string, changeValue: string, argNum: number) {
-  // if no action("") then send empty arrow expression
-  // else replace with arrow expression and action selected
-  const changeValueWithoutBrackets = getDynamicBindings(changeValue)
-    .jsSnippets[0];
-  const reqChangeValue =
-    changeValue === "" ? `() => {}` : `() => ${changeValueWithoutBrackets}`;
-  return `{{${replaceActionInQuery(
-    value,
-    reqChangeValue,
-    argNum,
-    self.evaluationVersion,
-  )}}}`;
-}
-
-function getActionEntityFields(
-  fields: any[],
-  getParentValue: (changeValue: string) => string,
-  value: string,
-  activeTabNavigateTo: SwitchType,
-  activeTabApiAndQueryCallback: SwitchType,
-  dataTree: DataTreeForActionCreator,
-  showActionSelector = false,
-) {
-  if (showActionSelector) {
-    fields.push({
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      getParentValue,
-      value,
-    });
-  } else {
-    fields.push({
-      field: FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD,
-      getParentValue,
-      value,
-    });
-  }
-
-  // requiredValue is value minus the surrounding {{ }}
-  // eg: if value is {{download()}}, requiredValue = download()
-  const requiredValue = getDynamicBindings(value).jsSnippets[0];
-
-  console.log("** Required Value **", { value, requiredValue });
-
-  // get the fields for onSuccess
-  const successFunction = getFuncExpressionAtPosition(
-    requiredValue,
-    0,
-    self.evaluationVersion,
-  );
-  const successValue = getFunction(successFunction, self.evaluationVersion);
-  const successFields = getFieldFromValue(
-    successValue,
-    activeTabNavigateTo,
-    activeTabApiAndQueryCallback,
-    (changeValue: string) => replaceAction(requiredValue, changeValue, 0),
-    dataTree,
-    true,
-  );
-  console.log("** Fields **", { fields, successFields });
-  successFields[0].label = "Action";
-
-  // get the fields for onError
-  const errorFunction = getFuncExpressionAtPosition(
-    requiredValue,
-    1,
-    self.evaluationVersion,
-  );
-  const errorValue = getFunction(errorFunction, self.evaluationVersion);
-  const errorFields = getFieldFromValue(
-    errorValue,
-    activeTabNavigateTo,
-    activeTabApiAndQueryCallback,
-    (changeValue: string) => replaceAction(requiredValue, changeValue, 1),
-    dataTree,
-    true,
-  );
-  errorFields[0].label = "Action";
-
-  if (activeTabApiAndQueryCallback.id === "onSuccess") {
-    fields.push(successFields);
-  } else {
-    fields.push(errorFields);
-  }
-
-  return fields;
-}
-
-function getJsFunctionExecutionFields(
-  fields: any[],
-  getParentValue: (changeValue: string) => string,
-  value: string,
-  entity: any,
-  showActionSelector = false,
-) {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (matches.length === 0) {
-    // when format doesn't match, it is function from js object
-    if (showActionSelector) {
-      fields.push({
-        field: FieldType.ACTION_SELECTOR_FIELD,
-        getParentValue,
-        value,
-        args: [],
-      });
-    }
-  } else if (matches.length) {
-    const entityPropertyPath = matches[0][1];
-    const { propertyPath } = getEntityNameAndPropertyPath(entityPropertyPath);
-    const path = propertyPath && propertyPath.replace("()", "");
-    const argsProps =
-      path && entity.meta && entity.meta[path] && entity.meta[path].arguments;
-    if (showActionSelector) {
-      fields.push({
-        field: FieldType.ACTION_SELECTOR_FIELD,
-        getParentValue,
-        value,
-        args: argsProps ? argsProps : [],
-      });
-    }
-
-    if (argsProps && argsProps.length > 0) {
-      for (const index of argsProps) {
-        fields.push({
-          field: FieldType.ARGUMENT_KEY_VALUE_FIELD,
-          getParentValue,
-          value,
-          label: argsProps[index] && argsProps[index].name,
-          index: index,
-        });
-      }
-    }
-  }
-  return fields;
-}
-
-function getFieldsForSelectedAction(
-  fields: any[],
-  getParentValue: (changeValue: string) => string,
-  value: string,
-  activeTabNavigateTo: SwitchType,
-  showActionSelector = false,
-) {
-  /*
-   * if an action is present, push actions selector field
-   * then push all fields specific to the action selected
-   */
-  if (showActionSelector) {
-    fields.push({
-      field: FieldType.ACTION_SELECTOR_FIELD,
-      getParentValue,
-      value,
-    });
-  }
-
-  /**
-   *  We need to find out if there are more than one function in the value
-   *  If yes, we need to find out the first position position-wise
-   *  this is done to get rid of other functions fields being shown in the selector
-   *  See - https://github.com/appsmithorg/appsmith/issues/15895
-   **/
-  const matches = AppsmithFunctionsWithFields.filter((func) =>
-    value.includes(func),
-  );
-
-  const functionMatchesWithPositions: Array<{
-    position: number;
-    func: string;
-  }> = [];
-  matches.forEach((match) => {
-    functionMatchesWithPositions.push({
-      position: value.indexOf(match),
-      func: match,
-    });
-  });
-  functionMatchesWithPositions.sort((a, b) => a.position - b.position);
-
-  const functionMatch =
-    functionMatchesWithPositions.length && functionMatchesWithPositions[0].func;
-
-  if (functionMatch && functionMatch.length > 0) {
-    for (const field of FIELD_GROUP_CONFIG[functionMatch].fields) {
-      fields.push({
-        field: field,
-      });
-    }
-
-    /**
-     * The second field for navigateTo is dependent on activeTabNavigateTo value
-     * if PAGE_NAME then this field will be PAGE_SELECTOR_FIELD (default)
-     * if URL then this field will be URL_FIELD
-     **/
-    if (
-      functionMatch === "navigateTo" &&
-      activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.URL
-    ) {
-      fields[2] = {
-        field: FieldType.URL_FIELD,
-      };
-    }
-    return fields;
-  }
-}
-
-function useModalDropdownList() {
-  const dispatch = useDispatch();
-  const nextModalName = useSelector(getNextModalName);
-
-  let finalList: TreeDropdownOption[] = [
-    {
-      label: "New Modal",
-      value: "Modal",
-      id: "create",
-      icon: "plus",
-      className: "t--create-modal-btn",
-      onSelect: (option: TreeDropdownOption, setter?: GenericFunction) => {
-        const modalName = nextModalName;
-        if (setter) {
-          setter({
-            value: `${modalName}`,
-          });
-          dispatch(createModalAction(modalName));
-        }
-      },
-    },
-  ];
-
-  finalList = finalList.concat(
-    (useSelector(getModalDropdownList) || []) as TreeDropdownOption[],
-  );
-
-  return finalList;
-}
-
-function getApiQueriesAndJsActionOptionsWithChildren(
-  pageId: string,
-  applicationId: string,
-  plugins: any,
-  actions: ActionDataState,
-  jsActions: Array<JSCollectionData>,
-  dispatch: any,
-) {
-  // this function gets a list of all the queries/apis and attaches it to actionList
-  getApiAndQueryOptions(
-    pageId,
-    applicationId,
-    plugins,
-    actions,
-    jsActions,
-    dispatch,
-  );
-
-  // this function gets a list of all the JS objects and attaches it to actionList
-  getJSOptions(pageId, applicationId, plugins, actions, jsActions, dispatch);
-
-  return actionList;
-}
-
-function getApiAndQueryOptions(
-  pageId: string,
-  applicationId: string,
-  plugins: any,
-  actions: ActionDataState,
-  jsActions: Array<JSCollectionData>,
-  dispatch: any,
-) {
-  const createQueryObject: TreeDropdownOption = {
-    label: "New Query",
-    value: "datasources",
-    id: "create",
-    icon: "plus",
-    className: "t--create-datasources-query-btn",
-    onSelect: () => {
-      dispatch(
-        setGlobalSearchCategory(
-          filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
-        ),
-      );
-    },
-  };
-
-  const queries = actions.filter(
-    (action) => action.config.pluginType === PluginType.DB,
-  );
-
-  const apis = actions.filter(
-    (action) =>
-      action.config.pluginType === PluginType.API ||
-      action.config.pluginType === PluginType.SAAS ||
-      action.config.pluginType === PluginType.REMOTE,
-  );
-
-  const queryOptions = actionList.find(
-    (action) => action.value === AppsmithFunction.integration,
-  );
-
-  const apiOptions = actionList.find(
-    (action) => action.value === AppsmithFunction.runAPI,
-  );
-
-  if (apiOptions) {
-    apiOptions.children = [{ ...createQueryObject, label: "New API" }];
-
-    apis.forEach((api) => {
-      (apiOptions.children as TreeDropdownOption[]).push({
-        label: api.config.name,
-        id: api.config.id,
-        value: api.config.name,
-        type: apiOptions.value,
-        icon: getActionConfig(api.config.pluginType)?.getIcon(
-          api.config,
-          plugins[(api as any).config.datasource.pluginId],
-          api.config.pluginType === PluginType.API,
-        ),
-      } as TreeDropdownOption);
-    });
-  }
-
-  if (queryOptions) {
-    queryOptions.children = [createQueryObject];
-
-    queries.forEach((query) => {
-      (queryOptions.children as TreeDropdownOption[]).push({
-        label: query.config.name,
-        id: query.config.id,
-        value: query.config.name,
-        type: queryOptions.value,
-        icon: getActionConfig(query.config.pluginType)?.getIcon(
-          query.config,
-          plugins[(query as any).config.datasource.pluginId],
-        ),
-      } as TreeDropdownOption);
-    });
-  }
-}
-
-function getJSOptions(
-  pageId: string,
-  applicationId: string,
-  plugins: any,
-  actions: ActionDataState,
-  jsActions: Array<JSCollectionData>,
-  dispatch: any,
-) {
-  const createJSObject: TreeDropdownOption = {
-    label: "New JS Object",
-    value: "JSObject",
-    id: "create",
-    icon: "plus",
-    className: "t--create-js-object-btn",
-    onSelect: () => {
-      dispatch(createNewJSCollection(pageId, "ACTION_SELECTOR"));
-    },
-  };
-
-  const jsOption = actionList.find(
-    (action) => action.value === AppsmithFunction.jsFunction,
-  );
-
-  if (jsOption) {
-    jsOption.children = [createJSObject];
-
-    jsActions.forEach((jsAction) => {
-      if (jsAction.config.actions && jsAction.config.actions.length > 0) {
-        const jsObject = ({
-          label: jsAction.config.name,
-          id: jsAction.config.id,
-          value: jsAction.config.name,
-          type: jsOption.value,
-          icon: JsFileIconV2,
-        } as unknown) as TreeDropdownOption;
-
-        ((jsOption.children as unknown) as TreeDropdownOption[]).push(jsObject);
-
-        if (jsObject) {
-          //don't remove this will be used soon
-          // const createJSFunction: TreeDropdownOption = {
-          //   label: "Create New JS Function",
-          //   value: "JSFunction",
-          //   id: "create",
-          //   icon: "plus",
-          //   className: "t--create-js-function-btn",
-          //   onSelect: () => {
-          //     history.push(
-          //       JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
-          //     );
-          //   },
-          // };
-          jsObject.children = [];
-
-          jsAction.config.actions.forEach((js: JSAction) => {
-            const jsArguments = js.actionConfiguration.jsArguments;
-            const argValue: Array<any> = [];
-
-            if (jsArguments && jsArguments.length) {
-              jsArguments.forEach((arg: Variable) => {
-                argValue.push(arg.value);
-              });
-            }
-
-            const jsFunction = {
-              label: js.name,
-              id: js.id,
-              value: jsAction.config.name + "." + js.name,
-              type: jsOption.value,
-              icon: jsFunctionIcon,
-              args: argValue,
-            };
-
-            (jsObject.children as TreeDropdownOption[]).push(
-              (jsFunction as unknown) as TreeDropdownOption,
-            );
-          });
-        }
-      }
-    });
-  }
-}
-
-function useApisQueriesAndJsActionOptions() {
-  const pageId = useSelector(getCurrentPageId) || "";
-  const applicationId = useSelector(getCurrentApplicationId) as string;
-  const dispatch = useDispatch();
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-  const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const actions = useSelector(getActionsForCurrentPage);
-  const jsActions = useSelector(getJSCollectionsForCurrentPage);
-
-  // this function gets all the Queries/API's/JS objects and attaches it to actionList
-  return getApiQueriesAndJsActionOptionsWithChildren(
-    pageId,
-    applicationId,
-    pluginGroups,
-    actions,
-    jsActions,
-    dispatch,
-  );
+  return currentBlocks;
 }
 
 const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
-    const NAVIGATE_TO_TAB_SWITCHER: Array<SwitchType> = [
-      {
-        id: "page-name",
-        text: "Page Name",
-        action: () => {
-          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[0]);
-        },
-      },
-      {
-        id: "url",
-        text: "URL",
-        action: () => {
-          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[1]);
-        },
-      },
-    ];
+    const [selectedBlock, setSelectedBlock] = useState<null | number>(null);
+    // const [blocks, setBlocks] = useState<string[]>(getBlocks(props.value));
 
-    const apiAndQueryCallbackTabSwitches: SwitchType[] = [
-      {
-        id: "onSuccess",
-        text: "onSuccess",
-        action: () =>
-          setActiveTabApiAndQueryCallback(apiAndQueryCallbackTabSwitches[0]),
-      },
-      {
-        id: "onFailure",
-        text: "onFailure",
-        action: () =>
-          setActiveTabApiAndQueryCallback(apiAndQueryCallbackTabSwitches[1]),
-      },
-    ];
+    // useEffect(() => {
+    //   setBlocks(
+    //     getBlocks(props.value).map((value) => `{{${value.slice(0, -1)}}}`),
+    //   );
+    // }, [props.value]);
 
-    const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
-      NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
-    );
-    const [
-      activeTabApiAndQueryCallback,
-      setActiveTabApiAndQueryCallback,
-    ] = useState<SwitchType>(apiAndQueryCallbackTabSwitches[0]);
-    const dataTree = useSelector(getDataTreeForActionCreator);
-    const integrationOptions = useApisQueriesAndJsActionOptions();
-    const widgetOptionTree: TreeDropdownOption[] = useSelector(
-      getWidgetOptionsTree,
-    );
-    const modalDropdownList = useModalDropdownList();
-    const pageDropdownOptions = useSelector(getPageListAsOptions);
-    const fields = getFieldFromValue(
+    console.log(
+      "** Action Blocks **",
       props.value,
-      activeTabApiAndQueryCallback,
-      activeTabNavigateTo,
-      undefined,
-      dataTree as DataTreeForActionCreator,
+      getActionBlocks(
+        getDynamicBindings(props.value).jsSnippets[0],
+        window.evaluationVersion,
+      ),
     );
 
-    console.log({ value: props.value });
+    const actions: string[] = useMemo(() => {
+      const blocks = getActionBlocks(
+        getDynamicBindings(props.value).jsSnippets[0],
+        window.evaluationVersion,
+      );
 
-    console.log({ fields });
+      if (blocks.length === 0) return [""];
 
-    return (
-      <Popover2
-        className="w-full"
-        content={
-          <div className="flex flex-col p-3 w-full">
-            <div className="flex mb-2 w-full justify-between">
-              <div className="text-sm font-medium text-gray">
-                Configure {props.action}
-              </div>
-              <Icon
-                className="t--close-action-creator"
-                name="cross"
-                size="extraExtraSmall"
-                // onClick={props.onClose}
-              />
-            </div>
+      return blocks;
+    }, [props.value]);
 
-            <SelectorDropdown
-              onSelect={(
-                option: TreeDropdownOption,
-                defaultVal: any,
-                isUpdatedViaKeyboard: boolean,
-              ) => {
-                const fieldConfig =
-                  FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
-                const finalValueToSet = fieldConfig.setter(option.value, "");
-                props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
-              }}
-              options={integrationOptions}
-              selectedField={fields[0]}
-            />
-            <FieldGroup
-              activeNavigateToTab={activeTabNavigateTo}
-              activeTabApiAndQueryCallback={activeTabApiAndQueryCallback}
-              additionalAutoComplete={props.additionalAutoComplete}
-              apiAndQueryCallbackTabSwitches={apiAndQueryCallbackTabSwitches}
-              depth={1}
-              fields={fields}
-              integrationOptions={integrationOptions}
-              maxDepth={1}
-              modalDropdownList={modalDropdownList}
-              navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
-              onValueChange={props.onValueChange}
-              pageDropdownOptions={pageDropdownOptions}
-              value={props.value}
-              widgetOptionTree={widgetOptionTree}
-            />
-          </div>
-        }
-        isOpen
-        minimal
-        popoverClassName="!translate-x-[-18px] translate-y-[35%] w-[280px]"
-        position="left"
-      >
-        {/* <TooltipComponent boundary="viewport" content="Action"> */}
-        {/* {" "} */}
-        <div className="mt-1">
-          <ActionBlock label="API" />
-        </div>
-        {/* </TooltipComponent> */}
-      </Popover2>
+    const handleActionChange = useCallback(
+      (index: number) => (value: string, isUpdatedViaKeyboard: boolean) => {
+        props.onValueChange(
+          `{{
+          ${actions.slice(0, index).join("") +
+            getDynamicBindings(value).jsSnippets[0] +
+            actions.slice(index + 1).join("")}}}`,
+          isUpdatedViaKeyboard,
+        );
+      },
+      [],
     );
 
     return (
-      // <TreeStructure ref={ref}>
-      <FieldGroup
-        activeNavigateToTab={activeTabNavigateTo}
-        additionalAutoComplete={props.additionalAutoComplete}
-        depth={1}
-        fields={fields}
-        integrationOptions={integrationOptions}
-        maxDepth={1}
-        modalDropdownList={modalDropdownList}
-        navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
-        onValueChange={props.onValueChange}
-        pageDropdownOptions={props.pageDropdownOptions}
-        value={props.value}
-        widgetOptionTree={widgetOptionTree}
-      />
-      // </TreeStructure>
+      <div className="flex flex-col gap-[2px]">
+        {actions.map((value, index) => (
+          <Action
+            action={props.action}
+            additionalAutoComplete={props.additionalAutoComplete}
+            handleClose={() => setSelectedBlock(null)}
+            isOpen={selectedBlock === index}
+            key={index}
+            onClick={() => setSelectedBlock(index)}
+            onValueChange={handleActionChange(index)}
+            value={value}
+          />
+        ))}
+      </div>
     );
   },
 );

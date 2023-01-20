@@ -7,7 +7,7 @@ import {
   ControlPropertyLabelContainer,
   ControlWrapper,
 } from "components/propertyControls/StyledControls";
-import { JSToggleButton } from "design-system";
+import { Button, Icon, JSToggleButton } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,6 +27,7 @@ import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   DynamicPath,
+  getDynamicBindings,
   getEvalValuePath,
   isDynamicValue,
   THEME_BINDING_REGEX,
@@ -614,6 +615,8 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
+    console.log("Prop***", props);
+
     try {
       return (
         <ControlWrapper
@@ -675,6 +678,24 @@ const PropertyControl = memo((props: Props) => {
                 </button>
               </>
             )}
+            {config.controlType === "ACTION_SELECTOR" ? (
+              <button
+                className="ml-auto hover:bg-black"
+                onClick={() => {
+                  onPropertyChange(
+                    propertyName,
+                    `{{${getDynamicBindings(propertyValue).jsSnippets[0] +
+                      ";"}}}`,
+                  );
+                }}
+              >
+                <Icon
+                  hoverFillColor="white"
+                  name="plus"
+                  size="extraExtraExtraExtraLarge"
+                />
+              </button>
+            ) : null}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(
             config,

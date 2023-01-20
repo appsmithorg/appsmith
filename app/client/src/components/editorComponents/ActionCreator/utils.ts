@@ -10,8 +10,15 @@ import {
   setEnumArgumentAtPosition,
   setCallbackFunctionField,
   getFuncExpressionAtPosition,
+  getActionBlocks,
+  getFunctionBodyStatements,
+  replaceActionInQuery,
+  getMainAction,
 } from "@shared/ast";
-import { Toaster, Variant } from "design-system";
+import { Toaster, TreeDropdownOption, Variant } from "design-system";
+import { ActionTree, DataTreeForActionCreator } from "./types";
+import { AppsmithFunction } from "./constants";
+import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -191,11 +198,11 @@ export const callBackFieldSetter = (
   }
 };
 
-export const callBackFieldGetter = (value: string) => {
+export const callBackFieldGetter = (value: string, argNumber = 0) => {
   const requiredValue = stringToJS(value);
   const funcExpr = getFuncExpressionAtPosition(
     requiredValue,
-    0,
+    argNumber,
     self.evaluationVersion,
   );
   return `{{${funcExpr}}}`;
@@ -217,3 +224,158 @@ export const isValueValidURL = (value: string) => {
     return isValidURL(str);
   }
 };
+
+export function flattenOptions(
+  options: TreeDropdownOption[],
+  results: TreeDropdownOption[] = [],
+): TreeDropdownOption[] {
+  options.forEach((option) => {
+    results.push(option);
+    if (option.children) {
+      flattenOptions(option.children, results);
+    }
+  });
+  return results;
+}
+
+export function getSelectedFieldFromValue(
+  value: string,
+  fieldOptions: TreeDropdownOption[],
+): TreeDropdownOption {
+  const allOptions = flattenOptions(fieldOptions);
+
+  const includedFields = allOptions.filter((option) => {
+    return value.includes(option.value);
+  });
+
+  const matches = includedFields.map((option) => ({
+    option,
+    index: value.indexOf(option.value),
+  }));
+
+  const sortedMatches = matches.sort((a, b) => a.index - b.index);
+
+  const selectedField = sortedMatches[0]?.option;
+
+  const noActionFieldConfig = FIELD_GROUP_CONFIG[AppsmithFunction.none];
+  const noActionOption: TreeDropdownOption = {
+    label: noActionFieldConfig.label,
+    value: noActionFieldConfig.value || "",
+    children: noActionFieldConfig.children,
+  };
+
+  return selectedField || noActionOption;
+}
+
+export function codeToAction(
+  code: string,
+  fieldOptions: TreeDropdownOption[],
+  multipleActions = true,
+): ActionTree {
+  const jsCode = stringToJS(code);
+
+  const selectedOption = getSelectedFieldFromValue(jsCode, fieldOptions);
+
+  const mainActionType = (selectedOption.type || selectedOption.value) as any;
+
+  if (
+    [AppsmithFunction.runAPI, AppsmithFunction.integration].includes(
+      mainActionType,
+    ) &&
+    multipleActions
+  ) {
+    const successCallbacks = getFuncExpressionAtPosition(
+      jsCode,
+      0,
+      self.evaluationVersion,
+    );
+    const successCallbackBlocks = getFunctionBodyStatements(
+      successCallbacks,
+      self.evaluationVersion,
+    ).map((block) => block);
+
+    const errorCallbacks = getFuncExpressionAtPosition(
+      jsCode,
+      1,
+      self.evaluationVersion,
+    );
+    const errorCallbackBlocks = getFunctionBodyStatements(
+      errorCallbacks,
+      self.evaluationVersion,
+    ).map((block) => block);
+
+    return {
+      // code: getMainAction(jsCode, self.evaluationVersion),
+      code: jsCode,
+      actionType: mainActionType,
+      successCallbacks: successCallbackBlocks.map((block) =>
+        codeToAction(block, fieldOptions, false),
+      ),
+      errorCallbacks: errorCallbackBlocks.map((block) =>
+        codeToAction(block, fieldOptions, false),
+      ),
+    };
+  }
+
+  return {
+    code: jsCode,
+    actionType: mainActionType,
+    successCallbacks: [],
+    errorCallbacks: [],
+  };
+}
+
+export function actionToCode(
+  action: ActionTree,
+  multipleActions = true,
+): string {
+  const { actionType, code, errorCallbacks, successCallbacks } = action;
+
+  const actionFieldConfig = FIELD_GROUP_CONFIG[actionType];
+
+  if (!actionFieldConfig) {
+    return code;
+  }
+
+  if (
+    [AppsmithFunction.runAPI, AppsmithFunction.integration].includes(
+      actionType as any,
+    ) &&
+    multipleActions
+  ) {
+    const successCallbackCodes = successCallbacks
+      .filter(({ actionType }) => actionType !== AppsmithFunction.none)
+      .map((callback) => actionToCode(callback, false));
+    if (successCallbackCodes.length > 0) {
+      // Append empty string at end to ensure that the last callback ends with a semicolon
+      // successCallbackCodes.push("");
+    }
+    const successCallbackCode = successCallbackCodes.join(";");
+
+    const errorCallbackCodes = errorCallbacks
+      .filter(({ actionType }) => actionType !== AppsmithFunction.none)
+      .map((callback) => actionToCode(callback, false));
+    if (errorCallbackCodes.length > 0) {
+      // Append empty string at end to ensure that the last callback ends with a semicolon
+      // errorCallbackCodes.push("");
+    }
+    const errorCallbackCode = errorCallbackCodes.join(";");
+
+    const withSuccessCallback = replaceActionInQuery(
+      code,
+      `() => { ${successCallbackCode} }`,
+      0,
+      self.evaluationVersion,
+    );
+    const withSuccessAndErrorCallback = replaceActionInQuery(
+      withSuccessCallback,
+      `() => { ${errorCallbackCode} }`,
+      1,
+      self.evaluationVersion,
+    );
+
+    return withSuccessAndErrorCallback;
+  }
+
+  return code;
+}

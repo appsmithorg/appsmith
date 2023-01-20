@@ -10,7 +10,11 @@ export function TabView(props: TabViewProps) {
   return (
     <FieldWrapper>
       <ControlWrapper>
-        {props.label && <label data-testid="tabs-label">{props.label}</label>}
+        {props.label && (
+          <label className="!text-gray-600 !text-xs" data-testid="tabs-label">
+            {props.label}
+          </label>
+        )}
         <Switcher activeObj={props.activeObj} switches={props.switches} />
       </ControlWrapper>
     </FieldWrapper>

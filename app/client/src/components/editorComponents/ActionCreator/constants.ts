@@ -1,30 +1,34 @@
-export const APPSMITH_GLOBAL_FUNCTIONS = {
-  navigateTo: "navigateTo",
-  showAlert: "showAlert",
-  showModal: "showModal",
-  closeModal: "closeModal",
-  storeValue: "storeValue",
-  removeValue: "removeValue",
-  clearStore: "clearStore",
-  download: "download",
-  copyToClipboard: "copyToClipboard",
-  resetWidget: "resetWidget",
-  setInterval: "setInterval",
-  clearInterval: "clearInterval",
-  postWindowMessage: "postWindowMessage",
-};
+export enum APPSMITH_GLOBAL_FUNCTIONS {
+  navigateTo = "navigateTo",
+  showAlert = "showAlert",
+  showModal = "showModal",
+  closeModal = "closeModal",
+  storeValue = "storeValue",
+  removeValue = "removeValue",
+  clearStore = "clearStore",
+  download = "download",
+  copyToClipboard = "copyToClipboard",
+  resetWidget = "resetWidget",
+  setInterval = "setInterval",
+  clearInterval = "clearInterval",
+  postWindowMessage = "postWindowMessage",
+}
 
-export const APPSMITH_NAMESPACED_FUNCTIONS = {
-  getGeolocation: "appsmith.geolocation.getCurrentPosition",
-  watchGeolocation: "appsmith.geolocation.watchPosition",
-  stopWatchGeolocation: "appsmith.geolocation.clearWatch",
-};
+export enum APPSMITH_NAMESPACED_FUNCTIONS {
+  getGeolocation = "appsmith.geolocation.getCurrentPosition",
+  watchGeolocation = "appsmith.geolocation.watchPosition",
+  stopWatchGeolocation = "appsmith.geolocation.clearWatch",
+}
+
+export enum APPSMITH_INTEGRATIONS {
+  none = "none",
+  integration = "integration",
+  runAPI = "runAPI",
+  jsFunction = "jsFunction",
+}
 
 export const AppsmithFunction = {
-  none: "none",
-  integration: "integration",
-  runAPI: "runAPI",
-  jsFunction: "jsFunction",
+  ...APPSMITH_INTEGRATIONS,
   ...APPSMITH_GLOBAL_FUNCTIONS,
   ...APPSMITH_NAMESPACED_FUNCTIONS,
 };
@@ -110,4 +114,6 @@ export enum FieldType {
   SOURCE_FIELD = "SOURCE_FIELD",
   PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD = "PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD",
   API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD = "API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD",
+  CALLBACK_FUNCTION_API_AND_QUERY = "CALLBACK_FUNCTION_API_AND_QUERY",
+  ADD_ACTION = "ADD_ACTION",
 }

@@ -5274,6 +5274,11 @@ clsx@^1.0.4, clsx@^1.1.0:
   version "1.1.1"
   resolved "https://registry.npmjs.org/clsx/-/clsx-1.1.1.tgz"
 
+clsx@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.2.1.tgz#0ddc4a20a549b59c93a4116bb26f5294ca17dc12"
+  integrity sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==
+
 co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.npmjs.org/co/-/co-4.6.0.tgz"
@@ -6202,10 +6207,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.44":
-  version "1.0.44"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.44.tgz#22c061dada942ff947933bc92e96fff55fc006ba"
-  integrity sha512-HjqKtvIAdW2TkaG7iRc5HB4ieG+V1zTp9b2N98DCsNXjMzBUCvCH2afBzlDYYoL3r5GHAeMvZlTDFVME41I2yQ==
+"design-system@npm:@appsmithorg/design-system@1.0.43-alpha.1":
+  version "1.0.43-alpha.1"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.43-alpha.1.tgz#aae3ac0d154710a6faed10c87715b099748defab"
+  integrity sha512-xe5bVzJ7uNNqSaqy76SoFe2qeqwoHOkwHm7S4ecicxchmTD+QxvcQrmoy+gVRDWdyPa3gfzrhws068qf9ghvcw==
   dependencies:
     emoji-mart "3.0.1"
 

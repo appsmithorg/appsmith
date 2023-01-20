@@ -2,23 +2,10 @@ import React, { useState, useMemo, useEffect } from "react";
 import { TreeDropdown, TreeDropdownOption, TextInput } from "design-system";
 import { debounce } from "lodash";
 import { ActionBlock } from "../ActionBlock";
-import { SelectorField } from "../../types";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
-import { AppsmithFunction } from "../../constants";
-import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
-
-function flattenOptions(
-  options: TreeDropdownOption[],
-  results: TreeDropdownOption[] = [],
-): TreeDropdownOption[] {
-  options.forEach((option) => {
-    results.push(option);
-    if (option.children) {
-      flattenOptions(option.children, results);
-    }
-  });
-  return results;
-}
+import { AppsmithFunction, FieldType } from "../../constants";
+import { flattenOptions } from "../../utils";
+import { getActionInfo, getIconForAction } from "../ActionBlockTree/utils";
 
 function filterChildren(
   options: TreeDropdownOption[],
@@ -28,7 +15,9 @@ function filterChildren(
     if (option.children) {
       return filterChildren(option.children, searchText).length > 0;
     }
-    return option.label.toLowerCase().includes(searchText.toLowerCase());
+    return [option.label, option.value].some((val) =>
+      val.toLowerCase().includes(searchText.toLowerCase()),
+    );
   });
 }
 
@@ -39,8 +28,9 @@ function sortOnChildrenLength(options: TreeDropdownOption[]) {
 }
 
 type Props = {
+  value: string;
+  selectedOption: TreeDropdownOption;
   options: TreeDropdownOption[];
-  selectedField: SelectorField | undefined;
   onSelect: (
     option: TreeDropdownOption,
     defaultVal: any,
@@ -51,7 +41,8 @@ type Props = {
 export const SelectorDropdown: React.FC<Props> = ({
   onSelect,
   options,
-  selectedField,
+  selectedOption,
+  value,
 }) => {
   const [isOpen, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -61,16 +52,11 @@ export const SelectorDropdown: React.FC<Props> = ({
     [],
   );
 
-  console.log({ options });
+  const fieldConfig = FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
 
-  const fieldConfig = selectedField ? FIELD_CONFIG[selectedField.field] : null;
-  const actionType = fieldConfig
-    ? fieldConfig.actionType
-    : AppsmithFunction.none;
-  const fieldTypeLabel = FIELD_GROUP_CONFIG[actionType].label;
+  const actionType = (selectedOption.type || selectedOption.value) as any;
 
-  console.log("selectedField", selectedField);
-  console.log("fieldConfig", fieldConfig);
+  const { action, actionTypeLabel, Icon } = getActionInfo(value, actionType);
 
   useEffect(() => {
     debouncedSetSearchText(searchText);
@@ -96,7 +82,7 @@ export const SelectorDropdown: React.FC<Props> = ({
       onSelect={onSelect}
       optionTree={filteredOptions}
       position="left"
-      selectedValue="PRIMARY"
+      selectedValue={fieldConfig.getter(value)}
       toggle={
         isOpen ? (
           <TextInput
@@ -106,7 +92,12 @@ export const SelectorDropdown: React.FC<Props> = ({
             value={searchText}
           />
         ) : (
-          <ActionBlock label={fieldTypeLabel} />
+          <ActionBlock
+            action={action}
+            actionTypeLabel={actionTypeLabel}
+            icon={Icon}
+            onClick={() => null}
+          />
         )
       }
     />

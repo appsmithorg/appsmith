@@ -12,7 +12,7 @@ import {
     BinaryExpressionNode,
 } from "../index";
 import {sanitizeScript} from "../utils";
-import {simple} from "acorn-walk";
+import {ancestor, simple} from "acorn-walk";
 import {Node, Comment} from "acorn";
 import {NodeTypes} from "../constants";
 import {generate} from "astring";
@@ -450,4 +450,133 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
     });
 
     return requiredQuery;
+}
+
+/**
+ * This function gets the action blocks which are basically the individual expression statements in the code
+ */
+export function getActionBlocks(
+    value: string,
+    evaluationVersion: number,
+): Array<string> {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    let actionBlocks: Array<string> = [];
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+    } catch (error) {
+        return actionBlocks;
+    }
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    astWithComments.body.forEach((node: Node) => {
+        actionBlocks.push(generate(node, {comments: true}).trim());
+    })
+
+    return actionBlocks;
+}
+
+export function getFunctionBodyStatements(
+    value: string,
+    evaluationVersion: number,
+): Array<string> {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+
+        const astWithComments = attachCommentsToAst(ast, commentArray);
+
+        const mainBody = astWithComments.body[0];
+    
+        let statementsBody = [];
+    
+        switch(mainBody.type) {
+            case NodeTypes.ExpressionStatement:
+                statementsBody = mainBody.expression.body.body;
+                break;
+            case NodeTypes.FunctionDeclaration:
+                statementsBody = mainBody.body.body;
+                break;
+        }
+    
+        return statementsBody.map((node: Node) => generate(node, {comments: true}).trim());
+    } catch (error) {
+        return [];
+    }
+}  
+
+export function getMainAction(value: string, evaluationVersion: number): string {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    let mainAction: string = "";
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+    } catch (error) {
+        return mainAction;
+    }
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    simple(astWithComments, {
+        ExpressionStatement(node) {
+            simple(node, {
+                CallExpression(node) {
+                    // @ts-ignore
+                    if (node.callee.type === NodeTypes.Identifier) {
+                        mainAction = generate(node, {comments: true}).trim();
+                    } else {
+                        // @ts-ignore
+                        mainAction = generate(node.callee, {comments: true}).trim() + "()";
+                    }
+                }
+            })
+        }
+    });
+
+    return mainAction;
+}
+
+export function getFunctionName(value: string, evaluationVersion: number): string {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let commentArray: Array<Comment> = [];
+    let functionName: string = "";
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        ast = getAST(sanitizedScript, {
+            locations: true,
+            ranges: true,
+            onComment: commentArray,
+        });
+    } catch (error) {
+        return functionName;
+    }
+    const astWithComments = attachCommentsToAst(ast, commentArray);
+
+    simple(astWithComments, {
+        ExpressionStatement(node) {
+            simple(node, {
+                CallExpression(node) {
+                    // @ts-ignore
+                    functionName = generate(node.callee, {comments: true}).trim();
+                }
+            })
+        }
+    });
+
+    return functionName;
 }

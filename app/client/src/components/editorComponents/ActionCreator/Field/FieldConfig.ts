@@ -23,6 +23,12 @@ import { getPageList } from "selectors/entitiesSelector";
 import { ACTION_TRIGGER_REGEX } from "../regex";
 import { TreeDropdownOption } from "design-system";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
+import {
+  getActionBlocks,
+  getFuncExpressionAtPosition,
+  getFunctionName,
+} from "@shared/ast";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {
@@ -31,21 +37,11 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     defaultText: "Select Action",
     exampleText: "",
     getter: (storedValue: string) => {
-      let matches: any[] = [];
-      if (storedValue) {
-        matches = storedValue
-          ? [...storedValue.matchAll(ACTION_TRIGGER_REGEX)]
-          : [];
+      if (storedValue === "{{}}") {
+        return AppsmithFunction.none;
       }
-      let mainFuncSelectedValue = AppsmithFunction.none;
-      if (matches.length) {
-        mainFuncSelectedValue = matches[0][1] || AppsmithFunction.none;
-      }
-      const mainFuncSelectedValueSplit = mainFuncSelectedValue.split(".");
-      if (mainFuncSelectedValueSplit[1] === "run") {
-        return mainFuncSelectedValueSplit[0];
-      }
-      return mainFuncSelectedValue;
+
+      return getFunctionName(storedValue, self.evaluationVersion);
     },
     setter: (option) => {
       const dropdownOption = option as TreeDropdownOption;
@@ -75,7 +71,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         : `{{${value}()}}`;
     },
     view: ViewTypes.SELECTOR_VIEW,
-    actionType: AppsmithFunction.none,
   },
   [FieldType.ALERT_TEXT_FIELD]: {
     label: () => "Message",
@@ -89,7 +84,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.showAlert,
   },
   [FieldType.URL_FIELD]: {
     label: () => "Enter URL",
@@ -106,7 +100,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.navigateTo,
   },
   [FieldType.QUERY_PARAMS_FIELD]: {
     label: () => "Query Params",
@@ -123,7 +116,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.navigateTo,
   },
   [FieldType.KEY_TEXT_FIELD_REMOVE_VALUE]: {
     label: () => "Key",
@@ -137,7 +129,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(option, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.removeValue,
   },
   [FieldType.KEY_TEXT_FIELD_STORE_VALUE]: {
     label: () => "Key",
@@ -151,7 +142,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(option, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.storeValue,
   },
   [FieldType.VALUE_TEXT_FIELD]: {
     label: () => "Value",
@@ -165,7 +155,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(option, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.storeValue,
   },
   [FieldType.DOWNLOAD_DATA_FIELD]: {
     label: () => "Data to download",
@@ -179,7 +168,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(option, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.download,
   },
   [FieldType.DOWNLOAD_FILE_NAME_FIELD]: {
     label: () => "File name with extension",
@@ -193,7 +181,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(option, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.download,
   },
   [FieldType.COPY_TEXT_FIELD]: {
     label: () => "Text to be copied to clipboard",
@@ -207,7 +194,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(option, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.copyToClipboard,
   },
   [FieldType.CALLBACK_FUNCTION_FIELD_SET_INTERVAL]: {
     label: () => "Callback function",
@@ -223,7 +209,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return callBackFieldSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.setInterval,
   },
   [FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION]: {
     label: () => "Callback function",
@@ -237,7 +222,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return callBackFieldSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.getGeolocation,
   },
   [FieldType.DELAY_FIELD]: {
     label: () => "Delay (ms)",
@@ -253,7 +237,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.setInterval,
   },
   [FieldType.ID_FIELD]: {
     label: () => "Id",
@@ -269,7 +252,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, 2);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.setInterval,
   },
   [FieldType.CLEAR_INTERVAL_ID_FIELD]: {
     label: () => "Id",
@@ -283,7 +265,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.clearInterval,
   },
   [FieldType.SHOW_MODAL_FIELD]: {
     label: () => "Modal Name",
@@ -297,7 +278,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return modalSetter(option.value, currentValue);
     },
     view: ViewTypes.SELECTOR_VIEW,
-    actionType: AppsmithFunction.showModal,
   },
   [FieldType.CLOSE_MODAL_FIELD]: {
     label: () => "Modal Name",
@@ -311,7 +291,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return modalSetter(option.value, currentValue);
     },
     view: ViewTypes.SELECTOR_VIEW,
-    actionType: AppsmithFunction.closeModal,
   },
   [FieldType.RESET_CHILDREN_FIELD]: {
     label: () => "Reset Children",
@@ -325,7 +304,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeSetter(option.value, currentValue, 1);
     },
     view: ViewTypes.SELECTOR_VIEW,
-    actionType: AppsmithFunction.resetWidget,
   },
   [FieldType.WIDGET_NAME_FIELD]: {
     label: () => "Widget",
@@ -339,7 +317,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeSetter(option.value, currentValue, 0);
     },
     view: ViewTypes.SELECTOR_VIEW,
-    actionType: AppsmithFunction.resetWidget,
   },
   [FieldType.PAGE_SELECTOR_FIELD]: {
     label: () => "Choose Page",
@@ -353,7 +330,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeSetter(option.value, currentValue, 0);
     },
     view: ViewTypes.SELECTOR_VIEW,
-    actionType: AppsmithFunction.navigateTo,
   },
   [FieldType.ALERT_TYPE_SELECTOR_FIELD]: {
     label: () => "Type",
@@ -367,7 +343,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeSetter(option.value, currentValue, 1);
     },
     view: ViewTypes.SELECTOR_VIEW,
-    actionType: AppsmithFunction.showAlert,
   },
   [FieldType.DOWNLOAD_FILE_TYPE_FIELD]: {
     label: () => "Type",
@@ -381,7 +356,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeSetter(option.value, currentValue, 2);
     },
     view: ViewTypes.SELECTOR_VIEW,
-    actionType: AppsmithFunction.download,
   },
   [FieldType.NAVIGATION_TARGET_FIELD]: {
     label: () => "Target",
@@ -395,7 +369,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeSetter(option.value, currentValue, 2);
     },
     view: ViewTypes.SELECTOR_VIEW,
-    actionType: AppsmithFunction.navigateTo,
   },
   [FieldType.ON_SUCCESS_FIELD]: {
     label: () => "",
@@ -405,7 +378,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.NO_VIEW,
     getter: () => "",
     setter: () => "",
-    actionType: AppsmithFunction.runAPI,
   },
   [FieldType.ON_ERROR_FIELD]: {
     label: () => "",
@@ -415,7 +387,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     view: ViewTypes.NO_VIEW,
     getter: () => "",
     setter: () => "",
-    actionType: AppsmithFunction.runAPI,
   },
   [FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD]: {
     label: () => "Type",
@@ -429,7 +400,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeSetter(option.value, currentValue, 0);
     },
     view: ViewTypes.TAB_VIEW,
-    actionType: AppsmithFunction.navigateTo,
   },
   [FieldType.KEY_VALUE_FIELD]: {
     label: () => "",
@@ -443,7 +413,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return value;
     },
     view: ViewTypes.KEY_VALUE_VIEW,
-    actionType: AppsmithFunction.runAPI,
   },
   [FieldType.ARGUMENT_KEY_VALUE_FIELD]: {
     label: (props: FieldProps) => props.field.label || "",
@@ -460,7 +429,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, index as number);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.runAPI,
   },
   [FieldType.MESSAGE_FIELD]: {
     label: () => "Message",
@@ -475,7 +443,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.postWindowMessage,
   },
   [FieldType.TARGET_ORIGIN_FIELD]: {
     label: () => "Allowed origins",
@@ -490,7 +457,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, 2);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.postWindowMessage,
   },
   [FieldType.SOURCE_FIELD]: {
     label: () => "Target iframe",
@@ -505,7 +471,6 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
-    actionType: AppsmithFunction.postWindowMessage,
   },
   [FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD]: {
     label: () => "",
@@ -519,6 +484,24 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return enumTypeSetter(option.value, currentValue, 0);
     },
     view: ViewTypes.TAB_VIEW,
-    actionType: AppsmithFunction.runAPI,
+  },
+  [FieldType.CALLBACK_FUNCTION_API_AND_QUERY]: {
+    label: () => "Callback function",
+    defaultText: "",
+    exampleText: `() => { showAlert("Some message!") }`,
+    options: () => null,
+    getter: (value: string, argNumber: number) => {
+      return callBackFieldGetter(value, argNumber);
+    },
+    setter: (value, currentValue, argNumber = 0) => {
+      console.log("Ac**", {
+        value,
+        currentValue,
+        argNumber,
+        setValue: callBackFieldSetter(value, currentValue, argNumber),
+      });
+      return callBackFieldSetter(value, currentValue, argNumber);
+    },
+    view: ViewTypes.TEXT_VIEW,
   },
 };

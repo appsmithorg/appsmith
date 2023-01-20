@@ -12,7 +12,12 @@ export function SelectorView(props: SelectorViewProps) {
     <FieldWrapper>
       <ControlWrapper isAction key={props.label}>
         {props.label && (
-          <label data-testid="selector-view-label">{props.label}</label>
+          <label
+            className="!text-gray-600 !text-xs"
+            data-testid="selector-view-label"
+          >
+            {props.label}
+          </label>
         )}
         <TreeDropdown
           defaultText={props.defaultText}
