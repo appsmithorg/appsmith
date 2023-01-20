@@ -99,6 +99,7 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "executeAction",
   "getWidgetCache",
   "modifyMetaWidgets",
+  "deleteMetaWidgets",
   "resetChildrenMetaProperty",
   "setWidgetCache",
   "updateMetaWidgetProperty",
@@ -112,7 +113,6 @@ const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [...COMMON_API_METHODS];
 
 const CANVAS_MODE_API_METHODS: EditorContextTypeKey[] = [
   ...COMMON_API_METHODS,
-  "deleteMetaWidgets",
   "deleteWidgetProperty",
   "disableDrag",
   "updateWidget",
