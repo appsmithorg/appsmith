@@ -1,0 +1,33 @@
+// This JSON file configures the eslint plugin. It supports comments as well as per the JSON5 spec
+{
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "plugin:@typescript-eslint/recommended",
+      "prettier/@typescript-eslint",
+      // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
+      // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
+      "plugin:prettier/recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
+      "sourceType": "module" // Allows for the use of imports
+    
+    },
+    "rules": {
+      "@typescript-eslint/no-explicit-any": 0,
+      "@typescript-eslint/no-use-before-define": 0,
+      "@typescript-eslint/no-var-requires": 0,
+      "import/no-webpack-loader-syntax": 0,
+      "no-undef": 0,
+      "@typescript-eslint/explicit-module-boundary-types": 0,
+      "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}],
+      "no-console": "warn",
+      "no-debugger": "warn"
+    },
+
+    "env": {
+      "browser": true,
+      "node": true
+    }
+  }
+  
