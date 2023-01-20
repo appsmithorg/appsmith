@@ -6,10 +6,11 @@ import {
 import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
 import { createReducer } from "utils/ReducerUtils";
 
-export interface TenantReduxState {
+export interface TenantReduxState<T> {
   userPermissions: string[];
-  tenantConfiguration: Record<string, any>;
+  tenantConfiguration: Record<string, T>;
   new: boolean;
+  isLoading: boolean;
 }
 
 export const defaultBrandingConfig = {
@@ -20,7 +21,7 @@ export const defaultBrandingConfig = {
   brandLogoUrl: "https://assets.appsmith.com/appsmith-logo.svg",
 };
 
-export const initialState: TenantReduxState = {
+export const initialState: TenantReduxState<any> = {
   userPermissions: [],
   tenantConfiguration: {
     brandColors: {
@@ -28,12 +29,19 @@ export const initialState: TenantReduxState = {
     },
   },
   new: false,
+  isLoading: true,
 };
 
 export const handlers = {
+  [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG]: (
+    state: TenantReduxState<any>,
+  ) => ({
+    ...state,
+    isLoading: true,
+  }),
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
-    state: TenantReduxState,
-    action: ReduxAction<TenantReduxState>,
+    state: TenantReduxState<any>,
+    action: ReduxAction<TenantReduxState<any>>,
   ) => ({
     ...state,
     userPermissions: action.payload.userPermissions || [],
@@ -41,11 +49,13 @@ export const handlers = {
       ...defaultBrandingConfig,
       ...action.payload.tenantConfiguration,
     },
+    isLoading: false,
   }),
   [ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR]: (
-    state: TenantReduxState,
+    state: TenantReduxState<any>,
   ) => ({
     ...state,
+    isLoading: false,
   }),
 };
 

@@ -16,6 +16,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -29,6 +30,7 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -45,6 +47,7 @@ import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -92,6 +95,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -109,6 +113,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -170,6 +175,9 @@ public class ImportExportApplicationServiceV2Tests {
 
     @Autowired
     PermissionGroupService permissionGroupService;
+
+    @Autowired
+    CustomJSLibService customJSLibService;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -391,6 +399,45 @@ public class ImportExportApplicationServiceV2Tests {
                     assertThat(applicationJson.getPageList()).hasSize(1);
                     assertThat(applicationJson.getActionList()).isEmpty();
                     assertThat(applicationJson.getDatasourceList()).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createExportAppJsonWithCustomJSLibTest() {
+        CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
+        Mono<Boolean> addJSLibMonoCached =
+                customJSLibService.addJSLibToApplication(testAppId, jsLib, null, false)
+                        .flatMap(isJSLibAdded -> Mono.zip(Mono.just(isJSLibAdded),
+                                applicationPageService.publish(testAppId, true)))
+                        .map(tuple2 -> {
+                            Boolean isJSLibAdded = tuple2.getT1();
+                            Application application = tuple2.getT2();
+                            return isJSLibAdded;
+                        })
+                        .cache();
+        Mono<ApplicationJson> getExportedAppMono = addJSLibMonoCached
+                .then(importExportApplicationService.exportApplicationById(testAppId, ""));
+
+        StepVerifier.create(Mono.zip(addJSLibMonoCached, getExportedAppMono))
+                .assertNext(tuple2 -> {
+                    Boolean isJSLibAdded = tuple2.getT1();
+                    assertEquals(true, isJSLibAdded);
+
+                    ApplicationJson exportedAppJson = tuple2.getT2();
+                    assertEquals(1, exportedAppJson.getCustomJSLibList().size());
+                    CustomJSLib exportedJSLib = exportedAppJson.getCustomJSLibList().get(0);
+                    assertEquals(jsLib.getName(), exportedJSLib.getName());
+                    assertEquals(jsLib.getAccessor(), exportedJSLib.getAccessor());
+                    assertEquals(jsLib.getUrl(), exportedJSLib.getUrl());
+                    assertEquals(jsLib.getDocsUrl(), exportedJSLib.getDocsUrl());
+                    assertEquals(jsLib.getVersion(), exportedJSLib.getVersion());
+                    assertEquals(jsLib.getDefs(), exportedJSLib.getDefs());
+                    assertEquals(getDTOFromCustomJSLib(jsLib),
+                            exportedAppJson.getExportedApplication().getUnpublishedCustomJSLibs().toArray()[0]);
+                    assertEquals(1, exportedAppJson.getExportedApplication().getUnpublishedCustomJSLibs().size());
+                    assertEquals(0, exportedAppJson.getExportedApplication().getPublishedCustomJSLibs().size());
                 })
                 .verifyComplete();
     }
@@ -840,7 +887,9 @@ public class ImportExportApplicationServiceV2Tests {
                                     datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
                                     newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                     newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
-                                    actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                                    actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(),
+                                            false, MANAGE_ACTIONS, null).collectList(),
+                                    customJSLibService.getAllJSLibsInApplication(application.getId(), null, false)
                             );
                         }))
                 .assertNext(tuple -> {
@@ -851,6 +900,21 @@ public class ImportExportApplicationServiceV2Tests {
                     final List<NewAction> actionList = tuple.getT3();
                     final List<PageDTO> pageList = tuple.getT4();
                     final List<ActionCollection> actionCollectionList = tuple.getT5();
+                    final List<CustomJSLib> importedJSLibList = tuple.getT6();
+
+                    assertEquals(1, importedJSLibList.size());
+                    CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
+                    CustomJSLib expectedJSLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1" +
+                            ".0", "defs_string");
+                    assertEquals(expectedJSLib.getName(), importedJSLib.getName());
+                    assertEquals(expectedJSLib.getAccessor(), importedJSLib.getAccessor());
+                    assertEquals(expectedJSLib.getUrl(), importedJSLib.getUrl());
+                    assertEquals(expectedJSLib.getDocsUrl(), importedJSLib.getDocsUrl());
+                    assertEquals(expectedJSLib.getVersion(), importedJSLib.getVersion());
+                    assertEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
+                    assertEquals(1, application.getUnpublishedCustomJSLibs().size());
+                    assertEquals(getDTOFromCustomJSLib(expectedJSLib),
+                            application.getUnpublishedCustomJSLibs().toArray()[0]);
 
                     assertThat(application.getName()).isEqualTo("valid_application");
                     assertThat(application.getWorkspaceId()).isNotNull();
@@ -863,7 +927,7 @@ public class ImportExportApplicationServiceV2Tests {
                     assertThat(application.getPublishedModeThemeId()).isNotNull();
                     assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
                     assertThat(unConfiguredDatasourceList).isNotNull();
-
+                    
                     assertThat(datasourceList).isNotEmpty();
                     datasourceList.forEach(datasource -> {
                         assertThat(datasource.getWorkspaceId()).isEqualTo(application.getWorkspaceId());
@@ -2926,14 +2990,13 @@ public class ImportExportApplicationServiceV2Tests {
         assert appJson != null;
         final String randomId = UUID.randomUUID().toString();
         appJson.getDatasourceList().get(0).setPluginId(randomId);
-        final Mono<Application> resultMono = workspaceService
-                .create(newWorkspace)
-                .flatMap(workspace -> importExportApplicationService.importApplicationInWorkspace(workspace.getId(), appJson));
+        Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
+        final Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), appJson);
 
         StepVerifier
                 .create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.UNKNOWN_PLUGIN_REFERENCE.getMessage(randomId)))
+                        throwable.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
                 .verify();
     }
 

@@ -1,3 +1,5 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
 import { Popover2 } from "@blueprintjs/popover2";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import {
@@ -5,8 +7,6 @@ import {
   SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
 } from "components/editorComponents/GlobalSearch/utils";
-import styled from "constants/DefaultTheme";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentPageId,

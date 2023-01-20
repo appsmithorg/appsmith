@@ -1,7 +1,8 @@
 import { isEmpty, set } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
-import { MAIN_THREAD_ACTION } from "../evalWorkerActions";
-import { isPromise } from "./utils";
+import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { isPromise } from "workers/Evaluation/JSObject/utils";
+import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObject/postJSFunctionExecution";
 
 export interface JSExecutionData {
   data: unknown;
@@ -13,13 +14,13 @@ export type JSFunctionProxy = (
   fullName: string,
 ) => unknown;
 
-export const JSFunctionProxyHandler = (
+export const jsFunctionProxyHandler = (
   fullName: string,
-  funcExecutionStart: () => void,
+  funcExecutionStart: (fullName: string) => void,
   funcExecutionEnd: (data: JSExecutionData) => void,
 ) => ({
   apply: function(target: any, thisArg: unknown, argumentsList: any) {
-    funcExecutionStart();
+    funcExecutionStart(fullName);
     let returnValue;
     try {
       returnValue = Reflect.apply(target, thisArg, argumentsList);
@@ -77,8 +78,9 @@ export class JSProxy {
   }
 
   // When a function is called, increase number of pending functions;
-  private functionExecutionStart() {
+  private functionExecutionStart(fullName: string) {
     this.pendingExecutionCount += 1;
+    postJSFunctionExecutionLog(fullName);
     this.postData();
   }
 
@@ -108,12 +110,12 @@ export class JSProxy {
 
   // Wrapper around JS Functions
   public JSFunctionProxy(
-    JSFunction: (...args: unknown[]) => unknown,
+    jsFunction: (...args: unknown[]) => unknown,
     jsFunctionFullName: string,
   ) {
     return new Proxy(
-      JSFunction,
-      JSFunctionProxyHandler(
+      jsFunction,
+      jsFunctionProxyHandler(
         jsFunctionFullName,
         this.functionExecutionStart,
         this.functionExecutionEnd,

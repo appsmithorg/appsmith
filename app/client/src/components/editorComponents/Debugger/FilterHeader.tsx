@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { clearLogs } from "actions/debuggerActions";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Theme } from "constants/DefaultTheme";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -67,7 +68,7 @@ type FilterHeaderProps = {
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   return (
     <Wrapper>
       <TooltipComponent

@@ -504,6 +504,7 @@ export type GitStatusData = {
   remoteBranch: string;
   modifiedJSObjects: number;
   modifiedDatasources: number;
+  modifiedJSLibs: number;
   discardDocUrl?: string;
 };
 
