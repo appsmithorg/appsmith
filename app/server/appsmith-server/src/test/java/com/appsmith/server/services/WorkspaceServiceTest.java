@@ -1255,6 +1255,62 @@ public class WorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void addUserToWorkspaceIfUserAlreadyMember_throwsError() {
+        Workspace workspace = new Workspace();
+        workspace.setName("addUserToWorkspaceIfUserAlreadyMember_throwsError");
+        workspace.setDomain("example.com");
+        workspace.setWebsite("https://example.com");
+
+        Mono<Workspace> workspaceMono = workspaceService
+                .create(workspace)
+                .cache();
+
+        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
+                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
+
+        Mono<PermissionGroup> adminPermissionGroupMono = permissionGroupFlux
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .single();
+
+        Mono<PermissionGroup> developerPermissionGroupMono = permissionGroupFlux
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .single();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        ArrayList<String> users = new ArrayList<>();
+        users.add("usertest@usertest.com");
+        inviteUsersDTO.setUsernames(users);
+
+
+        Mono<List<User>> userAddedToWorkspaceTwiceMono = adminPermissionGroupMono
+                .flatMap(adminPermissionGroup -> {
+
+                    // Add user to workspace first as admin
+                    inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
+
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
+                })
+                .then(developerPermissionGroupMono)
+                .flatMap(developerPermissionGroup -> {
+
+                    // Now try to add the user to the workspace as developer
+                    inviteUsersDTO.setPermissionGroupId(developerPermissionGroup.getId());
+
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
+                });
+
+
+        StepVerifier
+                .create(userAddedToWorkspaceTwiceMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage()
+                        .equals(AppsmithError.USER_ALREADY_EXISTS_IN_WORKSPACE
+                                .getMessage("usertest@usertest.com", "Administrator - addUserToWorkspaceIfUserAlreadyMember_throwsError")))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void inviteRolesGivenAdministrator() {
         Set<AppsmithRole> roles = roleGraph.generateHierarchicalRoles("Administrator");
         AppsmithRole administratorRole = AppsmithRole.generateAppsmithRoleFromName("Administrator");

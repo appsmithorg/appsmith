@@ -67,11 +67,14 @@ import tenantReducer, {
 } from "@appsmith/reducers/tenantReducer";
 import { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
 import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
+import { LibraryState } from "reducers/uiReducers/libraryReducer";
 import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import lintErrorReducer from "reducers/lintingReducers";
 import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
+import { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
+import { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -85,6 +88,7 @@ export const reducerObject = {
 
 export interface AppState {
   ui: {
+    analytics: AnalyticsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     tableFilterPane: TableFilterPaneReduxState;
@@ -129,7 +133,9 @@ export interface AppState {
     appSettingsPane: AppSettingsPaneReduxState;
     focusHistory: FocusHistoryState;
     editorContext: EditorContextState;
+    libraries: LibraryState;
     autoHeightUI: AutoHeightUIState;
+    multiPaneConfig: MultiPaneReduxState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
@@ -159,5 +165,5 @@ export interface AppState {
     [key: string]: any;
   };
   settings: SettingsReduxState;
-  tenant: TenantReduxState;
+  tenant: TenantReduxState<any>;
 }

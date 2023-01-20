@@ -80,10 +80,7 @@ import {
   CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import {
-  ActionTriggerType,
-  RunPluginActionDescription,
-} from "entities/DataTree/actionTriggers";
+import { RunPluginActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
@@ -99,15 +96,18 @@ import { JSCollection } from "entities/JSCollection";
 import {
   executeAppAction,
   TriggerMeta,
-} from "sagas/ActionExecution/ActionExecutionSagas";
+} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
-import { matchBasePath } from "pages/Editor/Explorer/helpers";
-import { isTrueObject, findDatatype } from "workers/Evaluation/evaluationUtils";
+import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
+import {
+  isTrueObject,
+  findDatatype,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
@@ -332,7 +332,7 @@ export default function* executePluginActionTriggerSaga(
   const { actionId, onError, onSuccess, params } = pluginAction;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
-      ActionTriggerType.RUN_PLUGIN_ACTION,
+      "RUN_PLUGIN_ACTION",
       "params",
       Types.OBJECT,
       getType(params),
@@ -530,8 +530,8 @@ function* runActionSaga(
   if (isSaving || isDirty || isSavingEntity) {
     if (isDirty && !isSaving) {
       yield put(updateAction({ id: actionId }));
+      yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
-    yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   }
   const actionObject = shouldBeDefined<Action>(
     yield select(getAction, actionId),

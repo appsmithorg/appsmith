@@ -186,7 +186,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.rowHeight)
       .last()
       .click({ force: true });
-    cy.get(".t--button-tab-SHORT").click({ force: true });
+    cy.get(".t--button-group-SHORT").click({ force: true });
     cy.wait(2000);
     cy.PublishtheApp();
     cy.readTableV2dataValidateCSS("0", "1", "height", "29px", true);

@@ -8,7 +8,14 @@ import {
   ButtonVariant,
 } from "components/constants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
+import {
+  ConfigureMenuItems,
+  MenuItem,
+  MenuItems,
+  MenuItemsSource,
+} from "widgets/MenuButtonWidget/constants";
 import { ColumnTypes } from "../constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -155,6 +162,9 @@ export interface MenuButtonCellProperties {
   menuColor?: string;
   menuButtoniconName?: IconName;
   onItemClicked?: (onClick: string | undefined) => void;
+  menuItemsSource: MenuItemsSource;
+  configureMenuItems: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
 }
 
 export interface URLCellProperties {
@@ -171,6 +181,13 @@ export interface SelectCellProperties {
 
 export interface ImageCellProperties {
   imageSize?: ImageSize;
+}
+
+export interface DateCellProperties {
+  inputFormat: string;
+  outputFormat: string;
+  shortcuts: boolean;
+  timePrecision?: TimePrecision;
 }
 
 export interface BaseCellProperties {
@@ -197,25 +214,8 @@ export interface CellLayoutProperties
     MenuButtonCellProperties,
     SelectCellProperties,
     ImageCellProperties,
+    DateCellProperties,
     BaseCellProperties {}
-
-export type MenuItems = Record<
-  string,
-  {
-    widgetId: string;
-    id: string;
-    index: number;
-    isVisible?: boolean;
-    isDisabled?: boolean;
-    label?: string;
-    backgroundColor?: string;
-    textColor?: string;
-    iconName?: IconName;
-    iconColor?: string;
-    iconAlign?: Alignment;
-    onClick?: string;
-  }
->;
 
 export interface TableColumnMetaProps {
   isHidden: boolean;
@@ -273,6 +273,8 @@ export interface ColumnStyleProperties {
 export interface DateColumnProperties {
   outputFormat?: string;
   inputFormat?: string;
+  shortcuts?: boolean;
+  timePrecision?: TimePrecision;
 }
 
 export interface ColumnEditabilityProperties {
@@ -285,6 +287,8 @@ export interface ColumnEditabilityProperties {
     isEditableCellRequired?: boolean;
     min?: number;
     max?: number;
+    minDate?: string;
+    maxDate?: string;
   };
 }
 
@@ -339,6 +343,10 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
+  getVisibleItems?: () => Array<MenuItem>;
+  menuItemsSource?: MenuItemsSource;
+  configureMenuItems?: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
 }
 
 export const ConditionFunctions: {

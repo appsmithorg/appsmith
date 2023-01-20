@@ -246,10 +246,10 @@ describe("RichTextEditor Widget Functionality", function() {
 
     // Changing the input type to markdown and again testing the cursor position
     cy.openPropertyPane("richtexteditorwidget");
-    cy.get(".t--button-tab-markdown").click({ force: true });
+    cy.get(".t--button-group-markdown").click({ force: true });
     setRTEContent(testString);
     testCursorPoistion(testStringLen, tinyMceId);
-    cy.get(".t--button-tab-html").click({ force: true });
+    cy.get(".t--button-group-html").click({ force: true });
   });
 
   it("13. Check if different font size texts are supported inside the RTE widget", function() {
@@ -284,6 +284,35 @@ describe("RichTextEditor Widget Functionality", function() {
 
   it("16. Check if button for Text Color is rendered only once within the Toolbar of RTE widget", () => {
     cy.get('[aria-label="Text color"]').should("have.length", 1);
+  });
+
+  it("17. Check if able to add an emoji through toolbar", () => {
+    cy.get('[aria-label="More..."]').click({ force: true });
+    cy.wait(500);
+    cy.get('[aria-label="Emoticons"]').click({ force: true });
+    cy.wait(500);
+    cy.get('[aria-label="grinning"]').click({ force: true });
+    const getEditorContent = (win) => {
+      const tinyMceId = "rte-6h8j08u7ea";
+      const editor = win.tinymce.editors[tinyMceId];
+      return editor.getContent();
+    };
+
+    //contains emoji
+    cy.window().then((win) => {
+      expect(getEditorContent(win)).contains("😀");
+    });
+
+    //trigger a backspace
+    cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
+      const $body = $iframe.contents().find("body");
+      cy.get($body).type("{backspace}");
+    });
+
+    // after backspace the emoji should not be present
+    cy.window().then((win) => {
+      expect(getEditorContent(win)).not.contains("😀");
+    });
   });
 
   afterEach(() => {

@@ -93,7 +93,9 @@ const StyledForm = styled.form<StyledFormProps>`
   overflow-y: ${({ scrollContents }) => (scrollContents ? "auto" : "hidden")};
 `;
 
-const StyledTitle = styled(Text)`
+const StyledTitle = styled(Text)<{
+  children?: React.ReactNode;
+}>`
   font-weight: bold;
   font-size: ${TITLE_FONT_SIZE};
   word-break: break-word;
@@ -228,6 +230,8 @@ function Form<TValues = any>(
          * race condition in ReactHookForm.
          */
         setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           reset(convertedFormData, RESET_OPTIONS);
         }, 0);
       }

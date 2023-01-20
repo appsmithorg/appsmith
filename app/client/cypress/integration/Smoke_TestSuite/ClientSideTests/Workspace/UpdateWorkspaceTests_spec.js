@@ -26,7 +26,7 @@ describe("Update Workspace", function() {
       cy.wait(2000);
       cy.get(homePage.workspaceHeaderName).should(
         "have.text",
-        `Members in ${workspaceId}`,
+        `${workspaceId}`,
       );
     });
     cy.NavigateToHome();

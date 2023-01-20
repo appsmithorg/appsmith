@@ -18,8 +18,7 @@ public class EncryptionServiceCEImpl implements EncryptionServiceCE {
     public EncryptionServiceCEImpl(EncryptionConfig encryptionConfig) {
         this.encryptionConfig = encryptionConfig;
         String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
-        this.textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(),
-                saltInHex);
+        this.textEncryptor = Encryptors.delux(encryptionConfig.getPassword(), saltInHex);
     }
 
     @Override

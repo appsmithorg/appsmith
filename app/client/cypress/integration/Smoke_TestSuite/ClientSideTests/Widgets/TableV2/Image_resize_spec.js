@@ -14,17 +14,17 @@ describe("Table Widget Image Resize feature validation", function() {
     cy.editColumn("image");
     cy.moveToStyleTab();
 
-    cy.get(".t--button-tab-MEDIUM").click();
+    cy.get(".t--button-group-MEDIUM").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "64px");
     });
 
-    cy.get(".t--button-tab-LARGE").click();
+    cy.get(".t--button-group-LARGE").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "128px");
     });
 
-    cy.get(".t--button-tab-DEFAULT").click();
+    cy.get(".t--button-group-DEFAULT").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "32px");
     });
@@ -47,17 +47,17 @@ describe("Table Widget Image Resize feature validation", function() {
     cy.editColumn("image");
     cy.moveToStyleTab();
 
-    cy.get(".t--button-tab-MEDIUM").click();
+    cy.get(".t--button-group-MEDIUM").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "64px");
     });
 
-    cy.get(".t--button-tab-LARGE").click();
+    cy.get(".t--button-group-LARGE").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "128px");
     });
 
-    cy.get(".t--button-tab-DEFAULT").click();
+    cy.get(".t--button-group-DEFAULT").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "32px");
     });

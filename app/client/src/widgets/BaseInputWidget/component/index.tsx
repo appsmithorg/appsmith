@@ -8,7 +8,6 @@ import {
   InputGroup,
   Classes,
   ControlGroup,
-  TextArea,
   Tag,
   IRef,
 } from "@blueprintjs/core";
@@ -20,7 +19,7 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { InputTypes } from "../constants";
+import { InputTypes, NumberInputStepButtonPosition } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -34,6 +33,8 @@ import LabelWithTooltip, {
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
 import { getLocale } from "utils/helpers";
+import AutoResizeTextArea from "components/editorComponents/AutoResizeTextArea";
+import { checkInputTypeText } from "../utils";
 
 /**
  * All design system component specific logic goes here.
@@ -75,6 +76,7 @@ const InputComponentWrapper = styled((props) => (
   boxShadow?: string;
   accentColor?: string;
   isDynamicHeightEnabled?: boolean;
+  isMultiline?: boolean;
 }>`
   ${labelLayoutStyles}
 
@@ -105,14 +107,14 @@ const InputComponentWrapper = styled((props) => (
 
   &&&& {
     ${({ inputType, labelPosition }) => {
-      if (!labelPosition && inputType !== InputTypes.TEXT) {
+      if (!labelPosition && !checkInputTypeText(inputType)) {
         return "flex-direction: row";
       }
     }};
     & .${LABEL_CONTAINER_CLASS} {
       flex-grow: 0;
       ${({ inputType, labelPosition }) => {
-        if (!labelPosition && inputType !== InputTypes.TEXT) {
+        if (!labelPosition && !checkInputTypeText(inputType)) {
           return "flex: 1; margin-right: 5px; label { margin-right: 5px; margin-bottom: 0;}";
         }
       }}
@@ -284,9 +286,8 @@ const InputComponentWrapper = styled((props) => (
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
     }
-    height: 100%;
     align-items: ${({ compactMode, inputType, labelPosition }) => {
-      if (!labelPosition && inputType !== InputTypes.TEXT) {
+      if (!labelPosition && !checkInputTypeText(inputType)) {
         return "center";
       }
       if (labelPosition === LabelPosition.Top) {
@@ -297,16 +298,17 @@ const InputComponentWrapper = styled((props) => (
       }
       if (labelPosition === LabelPosition.Left) {
         if (inputType === InputTypes.TEXT) {
-          return "stretch";
+          return "center";
+        } else if (inputType === InputTypes.MULTI_LINE_TEXT) {
+          return "flex-start";
         }
         return "center";
       }
       return "flex-start";
     }};
-  }
 
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&&&& { align-items: stretch; }" : ""};
+    height: ${({ isMultiLine }) => (isMultiLine ? "100%" : "auto")};
+  }
 `;
 
 const StyledNumericInput = styled(NumericInput)`
@@ -317,7 +319,8 @@ const StyledNumericInput = styled(NumericInput)`
       min-width: 24px;
       width: 24px;
       border-radius: 0;
-      &:hover {
+      &:hover,
+      &:focus {
         background: ${Colors.GREY_2};
         span {
           color: ${Colors.GREY_10};
@@ -343,11 +346,11 @@ const TextInputWrapper = styled.div<{
   hasError?: boolean;
   disabled?: boolean;
   isDynamicHeightEnabled?: boolean;
+  isMultiLine: boolean;
 }>`
   width: 100%;
   display: flex;
   flex: 1;
-  height: 100%;
   border: 1px solid;
   overflow: hidden;
   border-color: ${({ disabled, hasError }) => {
@@ -396,6 +399,8 @@ const TextInputWrapper = styled.div<{
 
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { height: auto; }" : ""};
+
+  height: ${({ isMultiLine }) => (isMultiLine ? "100%" : "auto")};
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -489,8 +494,7 @@ class BaseInputComponent extends React.Component<
 
   onKeyDownTextArea = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-    const { disableNewLineOnPressEnterKey } = this.props;
-    if (isEnterKey && disableNewLineOnPressEnterKey && !e.shiftKey) {
+    if (isEnterKey && e.metaKey) {
       e.preventDefault();
     }
     if (typeof this.props.onKeyDown === "function") {
@@ -530,6 +534,7 @@ class BaseInputComponent extends React.Component<
       <StyledNumericInput
         allowNumericCharactersOnly
         autoFocus={this.props.autoFocus}
+        buttonPosition={this.props.buttonPosition}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         inputRef={(el) => {
@@ -556,13 +561,11 @@ class BaseInputComponent extends React.Component<
   };
 
   private textAreaInputComponent = () => (
-    <TextArea
+    <AutoResizeTextArea
       autoFocus={this.props.autoFocus}
+      autoResize={!!this.props.isDynamicHeightEnabled}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
-      growVertically={false}
-      inputRef={this.props.inputRef as IRef<HTMLTextAreaElement>}
-      intent={this.props.intent}
       maxLength={this.props.maxChars}
       onBlur={() => this.setFocusState(false)}
       onChange={this.onTextChange}
@@ -570,6 +573,7 @@ class BaseInputComponent extends React.Component<
       onKeyDown={this.onKeyDownTextArea}
       onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
+      ref={this.props.inputRef as IRef<HTMLTextAreaElement>}
       style={{ resize: "none" }}
       value={this.props.value}
     />
@@ -669,6 +673,7 @@ class BaseInputComponent extends React.Component<
         hasError={isInvalid}
         inputType={inputType}
         isDynamicHeightEnabled={isDynamicHeightEnabled}
+        isMultiLine={!!multiline}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
@@ -704,6 +709,7 @@ class BaseInputComponent extends React.Component<
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isMultiLine={!!multiline}
           labelPosition={labelPosition}
         >
           <ErrorTooltip
@@ -783,6 +789,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   accentColor?: string;
   errorTooltipBoundary?: string;
   shouldUseLocale?: boolean;
+  buttonPosition?: NumberInputStepButtonPosition;
 }
 
 export default BaseInputComponent;

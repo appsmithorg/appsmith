@@ -11,7 +11,7 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
-import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { getMetaWidgetResetObj } from "./metaReducerUtils";
 
 export type WidgetMetaState = Record<string, unknown>;
@@ -107,6 +107,18 @@ export const metaReducer = createReducer(initialState, {
       state = { ...state, [widgetId]: getMetaWidgetResetObj(evaluatedWidget) };
     }
     return state;
+  },
+  [ReduxActionTypes.RESET_WIDGETS_META_STATE]: (
+    state: MetaState,
+    action: ReduxAction<{ widgetIdsToClear: string[] }>,
+  ) => {
+    const next = { ...state };
+    for (const metaWidgetId of action.payload.widgetIdsToClear) {
+      if (metaWidgetId && next[metaWidgetId]) {
+        delete next[metaWidgetId];
+      }
+    }
+    return next;
   },
   [ReduxActionTypes.FETCH_PAGE_SUCCESS]: () => {
     return initialState;

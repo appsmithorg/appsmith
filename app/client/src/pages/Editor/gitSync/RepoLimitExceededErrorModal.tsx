@@ -36,7 +36,6 @@ import {
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
 import { get } from "lodash";
-import { Theme } from "constants/DefaultTheme";
 import {
   getCurrentApplication,
   getWorkspaceIdForImport,
@@ -48,6 +47,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import InfoWrapper from "./components/InfoWrapper";
+import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 600px;
@@ -164,10 +164,12 @@ function RepoLimitExceededErrorModal() {
   const theme = useTheme() as Theme;
 
   useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
-    });
-  }, []);
+    if (isOpen) {
+      dispatch({
+        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+      });
+    }
+  }, [isOpen]);
 
   const openIntercom = () => {
     if (window.Intercom) {

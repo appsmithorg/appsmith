@@ -75,13 +75,17 @@ import {
   setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
-import { setAllPropertySectionState } from "actions/propertyPaneActions";
+import {
+  setAllPropertySectionState,
+  setFocusablePropertyPaneField,
+} from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import {
   setAllDatasourceCollapsible,
   setDatasourceViewMode,
 } from "actions/datasourceActions";
 import { PluginPackageName } from "entities/Action";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -102,6 +106,7 @@ export enum FocusElement {
   JSPaneResponseTabs = "JSPaneResponseTabs",
   JSPaneResponseHeight = "JSPaneResponseHeight",
   PropertySections = "PropertySections",
+  PropertyField = "PropertyField",
   PropertyTabs = "PropertyTabs",
   PropertyPanelContext = "PropertyPanelContext",
   PropertyPaneWidth = "PropertyPaneWidth",
@@ -262,9 +267,9 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: 0,
     },
     {
-      name: FocusElement.InputField,
-      selector: getFocusableInputField,
-      setter: setFocusableInputField,
+      name: FocusElement.PropertyField,
+      selector: getFocusablePropertyPaneField,
+      setter: setFocusablePropertyPaneField,
       defaultValue: "",
     },
   ],
