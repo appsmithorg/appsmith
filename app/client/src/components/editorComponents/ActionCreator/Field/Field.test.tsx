@@ -16,6 +16,13 @@ describe("Field component", () => {
       id: "page-name",
       text: "Page Name",
     },
+    activeTabApiAndQueryCallback: {
+      action: () => {
+        return null;
+      },
+      id: "onSuccess",
+      text: "On Success",
+    },
     depth: 1,
     integrationOptions: [],
     maxDepth: 0,
@@ -31,6 +38,22 @@ describe("Field component", () => {
       {
         id: "url",
         text: "URL",
+        action: () => {
+          return null;
+        },
+      },
+    ],
+    apiAndQueryCallbackTabSwitches: [
+      {
+        id: "onSuccess",
+        text: "onSuccess",
+        action: () => {
+          return null;
+        },
+      },
+      {
+        id: "onFailure",
+        text: "onFailure",
         action: () => {
           return null;
         },
