@@ -20,30 +20,12 @@ function getBlocks(value: string) {
 const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
     const [selectedBlock, setSelectedBlock] = useState<null | number>(null);
-    // const [blocks, setBlocks] = useState<string[]>(getBlocks(props.value));
-
-    // useEffect(() => {
-    //   setBlocks(
-    //     getBlocks(props.value).map((value) => `{{${value.slice(0, -1)}}}`),
-    //   );
-    // }, [props.value]);
-
-    console.log(
-      "** Action Blocks **",
-      props.value,
-      getActionBlocks(
-        getDynamicBindings(props.value).jsSnippets[0],
-        window.evaluationVersion,
-      ),
-    );
 
     const actions: string[] = useMemo(() => {
       const blocks = getActionBlocks(
         getDynamicBindings(props.value).jsSnippets[0],
         window.evaluationVersion,
       );
-
-      if (blocks.length === 0) return [""];
 
       return blocks;
     }, [props.value]);
