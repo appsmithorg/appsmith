@@ -32,6 +32,7 @@ type TagProps = CommonComponentProps & {
   name: string;
   modifiers?: PopperModifiers;
   photoId?: string;
+  hideEditProfileLink?: boolean;
 };
 
 const StyledMenuItem = styled(MenuItem)`
@@ -134,16 +135,18 @@ export default function ProfileDropdown(props: TagProps) {
         </UserNameWrapper>
       </UserInformation>
       <MenuDivider />
-      <StyledMenuItem
-        className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
-        icon="edit-underline"
-        onSelect={() => {
-          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-            path: PROFILE,
-          });
-        }}
-        text="Edit Profile"
-      />
+      {!props.hideEditProfileLink && (
+        <StyledMenuItem
+          className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
+          icon="edit-underline"
+          onSelect={() => {
+            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+              path: PROFILE,
+            });
+          }}
+          text="Edit Profile"
+        />
+      )}
       <StyledMenuItem
         className="t--logout-icon"
         icon="logout"
