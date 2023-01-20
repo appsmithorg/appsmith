@@ -1,8 +1,5 @@
 import CodeMirror from "codemirror";
 
-// do state management (getTextHover undefined)
-// deal with global Codemirror
-
 class TextHoverState {
   options: any;
   timeout: any = null;
@@ -15,15 +12,6 @@ class TextHoverState {
   constructor(cm: any, options: any) {
     this.cm = cm;
     this.options = options;
-    if (options.delay) {
-      // this.onMouseOver = function(e: any) {
-      //   onMouseOverWithDelay(cm, e);
-      // };
-    } else {
-      // this.onMouseOver = function(e: any) {
-      //   onMouseOver(cm, e);
-      // };
-    }
   }
 
   registerMouseOver() {
@@ -153,13 +141,7 @@ class TextHoverState {
   }
 }
 function parseOptions(cm: any, options: any) {
-  if (options instanceof Function)
-    return {
-      getTextHover: options,
-    };
   if (!options || options === true) options = {};
-  if (!options.getTextHover)
-    options.getTextHover = cm?.getHelper(CodeMirror.Pos(0, 0), "textHover");
   if (!options.getTextHover)
     options.getTextHover = (CodeMirror as any).textHover.javascript;
   if (!options.getTextHover) {
@@ -171,8 +153,6 @@ function parseOptions(cm: any, options: any) {
 
 export default function defineTextHoverOption() {
   CodeMirror.defineOption("textHover", false, (cm: any, val: any, old: any) => {
-    console.log("text hover", val, old.toString());
-
     if (old && old.toString() !== "CodeMirror.Init") {
       cm.state.textHover.unregisterMouseOver();
     }

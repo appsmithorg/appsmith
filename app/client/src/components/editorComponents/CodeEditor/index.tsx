@@ -130,18 +130,17 @@ import defineTextHoverOption from "./utils/defineTextHoverOption";
 
 defineTextHoverOption();
 
-console.log("text hover - register called");
 CodeMirror.registerHelper("textHover", "javascript", function(
   cm: any,
   data: any,
   node: any,
 ) {
+  // make this a part of code editor init config
+  // have a way to update this whenever entities get updated
+  // use react component instead of plain html
   let html = "token null";
   if (data && data.token) {
     const token = data.token;
-    // html = "node.innerText: " + (node.innerText || node.textContent);
-    // html += "</br>node.className: " + node.className;
-    // html += "</br>className: " + token.className;
     html += "</br>end: " + token.end;
     html += "</br>start: " + token.start;
     html += "</br>string: " + token.string;
