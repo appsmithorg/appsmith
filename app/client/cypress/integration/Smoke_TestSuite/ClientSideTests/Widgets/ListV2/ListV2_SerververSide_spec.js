@@ -17,11 +17,11 @@ describe("List widget V2 Serverside Pagination", () => {
     jsEditor.CreateJSObject(
       `
         const pageNo = List1.pageNo;
-		const pageSize = List1.pageSize;
-		const data = Table1.tableData;
-		const startIndex = pageSize * (pageNo -1);
-		 const endIndex = startIndex + pageSize;
-		return data.slice(startIndex, endIndex);
+        const pageSize = List1.pageSize;
+        const data = Table1.tableData;
+        const startIndex = pageSize * (pageNo -1);
+        const endIndex = startIndex + pageSize;
+  	    return data.slice(startIndex, endIndex);
           `,
       {
         paste: false,
@@ -70,6 +70,10 @@ describe("List widget V2 Serverside Pagination", () => {
   });
 
   it("3. SelectedItemView and TriggeredItemView", () => {
+    cy.get(`${widgetSelector("SelectedRow")} ${commonlocators.bodyTextStyle}`)
+      .first()
+      .should("not.have.text");
+
     cy.get(
       `${widgetSelector("SelectedItemView")} ${commonlocators.bodyTextStyle}`,
     ).then(($el) => {
@@ -129,6 +133,14 @@ describe("List widget V2 Serverside Pagination", () => {
       });
     });
 
+    cy.get(
+      `${widgetSelector("SelectedRow")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data.name).should("equal", "Perry234");
+      cy.wrap(data.phone).should("equal", "1234 456 789");
+    });
+
     // Change Page and Validate Data
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
@@ -170,6 +182,14 @@ describe("List widget V2 Serverside Pagination", () => {
           text: "8",
         },
       });
+    });
+
+    cy.get(
+      `${widgetSelector("SelectedRow")} ${commonlocators.bodyTextStyle}`,
+    ).then(($el) => {
+      const data = JSON.parse($el.text());
+      cy.wrap(data.name).should("equal", "Perry234");
+      cy.wrap(data.phone).should("equal", "1234 456 789");
     });
   });
 });

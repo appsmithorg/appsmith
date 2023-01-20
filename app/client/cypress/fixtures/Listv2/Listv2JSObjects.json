@@ -883,6 +883,61 @@
                 "originalBottomRow": 6,
                 "fontSize": "1rem",
                 "minDynamicHeight": 4
+            },
+            {
+                "widgetName": "SelectedRow",
+                "displayName": "Text",
+                "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+                "searchTags": [
+                    "typography",
+                    "paragraph",
+                    "label"
+                ],
+                "topRow": 7,
+                "bottomRow": 11,
+                "parentRowSpace": 10,
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "animateLoading": true,
+                "overflow": "NONE",
+                "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                "parentColumnSpace": 11.9375,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 44,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "truncateButtonColor"
+                    },
+                    {
+                        "key": "fontFamily"
+                    },
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "text"
+                    }
+                ],
+                "shouldTruncate": false,
+                "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                "text": "{{List1.selectedItem}}",
+                "key": "zfja9jeoln",
+                "isDeprecated": false,
+                "rightColumn": 60,
+                "textAlign": "LEFT",
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "qk4p7vf7wo",
+                "isVisible": true,
+                "fontStyle": "BOLD",
+                "textColor": "#231F20",
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "maxDynamicHeight": 9000,
+                "fontSize": "1rem",
+                "minDynamicHeight": 4
             }
         ]
     }
