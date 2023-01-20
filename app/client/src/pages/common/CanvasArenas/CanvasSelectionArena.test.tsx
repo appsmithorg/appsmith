@@ -5,7 +5,7 @@ import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import * as utilities from "selectors/editorSelectors";
-import store, { testStore } from "store";
+import store from "store";
 import {
   buildChildren,
   widgetCanvasFactory,
@@ -23,7 +23,6 @@ import { UpdatedEditor } from "test/testMockedWidgets";
 import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import { getSelectedWidgets } from "selectors/ui";
 
 describe("Canvas selection test cases", () => {
   jest
