@@ -7,6 +7,7 @@ import {
 const homePage = require("../../../../../locators/HomePage");
 
 describe("Input Widget Multiline feature", function() {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   it("1. Single-line text with different heights i.e. Auto height and Fixed", () => {
     const textMsg = "Dynamic panel validation for input widget wrt height";
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
@@ -164,7 +165,7 @@ describe("Input Widget Multiline feature", function() {
       .type("hi")
       .type("{enter}")
       .type("again")
-      .type("{cmd}{enter}");
+      .type(`{${modifierKey}}{enter}`);
     // verify toast message on enter
     cy.get(homePage.toastMessage).should("contain", "Success");
   });
