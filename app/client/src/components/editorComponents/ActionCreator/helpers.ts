@@ -61,7 +61,7 @@ const actionList: {
 }));
 
 export function getFieldFromValue(
-  value: string | undefined,
+  value: string,
   activeTabApiAndQueryCallback: SwitchType,
   activeTabNavigateTo: SwitchType,
   getParentValue?: (changeValue: string) => string,

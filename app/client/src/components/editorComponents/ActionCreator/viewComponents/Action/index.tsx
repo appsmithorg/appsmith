@@ -311,7 +311,7 @@ export const Action: React.FC<Props> = ({
                     onSelect={(
                       option: TreeDropdownOption,
                       defaultVal: any,
-                      isUpdatedViaKeyboard: boolean,
+                      isUpdatedViaKeyboard: boolean | undefined,
                     ) => {
                       const fieldConfig =
                         FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];

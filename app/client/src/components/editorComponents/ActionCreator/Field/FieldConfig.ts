@@ -45,7 +45,8 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     setter: (option) => {
       const dropdownOption = option as TreeDropdownOption;
-      const type: ActionType = dropdownOption.type || dropdownOption.value;
+      const type: ActionType =
+        dropdownOption.type || (dropdownOption.value as any);
       let value = dropdownOption.value;
       const defaultParams = FIELD_GROUP_CONFIG[type].defaultParams;
       let defaultArgs: Array<any> = [];
@@ -66,7 +67,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         ? `{{${value}(${defaultArgs})}}`
         : defaultParams && defaultParams.length
         ? `{{${value}(${defaultParams})}}`
-        : [AppsmithFunction.integration, AppsmithFunction.runAPI].includes(type)
+        : [AppsmithFunction.integration, AppsmithFunction.runAPI].includes(
+            type as any,
+          )
         ? `{{${value}}}`
         : `{{${value}()}}`;
     },
@@ -419,7 +422,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     defaultText: "",
     exampleText: "",
     options: () => null,
-    getter: (value: any, index: number) => {
+    getter: (value: any, index = 0) => {
       return textGetter(value, index);
     },
     setter: (value: any, currentValue: string, index) => {
@@ -490,16 +493,10 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     defaultText: "",
     exampleText: `() => { showAlert("Some message!") }`,
     options: () => null,
-    getter: (value: string, argNumber: number) => {
+    getter: (value: string, argNumber = 0) => {
       return callBackFieldGetter(value, argNumber);
     },
     setter: (value, currentValue, argNumber = 0) => {
-      console.log("Ac**", {
-        value,
-        currentValue,
-        argNumber,
-        setValue: callBackFieldSetter(value, currentValue, argNumber),
-      });
       return callBackFieldSetter(value, currentValue, argNumber);
     },
     view: ViewTypes.TEXT_VIEW,

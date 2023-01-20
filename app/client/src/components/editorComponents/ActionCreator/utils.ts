@@ -289,10 +289,10 @@ export function codeToAction(
       0,
       self.evaluationVersion,
     );
-    const successCallbackBlocks = getFunctionBodyStatements(
+    const successCallbackBlocks: string[] = getFunctionBodyStatements(
       successCallbacks,
       self.evaluationVersion,
-    ).map((block) => block);
+    ).map((block: string) => block);
 
     const errorCallbacks = getFuncExpressionAtPosition(
       jsCode,
@@ -302,7 +302,7 @@ export function codeToAction(
     const errorCallbackBlocks = getFunctionBodyStatements(
       errorCallbacks,
       self.evaluationVersion,
-    ).map((block) => block);
+    ).map((block: string) => block);
 
     return {
       // code: getMainAction(jsCode, self.evaluationVersion),
@@ -311,7 +311,7 @@ export function codeToAction(
       successCallbacks: successCallbackBlocks.map((block) =>
         codeToAction(block, fieldOptions, false),
       ),
-      errorCallbacks: errorCallbackBlocks.map((block) =>
+      errorCallbacks: errorCallbackBlocks.map((block: string) =>
         codeToAction(block, fieldOptions, false),
       ),
     };

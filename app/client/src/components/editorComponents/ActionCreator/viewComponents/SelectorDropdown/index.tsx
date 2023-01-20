@@ -3,9 +3,9 @@ import { TreeDropdown, TreeDropdownOption, TextInput } from "design-system";
 import { debounce } from "lodash";
 import { ActionBlock } from "../ActionBlock";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
-import { AppsmithFunction, FieldType } from "../../constants";
+import { FieldType } from "../../constants";
 import { flattenOptions } from "../../utils";
-import { getActionInfo, getIconForAction } from "../ActionBlockTree/utils";
+import { getActionInfo } from "../ActionBlockTree/utils";
 
 function filterChildren(
   options: TreeDropdownOption[],
@@ -34,7 +34,7 @@ type Props = {
   onSelect: (
     option: TreeDropdownOption,
     defaultVal: any,
-    isUpdatedViaKeyboard: boolean,
+    isUpdatedViaKeyboard: boolean | undefined,
   ) => void;
 };
 
