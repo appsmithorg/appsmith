@@ -1,5 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import {
+  WIDGET,
+  PROPERTY_SELECTOR,
+} from "../../../../../locators/WidgetLocators";
+const homePage = require("../../../../../locators/HomePage");
 
 describe("Input Widget Multiline feature", function() {
   it("1. Single-line text with different heights i.e. Auto height and Fixed", () => {
@@ -17,7 +22,13 @@ describe("Input Widget Multiline feature", function() {
         cy.testCodeMirror(textMsg);
         cy.wait(3000);
         cy.moveToStyleTab();
-        cy.ChangeTextStyle("XL", commonlocators.headingTextStyle, textMsg);
+        cy.get(commonlocators.dropDownIcon)
+          .last()
+          .click();
+        cy.get(".t--dropdown-option")
+          .children()
+          .contains("XL")
+          .click();
         cy.wait("@updateLayout");
         cy.wait(2000);
         cy.get(".t--widget-inputwidgetv2")
@@ -66,7 +77,14 @@ describe("Input Widget Multiline feature", function() {
       .then((height) => {
         //Changing the text label
         cy.moveToStyleTab();
-        cy.ChangeTextStyle("XL", commonlocators.headingTextStyle, textMsg);
+        cy.get(commonlocators.dropDownIcon)
+          .last()
+          .click();
+        cy.get(".t--dropdown-option")
+          .children()
+          .contains("XL")
+          .click();
+
         cy.wait("@updateLayout");
         cy.wait(2000);
         cy.get(".t--widget-inputwidgetv2")
@@ -77,6 +95,7 @@ describe("Input Widget Multiline feature", function() {
       });
     // select height as fixed for multiline datatype
     cy.openPropertyPane("inputwidgetv2");
+    cy.moveToContentTab();
     cy.get(widgetsPage.datatype)
       .last()
       .click({ force: true });
@@ -87,7 +106,14 @@ describe("Input Widget Multiline feature", function() {
       .then((height) => {
         //Changing the text label
         cy.moveToStyleTab();
-        cy.ChangeTextStyle("S", commonlocators.headingTextStyle, textMsg);
+        cy.get(commonlocators.dropDownIcon)
+          .last()
+          .click();
+        cy.get(".t--dropdown-option")
+          .children()
+          .contains("S")
+          .click();
+
         cy.wait("@updateLayout");
         cy.wait(2000);
         cy.get(".t--widget-inputwidgetv2")
@@ -114,12 +140,32 @@ describe("Input Widget Multiline feature", function() {
   });
 
   it("3. Enter key behaviour with single line and multi line selection", () => {
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
-  });
-
-  it("4.Check Default selection on first drop", () => {
-    // -> The default mode on the first drop should always be FIXED
-    //  -> On Changing the data type to Multi-line, auto height should be enabled(Check Properties and widget behaviour)
-    //-> When changing the input type to multi-line, we check if height value is FIXED, if it is, then it changes to "Auto Height", otherwise, it stays the same.
+    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
+    cy.openPropertyPane(WIDGET.INPUT_V2);
+    cy.get(PROPERTY_SELECTOR.onSubmit)
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(PROPERTY_SELECTOR.onSubmit, "{{showAlert('Success')}}");
+    // enter some text and hit enter
+    cy.get(".t--draggable-inputwidgetv2")
+      .find("input")
+      .type("hi")
+      .type("{enter}");
+    // verify toast message on enter
+    cy.get(homePage.toastMessage).should("contain", "Success");
+    // enter key with multiline
+    cy.get(widgetsPage.datatype)
+      .last()
+      .click({ force: true });
+    cy.get("[data-cy='t--dropdown-option-Multi-line text']").click();
+    cy.get(".t--draggable-inputwidgetv2")
+      .find("textarea")
+      .first()
+      .type("hi")
+      .type("{enter}")
+      .type("again")
+      .type("{cmd}{enter}");
+    // verify toast message on enter
+    cy.get(homePage.toastMessage).should("contain", "Success");
   });
 });
