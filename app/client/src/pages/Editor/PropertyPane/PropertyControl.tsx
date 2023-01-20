@@ -7,7 +7,7 @@ import {
   ControlPropertyLabelContainer,
   ControlWrapper,
 } from "components/propertyControls/StyledControls";
-import { Button, Icon, JSToggleButton } from "design-system";
+import { Icon, JSToggleButton } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -614,8 +614,6 @@ const PropertyControl = memo((props: Props) => {
         isToggleDisabled = false;
       }
     }
-
-    console.log("Prop***", props);
 
     try {
       return (

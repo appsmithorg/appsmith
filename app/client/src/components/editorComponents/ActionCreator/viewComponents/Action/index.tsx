@@ -1,46 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Popover2 } from "@blueprintjs/popover2";
-import {
-  Button,
-  Category,
-  Icon,
-  Size,
-  TreeDropdownOption,
-} from "design-system";
+import { Button, Category, Icon, TreeDropdownOption } from "design-system";
 import { SelectorDropdown } from "../SelectorDropdown";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import FieldGroup from "../../FieldGroup";
 import { AppsmithFunction, FieldType } from "../../constants";
-import { ActionBlock } from "../ActionBlock";
-import {
-  ActionTree,
-  DataTreeForActionCreator,
-  SelectedActionBlock,
-  SwitchType,
-} from "../../types";
+import { ActionTree, SelectedActionBlock, SwitchType } from "../../types";
 import {
   actionToCode,
   codeToAction,
   getSelectedFieldFromValue,
-  isValueValidURL,
-  JSToString,
 } from "../../utils";
 import { useSelector } from "react-redux";
-import {
-  getDataTreeForActionCreator,
-  getWidgetOptionsTree,
-} from "sagas/selectors";
+import { getWidgetOptionsTree } from "sagas/selectors";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
 import {
-  getFieldFromValue,
   useApisQueriesAndJsActionOptions,
   useModalDropdownList,
 } from "../../helpers";
-import {
-  getFuncExpressionAtPosition,
-  getFunction,
-  replaceActionInQuery,
-} from "@shared/ast";
 import { TabView } from "../TabView";
 import { cloneDeep } from "lodash";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
@@ -206,7 +183,7 @@ export const Action: React.FC<Props> = ({
           isChainedAction
           key={action.code + index}
           modalDropdownList={modalDropdownList}
-          onValueChange={(newValue, isUpdatedViaKeyboard) => {
+          onValueChange={(newValue) => {
             setActionTree((prevActionTree) => {
               const newActionTree = cloneDeep(prevActionTree);
               const action = newActionTree.successCallbacks[index];
@@ -245,7 +222,7 @@ export const Action: React.FC<Props> = ({
           isChainedAction
           key={action.code + index}
           modalDropdownList={modalDropdownList}
-          onValueChange={(newValue, isUpdatedViaKeyboard) => {
+          onValueChange={(newValue) => {
             setActionTree((prevActionTree) => {
               const newActionTree = cloneDeep(prevActionTree);
               const action = newActionTree.errorCallbacks[index];
@@ -346,11 +323,7 @@ export const Action: React.FC<Props> = ({
               ) : (
                 <>
                   <SelectorDropdown
-                    onSelect={(
-                      option: TreeDropdownOption,
-                      defaultVal: any,
-                      isUpdatedViaKeyboard: boolean | undefined,
-                    ) => {
+                    onSelect={(option: TreeDropdownOption) => {
                       const fieldConfig =
                         FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
                       const finalValueToSet = fieldConfig.setter(option, "");
@@ -360,11 +333,13 @@ export const Action: React.FC<Props> = ({
                           integrationOptions,
                         );
                         const actionType = (selectedField.type ||
-                          selectedField.value) as any;
+                          selectedField.value ||
+                          AppsmithFunction.none) as any;
 
                         return {
-                          code: getDynamicBindings(finalValueToSet)
-                            .jsSnippets[0],
+                          code:
+                            getDynamicBindings(finalValueToSet).jsSnippets[0] ||
+                            "",
                           actionType,
                           successCallbacks: [],
                           errorCallbacks: [],
@@ -385,7 +360,7 @@ export const Action: React.FC<Props> = ({
                       additionalAutoComplete={additionalAutoComplete}
                       integrationOptions={integrationOptions}
                       modalDropdownList={modalDropdownList}
-                      onValueChange={(newValue, isUpdatedViaKeyboard) => {
+                      onValueChange={(newValue) => {
                         setActionTree(() => {
                           const selectedField = getSelectedFieldFromValue(
                             newValue,

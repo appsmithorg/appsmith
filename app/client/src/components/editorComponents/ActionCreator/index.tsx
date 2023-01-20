@@ -1,21 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { getActionBlocks } from "@shared/ast";
 import { ActionCreatorProps } from "./types";
 import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
 import { Action } from "./viewComponents/Action";
-
-function getBlocks(value: string) {
-  const currentBlocks = getActionBlocks(
-    getDynamicBindings(value).jsSnippets[0],
-    window.evaluationVersion,
-  );
-
-  if (currentBlocks.length === 0) {
-    return [""];
-  }
-
-  return currentBlocks;
-}
 
 const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
