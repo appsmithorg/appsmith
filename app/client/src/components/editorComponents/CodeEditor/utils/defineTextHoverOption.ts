@@ -119,6 +119,8 @@ class TextHoverState {
     tt.style.position = "absolute";
     tt.style.zIndex = "3";
     tt.style.backgroundColor = "white";
+    tt.style.padding = "5px";
+    tt.style.boxShadow = "10px 5px 5px black";
     document.body.appendChild(tt);
 
     const position = (e: any) => {
