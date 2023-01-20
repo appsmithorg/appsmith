@@ -37,6 +37,14 @@ export const primaryColumnValidation = (
       };
     }
 
+    // when PrimaryKey is {{ currentItem["img"] }} and img doesn't exist in the data.
+    if (inputValue.every((value) => _.isNil(value))) {
+      return {
+        isValid: false,
+        parsed: undefined, // undefined the chosen key doesn't exist.
+        messages: ["Chosen Primary key doesn't exist"],
+      };
+    }
     const areKeysUnique = _.uniq(inputValue).length === listData.length;
 
     if (!areKeysUnique) {
