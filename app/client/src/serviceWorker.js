@@ -40,7 +40,7 @@ clientsClaim();
 registerRoute(({ request }) => {
   return request.url.indexOf('/windowProxy/') !== -1;
 }, function (event) {
-  const response = event.request.json().then((reqJSON) => {
+  return event.request.json().then((reqJSON) => {
     return new Promise(function (resolve, reject) {
       var channel = new MessageChannel();
       channel.port1.onmessage = function (event) {
@@ -65,7 +65,6 @@ registerRoute(({ request }) => {
       });
     })
   });
-  event.respondWith(response);
 }, "POST");
 
 // This route's caching seems too aggressive.
