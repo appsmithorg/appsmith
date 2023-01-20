@@ -407,19 +407,27 @@ public class ImportExportApplicationServiceV2Tests {
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithCustomJSLibTest() {
         CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
-        Mono<Boolean> addJSLibMono =
-                customJSLibService.addJSLibToApplication(testAppId, jsLib, null, false).cache();
-        Mono<ApplicationJson> getExportedAppMono = addJSLibMono
+        Mono<Boolean> addJSLibMonoCached =
+                customJSLibService.addJSLibToApplication(testAppId, jsLib, null, false)
+                        .flatMap(isJSLibAdded -> Mono.zip(Mono.just(isJSLibAdded),
+                                applicationPageService.publish(testAppId, true)))
+                        .map(tuple2 -> {
+                            Boolean isJSLibAdded = tuple2.getT1();
+                            Application application = tuple2.getT2();
+                            return isJSLibAdded;
+                        })
+                        .cache();
+        Mono<ApplicationJson> getExportedAppMono = addJSLibMonoCached
                 .then(importExportApplicationService.exportApplicationById(testAppId, ""));
 
-        StepVerifier.create(Mono.zip(addJSLibMono, getExportedAppMono))
+        StepVerifier.create(Mono.zip(addJSLibMonoCached, getExportedAppMono))
                 .assertNext(tuple2 -> {
                     Boolean isJSLibAdded = tuple2.getT1();
                     assertEquals(true, isJSLibAdded);
 
-                    ApplicationJson exportedApp = tuple2.getT2();
-                    assertEquals(1, exportedApp.getCustomJSLibList().size());
-                    CustomJSLib exportedJSLib = exportedApp.getCustomJSLibList().get(0);
+                    ApplicationJson exportedAppJson = tuple2.getT2();
+                    assertEquals(1, exportedAppJson.getCustomJSLibList().size());
+                    CustomJSLib exportedJSLib = exportedAppJson.getCustomJSLibList().get(0);
                     assertEquals(jsLib.getName(), exportedJSLib.getName());
                     assertEquals(jsLib.getAccessor(), exportedJSLib.getAccessor());
                     assertEquals(jsLib.getUrl(), exportedJSLib.getUrl());
@@ -427,7 +435,9 @@ public class ImportExportApplicationServiceV2Tests {
                     assertEquals(jsLib.getVersion(), exportedJSLib.getVersion());
                     assertEquals(jsLib.getDefs(), exportedJSLib.getDefs());
                     assertEquals(getDTOFromCustomJSLib(jsLib),
-                            exportedApp.getExportedApplication().getUnpublishedCustomJSLibs().toArray()[0]);
+                            exportedAppJson.getExportedApplication().getUnpublishedCustomJSLibs().toArray()[0]);
+                    assertEquals(1, exportedAppJson.getExportedApplication().getUnpublishedCustomJSLibs().size());
+                    assertEquals(0, exportedAppJson.getExportedApplication().getPublishedCustomJSLibs().size());
                 })
                 .verifyComplete();
     }
