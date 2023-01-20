@@ -183,7 +183,6 @@ const StyledTitle = styled.p`
 
 const StyledTitleName = styled.p`
   margin: 8px 0;
-  margin-bottom: 12px;
   font-size: 12px;
   font-weight: 600;
   line-height: 12px;
@@ -231,7 +230,7 @@ interface Props {
   popperZIndex?: Indices;
   dataTreePath?: string;
   evaluatedPopUpLabel?: string;
-  editorRef: React.RefObject<HTMLDivElement>;
+  editorRef?: React.RefObject<HTMLDivElement>;
 }
 
 interface PopoverContentProps {
@@ -503,6 +502,13 @@ function PopoverContent(props: PopoverContentProps) {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
+      {props?.entity && props.entity?.entityName && (
+        <StyledTitleName>
+          {props?.evaluatedPopUpLabel
+            ? props?.evaluatedPopUpLabel
+            : props?.entity?.entityName}
+        </StyledTitleName>
+      )}
       {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
@@ -515,13 +521,6 @@ function PopoverContent(props: PopoverContentProps) {
             error={{ type: error.errorType, message: error.errorMessage }}
           />
         </ErrorText>
-      )}
-      {props?.entity && props.entity?.entityName && (
-        <StyledTitleName>
-          {props?.evaluatedPopUpLabel
-            ? props?.evaluatedPopUpLabel
-            : props?.entity?.entityName}
-        </StyledTitleName>
       )}
       {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
         <>
@@ -609,7 +608,7 @@ function EvaluatedValuePopup(props: Props) {
       >
         <PopoverContent
           dataTreePath={props.dataTreePath}
-          editorRef={props.editorRef}
+          editorRef={props?.editorRef}
           entity={props.entity}
           errors={props.errors}
           evaluatedPopUpLabel={props?.evaluatedPopUpLabel}

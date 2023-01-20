@@ -185,7 +185,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         border={CodeEditorBorder.ALL_SIDE}
                         className={`t--${field}.key.${index}`}
                         dataTreePath={`${props.dataTreePath}[${index}].key`}
-                        evaluatedPopUpLabel={props?.label}
+                        evaluatedPopUpLabel={"Key"}
                         expected={expected}
                         hoverInteraction
                         name={`${field}.key`}
@@ -210,7 +210,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       border={CodeEditorBorder.ALL_SIDE}
                       className={`t--${field}.key.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].key`}
-                      evaluatedPopUpLabel={props?.label}
+                      evaluatedPopUpLabel={"Key"}
                       expected={expected}
                       hoverInteraction
                       name={`${field}.key`}
@@ -226,7 +226,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       border={CodeEditorBorder.ALL_SIDE}
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
-                      evaluatedPopUpLabel={props?.label}
+                      evaluatedPopUpLabel={"Value"}
                       expected={expected}
                       hoverInteraction
                       name={`${field}.value`}
@@ -247,7 +247,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           props.actionConfig[index].editable === undefined
                         )
                       }
-                      evaluatedPopUpLabel={props?.label}
+                      evaluatedPopUpLabel={"Value"}
                       expected={expected}
                       name={`${field}.value`}
                       placeholder={
