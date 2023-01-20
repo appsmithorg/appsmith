@@ -74,6 +74,7 @@ class DynamicTextControl extends BaseControl<
           className="dynamic-text-field"
           dataTreePath={dataTreePath}
           disabled={this.props.disabled}
+          evaluatedPopUpLabel={this?.props?.label}
           evaluationSubstitutionType={evaluationSubstitutionType}
           lineCommentString={lineCommentString}
           mode={mode}

@@ -56,7 +56,12 @@ function QueryEditor(props: QueryProps) {
           Query
         </Text>
       </QueryHeader>
-      <Field component={CodeEditor} {...props} {...editorProps} />
+      <Field
+        component={CodeEditor}
+        evaluatedPopUpLabel="Query"
+        {...props}
+        {...editorProps}
+      />
     </QueryWrapper>
   );
 }

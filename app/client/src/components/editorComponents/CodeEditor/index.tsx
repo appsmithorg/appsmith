@@ -205,6 +205,7 @@ export type EditorProps = EditorStyleProps &
     onEditorBlur?: () => void;
     onEditorFocus?: () => void;
     lineCommentString?: string;
+    evaluatedPopUpLabel?: string;
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -1039,6 +1040,7 @@ class CodeEditor extends Component<Props, State> {
       codeEditorVisibleOverflow,
       dataTreePath,
       disabled,
+      evaluatedPopUpLabel,
       evaluatedValue,
       evaluationSubstitutionType,
       expected,
@@ -1056,8 +1058,6 @@ class CodeEditor extends Component<Props, State> {
     const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
       dataTreePath,
     );
-
-    console.log("heree", dataTreePath, evaluatedValue, pathEvaluatedValue);
 
     let errors = evalErrors,
       isInvalid = evalErrors.length > 0,
@@ -1108,8 +1108,10 @@ class CodeEditor extends Component<Props, State> {
         )}
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
+          editorRef={this.codeEditorTarget}
           entity={entityInformation}
           errors={errors}
+          evaluatedPopUpLabel={evaluatedPopUpLabel}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}

@@ -86,6 +86,7 @@ function PostBodyData(props: Props) {
           <DynamicTextField
             border={CodeEditorBorder.ALL_SIDE}
             dataTreePath={`${dataTreePath}.body`}
+            evaluatedPopUpLabel={"Body"}
             expected={expectedPostBody}
             mode={EditorModes.JSON_WITH_BINDING}
             name="actionConfiguration.body"
