@@ -11,7 +11,10 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import { JSFunctionProxy, JSProxy } from "workers/Evaluation/JSObject/JSProxy";
+import {
+  JSFunctionProxy,
+  JSProxy,
+} from "workers/Evaluation/JSObject/JSFunctionProxy";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
