@@ -92,20 +92,24 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     : createMessage(FORK_APP_MODAL_SUCCESS_TITLE);
 
   const handleClose = () => {
-    const url = new URL(window.location.href);
-    if (url.searchParams.has("fork")) {
-      url.searchParams.delete("fork");
-      history.push(url.toString().slice(url.origin.length));
+    if (!props.setModalClose) {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("fork")) {
+        url.searchParams.delete("fork");
+        history.push(url.toString().slice(url.origin.length));
+      }
     }
   };
 
   const handleOpen = () => {
-    const url = new URL(window.location.href);
-    if (!url.searchParams.has("fork")) {
-      url.searchParams.append("fork", "true");
-      history.push(url.toString().slice(url.origin.length));
+    if (!props.setModalClose) {
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has("fork")) {
+        url.searchParams.append("fork", "true");
+        history.push(url.toString().slice(url.origin.length));
+      }
+      dispatch(getAllApplications());
     }
-    dispatch(getAllApplications());
   };
 
   return (
