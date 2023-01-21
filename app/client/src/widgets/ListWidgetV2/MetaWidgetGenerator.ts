@@ -66,6 +66,7 @@ type UpdateSiblingsOptions = {
 
 export type HookOptions = {
   childMetaWidgets: MetaWidgets;
+  rowReferences: Record<string, string | undefined>;
 };
 
 type Hook = (metaWidget: MetaWidget, options: HookOptions) => void;
@@ -538,7 +539,7 @@ class MetaWidgetGenerator {
       metaCacheProps || {};
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
     const viewIndex = this.getViewIndex(rowIndex);
-
+    const rowReferences = this.getRowReferences(key);
     const {
       children,
       metaWidgets: childMetaWidgets,
@@ -596,6 +597,7 @@ class MetaWidgetGenerator {
 
     this.hooks?.afterMetaWidgetGenerate?.(metaWidget, {
       childMetaWidgets,
+      rowReferences,
     });
 
     this.updateSiblings(rowIndex, {
@@ -1475,6 +1477,19 @@ class MetaWidgetGenerator {
     }
 
     return templateCache;
+  };
+
+  private getRowReferences = (key: string) => {
+    const templateCache = this.getRowCache(key) || {};
+    const templateWidgetIds = Object.keys(templateCache);
+    const references: Record<string, string | undefined> = {};
+
+    templateWidgetIds.forEach((templateWidgetId) => {
+      const rowTemplateCache = this.getRowTemplateCache(key, templateWidgetId);
+      references[templateWidgetId] = rowTemplateCache?.metaWidgetId;
+    });
+
+    return references;
   };
 
   private getRowCache = (key: string) => {

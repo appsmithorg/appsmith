@@ -381,15 +381,9 @@ class ListWidget extends BaseWidget<
       const tabsWidget = metaWidget as MetaWidget<
         TabsWidgetProps<TabContainerWidgetProps>
       >;
-      const widgetIdToMetaWidgetIdMap: Record<string, string> = {};
-      Object.values(options.childMetaWidgets).forEach(
-        ({ referencedWidgetId = "", widgetId }) => {
-          widgetIdToMetaWidgetIdMap[referencedWidgetId] = widgetId;
-        },
-      );
 
       Object.values(tabsWidget.tabsObj).forEach((tab) => {
-        tab.widgetId = widgetIdToMetaWidgetIdMap[tab.widgetId];
+        tab.widgetId = options.rowReferences[tab.widgetId] || tab.widgetId;
       });
     }
   };
