@@ -27,7 +27,7 @@ const ActionCreator = React.forwardRef(
           isUpdatedViaKeyboard,
         );
       },
-      [],
+      [actions, props.onValueChange],
     );
 
     return (
