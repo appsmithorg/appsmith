@@ -181,7 +181,7 @@ export const Action: React.FC<Props> = ({
           additionalAutoComplete={additionalAutoComplete}
           integrationOptions={integrationOptions}
           isChainedAction
-          key={action.code + index}
+          key={action.actionType + index}
           modalDropdownList={modalDropdownList}
           onValueChange={(newValue) => {
             setActionTree((prevActionTree) => {
@@ -220,7 +220,7 @@ export const Action: React.FC<Props> = ({
           additionalAutoComplete={additionalAutoComplete}
           integrationOptions={integrationOptions}
           isChainedAction
-          key={action.code + index}
+          key={action.actionType + index}
           modalDropdownList={modalDropdownList}
           onValueChange={(newValue) => {
             setActionTree((prevActionTree) => {

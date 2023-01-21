@@ -80,7 +80,7 @@ export const ActionBlockTree: React.FC<Props> = ({
             actionTypeLabel={actionTypeLabel}
             icon={MainActionIcon}
             onClick={onClick}
-            selected={selected}
+            selected={selected && !selectedCallbackBlock}
           />
         }
         {areCallbacksApplicable && selected ? (
