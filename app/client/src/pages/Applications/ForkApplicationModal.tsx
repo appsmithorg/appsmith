@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
@@ -15,7 +15,6 @@ import {
 import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
-import { matchViewerForkPath } from "constants/routes";
 import { Colors } from "constants/Colors";
 import {
   CANCEL,
@@ -26,6 +25,7 @@ import {
   FORK_APP_MODAL_SUCCESS_TITLE,
 } from "@appsmith/constants/messages";
 import { getAllApplications } from "actions/applicationActions";
+import history from "utils/history";
 
 type ForkApplicationModalProps = {
   applicationId: string;
@@ -48,16 +48,9 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     (state: AppState) => state.ui.applications.forkingApplication,
   );
 
-  useEffect(() => {
-    if (!userWorkspaces.length) {
-      dispatch(getAllApplications());
-    }
-  }, [userWorkspaces.length]);
-
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const { pathname } = useLocation();
-
-  const showBasedOnURL = matchViewerForkPath(pathname);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
 
   const forkApplication = () => {
     dispatch({
@@ -98,12 +91,31 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     ? createMessage(FORK_APP_MODAL_EMPTY_TITLE)
     : createMessage(FORK_APP_MODAL_SUCCESS_TITLE);
 
+  const handleClose = () => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("fork")) {
+      url.searchParams.delete("fork");
+      history.push(url.toString().slice(url.origin.length));
+    }
+  };
+
+  const handleOpen = () => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("fork")) {
+      url.searchParams.append("fork", "true");
+      history.push(url.toString().slice(url.origin.length));
+    }
+    dispatch(getAllApplications());
+  };
+
   return (
     <StyledDialog
       canOutsideClickClose
       className={"fork-modal"}
       headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
-      isOpen={isModalOpen || showBasedOnURL}
+      isOpen={isModalOpen || queryParams.has("fork")}
+      onClose={handleClose}
+      onOpening={handleOpen}
       setModalClose={setModalClose}
       title={modalHeading}
       trigger={props.trigger}
@@ -136,7 +148,10 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
               <Button
                 category={Category.secondary}
                 disabled={forkingApplication}
-                onClick={() => setModalClose && setModalClose(false)}
+                onClick={() => {
+                  setModalClose && setModalClose(false);
+                  handleClose();
+                }}
                 size={Size.large}
                 tag="button"
                 text={createMessage(CANCEL)}
