@@ -183,7 +183,6 @@ class ListWidget extends BaseWidget<
       isListCloned,
       level: props.level || 1,
       onVirtualListScroll: this.generateMetaWidgets,
-      onMetaWidgetsUpdate: this.onMetaWidgetsUpdate,
       prefixMetaWidgetId: props.prefixMetaWidgetId || props.widgetId,
       primaryWidgetType: ListWidget.getWidgetType(),
       renderMode: props.renderMode,
@@ -353,16 +352,6 @@ class ListWidget extends BaseWidget<
     ) {
       this.modifyMetaWidgets(updates);
     }
-  };
-
-  onMetaWidgetsUpdate = (
-    propertyUpdates: ModifyMetaWidgetPayload["propertyUpdates"],
-  ) => {
-    this.modifyMetaWidgets({
-      addOrUpdate: {},
-      deleteIds: [],
-      propertyUpdates,
-    });
   };
 
   generateMainMetaCanvasWidget = () => {

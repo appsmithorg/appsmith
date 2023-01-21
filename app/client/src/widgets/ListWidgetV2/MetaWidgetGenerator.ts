@@ -36,7 +36,6 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 
 type TemplateWidgets = ListWidgetProps<
   WidgetProps
@@ -94,9 +93,6 @@ export type ConstructorProps = {
   isListCloned: boolean;
   level: number;
   onVirtualListScroll: () => void;
-  onMetaWidgetsUpdate: (
-    updates: ModifyMetaWidgetPayload["propertyUpdates"],
-  ) => void;
   prefixMetaWidgetId: string;
   primaryWidgetType: string;
   renderMode: string;
@@ -218,7 +214,6 @@ class MetaWidgetGenerator {
   private modificationsQueue: Queue<MODIFICATION_TYPE>;
   private nestedViewIndex?: GeneratorOptions["nestedViewIndex"];
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
-  private onMetaWidgetsUpdate: ConstructorProps["onMetaWidgetsUpdate"];
   private pageNo?: number;
   private pageSize?: number;
   private prefixMetaWidgetId: string;
@@ -259,7 +254,6 @@ class MetaWidgetGenerator {
     this.levelData = undefined;
     this.metaIdToTemplateIdMap = {};
     this.onVirtualListScroll = props.onVirtualListScroll;
-    this.onMetaWidgetsUpdate = props.onMetaWidgetsUpdate;
     this.pageNo = 1;
     this.pageSize = 0;
     this.prefixMetaWidgetId = props.prefixMetaWidgetId;
