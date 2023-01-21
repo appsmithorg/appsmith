@@ -26,7 +26,7 @@ import {attachComments} from "astravel";
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
 type Expression = Node;
-export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression | MemberExpressionNode | CallExpressionNode | BinaryExpressionNode;
+export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression | MemberExpressionNode | CallExpressionNode | BinaryExpressionNode | BlockStatementNode;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
 export interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
@@ -107,6 +107,11 @@ export interface CallExpressionNode extends Node {
   arguments: ArgumentTypes[];
 }
 
+export interface BlockStatementNode extends Node {
+  type: "BlockStatement";
+  body: [ Node ];
+}
+
 type NodeList = {
   references: Set<string>;
   functionalParams: Set<string>;
@@ -185,6 +190,10 @@ export const isPropertyNode = (node: Node): node is PropertyNode => {
 export const isCallExpressionNode = (node: Node): node is CallExpressionNode => {
   return node.type === NodeTypes.CallExpression;
 };
+
+export const isBlockStatementNode = (node: Node): node is BlockStatementNode => {
+  return node.type === NodeTypes.BlockStatement;
+}
 
 export const isPropertyAFunctionNode = (
   node: Node

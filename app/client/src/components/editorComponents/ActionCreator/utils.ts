@@ -10,13 +10,12 @@ import {
   setEnumArgumentAtPosition,
   setCallbackFunctionField,
   getFuncExpressionAtPosition,
-  getActionBlocks,
   getFunctionBodyStatements,
   replaceActionInQuery,
-  getMainAction,
+  setObjectAtPosition,
 } from "@shared/ast";
-import { Toaster, TreeDropdownOption, Variant } from "design-system";
-import { ActionTree, DataTreeForActionCreator } from "./types";
+import { TreeDropdownOption } from "design-system";
+import { ActionTree } from "./types";
 import { AppsmithFunction } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 
@@ -80,6 +79,26 @@ export const modalGetter = (value: string) => {
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = stringToJS(value);
   return getModalName(requiredValue, self.evaluationVersion);
+};
+
+export const objectSetter = (
+  changeValue: any,
+  currentValue: string,
+  argNum: number,
+): string => {
+  const requiredValue = stringToJS(currentValue);
+  const changeValueWithoutBraces = stringToJS(changeValue);
+  try {
+    return setObjectAtPosition(
+      requiredValue,
+      changeValueWithoutBraces,
+      argNum,
+      self.evaluationVersion,
+    );
+  } catch (e) {
+    // showError();
+    return currentValue;
+  }
 };
 
 export const textSetter = (

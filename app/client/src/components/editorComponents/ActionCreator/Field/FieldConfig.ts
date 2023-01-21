@@ -17,6 +17,7 @@ import {
   textSetter,
   callBackFieldSetter,
   callBackFieldGetter,
+  objectSetter,
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
@@ -61,17 +62,18 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         default:
           break;
       }
-      return value === "none"
-        ? ""
-        : defaultArgs && defaultArgs.length
-        ? `{{${value}(${defaultArgs})}}`
-        : defaultParams && defaultParams.length
-        ? `{{${value}(${defaultParams})}}`
-        : [AppsmithFunction.integration, AppsmithFunction.runAPI].includes(
-            type as any,
-          )
-        ? `{{${value}}}`
-        : `{{${value}()}}`;
+      if (value === "none") return "";
+      if (defaultArgs && defaultArgs.length)
+        return `{{${value}(${defaultArgs})}}`;
+      if (defaultParams && defaultParams.length)
+        return `{{${value}(${defaultParams})}}`;
+      if (
+        [AppsmithFunction.integration, AppsmithFunction.runAPI].includes(
+          type as any,
+        )
+      )
+        return `{{${value}}}`;
+      return `{{${value}()}}`;
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -116,7 +118,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       if (value === "") {
         value = undefined;
       }
-      return textSetter(value, currentValue, 1);
+      return objectSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
   },

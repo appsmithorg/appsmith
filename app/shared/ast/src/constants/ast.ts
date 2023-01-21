@@ -30,4 +30,5 @@ export enum NodeTypes {
   CallExpression = 'CallExpression',
   BinaryExpression = 'BinaryExpression',
   ExpressionStatement = 'ExpressionStatement',
+  BlockStatement = 'BlockStatement',
 }

@@ -40,6 +40,7 @@ import {
   AppsmithFunctionsWithFields,
   FieldType,
   NAVIGATE_TO_TAB_OPTIONS,
+  NEW_MODAL_LABEL,
 } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import {
@@ -150,6 +151,8 @@ function getActionEntityFields(
   dataTree: DataTreeForActionCreator,
   isChainedAction = false,
 ) {
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getDynamicBindings(value).jsSnippets[0];
   const successFunction = getFuncExpressionAtPosition(
     requiredValue,
@@ -344,7 +347,7 @@ export function useModalDropdownList() {
 
   let finalList: TreeDropdownOption[] = [
     {
-      label: "New Modal",
+      label: NEW_MODAL_LABEL,
       value: "Modal",
       id: "create",
       icon: "plus",
