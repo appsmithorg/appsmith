@@ -365,20 +365,12 @@ export function actionToCode(
     const successCallbackCodes = successCallbacks
       .filter(({ actionType }) => actionType !== AppsmithFunction.none)
       .map((callback) => actionToCode(callback, false));
-    if (successCallbackCodes.length > 0) {
-      // Append empty string at end to ensure that the last callback ends with a semicolon
-      // successCallbackCodes.push("");
-    }
-    const successCallbackCode = successCallbackCodes.join(";");
+    const successCallbackCode = successCallbackCodes.join("");
 
     const errorCallbackCodes = errorCallbacks
       .filter(({ actionType }) => actionType !== AppsmithFunction.none)
       .map((callback) => actionToCode(callback, false));
-    if (errorCallbackCodes.length > 0) {
-      // Append empty string at end to ensure that the last callback ends with a semicolon
-      // errorCallbackCodes.push("");
-    }
-    const errorCallbackCode = errorCallbackCodes.join(";");
+    const errorCallbackCode = errorCallbackCodes.join("");
 
     const withSuccessCallback = replaceActionInQuery(
       code,
@@ -396,5 +388,5 @@ export function actionToCode(
     return withSuccessAndErrorCallback;
   }
 
-  return code;
+  return code === "" ? code : code + ";";
 }
