@@ -6,7 +6,6 @@
 import {
   CSSUnit,
   GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
   PositionType,
   RenderMode,
   RenderModes,
@@ -456,11 +455,8 @@ abstract class BaseWidget<
         </AutoHeightContainerWrapper>
       );
     }
-    if (
-      this.props.parentId === MAIN_CONTAINER_WIDGET_ID ||
-      this.props.widgetId === MAIN_CONTAINER_WIDGET_ID
-    )
-      return this.addErrorBoundary(content);
+
+    return this.addErrorBoundary(content);
 
     return content;
   };

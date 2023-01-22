@@ -528,7 +528,6 @@ export function ReflowResizable(props: ResizableProps) {
         maxHeight:
           (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-        // overflowY: props.enableVerticalResize ? "hidden" : "overlay",
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
@@ -546,7 +545,6 @@ export function ReflowResizable(props: ResizableProps) {
           (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
-        // overflowY: props.enableVerticalResize ? "hidden" : "overlay",
       }}
     >
       {(_props) => (

@@ -70,7 +70,9 @@ export const usePositionedStyles = ({
       left:
         leftColumn * parentColumnSpace +
         (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      top: topRow * parentRowSpace,
+      top:
+        topRow * parentRowSpace +
+        (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
     }),
     [
       bottomRow,

@@ -115,8 +115,8 @@ export type ModalComponentProps = {
   className?: string;
   portalContainer?: HTMLElement;
   canOutsideClickClose: boolean;
-  overlayClassName?: string;
   canEscapeKeyClose: boolean;
+  overlayClassName?: string;
   scrollContents: boolean;
   height?: number;
   top?: number;

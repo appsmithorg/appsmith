@@ -16,10 +16,8 @@ import {
   getJSCollections,
 } from "selectors/entitiesSelector";
 import {
-  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
-  WidgetType,
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
@@ -37,9 +35,6 @@ import {
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
-import WidgetFactory, {
-  NonSerialisableWidgetConfigs,
-} from "utils/WidgetFactory";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
@@ -767,42 +762,3 @@ export const showCanvasTopSectionSelector = createSelector(
     return true;
   },
 );
-
-// export const getCanvasBottomRow = (canvasWidgetId: string) =>
-//   createSelector(
-//     getCanvasWidgets,
-//     (widgets: CanvasWidgetsReduxState): number => {
-//       const canvasWidget = widgets[canvasWidgetId];
-//       if (canvasWidget === undefined) return 0;
-//       if (canvasWidget.type !== "CANVAS_WIDGET") return canvasWidget.bottomRow;
-//       const children = canvasWidget.children;
-//       let parentHeightInRows = canvasWidget.bottomRow;
-//       if (canvasWidget.parentId) {
-//         const parentWidget = widgets[canvasWidget.parentId];
-//         if (parentWidget.type === "LIST_WIDGET") return canvasWidget.bottomRow;
-//         const parentHeightOffset = getCanvasHeightOffset(
-//           parentWidget.type,
-//           parentWidget,
-//         );
-//         parentHeightInRows = parentWidget.bottomRow - parentWidget.topRow;
-
-//         if (parentWidget.type === "MODAL_WIDGET") {
-//           parentHeightInRows = Math.floor(
-//             parentHeightInRows / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-//           );
-//         }
-//         parentHeightInRows -= parentHeightOffset;
-//       }
-
-//       if (Array.isArray(children) && children.length > 0) {
-//         const bottomRow = children.reduce((prev, next) => {
-//           return widgets[next].bottomRow > prev
-//             ? widgets[next].bottomRow
-//             : prev;
-//         }, parentHeightInRows);
-
-//         return bottomRow;
-//       }
-//       return parentHeightInRows;
-//     },
-//   );

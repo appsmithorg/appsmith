@@ -21,13 +21,13 @@ const SearchInputWrapper = styled.div`
   }
 `;
 
-const StyledSearchInput = styled(SearchInput)`
+const StyledSearchInput = React.memo(styled(SearchInput)`
   ${InputWrapper} {
     background: ${Colors.GRAY_50};
     padding: 0 8px;
     height: 34px;
   }
-`;
+`);
 
 type PropertyPaneSearchInputProps = {
   onTextChange: (text: string) => void;
