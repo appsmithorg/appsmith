@@ -399,7 +399,8 @@ public class MySqlPlugin extends BasePlugin {
             return Mono.just(pool)
                     .flatMap(p -> p.create())
                     .flatMap(conn -> Mono.from(conn.close()))
-                    .then(Mono.just(new DatasourceTestResult()));
+                    .then(Mono.just(new DatasourceTestResult()))
+                    .onErrorResume(error -> Mono.error(error.getCause()));
         }
 
         @Override

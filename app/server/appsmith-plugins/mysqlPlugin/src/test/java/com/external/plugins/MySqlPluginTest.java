@@ -9,6 +9,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
@@ -197,6 +198,29 @@ public class MySqlPluginTest {
                 StepVerifier.create(dsConnectionMono)
                         .assertNext(Assertions::assertNotNull)
                         .verifyComplete();
+        }
+
+        @Test
+        public void testMySqlNoPasswordExceptionMessage() {
+
+                dsConfig = createDatasourceConfiguration();
+                ((DBAuth) dsConfig.getAuthentication()).setPassword("");
+
+                Mono<ConnectionPool> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+                Mono<DatasourceTestResult> datasourceTestResultMono = connectionMono
+                        .flatMap(connectionPool -> pluginExecutor.testDatasource(connectionPool));
+
+                String gateway = mySQLContainer.getContainerInfo().getNetworkSettings().getGateway();
+                String expectedErrorMessage = new StringBuilder("Access denied for user 'mysql'@'")
+                        .append(gateway)
+                        .append("' (using password: NO)")
+                        .toString();
+
+                StepVerifier
+                        .create(datasourceTestResultMono)
+                        .expectErrorMessage(expectedErrorMessage)
+                        .verify();
         }
 
         @Test
