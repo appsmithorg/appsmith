@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { Classes, Icon, IconSize, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
@@ -55,6 +55,7 @@ export enum Kind {
   JS_OBJECT = "JS_OBJECT",
   PAGE = "PAGE",
   QUERY = "QUERY",
+  JS_LIB = "JS_LIB",
 }
 
 type GitStatusProps = {
@@ -106,6 +107,13 @@ const STATUS_MAP: GitStatusMap = {
     iconName: "query",
     hasValue: (status?.modifiedQueries || 0) > 0,
   }),
+  [Kind.JS_LIB]: (status: GitStatusData) => ({
+    message: `${status?.modifiedJSLibs || 0} ${
+      (status?.modifiedJSLibs || 0) <= 1 ? "library" : "libraries"
+    } modified`,
+    iconName: "package",
+    hasValue: (status?.modifiedJSLibs || 0) > 0,
+  }),
 };
 
 function behindCommitMessage(status: GitStatusData) {
@@ -149,6 +157,7 @@ const defaultStatus: GitStatusData = {
   modifiedDatasources: 0,
   modifiedJSObjects: 0,
   modifiedPages: 0,
+  modifiedJSLibs: 0,
   modifiedQueries: 0,
   remoteBranch: "",
 };
@@ -168,6 +177,7 @@ export function gitChangeListData(
     Kind.DATA_SOURCE,
     Kind.AHEAD_COMMIT,
     Kind.BEHIND_COMMIT,
+    Kind.JS_LIB,
   ];
   return changeKind
     .map((type: Kind) => STATUS_MAP[type](status))

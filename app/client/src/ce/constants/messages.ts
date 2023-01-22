@@ -178,6 +178,16 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
 
+export const EDITOR_HEADER = {
+  saving: () => "Saving",
+  saveFailed: () => "Save failed",
+  share: () => "SHARE",
+  previewTooltip: {
+    text: () => "Preview",
+    shortcut: () => "P",
+  },
+};
+
 // Homepage
 export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
@@ -335,7 +345,7 @@ export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
   "Create a new Query, API or JS Object";
-export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
+export const HELPBAR_PLACEHOLDER = () => "Search";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
 export const WIDGET_BIND_HELP = () =>
@@ -1464,7 +1474,7 @@ export const customJSLibraryMessages = {
     `Installation Successful. You can access the library via ${accessor}`,
   INSTALLATION_FAILED: () => "Installation failed",
   INSTALLED_ALREADY: (accessor: string) =>
-    `This library is installed already. You could access it via ${accessor}.`,
+    `This library is already installed. You could access it via ${accessor}.`,
   UNINSTALL_FAILED: (name: string) =>
     `Couldn't uninstall ${name}. Please try again after sometime.`,
   UNINSTALL_SUCCESS: (accessor: string) =>
@@ -1480,7 +1490,7 @@ export const customJSLibraryMessages = {
   CLIENT_LOAD_FAILED: (url: string) => `Failed to load the script at ${url}.`,
   LIB_OVERRIDE_ERROR: (
     name: string,
-  ) => `The library ${name} is already installed. 
+  ) => `The library ${name} is already installed.
   If you are trying to install a different version, uninstall the library first.`,
   DEFS_FAILED_ERROR: (name: string) =>
     `Failed to generate autocomplete definitions for ${name}.`,
@@ -1490,25 +1500,6 @@ export const customJSLibraryMessages = {
     `Name collision detected: ${accessors}`,
 };
 
-export const USAGE_AND_BILLING = {
-  usage: () => "Usage",
-  billing: () => "Billing",
-  usageAndBilling: () => "Usage & Billing",
-  usageOverNDays: (days: number) => `Usage over the past ${days} days!`,
-  usageDetails: () =>
-    "This is how much you have used Appsmith to build and run apps.",
-  unit: () => "minutes/day",
-  averaged: () => "*averaged",
-  approximated: () => "*approximated",
-  sell: () => "Figure out your usage before purchasing Appsmith",
-  upgradeToBusiness: () => "UPGRADE TO BUSINESS EDITION",
-  rbacHeading: () => "Role Based Access Control",
-  rbacDetails: () =>
-    "RBAC is here to allow you to control access to appsmith as easy as you maintain your organization.",
-  ssoHeading: () => "SSO and Custom Authentication",
-  ssoDetails: () => "SSO and custom auth allow you to onboard users faster.",
-  gitHeading: () => "Unlimited private git repositories",
-  gitDetails: () => "Expand your single source of truth capability to infinite",
-  exclusive: () =>
-    "These features are exclusively available on business edition.",
-};
+// Business Edition upgrade page
+export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
+  `Move to Business Edition${trailingChar ? trailingChar : ""}`;

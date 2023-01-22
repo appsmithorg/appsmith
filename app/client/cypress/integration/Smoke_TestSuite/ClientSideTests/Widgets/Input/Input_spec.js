@@ -40,7 +40,7 @@ describe("Input Widget Functionality", function() {
       .last()
       .click({ force: true })
       .children()
-      .contains("Text")
+      .contains("Single-line text")
       .click({ force: true });
     cy.get(widgetsPage.innertext)
       .click({ force: true })
@@ -176,7 +176,7 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input icon shows on icon select", () => {
-    cy.selectDropdownValue(commonlocators.dataType, "Text");
+    cy.selectDropdownValue(commonlocators.dataType, "Single-line text");
     cy.wait(1000);
     cy.moveToStyleTab();
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({

@@ -27,7 +27,6 @@ import {
   Text,
   TextType,
 } from "design-system";
-import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
@@ -35,6 +34,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Classes } from "@blueprintjs/core";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Theme } from "constants/DefaultTheme";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {

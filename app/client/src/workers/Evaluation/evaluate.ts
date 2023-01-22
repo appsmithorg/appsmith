@@ -11,17 +11,11 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import {
-  JSFunctionProxy,
-  JSProxy,
-} from "@appsmith/workers/Evaluation/JSObject/JSProxy";
+import { JSFunctionProxy, JSProxy } from "workers/Evaluation/JSObject/JSProxy";
 import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
-import {
-  PLATFORM_FUNCTIONS,
-  addDataTreeToContext,
-} from "@appsmith/workers/Evaluation/Actions";
+import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 
 export type EvalResult = {
   result: any;
@@ -85,7 +79,6 @@ function resetWorkerGlobalScope() {
       continue;
     if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
     if (libraryReservedIdentifiers[key]) continue;
-    if (PLATFORM_FUNCTIONS[key]) continue;
     try {
       // @ts-expect-error: Types are not available
       delete self[key];

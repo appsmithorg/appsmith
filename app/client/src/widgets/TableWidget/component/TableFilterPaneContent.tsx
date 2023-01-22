@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from "react";
-import styled, { AnyStyledComponent } from "styled-components";
+import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import {
@@ -18,9 +18,7 @@ import {
 import { ControlIcons } from "icons/ControlIcons";
 import { Icon, IconSize } from "design-system";
 
-const StyledPlusCircleIcon = styled(
-  ControlIcons.ADD_CIRCLE_CONTROL as AnyStyledComponent,
-)`
+const StyledPlusCircleIcon = styled(ControlIcons.ADD_CIRCLE_CONTROL)`
   padding: 0;
   position: relative;
   cursor: pointer;
