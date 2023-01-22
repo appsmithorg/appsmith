@@ -88,7 +88,7 @@ export const ActionBlockTree: React.FC<Props> = ({
             className="flex justify-between bg-gray-50 px-2 py-1"
             onClick={() => setShowCallbacks((prev) => !prev)}
           >
-            <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-200">
+            <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300">
               Callbacks
             </span>
             <div className="flex gap-1">
@@ -116,16 +116,16 @@ export const ActionBlockTree: React.FC<Props> = ({
                 label,
               }) => (
                 <li key={label}>
-                  <div className="flex flex-col border-[1px] border-gray-200">
+                  <div className="flex flex-col border-[1px] border-gray-200 hover:border-gray-500">
                     <button
                       className={clsx(
-                        "flex justify-between bg-gray-50 px-2 py-1",
+                        "flex justify-between bg-gray-50 px-2 py-1 hover:bg-gray-200",
                         successCallbacks.length > 0 &&
                           "border-b-[1px] border-gray-200",
                       )}
                       onClick={handleAddBlock}
                     >
-                      <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-200">
+                      <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300">
                         {label}
                       </span>
                       <Icon

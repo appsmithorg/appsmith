@@ -113,6 +113,12 @@ export const Action: React.FC<Props> = ({
         successCallbacks: [],
         errorCallbacks: [],
       });
+
+      setSelectedCallbackBlock({
+        type: "success",
+        index: newActionTree.successCallbacks.length - 1,
+      });
+
       return newActionTree;
     });
   }, []);
@@ -125,6 +131,11 @@ export const Action: React.FC<Props> = ({
         code: "",
         successCallbacks: [],
         errorCallbacks: [],
+      });
+
+      setSelectedCallbackBlock({
+        type: "failure",
+        index: newActionTree.errorCallbacks.length - 1,
       });
       return newActionTree;
     });
