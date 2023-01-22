@@ -455,10 +455,7 @@ abstract class BaseWidget<
         </AutoHeightContainerWrapper>
       );
     }
-
     return this.addErrorBoundary(content);
-
-    return content;
   };
 
   private getWidgetView(): ReactNode {
