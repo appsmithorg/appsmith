@@ -1,5 +1,5 @@
 import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
-import { ENTITY_TYPE } from "design-system";
+import { ENTITY_TYPE } from "design-system-old";
 import { PluginType } from "entities/Action";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
