@@ -1,4 +1,7 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
 import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
@@ -18,7 +21,14 @@ import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 
-export function* dynamicallyUpdateContainersSaga() {
+export function* dynamicallyUpdateContainersSaga(
+  // Added this aciton payload to handle a scenario where the tabs widget's default is not Tab 1.
+  // The reasonsing was that I had to add a `recomputeContainers` flag in the `widgets.ts` previously
+  // and we've removed the bottomRow - topRow !== canvasBottomRow check in this
+  // For some reason, I can't see this issue anymore. I'll remove it, if the QA also isn't able to find it
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  action?: ReduxAction<{ resettingTabs: boolean }>,
+) {
   const start = performance.now();
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);

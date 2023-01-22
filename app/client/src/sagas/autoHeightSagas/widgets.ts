@@ -80,6 +80,7 @@ export function* updateWidgetAutoHeightSaga(
   let dynamicHeightLayoutTree: Record<string, TreeNode>;
 
   const widgetsMeasuredInPixels = [];
+  const widgetCanvasOffsets: Record<string, number> = {};
 
   log.debug("Dynamic Height: updates to process", { updates });
 
@@ -446,10 +447,11 @@ export function* updateWidgetAutoHeightSaga(
       }
     }
     // Let's consider the minimum Canvas Height
-    const canvasMinHeight =
-      appMode === APP_MODE.EDIT &&
-      !!stateWidgets[MAIN_CONTAINER_WIDGET_ID].minHeight
-        ? stateWidgets[MAIN_CONTAINER_WIDGET_ID].minHeight
+    const mainContainerMinHeight =
+      stateWidgets[MAIN_CONTAINER_WIDGET_ID].minHeight;
+    const canvasMinHeight: number =
+      appMode === APP_MODE.EDIT && mainContainerMinHeight !== undefined
+        ? mainContainerMinHeight
         : CANVAS_DEFAULT_MIN_HEIGHT_PX;
     let maxCanvasHeightInRows =
       canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -487,6 +489,15 @@ export function* updateWidgetAutoHeightSaga(
       const { originalBottomRow, originalTopRow } = dynamicHeightLayoutTree[
         changedWidgetId
       ];
+
+      if (!action?.payload) {
+        const canvasOffset = getCanvasHeightOffset(
+          stateWidgets[changedWidgetId].type,
+          stateWidgets[changedWidgetId],
+        );
+
+        widgetCanvasOffsets[changedWidgetId] = canvasOffset;
+      }
 
       widgetsToUpdate[changedWidgetId] = [
         {
@@ -532,6 +543,7 @@ export function* updateWidgetAutoHeightSaga(
         Array<{ propertyPath: string; propertyValue: number }>
       >,
       widgetsMeasuredInPixels,
+      widgetCanvasOffsets,
     );
   }
 

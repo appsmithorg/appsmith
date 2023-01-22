@@ -68,26 +68,16 @@ export const DropTargetContext: Context<{
 }> = createContext({});
 
 /**
- * Gets the dropTarget height
- * @param canDropTargetExtend boolean: Can we put widgets below the scrollview in this canvas?
- * @param isPreviewMode boolean: Are we in the preview mode
- * @param currentHeight number: Current height in the ref and what we have set in the dropTarget
- * @param snapRowSpace number: This is a static value actually, GridDefaults.DEFAULT_GRID_ROW_HEIGHT
- * @param minHeight number: The minHeight we've set to the widget in the reducer
- * @returns number: A new height style to set in the dropTarget.
+ * This function sets the height in pixels to the provided ref to the number of rows
+ * @param ref : The ref to the dropTarget so that we can update the height
+ * @param currentRows : Number of rows to set the height
  */
-function getDropTargetHeight(currentHeight: number) {
-  const height = `${currentHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
-  return height;
-}
-
 const updateHeight = (
   ref: React.MutableRefObject<HTMLDivElement | null>,
   currentRows: number,
-  isParentAutoHeightEnabled: boolean,
 ) => {
-  if (ref.current && !isParentAutoHeightEnabled) {
-    const height = getDropTargetHeight(currentRows);
+  if (ref.current) {
+    const height = `${currentRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
     ref.current.style.height = height;
   }
 };
@@ -159,7 +149,7 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
         // We can't update the height of the "Canvas" or "dropTarget" using this function
         // in the previous if clause, because, there could be more "dropTargets" updating
         // and this information can only be computed using auto height
-        updateHeight(dropTargetRef, rowRef.current, isParentAutoHeightEnabled);
+        updateHeight(dropTargetRef, rowRef.current);
       }
       return newRows;
     }
@@ -224,7 +214,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows && !isDragging && !isResizing) {
       rowRef.current = snapRows;
-      updateHeight(dropTargetRef, snapRows, false);
+      updateHeight(dropTargetRef, snapRows);
     }
   }, [props.bottomRow, isDragging, isResizing]);
 
@@ -241,7 +231,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     e.preventDefault();
   };
 
-  const height = getDropTargetHeight(rowRef.current);
+  const height = `${rowRef.current * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
 
   const boxShadow =
     (isResizing || isDragging || isAutoHeightWithLimitsChanging) &&

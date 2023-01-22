@@ -62,11 +62,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     for (const [widgetId, widgetProps] of Object.entries(widgets)) {
       if (widgetProps.type === "CANVAS_WIDGET") {
         const bottomRow = getCanvasBottomRow(widgetId, widgets);
-        console.log("Auto Height: init layout", {
-          widgetId,
-          widgetName: widgets[widgetId]?.widgetName,
-          bottomRow: bottomRow,
-        });
         widgets[widgetId].bottomRow = bottomRow;
         widgets[widgetId].minHeight = bottomRow;
       }
@@ -134,11 +129,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
       number
     > = getCanvasWidgetHeightsToUpdate(Object.keys(action.payload), state);
     for (const widgetId in canvasWidgetHeightsToUpdate) {
-      console.log("Auto Height: ", {
-        widgetId,
-        widgetName: state[widgetId].widgetName,
-        bottomRow: canvasWidgetHeightsToUpdate[widgetId],
-      });
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
       state[widgetId].minHeight = canvasWidgetHeightsToUpdate[widgetId];
     }

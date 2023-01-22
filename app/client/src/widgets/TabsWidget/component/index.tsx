@@ -111,6 +111,11 @@ export interface ScrollNavControlProps {
   className?: string;
 }
 
+const ScrollCanvas = styled.div`
+  overflow-y: auto;
+  overflow-x: hidden;
+`;
+
 function TabsComponent(props: TabsComponentProps) {
   const { onTabChange, tabs } = props;
 
@@ -190,13 +195,13 @@ function TabsComponent(props: TabsComponentProps) {
         </Container>
       )}
 
-      <div
+      <ScrollCanvas
         className={`${
           props.shouldScrollContents ? getCanvasClassName() : ""
         } ${generateClassName(props.widgetId)}`}
       >
         {props.children}
-      </div>
+      </ScrollCanvas>
     </TabsContainerWrapper>
   );
 }

@@ -43,7 +43,7 @@ function getNodesAndStylesToUpdate(
 
     height =
       (propertiesToUpdate.bottomRow - propertiesToUpdate.topRow) * multiplier;
-    y = propertiesToUpdate.topRow * multiplier;
+    y = propertiesToUpdate.topRow * multiplier + CONTAINER_GRID_PADDING;
 
     result[widgetId] = { y, height };
   }
@@ -56,13 +56,13 @@ export function directlyMutateDOMNodes(
     Array<{ propertyPath: string; propertyValue: number }>
   >,
   widgetsMeasuredInPixels: string[],
+  widgetCanvasOffsets: Record<string, number>,
 ): void {
   const updates: Record<
     string,
     Record<string, number>
   > = getNodesAndStylesToUpdate(widgetsToUpdate, widgetsMeasuredInPixels);
 
-  console.log("Auto Height: Updating:::", { updates });
   for (const widgetId in updates) {
     let idSelector = widgetId;
     let height = updates[widgetId].height;
@@ -105,7 +105,10 @@ export function directlyMutateDOMNodes(
 
       if (dropTarget) {
         const dropTargetHeight =
-          updates[widgetId].height - CONTAINER_GRID_PADDING * 2;
+          updates[widgetId].height -
+          CONTAINER_GRID_PADDING * 2 -
+          (widgetCanvasOffsets[widgetId] || 0) *
+            GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
         (dropTarget as HTMLElement).style.height = `${dropTargetHeight}px`;
       }
     }
