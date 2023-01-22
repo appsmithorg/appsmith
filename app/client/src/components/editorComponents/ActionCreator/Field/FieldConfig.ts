@@ -1,5 +1,6 @@
 import {
   AppsmithFunction,
+  DEFAULT_SELECTOR_VIEW_TEXT,
   FieldType,
   FILE_TYPE_OPTIONS,
   NAVIGATION_TARGET_FIELD_OPTIONS,
@@ -35,7 +36,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {
     label: (props: FieldProps) => props.label || "",
     options: (props: FieldProps) => props.integrationOptions,
-    defaultText: "Select Action",
+    defaultText: DEFAULT_SELECTOR_VIEW_TEXT,
     exampleText: "",
     getter: (storedValue: string) => {
       if (storedValue === "{{}}") {

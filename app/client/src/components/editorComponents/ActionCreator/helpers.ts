@@ -483,7 +483,7 @@ export function getJSOptions(
 ) {
   const createJSObject: TreeDropdownOption = {
     label: "New JS Object",
-    value: "JSObject",
+    value: AppsmithFunction.jsFunction,
     id: "create",
     icon: "plus",
     className: "t--create-js-object-btn",

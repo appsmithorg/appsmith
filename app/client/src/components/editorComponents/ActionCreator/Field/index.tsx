@@ -3,8 +3,10 @@ import {
   FieldType,
   ViewTypes,
   NEW_MODAL_LABEL,
+  DEFAULT_SELECTOR_VIEW_TEXT,
 } from "../constants";
 import { Button, TreeDropdownOption } from "design-system";
+import { getFunctionName } from "@shared/ast";
 import {
   ButtonViewProps,
   FieldProps,
@@ -77,12 +79,13 @@ export function Field(props: FieldProps) {
           option: TreeDropdownOption,
           displayValue?: string,
         ) => {
-          // if (displayValue) {
-          //   return (
-          //     <HightlightedCode codeText={displayValue} skin={Skin.LIGHT} />
-          //   );
-          // }
-          return <span>{fieldConfig.getter(value)}</span>;
+          let label = option?.label || displayValue;
+
+          if (label === DEFAULT_SELECTOR_VIEW_TEXT && value) {
+            label = getFunctionName(value, self.evaluationVersion);
+          }
+
+          return label;
         },
         displayValue:
           field.value !== "{{undefined}}" &&

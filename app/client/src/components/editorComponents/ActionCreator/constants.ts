@@ -83,6 +83,8 @@ export const NAVIGATE_TO_TAB_OPTIONS = {
 
 export const NEW_MODAL_LABEL = "New Modal";
 
+export const DEFAULT_SELECTOR_VIEW_TEXT = "Select Action";
+
 export enum FieldType {
   ACTION_SELECTOR_FIELD = "ACTION_SELECTOR_FIELD",
   ON_SUCCESS_FIELD = "ON_SUCCESS_FIELD",
