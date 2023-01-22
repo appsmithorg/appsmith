@@ -5,6 +5,7 @@ import {
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
+import { EditorSize } from "./EditorConfig";
 
 export const removeNewLineChars = (inputValue: any) => {
   return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
@@ -102,4 +103,23 @@ export const removeEventFromHighlightedElement = (
       }
     }
   }
+};
+
+/*
+  @params:
+    inputVal: value that needs to be transformed
+    editorSize: size of code editor
+  @returns transformed string with or without new line chars based on editor size
+*/
+export const removeNewLineCharsIfRequired = (
+  inputVal: string,
+  editorSize: EditorSize,
+) => {
+  let resultVal;
+  if (editorSize === EditorSize.COMPACT) {
+    resultVal = removeNewLineChars(inputVal);
+  } else {
+    resultVal = inputVal;
+  }
+  return resultVal;
 };

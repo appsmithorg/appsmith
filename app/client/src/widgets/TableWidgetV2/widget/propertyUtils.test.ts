@@ -8,6 +8,7 @@ import {
   uniqueColumnAliasValidation,
   updateCustomColumnAliasOnLabelChange,
   selectColumnOptionsValidation,
+  allowedFirstDayOfWeekRange,
 } from "./propertyUtils";
 import _ from "lodash";
 import { ColumnTypes, TableWidgetProps } from "../constants";
@@ -948,5 +949,39 @@ describe("updateCustomColumnAliasOnLabelChange", () => {
         propertyValue: "customColumn12",
       },
     ]);
+  });
+});
+
+describe("allowedFirstDayOfWeekRange", () => {
+  it("should return valid object value is within 0 to 6", () => {
+    expect(allowedFirstDayOfWeekRange(4)).toEqual({
+      isValid: true,
+      parsed: 4,
+      messages: [],
+    });
+  });
+
+  it("should return valid object value is within 0 to 6", () => {
+    expect(allowedFirstDayOfWeekRange(0)).toEqual({
+      isValid: true,
+      parsed: 0,
+      messages: [],
+    });
+  });
+
+  it("should return invalid object when value is not within 0 to 6", () => {
+    expect(allowedFirstDayOfWeekRange(8)).toEqual({
+      isValid: false,
+      parsed: 0,
+      messages: ["Number should be between 0-6."],
+    });
+  });
+
+  it("should return invalid object when value is not within 0 to 6", () => {
+    expect(allowedFirstDayOfWeekRange(-2)).toEqual({
+      isValid: false,
+      parsed: 0,
+      messages: ["Number should be between 0-6."],
+    });
   });
 });
