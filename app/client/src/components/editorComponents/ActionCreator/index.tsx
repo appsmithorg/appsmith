@@ -20,8 +20,7 @@ const ActionCreator = React.forwardRef(
     const handleActionChange = useCallback(
       (index: number) => (value: string, isUpdatedViaKeyboard: boolean) => {
         props.onValueChange(
-          `{{
-          ${actions.slice(0, index).join("") +
+          `{{${actions.slice(0, index).join("") +
             getDynamicBindings(value).jsSnippets[0] +
             actions.slice(index + 1).join("")}}}`,
           isUpdatedViaKeyboard,
@@ -31,7 +30,7 @@ const ActionCreator = React.forwardRef(
     );
 
     return (
-      <div className="flex flex-col gap-[2px]">
+      <div className="flex flex-col gap-[2px]" ref={ref}>
         {actions.map((value, index) => (
           <Action
             action={props.action}

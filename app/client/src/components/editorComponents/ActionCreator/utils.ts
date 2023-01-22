@@ -388,5 +388,5 @@ export function actionToCode(
     return withSuccessAndErrorCallback;
   }
 
-  return code === "" ? code : code + ";";
+  return code === "" || code.endsWith(";") ? code : code + ";";
 }
