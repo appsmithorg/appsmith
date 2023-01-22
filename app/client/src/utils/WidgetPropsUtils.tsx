@@ -362,6 +362,12 @@ export const getCanvasHeightOffset = (
   return offset;
 };
 
+/**
+ * This function computes the heights of canvas widgets which may be effected by the changes in other widget properties (updatedWidgetIds)
+ * @param updatedWidgetIds Widgets which have updated
+ * @param canvasWidgets The widgets in the redux state, used for computations
+ * @returns A list of canvas widget ids with their heights in pixels
+ */
 export function getCanvasWidgetHeightsToUpdate(
   updatedWidgetIds: string[],
   canvasWidgets: Record<string, FlattenedWidgetProps>,
@@ -397,6 +403,12 @@ export function getCanvasWidgetHeightsToUpdate(
   return updatedCanvasWidgets;
 }
 
+/**
+ * A function to compute the height of a given canvas widget (canvasWidgetId) in pixels
+ * @param canvasWidgetId The CANVAS_WIDGET's widgetId. This canvas widget is the one whose bottomRow we need to compute
+ * @param canvasWidgets The widgets in the redux state. We use this to get appropriate info regarding types, parent and children for computations
+ * @returns The canvas widget's height in pixels (this is also the minHight and bottomRow property values)
+ */
 export function getCanvasBottomRow(
   canvasWidgetId: string,
   canvasWidgets: Record<string, FlattenedWidgetProps>,
