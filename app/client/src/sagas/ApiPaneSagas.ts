@@ -265,6 +265,7 @@ function* handleUpdateBodyContentType(
 
 // TODO: make sure this is fixed for switching APIs
 // this might have to go
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function* updateExtraFormDataSaga() {
   const formData: GetFormData = yield select(getFormData, API_EDITOR_FORM_NAME);
   const { values } = formData;
@@ -314,6 +315,7 @@ function* updateExtraFormDataSaga() {
     ) {
       rawApiContentType = POST_BODY_FORMAT_OPTIONS.NONE;
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       rawApiContentType = POST_BODY_FORMAT_OPTIONS.RAW;
     }
   }
@@ -363,6 +365,7 @@ function* changeApiSaga(
 }
 
 // this might have to go
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function* setHeaderFormat(apiId: string, apiContentType?: string) {
   // use the current apiContentType to set appropriate Headers for action
   let displayFormat;
