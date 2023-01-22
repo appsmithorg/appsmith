@@ -128,6 +128,7 @@ function PrimaryCTA(props: Props) {
                 buttonColor={selectedTheme.properties.colors.primaryColor}
                 buttonVariant="PRIMARY"
                 className={`t--fork-app w-full md:w-auto ${className}`}
+                data-testid="fork-modal-trigger"
                 icon="fork"
                 text={createMessage(FORK_APP)}
               />

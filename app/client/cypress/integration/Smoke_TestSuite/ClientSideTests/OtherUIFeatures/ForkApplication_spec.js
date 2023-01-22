@@ -81,12 +81,6 @@ describe("Fork application across workspaces", function() {
         forkableAppUrl = url;
         cy.get(homePage.profileMenu).click();
         cy.get(homePage.signOutIcon).click();
-        // Artifical delay to simulate the bug https://github.com/appsmithorg/appsmith/issues/19938
-        cy.intercept("GET", "/api/v1/users/me", (req) => {
-          req.reply({
-            delay: 3000,
-          });
-        });
         cy.visit(forkableAppUrl);
         //cy.reload();
         //cy.visit(forkableAppUrl);
