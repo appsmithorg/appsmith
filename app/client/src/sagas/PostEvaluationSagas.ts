@@ -98,7 +98,7 @@ function logLatestEvalPropertyErrors(
       }
 
       const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
-      const nameField = isWidget(entity) ? entity.widgetName : entity.name;
+      const nameField = isWidget(entity) ? entity.widgetName : entityName;
       const entityType = isWidget(entity)
         ? ENTITY_TYPE.WIDGET
         : isAction(entity)
@@ -277,7 +277,6 @@ export function* evalErrorHandler(
         break;
       }
       default: {
-        Sentry.captureException(error);
         log.debug(error);
       }
     }
@@ -343,6 +342,7 @@ export function* updateTernDefinitions(
   dataTree: DataTree,
   updates: DataTreeDiff[],
   isCreateFirstTree: boolean,
+  jsData: Record<string, unknown> = {},
 ) {
   const shouldUpdate: boolean =
     isCreateFirstTree ||
@@ -366,6 +366,7 @@ export function* updateTernDefinitions(
   const { def, entityInfo } = dataTreeTypeDefCreator(
     treeWithoutPrivateWidgets,
     !!featureFlags.JS_EDITOR,
+    jsData,
   );
   CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
   const end = performance.now();

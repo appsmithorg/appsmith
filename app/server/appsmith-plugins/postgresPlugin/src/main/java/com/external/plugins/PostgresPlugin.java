@@ -129,7 +129,7 @@ public class PostgresPlugin extends BasePlugin {
     @Extension
     public static class PostgresPluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +
@@ -565,10 +565,6 @@ public class PostgresPlugin extends BasePlugin {
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (StringUtils.isEmpty(authentication.getUsername())) {
                     invalids.add("Missing username for authentication.");
-                }
-
-                if (StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add("Missing password for authentication.");
                 }
 
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {

@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -17,10 +16,10 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.solutions.ce.ImportExportApplicationServiceCEImplV2;
-
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -30,33 +29,34 @@ import org.springframework.stereotype.Component;
 public class ImportExportApplicationServiceImplV2 extends ImportExportApplicationServiceCEImplV2 implements ImportExportApplicationService {
 
     public ImportExportApplicationServiceImplV2(DatasourceService datasourceService,
-                                              SessionUserService sessionUserService,
-                                              NewActionRepository newActionRepository,
-                                              DatasourceRepository datasourceRepository,
-                                              PluginRepository pluginRepository,
-                                              WorkspaceService workspaceService,
-                                              ApplicationService applicationService,
-                                              NewPageService newPageService,
-                                              ApplicationPageService applicationPageService,
-                                              NewPageRepository newPageRepository,
-                                              NewActionService newActionService,
-                                              SequenceService sequenceService,
-                                              ExamplesWorkspaceCloner examplesWorkspaceCloner,
-                                              ActionCollectionRepository actionCollectionRepository,
-                                              ActionCollectionService actionCollectionService,
-                                              ThemeService themeService,
-                                              PolicyUtils policyUtils,
-                                              AnalyticsService analyticsService,
-                                              DatasourcePermission datasourcePermission,
-                                              WorkspacePermission workspacePermission,
-                                              ApplicationPermission applicationPermission,
-                                              PagePermission pagePermission,
-                                              ActionPermission actionPermission) {
+                                                SessionUserService sessionUserService,
+                                                NewActionRepository newActionRepository,
+                                                DatasourceRepository datasourceRepository,
+                                                PluginRepository pluginRepository,
+                                                WorkspaceService workspaceService,
+                                                ApplicationService applicationService,
+                                                NewPageService newPageService,
+                                                ApplicationPageService applicationPageService,
+                                                NewPageRepository newPageRepository,
+                                                NewActionService newActionService,
+                                                SequenceService sequenceService,
+                                                ExamplesWorkspaceCloner examplesWorkspaceCloner,
+                                                ActionCollectionRepository actionCollectionRepository,
+                                                ActionCollectionService actionCollectionService,
+                                                ThemeService themeService,
+                                                AnalyticsService analyticsService,
+                                                CustomJSLibService customJSLibService,
+                                                DatasourcePermission datasourcePermission,
+                                                WorkspacePermission workspacePermission,
+                                                ApplicationPermission applicationPermission,
+                                                PagePermission pagePermission,
+                                                ActionPermission actionPermission,
+                                                Gson gson) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
-                actionCollectionService, themeService, analyticsService, datasourcePermission,
-                workspacePermission, applicationPermission, pagePermission, actionPermission);
+                actionCollectionService, themeService, analyticsService, customJSLibService, datasourcePermission,
+                workspacePermission, applicationPermission, pagePermission, actionPermission, gson);
     }
 }

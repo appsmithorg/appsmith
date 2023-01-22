@@ -998,10 +998,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
-  cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
   cy.route("POST", "/api/v1/pages/crud-page").as("replaceLayoutWithCRUDPage");
-  cy.intercept("PUT", "api/v1/collections/actions/*").as("jsCollections");
 
+  cy.intercept("PUT", "api/v1/collections/actions/*").as("jsCollections");
+  cy.intercept("DELETE", "/api/v1/collections/actions/*").as(
+    "deleteJSCollection",
+  );
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
@@ -1151,8 +1153,22 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
   });
 });
 
+Cypress.Commands.add("CheckForPageSaveError", () => {
+  // Wait for "saving" status to disappear
+  cy.get(commonlocators.statusSaving).should("not.exist");
+  // Check for page save error
+  cy.get("body").then(($ele) => {
+    if ($ele.find(commonlocators.saveStatusError).length) {
+      cy.reload();
+    }
+  });
+});
+
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess).should("exist", { timeout: 40000 });
+  cy.CheckForPageSaveError();
+  cy.get(commonlocators.saveStatusContainer).should("not.exist", {
+    timeout: 40000,
+  });
 });
 
 Cypress.Commands.add(
@@ -1673,7 +1689,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
   const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
-    ".t--property-control-alignment .t--button-tab-right";
+    ".t--property-control-alignment .t--button-group-right";
   const labelWidth = options.labelWidth;
 
   // Drag a widget
@@ -1690,17 +1706,17 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .contains(labelText);
 
   // Set the label position: Auto
-  cy.get(".t--button-tab-Auto").click({ force: true });
+  cy.get(".t--button-group-Auto").click({ force: true });
   // Assert label position: Auto
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
-  cy.get(".t--button-tab-Top").click({ force: true });
+  cy.get(".t--button-group-Top").click({ force: true });
   // Assert label position: Top
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Left
-  cy.get(".t--button-tab-Left").click({ force: true });
+  cy.get(".t--button-group-Left").click({ force: true });
   // Assert label position: Left
   cy.get(containerSelector).should("have.css", "flex-direction", "row");
 

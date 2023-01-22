@@ -32,7 +32,9 @@ public enum FeatureFlagEnum {
     CONTEXT_SWITCHING,
     DATASOURCE_ENVIRONMENTS,
     CUSTOM_JS_LIBRARY,
+    AUTO_LAYOUT,
 
     // Put EE flags below this line, to avoid conflicts.
     RBAC,
+    USAGE_AND_BILLING,
 }

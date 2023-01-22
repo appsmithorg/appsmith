@@ -36,7 +36,7 @@ import {
   TooltipComponent,
   Variant,
 } from "design-system";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
@@ -1069,6 +1069,7 @@ export function EditorJSONtoForm(props: Props) {
                               {createMessage(NO_DATASOURCE_FOR_QUERY)}
                             </p>
                             <EditorButton
+                              disabled={!canCreateDatasource}
                               filled
                               icon="plus"
                               intent="primary"

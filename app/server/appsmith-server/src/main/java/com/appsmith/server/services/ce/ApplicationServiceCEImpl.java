@@ -43,6 +43,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -53,7 +54,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
@@ -281,6 +282,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             }
                             return Mono.error(error);
                         })
+                        .flatMap(application1 -> this.setTransientFields(application1))
                         .flatMap(application1 -> {
                             final Map<String, Object> eventData = Map.of(
                                     FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
@@ -309,6 +311,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .flatMap(branchedApplication -> {
                     application.setPages(null);
                     application.setGitApplicationMetadata(null);
+                    /**
+                     * Retaining the logoAssetId field value while updating NavigationSetting
+                     */
+                    Application.NavigationSetting requestNavSetting = application.getUnpublishedNavigationSetting();
+                    if (requestNavSetting != null) {
+                        Application.NavigationSetting presetNavSetting = ObjectUtils.defaultIfNull(branchedApplication.getUnpublishedNavigationSetting(), new Application.NavigationSetting());
+                        requestNavSetting.setLogoAssetId(ObjectUtils.defaultIfNull(presetNavSetting.getLogoAssetId(), ""));
+                        application.setUnpublishedNavigationSetting(requestNavSetting);
+                    }
                     return this.update(branchedApplication.getId(), application);
                 });
     }
