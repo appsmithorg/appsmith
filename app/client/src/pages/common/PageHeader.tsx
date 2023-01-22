@@ -99,6 +99,7 @@ type PageHeaderProps = {
   user?: User;
   hideShadow?: boolean;
   showSeparator?: boolean;
+  hideEditProfileLink?: boolean;
 };
 
 export function PageHeader(props: PageHeaderProps) {
@@ -196,6 +197,7 @@ export function PageHeader(props: PageHeaderProps) {
             />
           ) : (
             <ProfileDropdown
+              hideEditProfileLink={props.hideEditProfileLink}
               name={user.name}
               photoId={user?.photoId}
               userName={user.username}

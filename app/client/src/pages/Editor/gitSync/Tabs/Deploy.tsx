@@ -230,7 +230,8 @@ function Deploy() {
     !!gitStatus?.modifiedPages ||
     !!gitStatus?.modifiedQueries ||
     !!gitStatus?.modifiedJSObjects ||
-    !!gitStatus?.modifiedDatasources;
+    !!gitStatus?.modifiedDatasources ||
+    !!gitStatus?.modifiedJSLibs;
   const isConflicting = !isFetchingGitStatus && !!pullFailed;
   const commitInputDisabled =
     isConflicting ||

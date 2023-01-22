@@ -115,10 +115,18 @@ export function Routes() {
       />
       <SentryRoute component={EditorLoader} path={BUILDER_PATH_DEPRECATED} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH_DEPRECATED} />
+      {/*
+       * Note: When making changes to the order of these paths
+       * Be sure to check if it is sync with the order of checks in getUpdatedRoute helper method
+       * Context: https://github.com/appsmithorg/appsmith/pull/19833
+       */}
       <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
       <SentryRoute component={EditorLoader} path={BUILDER_CUSTOM_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_CUSTOM_PATH} />
+      {/*
+       * End Note: When making changes to the order of the paths above
+       */}
       <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
       <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
       <SentryRoute component={Spinner} path={LICENSE_CHECK_PATH} />
