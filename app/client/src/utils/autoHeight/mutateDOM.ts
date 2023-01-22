@@ -8,7 +8,7 @@ import { Classes } from "@blueprintjs/core";
 // Here the data structure is the `widgetsToUpdate` data structure. If possible, we should create the `updates`
 // we use in the function directly in the `widgets.ts` (auto height saga)
 // This way, we can avoid looping again in this place.
-function getNodesAndStylesToUpdate(
+export function getNodesAndStylesToUpdate(
   widgetsToUpdate: Record<
     string,
     Array<{ propertyPath: string; propertyValue: number }>
