@@ -27,7 +27,7 @@ const scrollCSS = css`
 `;
 
 const StyledContainerComponent = styled.div<
-  Omit<ContainerWrapperProps, "type" | "widgetId">
+  Omit<ContainerWrapperProps, "widgetId">
 >`
   height: 100%;
   width: 100%;
@@ -70,6 +70,7 @@ function ContainerComponentWrapper(
       onClickCapture={props.onClickCapture}
       resizeDisabled={props.resizeDisabled}
       tabIndex={props.shouldScrollContents ? undefined : 0}
+      type={props.type}
     >
       {props.children}
     </StyledContainerComponent>

@@ -383,19 +383,19 @@ export function getCanvasWidgetHeightsToUpdate(
       ) {
         for (const childCanvasWidgetId of widget.children) {
           if (!updatedCanvasWidgets.hasOwnProperty(childCanvasWidgetId)) {
-            updatedCanvasWidgets[childCanvasWidgetId] = getCanvasBottomRow(
+            const bottomRow = getCanvasBottomRow(
               childCanvasWidgetId,
               canvasWidgets,
             );
+            if (bottomRow > 0)
+              updatedCanvasWidgets[childCanvasWidgetId] = bottomRow;
           }
         }
       }
       if (widget.parentId && widget.parentId !== MAIN_CONTAINER_WIDGET_ID) {
         if (!updatedCanvasWidgets.hasOwnProperty(widget.parentId)) {
-          updatedCanvasWidgets[widget.parentId] = getCanvasBottomRow(
-            widget.parentId,
-            canvasWidgets,
-          );
+          const bottomRow = getCanvasBottomRow(widget.parentId, canvasWidgets);
+          if (bottomRow > 0) updatedCanvasWidgets[widget.parentId] = bottomRow;
         }
       }
     }
@@ -422,6 +422,7 @@ export function getCanvasBottomRow(
   );
   if (canvasWidget.parentId) {
     const parentWidget = canvasWidgets[canvasWidget.parentId];
+    if (parentWidget === undefined) return 0;
     if (parentWidget.type === "LIST_WIDGET") return canvasWidget.bottomRow;
     const parentHeightOffset = getCanvasHeightOffset(
       parentWidget.type,
