@@ -81,6 +81,7 @@ describe("Fork application across workspaces", function() {
         forkableAppUrl = url;
         cy.get(homePage.profileMenu).click();
         cy.get(homePage.signOutIcon).click();
+
         cy.visit(forkableAppUrl);
         //cy.reload();
         //cy.visit(forkableAppUrl);
