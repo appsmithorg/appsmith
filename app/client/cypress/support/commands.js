@@ -1016,6 +1016,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
   cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
+  cy.intercept("POST","/api/v1/environments/update").as("updateEnvironments");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {

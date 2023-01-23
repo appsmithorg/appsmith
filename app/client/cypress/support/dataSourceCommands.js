@@ -160,6 +160,69 @@ Cypress.Commands.add(
   },
 );
 
+
+Cypress.Commands.add(
+  "fillPostgresDatasourceEnvironmentDetails", () => {
+    cy.get(".cs-text:contains('Please select an option')").click({force:true});
+    cy.get("[data-cy='t--dropdown-option-Username']").click({force:true});
+    cy.get("[data-cy='t--dropdown-option-Password']").click({force:true});
+    cy.get('span[name="expand-more"]').last().click({force: true});
+    cy.get("[data-cy='t--dropdown-option-Database Name']").click({force:true});
+    cy.xpath("//input[contains(@name,'host')]").type(datasourceFormData["postgres-host"]);
+    cy.xpath("//input[contains(@name,'port')]").type(datasourceFormData["postgres-port"]);
+    cy.get("[data-cy='database_name.active_env_value']").clear();
+    cy.get("[data-cy='database_name.active_env_value']").type(
+      datasourceFormData["postgres-databaseName"].concat("production"),
+    );
+    cy.get("[data-cy='username.active_env_value']").clear();
+    cy.get("[data-cy='username.active_env_value']").type(
+      datasourceFormData["postgres-username"],
+    );
+    cy.get("[data-cy='password.active_env_value']").type(
+      datasourceFormData["postgres-password"],
+    );
+    cy.get("a:contains('Bind Values')").click({force: true});
+    cy.wait("@updateEnvironments").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  }
+);
+
+//To use this method if you have already added Production variable
+Cypress.Commands.add(
+  "fillPostgresDatasourceEnvironmentDetailsStaging", () => {
+    cy.xpath("//input[contains(@name,'host')]").type(datasourceFormData["postgres-host"]);
+    cy.xpath("//input[contains(@name,'port')]").type(datasourceFormData["postgres-port"]);
+    cy.get("[data-cy='username.active_env_value']").clear();
+    cy.get("[data-cy='username.active_env_value']").type(
+      datasourceFormData["postgres-username"],
+    );
+    cy.get("[data-cy='password.active_env_value']").type(
+      datasourceFormData["postgres-password"],
+    );
+    cy.get("[data-cy='database_name.active_env_value']").clear();
+    cy.get("[data-cy='database_name.active_env_value']").type(
+      datasourceFormData["postgres-databaseName"].concat("staging"),
+    );
+    cy.get("a:contains('Bind Values')").click({force: true});
+    cy.wait("@updateEnvironments").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  }
+);
+
+Cypress.Commands.add(
+  "toggleBetweenEnvironment", (environment) => {
+    cy.get(".cs-text:contains('Environment')").click({multiple: true });
+    cy.xpath("//li/a/div[contains(text(),'"+environment+"')]").click({force: true});
+  }
+);
+
+
 Cypress.Commands.add(
   "fillElasticDatasourceForm",
   (shouldAddTrailingSpaces = false) => {

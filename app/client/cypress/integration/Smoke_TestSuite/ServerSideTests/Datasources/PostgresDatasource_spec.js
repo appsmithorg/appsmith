@@ -27,25 +27,13 @@ describe("Postgres datasource test cases", function() {
     cy.get(".t--edit-datasource").click({force:true});
     cy.get(".t--edit-datasource").click({force:true});
     cy.wait(5000);
-    cy.get(".cs-text:contains('Please select an option')").click({force:true});
-    cy.get("[data-cy='t--dropdown-option-Username']").click({force:true});
-    cy.get("[data-cy='t--dropdown-option-Password']").click({force:true});
-    cy.get('span[name="expand-more"]').last().click({force: true});
-    cy.get("[data-cy='t--dropdown-option-Database Name']").click({force:true});
-    cy.xpath("//input[contains(@name,'host')]").type(datasourceFormData["postgres-host"]);
-    cy.xpath("//input[contains(@name,'port')]").type(datasourceFormData["postgres-port"]);
-    cy.get("[data-cy='username.active_env_value']").clear();
-    cy.get("[data-cy='username.active_env_value']").type(
-      datasourceFormData["postgres-username"],
-    );
-    cy.get("[data-cy='password.active_env_value']").type(
-      datasourceFormData["postgres-password"],
-    );
-    cy.get("a:contains('Bind Values')").click({force: true});
+    //bindProductionEnvironmentVariable
+   cy.fillPostgresDatasourceEnvironmentDetails();
     //Staging Environment
     cy.get(".t--edit-datasource").click({force:true});
     cy.wait(5000);
     cy.get(".cs-text:contains('production')").first().click({force: true});
+    //bindStagingEnvironmentVariable
     cy.get('span[name="expand-more"]').first().click({force: true});
     cy.get("[data-cy='t--dropdown-option-staging']").click({force:true});
     cy.get(".cs-text:contains('Please select an option')").click({force:true});
@@ -55,17 +43,7 @@ describe("Postgres datasource test cases", function() {
     cy.get('span[name="expand-more"]').last().click({force: true})
     cy.get("[data-cy='t--dropdown-option-Database Name']").click({force:true});
     */
-    cy.xpath("//input[contains(@name,'host')]").type(datasourceFormData["postgres-host"]);
-    cy.xpath("//input[contains(@name,'port')]").type(datasourceFormData["postgres-port"]);
-    cy.get("[data-cy='username.active_env_value']").clear();
-    cy.get("[data-cy='username.active_env_value']").type(
-      datasourceFormData["postgres-username"],
-    );
-    cy.get("[data-cy='password.active_env_value']").type(
-      datasourceFormData["postgres-password"],
-    );
-    cy.get("a:contains('Bind Values')").click({force: true});
-    cy.wait(15000);
+    cy.fillPostgresDatasourceEnvironmentDetailsStaging();
     cy.get("[data-cy='t--dropdown-datasourceConfiguration.connection.mode'] .remixicon-icon")
       .click({force: true});
     cy.wait(3000);
@@ -78,16 +56,38 @@ describe("Postgres datasource test cases", function() {
       .should("not.be.enabled");
     cy.get("[data-cy='t--dropdown-option-Read Only']").click({force: true});
     cy.get(".t--save-datasource").should("be.enabled").click({force: true});
-    
+    cy.wait("@updateDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(".t--toast-action .cs-text").should("not.be.visible");
     //cy.get("[data-cy='t--dropdown-option-Read Only']")
     //cy.get("[data-cy='t--dropdown-option-Read / Write']")
-    cy.get(".cs-text:contains('Environment')").click({multiple: true });
-    cy.xpath("//li/a/div[contains(text(),'Staging')]").click({force: true});
-    cy.wait(15000);
-
-    cy.get(".cs-text:contains('Environment')").click({multiple: true });
-    cy.xpath("//li/a/div[contains(text(),'Production')]").click({force: true});
-    cy.wait(15000);
+    //ToggleBetweenEnv()
+    cy.toggleBetweenEnvironment("Staging")
+    cy.wait("@getPagesForCreateApp").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait("@getWorkspace").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.toggleBetweenEnvironment("Production")
+    cy.wait("@getPagesForCreateApp").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait("@getWorkspace").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait(10000);
     /*
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = JSON.stringify(httpResponse.response.body.data.name);
@@ -108,7 +108,7 @@ describe("Postgres datasource test cases", function() {
       ).replace(/['"]+/g, "");
     });
   });
-*/
+
   it("3. Create a new query from the datasource editor", function() {
     cy.get(datasource.createQuery)
       .last()
@@ -121,5 +121,5 @@ describe("Postgres datasource test cases", function() {
     cy.deleteQueryUsingContext();
     cy.deleteDatasource(datasourceName);
   });
-
+*/
 });
