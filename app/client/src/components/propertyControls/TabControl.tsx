@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { BaseItemProps, RenderComponentProps } from "./DraggableListComponent";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
@@ -9,7 +9,7 @@ import isUndefined from "lodash/isUndefined";
 import includes from "lodash/includes";
 import map from "lodash/map";
 import * as Sentry from "@sentry/react";
-import { Category, Size } from "design-system";
+import { Category, Size } from "design-system-old";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";

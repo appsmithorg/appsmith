@@ -90,8 +90,8 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         configureApi();
       }
       ee.PinUnpinEntityExplorer(false);
-      ee.DragDropWidgetNVerify(widgetSelector, 100, 200);
-      ee.DragDropWidgetNVerify(WIDGET.BUTTON, 400, 200);
+      ee.DragDropWidgetNVerify(widgetSelector, 300, 200);
+      ee.DragDropWidgetNVerify(WIDGET.BUTTON, 600, 200);
       //ee.SelectEntityByName(WIDGET.BUTTONNAME("1"));
       // Set onClick action, storing value
       propPane.EnterJSContext(
@@ -99,7 +99,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         `{{storeValue('textPayloadOnSubmit',${testConfig.widgetPrefixName}1.text); FirstAPI.run({ value: ${testConfig.widgetPrefixName}1.text })}}`,
       );
 
-      ee.DragDropWidgetNVerify(WIDGET.TEXT, 300, 300);
+      ee.DragDropWidgetNVerify(WIDGET.TEXT, 500, 300);
       //ee.SelectEntityByName(WIDGET.TEXTNAME("1"));
       // Display the bound store value
       propPane.UpdatePropertyFieldValue(

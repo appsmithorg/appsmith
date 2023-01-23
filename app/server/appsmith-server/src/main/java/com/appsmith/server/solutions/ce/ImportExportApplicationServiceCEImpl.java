@@ -1,12 +1,13 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -20,16 +21,15 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
@@ -38,7 +38,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -67,7 +66,6 @@ import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,21 +96,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
-import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
 public class ImportExportApplicationServiceCEImpl implements ImportExportApplicationServiceCE {
 
+    private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
+    private static final String INVALID_JSON_FILE = "invalid json file";
     private final DatasourceService datasourceService;
     private final SessionUserService sessionUserService;
     private final NewActionRepository newActionRepository;
@@ -129,7 +125,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
-    private final PolicyUtils policyUtils;
     private final AnalyticsService analyticsService;
     private final CustomJSLibService customJSLibService;
     private final DatasourcePermission datasourcePermission;
@@ -137,9 +132,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
-
-    private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
-    private static final String INVALID_JSON_FILE = "invalid json file";
+    private final Gson gson;
 
     /**
      * This function will give the application resource to rebuild the application in import application flow
@@ -488,7 +481,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .then(currentUserMono)
-                .map(user -> {
+                .flatMap(user -> {
                     stopwatch.stopTimer();
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID, applicationId,
@@ -498,8 +491,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             FieldName.FLOW_NAME, stopwatch.getFlow(),
                             "executionTime", stopwatch.getExecutionTime()
                     );
-                    analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
-                    return applicationJson;
+                    return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
+                            .thenReturn(applicationJson);
                 })
                 .then(allCustomJSLibListMono)
                 .map(allCustomLibList -> {
@@ -540,10 +533,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<ExportFileDTO> getApplicationFile(String applicationId, String branchName) {
         return this.exportApplicationById(applicationId, branchName)
                 .map(applicationJson -> {
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
-                            .create();
-
                     String stringifiedFile = gson.toJson(applicationJson);
                     String applicationName = applicationJson.getExportedApplication().getName();
                     Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
@@ -596,9 +585,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<ApplicationImportDTO> importedApplicationMono = stringifiedFile
                 .flatMap(data -> {
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Instant.class, new GsonISOStringToInstantConverter())
-                            .create();
                     /*
                     // Use JsonObject to migrate when we remove some field from the collection which is being exported
                     JsonObject json = gson.fromJson(data, JsonObject.class);
@@ -795,11 +781,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     existingDatasource.setStructure(null);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
-                                    return datasourceService.update(existingDatasource.getId(), existingDatasource)
-                                            .map(datasource1 -> {
-                                                datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                                return datasource1;
-                                            });
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
 
                                 // This is explicitly copied over from the map we created before
@@ -816,19 +798,18 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     updateAuthenticationDTO(datasource, decryptedFields);
                                 }
 
-                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId)
-                                        .map(datasource1 -> {
-                                            datasourceMap.put(importedDatasourceName, datasource1.getId());
-                                            return datasource1;
-                                        });
+                                return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, workspaceId);
                             });
                 })
-                .then(
+                .collectMap(Datasource::getName, Datasource::getId)
+                .flatMap(map -> {
+
+                        datasourceMap.putAll(map);
                         // 1. Assign the policies for the imported application
                         // 2. Check for possible duplicate names,
                         // 3. Save the updated application
 
-                        Mono.just(importedApplication)
+                        return Mono.just(importedApplication)
                                 .zipWith(currUserMono)
                                 .map(objects -> {
                                     Application application = objects.getT1();
@@ -887,7 +868,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                 });
                                     }
                                     return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
-                                })
+                                });
+                        }
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
                 .flatMap(savedApp -> {
@@ -1000,7 +982,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 Iterator<ApplicationPage> publishedPagesItr;
                                 // Remove the newly added pages from merge app flow. Keep only the existing page from the old app
-                                if(appendToApp) {
+                                if (appendToApp) {
                                     List<String> existingPagesId = savedApp.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
                                     List<ApplicationPage> publishedApplicationPages = publishedPages.stream().filter(applicationPage -> existingPagesId.contains(applicationPage.getId())).collect(Collectors.toList());
                                     applicationPages.replace(VIEW, publishedApplicationPages);
@@ -1201,7 +1183,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
                             .then(sendImportExportApplicationAnalyticsEvent(importedApplication.getId(), AnalyticsEvents.IMPORT))
                             .zipWith(currUserMono)
-                            .map(tuple -> {
+                            .flatMap(tuple -> {
                                 Application application = tuple.getT1();
                                 stopwatch.stopTimer();
                                 stopwatch.stopAndLogTimeInMillis();
@@ -1214,8 +1196,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         FieldName.FLOW_NAME, stopwatch.getFlow(),
                                         "executionTime", stopwatch.getExecutionTime()
                                 );
-                                analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
-                                return application;
+                                return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data)
+                                        .thenReturn(application);
                             });
                 })
                 .onErrorResume(throwable -> {
@@ -2002,6 +1984,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             authResponse.setExpiresAt(Instant.now());
             auth2.setAuthenticationResponse(authResponse);
             datasource.getDatasourceConfiguration().setAuthentication(auth2);
+        } else if (StringUtils.equals(authType, BearerTokenAuth.class.getName())) {
+            BearerTokenAuth auth = new BearerTokenAuth();
+            auth.setBearerToken(decryptedFields.getBearerTokenAuth().getBearerToken());
+            datasource.getDatasourceConfiguration().setAuthentication(auth);
         }
         return datasource;
     }
@@ -2030,18 +2016,17 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             ? new DecryptedSensitiveFields()
                             : new DecryptedSensitiveFields(authentication.getAuthenticationResponse());
 
-            if (authentication instanceof DBAuth) {
-                DBAuth auth = (DBAuth) authentication;
+            if (authentication instanceof DBAuth auth) {
                 dsDecryptedFields.setPassword(auth.getPassword());
                 dsDecryptedFields.setDbAuth(auth);
-            } else if (authentication instanceof OAuth2) {
-                OAuth2 auth = (OAuth2) authentication;
+            } else if (authentication instanceof OAuth2 auth) {
                 dsDecryptedFields.setPassword(auth.getClientSecret());
                 dsDecryptedFields.setOpenAuth2(auth);
-            } else if (authentication instanceof BasicAuth) {
-                BasicAuth auth = (BasicAuth) authentication;
+            } else if (authentication instanceof BasicAuth auth) {
                 dsDecryptedFields.setPassword(auth.getPassword());
                 dsDecryptedFields.setBasicAuth(auth);
+            } else if (authentication instanceof BearerTokenAuth auth) {
+                dsDecryptedFields.setBearerTokenAuth(auth);
             }
             dsDecryptedFields.setAuthType(authentication.getClass().getName());
             return dsDecryptedFields;

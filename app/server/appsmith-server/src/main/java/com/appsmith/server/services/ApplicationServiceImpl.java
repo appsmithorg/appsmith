@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 
 @Slf4j
@@ -34,13 +34,14 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
                                   TenantService tenantService,
+                                  AssetService assetService,
                                   UserRepository userRepository,
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService, tenantService, userRepository,
-                datasourcePermission, applicationPermission);
+                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService, tenantService, assetService,
+                userRepository, datasourcePermission, applicationPermission);
 
     }
 }

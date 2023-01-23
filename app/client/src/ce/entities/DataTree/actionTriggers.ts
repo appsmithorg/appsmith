@@ -1,160 +1,167 @@
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { TypeOptions } from "react-toastify";
 
-export enum ActionTriggerType {
-  RUN_PLUGIN_ACTION = "RUN_PLUGIN_ACTION",
-  CLEAR_PLUGIN_ACTION = "CLEAR_PLUGIN_ACTION",
-  NAVIGATE_TO = "NAVIGATE_TO",
-  SHOW_ALERT = "SHOW_ALERT",
-  SHOW_MODAL_BY_NAME = "SHOW_MODAL_BY_NAME",
-  CLOSE_MODAL = "CLOSE_MODAL",
-  STORE_VALUE = "STORE_VALUE",
-  REMOVE_VALUE = "REMOVE_VALUE",
-  CLEAR_STORE = "CLEAR_STORE",
-  DOWNLOAD = "DOWNLOAD",
-  COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD",
-  RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
-  SET_INTERVAL = "SET_INTERVAL",
-  CLEAR_INTERVAL = "CLEAR_INTERVAL",
-  GET_CURRENT_LOCATION = "GET_CURRENT_LOCATION",
-  WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
-  STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
-  CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
-  POST_MESSAGE = "POST_MESSAGE",
-  SET_TIMEOUT = "SET_TIMEOUT",
-  CLEAR_TIMEOUT = "CLEAR_TIMEOUT",
-}
+export type ActionTriggerKeys =
+  | "RUN_PLUGIN_ACTION"
+  | "CLEAR_PLUGIN_ACTION"
+  | "NAVIGATE_TO"
+  | "SHOW_ALERT"
+  | "SHOW_MODAL_BY_NAME"
+  | "CLOSE_MODAL"
+  | "STORE_VALUE"
+  | "REMOVE_VALUE"
+  | "CLEAR_STORE"
+  | "DOWNLOAD"
+  | "COPY_TO_CLIPBOARD"
+  | "RESET_WIDGET_META_RECURSIVE_BY_NAME"
+  | "SET_INTERVAL"
+  | "CLEAR_INTERVAL"
+  | "GET_CURRENT_LOCATION"
+  | "WATCH_CURRENT_LOCATION"
+  | "STOP_WATCHING_CURRENT_LOCATION"
+  | "CONFIRMATION_MODAL"
+  | "POST_MESSAGE"
+  | "SET_TIMEOUT"
+  | "CLEAR_TIMEOUT";
 
-export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
-  [ActionTriggerType.CLEAR_INTERVAL]: "clearInterval",
-  [ActionTriggerType.CLEAR_PLUGIN_ACTION]: "action.clear",
-  [ActionTriggerType.CLOSE_MODAL]: "closeModal",
-  [ActionTriggerType.COPY_TO_CLIPBOARD]: "copyToClipboard",
-  [ActionTriggerType.DOWNLOAD]: "download",
-  [ActionTriggerType.NAVIGATE_TO]: "navigateTo",
-  [ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME]: "resetWidget",
-  [ActionTriggerType.RUN_PLUGIN_ACTION]: "action.run",
-  [ActionTriggerType.SET_INTERVAL]: "setInterval",
-  [ActionTriggerType.SHOW_ALERT]: "showAlert",
-  [ActionTriggerType.SHOW_MODAL_BY_NAME]: "showModal",
-  [ActionTriggerType.STORE_VALUE]: "storeValue",
-  [ActionTriggerType.REMOVE_VALUE]: "removeValue",
-  [ActionTriggerType.CLEAR_STORE]: "clearStore",
-  [ActionTriggerType.GET_CURRENT_LOCATION]: "getCurrentLocation",
-  [ActionTriggerType.WATCH_CURRENT_LOCATION]: "watchLocation",
-  [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
-  [ActionTriggerType.CONFIRMATION_MODAL]: "ConfirmationModal",
-  [ActionTriggerType.POST_MESSAGE]: "postWindowMessage",
-  [ActionTriggerType.SET_TIMEOUT]: "setTimeout",
-  [ActionTriggerType.CLEAR_TIMEOUT]: "clearTimeout",
+export const ActionTriggerFunctionNames: Record<ActionTriggerKeys, string> = {
+  CLEAR_INTERVAL: "clearInterval",
+  CLEAR_PLUGIN_ACTION: "action.clear",
+  CLOSE_MODAL: "closeModal",
+  COPY_TO_CLIPBOARD: "copyToClipboard",
+  DOWNLOAD: "download",
+  NAVIGATE_TO: "navigateTo",
+  RESET_WIDGET_META_RECURSIVE_BY_NAME: "resetWidget",
+  RUN_PLUGIN_ACTION: "action.run",
+  SET_INTERVAL: "setInterval",
+  SHOW_ALERT: "showAlert",
+  SHOW_MODAL_BY_NAME: "showModal",
+  STORE_VALUE: "storeValue",
+  REMOVE_VALUE: "removeValue",
+  CLEAR_STORE: "clearStore",
+  GET_CURRENT_LOCATION: "getCurrentLocation",
+  WATCH_CURRENT_LOCATION: "watchLocation",
+  STOP_WATCHING_CURRENT_LOCATION: "stopWatch",
+  CONFIRMATION_MODAL: "ConfirmationModal",
+  POST_MESSAGE: "postWindowMessage",
+  SET_TIMEOUT: "setTimeout",
+  CLEAR_TIMEOUT: "clearTimeout",
 };
 
-export type RunPluginActionDescription = {
-  type: ActionTriggerType.RUN_PLUGIN_ACTION;
-  payload: {
+export interface ActionDescriptionInterface<T, Type extends ActionTriggerKeys> {
+  type: Type;
+  payload: T;
+}
+
+export type RunPluginActionDescription = ActionDescriptionInterface<
+  {
     actionId: string;
     params?: Record<string, unknown>;
     onSuccess?: string;
     onError?: string;
-  };
-};
+  },
+  "RUN_PLUGIN_ACTION"
+>;
 
-export type ClearPluginActionDescription = {
-  type: ActionTriggerType.CLEAR_PLUGIN_ACTION;
-  payload: {
+export type ClearPluginActionDescription = ActionDescriptionInterface<
+  {
     actionId: string;
-  };
-};
+  },
+  "CLEAR_PLUGIN_ACTION"
+>;
 
-export type NavigateActionDescription = {
-  type: ActionTriggerType.NAVIGATE_TO;
-  payload: {
+export type NavigateActionDescription = ActionDescriptionInterface<
+  {
     pageNameOrUrl: string;
     params?: Record<string, string>;
     target?: NavigationTargetType;
-  };
-};
+  },
+  "NAVIGATE_TO"
+>;
 
-export type ShowAlertActionDescription = {
-  type: ActionTriggerType.SHOW_ALERT;
-  payload: {
+export type ShowAlertActionDescription = ActionDescriptionInterface<
+  {
     message: string | unknown;
     style?: TypeOptions;
-  };
-};
+  },
+  "SHOW_ALERT"
+>;
 
-export type ShowModalActionDescription = {
-  type: ActionTriggerType.SHOW_MODAL_BY_NAME;
-  payload: { modalName: string };
-};
+export type ShowModalActionDescription = ActionDescriptionInterface<
+  {
+    modalName: string;
+  },
+  "SHOW_MODAL_BY_NAME"
+>;
 
-export type CloseModalActionDescription = {
-  type: ActionTriggerType.CLOSE_MODAL;
-  payload: { modalName: string };
-};
+export type CloseModalActionDescription = ActionDescriptionInterface<
+  {
+    modalName: string;
+  },
+  "CLOSE_MODAL"
+>;
 
-export type StoreValueActionDescription = {
-  type: ActionTriggerType.STORE_VALUE;
-  payload: {
+export type StoreValueActionDescription = ActionDescriptionInterface<
+  {
     key: string;
     value: string;
     persist: boolean;
-    uniqueActionRequestId: string;
-  };
-};
+  },
+  "STORE_VALUE"
+>;
 
-export type RemoveValueActionDescription = {
-  type: ActionTriggerType.REMOVE_VALUE;
-  payload: {
+export type RemoveValueActionDescription = ActionDescriptionInterface<
+  {
     key: string;
-  };
-};
+  },
+  "REMOVE_VALUE"
+>;
 
-export type ClearStoreActionDescription = {
-  type: ActionTriggerType.CLEAR_STORE;
-  payload: null;
-};
+export type ClearStoreActionDescription = ActionDescriptionInterface<
+  null,
+  "CLEAR_STORE"
+>;
 
-export type DownloadActionDescription = {
-  type: ActionTriggerType.DOWNLOAD;
-  payload: {
+export type DownloadActionDescription = ActionDescriptionInterface<
+  {
     data: any;
     name: string;
     type: string;
-  };
-};
+  },
+  "DOWNLOAD"
+>;
 
-export type CopyToClipboardDescription = {
-  type: ActionTriggerType.COPY_TO_CLIPBOARD;
-  payload: {
+export type CopyToClipboardDescription = ActionDescriptionInterface<
+  {
     data: string;
     options: { debug?: boolean; format?: string };
-  };
-};
+  },
+  "COPY_TO_CLIPBOARD"
+>;
 
-export type ResetWidgetDescription = {
-  type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME;
-  payload: {
+export type ResetWidgetDescription = ActionDescriptionInterface<
+  {
     widgetName: string;
     resetChildren: boolean;
-  };
-};
+  },
+  "RESET_WIDGET_META_RECURSIVE_BY_NAME"
+>;
 
-export type SetIntervalDescription = {
-  type: ActionTriggerType.SET_INTERVAL;
-  payload: {
+export type SetIntervalDescription = ActionDescriptionInterface<
+  {
     callback: string;
     interval: number;
     id?: string;
-  };
-};
+  },
+  "SET_INTERVAL"
+>;
 
-export type ClearIntervalDescription = {
-  type: ActionTriggerType.CLEAR_INTERVAL;
-  payload: {
+export type ClearIntervalDescription = ActionDescriptionInterface<
+  {
     id: string;
-  };
-};
+  },
+  "CLEAR_INTERVAL"
+>;
 
 type GeolocationOptions = {
   maximumAge?: number;
@@ -168,34 +175,34 @@ type GeolocationPayload = {
   options?: GeolocationOptions;
 };
 
-export type GetCurrentLocationDescription = {
-  type: ActionTriggerType.GET_CURRENT_LOCATION;
-  payload: GeolocationPayload;
-};
+export type GetCurrentLocationDescription = ActionDescriptionInterface<
+  GeolocationPayload,
+  "GET_CURRENT_LOCATION"
+>;
 
-export type WatchCurrentLocationDescription = {
-  type: ActionTriggerType.WATCH_CURRENT_LOCATION;
-  payload: GeolocationPayload;
-};
+export type WatchCurrentLocationDescription = ActionDescriptionInterface<
+  GeolocationPayload,
+  "WATCH_CURRENT_LOCATION"
+>;
 
-export type StopWatchingCurrentLocationDescription = {
-  type: ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION;
-  payload?: Record<string, never>;
-};
+export type StopWatchingCurrentLocationDescription = ActionDescriptionInterface<
+  Record<string, never> | undefined,
+  "STOP_WATCHING_CURRENT_LOCATION"
+>;
 
-export type ConfirmationModal = {
-  type: ActionTriggerType.CONFIRMATION_MODAL;
-  payload?: Record<string, any>;
-};
+export type ConfirmationModalDescription = ActionDescriptionInterface<
+  Record<string, any> | undefined,
+  "CONFIRMATION_MODAL"
+>;
 
-export type PostMessageDescription = {
-  type: ActionTriggerType.POST_MESSAGE;
-  payload: {
+export type PostMessageDescription = ActionDescriptionInterface<
+  {
     message: unknown;
     source: string;
     targetOrigin: string;
-  };
-};
+  },
+  "POST_MESSAGE"
+>;
 
 export type ActionDescription =
   | RunPluginActionDescription
@@ -215,5 +222,5 @@ export type ActionDescription =
   | GetCurrentLocationDescription
   | WatchCurrentLocationDescription
   | StopWatchingCurrentLocationDescription
-  | ConfirmationModal
+  | ConfirmationModalDescription
   | PostMessageDescription;

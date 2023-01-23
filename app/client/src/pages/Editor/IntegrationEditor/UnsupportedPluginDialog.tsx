@@ -1,7 +1,6 @@
 import React from "react";
 import { HelpIcons } from "icons/HelpIcons";
-import { withTheme } from "styled-components";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { Color } from "constants/Colors";
 import {
   Button,
@@ -12,7 +11,7 @@ import {
   Size,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import { IconProps } from "constants/IconConstants";
 import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -20,6 +19,7 @@ import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
 } from "@appsmith/constants/messages";
+import { Theme } from "constants/DefaultTheme";
 
 type Props = {
   isModalOpen: boolean;
@@ -99,8 +99,10 @@ const Content = styled.div`
 
 const CloseIcon = HelpIcons.CLOSE_ICON;
 
-const Header = withTheme(
-  ({ onClose, theme }: { onClose: () => void; theme: any }) => (
+const Header = ({ onClose }: { onClose: () => void }) => {
+  const theme = useTheme() as Theme;
+
+  return (
     <>
       <HeaderContents>
         <Heading>
@@ -129,8 +131,9 @@ const Header = withTheme(
         <StyledSeparator />
       </div>
     </>
-  ),
-);
+  );
+};
+
 // Unsupported Plugin for gen CRUD page
 function UnsupportedPluginDialog(props: Props) {
   const { isModalOpen, onContinue } = props;

@@ -30,12 +30,13 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -269,6 +270,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         if (Boolean.TRUE.equals(applicationPage.getIsDefault())) {
                             defaultPageId = applicationPage.getId();
                         }
+                    }
+                    if(!StringUtils.hasLength(defaultPageId) && !CollectionUtils.isEmpty(applicationPages)) {
+                        log.error("application {} has no default page, returning first page as default", application.getId());
+                        defaultPageId = applicationPages.get(0).getId();
                     }
                     return defaultPageId;
                 });
@@ -595,7 +600,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository.findRootApplicationIdById(defaultPageId, pagePermission.getReadPermission());
+            getPageMono = repository.findById(
+                    defaultPageId,
+                    List.of(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES),
+                    pagePermission.getReadPermission());
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission());
         }

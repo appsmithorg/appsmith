@@ -111,7 +111,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
           : "none"
       } !important;
 
-    &:hover, &:active {
+    &:hover, &:active, &:focus {
       background: ${
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import { Colors } from "constants/Colors";
 
 export const Title = styled.p`

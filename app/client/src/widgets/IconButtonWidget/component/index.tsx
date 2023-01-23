@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Button, Position } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 
@@ -21,7 +21,6 @@ import {
   getCustomHoverColor,
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
-import { createGlobalStyle } from "constants/DefaultTheme";
 import Interweave from "interweave";
 import { Popover2 } from "@blueprintjs/popover2";
 import { ThemeProp } from "widgets/constants";
@@ -151,7 +150,7 @@ export const StyledButton = styled((props) => (
 
     ${
       hasOnClickAction
-        ? `&:hover:enabled, &:active:enabled {
+        ? `&:hover:enabled, &:active:enabled, &:focus:enabled {
         background: ${
           getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
             ? getCustomHoverColor(theme, buttonVariant, buttonColor)

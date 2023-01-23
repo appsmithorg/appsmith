@@ -1,6 +1,7 @@
 const dsl = require("../../../../fixtures/dynamicTabWidgetdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic Height Width validation for Tab widget", function() {
   before(() => {
@@ -39,8 +40,8 @@ describe("Dynamic Height Width validation for Tab widget", function() {
     cy.PublishtheApp();
     validateHeight();
     cy.get(publish.backToEditor).click();
-    cy.get(".t--switch-preview-mode-toggle").should("be.visible");
-    cy.get(".t--switch-preview-mode-toggle").click({ force: true });
+    _.agHelper.AssertElementVisible(_.locators._previewModeToggle("edit"));
+    _.agHelper.GetNClick(_.locators._previewModeToggle("edit"));
     cy.wait(5000);
     cy.get(".t--tabid-tab1").click({ force: true });
     cy.wait(3000);
@@ -59,8 +60,8 @@ describe("Dynamic Height Width validation for Tab widget", function() {
   });
 
   it("Tab widget validation of height with preview mode", function() {
-    cy.get(".t--switch-comment-mode-off").should("be.visible");
-    cy.get(".t--switch-comment-mode-off").click({ force: true });
+    _.agHelper.AssertElementVisible(_.locators._previewModeToggle("preview"));
+    _.agHelper.GetNClick(_.locators._previewModeToggle("preview"));
     cy.wait(3000);
     cy.openPropertyPane("tabswidget");
     cy.changeLayoutHeight(commonlocators.fixed);

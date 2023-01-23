@@ -1,9 +1,10 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "design-system-old";
 
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE,
   ADMIN_BRANDING_SETTINGS_TITLE,
+  ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -15,8 +16,7 @@ import {
 const UpgradeBanner = () => {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "BRANDING_UPGRADE_CLICK",
-    intercomMessage:
-      "Hello, I would like to upgrade my appsmith instance to use the custom branding feature",
+    intercomMessage: createMessage(ADMIN_BRANDING_UPGRADE_INTERCOM_MESSAGE),
   });
 
   return (

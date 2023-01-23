@@ -1,8 +1,11 @@
 import styled from "styled-components";
 import { FormGroup, Classes } from "@blueprintjs/core";
-type FormGroupProps = {
+import { PropsWithChildren } from "react";
+
+type FormGroupProps = PropsWithChildren<{
   fill?: boolean;
-};
+}>;
+
 const StyledFormGroup = styled(FormGroup)<FormGroupProps>`
   & {
     width: ${(props) => (props.fill ? "100%" : "auto")};

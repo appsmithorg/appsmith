@@ -1,13 +1,13 @@
 import React from "react";
+import styled from "styled-components";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
-import { Category, Size } from "design-system";
+import { Category, Size } from "design-system-old";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
