@@ -42,7 +42,10 @@ describe("MySQL noise test", function() {
     cy.log("Navigation to API Panel screen successful");
     // API for killing mySQL session
     cy.CreateAPI("killSession");
-    cy.enterDatasourceAndPath("http://localhost:5001/", "v1/noise/killmysql");
+    cy.enterDatasourceAndPath(
+      "http://host.docker.internal:5001/",
+      "v1/noise/killmysql",
+    );
     cy.SaveAndRunAPI();
     cy.ResponseCheck("killed");
     cy.get('.t--entity-name:contains("Page1")').click({ force: true });
