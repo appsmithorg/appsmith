@@ -448,19 +448,32 @@ Cypress.Commands.add(
           generatedKey = result.response.body.data.publicKey;
           generatedKey = generatedKey.slice(0, generatedKey.length - 1);
           // fetch the generated key and post to the github repo
+          // cy.request({
+          //   method: "POST",
+          //   url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+          //     "TEST_GITHUB_USER_NAME",
+          //   )}/${repo}/keys`,
+          //   headers: {
+          //     Authorization: `token ${Cypress.env(
+          //       "GITHUB_PERSONAL_ACCESS_TOKEN",
+          //     )}`,
+          //   },
+          //   body: {
+          //     title: "key0",
+          //     key: generatedKey,
+          //   },
+          // });
+
           cy.request({
             method: "POST",
-            url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-              "TEST_GITHUB_USER_NAME",
-            )}/${repo}/keys`,
+            url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repo}/keys`,
             headers: {
-              Authorization: `token ${Cypress.env(
-                "GITHUB_PERSONAL_ACCESS_TOKEN",
-              )}`,
+              Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
             },
             body: {
-              title: "key0",
+              title: "key1",
               key: generatedKey,
+              read_only: false,
             },
           });
 

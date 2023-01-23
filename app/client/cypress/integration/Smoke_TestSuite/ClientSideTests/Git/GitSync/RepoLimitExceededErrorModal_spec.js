@@ -1,4 +1,5 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
 describe("Repo Limit Exceeded Error Modal", function() {
@@ -13,11 +14,30 @@ describe("Repo Limit Exceeded Error Modal", function() {
     repoName4 = uuid.v4().split("-")[0];
   });
 
-  it("modal should be opened with proper components", function() {
-    cy.createAppAndConnectGit(repoName1, false);
-    cy.createAppAndConnectGit(repoName2, false);
-    cy.createAppAndConnectGit(repoName3, false);
-    cy.createAppAndConnectGit(repoName4, false, true);
+  it("1. Modal should be opened with proper components", function() {
+    _.homePage.CreateNewApplication();
+    _.gitSync.CreateNConnectToGit(repoName1, false, true);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName1 = repName;
+    });
+    _.gitSync.CreateNConnectToGit(repoName2, false, true);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName2 = repName;
+    });
+    _.gitSync.CreateNConnectToGit(repoName3, false, true);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName3 = repName;
+    });
+    _.gitSync.CreateNConnectToGit(repoName4, true, true);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName4 = repName;
+    });
+
+    // cy.createAppAndConnectGit(repoName1, false);
+    // cy.createAppAndConnectGit(repoName2, false);
+    // cy.createAppAndConnectGit(repoName3, false);
+    // cy.createAppAndConnectGit(repoName4, false, true);
+
     if (Cypress.env("Edition") === 0) {
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).should("exist");
 
@@ -78,9 +98,9 @@ describe("Repo Limit Exceeded Error Modal", function() {
       url: "api/v1/applications/" + repoName4,
       failOnStatusCode: false,
     });
-    cy.deleteTestGithubRepo(repoName1);
-    cy.deleteTestGithubRepo(repoName2);
-    cy.deleteTestGithubRepo(repoName3);
-    cy.deleteTestGithubRepo(repoName4);
+    _.gitSync.DeleteTestGithubRepo(repoName1);
+    _.gitSync.DeleteTestGithubRepo(repoName2);
+    _.gitSync.DeleteTestGithubRepo(repoName3);
+    _.gitSync.DeleteTestGithubRepo(repoName4);
   });
 });

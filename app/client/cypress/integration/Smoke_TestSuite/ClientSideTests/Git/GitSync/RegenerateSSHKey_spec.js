@@ -1,21 +1,17 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git regenerate SSH key flow", function() {
   let repoName;
 
   it("1. Verify SSH key regeneration flow ", () => {
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-
-      cy.createTestGithubRepo(repoName);
-
-      cy.connectToGitRepo(repoName);
-
+    _.gitSync.CreateNConnectToGit(repoName);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
       cy.regenerateSSHKey(repoName);
-
-      cy.get("body").click(0, 0);
-      cy.wait(2000);
     });
+    cy.get("body").click(0, 0);
+    cy.wait(2000);
   });
 
   it("2. Verify error meesage is displayed when ssh key is not added to github", () => {

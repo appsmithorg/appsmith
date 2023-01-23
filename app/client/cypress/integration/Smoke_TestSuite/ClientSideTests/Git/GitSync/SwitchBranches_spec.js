@@ -5,9 +5,11 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import jsActions from "../../../../../locators/jsActionLocators.json";
 
-const parentBranchKey = "ParentBranch";
-const childBranchKey = "ChildBranch";
-const branchQueryKey = "branch";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+let parentBranchKey = "ParentBranch",
+  childBranchKey = "ChildBranch",
+  branchQueryKey = "branch";
 
 let repoName;
 describe("Git sync:", function() {
@@ -19,11 +21,17 @@ describe("Git sync:", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
 
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName);
+    _.gitSync.CreateNConnectToGit();
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
+
+    cy.wait(3000);
+    // cy.generateUUID().then((uid) => {
+    //   repoName = uid;
+    //   cy.createTestGithubRepo(repoName);
+    //   cy.connectToGitRepo(repoName);
+    // });
   });
 
   it("1. create branch input", function() {
@@ -56,7 +64,11 @@ describe("Git sync:", function() {
 
   it("2. creates a new branch", function() {
     cy.get(commonLocators.canvas).click({ force: true });
-    cy.createGitBranch(parentBranchKey);
+    //cy.createGitBranch(parentBranchKey);
+    _.gitSync.CreateGitBranch(parentBranchKey, true);
+    cy.get("@gitbranchName").then((branName) => {
+      parentBranchKey = branName;
+    });
   });
 
   it("3. creates branch specific resources", function() {
@@ -81,9 +93,10 @@ describe("Git sync:", function() {
     // reflect in api sidebar after the call passes.
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-
-    cy.createGitBranch(childBranchKey);
-
+    _.gitSync.CreateGitBranch(childBranchKey, true);
+    cy.get("@gitbranchName").then((branName) => {
+      childBranchKey = branName;
+    });
     cy.Createpage("ChildPage1");
     cy.get(pages.addEntityAPI)
       .last()
@@ -195,8 +208,8 @@ describe("Git sync:", function() {
     const tempBranch = "featureA";
     const tempBranchRenamed = "newFeatureA";
     cy.goToEditFromPublish();
-    cy.createGitBranch(tempBranch);
-    cy.createGitBranch(`${tempBranch}-1`);
+    _.gitSync.CreateGitBranch(tempBranch);
+    _.gitSync.CreateGitBranch(`${tempBranch}-1`);
     cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
     cy.get(gitSyncLocators.branchButton).click();
     cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${tempBranch}`);
@@ -226,6 +239,7 @@ describe("Git sync:", function() {
   // Validate the error faced when user switches between the branches
   it("7. error faced when user switches branch with new page", function() {
     cy.generateUUID().then((uuid) => {
+      _.gitSync.CreateGitBranch(childBranchKey);
       cy.createGitBranch(childBranchKey);
       cy.CheckAndUnfoldEntityItem("Pages");
       cy.Createpage(uuid);
@@ -249,9 +263,16 @@ describe("Git sync:", function() {
       cy.generateUUID().then((uuid2) => {
         const parentBranchKey = `${uuid1}branch`;
         const childBranchKey = `${uuid2}branch`;
-        cy.createGitBranch(parentBranchKey);
-        cy.createGitBranch(childBranchKey);
-
+        // cy.createGitBranch(parentBranchKey);
+        // cy.createGitBranch(childBranchKey);
+        _.gitSync.CreateGitBranch(parentBranchKey, false);
+        cy.get("@gitbranchName").then((branName) => {
+          parentBranchKey = branName;
+        });
+        _.gitSync.CreateGitBranch(childBranchKey, false);
+        cy.get("@gitbranchName").then((branName) => {
+          childBranchKey = branName;
+        });
         cy.get(gitSyncLocators.branchButton).click();
         cy.get(gitSyncLocators.branchSearchInput).type(
           `{selectall}${parentBranchKey.slice(0, 3)}`,
@@ -282,6 +303,7 @@ describe("Git sync:", function() {
   });
 
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
+    _.gitSync.DeleteTestGithubRepo(repoName);
+    //cy.deleteTestGithubRepo(repoName);
   });
 });

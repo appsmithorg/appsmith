@@ -28,7 +28,7 @@ export class GitSync {
     this.agHelper.AssertElementAbsence(this._gitSyncModal);
   }
 
-  CreateNConnectToGit(repoName: string = "Test", assertConnect: boolean = true) {
+  CreateNConnectToGit(repoName: string = "Test", assertConnect = true, privateFlag = false) {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       repoName += uid;
@@ -183,7 +183,7 @@ export class GitSync {
       },
       body: {
         name: repo,
-        //private: privateFlag,
+        private: privateFlag,
       },
     });
   }

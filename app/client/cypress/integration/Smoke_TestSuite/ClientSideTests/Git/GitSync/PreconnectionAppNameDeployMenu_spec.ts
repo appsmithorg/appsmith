@@ -1,12 +1,9 @@
 import homePage from "../../../../../locators/HomePage";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
-const agHelper = ObjectsRegistry.AggregateHelper,
-  commonLocators = ObjectsRegistry.CommonLocators;
-
 describe("Pre git connection spec:", function() {
-  it("deploy menu at the application dropdown menu", () => {
+  it("1. Deploy menu at the application dropdown menu", () => {
     // create new app
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -24,15 +21,15 @@ describe("Pre git connection spec:", function() {
     });
 
     // deploy
-    agHelper.GetNClick(commonLocators._publishButton);
+    _.agHelper.GetNClick(_.locators._publishButton);
     cy.wait("@publishApp");
 
     // current deployed version
-    agHelper.GetNClick(homePage.deployPopupOptionTrigger);
-    agHelper.AssertElementExist(homePage.currentDeployedPreviewBtn);
+    _.agHelper.GetNClick(homePage.deployPopupOptionTrigger);
+    _.agHelper.AssertElementExist(homePage.currentDeployedPreviewBtn);
 
     // connect to git
-    agHelper.GetNClick(homePage.connectToGitBtn);
+    _.agHelper.GetNClick(homePage.connectToGitBtn);
 
     cy.get(gitSyncLocators.gitSyncModal);
     cy.contains("Git Connection")
