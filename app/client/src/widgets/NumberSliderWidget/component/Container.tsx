@@ -12,6 +12,11 @@ export const SliderContainer = styled.div<{
 }>`
   ${labelLayoutStyles}
 
+  .auto-layout && {
+    height: 50px !important;
+    min-width: 150px;
+  }
+
   padding-right: 0.4rem;
   padding-left: ${({ labelPosition }) =>
     labelPosition === LabelPosition.Top ? "0.4rem" : undefined};
