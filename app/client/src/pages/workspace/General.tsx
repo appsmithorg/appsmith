@@ -7,7 +7,11 @@ import {
 } from "@appsmith/actions/workspaceActions";
 import { SaveWorkspaceRequest } from "@appsmith/api/WorkspaceApi";
 import { debounce } from "lodash";
-import { TextInput, emailValidator, notEmptyValidator } from "design-system";
+import {
+  TextInput,
+  emailValidator,
+  notEmptyValidator,
+} from "design-system-old";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
@@ -23,7 +27,7 @@ import {
   Text,
   TextType,
   UploadCallback,
-} from "design-system";
+} from "design-system-old";
 import { Classes } from "@blueprintjs/core";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useMediaQuery } from "react-responsive";

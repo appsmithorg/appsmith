@@ -16,7 +16,7 @@ import {
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
 } from "@appsmith/constants/messages";
 import { ControlIcons } from "icons/ControlIcons";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 
 const StyledPlusCircleIcon = styled(ControlIcons.ADD_CIRCLE_CONTROL)`
   padding: 0;

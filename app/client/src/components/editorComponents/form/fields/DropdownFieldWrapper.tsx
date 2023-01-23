@@ -1,4 +1,4 @@
-import { Dropdown } from "design-system";
+import { Dropdown } from "design-system-old";
 import { Colors } from "constants/Colors";
 import React, { useEffect, useState } from "react";
 import { WrappedFieldInputProps } from "redux-form";

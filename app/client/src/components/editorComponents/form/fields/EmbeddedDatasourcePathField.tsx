@@ -36,7 +36,7 @@ import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers"
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import { Text, FontWeight, TextType } from "design-system";
+import { Text, FontWeight, TextType } from "design-system-old";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 import { AuthType } from "entities/Datasource/RestAPIForm";
