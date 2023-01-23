@@ -4,7 +4,7 @@ import {
   LOCK_SIDEBAR_MESSAGE,
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
 import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";

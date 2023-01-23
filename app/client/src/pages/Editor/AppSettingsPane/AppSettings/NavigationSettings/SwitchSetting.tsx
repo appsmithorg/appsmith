@@ -2,7 +2,7 @@ import React from "react";
 import { NavigationSetting } from "constants/AppConstants";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 import SwitchWrapper from "../../Components/SwitchWrapper";
-import { Switch } from "design-system";
+import { Switch } from "design-system-old";
 import { UpdateSetting } from ".";
 import _ from "lodash";
 

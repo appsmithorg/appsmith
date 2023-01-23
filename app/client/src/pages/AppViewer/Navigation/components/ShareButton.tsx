@@ -1,7 +1,7 @@
 import React from "react";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import Button from "../../AppViewerButton";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";

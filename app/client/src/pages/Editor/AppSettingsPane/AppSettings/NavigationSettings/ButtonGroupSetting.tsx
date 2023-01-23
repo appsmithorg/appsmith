@@ -1,5 +1,10 @@
 import React from "react";
-import { TextType, Text, ButtonGroup, ButtonGroupOption } from "design-system";
+import {
+  TextType,
+  Text,
+  ButtonGroup,
+  ButtonGroupOption,
+} from "design-system-old";
 import {
   NavigationSetting,
   StringsFromNavigationSetting,

@@ -10,7 +10,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import StyledMenuItem from "./StyledMenuItem";
 import { trimQueryString } from "utils/helpers";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import MenuText from "./MenuText";
 
 type MenuItemProps = {

@@ -3,8 +3,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { NavigationSetting } from "constants/AppConstants";
-import { Dropdown, DropdownOption } from "design-system";
-import _ from "lodash";
+import { Dropdown, DropdownOption } from "design-system-old";
 import React from "react";
 import { UpdateSetting } from ".";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";

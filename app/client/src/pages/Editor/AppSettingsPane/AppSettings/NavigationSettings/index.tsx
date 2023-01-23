@@ -21,7 +21,7 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "actions/applicationActions";
-import { Spinner } from "design-system";
+import { Spinner } from "design-system-old";
 
 export type UpdateSetting = (
   key: keyof NavigationSetting,

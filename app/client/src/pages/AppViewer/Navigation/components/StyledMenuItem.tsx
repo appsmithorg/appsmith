@@ -1,5 +1,5 @@
 import { NavigationSetting } from "constants/AppConstants";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemBackgroundColorWhenActive,
