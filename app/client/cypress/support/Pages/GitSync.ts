@@ -213,8 +213,8 @@ export class GitSync {
     });
   }
 
-  CreateGitBranch(branch: string = "Test") {
-    //this.agHelper.GenerateUUID();
+  CreateGitBranch(branch: string = "Test", toUseNewGuid = false) {
+    if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.GetNClick(this._branchButton);
     this.agHelper.Sleep(2000); //branch pop up to open
     cy.get("@guid").then((uid) => {
