@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import styled from "styled-components";
-import { Toggle } from "design-system";
+import { Toggle } from "design-system-old";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import {
   AllowToggle,

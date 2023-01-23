@@ -3,7 +3,7 @@ import {
   ControlWrapper,
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
-import { Setter, TreeDropdown } from "design-system";
+import { Setter, TreeDropdown } from "design-system-old";
 import { PopoverPosition } from "@blueprintjs/core";
 import React from "react";
 

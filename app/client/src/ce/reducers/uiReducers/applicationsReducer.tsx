@@ -21,11 +21,11 @@ import {
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { ConnectToGitResponse } from "actions/gitSyncActions";
-import { AppIconName } from "design-system";
 import {
   defaultNavigationSetting,
   NavigationSetting,
 } from "constants/AppConstants";
+import { AppIconName } from "design-system-old";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,

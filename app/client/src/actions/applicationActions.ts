@@ -9,7 +9,7 @@ import {
   FetchApplicationPayload,
 } from "api/ApplicationApi";
 import { NavigationSetting } from "constants/AppConstants";
-import { AppIconName } from "design-system";
+import { AppIconName } from "design-system-old";
 import { Datasource } from "entities/Datasource";
 
 export enum ApplicationVersion {
