@@ -13,6 +13,7 @@ import { isArray, xor } from "lodash";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import React, { ReactNode } from "react";
+import { isAutoLayout } from "selectors/mainCanvasSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -166,6 +167,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -390,6 +392,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",
