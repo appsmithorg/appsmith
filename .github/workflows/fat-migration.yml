@@ -176,6 +176,7 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          CYPRESS_GITEA_TOKEN: ${{ secrets.CYPRESS_GITEA_TOKEN }}
           POSTGRES_PASSWORD: postgres
         run: |
           cd app/client
