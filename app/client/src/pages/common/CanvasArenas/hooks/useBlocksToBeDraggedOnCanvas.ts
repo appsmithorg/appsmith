@@ -510,6 +510,5 @@ export const useBlocksToBeDraggedOnCanvas = ({
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,
     )[0],
-    occupiedSpaces,
   };
 };

@@ -95,7 +95,6 @@ function CanvasContainer() {
   }
 
   if (!isPageInitializing && widgetsStructure) {
-    // TODO: Temporary workaround for positioning. To be removed after testing.
     node = (
       <Canvas
         canvasScale={canvasScale}
