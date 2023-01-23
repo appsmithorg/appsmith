@@ -178,7 +178,6 @@
     "header":"#header-root",
     "mapChartPlot": "g[class$='-manager-plot']",
     "explorerSwitchId": "#switcher--explorer",
-    "widgetSwitchId":"#switcher--widgets",
     "modalWidget": ".t--modal-widget",
     "tableFilterPaneToggle": ".t--table-filter-toggle-btn",
     "tableFilterRow": ".t--table-filter",

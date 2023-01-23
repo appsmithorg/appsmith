@@ -6,6 +6,7 @@ const dsl = require("../../../../fixtures/replay.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const ee = ObjectsRegistry.EntityExplorer,
+  canvasHelper = ObjectsRegistry.CanvasHelper,
   appSettings = ObjectsRegistry.AppSettings;
 
 const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
@@ -65,7 +66,7 @@ describe("App Theming funtionality", function() {
     appSettings.ClosePane();
 
     // drop a button & container widget and click on body
-    cy.get(explorer.widgetSwitchId).click();
+    canvasHelper.OpenWidgetPane();
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();
@@ -215,7 +216,7 @@ describe("App Theming funtionality", function() {
   });
 
   it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
-    cy.get(explorer.widgetSwitchId).click();
+    canvasHelper.OpenWidgetPane();
     cy.dragAndDropToCanvas("iconbuttonwidget", { x: 200, y: 300 });
     cy.assertPageSave();
     cy.get("canvas")
@@ -787,7 +788,7 @@ describe("App Theming funtionality", function() {
   });
 
   it("9. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
-    cy.get(explorer.widgetSwitchId).click();
+    canvasHelper.OpenWidgetPane();
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.assertPageSave();
     cy.moveToStyleTab();

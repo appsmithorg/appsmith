@@ -759,6 +759,7 @@ Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
     const selector = `.t--widget-card-draggable-${widgetType}`;
+    CanvasHelper.OpenWidgetPane();
     cy.wait(800);
     cy.get(selector)
       .scrollIntoView()

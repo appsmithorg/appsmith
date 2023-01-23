@@ -7,6 +7,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const jsEditor = ObjectsRegistry.JSEditor;
 const ee = ObjectsRegistry.EntityExplorer;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const canvasHelper = ObjectsRegistry.CanvasHelper;
 let queryName;
 
 /*
@@ -72,7 +73,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
   // Step 1: simulate cyclic depedency
   it("2. Create Input Widget & Bind Input Widget Default text to Query Created", () => {
-    cy.get(widgetsPage.widgetSwitchId).click();
+    canvasHelper.OpenWidgetPane();
     cy.openPropertyPane("inputwidgetv2");
     cy.get(widgetsPage.defaultInput).type("{{" + queryName + ".data[0].gender");
     cy.widgetText("gender", widgetsPage.inputWidget, widgetsPage.inputval);

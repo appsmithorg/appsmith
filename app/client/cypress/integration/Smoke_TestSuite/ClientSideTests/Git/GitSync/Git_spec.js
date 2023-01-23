@@ -3,6 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorerLocators = require("../../../../../locators/explorerlocators.json");
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const tempBranch = "tempBranch";
 const tempBranch0 = "tempBranch0";
@@ -50,7 +51,7 @@ describe("Git sync:", function() {
 
   it("shows remote is ahead warning and conflict error during commit and push", function() {
     cy.createGitBranch(tempBranch);
-    cy.get(explorerLocators.widgetSwitchId).click();
+    _.canvasHelper.OpenWidgetPane();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.createGitBranch(tempBranch0);
@@ -88,7 +89,7 @@ describe("Git sync:", function() {
 
   it("detect conflicts when merging head to base branch", function() {
     cy.switchGitBranch(mainBranch);
-    cy.get(explorerLocators.widgetSwitchId).click();
+    _.canvasHelper.OpenWidgetPane();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.createGitBranch(tempBranch1);
@@ -137,7 +138,7 @@ describe("Git sync:", function() {
 
   it("enables pulling remote changes from bottom bar", function() {
     cy.createGitBranch(tempBranch3);
-    cy.get(explorerLocators.widgetSwitchId).click();
+    _.canvasHelper.OpenWidgetPane();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.wait("@updateLayout");

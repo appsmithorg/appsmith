@@ -27,5 +27,4 @@
   "taskDatasourceAltBtn": ".t--tasks-datasource-alternate-button",
   "taskActionAltBtn": ".t--tasks-action-alternate-button",
   "welcomeTourBtn": ".t--start-building",
-  "widgetPaneTrigger": "#switcher--widgets"
 }
