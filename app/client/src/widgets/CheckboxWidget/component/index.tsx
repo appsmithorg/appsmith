@@ -28,6 +28,10 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     .${Classes.CHECKBOX} {
       width: 100%;
     }
+
+    .auto-layout & {
+      min-width: 74px;
+    }
   }
 `;
 
@@ -56,6 +60,13 @@ export const CheckboxLabel = styled.div<{
 
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
+
+  .auto-layout & {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
+  }
 `;
 
 export const StyledCheckbox = styled(Checkbox)`
