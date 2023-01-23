@@ -149,8 +149,6 @@ class ListWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
-      triggeredItem: `{{(()=>{${derivedProperties.getTriggeredItem}})()}}`,
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
     };
   }
@@ -165,6 +163,8 @@ class ListWidget extends BaseWidget<
       currentItemsView: "{{[]}}",
       selectedItemView: "{{{}}}",
       triggeredItemView: "{{{}}}",
+      selectedItem: undefined,
+      triggeredItem: undefined,
       selectedItemIndex: -1,
       triggeredItemIndex: -1,
     };
@@ -239,6 +239,8 @@ class ListWidget extends BaseWidget<
 
     if (this.shouldUpdateCacheKeys(prevProps)) {
       this.updateCacheKey();
+      this.handleRowCacheData();
+      this.handleTriggeredAndSelectedItem();
     }
 
     this.setupMetaWidgets(prevProps);
@@ -304,7 +306,6 @@ class ListWidget extends BaseWidget<
 
   generateMetaWidgets = () => {
     const generatorOptions = this.metaWidgetGeneratorOptions();
-    this.handleRowCacheData();
 
     const {
       metaWidgets,
@@ -375,15 +376,9 @@ class ListWidget extends BaseWidget<
       const tabsWidget = metaWidget as MetaWidget<
         TabsWidgetProps<TabContainerWidgetProps>
       >;
-      const widgetIdToMetaWidgetIdMap: Record<string, string> = {};
-      Object.values(options.childMetaWidgets).forEach(
-        ({ referencedWidgetId = "", widgetId }) => {
-          widgetIdToMetaWidgetIdMap[referencedWidgetId] = widgetId;
-        },
-      );
 
       Object.values(tabsWidget.tabsObj).forEach((tab) => {
-        tab.widgetId = widgetIdToMetaWidgetIdMap[tab.widgetId];
+        tab.widgetId = options.rowReferences[tab.widgetId] || tab.widgetId;
       });
     }
   };
@@ -506,7 +501,6 @@ class ListWidget extends BaseWidget<
     metaMainCanvas.widgetId = metaWidgetId;
     metaMainCanvas.widgetName = metaWidgetName;
     metaMainCanvas.canExtend = true;
-    metaMainCanvas.isVisible = this.props.isVisible;
     metaMainCanvas.minHeight = componentHeight;
     metaMainCanvas.rightColumn = componentWidth;
     metaMainCanvas.noPad = true;
@@ -665,7 +659,6 @@ class ListWidget extends BaseWidget<
   onItemClickCapture = (rowIndex: number) => {
     this.updateTriggeredItemViewIndex(rowIndex);
     this.updateTriggeredItemView(rowIndex);
-    this.setRowDataCache();
   };
 
   updateSelectedItemViewIndex = (rowIndex: number) => {
@@ -678,11 +671,62 @@ class ListWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("selectedItemIndex", rowIndex);
   };
 
+  handleTriggeredAndSelectedItem = () => {
+    this.updateSelectedItem();
+    this.updateTriggeredItem();
+  };
+
+  updateSelectedItem = () => {
+    const { selectedItem, selectedItemIndex = -1 } = this.props;
+    let data: Record<string, unknown> | undefined;
+
+    if (selectedItemIndex !== -1) {
+      if (this.props.serverSidePagination) {
+        const key =
+          Object.keys(this.cachedKeys).find(
+            (key) => this.cachedKeys[key] === selectedItemIndex,
+          ) ?? this.metaWidgetGenerator.getPrimaryKey(selectedItemIndex);
+        data = this.metaWidgetGenerator.getRowDataCache()[key];
+      } else {
+        data = this.props.listData?.[selectedItemIndex];
+      }
+    }
+
+    if (!equal(data, selectedItem)) {
+      this.props.updateWidgetMetaProperty("selectedItem", data);
+    }
+  };
+
+  updateTriggeredItem = () => {
+    const { triggeredItem, triggeredItemIndex = -1 } = this.props;
+    let data: Record<string, unknown> | undefined;
+
+    if (triggeredItemIndex !== -1) {
+      if (this.props.serverSidePagination) {
+        const key =
+          Object.keys(this.cachedKeys).find(
+            (key) => this.cachedKeys[key] === triggeredItemIndex,
+          ) ?? this.metaWidgetGenerator.getPrimaryKey(triggeredItemIndex);
+        data = this.metaWidgetGenerator.getRowDataCache()[key];
+      } else {
+        data = this.props.listData?.[triggeredItemIndex];
+      }
+    }
+
+    if (!equal(data, triggeredItem)) {
+      this.props.updateWidgetMetaProperty("triggeredItem", data);
+    }
+  };
+
+  resetSelectedItem = () =>
+    this.props.updateWidgetMetaProperty("selectedItem", undefined);
+
   updateSelectedItemView = (rowIndex: number) => {
     const { selectedItemIndex } = this.props;
 
     if (rowIndex === selectedItemIndex) {
       this.resetSelectedItemView();
+      this.resetSelectedItem();
       return;
     }
 
@@ -1020,6 +1064,8 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   currentItemsView: string;
   selectedItemIndex?: number;
   selectedItemView: Record<string, unknown>;
+  selectedItem?: Record<string, unknown>;
+  triggeredItem?: Record<string, unknown>;
   triggeredItemIndex?: number;
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;

@@ -58,6 +58,7 @@ type UpdateSiblingsOptions = {
 
 export type HookOptions = {
   childMetaWidgets: MetaWidgets;
+  rowReferences: Record<string, string | undefined>;
 };
 
 type Hook = (metaWidget: MetaWidget, options: HookOptions) => void;
@@ -531,7 +532,7 @@ class MetaWidgetGenerator {
       metaCacheProps || {};
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
     const viewIndex = this.getViewIndex(rowIndex);
-
+    const rowReferences = this.getRowReferences(key);
     const {
       children,
       metaWidgets: childMetaWidgets,
@@ -589,6 +590,7 @@ class MetaWidgetGenerator {
 
     this.hooks?.afterMetaWidgetGenerate?.(metaWidget, {
       childMetaWidgets,
+      rowReferences,
     });
 
     this.updateSiblings(rowIndex, {
@@ -872,6 +874,7 @@ class MetaWidgetGenerator {
       ...(metaWidget.dynamicTriggerPathList || []),
     ];
     let referencesEntityDef: Record<string, string> = {};
+    const pathTypes = new Set();
 
     if (!dynamicPaths.length) return;
 
@@ -887,7 +890,6 @@ class MetaWidgetGenerator {
       );
       const { jsSnippets, stringSegments } = getDynamicBindings(propertyValue);
       const js = combineDynamicBindings(jsSnippets, stringSegments);
-      const pathTypes = new Set();
 
       if (hasCurrentItem(propertyValue)) {
         this.addCurrentItemProperty(metaWidget, metaWidgetName, key);
@@ -921,16 +923,27 @@ class MetaWidgetGenerator {
         }
       }
 
-      const prefix = [...pathTypes].join(", ");
-      const suffix = [...pathTypes]
-        .map((type) => `${metaWidgetName}.${type}`)
-        .join(", ");
-      const propertyBinding = `{{((${prefix}) => ${js})(${suffix})}}`;
+      if (pathTypes.size) {
+        const prefix = [...pathTypes].join(", ");
+        const suffix = [...pathTypes]
+          .map((type) => `${metaWidgetName}.${type}`)
+          .join(", ");
+        const propertyBinding = `{{((${prefix}) => ${js})(${suffix})}}`;
 
-      set(metaWidget, path, propertyBinding);
+        set(metaWidget, path, propertyBinding);
+      }
     });
 
-    this.addCurrentViewProperty(metaWidget, Object.values(referencesEntityDef));
+    /**
+     * Calling this here as all references in all the dynamicBindingPathList has to
+     * be collected first in the above loop and then added at last.
+     */
+    if (pathTypes.has(DynamicPathType.CURRENT_VIEW)) {
+      this.addCurrentViewProperty(
+        metaWidget,
+        Object.values(referencesEntityDef),
+      );
+    }
   };
 
   private addCurrentItemProperty = (
@@ -1450,6 +1463,19 @@ class MetaWidgetGenerator {
     }
 
     return templateCache;
+  };
+
+  private getRowReferences = (key: string) => {
+    const templateCache = this.getRowCache(key) || {};
+    const templateWidgetIds = Object.keys(templateCache);
+    const references: Record<string, string | undefined> = {};
+
+    templateWidgetIds.forEach((templateWidgetId) => {
+      const rowTemplateCache = this.getRowTemplateCache(key, templateWidgetId);
+      references[templateWidgetId] = rowTemplateCache?.metaWidgetId;
+    });
+
+    return references;
   };
 
   private getRowCache = (key: string) => {
