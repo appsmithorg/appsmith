@@ -78,6 +78,8 @@ export const ActionBlockTree: React.FC<Props> = ({
           <ActionBlock
             action={action}
             actionTypeLabel={actionTypeLabel}
+            // We don't have to show the action count if the action is selected
+            actionsCount={selected ? 0 : callBacksLength}
             icon={MainActionIcon}
             onClick={onClick}
             selected={selected && !selectedCallbackBlock}

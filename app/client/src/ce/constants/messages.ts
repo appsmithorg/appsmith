@@ -409,7 +409,7 @@ export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
 export const NO_ACTION = () => `No action`;
 export const EXECUTE_A_QUERY = () => `Execute a query`;
 export const NAVIGATE_TO = () => `Navigate to`;
-export const SHOW_MESSAGE = () => `Show message`;
+export const SHOW_MESSAGE = () => `Show Alert`;
 export const OPEN_MODAL = () => `Open modal`;
 export const CLOSE_MODAL = () => `Close modal`;
 export const STORE_VALUE = () => `Store value`;
@@ -1481,7 +1481,7 @@ export const customJSLibraryMessages = {
   CLIENT_LOAD_FAILED: (url: string) => `Failed to load the script at ${url}.`,
   LIB_OVERRIDE_ERROR: (
     name: string,
-  ) => `The library ${name} is already installed. 
+  ) => `The library ${name} is already installed.
   If you are trying to install a different version, uninstall the library first.`,
   DEFS_FAILED_ERROR: (name: string) =>
     `Failed to generate autocomplete definitions for ${name}.`,
