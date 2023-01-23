@@ -13,15 +13,15 @@ const StyledMenuItem = styled(NavLink)<{
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
   display: flex;
+  align-items: center;
   max-width: 220px;
   align-self: flex-end;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.3s ease-in-out;
-  padding: 0 10px;
+  padding: 6px 10px;
   border-radius: 4px;
   background-color: transparent;
-  min-height: 2rem;
 
   .page-icon svg path {
     fill: ${({ navColorStyle, primaryColor }) =>
@@ -69,7 +69,6 @@ const StyledMenuItemText = styled.div<{
   ${getTypographyByKey("h5")}
   color: ${({ navColorStyle, primaryColor }) =>
     getMenuItemTextColor(primaryColor, navColorStyle, true)};
-  height: ${(props) => `calc(${props.theme.pageTabsHeight})`};
   transition: all 0.3s ease-in-out;
   font-weight: 400;
 

@@ -17,7 +17,7 @@ const StyledContainer = styled.div<{
   border-top: 1px solid
     ${({ navColorStyle, primaryColor }) =>
       getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-  padding: 12px 8px 16px;
+  padding: 12px 8px 0;
   margin-top: 12px;
 `;
 

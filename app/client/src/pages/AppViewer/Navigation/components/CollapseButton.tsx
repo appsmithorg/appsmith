@@ -53,7 +53,7 @@ const CollapseButton = (props: CollapseButtonProps) => {
   };
 
   return (
-    <div className="cursor-pointer">
+    <div className="cursor-pointer" onClick={handleOnClick}>
       <TooltipComponent
         content={
           <div className="flex items-center justify-between">
@@ -76,7 +76,6 @@ const CollapseButton = (props: CollapseButtonProps) => {
           <StyledIconContainer
             className="relative w-4 h-4 group flex items-center justify-center"
             navColorStyle={navColorStyle}
-            onClick={handleOnClick}
             primaryColor={primaryColor}
           >
             {!isPinned ? (

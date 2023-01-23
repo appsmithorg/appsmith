@@ -40,7 +40,7 @@ type Props = {
   className?: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
-  showLabel?: boolean;
+  insideSidebar?: boolean;
 };
 
 /**
@@ -50,7 +50,7 @@ type Props = {
  */
 
 function PrimaryCTA(props: Props) {
-  const { className, navColorStyle, primaryColor, showLabel, url } = props;
+  const { className, insideSidebar, navColorStyle, primaryColor, url } = props;
   const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
   const currentPageID = useSelector(getCurrentPageId);
@@ -90,21 +90,25 @@ function PrimaryCTA(props: Props) {
       return (
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          className={`w-full md:w-auto ${className}`}
+          className={className}
+          icon={
+            <Icon
+              fillColor={getApplicationNameTextColor(
+                primaryColor,
+                navColorStyle,
+              )}
+              name="edit-line"
+              size="extraLarge"
+            />
+          }
+          insideSidebar={insideSidebar}
           navColorStyle={navColorStyle}
           onClick={() => {
             history.push(url);
           }}
           primaryColor={primaryColor}
-        >
-          <Icon
-            fillColor={getApplicationNameTextColor(primaryColor, navColorStyle)}
-            name="edit-line"
-            size="extraLarge"
-          />
-
-          {showLabel && createMessage(EDIT_APP)}
-        </Button>
+          text={insideSidebar && createMessage(EDIT_APP)}
+        />
       );
     }
 
@@ -166,6 +170,7 @@ function PrimaryCTA(props: Props) {
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
           className="t--sign-in"
+          insideSidebar={insideSidebar}
           navColorStyle={navColorStyle}
           onClick={() => {
             window.location.href = LOGIN_URL;

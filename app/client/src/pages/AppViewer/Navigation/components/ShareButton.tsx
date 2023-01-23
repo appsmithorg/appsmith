@@ -23,11 +23,15 @@ const { cloudHosting } = getAppsmithConfigs();
 type ShareButtonProps = {
   currentApplicationDetails?: ApplicationPayload;
   currentWorkspaceId: string;
-  showLabel?: boolean;
+  insideSidebar?: boolean;
 };
 
 const ShareButton = (props: ShareButtonProps) => {
-  const { currentApplicationDetails, currentWorkspaceId, showLabel } = props;
+  const {
+    currentApplicationDetails,
+    currentWorkspaceId,
+    insideSidebar,
+  } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
@@ -59,17 +63,21 @@ const ShareButton = (props: ShareButtonProps) => {
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
           className="h-8"
           data-cy="viewmode-share"
+          icon={
+            <Icon
+              fillColor={getApplicationNameTextColor(
+                primaryColor,
+                navColorStyle,
+              )}
+              name="share-line"
+              size="extraLarge"
+            />
+          }
+          insideSidebar={insideSidebar}
           navColorStyle={navColorStyle}
           primaryColor={primaryColor}
-          showLabel={showLabel}
-        >
-          <Icon
-            fillColor={getApplicationNameTextColor(primaryColor, navColorStyle)}
-            name="share-line"
-            size="extraLarge"
-          />
-          {showLabel && createMessage(SHARE_APP)}
-        </Button>
+          text={insideSidebar && createMessage(SHARE_APP)}
+        />
       }
       workspaceId={currentWorkspaceId}
     />
