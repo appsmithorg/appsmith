@@ -6,7 +6,7 @@ import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import { Colors } from "constants/Colors";
 import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";

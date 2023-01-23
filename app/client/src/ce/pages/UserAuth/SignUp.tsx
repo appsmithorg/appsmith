@@ -28,7 +28,7 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
-import { Button, FormGroup, FormMessage, Size } from "design-system";
+import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
