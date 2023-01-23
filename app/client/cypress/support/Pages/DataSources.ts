@@ -305,7 +305,7 @@ export class DataSources {
     cy.get(this._newDatabases).should("be.visible");
   }
 
-  CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
+  CreateMockDB(dbName: "users" | "movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._mockDB(dbName));
     return cy

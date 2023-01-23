@@ -6,7 +6,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Validate Mock Query Active Ds querying & count", () => {
   it("1. Create Query from Mock Mongo DB & verify active queries count", () => {
-    dataSources.CreateMockDB("Movies").then((mockDBName) => {
+    dataSources.CreateMockDB("movies").then((mockDBName) => {
       dataSources.CreateQuery(mockDBName);
       dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
       agHelper.EnterValue("movies", {
@@ -53,7 +53,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
   });
 
   it("2. Create Query from Mock Postgres DB & verify active queries count", () => {
-    dataSources.CreateMockDB("Users").then((mockDBName) => {
+    dataSources.CreateMockDB("users").then((mockDBName) => {
       dataSources.CreateQuery(mockDBName);
       agHelper.GetNClick(dataSources._templateMenuOption("Select"));
       dataSources.RunQueryNVerifyResponseViews(10);
