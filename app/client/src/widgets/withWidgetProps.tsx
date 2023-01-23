@@ -118,11 +118,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     //merging with original props
     widgetProps = { ...props, ...widgetProps, renderMode };
 
-    // add google mapi key to widget props if it's amap widget
-    // Note: This is a temporary fix. It's abstraction leak
-    if (widgetProps.type === "MAP_WIDGET") {
-      widgetProps.googleMapsApiKey = googleMapsApiKey;
-    }
+    // adding google maps api key to widget props (although meant for map widget only)
+    widgetProps.googleMapsApiKey = googleMapsApiKey;
 
     // isVisible prop defines whether to render a detached widget
     if (widgetProps.detachFromLayout && !widgetProps.isVisible) {
