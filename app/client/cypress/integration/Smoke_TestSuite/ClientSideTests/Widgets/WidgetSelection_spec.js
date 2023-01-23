@@ -48,8 +48,6 @@ describe("Widget Selection", function() {
   });
 
   it("3. Should not select widgets if we hit CTRL + A on other Pages", function() {
-    // Switch to the Explorer Pane
-    cy.get("#switcher--explorer").click();
     // Click to create a New Data Source
     cy.get(".t--entity-add-btn")
       .eq(3)

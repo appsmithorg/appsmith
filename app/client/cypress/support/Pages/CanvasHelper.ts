@@ -9,22 +9,25 @@ export class CanvasHelper {
   };
 
   public OpenWidgetPane() {
-    const openPane = (ctaVisible: boolean) => {
-      if (ctaVisible) {
-        this.agHelper
-          .DoesElementExist(this.locators._widgetPane)
-          .then((exists) => {
-            if (!exists) {
-              this.agHelper.GetNClick(this.locators._widgetPaneCTA);
-            }
-          });
+    const openPane = (isCTAVisible: boolean) => {
+      if (isCTAVisible) {
+        const widgetPaneVisible = this.agHelper.DoesElementExist(
+          this.locators._widgetPane,
+        );
+        widgetPaneVisible.then((value) => {
+          if (!value) {
+            this.agHelper.GetNClick(this.locators._widgetPaneCTA);
+          }
+        });
       } else {
         this.agHelper.GetNClick(this.commonLocators._openWidget);
       }
     };
 
-    this.agHelper
-      .DoesElementExist(this.locators._widgetPaneCTA)
-      .then(openPane as any);
+    const ctaVisible = this.agHelper.DoesElementExist(
+      this.locators._widgetPaneCTA,
+    );
+
+    ctaVisible.then(openPane);
   }
 }

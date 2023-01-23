@@ -60,14 +60,11 @@ export class AggregateHelper {
   }
 
   public DoesElementExist(selector: string) {
-    return new Promise((resolve) => {
-      cy.get("body").then((body) => {
-        if (body.find(selector).length > 0) {
-          resolve(true);
-        }
-
-        resolve(false);
-      });
+    return cy.get("body").then((body) => {
+      if (body.find(selector).length > 0) {
+        return cy.wrap(true);
+      }
+      return cy.wrap(false);
     });
   }
 

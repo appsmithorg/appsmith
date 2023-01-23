@@ -68,7 +68,6 @@ describe("Dynamic Height Width validation list widget", function() {
           200,
         );
         cy.wait(2000);
-        cy.get("#switcher--explorer").click({ force: true });
         cy.get(
           ".t--entity-item:contains('Container1') .t--entity-collapse-toggle",
         ).click({ force: true });

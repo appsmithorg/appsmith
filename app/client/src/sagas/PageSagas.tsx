@@ -80,6 +80,7 @@ import {
   getCurrentPageId,
   getCurrentPageName,
   getPageById,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -1165,6 +1166,7 @@ function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 
 function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   const currentPageId: string = yield select(getCurrentPageId);
+  const inPreviewMode: boolean = yield select(previewModeSelector);
   if (action.payload) {
     // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));
@@ -1174,6 +1176,7 @@ function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
       }),
     );
   } else {
+    if (!inPreviewMode) return;
     // when switching back to edit mode
     // we go back to the previous route e.g query, api etc.
     history.goBack();
