@@ -20,11 +20,12 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
+  Classes,
+  MultiSwitch,
   Icon,
   IconSize,
   TooltipComponent,
-} from "design-system";
-import { Classes, MultiSwitch } from "design-system-old";
+} from "design-system-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
