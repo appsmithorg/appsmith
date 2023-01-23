@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Icon, IconSize, Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system-old";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 import {
