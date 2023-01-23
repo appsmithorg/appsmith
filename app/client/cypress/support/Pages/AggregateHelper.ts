@@ -60,13 +60,15 @@ export class AggregateHelper {
   }
 
   public DoesElementExist(selector: string) {
-    let exists = false;
-    cy.get("body").then((body) => {
-      if (body.find(selector).length > 0) {
-        exists = true;
-      }
+    return new Promise((resolve) => {
+      cy.get("body").then((body) => {
+        if (body.find(selector).length > 0) {
+          resolve(true);
+        }
+
+        resolve(false);
+      });
     });
-    return exists;
   }
 
   public TypeTab(shiftKey = false, ctrlKey = false) {

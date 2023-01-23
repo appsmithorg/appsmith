@@ -13,7 +13,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import WidgetPaneTrigger from "./WidgetPaneCTA";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 
 const Wrapper = styled.div`
   height: ${(props) => props.theme.widgetTopBar};

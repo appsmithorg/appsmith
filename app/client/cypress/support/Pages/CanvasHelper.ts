@@ -8,9 +8,10 @@ export class CanvasHelper {
   };
 
   public OpenWidgetPane() {
-    const isOpen = this.agHelper.DoesElementExist(this.locators._widgetPane);
-    if (!isOpen) {
-      this.agHelper.GetNClick(this.locators._widgetPaneCTA);
-    }
+    this.agHelper.DoesElementExist(this.locators._widgetPane).then((exists) => {
+      if (!exists) {
+        this.agHelper.GetNClick(this.locators._widgetPaneCTA);
+      }
+    });
   }
 }

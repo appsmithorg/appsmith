@@ -6,7 +6,7 @@ import { getDragDetails } from "sagas/selectors";
 import { AppState } from "@appsmith/reducers";
 import { useMouseLocation } from "../GlobalHotKeys/useMouseLocation";
 import styled from "styled-components";
-import { Icon, IconSize, TooltipComponent } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { selectForceOpenWidgetPanel } from "selectors/editorSelectors";
