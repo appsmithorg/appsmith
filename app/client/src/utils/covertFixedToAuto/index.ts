@@ -379,15 +379,18 @@ export function getAlignmentScore(
   totalMin: number,
   totalMax: number,
 ) {
-  const orientationScore =
-    (totalMax - widgetMax - (widgetMin - totalMin)) / (totalMax - totalMin);
-
   const width = widgetMax - widgetMin;
+  const totalWidth = totalMax - totalMin;
+
+  if (width === totalWidth) return -1;
+
+  const orientationScore =
+    (totalMax - widgetMax - (widgetMin - totalMin)) / totalWidth;
+
   const tempWidgetMin = totalMin,
     tempWidgetMax = totalMin + width;
   const maxScore =
-    (totalMax - tempWidgetMax - (tempWidgetMin - totalMin)) /
-    (totalMax - totalMin);
+    (totalMax - tempWidgetMax - (tempWidgetMin - totalMin)) / totalWidth;
 
   const directionalIndicator = orientationScore < 0 ? 1 : -1;
 
