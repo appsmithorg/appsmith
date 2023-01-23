@@ -2,7 +2,7 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 export class TriggerCollector {
   private triggers: unknown[] = [];
-  constructor(private requestType: MAIN_THREAD_ACTION) {}
+  constructor(private requestType: keyof typeof MAIN_THREAD_ACTION) {}
   collect = (trigger: unknown) => {
     if (this.triggers.length === 0) {
       queueMicrotask(() => {
