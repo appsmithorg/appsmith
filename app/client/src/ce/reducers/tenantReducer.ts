@@ -18,7 +18,7 @@ export interface TenantReduxState<T> {
   isLoading: boolean;
 }
 
-const defaultBrandingConfig = {
+export const defaultBrandingConfig = {
   brandFaviconUrl: APPSMITH_BRAND_FAVICON_URL,
   brandColors: {
     ...createBrandColorsFromPrimaryColor(APPSMITH_BRAND_PRIMARY_COLOR),
