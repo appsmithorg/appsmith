@@ -2,6 +2,9 @@ const publishLocators = require("../../../../../locators/publishWidgetspage.json
 const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+
+const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe("List widget v2 - Basic server side data tests", () => {
   before(() => {
@@ -96,5 +99,55 @@ describe("List widget v2 - Basic server side data tests", () => {
         .invoke("text")
         .should("have.length.gt", 0);
     });
+  });
+
+  it("re-runs query of page 1 when reset", () => {
+    // Modify onPageChange
+    cy.openPropertyPane("listwidgetv2");
+    cy.get(toggleJSButton("onpagechange")).click({ force: true });
+    cy.testJsontext(
+      "onpagechange",
+      "{{Query1.run(() => {showAlert(`Query Ran ${new Date().getTime()}`)}, () => {})}}",
+    );
+
+    cy.openPropertyPane("buttonwidget");
+
+    cy.get(toggleJSButton("onclick")).click({ force: true });
+
+    cy.testJsontext("onclick", "{{resetWidget('List1',true)}}");
+
+    // Verify if page 2
+    cy.get(".rc-pagination-item").contains(2);
+
+    // Go to next page
+    cy.get(".t--list-widget-next-page.rc-pagination-next")
+      .find("button")
+      .click({ force: true });
+
+    // Verify if page 3
+    cy.get(".rc-pagination-item").contains(3);
+
+    /**
+     *  Note: Waiting for toastmsg and verifying it can cause flakyness
+     * as the APIs could take time to respond and by the response comes,
+     * the cypress tests might timeout.
+     *  */
+    // Represents query fired
+    cy.get(commonlocators.toastmsg).should("exist");
+    // Represents the toast message is closed
+    cy.get(commonlocators.toastmsg).should("not.exist");
+
+    // Reset List widget
+    cy.get(".t--draggable-buttonwidget")
+      .find("button")
+      .click({ force: true });
+
+    // Verify if page 1
+    cy.get(".rc-pagination-item").contains(1);
+
+    // Verify if Query fired once
+    cy.get(commonlocators.toastmsg)
+      .should("exist")
+      .should("have.length", 1);
   });
 });
