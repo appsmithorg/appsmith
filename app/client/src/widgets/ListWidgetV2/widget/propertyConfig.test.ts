@@ -130,28 +130,4 @@ describe(".primaryColumnValidation", () => {
       messages: ["Primary key cannot be empty"],
     });
   });
-
-  it(" returns undefined with key that doesn't exist", () => {
-    const props = ({
-      listData: [
-        {
-          id: 1,
-        },
-        {
-          id: 2,
-        },
-      ],
-      dynamicPropertyPathList: [{ key: "primaryKeys" }],
-    } as unknown) as ListWidgetProps;
-
-    const input: unknown = [null, null];
-
-    const output = primaryColumnValidation(input, props, _);
-
-    expect(output).toEqual({
-      isValid: false,
-      parsed: undefined,
-      messages: ["Chosen Primary key doesn't exist"],
-    });
-  });
 });

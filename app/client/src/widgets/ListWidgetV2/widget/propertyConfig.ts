@@ -37,14 +37,6 @@ export const primaryColumnValidation = (
       };
     }
 
-    // when PrimaryKey is {{ currentItem["img"] }} and img doesn't exist in the data.
-    if (inputValue.every((value) => _.isNil(value))) {
-      return {
-        isValid: false,
-        parsed: undefined, // undefined the chosen key doesn't exist.
-        messages: ["Chosen Primary key doesn't exist"],
-      };
-    }
     const areKeysUnique = _.uniq(inputValue).length === listData.length;
 
     if (!areKeysUnique) {
@@ -73,21 +65,62 @@ export const primaryColumnValidation = (
   };
 };
 
+const getPrimaryKeyFromDynamicValue = (
+  prefixTemplate: string,
+  suffixTemplate: string,
+  dynamicValue?: any,
+) => {
+  if (!dynamicValue) return "";
+
+  const updatedPrefix = `${prefixTemplate} currentItem[`;
+  const updatedSuffix = `] ${suffixTemplate}`;
+  const suffixLength = dynamicValue.length - updatedSuffix.length;
+
+  const value = dynamicValue.substring(updatedPrefix.length, suffixLength);
+
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    return "";
+  }
+};
+
 export const primaryKeyOptions = (props: ListWidgetProps) => {
-  const { widgetName } = props;
+  const { primaryKeys, widgetName } = props;
   const listData = props[EVALUATION_PATH]?.evaluatedValues?.listData || [];
   const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 
+  const prevSelectedKey = getPrimaryKeyFromDynamicValue(
+    prefixTemplate,
+    suffixTemplate,
+    primaryKeys,
+  );
+  const options: {
+    label: string;
+    value: string;
+  }[] = [];
+
+  // Add previously selected key to options
+  options.push({
+    label: prevSelectedKey,
+    value: `${prefixTemplate} currentItem[${JSON.stringify(
+      prevSelectedKey,
+    )}] ${suffixTemplate}`,
+  });
+
   if (isValidListData(listData)) {
-    return Object.keys(listData[0]).map((key) => ({
-      label: key,
-      value: `${prefixTemplate} currentItem[${JSON.stringify(
-        key,
-      )}] ${suffixTemplate}`,
-    }));
-  } else {
-    return [];
+    Object.keys(listData[0]).forEach((key) => {
+      if (key !== prevSelectedKey) {
+        options.push({
+          label: key,
+          value: `${prefixTemplate} currentItem[${JSON.stringify(
+            key,
+          )}] ${suffixTemplate}`,
+        });
+      }
+    });
   }
+  return options;
 };
 
 export const PropertyPaneContentConfig = [
