@@ -29,7 +29,7 @@ describe("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateAContainer(
         testUrl,
-        path + "Users/stack:/oldstack/160",
+        path + "$PWD/stack:/appsmith-stacks",
         "latest",
         `appsmith-160_${name}_updated`,
       );
@@ -84,7 +84,7 @@ describe("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateEEContainer(
         testUrl,
-        path + "Users/stack:/oldstack/160",
+        path + "$PWD/stack:/appsmith-stacks",
         "latest",
         `appsmith-160-ce-${name}-enterprise`,
       );
