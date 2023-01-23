@@ -1,5 +1,7 @@
 import { ButtonVariantTypes, Positioning } from "components/constants";
 import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -27,6 +29,8 @@ export const CONFIG = {
     minDynamicHeight: 14,
     children: [],
     positioning: Positioning.Fixed,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
+    minWidth: FILL_WIDGET_MIN_WIDTH,
     blueprint: {
       view: [
         {

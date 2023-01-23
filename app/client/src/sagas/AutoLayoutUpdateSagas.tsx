@@ -1,3 +1,4 @@
+import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import {
   ReduxAction,
@@ -5,9 +6,16 @@ import {
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import { ResponsiveBehavior } from "components/constants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import {
+  getCurrentAppPositioningType,
+  getMainCanvasProps,
+} from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   alterLayoutForDesktop,
@@ -128,6 +136,25 @@ export function* updateLayoutForMobileCheckpoint(
       },
     });
   }
+}
+
+export function* recalculateOnPageLoad() {
+  const appPositioningType: AppPositioningTypes = yield select(
+    getCurrentAppPositioningType,
+  );
+  const mainCanvasProps: MainCanvasReduxState = yield select(
+    getMainCanvasProps,
+  );
+
+  yield put(
+    updateLayoutForMobileBreakpointAction(
+      MAIN_CONTAINER_WIDGET_ID,
+      appPositioningType === AppPositioningTypes.AUTO
+        ? mainCanvasProps?.isMobile
+        : false,
+      mainCanvasProps.width,
+    ),
+  );
 }
 
 export default function* layoutUpdateSagas() {

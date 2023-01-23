@@ -585,6 +585,11 @@ export function ApplicationsSection(props: any) {
     setSelectedWorkspaceIdForImportApplication,
   ] = useState<string | undefined>();
 
+  const [
+    selectedWorkspaceIdForImportApplicationAsAuto,
+    setSelectedWorkspaceIdForImportApplicationAsAuto,
+  ] = useState<string | undefined>();
+
   const leaveWS = (workspaceId: string) => {
     setWarnLeavingWorkspace(false);
     setWorkspaceToOpenMenu(null);
@@ -744,6 +749,20 @@ export function ApplicationsSection(props: any) {
                   workspaceId={selectedWorkspaceIdForImportApplication}
                 />
               )}
+
+              {selectedWorkspaceIdForImportApplicationAsAuto && (
+                <ImportApplicationModal
+                  importAsAuto
+                  isModalOpen={
+                    selectedWorkspaceIdForImportApplicationAsAuto ===
+                    workspace.id
+                  }
+                  onClose={() =>
+                    setSelectedWorkspaceIdForImportApplicationAsAuto("")
+                  }
+                  workspaceId={selectedWorkspaceIdForImportApplicationAsAuto}
+                />
+              )}
               {!isFetchingApplications && (
                 <WorkspaceShareUsers>
                   <SharedUserList workspaceId={workspace.id} />
@@ -859,16 +878,28 @@ export function ApplicationsSection(props: any) {
                         )}
                         {enableImportExport &&
                           hasCreateNewApplicationPermission && (
-                            <MenuItem
-                              cypressSelector="t--workspace-import-app"
-                              icon="download"
-                              onSelect={() =>
-                                setSelectedWorkspaceIdForImportApplication(
-                                  workspace.id,
-                                )
-                              }
-                              text="Import"
-                            />
+                            <>
+                              <MenuItem
+                                cypressSelector="t--workspace-import-app"
+                                icon="download"
+                                onSelect={() =>
+                                  setSelectedWorkspaceIdForImportApplication(
+                                    workspace.id,
+                                  )
+                                }
+                                text="Import"
+                              />
+                              <MenuItem
+                                cypressSelector="t--workspace-import-app-as-auto"
+                                icon="download"
+                                onSelect={() =>
+                                  setSelectedWorkspaceIdForImportApplicationAsAuto(
+                                    workspace.id,
+                                  )
+                                }
+                                text="Import as AutoLayout"
+                              />
+                            </>
                           )}
                         {hasManageWorkspacePermissions && canInviteToWorkspace && (
                           <MenuItem

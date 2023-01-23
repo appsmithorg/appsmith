@@ -281,6 +281,7 @@ export const DefaultFillWidgets = [
   "TABLE_WIDGET_V2",
   "PROGRESS_WIDGET",
   "SWITCH_WIDGET",
+  "STATBOX_WIDGET",
 ];
 
 export function getDefaultResponsiveBehavior(widgetType: string) {

@@ -38,6 +38,7 @@ import {
   ApplicationVersion,
   fetchApplication,
   getAllApplications,
+  importApplication,
   importApplicationSuccess,
   initDatasourceConnectionDuringImportSuccess,
   resetCurrentApplication,
@@ -93,13 +94,18 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
-import { identity, merge, pickBy } from "lodash";
+import { identity, isEmpty, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 import { getPageList, getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
+import { convertDSLtoAuto } from "utils/covertFixedToAuto";
+import { klona } from "klona/lite";
+import store from "store";
+import WidgetFactory from "utils/WidgetFactory";
+import { registerWidgets } from "utils/WidgetRegistry";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -679,6 +685,61 @@ function* showReconnectDatasourcesModalSaga(
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
 
+function* importAsMobileApplicationSaga(
+  action: ReduxAction<ImportApplicationRequest>,
+) {
+  try {
+    const file = action.payload.applicationFile;
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsText(file, "UTF-8");
+      reader.onload = function(evt) {
+        const application = JSON.parse((evt.target?.result || "").toString());
+
+        if (!application) {
+          store.dispatch(importApplication(action.payload));
+        }
+        if (isEmpty(WidgetFactory.getWidgetConfigMap("CONTAINER_WIDGET"))) {
+          registerWidgets();
+        }
+        const time = performance.now();
+        const currApplication = { ...application };
+        const pageList = [];
+        for (const page of currApplication.pageList) {
+          const currPage = { ...page };
+          const layoutList = [];
+
+          for (const layout of page.unpublishedPage.layouts) {
+            const currLayout = { ...layout };
+            currLayout.dsl = convertDSLtoAuto(klona(currLayout.dsl));
+            layoutList.push(currLayout);
+          }
+          currPage.unpublishedPage.layouts = layoutList;
+          pageList.push(currPage);
+        }
+        currApplication.pageList = pageList;
+        console.log("conversion time ", performance.now() - time);
+        const applicationJSON = JSON.stringify(currApplication);
+
+        const bytes = new TextEncoder().encode(applicationJSON);
+        const blob = new Blob([bytes], {
+          type: "application/json;charset=utf-8",
+        });
+
+        const modifiedFile = new File([blob], file.name, {
+          type: "application/json",
+        });
+
+        store.dispatch(
+          importApplication({
+            ...action.payload,
+            applicationFile: modifiedFile,
+          }),
+        );
+      };
+    }
+  } catch (error) {}
+}
 export function* importApplicationSaga(
   action: ReduxAction<ImportApplicationRequest>,
 ) {
@@ -884,6 +945,10 @@ export default function* applicationSagas() {
       duplicateApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
+    takeLatest(
+      ReduxActionTypes.IMPORT_APPLICATION_AS_AUTO,
+      importAsMobileApplicationSaga,
+    ),
     takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
     takeLatest(
       ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,

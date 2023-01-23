@@ -118,6 +118,15 @@ export const importApplication = (appDetails: ImportApplicationRequest) => {
   };
 };
 
+export const importApplicationAsAuto = (
+  appDetails: ImportApplicationRequest,
+) => {
+  return {
+    type: ReduxActionTypes.IMPORT_APPLICATION_AS_AUTO,
+    payload: appDetails,
+  };
+};
+
 export const importApplicationSuccess = (
   importedApp: ApplicationResponsePayload,
 ) => {

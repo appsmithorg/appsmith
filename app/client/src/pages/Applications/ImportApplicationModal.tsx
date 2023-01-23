@@ -3,6 +3,7 @@ import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   importApplication,
+  importApplicationAsAuto,
   setWorkspaceIdForImport,
 } from "actions/applicationActions";
 import {
@@ -232,6 +233,7 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
 type ImportApplicationModalProps = {
   workspaceId?: string;
   isModalOpen?: boolean;
+  importAsAuto?: boolean;
   onClose?: () => void;
 };
 
@@ -269,12 +271,21 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
           file,
           setProgress,
         });
-        dispatch(
-          importApplication({
-            workspaceId: workspaceId as string,
-            applicationFile: file,
-          }),
-        );
+        if (props.importAsAuto) {
+          dispatch(
+            importApplicationAsAuto({
+              workspaceId: workspaceId as string,
+              applicationFile: file,
+            }),
+          );
+        } else {
+          dispatch(
+            importApplication({
+              workspaceId: workspaceId as string,
+              applicationFile: file,
+            }),
+          );
+        }
       } else {
         setAppFileToBeUploaded(null);
       }
@@ -330,7 +341,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
               uploadIcon="file-line"
             />
           </FileImportCard>
-          <GitImportCard handler={onGitImport} />
+          {!props.importAsAuto && <GitImportCard handler={onGitImport} />}
         </Row>
       )}
       {importingApplication && (

@@ -131,6 +131,7 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
+import { recalculateOnPageLoad } from "./AutoLayoutUpdateSagas";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -258,7 +259,8 @@ export function* handleFetchedPage({
     yield put(fetchPageSuccess());
     // restore selected widgets while loading the page.
     yield call(restoreSelectedWidgetContext);
-
+    // update widget positions For Auto
+    yield call(recalculateOnPageLoad);
     /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
      */
     // Hence, if is not isFirstLoad then trigger evaluation with execute pageLoad action
