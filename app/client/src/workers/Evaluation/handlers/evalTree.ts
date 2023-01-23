@@ -12,10 +12,7 @@ import { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { initiateLinting } from "workers/Linting/utils";
-import {
-  createUnEvalTreeForEval,
-  makeEntityConfigsAsObjProperties,
-} from "@appsmith/workers/Evaluation/dataTreeUtils";
+import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import {
   CrashingError,
   DataTreeDiff,
@@ -26,7 +23,6 @@ import {
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
 } from "../types";
-import { unEvalTree } from "workers/common/DataTreeEvaluator/mockData/mockUnEvalTree";
 export let replayMap: Record<string, ReplayEntity<any>>;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
