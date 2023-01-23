@@ -62,7 +62,7 @@ import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelecto
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
-import { Spinner } from "design-system";
+import { Spinner } from "design-system-old";
 
 /*
     We use this polyfill to show emoji flags

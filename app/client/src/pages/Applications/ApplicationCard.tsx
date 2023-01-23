@@ -50,7 +50,7 @@ import {
   TextType,
   TooltipComponent,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,

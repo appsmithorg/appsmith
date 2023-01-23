@@ -10,7 +10,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
 } from "constants/WidgetConstants";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { BlueprintOperationTypes } from "widgets/constants";
 import * as log from "loglevel";
 
