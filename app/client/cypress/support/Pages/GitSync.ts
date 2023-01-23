@@ -73,7 +73,7 @@ export class GitSync {
         method: "POST",
         url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repo}/keys`,
         headers: {
-          Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+          Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
         },
         body: {
           title: "key0",
@@ -174,12 +174,12 @@ export class GitSync {
     });
   }
 
-  private CreateTestGiteaRepo(repo: string, privateFlag = false) {
+  public CreateTestGiteaRepo(repo: string, privateFlag = false) {
     cy.request({
       method: "POST",
       url: `${GITEA_API_BASE}:3000/api/v1/org/CI-Gitea/repos`,
       headers: {
-        Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },
       body: {
         name: repo,
@@ -206,11 +206,9 @@ export class GitSync {
   DeleteTestGithubRepo(repo: any) {
     cy.request({
       method: "DELETE",
-      url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-        "TEST_GITHUB_USER_NAME",
-      )}/${repo}`,
+      url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repo}`,
       headers: {
-        Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
       },
     });
   }

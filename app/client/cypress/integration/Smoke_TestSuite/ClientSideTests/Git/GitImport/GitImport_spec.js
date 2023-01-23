@@ -10,6 +10,7 @@ const jsObject = "JSObject1";
 const newBranch = "feat/temp";
 const mainBranch = "master";
 let repoName, newWorkspaceName;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git import flow ", function() {
   before(() => {
@@ -67,8 +68,14 @@ describe("Git import flow ", function() {
       cy.wait(1000);
       cy.generateUUID().then((uid) => {
         repoName = uid;
-        cy.createTestGithubRepo(repoName);
-        cy.connectToGitRepo(repoName);
+        _.gitSync.CreateNConnectToGit(repoName);
+        cy.get("@gitRepoName").then((repName) => {
+          repoName = repName;
+          _.gitSync.CreateGitBranch(repoName);
+        });
+
+        // cy.createTestGithubRepo(repoName);
+        // cy.connectToGitRepo(repoName);
       });
     });
     cy.wait(5000); // for git connection to settle!

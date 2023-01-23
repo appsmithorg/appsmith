@@ -1,5 +1,6 @@
 import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Git import empty repository", function() {
   let repoName;
@@ -18,12 +19,14 @@ describe("Git import empty repository", function() {
       .click();
     cy.generateUUID().then((uid) => {
       repoName = uid;
-      cy.createTestGithubRepo(repoName);
+      //cy.createTestGithubRepo(repoName);
+      _.gitSync.CreateTestGiteaRepo(repoName);
       cy.importAppFromGit(repoName, true, failureMessage);
     });
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
+    _.gitSync.DeleteTestGithubRepo(repoName);
+    //cy.deleteTestGithubRepo(repoName);
   });
 });

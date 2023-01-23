@@ -1,11 +1,9 @@
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
-
-let dataSources = ObjectsRegistry.DataSources;
 
 describe("Git discard changes:", function() {
   let datasourceName;
@@ -25,7 +23,7 @@ describe("Git discard changes:", function() {
     cy.testSaveDatasource();
 
     // go back to active ds list
-    dataSources.NavigateToActiveTab();
+    _.dataSources.NavigateToActiveTab();
 
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
@@ -95,9 +93,8 @@ describe("Git discard changes:", function() {
     // connect app to git
     cy.generateUUID().then((uid) => {
       repoName = uid;
-
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName);
+      _.gitSync.CreateNConnectToGit(repoName);
+      _.gitSync.CreateGitBranch(repoName);
     });
   });
 
