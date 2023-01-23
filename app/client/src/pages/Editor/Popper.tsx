@@ -99,9 +99,9 @@ export default (props: PopperProps) => {
         props?.editorRef &&
         props?.editorRef?.current &&
         props?.editorRef?.current?.children[1] &&
-        !!props?.editorRef?.current?.children[1]?.CodeMirror
+        !!(props?.editorRef?.current?.children[1] as any)?.CodeMirror
       )
-        props?.editorRef?.current?.children[1].CodeMirror.focus();
+        (props?.editorRef?.current?.children[1] as any)?.CodeMirror.focus();
     }
   };
 
