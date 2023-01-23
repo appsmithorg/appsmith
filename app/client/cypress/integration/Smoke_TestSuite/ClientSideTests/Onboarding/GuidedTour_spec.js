@@ -39,7 +39,7 @@ describe("Guided Tour", function() {
     //cy.wait("@updateWidgetName");
     // Step 4: Add binding to the defaultText property of NameInput
     cy.wait(1000);
-    cy.get(guidedTourLocators.hintButton).click();
+    //cy.get(guidedTourLocators.hintButton).click();
     cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
     cy.get(guidedTourLocators.successButton).click();
     // Step 5: Add binding to the rest of the widgets in the container
