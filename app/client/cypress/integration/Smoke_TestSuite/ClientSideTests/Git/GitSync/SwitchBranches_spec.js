@@ -247,7 +247,7 @@ describe("Git sync:", function() {
   it("7. error faced when user switches branch with new page", function() {
     cy.goToEditFromPublish(); //Adding since skipping 6th case
     cy.generateUUID().then((uuid) => {
-      _.gitSync.CreateGitBranch(childBranchKey, false);
+      _.gitSync.CreateGitBranch(childBranchKey, true);
       //cy.createGitBranch(childBranchKey);
       cy.CheckAndUnfoldEntityItem("Pages");
       cy.Createpage(uuid);
@@ -272,11 +272,11 @@ describe("Git sync:", function() {
     let parentBranchKey, childBranchKey;
     // cy.createGitBranch(parentBranchKey);
     // cy.createGitBranch(childBranchKey);
-    _.gitSync.CreateGitBranch("parentBranch", false);
+    _.gitSync.CreateGitBranch("parentBranch", true);
     cy.get("@gitbranchName").then((branName) => {
       parentBranchKey = branName;
     });
-    _.gitSync.CreateGitBranch("childBranch", false);
+    _.gitSync.CreateGitBranch("childBranch", true);
     cy.get("@gitbranchName").then((branName) => {
       childBranchKey = branName;
     });
