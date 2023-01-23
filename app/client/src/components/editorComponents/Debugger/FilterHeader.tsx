@@ -8,7 +8,7 @@ import {
   IconSize,
   TextInput,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 import styled, { useTheme } from "styled-components";
 import { useDispatch } from "react-redux";
 

@@ -43,7 +43,7 @@ import {
   TextType,
   TooltipComponent,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
