@@ -1,5 +1,6 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import commonLocators from "../../../../../locators/commonlocators.json";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
 let childBranchKey = "ChildBranch";
@@ -13,16 +14,17 @@ describe("Git sync modal: merge tab", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
 
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName);
+    _.gitSync.CreateNConnectToGit(repoName);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
   });
 
-  it("Verify the functionality of the default dropdown under merge tab", function() {
+  it("1. Verify the functionality of the default dropdown under merge tab", function() {
     cy.get(commonLocators.canvas).click({ force: true });
-    cy.createGitBranch(childBranchKey);
+    //cy.createGitBranch(childBranchKey);
+
+    _.gitSync.CreateGitBranch(childBranchKey);
 
     cy.get(gitSyncLocators.bottomBarMergeButton).click();
     cy.get(gitSyncLocators.gitSyncModal).should("exist");
@@ -48,6 +50,7 @@ describe("Git sync modal: merge tab", function() {
   });
 
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
+    _.gitSync.DeleteTestGithubRepo(repoName);
+    //cy.deleteTestGithubRepo(repoName);
   });
 });

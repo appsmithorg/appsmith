@@ -9,13 +9,14 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import ApiEditor from "../../../../../locators/ApiEditor";
 import homePage from "../../../../../locators/HomePage";
 import datasource from "../../../../../locators/DatasourcesEditor.json";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const ee = ObjectsRegistry.EntityExplorer;
+
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const newPage = "ApiCalls_1";
 const pageName = "crudpage_1";
-const tempBranch = "feat/tempBranch";
-const tempBranch1 = "feat/testing";
-const tempBranch0 = "test/tempBranch0";
+let tempBranch = "feat/tempBranch",
+  tempBranch1 = "feat/testing",
+  tempBranch0 = "test/tempBranch0";
 const mainBranch = "master";
 let datasourceName;
 let repoName;
@@ -91,13 +92,13 @@ describe("Git sync apps", function() {
     );
 
     cy.get("span:contains('GOT IT')").click();
-    // connect app to git
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
 
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName);
+    // connect app to git
+    _.gitSync.CreateNConnectToGit(repoName);
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
+
     cy.wait(3000);
     // rename page to crud_page
     cy.renameEntity("Page1", pageName);
@@ -271,7 +272,11 @@ describe("Git sync apps", function() {
     cy.wait(2000);
   });
   it("4. Create a new branch tempBranch, add jsObject and datasource query, move them to new page i.e. Child_Page and bind to widgets", () => {
-    cy.createGitBranch(tempBranch);
+    //cy.createGitBranch(tempBranch);
+    _.gitSync.CreateGitBranch(tempBranch, true);
+    cy.get("@gitbranchName").then((branName) => {
+      tempBranch = branName;
+    });
     cy.wait(1000);
     // create jsObject and rename it
     cy.createJSObject('return "Success";');
@@ -313,12 +318,20 @@ describe("Git sync apps", function() {
       .click({ force: true });
     // move jsObject and postgres query to new page
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    ee.ActionContextMenuByEntityName("get_users", "Move to page", "Child_Page");
+    _.ee.ActionContextMenuByEntityName(
+      "get_users",
+      "Move to page",
+      "Child_Page",
+    );
     cy.wait(2000);
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
-    ee.ActionContextMenuByEntityName("JSObject1", "Move to page", "Child_Page");
+    _.ee.ActionContextMenuByEntityName(
+      "JSObject1",
+      "Move to page",
+      "Child_Page",
+    );
     cy.wait(2000);
     cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
@@ -489,7 +502,8 @@ describe("Git sync apps", function() {
     cy.wait(2000);
   });
   it("9. Create new branch, delete a page and merge back to master, verify page is deleted on master", () => {
-    cy.createGitBranch(tempBranch1);
+    //cy.createGitBranch(tempBranch1);
+    _.gitSync.CreateGitBranch(tempBranch1, true);
     // delete page from page settings
     cy.Deletepage("Child_Page Copy");
     cy.get(homePage.publishButton).click();
@@ -505,7 +519,7 @@ describe("Git sync apps", function() {
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
     // create another branch and verify deleted page doesn't exist on it
-    cy.createGitBranch(tempBranch0);
+    _.gitSync.CreateGitBranch(tempBranch0, true);
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
   });
