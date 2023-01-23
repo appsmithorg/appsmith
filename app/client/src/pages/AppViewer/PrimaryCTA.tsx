@@ -12,7 +12,12 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { createMessage, FORK_APP, SIGN_IN } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  EDIT_APP,
+  FORK_APP,
+  SIGN_IN,
+} from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
@@ -35,6 +40,7 @@ type Props = {
   className?: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
+  showLabel?: boolean;
 };
 
 /**
@@ -44,7 +50,7 @@ type Props = {
  */
 
 function PrimaryCTA(props: Props) {
-  const { className, navColorStyle, primaryColor, url } = props;
+  const { className, navColorStyle, primaryColor, showLabel, url } = props;
   const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
   const currentPageID = useSelector(getCurrentPageId);
@@ -96,6 +102,8 @@ function PrimaryCTA(props: Props) {
             name="edit-line"
             size="extraLarge"
           />
+
+          {showLabel && createMessage(EDIT_APP)}
         </Button>
       );
     }

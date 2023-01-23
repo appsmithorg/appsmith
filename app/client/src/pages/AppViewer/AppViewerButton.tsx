@@ -11,6 +11,7 @@ const StyledButton = styled(Button)<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   varient?: ButtonVariant;
+  showLabel?: boolean;
 }>`
   padding: 6px 12px;
   min-width: 2rem;
@@ -54,6 +55,27 @@ const StyledButton = styled(Button)<{
     return varient === ButtonVariantTypes.SECONDARY
       ? secondaryVarientStyles
       : "";
+  }}
+
+  ${(showLabel = false) => {
+    if (!showLabel) {
+      return "";
+    }
+
+    return `
+      display: flex;
+      align-items: flex-start;
+      width: 100%;
+
+      &>span {
+        width: 100%;
+        display: flex;
+
+        .cs-icon {
+          margin-right: 10px;
+        }
+      }
+    `;
   }}
 `;
 

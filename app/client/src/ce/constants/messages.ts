@@ -177,6 +177,7 @@ export const ENABLE_TIME = () => `Enable Time`;
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
+export const SHARE_APP = () => `Share app`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -1461,6 +1462,9 @@ export const APP_NAVIGATION_SETTING = {
   showSignInLabel: () => "Show Sign In",
   showShareAppLabel: () => "Show Share App",
 };
+
+export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
+export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";

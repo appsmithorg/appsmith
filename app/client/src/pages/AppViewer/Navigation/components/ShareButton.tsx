@@ -1,0 +1,79 @@
+import React from "react";
+import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
+import Button from "../../AppViewerButton";
+import { Icon } from "design-system";
+import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
+import { useSelector } from "react-redux";
+import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
+import {
+  createMessage,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
+  SHARE_APP,
+} from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getApplicationNameTextColor } from "pages/AppViewer/utils";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { get } from "lodash";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+
+const { cloudHosting } = getAppsmithConfigs();
+
+type ShareButtonProps = {
+  currentApplicationDetails?: ApplicationPayload;
+  currentWorkspaceId: string;
+  showLabel?: boolean;
+};
+
+const ShareButton = (props: ShareButtonProps) => {
+  const { currentApplicationDetails, currentWorkspaceId, showLabel } = props;
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const showAppInviteUsersDialog = useSelector(
+    showAppInviteUsersDialogSelector,
+  );
+  const navColorStyle =
+    currentApplicationDetails?.navigationSetting?.colorStyle ||
+    NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const primaryColor = get(
+    selectedTheme,
+    "properties.colors.primaryColor",
+    "inherit",
+  );
+
+  return (
+    <FormDialogComponent
+      Form={AppInviteUsersForm}
+      applicationId={currentApplicationDetails?.id}
+      canOutsideClickClose
+      headerIcon={{
+        name: "right-arrow",
+        bgColor: "transparent",
+      }}
+      isOpen={showAppInviteUsersDialog}
+      message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
+      placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+      title={currentApplicationDetails?.name}
+      trigger={
+        <Button
+          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+          className="h-8"
+          data-cy="viewmode-share"
+          navColorStyle={navColorStyle}
+          primaryColor={primaryColor}
+          showLabel={showLabel}
+        >
+          <Icon
+            fillColor={getApplicationNameTextColor(primaryColor, navColorStyle)}
+            name="share-line"
+            size="extraLarge"
+          />
+          {showLabel && createMessage(SHARE_APP)}
+        </Button>
+      }
+      workspaceId={currentWorkspaceId}
+    />
+  );
+};
+
+export default ShareButton;
