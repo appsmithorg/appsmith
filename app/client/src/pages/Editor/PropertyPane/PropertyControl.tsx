@@ -690,7 +690,7 @@ const PropertyControl = memo((props: Props) => {
                 <Icon
                   hoverFillColor="white"
                   name="plus"
-                  size="extraExtraExtraExtraLarge"
+                  size="extraExtraLarge"
                 />
               </button>
             ) : null}
