@@ -23,7 +23,6 @@ import { generateClassName } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { getCurrentAppPositioningType } from "./editorSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { Positioning } from "utils/autoLayout/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";

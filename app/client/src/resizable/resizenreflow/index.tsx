@@ -268,7 +268,7 @@ export function ReflowResizable(props: ResizableProps) {
           movementLimitMap: MovementLimitMap | undefined = {};
 
         if (resizedPositions) {
-          console.log({ resizedPositions });
+          //console.log({ resizedPositions });
           //calling reflow to update movements of reflowing widgets and get movementLimit of current resizing widget
           ({ bottomMostRow, movementLimitMap } = reflow.reflowSpaces(
             [resizedPositions],

@@ -1,13 +1,13 @@
+import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { GridDefaults } from "constants/WidgetConstants";
+import _ from "lodash";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "components/constants";
-import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults } from "constants/WidgetConstants";
-import _ from "lodash";
+} from "utils/autoLayout/constants";
 import WidgetFactory from "utils/WidgetFactory";
 import { DSLWidget } from "widgets/constants";
 

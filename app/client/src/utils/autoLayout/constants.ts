@@ -59,6 +59,7 @@ export enum Overflow {
 }
 
 export enum FlexLayerAlignment {
+  None = "none",
   Start = "start",
   Center = "center",
   End = "end",

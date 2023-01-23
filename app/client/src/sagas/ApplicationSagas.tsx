@@ -702,7 +702,7 @@ function* importAsMobileApplicationSaga(
         if (isEmpty(WidgetFactory.getWidgetConfigMap("CONTAINER_WIDGET"))) {
           registerWidgets();
         }
-        const time = performance.now();
+        //const time = performance.now();
         const currApplication = { ...application };
         const pageList = [];
         for (const page of currApplication.pageList) {
@@ -718,7 +718,7 @@ function* importAsMobileApplicationSaga(
           pageList.push(currPage);
         }
         currApplication.pageList = pageList;
-        console.log("conversion time ", performance.now() - time);
+        //console.log("conversion time ", performance.now() - time);
         const applicationJSON = JSON.stringify(currApplication);
 
         const bytes = new TextEncoder().encode(applicationJSON);
