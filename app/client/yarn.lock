@@ -2320,6 +2320,11 @@
   version "1.0.0"
   resolved "https://registry.npmjs.org/@manaflair/redux-batch/-/redux-batch-1.0.0.tgz"
 
+"@mantine/hooks@^5.10.1":
+  version "5.10.1"
+  resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-5.10.1.tgz#0227441a818144932dd6e8fd8f53eb7525dfe005"
+  integrity sha512-Fhl2f5z/F+NVzZgPUPP9tP4NUUMeTBpmlmlo3mPuQztw1kmXdxtBjD1MzRS7A84FuaJNo2wxLhQ+Gnjtf3hZ8A==
+
 "@mswjs/cookies@^0.1.4":
   version "0.1.4"
   resolved "https://registry.npmjs.org/@mswjs/cookies/-/cookies-0.1.4.tgz"

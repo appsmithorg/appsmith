@@ -20,6 +20,7 @@
     "@googlemaps/markerclusterer": "^2.0.14",
     "@googlemaps/react-wrapper": "^1.1.35",
     "@manaflair/redux-batch": "^1.0.0",
+    "@mantine/hooks": "^5.10.1",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
     "@tinymce/tinymce-react": "^3.13.0",

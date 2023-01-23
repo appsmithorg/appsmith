@@ -41,30 +41,24 @@ const StyledIconContainer = styled.div<{
 type CollapseButtonProps = {
   primaryColor: string;
   navColorStyle: NavigationSetting["navStyle"];
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  isPinned: boolean;
+  setIsPinned: (isPinned: boolean) => void;
 };
 
 const CollapseButton = (props: CollapseButtonProps) => {
-  const { isOpen, navColorStyle, primaryColor, setIsOpen } = props;
+  const { isPinned, navColorStyle, primaryColor, setIsPinned } = props;
 
   const handleOnClick = () => {
-    setIsOpen(!isOpen);
+    setIsPinned(!isPinned);
   };
 
   return (
-    <CollapseIconContainer
-      className={classNames({
-        "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
-      })}
-      navColorStyle={navColorStyle}
-      primaryColor={primaryColor}
-    >
+    <div className="cursor-pointer">
       <TooltipComponent
         content={
           <div className="flex items-center justify-between">
             <span>
-              {!isOpen
+              {!isPinned
                 ? createMessage(LOCK_SIDEBAR_MESSAGE)
                 : createMessage(CLOSE_SIDEBAR_MESSAGE)}
             </span>
@@ -72,20 +66,28 @@ const CollapseButton = (props: CollapseButtonProps) => {
         }
         position="bottom-left"
       >
-        <StyledIconContainer
-          className="relative w-4 h-4 group cursor-pointer flex items-center justify-center"
+        <CollapseIconContainer
+          className={classNames({
+            "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
+          })}
           navColorStyle={navColorStyle}
-          onClick={handleOnClick}
           primaryColor={primaryColor}
         >
-          {!isOpen ? (
-            <UnpinIcon className="absolute w-3.5 h-3.5" />
-          ) : (
-            <PinIcon className="absolute w-3.5 h-3.5" />
-          )}
-        </StyledIconContainer>
+          <StyledIconContainer
+            className="relative w-4 h-4 group flex items-center justify-center"
+            navColorStyle={navColorStyle}
+            onClick={handleOnClick}
+            primaryColor={primaryColor}
+          >
+            {!isPinned ? (
+              <UnpinIcon className="absolute w-3.5 h-3.5" />
+            ) : (
+              <PinIcon className="absolute w-3.5 h-3.5" />
+            )}
+          </StyledIconContainer>
+        </CollapseIconContainer>
       </TooltipComponent>
-    </CollapseIconContainer>
+    </div>
   );
 };
 

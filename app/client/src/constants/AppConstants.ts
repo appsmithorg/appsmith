@@ -106,3 +106,8 @@ export const defaultNavigationSetting = {
   logoConfiguration:
     NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
 };
+
+export const SIDEBAR_WIDTH = {
+  REGULAR: 270,
+  MINIMAL: 66,
+};

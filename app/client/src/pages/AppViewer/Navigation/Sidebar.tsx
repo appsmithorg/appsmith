@@ -3,7 +3,11 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import {
+  NavigationSetting,
+  NAVIGATION_SETTINGS,
+  SIDEBAR_WIDTH,
+} from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -26,18 +30,19 @@ import { User } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
+import { useMouse } from "@mantine/hooks";
 
 const StyledSidebar = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
-  width: 270px;
+  width: ${SIDEBAR_WIDTH.REGULAR}px;
   height: 100vh;
   background-color: ${({ navColorStyle, primaryColor }) =>
     getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
   position: fixed;
   top: 0;
-  left: -270px;
+  left: -${SIDEBAR_WIDTH.REGULAR}px;
   transition: all 0.3s ease-in-out;
 
   &.is-open {
@@ -124,11 +129,30 @@ export function Sidebar(props: SidebarProps) {
   const [query, setQuery] = useState("");
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
+  const [isPinned, setIsPinned] = useState(true);
   const [isOpen, setIsOpen] = useState(true);
+  const { x } = useMouse();
 
   useEffect(() => {
     setQuery(window.location.search);
   }, [location]);
+
+  useEffect(() => {
+    setIsOpen(isPinned);
+  }, [isPinned]);
+
+  useEffect(() => {
+    // When the sidebar is unpinned -
+    if (!isPinned) {
+      if (x <= 20) {
+        // 1. Open the sidebar when hovering on the left edge of the screen
+        setIsOpen(true);
+      } else if (x > SIDEBAR_WIDTH.REGULAR) {
+        // 2. Close the sidebar when the mouse moves out of it
+        setIsOpen(false);
+      }
+    }
+  }, [x]);
 
   return (
     <StyledSidebar
@@ -147,10 +171,10 @@ export function Sidebar(props: SidebarProps) {
         />
 
         <CollapseButton
-          isOpen={isOpen}
+          isPinned={isPinned}
           navColorStyle={navColorStyle}
           primaryColor={primaryColor}
-          setIsOpen={setIsOpen}
+          setIsPinned={setIsPinned}
         />
       </StyledHeader>
 
