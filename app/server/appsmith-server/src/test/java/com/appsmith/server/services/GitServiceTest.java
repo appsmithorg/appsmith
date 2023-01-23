@@ -2202,6 +2202,218 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
+    private void mockitoSetUp(GitBranchDTO createGitBranchDTO) throws GitAPIException, IOException{
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("fetchResult"));
+        Mockito.when(gitExecutor.listBranches(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(new ArrayList<>()));
+        Mockito.when(gitExecutor.createAndCheckoutToBranch(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(createGitBranchDTO.getBranchName()));
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("System generated commit"));
+        Mockito.when(gitExecutor.checkoutToBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("pushed successfully"));
+
+        Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(DEFAULT_BRANCH));
+        Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
+        Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("textPath")));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createBranch_BranchHasCustomNavigationSettings_SrcBranchRemainsUnchanged() throws GitAPIException, IOException {
+        GitBranchDTO createGitBranchDTO = new GitBranchDTO();
+        createGitBranchDTO.setBranchName("valid_branch");
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        mockitoSetUp(createGitBranchDTO);
+
+        Application testApplication = new Application();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey("testkey");
+        gitAuth.setPrivateKey("privatekey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService.createApplication(testApplication)
+                .flatMap(application -> gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"))
+                .flatMap(application -> gitService.createBranch(
+                                        application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
+                                        .then(applicationService.findByBranchNameAndDefaultApplicationId(
+                                                createGitBranchDTO.getBranchName(),
+                                                application.getId(),
+                                                READ_APPLICATIONS
+                                        ))
+
+
+                )
+                .flatMap(branchedApplication -> {
+
+                    Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
+                    appNavigationSetting.setOrientation("top");
+                    branchedApplication.setNavigationSetting(appNavigationSetting);
+                    return Mono.just(branchedApplication);
+                })
+                .flatMap(branchedApplication->
+                        applicationService.update(
+                                branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
+                                branchedApplication, branchedApplication.getGitApplicationMetadata().getBranchName()
+                        )
+                )
+                .zipWhen(application ->
+                        applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
+                );
+
+        StepVerifier
+                .create(createBranchMono)
+                .assertNext(tuple -> {
+                    Application branchedApp = tuple.getT1();
+                    Application srcApp = tuple.getT2();
+                    assertThat(branchedApp.getUnpublishedNavigationSetting().getOrientation()).isEqualTo("top");
+                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    private FilePart createMockFilePart() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/my_workspace_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
+        return filepart;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createBranch_BranchUploadLogo_SrcBranchRemainsUnchanged() throws GitAPIException, IOException {
+        GitBranchDTO createGitBranchDTO = new GitBranchDTO();
+        createGitBranchDTO.setBranchName("valid_branch");
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        mockitoSetUp(createGitBranchDTO);
+
+        Application testApplication = new Application();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey("testkey");
+        gitAuth.setPrivateKey("privatekey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService.createApplication(testApplication)
+                .flatMap(application -> gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"))
+                .flatMap(application -> gitService.createBranch(
+                                application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
+                        .then(applicationService.findByBranchNameAndDefaultApplicationId(
+                                createGitBranchDTO.getBranchName(),
+                                application.getId(),
+                                READ_APPLICATIONS
+                        ))
+                )
+                .flatMap(branchedApplication -> {
+
+                    FilePart filepart = createMockFilePart();
+                    return applicationService.saveAppNavigationLogo(branchedApplication.getGitApplicationMetadata().getBranchName(), branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(), filepart).cache();
+
+                })
+                .zipWhen(application ->
+                        applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
+                );
+
+        StepVerifier
+                .create(createBranchMono)
+                .assertNext(tuple -> {
+                    Application branchedApp = tuple.getT1();
+                    Application srcApp = tuple.getT2();
+                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
+                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createBranch_BranchDeleteLogo_SrcLogoRemainsUnchanged() throws GitAPIException, IOException {
+        GitBranchDTO createGitBranchDTO = new GitBranchDTO();
+        createGitBranchDTO.setBranchName("valid_branch");
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        mockitoSetUp(createGitBranchDTO);
+
+        Application testApplication = new Application();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey("testkey");
+        gitAuth.setPrivateKey("privatekey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        testApplication.setName("Test App" + UUID.randomUUID().toString());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService.createApplication(testApplication)
+                .flatMap(application -> gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"))
+                .flatMap(application ->
+                        Mono.zip(gitService
+                                        .createBranch(application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
+                                        .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)),
+                                Mono.just(application))
+
+                )
+                .flatMap(applicationTuple->{
+                    Application branchedApplication = applicationTuple.getT1();
+                    Application application = applicationTuple.getT2();
+                    String srcBranchName = application.getGitApplicationMetadata().getBranchName();
+                    String otherBranchName = branchedApplication.getGitApplicationMetadata().getBranchName();
+                    String defaultApplicationId = branchedApplication.getGitApplicationMetadata().getDefaultApplicationId();
+
+                    FilePart filepart = createMockFilePart();
+                    return Mono.zip(
+                            applicationService.saveAppNavigationLogo(otherBranchName, defaultApplicationId, filepart).cache(),
+                            applicationService.saveAppNavigationLogo(srcBranchName, defaultApplicationId, filepart).cache()
+                    );
+                })
+                .flatMap(appTuple->{
+                    Application branchedApplication = appTuple.getT1();
+                    Application application = appTuple.getT2();
+
+                    return applicationService.deleteAppNavigationLogo(branchedApplication.getGitApplicationMetadata().getBranchName(), branchedApplication.getGitApplicationMetadata().getDefaultApplicationId())
+                            .then(applicationService.findByIdAndBranchName(branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(), branchedApplication.getGitApplicationMetadata().getBranchName()));
+                })
+                .zipWhen(application ->
+                        applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
+                );
+
+        StepVerifier
+                .create(createBranchMono)
+                .assertNext(tuple -> {
+                    Application branchedApp = tuple.getT1();
+                    Application srcApp = tuple.getT2();
+                    assertThat(branchedApp.getUnpublishedNavigationSetting()).isNotNull();
+                    assertThat(branchedApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNull();
+                    assertThat(srcApp.getUnpublishedNavigationSetting()).isNotNull();
+                    assertThat(srcApp.getUnpublishedNavigationSetting().getLogoAssetId()).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+
+
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_cancelledMidway_cloneSuccess() throws IOException {
