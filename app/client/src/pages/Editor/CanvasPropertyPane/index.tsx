@@ -1,16 +1,13 @@
 import * as Sentry from "@sentry/react";
-import { Colors } from "constants/Colors";
+
 import React from "react";
 import { useDispatch } from "react-redux";
-import styled from "styled-components";
 
 import { PopoverPosition } from "@blueprintjs/core";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { Button, Category, Size, TooltipComponent } from "design-system";
 import { AppPositionTypeControl } from "../AppPositionTypeControl";
-export const Title = styled.p`
-  color: ${Colors.GRAY_800};
-`;
+
 export function CanvasPropertyPane() {
   const dispatch = useDispatch();
 
@@ -23,7 +20,6 @@ export function CanvasPropertyPane() {
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
-          <Title className="text-sm">App Positioning Type</Title>
           <AppPositionTypeControl />
           <TooltipComponent
             content={

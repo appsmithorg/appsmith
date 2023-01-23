@@ -1,4 +1,4 @@
-import { ButtonBoxShadowTypes, Positioning } from "components/constants";
+import { ButtonBoxShadowTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
@@ -44,7 +44,7 @@ export const CONFIG = {
       ],
     },
     version: 1,
-    positioning: Positioning.Vertical,
+    // positioning: Positioning.Vertical,
     responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
     minWidth: FILL_WIDGET_MIN_WIDTH,
   },

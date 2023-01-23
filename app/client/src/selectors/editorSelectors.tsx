@@ -14,7 +14,7 @@ import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ApplicationVersion } from "actions/applicationActions";
-import { Positioning } from "components/constants";
+import { Positioning } from "utils/autoLayout/constants";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import {
@@ -156,6 +156,12 @@ export const selectCurrentPageSlug = createSelector(
     pages.find((page) => page.pageId === pageId)?.slug || PLACEHOLDER_PAGE_SLUG,
 );
 
+export const getCurrentPageDescription = createSelector(
+  getCurrentPageId,
+  getPageList,
+  (pageId, pages) => pages.find((page) => page.pageId === pageId)?.description,
+);
+
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
   pages.reduce((acc, page: Page) => {
     // Comeback
@@ -241,10 +247,15 @@ export const getMainCanvasPositioning = createSelector(
   },
 );
 
+export const isAutoLayoutEnabled = (state: AppState): boolean => {
+  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
+};
+
 export const getCurrentAppPositioningType = createSelector(
   getMainCanvasPositioning,
-  (positioning: any): AppPositioningTypes => {
-    return positioning && positioning !== Positioning.Fixed
+  isAutoLayoutEnabled,
+  (positioning: any, autoLayoutEnabled: boolean): AppPositioningTypes => {
+    return positioning && positioning !== Positioning.Fixed && autoLayoutEnabled
       ? AppPositioningTypes.AUTO
       : AppPositioningTypes.FIXED;
   },

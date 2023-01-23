@@ -1,11 +1,11 @@
-import React, { CSSProperties } from "react";
-import { ControlIcons } from "icons/ControlIcons";
-import { Icon, IconSize } from "design-system";
+import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import styled from "styled-components";
-import { Tooltip, Classes } from "@blueprintjs/core";
+import { Icon, IconSize } from "design-system";
+import { ControlIcons } from "icons/ControlIcons";
+import React, { CSSProperties } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import styled from "styled-components";
 // I honestly can't think of a better name for this enum
 export enum Activities {
   HOVERING,
@@ -13,7 +13,9 @@ export enum Activities {
   ACTIVE,
   NONE,
 }
-const StyledTooltip = styled(Tooltip)`
+const StyledTooltip = styled(Tooltip)<{
+  children?: React.ReactNode;
+}>`
   .${Classes.POPOVER_TARGET} {
     height: 100%;
   }
@@ -33,7 +35,8 @@ const SettingsWrapper = styled.div`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
-  border-radius: 2px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
 `;
 
 const WidgetName = styled.span`
@@ -89,7 +92,7 @@ const getStyles = (
     case Activities.HOVERING:
       return {
         background: Colors.WATUSI,
-        color: Colors.BLACK_PEARL,
+        color: Colors.WHITE,
       };
     case Activities.SELECTED:
       return {
@@ -150,7 +153,6 @@ export function SettingsControl(props: SettingsControlProps) {
         <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>
-        {!isSnipingMode && settingsIcon}
       </SettingsWrapper>
     </StyledTooltip>
   );

@@ -9,9 +9,9 @@ import {
   APPLICATION_IMPORT_SUCCESS_DESCRIPTION,
 } from "@appsmith/constants/messages";
 import { Icon } from "design-system";
-import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Button, Category, Size } from "design-system";
+import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 461px;

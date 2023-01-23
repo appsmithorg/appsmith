@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { invisible, theme } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import styled, { css } from "styled-components";
@@ -14,21 +15,47 @@ export const VisibilityContainer = styled.div<{
   width: 100%;
 `;
 
-const ResizeIndicatorStyle = css<{
+const VerticalResizeIndicators = css<{
   showLightBorder: boolean;
+  isHovered: boolean;
 }>`
   &::after {
     position: absolute;
     content: "";
     width: 6px;
+    height: 16px;
+    border-radius: 50%/16%;
+    background: white;
+    top: calc(50% - 8px);
+    left: calc(50% - 2.5px);
+    border: ${(props) => {
+      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
+    }};
+  }
+  &:hover::after {
+    background: #f86a2b;
+  }
+`;
+
+const HorizontalResizeIndicators = css<{
+  showLightBorder: boolean;
+  isHovered: boolean;
+}>`
+  &::after {
+    position: absolute;
+    content: "";
+    width: 16px;
     height: 6px;
-    border-radius: 50%;
-    background: ${(props) =>
-      props.showLightBorder
-        ? theme.colors.widgetLightBorder
-        : theme.colors.widgetBorder};
-    top: calc(50% - 2px);
-    left: calc(50% - 2px);
+    border-radius: 16%/50%;
+    border: ${(props) => {
+      return `1px solid ${props.isHovered ? Colors.WATUSI : "#F86A2B"}`;
+    }};
+    background: white;
+    top: calc(50% - 2.5px);
+    left: calc(50% - 8px);
+  }
+  &:hover::after {
+    background: #f86a2b;
   }
 `;
 
@@ -36,6 +63,7 @@ export const EdgeHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
+  isHovered: boolean;
 }>`
   position: absolute;
   width: ${EDGE_RESIZE_HANDLE_WIDTH}px;
@@ -45,22 +73,25 @@ export const EdgeHandleStyles = css<{
     background: ${(props) => {
       if (props.showLightBorder) return theme.colors.widgetLightBorder;
 
-      if (props.showAsBorder) return theme.colors.widgetMultiSelectBorder;
+      if (props.isHovered) {
+        return Colors.WATUSI;
+      }
 
-      return theme.colors.widgetBorder;
+      return "#F86A2B";
     }};
     content: "";
   }
-  ${(props) =>
-    props.showAsBorder || props.disableDot ? "" : ResizeIndicatorStyle}
 `;
 
 export const VerticalHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
+  isHovered: boolean;
 }>`
   ${EdgeHandleStyles}
+  ${(props) =>
+    props.showAsBorder || props.disableDot ? "" : VerticalResizeIndicators}
   top:${~(WIDGET_PADDING - 1) + 1}px;
   height: calc(100% + ${2 * WIDGET_PADDING - 1}px);
   ${(props) =>
@@ -77,8 +108,11 @@ export const HorizontalHandleStyles = css<{
   showAsBorder: boolean;
   showLightBorder: boolean;
   disableDot: boolean;
+  isHovered: boolean;
 }>`
   ${EdgeHandleStyles}
+  ${(props) =>
+    props.showAsBorder || props.disableDot ? "" : HorizontalResizeIndicators}
   left: ${~WIDGET_PADDING + 1}px;
   width: calc(100% + ${2 * WIDGET_PADDING}px);
   ${(props) =>

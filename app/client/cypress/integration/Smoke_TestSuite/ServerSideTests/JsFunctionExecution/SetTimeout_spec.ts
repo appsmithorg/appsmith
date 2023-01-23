@@ -5,6 +5,8 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
+let userName : string;
+
 describe("Tests setTimeout API", function() {
   it("1. Executes showAlert after 3 seconds and uses default value", () => {
     jsEditor.CreateJSObject(
@@ -88,7 +90,7 @@ describe("Tests setTimeout API", function() {
     agHelper.Sleep(3000);
     agHelper.AssertContains("resolved");
   });
-  it("verifies code execution order when using setTimeout", () => {
+  it("4. Verifies code execution order when using setTimeout", () => {
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -118,7 +120,7 @@ describe("Tests setTimeout API", function() {
     debuggerHelper.DoesConsoleLogExist("Working!");
   });
 
-  it("4. Resolves promise after 3 seconds and shows alert", () => {
+  it("5. Resolves promise after 3 seconds and shows alert", () => {
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -143,8 +145,8 @@ describe("Tests setTimeout API", function() {
     agHelper.AssertContains("resolved");
   });
 
-  it("5. Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
-    apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+  it("6. Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
+    apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");//https://mock-api.appsmith.com/users?page=2&pageSize=10
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -178,16 +180,24 @@ describe("Tests setTimeout API", function() {
     agHelper.Sleep(2000);
     jsEditor.RunJSObj();
     agHelper.Sleep(3000);
-    agHelper.AssertContains("Barty Crouch");
+
+    cy.wait("@postExecute").then((interception : any) => { //Js function to match any name returned from API
+      userName = JSON.stringify(interception.response.body.data.body.users[0].name).replace(/['"]+/g, '');//removing double quotes
+      agHelper.AssertContains(userName);
+    });
+
     agHelper.Sleep(2000);
     jsEditor.SelectFunctionDropdown("myFun2");
     jsEditor.RunJSObj();
     agHelper.Sleep(3000);
-    agHelper.AssertContains("Barty Crouch");
+    cy.wait("@postExecute").then((interception : any) => {
+      userName = JSON.stringify(interception.response.body.data.body.users[0].name).replace(/['"]+/g, '');
+      agHelper.AssertContains(userName);
+    });
   });
 
-  it("6. Verifies whether setTimeout executes on page load", () => {
-    apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+  it("7. Verifies whether setTimeout executes on page load", () => {
+    //apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -212,6 +222,9 @@ describe("Tests setTimeout API", function() {
     agHelper.Sleep(3000);
     agHelper.AssertContains("Success!");
     agHelper.Sleep(3000);
-    agHelper.AssertContains("Barty Crouch");
+    cy.wait("@postExecute").then((interception : any) => {
+      userName = JSON.stringify(interception.response.body.data.body.users[0].name).replace(/['"]+/g, '');
+      agHelper.AssertContains(userName);
+    });
   });
 });

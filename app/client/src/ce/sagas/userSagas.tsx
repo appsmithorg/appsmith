@@ -1,4 +1,4 @@
-import { call, put, race, select, take } from "redux-saga/effects";
+import { call, fork, put, race, select, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionWithPromise,
@@ -127,6 +127,34 @@ export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
   }
 }
 
+/*
+ * Function to initiate usage tracking
+ *  - For anonymous users we need segement id, so if telemetry is off
+ *    we're intiating segment without tracking and once we get the id,
+ *    analytics object is purged.
+ */
+export function* initiateUsageTracking(payload: {
+  isAnonymousUser: boolean;
+  enableTelemetry: boolean;
+}) {
+  const appsmithConfigs = getAppsmithConfigs();
+
+  //To make sure that we're not tracking from previous session.
+  UsagePulse.stopTrackingActivity();
+
+  if (payload.isAnonymousUser) {
+    if (payload.enableTelemetry && appsmithConfigs.segment.enabled) {
+      UsagePulse.userAnonymousId = AnalyticsUtil.getAnonymousId();
+    } else {
+      yield initializeSegmentWithoutTracking();
+      UsagePulse.userAnonymousId = AnalyticsUtil.getAnonymousId();
+      AnalyticsUtil.removeAnalytics();
+    }
+  }
+
+  UsagePulse.startTrackingActivity();
+}
+
 export function* getCurrentUserSaga() {
   try {
     PerformanceTracker.startAsyncTracking(
@@ -135,6 +163,7 @@ export function* getCurrentUserSaga() {
     const response: ApiResponse = yield call(UserApi.getCurrentUser);
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       //@ts-expect-error: response is of type unknown
       const { enableTelemetry } = response.data;
@@ -151,21 +180,7 @@ export function* getCurrentUserSaga() {
             yield put(segmentInitUncertain());
           }
         }
-      } else if (
-        //@ts-expect-error: response is of type unknown
-        response.data.isAnonymous &&
-        //@ts-expect-error: response is of type unknown
-        response.data.username === ANONYMOUS_USERNAME
-      ) {
-        /*
-         * We're initializing the segment api regardless of the enableTelemetry flag
-         * So we can use segement Id to fingerprint anonymous user in usage pulse call
-         */
-        yield initializeSegmentWithoutTracking();
       }
-
-      //To make sure that we're not tracking from previous session.
-      UsagePulse.stopTrackingActivity();
 
       if (
         //@ts-expect-error: response is of type unknown
@@ -175,16 +190,16 @@ export function* getCurrentUserSaga() {
       ) {
         //@ts-expect-error: response is of type unknown
         enableTelemetry && AnalyticsUtil.identifyUser(response.data);
-      } else {
-        UsagePulse.userAnonymousId = AnalyticsUtil.getAnonymousId();
-
-        if (!enableTelemetry) {
-          AnalyticsUtil.removeAnalytics();
-        }
       }
 
-      UsagePulse.startTrackingActivity();
-
+      /*
+       * Forking it as we don't want to block application flow
+       */
+      yield fork(initiateUsageTracking, {
+        //@ts-expect-error: response is of type unknown
+        isAnonymousUser: response.data.isAnonymous,
+        enableTelemetry,
+      });
       yield put(initAppLevelSocketConnection());
       yield put(initPageLevelSocketConnection());
       yield put({

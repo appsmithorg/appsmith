@@ -158,7 +158,7 @@ describe("DatePicker Widget Functionality", function() {
     cy.get(publishPage.datepickerWidget).should("be.visible");
   });
 
-  it("DatePicker-Disable feild validation", function() {
+  it("DatePicker-Disable field validation", function() {
     //Check the Disabled checkbox
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
     cy.validateDisableWidget(
@@ -172,7 +172,7 @@ describe("DatePicker Widget Functionality", function() {
     );
   });
 
-  it("DatePicker-Enable feild validation", function() {
+  it("DatePicker-Enable field validation", function() {
     //UnCheck the Disabled checkbox
     cy.UncheckWidgetProperties(commonlocators.disableCheckbox);
     cy.validateEnableWidget(

@@ -2,7 +2,10 @@ import {
   RegisteredWidgetFeatures,
   WidgetFeatureProps,
 } from "utils/WidgetFeatures";
-import { DSLWidget } from "widgets/constants";
+import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
+import { WidgetProps } from "widgets/BaseWidget";
+import { DSLWidget, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
 export const migratePropertiesForDynamicHeight = (currentDSL: DSLWidget) => {
   /*  const widgetsWithDynamicHeight = compact(
     ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
@@ -85,4 +88,28 @@ export function migrateListWidgetChildrenForAutoHeight(
   }
 
   return newDSL;
+}
+
+export function migrateInputWidgetsMultiLineInputType(
+  currentDSL: DSLWidget,
+): DSLWidget {
+  if (!currentDSL) return currentDSL;
+
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "INPUT_WIDGET_V2") {
+      const minInputSingleLineHeight =
+        widget.label || widget.tooltip
+          ? // adjust height for label | tooltip extra div
+            GRID_DENSITY_MIGRATION_V1 + 4
+          : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
+            GRID_DENSITY_MIGRATION_V1;
+      const isMultiLine =
+        (widget.bottomRow - widget.topRow) / minInputSingleLineHeight > 1 &&
+        widget.inputType === InputTypes.TEXT;
+
+      if (isMultiLine) {
+        widget.inputType = InputTypes.MULTI_LINE_TEXT;
+      }
+    }
+  });
 }

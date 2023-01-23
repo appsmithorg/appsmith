@@ -17,6 +17,7 @@ import {
 import {
   computeMainContainerWidget,
   getChildWidgets,
+  getCurrentAppPositioningType,
   getMainCanvasProps,
   getRenderMode,
   previewModeSelector,
@@ -27,6 +28,11 @@ import {
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import {
+  defaultAutoLayoutWidgets,
+  Positioning,
+} from "utils/autoLayout/constants";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -51,6 +57,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
     const isMobile = useSelector(getIsMobile);
+    const appPositioningType = useSelector(getCurrentAppPositioningType);
 
     const dispatch = useDispatch();
 
@@ -74,6 +81,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps = { ...canvasWidgetProps };
 
       widgetProps.isMobile = !!isMobile;
+      widgetProps.appPositioningType = appPositioningType;
 
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
@@ -109,6 +117,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         // Form Widget Props
         widgetProps.onReset = props.onReset;
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
+      }
+
+      if (defaultAutoLayoutWidgets.includes(props.type)) {
+        widgetProps.positioning =
+          appPositioningType && appPositioningType === AppPositioningTypes.AUTO
+            ? Positioning.Vertical
+            : Positioning.Fixed;
       }
 
       widgetProps.children = children;

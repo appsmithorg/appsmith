@@ -187,9 +187,9 @@ describe("test canvasDraggingUtils Methods", () => {
         widgetId: "id",
         isNotColliding: true,
       };
-      expect(modifyBlockDimension(draggingBlock, 10, 10, 100, true)).toEqual(
-        modifiedBlock,
-      );
+      expect(
+        modifyBlockDimension(draggingBlock, 10, 10, 100, true, false),
+      ).toEqual(modifiedBlock);
     });
 
     it("should return resized dragging blocks while colliding with canvas edges to it's limits, for top Left", () => {
@@ -214,9 +214,9 @@ describe("test canvasDraggingUtils Methods", () => {
         widgetId: "id",
         isNotColliding: true,
       };
-      expect(modifyBlockDimension(draggingBlock, 10, 10, 100, true)).toEqual(
-        modifiedBlock,
-      );
+      expect(
+        modifyBlockDimension(draggingBlock, 10, 10, 100, true, false),
+      ).toEqual(modifiedBlock);
     });
 
     it("should return resized dragging blocks while colliding with canvas edges, for bottom right", () => {
@@ -241,9 +241,9 @@ describe("test canvasDraggingUtils Methods", () => {
         widgetId: "id",
         isNotColliding: true,
       };
-      expect(modifyBlockDimension(draggingBlock, 10, 10, 100, false)).toEqual(
-        modifiedBlock,
-      );
+      expect(
+        modifyBlockDimension(draggingBlock, 10, 10, 100, false, false),
+      ).toEqual(modifiedBlock);
     });
 
     it("should return resized dragging blocks while colliding with canvas edges to it's limits, for bottom right", () => {
@@ -270,9 +270,9 @@ describe("test canvasDraggingUtils Methods", () => {
         isNotColliding: true,
         fixedHeight: 90,
       };
-      expect(modifyBlockDimension(draggingBlock, 10, 10, 100, false)).toEqual(
-        modifiedBlock,
-      );
+      expect(
+        modifyBlockDimension(draggingBlock, 10, 10, 100, false, false),
+      ).toEqual(modifiedBlock);
     });
   });
 

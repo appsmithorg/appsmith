@@ -1,7 +1,6 @@
 import { AppState } from "@appsmith/reducers";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
-import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { GridDefaults } from "constants/WidgetConstants";
 import { get, omit } from "lodash";
@@ -21,6 +20,7 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
@@ -99,19 +99,25 @@ export const ResizableComponent = memo(function ResizableComponent(
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
     width:
-      ((props.isMobile && props.mobileRightColumn !== undefined
+      ((props.isFlexChild &&
+      props.isMobile &&
+      props.mobileRightColumn !== undefined
         ? props.mobileRightColumn
         : props.rightColumn) -
-        (props.isMobile && props.mobileLeftColumn !== undefined
+        (props.isFlexChild &&
+        props.isMobile &&
+        props.mobileLeftColumn !== undefined
           ? props.mobileLeftColumn
           : props.leftColumn)) *
         props.parentColumnSpace -
       2 * props.paddingOffset,
     height:
-      ((props.isMobile && props.mobileBottomRow !== undefined
+      ((props.isFlexChild &&
+      props.isMobile &&
+      props.mobileBottomRow !== undefined
         ? props.mobileBottomRow
         : props.bottomRow) -
-        (props.isMobile && props.mobileTopRow !== undefined
+        (props.isFlexChild && props.isMobile && props.mobileTopRow !== undefined
           ? props.mobileTopRow
           : props.topRow)) *
         props.parentRowSpace -
@@ -132,7 +138,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     let canResizeHorizontally = true;
 
     // this is required for list widget so that template have no collision
-    if (props.ignoreCollision || props.isFlexChild)
+    if (props.ignoreCollision)
       return {
         canResizeHorizontally,
         canResizeVertically,
@@ -192,7 +198,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     // False, if none of the rows and cols have changed.
     const newRowCols: WidgetRowCols | false = computeFinalRowCols(
       delta,
-      props.isFlexChild ? { x: 0, y: position.y } : position,
+      position,
       props,
     );
 
@@ -261,13 +267,6 @@ export const ResizableComponent = memo(function ResizableComponent(
       widgetType: props.type,
     });
   };
-  const disabledHorizontalHandles =
-    props.isFlexChild &&
-    props.responsiveBehavior === ResponsiveBehavior.Fill &&
-    props.direction === LayoutDirection.Vertical &&
-    false
-      ? ["left", "right", "bottomLeft", "bottomRight", "topLeft", "topRight"]
-      : [];
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -279,11 +278,9 @@ export const ResizableComponent = memo(function ResizableComponent(
       topRight: TopRightHandleStyles,
       bottomLeft: BottomLeftHandleStyles,
     };
-    let handlesToOmit = get(props, "disabledResizeHandles", []);
-    if (disabledHorizontalHandles && disabledHorizontalHandles.length)
-      handlesToOmit = [...handlesToOmit, ...disabledHorizontalHandles];
+    const handlesToOmit = get(props, "disabledResizeHandles", []);
     return omit(allHandles, handlesToOmit);
-  }, [props, disabledHorizontalHandles]);
+  }, [props]);
 
   const isEnabled =
     !isDragging &&
@@ -313,7 +310,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
-  const isAffectedByDrag: boolean = isDragging;
   const snapGrid = useMemo(
     () => ({
       x: props.parentColumnSpace,
@@ -328,6 +324,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const allowResize: boolean =
     !(NonResizableWidgets.includes(props.type) || isMultiSelected) ||
     !props.isFlexChild;
+  const isHovered = isFocused && !isSelected;
   return (
     <Resizable
       allowResize={allowResize}
@@ -339,8 +336,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
-      isAffectedByDrag={isAffectedByDrag}
       isFlexChild={props.isFlexChild}
+      isHovered={isHovered}
       isMobile={props.isMobile || false}
       onStart={handleResizeStart}
       onStop={updateSize}

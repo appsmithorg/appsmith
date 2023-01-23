@@ -42,6 +42,7 @@ import {
 import {
   getCanvasHeightOffset,
   getContainerWidgetSpacesSelector,
+  getCurrentAppPositioningType,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -152,7 +153,8 @@ import {
   addChildToPastedFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
-} from "./AutoLayoutUtils";
+} from "../utils/autoLayout/AutoLayoutUtils";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -220,7 +222,9 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     let widget = { ...stateWidget };
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgets = { ...stateWidgets };
-
+    const appPositioningType: AppPositioningTypes = yield select(
+      getCurrentAppPositioningType,
+    );
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     let movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
@@ -253,15 +257,23 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       };
     }
     const isMobile: boolean = yield select(getIsMobile);
-    const updatedWidgetsAfterResizing = updateWidgetPositions(
-      movedWidgets,
-      parentId,
-      isMobile,
-    );
+    let updatedWidgetsAfterResizing = movedWidgets;
+    if (appPositioningType === AppPositioningTypes.AUTO) {
+      updatedWidgetsAfterResizing = updateWidgetPositions(
+        movedWidgets,
+        parentId,
+        isMobile,
+      );
+    }
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
-    yield put(generateAutoHeightLayoutTreeAction(true, true));
+    yield put(
+      generateAutoHeightLayoutTreeAction(
+        appPositioningType !== AppPositioningTypes.AUTO,
+        true,
+      ),
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,

@@ -3,8 +3,7 @@ import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
-import "./usagePulse";
-import { ThemeProvider } from "constants/DefaultTheme";
+import { ThemeProvider } from "styled-components";
 import { appInitializer } from "utils/AppUtils";
 import { Slide } from "react-toastify";
 import store, { runSagaMiddleware } from "./store";
@@ -23,13 +22,6 @@ import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
-
-const supportsContainerQueries = "container" in document.documentElement.style;
-
-if (!supportsContainerQueries) {
-  // @ts-expect-error: polyfill type declarations not found
-  import("shadow-container-query-polyfill");
-}
 
 runSagaMiddleware();
 

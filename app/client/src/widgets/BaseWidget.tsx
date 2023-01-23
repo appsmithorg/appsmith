@@ -11,7 +11,7 @@ import {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
-} from "components/constants";
+} from "utils/autoLayout/constants";
 import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
@@ -36,6 +36,7 @@ import { Stylesheet } from "entities/AppTheming";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { get, memoize } from "lodash";
 import React, { Component, ReactNode } from "react";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import shallowequal from "shallowequal";
 import { CSSProperties } from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -247,6 +248,7 @@ abstract class BaseWidget<
       this.props.mobileTopRow,
       this.props.mobileBottomRow,
       this.props.isMobile,
+      this.props.isFlexChild,
     );
   };
 
@@ -262,26 +264,30 @@ abstract class BaseWidget<
     mobileTopRow?: number,
     mobileBottomRow?: number,
     isMobile?: boolean,
+    isFlexChild?: boolean,
   ): {
     componentWidth: number;
     componentHeight: number;
   } {
-    const right =
-      isMobile && mobileRightColumn !== undefined && parentColumnSpace !== 1
-        ? mobileRightColumn
-        : rightColumn;
-    const left =
-      isMobile && mobileLeftColumn !== undefined && parentColumnSpace !== 1
-        ? mobileLeftColumn
-        : leftColumn;
-    const top =
-      isMobile && mobileTopRow !== undefined && parentRowSpace !== 1
-        ? mobileTopRow
-        : topRow;
-    const bottom =
-      isMobile && mobileBottomRow !== undefined && parentRowSpace !== 1
-        ? mobileBottomRow
-        : bottomRow;
+    let left = leftColumn;
+    let right = rightColumn;
+    let top = topRow;
+    let bottom = bottomRow;
+    if (isFlexChild && isMobile) {
+      if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
+        left = mobileLeftColumn;
+      }
+      if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
+        right = mobileRightColumn;
+      }
+      if (mobileTopRow !== undefined && parentRowSpace !== 1) {
+        top = mobileTopRow;
+      }
+      if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
+        bottom = mobileBottomRow;
+      }
+    }
+
     return {
       componentWidth: (right - left) * parentColumnSpace,
       componentHeight: (bottom - top) * parentRowSpace,
@@ -342,6 +348,7 @@ abstract class BaseWidget<
             type={this.props.type}
             widgetId={this.props.widgetId}
             widgetName={this.props.widgetName}
+            widgetProps={this.props}
           />
         )}
         {content}
@@ -649,6 +656,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
   isMobile?: boolean;
   flexVerticalAlignment?: FlexVerticalAlignment;
+  appPositioningType?: AppPositioningTypes;
 }
 
 export const WIDGET_DISPLAY_PROPS = {

@@ -1,7 +1,7 @@
-import { LayoutDirection } from "components/constants";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
+import { LayoutDirection } from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
 import { StickyCanvasArena } from "./StickyCanvasArena";

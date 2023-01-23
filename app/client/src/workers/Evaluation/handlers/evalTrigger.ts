@@ -19,10 +19,12 @@ export default async function(request: EvalWorkerASyncRequest) {
   const {
     evalOrder,
     nonDynamicFieldValidationOrder,
+    unEvalUpdates,
   } = dataTreeEvaluator.setupUpdateTree(unEvalTree);
   dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,
+    unEvalUpdates,
   );
   const evalTree = dataTreeEvaluator.evalTree;
   const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;

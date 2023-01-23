@@ -1,4 +1,3 @@
-import React from "react";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
@@ -6,17 +5,16 @@ import {
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import {
   MovementLimitMap,
   ReflowDirection,
   ReflowedSpaceMap,
   SpaceMap,
 } from "reflow/reflowTypes";
-import {
-  getCanvasScale,
-  getCurrentAppPositioningType,
-} from "selectors/editorSelectors";
+import { getParentOffsetTop } from "selectors/autoLayoutSelectors";
+import { getCanvasScale } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
@@ -35,17 +33,15 @@ import {
   updateRectanglesPostReflow,
 } from "./canvasDraggingUtils";
 import {
+  HighlightInfo,
+  useAutoLayoutHighlights,
+} from "./useAutoLayoutHighlights";
+import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
-import { useSelector } from "react-redux";
-import {
-  HighlightInfo,
-  useAutoLayoutHighlights,
-} from "./useAutoLayoutHighlights";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
@@ -67,7 +63,7 @@ export const useCanvasDragging = (
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   let { devicePixelRatio: scale = 1 } = window;
   scale *= canvasScale;
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const parentOffsetTop = useSelector(getParentOffsetTop(widgetId));
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -129,12 +125,14 @@ export const useCanvasDragging = (
     useAutoLayout,
   });
 
-  setTimeout(() => {
-    calculateHighlights();
-  }, 0);
+  if (useAutoLayout) {
+    setTimeout(() => {
+      calculateHighlights();
+    }, 0);
 
-  if (!isDragging || !isCurrentDraggedCanvas) {
-    cleanUpTempStyles();
+    if (!isDragging || !isCurrentDraggedCanvas) {
+      cleanUpTempStyles();
+    }
   }
 
   const {
@@ -197,7 +195,8 @@ export const useCanvasDragging = (
         bottom: 0,
         id: "",
       };
-      let lastSnappedPositionDeltas: OccupiedSpace[] = [];
+
+      let lastMousePositions: { x: number; y: number }[] = [];
 
       const resetCanvasState = () => {
         throttledStopReflowing();
@@ -305,7 +304,7 @@ export const useCanvasDragging = (
           const canReflow =
             !currentRectanglesToDraw[0].detachFromLayout &&
             !dropDisabled &&
-            appPositioningType === AppPositioningTypes.FIXED;
+            !useAutoLayout;
           const isReflowing =
             !isEmpty(currentReflowParams.movementMap) ||
             (!isEmpty(currentReflowParams.movementLimitMap) &&
@@ -386,6 +385,9 @@ export const useCanvasDragging = (
           );
           rowRef.current = newRows ? newRows : rowRef.current;
         };
+        const updateMousePosition = ({ x, y }: { x: number; y: number }) => {
+          lastMousePositions = [{ x, y }, ...lastMousePositions.slice(0, 4)];
+        };
 
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && slidingArenaRef.current) {
@@ -405,6 +407,7 @@ export const useCanvasDragging = (
                 snapRowSpace,
                 rowRef.current - 1,
                 canExtend,
+                useAutoLayout || false,
               ),
             );
             const newRows = updateRelativeRows(drawingBlocks, rowRef.current);
@@ -435,28 +438,20 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              const currentSnappedPosition = getDraggingSpacesFromBlocks(
-                currentRectanglesToDraw,
-                snapColumnSpace,
-                snapRowSpace,
-              )[0];
-              currentDirection.current = getInterpolatedMoveDirection(
-                lastSnappedPositionDeltas,
-                currentSnappedPosition,
-                currentDirection.current,
-              );
-              lastSnappedPositionDeltas = [
-                currentSnappedPosition,
-                ...lastSnappedPositionDeltas.slice(0, 4),
-              ];
-
               triggerReflow(e, firstMove);
-              if (
-                useAutoLayout &&
-                isCurrentDraggedCanvas &&
-                currentDirection.current !== ReflowDirection.UNSET
-              ) {
-                highlight = highlightDropPosition(e, currentDirection.current);
+
+              if (useAutoLayout && isCurrentDraggedCanvas) {
+                currentDirection.current = getInterpolatedMoveDirection(
+                  lastMousePositions,
+                  { x: e.clientX, y: e.clientY },
+                  currentDirection.current,
+                  updateMousePosition,
+                );
+                if (currentDirection.current !== ReflowDirection.UNSET)
+                  highlight = highlightDropPosition(
+                    e,
+                    currentDirection.current,
+                  );
               }
             }
             isUpdatingRows = renderBlocks(
@@ -467,6 +462,7 @@ export const useCanvasDragging = (
               scrollParent,
               highlight,
               widgetId === MAIN_CONTAINER_WIDGET_ID,
+              parentOffsetTop,
             );
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
@@ -496,6 +492,7 @@ export const useCanvasDragging = (
                 snapRowSpace,
                 rowRef.current - 1,
                 canExtend,
+                useAutoLayout || false,
               );
               return {
                 ...block,
@@ -552,6 +549,7 @@ export const useCanvasDragging = (
         const reflowAfterTimeoutCallback = (reflowParams: {
           movementMap: ReflowedSpaceMap;
           spacePositionMap: SpaceMap | undefined;
+          movementLimitMap: MovementLimitMap | undefined;
         }) => {
           currentReflowParams = { ...currentReflowParams, ...reflowParams };
           updateParamsPostReflow();
@@ -669,7 +667,14 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend]);
+  }, [
+    isDragging,
+    isResizing,
+    blocksToDraw,
+    snapRows,
+    canExtend,
+    useAutoLayout,
+  ]);
   return {
     showCanvas: isDragging && !isResizing,
   };

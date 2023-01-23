@@ -35,7 +35,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
-import { updateFlexLayersOnDelete } from "./AutoLayoutUtils";
+import { updateFlexLayersOnDelete } from "../utils/autoLayout/AutoLayoutUtils";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
@@ -245,8 +245,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         const isMobile: boolean = yield select(getIsMobile);
         // Update flex layers of a canvas upon deletion of a widget.
-        const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = yield call(
-          updateFlexLayersOnDelete,
+        const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = updateFlexLayersOnDelete(
           finalWidgets,
           widgetId,
           parentId,

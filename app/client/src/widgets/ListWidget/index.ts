@@ -1,4 +1,4 @@
-import { Positioning } from "components/constants";
+import { Positioning } from "utils/autoLayout/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 import {

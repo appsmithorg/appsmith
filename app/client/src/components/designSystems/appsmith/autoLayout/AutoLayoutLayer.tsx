@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import styled from "styled-components";
 
-import { FlexDirection, LayoutDirection } from "components/constants";
+import { FlexDirection, LayoutDirection } from "utils/autoLayout/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.

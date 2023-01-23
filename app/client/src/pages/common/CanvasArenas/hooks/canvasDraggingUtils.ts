@@ -142,32 +142,24 @@ export function modifyDrawingRectangles(
  * @returns movement direction
  */
 export function getMoveDirection(
-  prevPosition: OccupiedSpace,
+  prevPosition: OccupiedSpace | null,
   currentPosition: OccupiedSpace,
   currentDirection: ReflowDirection,
 ) {
   if (!prevPosition || !currentPosition) return currentDirection;
-  const deltaX = Math.max(
-    Math.abs(currentPosition.left - prevPosition.left),
-    Math.abs(currentPosition.right - prevPosition.right),
-  );
-  const deltaY = Math.max(
-    Math.abs(currentPosition.top - prevPosition.top),
-    Math.abs(currentPosition.bottom - prevPosition.bottom),
-  );
-  if (deltaX >= deltaY) {
-    if (
-      currentPosition.right - prevPosition.right > 0 ||
-      currentPosition.left - prevPosition.left > 0
-    )
-      return ReflowDirection.RIGHT;
 
-    if (
-      currentPosition.right - prevPosition.right < 0 ||
-      currentPosition.left - prevPosition.left < 0
-    )
-      return ReflowDirection.LEFT;
-  }
+  if (
+    currentPosition.right - prevPosition.right > 0 ||
+    currentPosition.left - prevPosition.left > 0
+  )
+    return ReflowDirection.RIGHT;
+
+  if (
+    currentPosition.right - prevPosition.right < 0 ||
+    currentPosition.left - prevPosition.left < 0
+  )
+    return ReflowDirection.LEFT;
+
   if (
     currentPosition.bottom - prevPosition.bottom > 0 ||
     currentPosition.top - prevPosition.top > 0
@@ -198,6 +190,7 @@ export const modifyBlockDimension = (
   snapRowSpace: number,
   parentBottomRow: number,
   canExtend: boolean,
+  modifyBlock: boolean,
 ) => {
   const {
     columnWidth,
@@ -222,43 +215,44 @@ export const modifyBlockDimension = (
       y: 0,
     },
   );
-
   let leftOffset = 0,
     rightOffset = 0,
     topOffset = 0,
     bottomOffset = 0;
+  if (!modifyBlock) {
+    // calculate offsets based on collisions and limits
+    if (leftColumn < 0) {
+      leftOffset =
+        leftColumn + columnWidth > HORIZONTAL_RESIZE_MIN_LIMIT
+          ? leftColumn
+          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+    } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
+      rightOffset =
+        GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
+      rightOffset =
+        columnWidth + rightOffset >= HORIZONTAL_RESIZE_MIN_LIMIT
+          ? rightOffset
+          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+    }
 
-  // calculate offsets based on collisions and limits
-  if (leftColumn < 0) {
-    leftOffset =
-      leftColumn + columnWidth > HORIZONTAL_RESIZE_MIN_LIMIT
-        ? leftColumn
-        : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
-  } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
-    rightOffset = GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
-    rightOffset =
-      columnWidth + rightOffset >= HORIZONTAL_RESIZE_MIN_LIMIT
-        ? rightOffset
-        : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
-  }
+    if (topRow < 0 && fixedHeight === undefined) {
+      topOffset =
+        topRow + rowHeight > VERTICAL_RESIZE_MIN_LIMIT
+          ? topRow
+          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+    }
 
-  if (topRow < 0 && fixedHeight === undefined) {
-    topOffset =
-      topRow + rowHeight > VERTICAL_RESIZE_MIN_LIMIT
-        ? topRow
-        : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
-  }
-
-  if (
-    topRow + rowHeight > parentBottomRow &&
-    !canExtend &&
-    fixedHeight === undefined
-  ) {
-    bottomOffset = parentBottomRow - topRow - rowHeight;
-    bottomOffset =
-      rowHeight + bottomOffset >= VERTICAL_RESIZE_MIN_LIMIT
-        ? bottomOffset
-        : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+    if (
+      topRow + rowHeight > parentBottomRow &&
+      !canExtend &&
+      fixedHeight === undefined
+    ) {
+      bottomOffset = parentBottomRow - topRow - rowHeight;
+      bottomOffset =
+        rowHeight + bottomOffset >= VERTICAL_RESIZE_MIN_LIMIT
+          ? bottomOffset
+          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+    }
   }
 
   return {
@@ -323,29 +317,59 @@ export const updateRectanglesPostReflow = (
   return rectanglesToDraw;
 };
 
+/**
+ * Get mouse move direction using an average of last five mouse positions.
+ * @param lastMousePositions | { x: number; y: number }[] : array of last five mouse positions.
+ * @param currentPosition | { x: number; y: number } : current mouse position.
+ * @param direction | ReflowDirection : current direction.
+ * @param updateMousePosition | ({ x, y }: { x: number; y: number }) => void : function to update mouse position.
+ * @returns ReflowDirection
+ */
 export function getInterpolatedMoveDirection(
-  spaces: OccupiedSpace[],
-  currentPosition: OccupiedSpace,
+  lastMousePositions: { x: number; y: number }[],
+  currentPosition: { x: number; y: number },
   direction: ReflowDirection,
+  updateMousePosition: ({ x, y }: { x: number; y: number }) => void,
 ): ReflowDirection {
-  const accumulatedPositions = spaces.reduce(
+  if (!lastMousePositions.length) {
+    updateMousePosition(currentPosition);
+    return direction;
+  }
+
+  const averagePosition = getAverageMousePosition(lastMousePositions);
+  updateMousePosition(currentPosition);
+  const deltaX = currentPosition.x - averagePosition.x;
+  const deltaY = currentPosition.y - averagePosition.y;
+
+  if (Math.abs(deltaY) > Math.abs(deltaX))
+    return deltaY > 0 ? ReflowDirection.BOTTOM : ReflowDirection.TOP;
+  if (Math.abs(deltaX) > Math.abs(deltaY))
+    return deltaX > 0 ? ReflowDirection.RIGHT : ReflowDirection.LEFT;
+  if (
+    Math.abs(deltaX) === Math.abs(deltaY) &&
+    direction === ReflowDirection.UNSET
+  ) {
+    /**
+     * If the direction is unset and mouse position is perfectly diagonal.
+     * Then set the direction vertically (random choice).
+     */
+    return deltaY > 0 ? ReflowDirection.BOTTOM : ReflowDirection.TOP;
+  }
+  return direction;
+}
+
+function getAverageMousePosition(
+  lastMousePositions: { x: number; y: number }[],
+) {
+  const accumulatedPositions = lastMousePositions.reduce(
     (acc, curr) => {
-      return {
-        ...acc,
-        top: acc.top + curr.top,
-        right: acc.right + curr.right,
-        bottom: acc.bottom + curr.bottom,
-        left: acc.left + curr.left,
-      };
+      return { x: acc.x + curr.x, y: acc.y + curr.y };
     },
-    { top: 0, right: 0, bottom: 0, left: 0, id: currentPosition.id },
+    { x: 0, y: 0 },
   );
-  const lastPosition = {
-    ...accumulatedPositions,
-    top: accumulatedPositions.top / spaces.length,
-    right: accumulatedPositions.right / spaces.length,
-    bottom: accumulatedPositions.bottom / spaces.length,
-    left: accumulatedPositions.left / spaces.length,
+  const averagePosition = {
+    x: accumulatedPositions.x / lastMousePositions.length,
+    y: accumulatedPositions.y / lastMousePositions.length,
   };
-  return getMoveDirection(lastPosition, currentPosition, direction);
+  return averagePosition;
 }

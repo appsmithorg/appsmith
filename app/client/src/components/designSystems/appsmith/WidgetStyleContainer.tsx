@@ -24,7 +24,6 @@ export interface WidgetStyleContainerProps {
   borderRadius?: number;
   boxShadow?: BoxShadow;
   className?: string;
-  useAutoLayout?: boolean;
   direction?: string;
 }
 

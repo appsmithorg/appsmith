@@ -5,8 +5,8 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import { ResponsiveBehavior } from "components/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
@@ -23,7 +23,7 @@ import {
   removeChildLayers,
   updateFillChildStatus,
   wrapChildren,
-} from "./AutoLayoutUtils";
+} from "../utils/autoLayout/AutoLayoutUtils";
 import { getWidgets } from "./selectors";
 
 type LayoutUpdatePayload = {

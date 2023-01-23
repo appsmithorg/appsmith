@@ -1,7 +1,8 @@
-import { ButtonVariantTypes, Positioning } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
+import { Positioning } from "utils/autoLayout/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";

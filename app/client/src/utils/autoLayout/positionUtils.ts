@@ -1,6 +1,13 @@
-import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { FlexLayer } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -41,6 +48,11 @@ export function updateWidgetPositions(
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
+    if (
+      !widgets[MAIN_CONTAINER_WIDGET_ID].positioning ||
+      widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Fixed
+    )
+      return widgets;
     const parent = widgets[parentId];
     if (!parent) return widgets;
 
@@ -65,7 +77,7 @@ export function updateWidgetPositions(
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
     const parentHeight = getWidgetRows(parent, isMobile);
-    if (parentHeight <= height) {
+    if (parentHeight - height <= 1) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
@@ -75,7 +87,7 @@ export function updateWidgetPositions(
       const updatedParent = setDimensions(
         parent,
         parentTopRow,
-        (parentTopRow + height + 1) * divisor,
+        parentTopRow + height * divisor + 1 * divisor,
         null,
         null,
         isMobile,
@@ -100,7 +112,6 @@ export function updateWidgetPositions(
       if (shouldUpdateHeight && parent.parentId)
         return updateWidgetPositions(widgets, parent.parentId, isMobile);
     }
-
     return widgets;
   } catch (e) {
     // console.error(e);
@@ -276,6 +287,7 @@ export function extractAlignmentInfo(
   // Calculate the number of columns occupied by hug widgets in each alignment.
   for (const child of layer.children) {
     const widget = widgets[child.id];
+    if (!widget) continue;
     const isFillWidget = widget.responsiveBehavior === ResponsiveBehavior.Fill;
     if (isFillWidget) fillChildren.push(child);
     if (child.align === FlexLayerAlignment.Start) {

@@ -1,8 +1,9 @@
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),

@@ -998,10 +998,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
-  cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
   cy.route("POST", "/api/v1/pages/crud-page").as("replaceLayoutWithCRUDPage");
-  cy.intercept("PUT", "api/v1/collections/actions/*").as("jsCollections");
 
+  cy.intercept("PUT", "api/v1/collections/actions/*").as("jsCollections");
+  cy.intercept("DELETE", "/api/v1/collections/actions/*").as(
+    "deleteJSCollection",
+  );
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
@@ -1152,6 +1154,9 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 });
 
 Cypress.Commands.add("CheckForPageSaveError", () => {
+  // Wait for "saving" status to disappear
+  cy.get(commonlocators.statusSaving).should("not.exist");
+  // Check for page save error
   cy.get("body").then(($ele) => {
     if ($ele.find(commonlocators.saveStatusError).length) {
       cy.reload();
@@ -1160,6 +1165,7 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
+  cy.CheckForPageSaveError();
   cy.get(commonlocators.saveStatusContainer).should("not.exist", {
     timeout: 40000,
   });

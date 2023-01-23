@@ -17,8 +17,8 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { Positioning } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
+import { Positioning } from "utils/autoLayout/constants";
 import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 
 export class ContainerWidget extends BaseWidget<
@@ -204,7 +204,9 @@ export class ContainerWidget extends BaseWidget<
     // Pass layout controls to children
     childWidget.positioning =
       childWidget?.positioning || this.props.positioning;
-    childWidget.useAutoLayout = this.props.positioning !== Positioning.Fixed;
+    childWidget.useAutoLayout = this.props.positioning
+      ? this.props.positioning !== Positioning.Fixed
+      : false;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -222,8 +224,13 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    //ToDo: Ashok Need a better way of doing this.
+    const useAutoLayout = this.props.positioning
+      ? this.props.positioning !== Positioning.Fixed
+      : false;
+    const shouldScroll = props.shouldScrollContents && !useAutoLayout;
     return (
-      <ContainerComponent {...props} shouldScrollContents={false}>
+      <ContainerComponent {...props} shouldScrollContents={shouldScroll}>
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}

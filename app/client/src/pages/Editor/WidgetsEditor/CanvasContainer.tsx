@@ -95,7 +95,6 @@ function CanvasContainer() {
   }
 
   if (!isPageInitializing && widgetsStructure) {
-    // TODO: Temporary workaround for positioning. To be removed after testing.
     node = (
       <Canvas
         canvasScale={canvasScale}
@@ -241,7 +240,7 @@ function CanvasContainer() {
               cursor: "col-resize",
               width: "16px",
               height: "0px",
-              left: isPreviewMode ? "100%" : "calc(100% - 32px)",
+              right: isPreviewMode ? "0px" : "16px",
               top: "50%",
               zIndex: isPreviewMode ? 2 : undefined,
               float: "right",

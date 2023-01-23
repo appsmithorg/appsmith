@@ -9,7 +9,7 @@ import {
   Positioning,
   ResponsiveBehavior,
   Spacing,
-} from "components/constants";
+} from "utils/autoLayout/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 export interface LayoutProperties {
