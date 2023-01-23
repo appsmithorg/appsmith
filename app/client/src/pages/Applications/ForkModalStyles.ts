@@ -4,7 +4,7 @@ import {
   DialogComponent as Dialog,
   getTypographyByKey,
   RadioComponent,
-} from "design-system";
+} from "design-system-old";
 import { Classes } from "@blueprintjs/core";
 
 const TriggerButton = styled(Button)`

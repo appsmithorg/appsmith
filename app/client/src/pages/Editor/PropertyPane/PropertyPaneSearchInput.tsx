@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { SearchVariant } from "design-system";
-import { InputWrapper, SearchInput } from "design-system";
+import { SearchVariant } from "design-system-old";
+import { InputWrapper, SearchInput } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {

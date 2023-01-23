@@ -1,4 +1,4 @@
-import { DropdownOption } from "design-system";
+import { DropdownOption } from "design-system-old";
 import { DatasourceTable } from "entities/Datasource";
 import { PluginPackageName } from "entities/Action";
 

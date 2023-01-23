@@ -11,7 +11,7 @@ import {
   IconSize,
   Size,
   Spinner,
-} from "design-system";
+} from "design-system-old";
 import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
