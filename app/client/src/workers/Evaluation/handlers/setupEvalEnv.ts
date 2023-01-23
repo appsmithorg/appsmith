@@ -6,6 +6,7 @@ import initTimeoutFns from "../fns/timeout";
 import { EvalWorkerSyncRequest } from "../types";
 import userLogs from "../fns/console";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import initLocalStorage from "../fns/LocalStorage";
 
 export default function() {
   const libraries = resetJSLibraries();
@@ -26,6 +27,7 @@ export default function() {
   initFetch();
   setupDOM();
   addPlatformFunctionsToEvalContext(self);
+  initLocalStorage(self);
   return true;
 }
 

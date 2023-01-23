@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import { ButtonGroup, ButtonGroupOption } from "design-system";
+import { ButtonGroup, ButtonGroupOption } from "design-system-old";
 import {
   DSEventDetail,
   DSEventTypes,

@@ -10,6 +10,13 @@ import { EventEmitter } from "events";
 
 class UserLog {
   private source: any = {};
+  private isEnabled = true;
+  enable() {
+    this.isEnabled = true;
+  }
+  disable() {
+    this.isEnabled = false;
+  }
   constructor(private emitter: EventEmitter) {}
 
   private saveLog(method: Methods, data: any[]) {
@@ -25,26 +32,32 @@ class UserLog {
     console = {
       ...console,
       table: (...args: any) => {
+        if (!this.isEnabled) return;
         table.call(this, args);
         this.saveLog("table", args);
       },
       error: (...args: any) => {
+        if (!this.isEnabled) return;
         error.apply(this, args);
         this.saveLog("error", args);
       },
       log: (...args: any) => {
+        if (!this.isEnabled) return;
         log.apply(this, args);
         this.saveLog("log", args);
       },
       debug: (...args: any) => {
+        if (!this.isEnabled) return;
         debug.apply(this, args);
         this.saveLog("debug", args);
       },
       warn: (...args: any) => {
+        if (!this.isEnabled) return;
         warn.apply(this, args);
         this.saveLog("warn", args);
       },
       info: (...args: any) => {
+        if (!this.isEnabled) return;
         info.apply(this, args);
         this.saveLog("info", args);
       },

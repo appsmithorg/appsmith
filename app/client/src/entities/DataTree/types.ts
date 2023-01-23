@@ -100,15 +100,16 @@ export enum OverridingPropertyType {
   META = "META",
   DEFAULT = "DEFAULT",
 }
+export interface overrideDependency {
+  DEFAULT: string;
+  META: string;
+}
 /**
  *  Map of property name as key and value as object with defaultPropertyName and metaPropertyName which it depends on.
  */
 export type PropertyOverrideDependency = Record<
   string,
-  {
-    DEFAULT: string | undefined;
-    META: string | undefined;
-  }
+  Partial<overrideDependency>
 >;
 
 export type WidgetConfig = {

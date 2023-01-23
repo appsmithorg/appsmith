@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
-import { getTypographyByKey, TooltipComponent as Tooltip } from "design-system";
+import {
+  getTypographyByKey,
+  TooltipComponent as Tooltip,
+} from "design-system-old";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
