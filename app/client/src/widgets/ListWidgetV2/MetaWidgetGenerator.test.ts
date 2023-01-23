@@ -10,7 +10,6 @@ import { nestedListInput, simpleListInput } from "./testData";
 import { RenderModes } from "constants/WidgetConstants";
 import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
 import { LevelData } from "./widget";
-import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 
 type Validator = {
   widgetType: string;
@@ -158,7 +157,6 @@ const init = ({
     ...optionsProps,
   });
   const cache = passedCache || new Cache();
-  const onMetaWidgetsUpdate = jest.fn;
 
   const generator = new MetaWidgetGenerator({
     getWidgetCache: cache.getWidgetCache,
@@ -172,7 +170,6 @@ const init = ({
     prefixMetaWidgetId: "test",
     setWidgetReferenceCache: cache.setWidgetReferenceCache,
     getWidgetReferenceCache: cache.getWidgetReferenceCache,
-    onMetaWidgetsUpdate,
     ...constructorProps,
   });
 
@@ -226,7 +223,6 @@ const validateMetaWidgetType = (
 describe("#generate", () => {
   it("generates meta widgets for first instance", () => {
     const cache = new Cache();
-    const onMetaWidgetsUpdate = jest.fn;
 
     const generator = new MetaWidgetGenerator({
       getWidgetCache: cache.getWidgetCache,
@@ -240,7 +236,6 @@ describe("#generate", () => {
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
       prefixMetaWidgetId: "test",
-      onMetaWidgetsUpdate,
     });
 
     const expectedGeneratedCount = 12;
@@ -815,7 +810,6 @@ describe("#generate", () => {
       onVirtualListScroll: jest.fn,
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
-      onMetaWidgetsUpdate: jest.fn,
     });
 
     const nestedListWidgetId = "fs2d2lqjgd";
@@ -854,7 +848,6 @@ describe("#generate", () => {
       onVirtualListScroll: jest.fn,
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
-      onMetaWidgetsUpdate: jest.fn,
     });
     const listWidgetName = "List6";
     const nestedListWidgetId = "fs2d2lqjgd";
@@ -1266,16 +1259,6 @@ describe("#generate", () => {
   });
 
   it("captures all siblingMetaWidgets in the first inner list's widget in a nested list setup", () => {
-    jest.useFakeTimers();
-    const siblingMetaWidgets: Record<string, string[]> = {};
-    const onMetaWidgetsUpdate = (
-      propertyUpdates: ModifyMetaWidgetPayload["propertyUpdates"],
-    ) => {
-      propertyUpdates?.forEach(({ path, value }) => {
-        const [widgetId] = path.split(".");
-        siblingMetaWidgets[widgetId] = value as string[];
-      });
-    };
     const cache = new Cache();
     const nestedList1Page1 = init({
       optionsProps: {
@@ -1288,7 +1271,6 @@ describe("#generate", () => {
       constructorProps: {
         level: 2,
         isListCloned: false,
-        onMetaWidgetsUpdate,
       },
       passedCache: cache,
     });
@@ -1304,11 +1286,9 @@ describe("#generate", () => {
       constructorProps: {
         level: 2,
         isListCloned: true,
-        onMetaWidgetsUpdate,
       },
       passedCache: cache,
     });
-    jest.runAllTimers();
 
     const page1MetaWidgets = {
       ...nestedList1Page1.initialResult.metaWidgets,
@@ -1348,7 +1328,6 @@ describe("#generate", () => {
       constructorProps: {
         level: 2,
         isListCloned: false,
-        onMetaWidgetsUpdate,
       },
       passedCache: cache,
     });
@@ -1364,7 +1343,6 @@ describe("#generate", () => {
       constructorProps: {
         level: 2,
         isListCloned: true,
-        onMetaWidgetsUpdate,
       },
       passedCache: cache,
     });
