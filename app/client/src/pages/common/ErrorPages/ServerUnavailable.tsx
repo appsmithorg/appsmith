@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Size } from "design-system";
+import { Button, Size } from "design-system-old";
 
 import Page from "./Page";
 import {
