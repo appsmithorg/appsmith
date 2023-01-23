@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Button, IconPositions, Size } from "design-system";
+import { Button, IconPositions, Size } from "design-system-old";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import {
   BACK_TO_HOMEPAGE,
