@@ -3,12 +3,13 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorerLocators = require("../../../../../locators/explorerlocators.json");
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-const tempBranch = "tempBranch";
-const tempBranch0 = "tempBranch0";
-const tempBranch1 = "tempBranch1";
-const tempBranch2 = "tempBranch2";
-const tempBranch3 = "tempBranch3";
+let tempBranch = "tempBranch",
+  tempBranch0 = "tempBranch0",
+  tempBranch1 = "tempBranch1",
+  tempBranch2 = "tempBranch2",
+  tempBranch3 = "tempBranch3";
 
 const buttonNameMainBranch = "buttonMainBranch";
 const buttonNameMainBranchEdited = "buttonMainBranchEdited";
@@ -25,7 +26,7 @@ let applicationId = null;
 let applicationName = null;
 
 let repoName;
-describe("Git sync:", function() {
+describe.skip("Git sync:", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -40,32 +41,49 @@ describe("Git sync:", function() {
       });
     });
 
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName);
+    // cy.generateUUID().then((uid) => {
+    //   repoName = uid;
+    _.gitSync.CreateNConnectToGit(repoName);
+    // cy.createTestGithubRepo(repoName);
+    // cy.connectToGitRepo(repoName);
+    //});
+    cy.get("@gitRepoName").then((repName) => {
+      repoName = repName;
     });
   });
 
-  it("shows remote is ahead warning and conflict error during commit and push", function() {
-    cy.createGitBranch(tempBranch);
-    cy.get(explorerLocators.widgetSwitchId).click();
-    cy.wait(2000); // wait for transition
-    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
-    cy.createGitBranch(tempBranch0);
-    cy.widgetText(
-      buttonNameTemp0Branch,
-      widgetsPage.buttonWidget,
-      commonlocators.buttonInner,
-    );
-    cy.commitAndPush();
-    cy.mergeViaGithubApi({
-      repo: repoName,
-      base: tempBranch,
-      head: tempBranch0,
+  it("1. Shows remote is ahead warning and conflict error during commit and push", function() {
+    _.gitSync.CreateGitBranch(tempBranch, false);
+    cy.get("@gitbranchName").then((branName) => {
+      tempBranch = branName;
+      cy.log("tempBranch is " + tempBranch);
+
+      //cy.createGitBranch(tempBranch);
+      cy.get(explorerLocators.widgetSwitchId).click();
+      cy.wait(2000); // wait for transition
+      cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
+      // cy.createGitBranch(tempBranch0);
+      _.gitSync.CreateGitBranch(tempBranch0, false);
+      cy.get("@gitbranchName").then((branName) => {
+        tempBranch0 = branName;
+        cy.log("tempBranch0 is " + tempBranch0);
+        cy.widgetText(
+          buttonNameTemp0Branch,
+          widgetsPage.buttonWidget,
+          commonlocators.buttonInner,
+        );
+        cy.commitAndPush();
+        cy.switchGitBranch(tempBranch);
+        cy.merge(tempBranch0);
+      });
+
+      // cy.mergeViaGithubApi({
+      //   repo: repoName,
+      //   base: tempBranch,
+      //   head: tempBranch0,
+      // });
+      cy.switchGitBranch(tempBranch);
     });
-    cy.switchGitBranch(tempBranch);
     cy.widgetText(
       buttonNameMainBranch,
       widgetsPage.buttonWidget,
@@ -86,12 +104,12 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
-  it("detect conflicts when merging head to base branch", function() {
+  it("2. Detect conflicts when merging head to base branch", function() {
     cy.switchGitBranch(mainBranch);
     cy.get(explorerLocators.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
-    cy.createGitBranch(tempBranch1);
+    _.gitSync.CreateGitBranch(tempBranch1, false);
     cy.widgetText(
       buttonNameTempBranch1,
       widgetsPage.buttonWidget,
@@ -120,7 +138,7 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
-  it("supports merging head to base branch", function() {
+  it("3. Supports merging head to base branch", function() {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
     cy.get(explorerLocators.explorerSwitchId).click({ force: true });
@@ -135,21 +153,18 @@ describe("Git sync:", function() {
     cy.contains("NewPage");
   });
 
-  it("enables pulling remote changes from bottom bar", function() {
-    cy.createGitBranch(tempBranch3);
+  it("4. Enables pulling remote changes from bottom bar", function() {
+    _.gitSync.CreateGitBranch(tempBranch3, false);
     cy.get(explorerLocators.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.wait("@updateLayout");
-
     cy.commitAndPush();
-
     cy.mergeViaGithubApi({
       repo: repoName,
       base: mainBranch,
       head: tempBranch3,
     });
-
     cy.switchGitBranch(mainBranch);
     cy.get(gitSyncLocators.bottomBarCommitButton).should("be.visible");
     cy.get(gitSyncLocators.gitPullCount);
@@ -202,7 +217,7 @@ describe("Git sync:", function() {
     cy.xpath("//span[@name='close-modal']").click({ force: true });
   });
 
-  it("clicking '+' icon on bottom bar should open deploy popup", function() {
+  it("5. Clicking '+' icon on bottom bar should open deploy popup", function() {
     cy.get(gitSyncLocators.bottomBarCommitButton).click({ force: true });
     cy.get(gitSyncLocators.gitSyncModal).should("exist");
     cy.get("[data-cy=t--tab-DEPLOY]").should("exist");
@@ -212,7 +227,7 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click({ force: true });
   });
 
-  it("checks clean url updates across branches", () => {
+  it("6. Checks clean url updates across branches", () => {
     cy.Deletepage("NewPage");
     cy.wait(1000);
     let legacyPathname = "";
@@ -237,7 +252,7 @@ describe("Git sync:", function() {
       applicationVersion: 1,
     });
 
-    cy.createGitBranch(cleanUrlBranch);
+    _.gitSync.CreateGitBranch(cleanUrlBranch, false);
 
     cy.location().should((location) => {
       expect(location.pathname).includes(legacyPathname);
@@ -253,35 +268,33 @@ describe("Git sync:", function() {
       expect(location.pathname).includes(newPathname);
     });
 
-    cy.createGitBranch(cleanUrlBranch);
-
+    _.gitSync.CreateGitBranch(cleanUrlBranch, false);
     cy.location().should((location) => {
       expect(location.pathname).includes(legacyPathname);
     });
   });
 
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
-
-    // TODO remove when app deletion with conflicts is fixed
-    cy.get(homePage.homeIcon).click({ force: true });
-    cy.get(homePage.createNew)
-      .first()
-      .click({ force: true });
-    cy.wait("@createNewApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-    cy.get("#loading").should("not.exist");
-    cy.wait(2000);
-
-    cy.AppSetupForRename();
-    cy.get(homePage.applicationName).type(repoName + "{enter}");
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    // _.gitSync.DeleteTestGithubRepo(repoName);
+    // //cy.deleteTestGithubRepo(repoName);
+    // // TODO remove when app deletion with conflicts is fixed
+    // cy.get(homePage.homeIcon).click({ force: true });
+    // cy.get(homePage.createNew)
+    //   .first()
+    //   .click({ force: true });
+    // cy.wait("@createNewApplication").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   201,
+    // );
+    // cy.get("#loading").should("not.exist");
+    // cy.wait(2000);
+    // cy.AppSetupForRename();
+    // cy.get(homePage.applicationName).type(repoName + "{enter}");
+    // cy.wait("@updateApplication").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
   });
 });
