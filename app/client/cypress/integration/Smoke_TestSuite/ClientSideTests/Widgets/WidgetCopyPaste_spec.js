@@ -103,7 +103,6 @@ describe("Widget Copy paste", function() {
 
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);
-    // cy.get(explorer.explorerSwitchId).click();
     // cy.get(explorer.entityModal).click();
     cy.get(".t--modal-widget")
       .find(widgetsPage.chartWidget)

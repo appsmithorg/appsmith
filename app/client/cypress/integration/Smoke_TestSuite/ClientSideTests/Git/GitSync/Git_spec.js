@@ -124,7 +124,7 @@ describe("Git sync:", function() {
   it("supports merging head to base branch", function() {
     cy.switchGitBranch(mainBranch);
     cy.createGitBranch(tempBranch2);
-    cy.get(explorerLocators.explorerSwitchId).click({ force: true });
+    _.canvasHelper.OpenWidgetPane();
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("NewPage");
     cy.commitAndPush();

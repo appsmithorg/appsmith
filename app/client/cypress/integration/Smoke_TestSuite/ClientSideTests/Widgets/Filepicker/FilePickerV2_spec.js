@@ -64,7 +64,7 @@ describe("File picker widget v2", () => {
     cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
-    cy.get(widgetsPage.explorerSwitchId).click();
+    canvasHelper.OpenWidgetPane();
     ee.ExpandCollapseEntity("Queries/JS");
     cy.get(".t--entity-item:contains(Api1)").click();
     cy.get("[class*='t--actionConfiguration']")
