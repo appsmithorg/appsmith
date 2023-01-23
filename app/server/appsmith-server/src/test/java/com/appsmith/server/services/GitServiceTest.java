@@ -2346,7 +2346,7 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createBranch_BranchUploadLogo_SrcUploadLogo_BranchDeleteLogo_SrcLogoRemainsUnchanged() throws GitAPIException, IOException {
+    public void createBranch_BranchDeleteLogo_SrcLogoRemainsUnchanged() throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
 
