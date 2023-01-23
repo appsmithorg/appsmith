@@ -37,8 +37,6 @@ export type PopperProps = {
     left: number;
   };
   onPositionChange?: (position: { top: number; left: number }) => void;
-  onMouseEnterFn?: (e: any) => void;
-  onMouseLeaveFn?: (e: any) => void;
   setPosition?: (e: any) => void;
   setIsDragging?: (e: any) => void;
   isDragging?: boolean;
@@ -149,7 +147,7 @@ export default (props: PopperProps) => {
   useEffect(() => {
     const parentElement =
       props?.customParent ||
-      (props.targetNode && props.targetNode.parentElement);
+      (props?.targetNode && props.targetNode?.parentElement);
 
     if (
       parentElement &&
@@ -190,7 +188,7 @@ export default (props: PopperProps) => {
               enabled: false,
             },
             preventOverflow: {
-              enabled: false,
+              enabled: true,
               /*
                 Prevent the FilterPane from overflowing the canvas when the
                 table widget is on the very top of the canvas.

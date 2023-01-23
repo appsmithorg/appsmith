@@ -721,13 +721,22 @@ export class AggregateHelper {
   }
 
   // by dynamic input value we mean QUERY_DYNAMIC_INPUT_TEXT formControls.
-  public TypeDynamicInputValueNValidate(valueToType: string, fieldName = "") {
+  public TypeDynamicInputValueNValidate(
+    valueToType: string,
+    fieldName = "",
+    isDynamicValue = false,
+    evaluatedValue = valueToType,
+  ) {
     this.EnterValue(valueToType, {
       propFieldName: fieldName,
       directInput: true,
       inputFieldName: "",
     });
-    this.VerifyEvaluatedValue(valueToType);
+    if (!isDynamicValue) {
+      this.AssertElementAbsence(this.locator._evaluatedCurrentValue);
+    } else {
+      this.VerifyEvaluatedValue(evaluatedValue);
+    }
   }
 
   public EnterValue(
@@ -819,6 +828,51 @@ export class AggregateHelper {
         input.display.input.blur();
         this.Sleep(200);
       });
+  }
+
+  public FocusCodeInput(selector: string) {
+    cy.wrap(selector)
+      .find(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        this.Sleep(200);
+        // input.display.input.blur();
+        // this.Sleep(200);
+      });
+  }
+
+  DragEvaluatedValuePopUp(x: number, y: number) {
+    cy.get(this.locator._evaluatedCurrentValue)
+      .first()
+      .should("be.visible")
+      .realHover({ pointer: "mouse" });
+    cy.get(this.locator._evaluatedValuePopDragHandler)
+      .trigger("mousedown", { which: 1 })
+      .trigger("mousemove", { clientX: x, clientY: y })
+      .trigger("mouseup", { force: true });
+  }
+
+  public FocusAndDragEvaluatedValuePopUp(
+    options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
+    x = 0,
+    y = 0,
+  ) {
+    const { directInput, inputFieldName, propFieldName } = options;
+    if (propFieldName && directInput && !inputFieldName) {
+      cy.get(propFieldName).then(($field: any) => {
+        this.FocusCodeInput($field);
+        this.DragEvaluatedValuePopUp(x, y);
+      });
+    } else if (inputFieldName && !propFieldName && !directInput) {
+      cy.xpath(this.locator._inputFieldByName(inputFieldName)).then(
+        ($field: any) => {
+          this.FocusCodeInput($field);
+          this.DragEvaluatedValuePopUp(x, y);
+        },
+      );
+    }
   }
 
   public CheckCodeInputValue(selector: string, expectedValue: string) {

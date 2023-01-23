@@ -117,6 +117,7 @@ export class CommonLocators {
   _codeMirrorValue = "//div[contains(@class,'CodeMirror-code')]//span/span";
   _evaluatedCurrentValue =
     "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre";
+  _evaluatedValuePopDragHandler = ".drag-handle-block";
   _evaluatedErrorMessage =
     ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _multiSelectOptions = (option: string) =>
