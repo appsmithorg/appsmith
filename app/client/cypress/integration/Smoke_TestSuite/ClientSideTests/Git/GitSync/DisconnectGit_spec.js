@@ -1,4 +1,5 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
 let windowOpenSpy;
@@ -12,12 +13,14 @@ describe("Git disconnect modal:", function() {
     });
     cy.generateUUID().then((uid) => {
       repoName = uid;
-      cy.createTestGithubRepo(repoName);
+      _.gitSync.CreateTestGiteaRepo(repoName);
+      //cy.createTestGithubRepo(repoName);
     });
   });
 
-  it("should be opened with proper components", function() {
-    cy.connectToGitRepo(repoName, false);
+  it("1. should be opened with proper components", function() {
+    _.gitSync.AuthorizeKeyToGitea(repoName, false);
+    //cy.connectToGitRepo(repoName, false);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
     // after clicked disconnect on connection modal,
@@ -58,7 +61,7 @@ describe("Git disconnect modal:", function() {
     cy.wait(2000);
   });
 
-  it("should have disconnect repo button", function() {
+  it("2. should have disconnect repo button", function() {
     cy.wait(4000);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
@@ -108,6 +111,7 @@ describe("Git disconnect modal:", function() {
   });
 
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
+    _.gitSync.DeleteTestGithubRepo(repoName);
+    //cy.deleteTestGithubRepo(repoName);
   });
 });

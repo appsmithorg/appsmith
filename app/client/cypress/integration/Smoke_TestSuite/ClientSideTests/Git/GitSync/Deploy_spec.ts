@@ -1,27 +1,24 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-const agHelper = ObjectsRegistry.AggregateHelper,
-  commonLocators = ObjectsRegistry.CommonLocators;
-
-let repoName;
+let repoName: string;
 describe("Git sync modal: deploy tab", function() {
   before(() => {
-    cy.NavigateToHome();
+    _.homePage.NavigateToHome();
     cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
+    //_.homePage.CreateNewWorkspace("DeployGitTest");
+    cy.wait("@createWorkspace").then((interception: any) => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-      cy.createTestGithubRepo(repoName);
-      cy.connectToGitRepo(repoName, false);
+    _.gitSync.CreateNConnectToGit("Test", false);
+    cy.get("@gitRepoName").then((repName: any) => {
+      repoName = repName;
     });
   });
 
-  it("Validate commit comment inputbox and last deployed preview", function() {
+  it("1. Validate commit comment inputbox and last deployed preview", function() {
     // last deployed preview
     // The deploy preview Link should be displayed only after the first commit done
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
@@ -51,9 +48,9 @@ describe("Git sync modal: deploy tab", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
-  it("post connection app name deploy menu", function() {
+  it("2. Post connection app name deploy menu", function() {
     // deploy
-    agHelper.GetNClick(commonLocators._publishButton);
+    _.agHelper.GetNClick(_.locators._publishButton);
 
     cy.get(gitSyncLocators.gitSyncModal);
     cy.get(gitSyncLocators.gitSyncModalDeployTab).should(
@@ -71,14 +68,15 @@ describe("Git sync modal: deploy tab", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
 
     // current deployed version
-    agHelper.GetNClick(homePage.deployPopupOptionTrigger);
-    agHelper.AssertElementExist(homePage.currentDeployedPreviewBtn);
+    _.agHelper.GetNClick(homePage.deployPopupOptionTrigger);
+    _.agHelper.AssertElementExist(homePage.currentDeployedPreviewBtn);
 
     // connect to git
-    agHelper.AssertElementAbsence(homePage.connectToGitBtn);
+    _.agHelper.AssertElementAbsence(homePage.connectToGitBtn);
   });
 
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
+    _.gitSync.DeleteTestGithubRepo(repoName);
+    //cy.deleteTestGithubRepo(repoName);
   });
 });

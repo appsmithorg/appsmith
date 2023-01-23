@@ -28,13 +28,13 @@ export class GitSync {
     this.agHelper.AssertElementAbsence(this._gitSyncModal);
   }
 
-  CreateNConnectToGit(repoName: string = "Test") {
+  CreateNConnectToGit(repoName: string = "Test", assertConnect: boolean = true) {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       repoName += uid;
       this.CreateTestGiteaRepo(repoName);
       //this.CreateLocalGithubRepo(repoName);
-      this.AuthorizeKeyToGitea(repoName);
+      this.AuthorizeKeyToGitea(repoName, assertConnect);
       // cy.get("@remoteUrl").then((remoteUrl: any) => {
       //   this.AuthorizeLocalGitSSH(remoteUrl);
       // });
@@ -42,7 +42,7 @@ export class GitSync {
     });
   }
 
-  private AuthorizeKeyToGitea(repo: string, assertConnect = true) {
+  public AuthorizeKeyToGitea(repo: string, assertConnect = true) {
     // const testEmail = "test@test.com";
     // const testUsername = "testusername";
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
