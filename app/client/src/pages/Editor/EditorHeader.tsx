@@ -53,7 +53,7 @@ import {
   IconSize,
   TooltipComponent,
   Size,
-} from "design-system";
+} from "design-system-old";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";

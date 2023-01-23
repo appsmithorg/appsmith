@@ -1,6 +1,6 @@
 import React from "react";
 import { createMessage } from "@appsmith/constants/messages";
-import { Button, Category } from "design-system";
+import { Button, Category } from "design-system-old";
 import styled from "styled-components";
 
 const StyledButton = styled(Button)`
