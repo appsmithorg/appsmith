@@ -7,28 +7,8 @@
 
 - include_tasks: error-checks.yml
 
-# - name: setup init config
-#   include_tasks:
-#     file: "setup-init-config.yml"
-#     apply:
-#       tags: packer
-#   tags: packer
-
-# - import_tasks: setup-appsmith-runtime.yml
-#   tags: packer
-
-# - import_tasks: cleanup-packer-build.yml
-#   tags: packer
-
-# - name: Setup user data AWS AMI
-#   include_tasks:
-#     file: setup-user-data.yml
-#     apply:
-#       tags: packer-aws
-#   tags: packer-aws
-
 - include_tasks: install-docker.yml
 
-
 - import_tasks: start-docker.yml
+
 - import_tasks: setup-appsmith.yml
