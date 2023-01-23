@@ -1,4 +1,4 @@
-import { MenuItemProps } from "design-system";
+import { MenuItemProps } from "design-system-old";
 import { DebouncedFunc } from "lodash";
 
 export type BaseAclProps = { id: string; name: string };

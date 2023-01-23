@@ -35,7 +35,7 @@ import JSActionAPI, {
   CreateJSCollectionRequest,
   JSCollectionCreateUpdateResponse,
 } from "api/JSActionAPI";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ERROR_JS_ACTION_COPY_FAIL,

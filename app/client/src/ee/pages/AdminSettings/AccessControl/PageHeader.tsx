@@ -11,7 +11,7 @@ import {
   Menu,
   SearchVariant,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 import {
   HeaderWrapper,
   SettingsHeader,

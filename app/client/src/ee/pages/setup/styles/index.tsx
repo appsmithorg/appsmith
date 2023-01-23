@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Button, TextInput } from "design-system";
+import { Button, TextInput } from "design-system-old";
 import { IntentColors } from "constants/DefaultTheme";
 
 export const StyledPageWrapper = styled.div`

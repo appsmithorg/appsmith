@@ -25,7 +25,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import history from "utils/history";
 
 export function* fetchInviteGroupsSuggestionsSaga() {

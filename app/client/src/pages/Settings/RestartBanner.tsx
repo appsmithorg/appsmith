@@ -6,7 +6,7 @@ import {
   Icon,
   IconSize,
   Size,
-} from "design-system";
+} from "design-system-old";
 import {
   getIsRestartFailed,
   getRestartingState,
@@ -22,7 +22,7 @@ import {
   RESTART_ERROR_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { AppIcon } from "design-system";
+import { AppIcon } from "design-system-old";
 import { retryServerRestart } from "@appsmith/actions/settingsAction";
 import { useDispatch } from "react-redux";
 

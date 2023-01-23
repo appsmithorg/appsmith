@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import { DropdownOption } from "design-system";
+import { DropdownOption } from "design-system-old";
 import { AuditLogType } from "@appsmith/pages/AuditLogs/types";
 import union from "lodash/union";
 import { unionWith, uniqWith } from "lodash";

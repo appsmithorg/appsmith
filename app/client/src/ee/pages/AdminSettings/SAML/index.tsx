@@ -24,7 +24,7 @@ import {
   DISCONNECT_SERVICE_SUBHEADER,
   DISCONNECT_SERVICE_WARNING,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export function getSettingLabel(name = "") {

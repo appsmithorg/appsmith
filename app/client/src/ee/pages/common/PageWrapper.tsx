@@ -9,7 +9,7 @@ import { Helmet } from "react-helmet";
 import { useSelector } from "react-redux";
 import { useRouteMatch } from "react-router";
 import styled from "styled-components";
-import { BannerMessage, IconSize, Text, TextType } from "design-system";
+import { BannerMessage, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
   getRemainingDays,

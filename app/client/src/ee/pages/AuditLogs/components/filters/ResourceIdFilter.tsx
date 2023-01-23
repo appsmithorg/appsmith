@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { TextInput } from "design-system";
+import { TextInput } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAuditLogsLogsInit,
@@ -13,7 +13,7 @@ import {
 import { useGoToTop } from "../../hooks/useGoToTop";
 import { StyledLabel as Label } from "../../styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createMessage } from "design-system/build/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 import {
   RESOURCE_ID_LABEL,
   RESOURCE_ID_PLACEHOLDER,

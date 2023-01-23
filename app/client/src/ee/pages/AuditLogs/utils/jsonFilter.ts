@@ -1,5 +1,5 @@
 import { AuditLogType } from "../types";
-import { DropdownOption } from "design-system";
+import { DropdownOption } from "design-system-old";
 
 export const DATE_FILTER_OPTIONS: DropdownOption[] = [
   { label: "Select", value: "0", id: "no-value" },

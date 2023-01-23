@@ -7,7 +7,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { MenuItem } from "design-system";
+import { MenuItem } from "design-system-old";
 import {
   ADMIN_SETTINGS,
   APPSMITH_DISPLAY_VERSION,

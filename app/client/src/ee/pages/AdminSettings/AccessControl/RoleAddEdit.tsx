@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MenuItemProps } from "design-system";
+import { MenuItemProps } from "design-system-old";
 import { useHistory, useParams } from "react-router";
 import { PageHeader } from "./PageHeader";
 import { debounce } from "lodash";

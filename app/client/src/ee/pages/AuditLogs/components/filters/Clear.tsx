@@ -8,7 +8,7 @@ import {
 import { selectAuditLogsFiltersDirtyBit as isDirty } from "@appsmith/selectors/auditLogsSelectors";
 import { initialAuditLogsFilterState as defaultFilters } from "@appsmith/reducers/auditLogsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createMessage } from "design-system/build/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 import { CLEAR_ALL } from "@appsmith/constants/messages";
 
 export default function Clear() {

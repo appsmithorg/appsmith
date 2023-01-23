@@ -1,4 +1,4 @@
-import { DropdownOption } from "design-system";
+import { DropdownOption } from "design-system-old";
 import { splitJoin } from "./splitJoin";
 import { titleCase } from "./titleCase";
 

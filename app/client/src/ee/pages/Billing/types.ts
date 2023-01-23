@@ -1,4 +1,4 @@
-import { IconProps, Text } from "design-system";
+import { IconProps, Text } from "design-system-old";
 import { ReactComponentElement } from "react";
 
 export type Header = {

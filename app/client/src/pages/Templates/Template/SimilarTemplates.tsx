@@ -4,7 +4,7 @@ import {
   VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import { FontWeight, TextType, Text, Icon, IconSize } from "design-system";
+import { FontWeight, TextType, Text, Icon, IconSize } from "design-system-old";
 import React from "react";
 import Masonry, { MasonryProps } from "react-masonry-css";
 import styled from "styled-components";

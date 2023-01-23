@@ -6,7 +6,7 @@ import { rolesTableData } from "./mocks/RolesListingMock";
 import { defaultUserResponse, response1 } from "./mocks/mockRoleTreeResponse";
 import { BaseAclProps, RoleEditProps } from "./types";
 import { makeData } from "./RolesTree";
-import { MenuItemProps } from "design-system";
+import { MenuItemProps } from "design-system-old";
 import * as selectors from "@appsmith/selectors/aclSelectors";
 import { mockGetRolePermissions } from "./mocks/mockSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";

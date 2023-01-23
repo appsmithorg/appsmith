@@ -10,7 +10,7 @@ import {
   TabComponent,
   Table,
   TabProp,
-} from "design-system";
+} from "design-system-old";
 import styled from "styled-components";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { PageHeader } from "./PageHeader";

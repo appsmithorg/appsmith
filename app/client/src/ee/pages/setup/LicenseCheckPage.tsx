@@ -1,5 +1,12 @@
 import React, { useEffect } from "react";
-import { Category, Icon, IconSize, Size, Text, TextType } from "design-system";
+import {
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+} from "design-system-old";
 import AppsmithImage from "assets/images/appsmith_logo_square.png";
 import { validateLicense } from "@appsmith/actions/tenantActions";
 import { useDispatch, useSelector } from "react-redux";

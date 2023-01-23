@@ -16,7 +16,7 @@ import {
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Table } from "design-system";
+import { Table } from "design-system-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -33,7 +33,7 @@ import {
   TableDropdownOption,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import ProfileImage from "pages/common/ProfileImage";

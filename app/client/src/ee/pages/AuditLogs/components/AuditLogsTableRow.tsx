@@ -8,7 +8,7 @@ import {
   markAuditLogOpen as markOpen,
   setEmailJsonFilter as setEmail,
 } from "@appsmith/actions/auditLogsAction";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import { iconisedDescription } from "../utils/description";
 import {
   StyledDateColumnContainer as Date,

@@ -12,7 +12,7 @@ import {
   setOnlyEventJsonFilter,
   setResourceIdJsonFilter,
 } from "@appsmith/actions/auditLogsAction";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import {
   selectAuditLogsLogById,
   selectAuditLogsSearchFilters,

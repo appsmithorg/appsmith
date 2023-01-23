@@ -7,7 +7,7 @@ import { UserListing } from "./UserListing";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ListingType } from "./types";
-import { MenuItemProps } from "design-system";
+import { MenuItemProps } from "design-system-old";
 
 let container: any = null;
 const onSelectFn = jest.fn();
