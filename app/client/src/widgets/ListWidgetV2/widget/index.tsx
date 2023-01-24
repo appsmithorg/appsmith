@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { isEmpty, floor, isNil, isString } from "lodash";
+import { isEmpty, floor, isString } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
