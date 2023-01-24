@@ -50,6 +50,7 @@ export const useRenderBlocksOnCanvas = (
   const drawBlockOnCanvas = (
     blockDimensions: WidgetDraggingBlock,
     scrollParent: Element | null,
+    useAutoLayout?: boolean,
   ) => {
     if (
       stickyCanvasRef.current &&
@@ -86,23 +87,25 @@ export const useRenderBlocksOnCanvas = (
         blockDimensions.width,
         blockDimensions.height,
       );
-      const strokeWidth = 1;
-      canvasCtx.setLineDash([3]);
-      canvasCtx.strokeStyle = blockDimensions.isNotColliding
-        ? "rgb(104,	113,	239)"
-        : "red";
-      canvasCtx.strokeRect(
-        snappedXY.X -
-          leftOffset +
-          strokeWidth +
-          (noPad ? 0 : CONTAINER_GRID_PADDING),
-        snappedXY.Y -
-          topOffset +
-          strokeWidth +
-          (noPad ? 0 : CONTAINER_GRID_PADDING),
-        blockDimensions.width - strokeWidth,
-        blockDimensions.height - strokeWidth,
-      );
+      if (!useAutoLayout) {
+        const strokeWidth = 1;
+        canvasCtx.setLineDash([3]);
+        canvasCtx.strokeStyle = blockDimensions.isNotColliding
+          ? "rgb(104,	113,	239)"
+          : "red";
+        canvasCtx.strokeRect(
+          snappedXY.X -
+            leftOffset +
+            strokeWidth +
+            (noPad ? 0 : CONTAINER_GRID_PADDING),
+          snappedXY.Y -
+            topOffset +
+            strokeWidth +
+            (noPad ? 0 : CONTAINER_GRID_PADDING),
+          blockDimensions.width - strokeWidth,
+          blockDimensions.height - strokeWidth,
+        );
+      }
     }
   };
 
@@ -124,6 +127,7 @@ export const useRenderBlocksOnCanvas = (
     highlight?: HighlightInfo | undefined,
     isMainContainer?: boolean,
     parentOffsetTop?: number,
+    useAutoLayout?: boolean,
   ) => {
     let isCurrUpdatingRows = isUpdatingRows;
     const modifiedRectanglesToDraw = modifyDrawingRectangles(
@@ -151,7 +155,7 @@ export const useRenderBlocksOnCanvas = (
       canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
       if (canvasIsDragging) {
         modifiedRectanglesToDraw.forEach((each) => {
-          drawBlockOnCanvas(each, scrollParent);
+          drawBlockOnCanvas(each, scrollParent, useAutoLayout);
         });
       }
       if (highlight) {

@@ -462,6 +462,7 @@ export const useCanvasDragging = (
               selectedHighlight,
               widgetId === MAIN_CONTAINER_WIDGET_ID,
               parentOffsetTop,
+              useAutoLayout,
             );
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
