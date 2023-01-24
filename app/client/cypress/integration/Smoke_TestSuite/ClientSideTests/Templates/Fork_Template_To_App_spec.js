@@ -108,8 +108,7 @@ describe("Fork a template to the current app", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(3000);
-    cy.get(widgetLocators.toastAction).should(
+    cy.get(widgetLocators.toastAction, { timeout: 20000 }).should(
       "contain",
       "template added successfully",
     );
