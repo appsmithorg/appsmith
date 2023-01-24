@@ -30,7 +30,7 @@ let dsName : any;
 describe("Verify List widget binding & functionalities with Queries and API", function() {
 
 it("1. Create new API & verify data on List widget", function(){
-    const apiUrl = `https://thronesapi.com/api/v2/Characters`
+    const apiUrl = `https://mock-api.appsmith.com/users`
     _.apiPage.CreateAndFillApi(apiUrl,"API1")
     _.apiPage.RunAPI()
     _.agHelper.AssertElementAbsence(
@@ -40,30 +40,30 @@ it("1. Create new API & verify data on List widget", function(){
     )
     _.apiPage.ResponseStatusCheck("200 OK")
     _.ee.DragDropWidgetNVerify(WIDGET.LIST, 300,100)
-    _.propPane.UpdatePropertyFieldValue("Items", "{{API1.data}}")
+    _.propPane.UpdatePropertyFieldValue("Items", "{{API1.data.users}}")
     _.ee.NavigateToSwitcher("explorer")
     _.ee.ExpandCollapseEntity("List1")
     _.ee.ExpandCollapseEntity("Container1")
     _.ee.SelectEntityByName("Text1")
-    _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.family}}")
-    _.agHelper.GetNAssertElementText(_.locators._textWidget,"House Targaryen","have.text",0)
+    _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}")
+    _.agHelper.GetNAssertElementText(_.locators._textWidget,"Barty Crouch","have.text",0)
     _.ee.SelectEntityByName("Text2")
     _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.id}}")
-    _.agHelper.GetNAssertElementText(_.locators._textWidget,"0","have.text",1)
+    _.agHelper.GetNAssertElementText(_.locators._textWidget,"1","have.text",1)
 })
 
 it("2. Verify 'onListitemClick' functionality of Show messgage event on deploy mode",function(){
     _.agHelper.GetNClick(_.locators._listWidget,0,true)
     _.propPane.EnterJSContext(
-        "onListItemClick","{{showAlert('ListWidget_' + currentItem.family + '_' + currentItem.id,'success')}}"
+        "onListItemClick","{{showAlert('ListWidget_' + currentItem.name + '_' + currentItem.id,'success')}}"
         ,true)
     _.deployMode.DeployApp()
     _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
     _.agHelper.GetNClick(_.locators._containerWidget,0,true)
-    _.agHelper.ValidateToastMessage("ListWidget_House Targaryen_0")
+    _.agHelper.ValidateToastMessage("ListWidget_Barty Crouch_1")
     _.agHelper.WaitUntilAllToastsDisappear()
     _.agHelper.GetNClick(_.locators._containerWidget,1,true)
-    _.agHelper.ValidateToastMessage("ListWidget_House Tarly_1")
+    _.agHelper.ValidateToastMessage("ListWidget_Jenelle Kibbys_2")
     _.agHelper.WaitUntilAllToastsDisappear()
     _.deployMode.NavigateBacktoEditor()
 })
@@ -121,7 +121,7 @@ it("6. Verify Copy/Paste List widget", function(){
 })
 
 
-it("7. Verify Pagination in SSP and verify no pagination visible when SSP is disabled", function(){
+it("7. Verify Pagination in Server side pagination and verify no pagination visible when Server Side Pagination is disabled", function(){
     _.agHelper.GetNClick(_.locators._listWidget,1,true)
     _.ee.NavigateToSwitcher("explorer")
     _.dataSources.CreateDataSource("Postgres")
@@ -136,9 +136,9 @@ it("7. Verify Pagination in SSP and verify no pagination visible when SSP is dis
         _.dataSources.RunQuery(true)
         _.ee.NavigateToSwitcher("widgets")
         _.agHelper.GetNClick(_.locators._listWidget,1,true)
+        _.propPane.UpdatePropertyFieldValue("Items", "{{postgres_ssp.data}}")
         _.propPane.ToggleOnOrOff("Server Side Pagination", "On")
         _.propPane.EnterJSContext("onPageChange","{{postgres_ssp.run()}}",true)
-        _.propPane.UpdatePropertyFieldValue("Items", "{{postgres_ssp.data}}")
         _.ee.NavigateToSwitcher("explorer")
         _.ee.ExpandCollapseEntity("Widgets")
         _.ee.ExpandCollapseEntity("List1Copy")
@@ -155,11 +155,16 @@ it("7. Verify Pagination in SSP and verify no pagination visible when SSP is dis
         _.agHelper.GetNClick(_.locators._listWidget,1,true)
         _.propPane.ToggleOnOrOff("Server Side Pagination", "Off")
         _.agHelper.AssertElementAbsence(_.locators._listPaginateItem)
+        _.deployMode.DeployApp()
+        _.agHelper.WaitUntilEleAppear(_.locators._listWidget)
+        _.agHelper.AssertElementAbsence(_.locators._listPaginateItem)
+        _.deployMode.NavigateBacktoEditor()
         _.agHelper.Sleep()
     })
 })
 
-it("8. Verify onPageSizeChange functionality in SSP of list widget", function(){
+it("8. Verify onPageSizeChange functionality in Server Side Pagination of list widget", function(){
+    _.agHelper.GetNClick(_.locators._listWidget,1,true)
     _.propPane.ToggleOnOrOff("Server Side Pagination", "On")
     _.propPane.EnterJSContext("onPageSizeChange", "{{showAlert('Page size changed ' + List1Copy.pageSize)}}", true)
     _.propPane.ToggleOnOrOff("Server Side Pagination","Off")
