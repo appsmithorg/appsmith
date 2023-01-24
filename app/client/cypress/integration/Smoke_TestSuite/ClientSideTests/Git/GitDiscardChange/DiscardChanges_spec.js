@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
@@ -94,12 +93,12 @@ describe("Git discard changes:", function() {
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
     cy.get("#switcher--explorer").click({ force: true });
     // connect app to git
-    // cy.generateUUID().then((uid) => {
-    //   repoName = uid;
-    _.gitSync.CreateNConnectToGit();
-    // cy.createTestGithubRepo(repoName);
-    // cy.connectToGitRepo(repoName);
-    // });
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo(repoName);
+    });
   });
 
   it("2. Add new datasource query, discard changes, verify query is deleted", () => {

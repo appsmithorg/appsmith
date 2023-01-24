@@ -1,59 +1,66 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+
+let dataSources = ObjectsRegistry.DataSources,
+  gitSync = ObjectsRegistry.GitSync,
+  agHelper = ObjectsRegistry.AggregateHelper,
+  ee = ObjectsRegistry.EntityExplorer,
+  propPane = ObjectsRegistry.PropertyPane,
+  locator = ObjectsRegistry.CommonLocators,
+  apiPage = ObjectsRegistry.ApiPage;
 
 let testName: any;
 describe("Git Bugs", function() {
-
   it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function() {
     const largeResponseApiUrl = "https://jsonplaceholder.typicode.com/users";
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    _.apiPage.CreateAndFillApi(largeResponseApiUrl, "GitSyncTest");
-    _.gitSync.OpenGitSyncModal();
+    apiPage.CreateAndFillApi(largeResponseApiUrl, "GitSyncTest");
+    gitSync.OpenGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
     cy.get("@postExecute").should("not.exist");
-    _.gitSync.CloseGitSyncModal();
+    gitSync.CloseGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
-    _.agHelper.ValidateNetworkStatus("@postExecute");
+    agHelper.ValidateNetworkStatus("@postExecute");
   });
 
   it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function() {
-    _.gitSync.CreateNConnectToGit();
-    _.gitSync.CreateGitBranch();
-    _.dataSources.NavigateToDSCreateNew();
-    _.dataSources.CreatePlugIn("PostgreSQL");
-    _.dataSources.SaveDSFromDialog(false);
-    _.agHelper.AssertElementVisible(_.gitSync._branchButton);
+    gitSync.CreateNConnectToGit();
+    gitSync.CreateGitBranch();
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("PostgreSQL");
+    dataSources.SaveDSFromDialog(false);
+    agHelper.AssertElementVisible(gitSync._branchButton);
     cy.get("@gitRepoName").then((repoName) => {
       testName = repoName;
     });
   });
 
   it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
-    _.ee.AddNewPage();
-    _.ee.DragDropWidgetNVerify(WIDGET.TEXT);
-    _.ee.SelectEntityByName("Page1", "Pages");
-    _.ee.DragDropWidgetNVerify(WIDGET.BUTTON);
-    _.propPane.SelectPropertiesDropDown("onClick", "Navigate to");
-    _.agHelper.Sleep(500);
-    _.propPane.SelectPropertiesDropDown("onClick", "Page2", "Page");
-    _.agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
-    _.ee.SelectEntityByName("Page2", "Pages");
-    _.ee.SelectEntityByName("Text1", "Widgets");
-    _.propPane.UpdatePropertyFieldValue(
+    ee.AddNewPage();
+    ee.DragDropWidgetNVerify(WIDGET.TEXT);
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.DragDropWidgetNVerify(WIDGET.BUTTON);
+    propPane.SelectPropertiesDropDown("onClick", "Navigate to");
+    agHelper.Sleep(500);
+    propPane.SelectPropertiesDropDown("onClick", "Page2", "Page");
+    agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
+    ee.SelectEntityByName("Page2", "Pages");
+    ee.SelectEntityByName("Text1", "Widgets");
+    propPane.UpdatePropertyFieldValue(
       "Text",
       "{{appsmith.URL.queryParams.testQP}}",
     );
-    _.ee.SelectEntityByName("Page1", "Pages");
-    _.agHelper.ClickButton("Submit");
-    _.agHelper.Sleep(500);
-    _.agHelper
-      .GetText(_.locators._textWidget)
+    ee.SelectEntityByName("Page1", "Pages");
+    agHelper.ClickButton("Submit");
+    agHelper.Sleep(500);
+    agHelper
+      .GetText(locator._textWidget)
       .then(($qp) => expect($qp).to.eq("Yes"));
-    _.agHelper.ValidateURL("branch=" + testName); //Validate we are still in Git branch
-    _.agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
+    agHelper.ValidateURL("branch=" + testName); //Validate we are still in Git branch
+    agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
   after(() => {
-    //_.gitSync.DeleteTestGithubRepo(testName);
+    gitSync.DeleteTestGithubRepo(testName);
   });
 });

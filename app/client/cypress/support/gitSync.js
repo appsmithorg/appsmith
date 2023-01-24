@@ -44,9 +44,21 @@ Cypress.Commands.add(
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click();
     cy.get(homePage.connectToGitBtn).click({ force: true });
+
+    cy.intercept(
+      {
+        url: "api/v1/git/connect/app/*",
+        hostname: window.location.host,
+      },
+      (req) => {
+        req.headers["origin"] = "Cypress";
+      },
+    );
+
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       `generateKey-${repo}`,
     );
+
     cy.get(gitSyncLocators.gitRepoInput).type(
       `git@github.com:${owner}/${repo}.git`,
     );
@@ -82,7 +94,7 @@ Cypress.Commands.add(
 
       if (!assertConnectFailure) {
         // check for connect success
-        cy.wait("@connectGitLocalRepo").should(
+        cy.wait("@connectGitRepo").should(
           "have.nested.property",
           "response.body.responseMeta.status",
           200,
@@ -103,7 +115,7 @@ Cypress.Commands.add(
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     }
   } else {
-    cy.wait("@connectGitLocalRepo").then((interception) => {
+    cy.wait("@connectGitRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
     });
