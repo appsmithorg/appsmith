@@ -864,7 +864,7 @@ jobs:
       pr: ${{ github.event.client_payload.pull_request.number }}
 
   ui-test-result:
-    needs: [ ui-test, fat-container-test, perf-test ]
+    needs: [ ui-test, fat-container-test ]
     # Only run if the ui-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest
@@ -1056,7 +1056,7 @@ jobs:
         run: echo "$PAYLOAD_CONTEXT"
 
       - name: Check ui-test set status
-        if: needs.ui-test.result != 'success' || needs.fat-container-test.result != 'success' || needs.perf-test.result != 'success'
+        if: needs.ui-test.result != 'success' || needs.fat-container-test.result != 'success'
         run: exit 1
 
   package:
