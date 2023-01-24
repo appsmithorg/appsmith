@@ -358,6 +358,9 @@ class CodeEditor extends Component<Props, State> {
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
+        CodeMirror.on(editor.getWrapperElement(), "mouseover", (e: any) => {
+          console.log("text hover", e.target);
+        });
 
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
