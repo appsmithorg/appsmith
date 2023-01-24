@@ -20,7 +20,7 @@ import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
 import { Popover2 } from "@blueprintjs/popover2";
 import { MenuDivider } from "design-system";
 
-const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;
   position: relative;
   top: 3px;
@@ -33,7 +33,7 @@ const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   }
 `;
 
-const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
+const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;
   position: relative;
   top: 3px;

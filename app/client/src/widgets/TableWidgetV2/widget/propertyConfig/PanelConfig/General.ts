@@ -101,7 +101,6 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
-          ColumnTypes.DATE,
         ]);
       },
     },
@@ -263,7 +262,6 @@ export const GeneralStyle = {
         },
       },
     },
-
     {
       propertyName: "imageSize",
       dependencies: ["primaryColumns", "columnType"],

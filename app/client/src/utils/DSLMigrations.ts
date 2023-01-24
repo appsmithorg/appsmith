@@ -1168,7 +1168,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 75) {
     currentDSL = migrateInputWidgetsMultiLineInputType(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 76;
   }
 
   if (currentDSL.version === 76) {

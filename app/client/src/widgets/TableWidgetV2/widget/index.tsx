@@ -101,7 +101,9 @@ import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
 import { generateNewColumnOrderFromStickyValue } from "./utilities";
 import { Stylesheet } from "entities/AppTheming";
+import { DateCell } from "../component/cellComponents/DateCell";
 import { MenuItem, MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -2062,6 +2064,59 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           />
         );
 
+      case ColumnTypes.DATE:
+        return (
+          <DateCell
+            accentColor={this.props.accentColor}
+            alias={props.cell.column.columnProperties.alias}
+            borderRadius={this.props.borderRadius}
+            cellBackground={cellProperties.cellBackground}
+            closeOnSelection
+            columnType={column.columnType}
+            compactMode={compactMode}
+            disabledEditIcon={
+              shouldDisableEdit || this.props.isAddRowInProgress
+            }
+            disabledEditIconMessage={disabledEditMessage}
+            firstDayOfWeek={props.cell.column.columnProperties.firstDayOfWeek}
+            fontStyle={cellProperties.fontStyle}
+            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            inputFormat={cellProperties.inputFormat}
+            isCellDisabled={cellProperties.isCellDisabled}
+            isCellEditMode={isCellEditMode}
+            isCellEditable={isCellEditable}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isEditableCellValid={this.isColumnCellValid(alias)}
+            isHidden={isHidden}
+            isNewRow={isNewRow}
+            isRequired={
+              props.cell.column.columnProperties.validation
+                .isColumnEditableCellRequired
+            }
+            maxDate={props.cell.column.columnProperties.validation.maxDate}
+            minDate={props.cell.column.columnProperties.validation.minDate}
+            onCellTextChange={this.onCellTextChange}
+            onDateSave={this.onDateSave}
+            onDateSelectedString={
+              props.cell.column.columnProperties.onDateSelected
+            }
+            outputFormat={cellProperties.outputFormat}
+            rowIndex={rowIndex}
+            shortcuts={cellProperties.shortcuts}
+            tableWidth={this.getComponentDimensions().componentWidth}
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
+            timePrecision={cellProperties.timePrecision || TimePrecision.NONE}
+            toggleCellEditMode={this.toggleCellEditMode}
+            updateNewRowValues={this.updateNewRowValues}
+            validationErrorMessage="This field is required"
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+            widgetId={this.props.widgetId}
+          />
+        );
+
       default:
         let validationErrorMessage;
 
@@ -2211,6 +2266,35 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  onDateSave = (
+    rowIndex: number,
+    alias: string,
+    value: string,
+    onSubmit?: string,
+  ) => {
+    if (this.isColumnCellValid(alias)) {
+      this.updateTransientTableData({
+        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
+        [alias]: value,
+      });
+
+      if (onSubmit && this.props.editableCell?.column) {
+        this.onColumnEvent({
+          rowIndex: rowIndex,
+          action: onSubmit,
+          triggerPropertyName: "onSubmit",
+          eventType: EventType.ON_SUBMIT,
+          row: {
+            ...this.props.filteredTableData[rowIndex],
+            [this.props.editableCell.column]: value,
+          },
+        });
+      }
+
+      this.clearEditableCell();
+    }
+  };
+
   clearEditableCell = (skipTimeout?: boolean) => {
     const clear = () => {
       this.props.updateWidgetMetaProperty("editableCell", defaultEditableCell);
@@ -2224,6 +2308,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
        * We need to let the evaulations compute derived property (filteredTableData)
        * before we clear the editableCell to avoid the text flickering
        */
+      // @ts-expect-error: setTimeout return type mismatch
       this.inlineEditTimer = setTimeout(clear, 100);
     }
   };

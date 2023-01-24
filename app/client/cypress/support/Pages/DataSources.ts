@@ -29,14 +29,15 @@ export class DataSources {
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
-  private _saveDs = ".t--save-datasource";
   private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
-  private _datasourceCard = ".t--datasource";
+  _saveDs = ".t--save-datasource";
+  _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
   _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
+  _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
@@ -133,6 +134,7 @@ export class DataSources {
 
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
+  public _deleteDatasourceButton = ".t--delete-datasource";
 
   public AssertViewMode() {
     this.agHelper.AssertElementExist(this._editButton);
@@ -140,6 +142,18 @@ export class DataSources {
 
   public AssertEditMode() {
     this.agHelper.AssertElementAbsence(this._editButton);
+  }
+
+  public GeneratePageWithMockDB() {
+    this.ee.AddNewPage("generate-page");
+    this.agHelper.GetNClick(this._selectDatasourceDropdown);
+    this.agHelper.GetNClick(this.locator._dropdownText, 1);
+    this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
+    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.GetNClick("[data-cy='t--dropdown-option-public.users']");
+    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));
   }
 
   public StartDataSourceRoutes() {
@@ -388,7 +402,9 @@ export class DataSources {
   public TestDatasource(expectedRes = true) {
     this.agHelper.GetNClick(this._testDs, 0, false, 0);
     this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
-    this.agHelper.AssertContains("datasource is valid");
+    if (expectedRes) {
+      this.agHelper.AssertContains("datasource is valid");
+    }
   }
 
   public SaveDatasource() {

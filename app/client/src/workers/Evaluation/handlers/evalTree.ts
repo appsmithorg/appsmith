@@ -44,6 +44,7 @@ export default function(request: EvalWorkerSyncRequest) {
   let userLogs: UserLogObject[] = [];
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
+  let staleMetaIds: string[] = [];
 
   const {
     allActionValidationConfig,
@@ -86,6 +87,7 @@ export default function(request: EvalWorkerSyncRequest) {
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
+      staleMetaIds = dataTreeResponse.staleMetaIds;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -125,6 +127,7 @@ export default function(request: EvalWorkerSyncRequest) {
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
       });
+      staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         dataTreeEvaluator.setAllActionValidationConfig(
@@ -156,6 +159,7 @@ export default function(request: EvalWorkerSyncRequest) {
       const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
+        unEvalUpdates,
       );
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
@@ -163,6 +167,7 @@ export default function(request: EvalWorkerSyncRequest) {
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );
+      staleMetaIds = updateResponse.staleMetaIds;
     }
     dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
     dependencies = dataTreeEvaluator.inverseDependencyMap;
@@ -200,7 +205,7 @@ export default function(request: EvalWorkerSyncRequest) {
     unEvalUpdates = [];
   }
 
-  return {
+  const evalTreeResponse: EvalTreeResponseData = {
     dataTree,
     dependencies,
     errors,
@@ -211,7 +216,10 @@ export default function(request: EvalWorkerSyncRequest) {
     userLogs,
     unEvalUpdates,
     isCreateFirstTree,
-  } as EvalTreeResponseData;
+    staleMetaIds,
+  };
+
+  return evalTreeResponse;
 }
 
 export function clearCache() {

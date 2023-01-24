@@ -110,10 +110,17 @@ public class Application extends BaseDomain {
 
     EmbedSetting embedSetting;
 
+    @JsonIgnore
     NavigationSetting unpublishedNavigationSetting;
 
+    @JsonIgnore
     NavigationSetting publishedNavigationSetting;
 
+    @JsonIgnore
+    AppPositioning publishedAppPositioning;
+
+    @JsonIgnore
+    AppPositioning unpublishedAppPositioning;
 
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
@@ -179,6 +186,10 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+        this.unpublishedAppPositioning = application.getUnpublishedAppPositioning() == null ? null : new AppPositioning(application.getUnpublishedAppPositioning().type);
+        this.publishedAppPositioning = application.getPublishedAppPositioning() == null ? null : new AppPositioning(application.getPublishedAppPositioning().type);
+        this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
+        this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
     }
 
@@ -263,6 +274,17 @@ public class Application extends BaseDomain {
         private Boolean showNavigationBar;
     }
 
+    public NavigationSetting getNavigationSetting() {
+        return Boolean.TRUE.equals(viewMode) ? publishedNavigationSetting : unpublishedNavigationSetting;
+    }
+
+    public void setNavigationSetting(NavigationSetting navigationSetting) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedNavigationSetting = navigationSetting;
+        } else {
+            unpublishedNavigationSetting = navigationSetting;
+        }
+    }
 
     /**
      * NavigationSetting stores the navigation configuration for the app
@@ -280,5 +302,37 @@ public class Application extends BaseDomain {
         private Boolean showSignIn;
         private Boolean showShareApp;
     }
+
+    public AppPositioning getAppPositioning() {
+        return Boolean.TRUE.equals(viewMode) ? publishedAppPositioning : unpublishedAppPositioning;
+    }
+
+    public void setAppPositioning(AppPositioning appPositioning) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedAppPositioning = appPositioning;
+        } else {
+            unpublishedAppPositioning = appPositioning;
+        }
+    }
+
+    /**
+     * AppPositioning captures widget positioning Mode of the application
+     */
+    @Data
+    @NoArgsConstructor
+    public static class AppPositioning {
+        Type type;
+
+        public AppPositioning(Type type) {
+            this.type = type;
+        }
+
+        public enum Type {
+            FIXED,
+            AUTO
+        }
+
+    }
+
 
 }

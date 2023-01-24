@@ -15,6 +15,7 @@ import {
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
 import { ColumnTypes } from "../constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -182,6 +183,13 @@ export interface ImageCellProperties {
   imageSize?: ImageSize;
 }
 
+export interface DateCellProperties {
+  inputFormat: string;
+  outputFormat: string;
+  shortcuts: boolean;
+  timePrecision?: TimePrecision;
+}
+
 export interface BaseCellProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
@@ -206,6 +214,7 @@ export interface CellLayoutProperties
     MenuButtonCellProperties,
     SelectCellProperties,
     ImageCellProperties,
+    DateCellProperties,
     BaseCellProperties {}
 
 export interface TableColumnMetaProps {
@@ -270,6 +279,8 @@ export interface ColumnStyleProperties {
 export interface DateColumnProperties {
   outputFormat?: string;
   inputFormat?: string;
+  shortcuts?: boolean;
+  timePrecision?: TimePrecision;
 }
 
 export interface ColumnEditabilityProperties {
@@ -282,6 +293,8 @@ export interface ColumnEditabilityProperties {
     isEditableCellRequired?: boolean;
     min?: number;
     max?: number;
+    minDate?: string;
+    maxDate?: string;
   };
 }
 
