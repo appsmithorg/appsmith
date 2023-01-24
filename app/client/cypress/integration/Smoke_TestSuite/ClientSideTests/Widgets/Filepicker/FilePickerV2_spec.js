@@ -57,6 +57,7 @@ describe("File picker widget v2", () => {
       "1 files selected",
     );
     cy.get(".t--widget-textwidget").should("contain", "testFile.mov");
+    canvasHelper.CloseWidgetPane();
   });
 
   it("4. Check if the uploaded file is removed on click of cancel button", () => {

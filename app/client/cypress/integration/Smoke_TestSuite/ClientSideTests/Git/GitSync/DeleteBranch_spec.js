@@ -1,5 +1,6 @@
 import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
 let branchName;
@@ -58,7 +59,7 @@ describe("Delete branch flow", () => {
       branchName = uid;
       cy.createGitBranch(branchName);
       cy.wait(1000);
-      cy.get("#switcher--widgets").click();
+      _.canvasHelper.OpenWidgetPane();
       cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
       cy.get(".t--draggable-checkboxwidget").should("exist");
       cy.wait(2000);
@@ -89,7 +90,7 @@ describe("Delete branch flow", () => {
       branchName = uid;
       cy.createGitBranch(branchName);
       cy.wait(1000);
-      cy.get("#switcher--widgets").click();
+      _.canvasHelper.OpenWidgetPane();
       cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
       cy.get(".t--widget-chartwidget").should("exist");
       cy.wait(2000);

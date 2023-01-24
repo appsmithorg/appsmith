@@ -1,4 +1,5 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget Selection", function() {
   before(() => {
@@ -55,7 +56,7 @@ describe("Widget Selection", function() {
     // Hit CTRL +A
     cy.get("body").type("{ctrl}{a}");
     // Switch to the Canvas
-    cy.get("#switcher--widgets").click();
+    _.canvasHelper.OpenWidgetPane();
     // Widgets should not be selected
     cy.get(".t--multi-selection-box").should("not.exist");
   });

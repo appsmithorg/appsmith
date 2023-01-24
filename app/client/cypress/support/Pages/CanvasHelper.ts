@@ -30,4 +30,8 @@ export class CanvasHelper {
 
     ctaVisible.then(openPane);
   }
+
+  public CloseWidgetPane() {
+    this.agHelper.GetNClick(this.locators._widgetPaneCTA);
+  }
 }
