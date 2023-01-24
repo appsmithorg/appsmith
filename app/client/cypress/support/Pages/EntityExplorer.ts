@@ -53,6 +53,7 @@ export class EntityExplorer {
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
   _pinEntityExplorer = ".t--pin-entity-explorer";
   _entityExplorer = ".t--entity-explorer";
+  _bindingsClose = ".t--entity-property-close";
   private _modalTextWidget = (modalName: string) =>
     "//div[contains(@class, 't--entity-name')][text()='" +
     modalName +

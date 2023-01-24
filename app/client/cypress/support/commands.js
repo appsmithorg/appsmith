@@ -22,14 +22,13 @@ const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
-const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 
-const { AggregateHelper, CanvasHelper, CommonLocators } = ObjectsRegistry;
+const { CanvasHelper } = ObjectsRegistry;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -402,14 +401,7 @@ Cypress.Commands.add("SelectAction", (action) => {
 });
 
 Cypress.Commands.add("ClearSearch", () => {
-  const widgetPaneVisible = AggregateHelper.DoesElementExist(
-    CommonLocators._widgetPane,
-  );
-  widgetPaneVisible.then((value) => {
-    if (value) {
-      cy.get(commonlocators.entityExplorersearch).clear({ force: true });
-    }
-  });
+  cy.get(commonlocators.searchEntityInExplorer).clear({ force: true });
 });
 
 Cypress.Commands.add(

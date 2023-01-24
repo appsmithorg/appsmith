@@ -4,6 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
+  CanvasHelper: canvasHelper,
   DebuggerHelper: debuggerHelper,
   EntityExplorer: ee,
   JSEditor: jsEditor,
@@ -289,6 +290,7 @@ describe("Debugger logs", function() {
       debuggerHelper.DoesConsoleLogExist(`${logString} Started`);
       debuggerHelper.DoesConsoleLogExist(`${logString} Success`);
       ee.DragDropWidgetNVerify("textwidget", 200, 600);
+      canvasHelper.CloseWidgetPane();
       propPane.UpdatePropertyFieldValue("Text", `{{${jsObjName}.myFun1.data}}`);
       agHelper.GetNAssertElementText(
         commonlocators.textWidgetContainer,
