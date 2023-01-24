@@ -38,11 +38,15 @@ import {
   IconBadge,
 } from "./styles";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
-import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
+import {
+  isValidLicense,
+  isTenantLoading,
+} from "@appsmith/selectors/tenantSelectors";
 
 function LicenseCheckPage() {
   const dispatch = useDispatch();
   const isValid = useSelector(isValidLicense);
+  const isLoading = useSelector(isTenantLoading);
   const {
     formState: { errors },
     getFieldState,
@@ -116,7 +120,7 @@ function LicenseCheckPage() {
                 placeholder={createMessage(ADD_KEY)}
                 {...register("licenseKey")}
               />
-              {errors.licenseKey && (
+              {errors.licenseKey && !isLoading && (
                 <Text className="input-error-msg" type={TextType.P3}>
                   {errors.licenseKey.message}
                 </Text>
@@ -124,6 +128,7 @@ function LicenseCheckPage() {
             </InputWrapper>
             <StyledButton
               fill
+              isLoading={isLoading}
               size={Size.large}
               tag="button"
               text={createMessage(ACTIVATE_INSTANCE)}

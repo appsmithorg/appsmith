@@ -103,7 +103,7 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
       AnalyticsUtil.reset();
       const currentUser: User | undefined = yield select(getCurrentUser);
       yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
-      yield put({ type: ReduxActionTypes.CANCEL_LICENSE_VALIDATION });
+      yield put({ type: ReduxActionTypes.STOP_LICENSE_STATUS_CHECK });
       localStorage.clear();
       yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
     }

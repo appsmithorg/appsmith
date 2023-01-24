@@ -3,12 +3,12 @@ import { Routes as CE_Routes, SentryRoute } from "ce/AppRouter";
 import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
-import { Redirect, Router, Switch } from "react-router-dom";
+import { Router, Switch } from "react-router-dom";
 import ErrorPage from "pages/common/ErrorPage";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import { AppState } from "@appsmith/reducers";
-import { connect, useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
@@ -24,19 +24,8 @@ import {
   isTenantLoading,
   isValidLicense,
 } from "@appsmith/selectors/tenantSelectors";
-import {
-  AUTH_LOGIN_URL,
-  BASE_LOGIN_URL,
-  BASE_SIGNUP_URL,
-  BASE_URL,
-  LICENSE_CHECK_PATH,
-  SIGN_UP_URL,
-  USER_AUTH_URL,
-} from "constants/routes";
 import LicenseCheckPage from "./pages/setup/LicenseCheckPage";
-import UserAuth from "pages/UserAuth";
-import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import LandingScreen from "LandingScreen";
+import { LICENSE_CHECK_PATH } from "constants/routes";
 
 /*
     We use this polyfill to show emoji flags
@@ -69,8 +58,6 @@ function AppRouter(props: {
 
   useBrandingTheme();
 
-  const user = useSelector(getCurrentUserSelector);
-
   return (
     <Router history={history}>
       <Suspense fallback={loadingIndicator}>
@@ -88,23 +75,10 @@ function AppRouter(props: {
               <AppHeader />
             )}
             <Switch>
-              <SentryRoute component={LandingScreen} exact path={BASE_URL} />
-              <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
-              <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-              <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
-              {isUsageAndBillingEnabled &&
-                !props.isLoading &&
-                !props.isLicenseValid &&
-                !user?.emptyInstance && (
-                  <>
-                    <Redirect from="*" to={LICENSE_CHECK_PATH} />
-                    <SentryRoute
-                      component={LicenseCheckPage}
-                      exact
-                      path="/license-check"
-                    />
-                  </>
-                )}
+              <SentryRoute
+                component={LicenseCheckPage}
+                path={LICENSE_CHECK_PATH}
+              />
               <CE_Routes />
             </Switch>
           </>
