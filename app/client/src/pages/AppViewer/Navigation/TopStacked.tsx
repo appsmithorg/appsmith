@@ -166,66 +166,65 @@ export function TopStacked(props: TopStackedProps) {
     return clear;
   }, [isScrolling, isScrollingLeft]);
 
-  return (
-    appPages.length > 1 && (
-      <Container
-        className="relative hidden px-6 h-11 md:flex"
+  return appPages.length > 1 ? (
+    <Container
+      className="relative hidden px-6 h-11 md:flex"
+      navColorStyle={navColorStyle}
+      primaryColor={primaryColor}
+    >
+      <ScrollBtnContainer
+        className="left-0 scroll-arrows"
         navColorStyle={navColorStyle}
+        onMouseDown={() => startScrolling(true)}
+        onMouseLeave={stopScrolling}
+        onMouseUp={stopScrolling}
+        onTouchEnd={stopScrolling}
+        onTouchStart={() => startScrolling(true)}
         primaryColor={primaryColor}
+        visible={shouldShowLeftArrow}
       >
-        <ScrollBtnContainer
-          className="left-0 scroll-arrows"
-          navColorStyle={navColorStyle}
-          onMouseDown={() => startScrolling(true)}
-          onMouseLeave={stopScrolling}
-          onMouseUp={stopScrolling}
-          onTouchEnd={stopScrolling}
-          onTouchStart={() => startScrolling(true)}
-          primaryColor={primaryColor}
-          visible={shouldShowLeftArrow}
-        >
-          <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
-        </ScrollBtnContainer>
+        <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
+      </ScrollBtnContainer>
 
-        <div
-          className="flex w-full hidden-scrollbar gap-x-2  items-center"
-          ref={measuredTabsRef}
-        >
-          {appPages.map((page) => {
-            return (
-              <MenuItemContainer
-                isTabActive={pathname.indexOf(page.pageId) > -1}
-                key={page.pageId}
-                setShowScrollArrows={setShowScrollArrows}
-                tabsScrollable={tabsScrollable}
-              >
-                <MenuItem
-                  navigationSetting={
-                    currentApplicationDetails?.navigationSetting
-                  }
-                  page={page}
-                  query={query}
-                />
-              </MenuItemContainer>
-            );
-          })}
-        </div>
+      <div
+        className="flex w-full hidden-scrollbar gap-x-2  items-center"
+        ref={measuredTabsRef}
+      >
+        {appPages.map((page) => {
+          return (
+            <MenuItemContainer
+              isTabActive={pathname.indexOf(page.pageId) > -1}
+              key={page.pageId}
+              setShowScrollArrows={setShowScrollArrows}
+              tabsScrollable={tabsScrollable}
+            >
+              <MenuItem
+                navigationSetting={currentApplicationDetails?.navigationSetting}
+                page={page}
+                query={query}
+              />
+            </MenuItemContainer>
+          );
+        })}
+      </div>
 
-        <ScrollBtnContainer
-          className="right-0 scroll-arrows"
-          navColorStyle={navColorStyle}
-          onMouseDown={() => startScrolling(false)}
-          onMouseLeave={stopScrolling}
-          onMouseUp={stopScrolling}
-          onTouchEnd={stopScrolling}
-          onTouchStart={() => startScrolling(false)}
-          primaryColor={primaryColor}
-          visible={shouldShowRightArrow}
-        >
-          <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
-        </ScrollBtnContainer>
-      </Container>
-    )
+      <ScrollBtnContainer
+        className="right-0 scroll-arrows"
+        navColorStyle={navColorStyle}
+        onMouseDown={() => startScrolling(false)}
+        onMouseLeave={stopScrolling}
+        onMouseUp={stopScrolling}
+        onTouchEnd={stopScrolling}
+        onTouchStart={() => startScrolling(false)}
+        primaryColor={primaryColor}
+        visible={shouldShowRightArrow}
+      >
+        <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
+      </ScrollBtnContainer>
+    </Container>
+  ) : (
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    <></>
   );
 }
 
