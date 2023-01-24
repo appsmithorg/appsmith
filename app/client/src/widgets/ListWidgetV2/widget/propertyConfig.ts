@@ -68,7 +68,7 @@ export const primaryColumnValidation = (
 const getPrimaryKeyFromDynamicValue = (
   prefixTemplate: string,
   suffixTemplate: string,
-  dynamicValue?: any,
+  dynamicValue?: string,
 ) => {
   if (!dynamicValue) return "";
 
@@ -86,7 +86,9 @@ const getPrimaryKeyFromDynamicValue = (
 };
 
 export const primaryKeyOptions = (props: ListWidgetProps) => {
-  const { primaryKeys, widgetName } = props;
+  const { widgetName } = props;
+  // Since this is uneval value, coercing it to primitive type
+  const primaryKeys = (props.primaryKeys as unknown) as string | undefined;
   const listData = props[EVALUATION_PATH]?.evaluatedValues?.listData || [];
   const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 

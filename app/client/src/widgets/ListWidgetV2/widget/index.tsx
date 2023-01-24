@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { isEmpty, floor } from "lodash";
+import { isEmpty, floor, isNil, isString } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -243,7 +243,6 @@ class ListWidget extends BaseWidget<
 
     if (this.shouldUpdateCacheKeys(prevProps)) {
       this.handleRowCacheData();
-      this.handleTriggeredAndSelectedItem();
     }
 
     this.setupMetaWidgets(prevProps);
@@ -584,80 +583,34 @@ class ListWidget extends BaseWidget<
     });
   };
 
-  getDataCacheByKey = (key: string) =>
-    this.metaWidgetGenerator.getDataByPrimaryKey(key);
-
-  setRowDataCache = () => {
-    const rowDataCache: RowDataCache = {};
-    const { selectedItemKey, triggeredItemKey } = this.props;
-
-    [selectedItemKey, triggeredItemKey].forEach((key) => {
-      if (!key) return;
-
-      const rowIndex = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(key);
-      const dataCache = this.getDataCacheByKey(key);
-      if (dataCache) {
-        rowDataCache[key] = dataCache;
-        return;
-      }
-
-      const viewIndex = this.metaWidgetGenerator.getViewIndex(rowIndex);
-      const rowData = this.props.listData?.[viewIndex] ?? {};
-      rowDataCache[key] = rowData;
-    });
-
-    this.updateMetaGeneratorRowDataCache(rowDataCache);
-    this.updateGeneratorCacheRowKeys(Object.keys(rowDataCache));
-  };
-
-  updateGeneratorCacheRowKeys = (keys: string[]) => {
-    this.metaWidgetGenerator.updateCurrCachedRows(keys);
-  };
-
-  updateMetaGeneratorRowDataCache = (rowDataCache: RowDataCache) => {
-    if (this.props.serverSidePagination) {
-      this.metaWidgetGenerator.updateRowDataCache(rowDataCache);
-    }
-  };
-
+  /**
+   * Only Initiate Cache if
+   * 1. Triggered or Selected Key changes (i.e a  new row was triggered or selected)
+   * 2. If Server-side Pagination is just turned on. (The is mainly to cache any row previously selected)
+   *
+   * If this conditions are true, we'd send the keys to the MetaWidgetGenerator to handle all Caching.
+   */
   shouldUpdateCacheKeys = (prevProps: ListWidgetProps) => {
     return (
       this.props.triggeredItemKey !== prevProps.triggeredItemKey ||
-      this.props.selectedItemKey !== prevProps.selectedItemKey
+      this.props.selectedItemKey !== prevProps.selectedItemKey ||
+      (!prevProps.serverSidePagination && this.props.serverSidePagination)
     );
   };
 
   handleRowCacheData = () => {
-    this.setRowDataCache();
-  };
-
-  updateRowCacheWithNewData = () => {
-    let rowDataCache: RowDataCache = {};
     const { selectedItemKey, triggeredItemKey } = this.props;
+    const keys = new Set(
+      [selectedItemKey, triggeredItemKey].filter((key): key is string =>
+        isString(key),
+      ),
+    );
 
-    [selectedItemKey, triggeredItemKey].forEach((key) => {
-      if (!key) return;
-
-      if (this.props.primaryKeys?.toString().includes(key)) {
-        const rowIndex = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(
-          key,
-        );
-        const startIndex = this.metaWidgetGenerator.getStartIndex();
-        const viewIndex = rowIndex - startIndex;
-
-        rowDataCache = {
-          ...rowDataCache,
-          [key]:
-            this.props.listData?.[viewIndex] ?? this.getDataCacheByKey(key),
-        };
-      }
-    });
-
-    this.updateMetaGeneratorRowDataCache(rowDataCache);
+    this.metaWidgetGenerator.handleCache(keys);
   };
 
   onItemClick = (rowIndex: number) => {
-    this.updateSelectedItemKey(rowIndex);
+    this.handleSelectedItemAndKey(rowIndex);
     this.updateSelectedItemView(rowIndex);
 
     if (!this.props.onItemClick) return;
@@ -687,64 +640,31 @@ class ListWidget extends BaseWidget<
   };
 
   onItemClickCapture = (rowIndex: number) => {
-    this.updateTriggeredItemKey(rowIndex);
+    this.handleTriggeredItemAndKey(rowIndex);
     this.updateTriggeredItemView(rowIndex);
   };
 
-  updateSelectedItemKey = (rowIndex: number) => {
+  // Updates SelectedItem and SelectedItemKey Meta Properties.
+  handleSelectedItemAndKey = (rowIndex: number) => {
     const { selectedItemKey } = this.props;
     const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+    let data: Record<string, unknown> | undefined;
 
     if (key === selectedItemKey) {
       this.resetSelectedItemKey();
+      this.resetSelectedItem();
       return;
     }
+
+    if (this.props.serverSidePagination) {
+      const viewIndex = this.metaWidgetGenerator.getViewIndex(rowIndex);
+      data = this.props.listData?.[viewIndex];
+    } else {
+      data = this.props.listData?.[rowIndex];
+    }
+
     this.props.updateWidgetMetaProperty("selectedItemKey", key);
-  };
-
-  handleTriggeredAndSelectedItem = () => {
-    this.updateSelectedItem();
-    this.updateTriggeredItem();
-  };
-
-  updateSelectedItem = () => {
-    const { selectedItem, selectedItemKey } = this.props;
-    let data: Record<string, unknown> | undefined;
-
-    if (selectedItemKey) {
-      if (this.props.serverSidePagination) {
-        data = this.getDataCacheByKey(selectedItemKey);
-      } else {
-        const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(
-          selectedItemKey,
-        );
-        data = this.props.listData?.[index];
-      }
-    }
-
-    if (!equal(data, selectedItem)) {
-      this.props.updateWidgetMetaProperty("selectedItem", data);
-    }
-  };
-
-  updateTriggeredItem = () => {
-    const { triggeredItem, triggeredItemKey } = this.props;
-    let data: Record<string, unknown> | undefined;
-
-    if (triggeredItemKey) {
-      if (this.props.serverSidePagination) {
-        data = this.getDataCacheByKey(triggeredItemKey);
-      } else {
-        const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(
-          triggeredItemKey,
-        );
-        data = this.props.listData?.[index];
-      }
-    }
-
-    if (!equal(data, triggeredItem)) {
-      this.props.updateWidgetMetaProperty("triggeredItem", data);
-    }
+    this.props.updateWidgetMetaProperty("selectedItem", data);
   };
 
   resetSelectedItem = () =>
@@ -799,9 +719,24 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  updateTriggeredItemKey = (rowIndex: number) => {
+  // Updates TriggeredItem and TriggeredItemKey Meta Properties.
+  handleTriggeredItemAndKey = (rowIndex: number) => {
+    const { triggeredItem } = this.props;
     const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+    let data: Record<string, unknown> | undefined;
+
+    if (this.props.serverSidePagination) {
+      const viewIndex = this.metaWidgetGenerator.getViewIndex(rowIndex);
+      data = this.props.listData?.[viewIndex];
+    } else {
+      data = this.props.listData?.[rowIndex];
+    }
+
     this.props.updateWidgetMetaProperty("triggeredItemKey", key);
+
+    if (!equal(data, triggeredItem)) {
+      this.props.updateWidgetMetaProperty("triggeredItem", data);
+    }
   };
 
   resetSelectedItemKey = () => {

@@ -1612,10 +1612,6 @@ class MetaWidgetGenerator {
     return hash(dataToHash, { algorithm: "md5" });
   };
 
-  updateCurrCachedRows = (keys: string[]) => {
-    this.cachedRows.curr = new Set(keys);
-  };
-
   getTemplateWidgetIdByMetaWidgetId = (metaWidgetId: string) => {
     return this.metaIdToTemplateIdMap[metaWidgetId];
   };
@@ -1713,11 +1709,33 @@ class MetaWidgetGenerator {
     }
   };
 
-  updateRowDataCache = (data: RowDataCache) => {
-    this.rowDataCache = data;
+  private updateCurrCachedRows = (keys: Set<string>) => {
+    this.cachedRows.curr = keys;
   };
 
-  getDataByPrimaryKey = (key: string) => this.rowDataCache?.[key];
+  /**
+   * The Rows to be cached would be stored in this.cachedRows
+   * The Data in these rows would be cached in this.rowDataCache
+   */
+  handleCache = (keys: Set<string>) => {
+    this.updateCurrCachedRows(keys);
+    this.updateRowDataCache(keys);
+  };
+
+  private updateRowDataCache = (keys: Set<string>) => {
+    const rowDataCache: RowDataCache = {};
+
+    keys.forEach((key) => {
+      if (this.primaryKeys?.includes(key)) {
+        const viewIndex = this.primaryKeys.indexOf(key);
+        rowDataCache[key] = this.data[viewIndex];
+      } else if (this.rowDataCache[key]) {
+        rowDataCache[key] = this.rowDataCache[key];
+      }
+    });
+
+    this.rowDataCache = { ...rowDataCache };
+  };
 
   private unmountVirtualizer = () => {
     if (this.virtualizer) {
