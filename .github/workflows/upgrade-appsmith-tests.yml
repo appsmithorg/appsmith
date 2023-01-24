@@ -233,7 +233,7 @@ jobs:
           parallel: true
           config-file: cypress_fat.json
           group: "Electrons on Github Action Fat Container"
-          spec: "cypress/UpgradeAppsmith/UpgradeAppsimth_spec.js"
+          spec: "cypress/integration/UpgradeAppsmith/UpgradeAppsimth_spec.js"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
