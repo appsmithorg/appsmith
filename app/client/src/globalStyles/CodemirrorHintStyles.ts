@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import { Theme } from "constants/DefaultTheme";
 import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
 

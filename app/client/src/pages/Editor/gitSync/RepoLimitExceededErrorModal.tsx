@@ -19,7 +19,7 @@ import {
   Size,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
