@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { change, formValueSelector } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
