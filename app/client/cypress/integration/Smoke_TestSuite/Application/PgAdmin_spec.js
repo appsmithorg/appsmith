@@ -1,4 +1,6 @@
 import homePage from "../../../locators/HomePage";
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
+const dataSources = ObjectsRegistry.DataSources;
 const dsl = require("../../../fixtures/PgAdmindsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
@@ -16,21 +18,20 @@ describe("PgAdmin Clone App", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Add dsl and authenticate datasource", function() {
+  it("1. Add dsl and authenticate datasource", function() {
     // authenticating datasource
-    cy.NavigateToDatasourceEditor();
+    dataSources.NavigateToDSCreateNew();
     cy.get(datasource.PostgreSQL).click();
-    cy.fillPostgresDatasourceForm();
-
-    cy.testSaveDatasource();
-
+    dataSources.FillPostgresDSForm();
+    dataSources.TestSaveDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });
 
-  it("Create queries", function() {
+  it("2. Create queries", function() {
     cy.NavigateToQueryEditor();
+    cy.NavigateToActiveTab();
     // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
@@ -51,7 +52,7 @@ describe("PgAdmin Clone App", function() {
         parseSpecialCharSequences: false,
       });
     cy.WaitAutoSave();
-    cy.runQuery();
+    dataSources.RunQuery();
     // clicking on chevron icon to go back to the datasources page
     cy.get(appPage.dropdownChevronLeft).click();
     // clicking on new query to write a query
@@ -72,7 +73,7 @@ describe("PgAdmin Clone App", function() {
         },
       );
     cy.WaitAutoSave();
-    cy.runQuery();
+    dataSources.RunQuery();
     // clicking on chevron icon to go back to the datasources page
     cy.get(appPage.dropdownChevronLeft).click();
     // clicking on new query to write a query
@@ -93,10 +94,38 @@ describe("PgAdmin Clone App", function() {
         },
       );
     cy.WaitAutoSave();
-    cy.runQuery();
-    // clicking on chevron icon to go back to the datasources page
-    cy.get(appPage.dropdownChevronLeft).click();
-    // clicking on new query to write a query
+    dataSources.RunQuery();
+
+    cy.get("#switcher--widgets").click();
+    cy.xpath(appPage.viewButton)
+      .first()
+      .click({ force: true });
+    cy.xpath(appPage.addNewtable).click({ force: true });
+    cy.generateUUID().then((UUID) => {
+      cy.xpath(appPage.addTablename)
+        .clear()
+        .type(`table${UUID}`);
+    });
+    // adding column to the table
+    cy.xpath(appPage.addColumn).click({ force: true });
+    cy.xpath(appPage.columnNamefield).should("be.visible");
+    cy.xpath(appPage.datatypefield).should("be.visible");
+    cy.xpath(appPage.addTablename).type("id");
+    cy.get(appPage.dropdownChevronDown)
+      .last()
+      .click();
+    cy.xpath(appPage.selectDatatype).click();
+    // switching on the Not Null toggle
+    cy.get(widgetsPage.switchWidgetInactive)
+      .last()
+      .click();
+    cy.xpath(appPage.submitButton).click({ force: true });
+    cy.xpath(appPage.addColumn).should("be.visible");
+    // cy.xpath(appPage.submitButton).click({ force: true });
+    cy.xpath(appPage.closeButton).click({ force: true });
+    cy.get("#switcher--explorer").click({ force: true });
+    dataSources.NavigateToActiveTab();
+
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
@@ -118,7 +147,7 @@ describe("PgAdmin Clone App", function() {
         },
       );
     cy.WaitAutoSave();
-    cy.runQuery();
+    dataSources.RunQuery();
     // clicking on chevron icon to go back to the datasources page
     cy.get(appPage.dropdownChevronLeft).click();
     // clicking on new query to write a query
@@ -143,27 +172,27 @@ describe("PgAdmin Clone App", function() {
         },
       );
     cy.WaitAutoSave();
-    cy.runQuery();
+    dataSources.RunQuery();
     // clicking on chevron icon to go back to the datasources page
     cy.get(appPage.dropdownChevronLeft).click();
   });
 
-  it("Add new table", function() {
-    const uuid = () => Cypress._.random(0, 1e6);
-    const id = uuid();
-    const Table = `table${id}`;
+  it("3. Add new table", function() {
     // clicking on chevron to go back to the application page
     cy.get(appPage.dropdownChevronLeft).click();
     // adding new table
-    cy.xpath(appPage.addNewtable).click();
-    cy.xpath(appPage.addTablename)
-      .clear()
-      .type(Table);
+    cy.xpath(appPage.addNewtable).click({ force: true });
+    cy.wait(500);
+    cy.generateUUID().then((UUID) => {
+      cy.xpath(appPage.addTablename)
+        .clear()
+        .type(`table${UUID}`);
+    });
     // adding column to the table
-    cy.xpath(appPage.addColumn).click();
+    cy.xpath(appPage.addColumn).click({ force: true });
     cy.xpath(appPage.columnNamefield).should("be.visible");
     cy.xpath(appPage.datatypefield).should("be.visible");
-    cy.xpath(appPage.addTablename).type("id");
+    cy.xpath(appPage.addTablename).type("id2");
     cy.get(appPage.dropdownChevronDown)
       .last()
       .click();
@@ -176,13 +205,14 @@ describe("PgAdmin Clone App", function() {
     cy.get(widgetsPage.switchWidgetInactive)
       .last()
       .click();
-    cy.xpath(appPage.submitButton).click();
-    cy.xpath(appPage.addColumn).should("be.visible");
     cy.xpath(appPage.submitButton).click({ force: true });
-    cy.xpath(appPage.closeButton).click();
+    cy.xpath(appPage.addColumn).should("be.visible");
+    cy.wait(500);
+    cy.xpath(appPage.submitButton).click({ force: true });
+    cy.xpath(appPage.closeButton).click({ force: true });
   });
 
-  it("View and Delete table", function() {
+  it("4.View and Delete table", function() {
     cy.xpath(appPage.addNewtable).should("be.visible");
     // viewing the table's columns by clicking on view button
     cy.xpath(appPage.viewButton)
@@ -192,7 +222,7 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.deleteButton)
       .last()
       .click({ force: true });
-    cy.xpath(appPage.confirmButton).click();
-    cy.xpath(appPage.closeButton).click();
+    cy.xpath(appPage.confirmButton).click({ force: true });
+    cy.xpath(appPage.closeButton).click({ force: true });
   });
 });
