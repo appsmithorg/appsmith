@@ -34,7 +34,7 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
 
     //Step3 & 4
     cy.get(`${datasource.datasourceCard}`)
-      .contains("users")
+      .contains("Users")
       .get(`${datasource.createQuery}`)
       .last()
       .click({ force: true });

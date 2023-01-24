@@ -36,7 +36,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
     cy.get(datasource.mockUserDatabase).click();
 
     //Step3 & 4
-    cy.contains(`${datasource.datasourceCard}`, "users")
+    cy.contains(`${datasource.datasourceCard}`, "Users")
       .last()
       .find(`${datasource.createQuery}`)
       .click({ force: true });

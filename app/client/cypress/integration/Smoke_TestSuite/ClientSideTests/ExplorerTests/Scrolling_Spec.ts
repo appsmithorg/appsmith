@@ -13,14 +13,14 @@ describe("Entity explorer context menu should hide on scrolling", function() {
     ee.ExpandCollapseEntity("Datasources");
     agHelper.ContainsNClick("Libraries");
     dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("users"));
+    agHelper.GetNClick(dataSources._mockDB("Users"));
     cy.wait("@getMockDb").then(($createdMock) => {
       mockDBNameUsers = $createdMock.response?.body.data.name;
       cy.wrap(mockDBNameUsers).as('usersDB')
       dataSources.CreateQuery(mockDBNameUsers);
     })
     dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("movies"));
+    agHelper.GetNClick(dataSources._mockDB("Movies"));
     cy.wait("@getMockDb").then(($createdMock) => {
       mockDBNameMovies = $createdMock.response?.body.data.name;
       cy.wrap(mockDBNameMovies).as('moviesDB')
