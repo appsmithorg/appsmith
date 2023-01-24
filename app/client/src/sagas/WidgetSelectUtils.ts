@@ -15,7 +15,7 @@ import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedC
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { setSelectedWidgetAncestry } from "actions/widgetSelectionActions";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { createMessage, SELECT_ALL_WIDGETS_MSG } from "ce/constants/messages";
 import {
   ReduxActionErrorTypes,
