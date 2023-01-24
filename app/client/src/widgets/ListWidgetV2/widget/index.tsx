@@ -87,6 +87,7 @@ export type MetaWidgetCacheProps = {
   templateWidgetName: string;
   type: string;
   viewIndex: number;
+  prevViewIndex?: number;
 };
 
 export type RowDataCache = Record<string, Record<string, unknown>>;

@@ -694,6 +694,7 @@ class MetaWidgetGenerator {
         metaWidgetId,
         metaWidgetName,
         viewIndex,
+        prevViewIndex: currentCache.viewIndex,
         templateWidgetId,
         templateWidgetName,
         type,
@@ -1252,7 +1253,7 @@ class MetaWidgetGenerator {
     templateWidgetId: string,
     key: string,
   ) => {
-    const { metaWidgetId, prevRowIndex, rowIndex, type } =
+    const { metaWidgetId, prevViewIndex, rowIndex, type, viewIndex } =
       this.getRowTemplateCache(key, templateWidgetId) || {};
     const { added, removed, unchanged } = this.templateWidgetStatus;
     const templateWidgetsAddedOrRemoved = added.size > 0 || removed.size > 0;
@@ -1296,7 +1297,7 @@ class MetaWidgetGenerator {
       hasTemplateWidgetChanged ||
       (type === this.primaryWidgetType && templateWidgetsAddedOrRemoved) ||
       levelDataUpdated ||
-      rowIndex !== prevRowIndex ||
+      viewIndex !== prevViewIndex ||
       (!isClonedRow && pageNoUpdated)
     );
   };
