@@ -1,7 +1,8 @@
 const { MongoClient } = require("mongodb");
+const { preprocessMongoDBURI } = require("./utils");
 
 async function exec() {
-  const client = new MongoClient(process.env.APPSMITH_MONGODB_URI, {
+  const client = new MongoClient(preprocessMongoDBURI(process.env.APPSMITH_MONGODB_URI), {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
@@ -13,7 +14,7 @@ async function exec() {
   } catch (err) {
     console.error("Error trying to check replicaset", err);
   } finally {
-    client.close();
+    await client.close();
   }
 
   process.exit(isReplicaSetEnabled ? 0 : 1);
