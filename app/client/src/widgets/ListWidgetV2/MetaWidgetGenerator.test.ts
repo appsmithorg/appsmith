@@ -19,6 +19,7 @@ type Validator = {
 type InitProps = {
   optionsProps?: Partial<GeneratorOptions>;
   constructorProps?: Partial<ConstructorProps>;
+  passedCache?: Cache;
 };
 
 const data = [
@@ -146,13 +147,16 @@ class Cache {
   };
 }
 
-const init = ({ constructorProps, optionsProps }: InitProps = {}) => {
+const init = ({
+  constructorProps,
+  optionsProps,
+  passedCache,
+}: InitProps = {}) => {
   const options = klona({
     ...DEFAULT_OPTIONS,
     ...optionsProps,
   });
-  const cache = new Cache();
-  const onMetaWidgetsUpdate = jest.fn;
+  const cache = passedCache || new Cache();
 
   const generator = new MetaWidgetGenerator({
     getWidgetCache: cache.getWidgetCache,
@@ -166,7 +170,6 @@ const init = ({ constructorProps, optionsProps }: InitProps = {}) => {
     prefixMetaWidgetId: "test",
     setWidgetReferenceCache: cache.setWidgetReferenceCache,
     getWidgetReferenceCache: cache.getWidgetReferenceCache,
-    onMetaWidgetsUpdate,
     ...constructorProps,
   });
 
@@ -220,7 +223,6 @@ const validateMetaWidgetType = (
 describe("#generate", () => {
   it("generates meta widgets for first instance", () => {
     const cache = new Cache();
-    const onMetaWidgetsUpdate = jest.fn;
 
     const generator = new MetaWidgetGenerator({
       getWidgetCache: cache.getWidgetCache,
@@ -234,7 +236,6 @@ describe("#generate", () => {
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
       prefixMetaWidgetId: "test",
-      onMetaWidgetsUpdate,
     });
 
     const expectedGeneratedCount = 12;
@@ -809,7 +810,6 @@ describe("#generate", () => {
       onVirtualListScroll: jest.fn,
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
-      onMetaWidgetsUpdate: jest.fn,
     });
 
     const nestedListWidgetId = "fs2d2lqjgd";
@@ -848,7 +848,6 @@ describe("#generate", () => {
       onVirtualListScroll: jest.fn,
       primaryWidgetType: "LIST_WIDGET_V2",
       renderMode: RenderModes.CANVAS,
-      onMetaWidgetsUpdate: jest.fn,
     });
     const listWidgetName = "List6";
     const nestedListWidgetId = "fs2d2lqjgd";
@@ -1200,36 +1199,181 @@ describe("#generate", () => {
     const result1 = generator.withOptions(options).generate();
 
     Object.values(result1.metaWidgets).forEach((metaWidget) => {
-      if (metaWidget.widgetId === metaWidget.originalMetaWidgetId) {
+      if (metaWidget.widgetId === metaWidget.metaWidgetId) {
         expect(metaWidget.siblingMetaWidgets).toBe(undefined);
       } else {
-        const prevPageMetaWidgetIds = Object.values(
-          initialResult.metaWidgets,
-        ).filter(
-          ({ referencedWidgetId }) =>
-            referencedWidgetId === metaWidget.widgetId,
+        const prevPageMetaWidgetIds = Object.values(initialResult.metaWidgets)
+          .filter(
+            ({ referencedWidgetId }) =>
+              referencedWidgetId === metaWidget.widgetId,
+          )
+          .map(({ metaWidgetId }) => metaWidgetId);
+        expect(metaWidget.siblingMetaWidgets).toStrictEqual(
+          prevPageMetaWidgetIds,
         );
-
-        console.log(prevPageMetaWidgetIds);
-        expect(metaWidget.siblingMetaWidgets).toBe(prevPageMetaWidgetIds);
       }
     });
   });
 
-  it("in viw mode it updates siblingMetaWidgets in the meta widget", () => {
-    //
+  it("in view mode it updates siblingMetaWidgets in one of the candidate meta widget", () => {
+    const { generator, initialResult, options } = init({
+      constructorProps: { renderMode: RenderModes.PAGE },
+    });
+
+    options.pageNo = 2;
+    const result1 = generator.withOptions(options).generate();
+
+    // Object of templateWidget: candidateMetaWidget[]
+    // If any one of the object properties has more than 1 candidateMetaWidget then siblingMetaWidgets is
+    // being stored in more than on meta widget for a particular template widget.
+    const candidateMetaWidgets: Record<string, string[]> = {};
+    Object.values(result1.metaWidgets).forEach((metaWidget) => {
+      const {
+        referencedWidgetId = "",
+        siblingMetaWidgets,
+        widgetId,
+      } = metaWidget;
+      if (siblingMetaWidgets) {
+        if (!Array.isArray(candidateMetaWidgets[referencedWidgetId])) {
+          candidateMetaWidgets[referencedWidgetId] = [widgetId];
+        } else {
+          candidateMetaWidgets[referencedWidgetId].push(widgetId);
+        }
+      }
+    });
+
+    Object.values(candidateMetaWidgets).forEach((candidateWidgets) => {
+      const [candidateWidgetId] = candidateWidgets;
+      const candidateWidget = result1.metaWidgets[candidateWidgetId];
+      const prevPageMetaWidgetIds = Object.values(initialResult.metaWidgets)
+        .filter(
+          ({ referencedWidgetId }) =>
+            referencedWidgetId === candidateWidget.referencedWidgetId,
+        )
+        .map(({ metaWidgetId }) => metaWidgetId);
+      expect(candidateWidgets.length).toBe(1);
+      expect(candidateWidget.siblingMetaWidgets).toStrictEqual(
+        prevPageMetaWidgetIds,
+      );
+    });
   });
 
-  it("on addition of new item, it updates the siblingMetaWidgets", () => {
-    //
-  });
+  it("captures all siblingMetaWidgets in the first inner list's widget in a nested list setup", () => {
+    const cache = new Cache();
+    const nestedList1Page1 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 0,
+        primaryKeys: ["1_1", "1_2", "1_3", "1_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: false,
+      },
+      passedCache: cache,
+    });
 
-  it("in nested list it captures all siblingMetaWidgets in the first inner list's widget", () => {
-    //
-  });
+    const nestedList2Page1 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 1,
+        primaryKeys: ["2_1", "2_2", "2_3", "2_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: true,
+      },
+      passedCache: cache,
+    });
 
-  it("does not modify the siblingMetaWidgets candidate's properties", () => {
-    //
+    const page1MetaWidgets = {
+      ...nestedList1Page1.initialResult.metaWidgets,
+      ...nestedList2Page1.initialResult.metaWidgets,
+    };
+
+    /**
+     * We are considering nestedList2Page1 as nestedList2Page1 and nestedList1Page1 both together
+     * form the page1's nested list and since we have to generate the inner lists as separate to mimic
+     * the actual behaviour so the nestedList2Page1 would give the most updated siblings updates
+     *  */
+    const page1PropertyUpdates = nestedList2Page1.initialResult.propertyUpdates;
+
+    expect(page1PropertyUpdates).not.toStrictEqual([]);
+
+    page1PropertyUpdates.forEach(({ path, value: siblingsIds }) => {
+      const [candidateWidgetId] = path.split(".");
+      const candidateWidget = page1MetaWidgets[candidateWidgetId];
+      const expectedSiblings = Object.values(page1MetaWidgets)
+        .filter(
+          ({ referencedWidgetId }) =>
+            referencedWidgetId === candidateWidget.referencedWidgetId,
+        )
+        .map(({ metaWidgetId }) => metaWidgetId);
+      expect(siblingsIds).toStrictEqual(expectedSiblings);
+    });
+
+    // Page 2
+    const nestedList1Page2 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 0,
+        primaryKeys: ["3_1", "3_2", "3_3", "3_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: false,
+      },
+      passedCache: cache,
+    });
+
+    const nestedList2Page2 = init({
+      optionsProps: {
+        currTemplateWidgets: nestedListInput.templateWidgets,
+        containerParentId: nestedListInput.containerParentId,
+        containerWidgetId: nestedListInput.mainContainerId,
+        nestedViewIndex: 1,
+        primaryKeys: ["4_1", "4_2", "4_3", "4_4"],
+      },
+      constructorProps: {
+        level: 2,
+        isListCloned: true,
+      },
+      passedCache: cache,
+    });
+
+    jest.runAllTimers();
+
+    const page2MetaWidgets = {
+      ...nestedList1Page2.initialResult.metaWidgets,
+      ...nestedList2Page2.initialResult.metaWidgets,
+    };
+
+    const allMetaWidgets = [
+      ...Object.values(page1MetaWidgets),
+      ...Object.values(page2MetaWidgets),
+    ];
+
+    const page2PropertyUpdates = nestedList2Page2.initialResult.propertyUpdates;
+    expect(page2PropertyUpdates).not.toStrictEqual([]);
+
+    expect(page2PropertyUpdates).not.toStrictEqual([]);
+    page2PropertyUpdates.forEach(({ path, value: siblingsIds }) => {
+      const [candidateWidgetId] = path.split(".");
+      const candidateWidget = page2MetaWidgets[candidateWidgetId];
+      const expectedSiblings = allMetaWidgets
+        .filter(
+          ({ referencedWidgetId }) =>
+            referencedWidgetId === candidateWidget.referencedWidgetId,
+        )
+        .map(({ metaWidgetId }) => metaWidgetId);
+      expect(siblingsIds).toStrictEqual(expectedSiblings);
+    });
   });
 });
 

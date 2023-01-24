@@ -240,21 +240,9 @@ abstract class BaseWidget<
   /* eslint-enable @typescript-eslint/no-empty-function */
 
   modifyMetaWidgets = (modifications: ModifyMetaWidgetPayload) => {
-    const { widgetId } = this.props;
-    const { propertyUpdates } = modifications;
-    const updatedPropertyUpdates: ModifyMetaWidgetPayload["propertyUpdates"] = [];
-
-    (propertyUpdates || []).forEach(({ path, value }) => {
-      updatedPropertyUpdates.push({
-        path: `${widgetId}.${path}`,
-        value,
-      });
-    });
-
     this.context.modifyMetaWidgets?.({
       ...modifications,
-      propertyUpdates: updatedPropertyUpdates,
-      creatorId: widgetId,
+      creatorId: this.props.widgetId,
     });
   };
 
