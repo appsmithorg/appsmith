@@ -32,6 +32,10 @@ const SwitchComponentContainer = styled.div<{
   align-items: center;
   justify-content: stretch;
   ${BlueprintControlTransform}
+
+  .auto-layout & {
+    min-width: 74px;
+  }
 `;
 
 const SwitchLabel = styled.div<{
@@ -57,6 +61,13 @@ const SwitchLabel = styled.div<{
 
   ${({ isDynamicHeightEnabled }) =>
     isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
+
+  .auto-layout & {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: normal;
+  }
 `;
 
 export const StyledSwitch = styled(Switch)<{

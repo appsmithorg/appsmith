@@ -13,6 +13,7 @@ import { AlignWidgetTypes } from "widgets/constants";
 
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { isAutoLayout } from "selectors/mainCanvasSelectors";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -157,6 +158,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",

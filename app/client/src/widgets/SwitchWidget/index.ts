@@ -2,6 +2,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
+import { getDefaultResponsiveBehavior } from "utils/layoutPropertiesUtils";
 
 export const CONFIG = {
   features: {
@@ -26,7 +27,19 @@ export const CONFIG = {
     version: 1,
     isDisabled: false,
     animateLoading: true,
+    responsiveBehavior: getDefaultResponsiveBehavior(Widget.getWidgetType()),
   },
+  widgetSize: [
+    {
+      viewportMinWidth: 0,
+      configuration: () => {
+        return {
+          minWidth: "74px",
+          minHeight: "40px",
+        };
+      },
+    },
+  ],
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
