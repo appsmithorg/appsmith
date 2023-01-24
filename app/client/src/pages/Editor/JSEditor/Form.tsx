@@ -8,7 +8,11 @@ import React, {
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
-import { DropdownOnSelect, SearchSnippet, TabComponent } from "design-system";
+import {
+  DropdownOnSelect,
+  SearchSnippet,
+  TabComponent,
+} from "design-system-old";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,

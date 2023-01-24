@@ -25,7 +25,7 @@ import {
   UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { TextInput, emailValidator } from "design-system";
+import { TextInput, emailValidator } from "design-system-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
@@ -60,7 +60,7 @@ import {
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
-import { ScrollIndicator } from "design-system";
+import { ScrollIndicator } from "design-system-old";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
@@ -73,7 +73,7 @@ import {
   Text,
   TextType,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
