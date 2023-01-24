@@ -29,8 +29,8 @@ describe.skip("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateAContainer(
         testUrl,
-        path + "/oldstack/160",
-        "latest",
+        path + "/oldstack",
+        "fatcontainer",
         `appsmith-160_${name}_updated`,
       );
       cy.wait(45000);
@@ -84,8 +84,8 @@ describe.skip("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateEEContainer(
         testUrl,
-        path + "/oldstack/ce",
-        "latest",
+        path + "/oldstack",
+        "fatcontainer",
         `appsmith-160-ce-${name}-enterprise`,
       );
       cy.wait(45000);
