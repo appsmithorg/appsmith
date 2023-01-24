@@ -39,7 +39,7 @@ describe("Entity bottom bar", () => {
   });
 
   it("4. query bottom bar should be collapsable", () => {
-    dataSources.CreateMockDB("users").then((dbName) => {
+    dataSources.CreateMockDB("Users").then((dbName) => {
       dataSources.CreateQuery(dbName);
       debuggerHelper.AssertOpen(PageType.Query);
 

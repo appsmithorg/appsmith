@@ -15,7 +15,7 @@ const selectAll = `${isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
 describe("Checkbox Group Widget Functionality", function() {
   it("Check checkbox group with dynamic query", function() {
-    dataSources.CreateMockDB("users").then((mockDBName) => {
+    dataSources.CreateMockDB("Users").then((mockDBName) => {
       // add Query 1 with limit 10
       dataSources.CreateQuery(mockDBName);
       agHelper.GetNClick(dataSources._templateMenuOption("Select"));

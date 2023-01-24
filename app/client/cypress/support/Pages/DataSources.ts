@@ -148,7 +148,7 @@ export class DataSources {
     this.ee.AddNewPage("generate-page");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClick(this.locator._dropdownText, 1);
-    this.agHelper.GetNClickByContains(this._mockDatasourceName, "users");
+    this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
     this.agHelper.GetNClick(this._selectTableDropdown);
     this.agHelper.GetNClick("[data-cy='t--dropdown-option-public.users']");
     this.agHelper.GetNClick(this._generatePageBtn);
