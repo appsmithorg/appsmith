@@ -15,7 +15,7 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+            Deploying Your Preview: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Workflow: `${{ github.workflow }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
             URL: https://${{ github.event.client_payload.pull_request.number }}-ce.appsmith.com
