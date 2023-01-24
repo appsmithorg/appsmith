@@ -155,8 +155,11 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                     log.debug("RTS health check succeeded");
                     this.isRtsAccessible = true;
                 })
-                .doOnError(errorSignal -> log.debug("RTS health check failed with error: \n{}", errorSignal.getMessage()))
-                .then();
+                .onErrorResume(errorSignal -> {
+                    log.debug("RTS health check failed with error: \n{}", errorSignal.getMessage());
+                    return Mono.empty();
+
+                }).then();
     }
 
     private void printReady() {
