@@ -2,13 +2,14 @@ package com.appsmith.server.models.export;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Data;
 
 @Data
 public class ActionMetadata {
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private String name;
     private String pluginId;
     private String fullyQualifiedName;
@@ -22,7 +23,7 @@ public class ActionMetadata {
     private Set<String> jsonPathKeys;
     private Boolean userSetOnLoad = false; //TODO check this field
     private Boolean confirmBeforeExecute = false;
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private String body;
     private boolean deleted;
     private String gitSyncId;

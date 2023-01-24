@@ -1,6 +1,8 @@
 package com.appsmith.server.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +23,6 @@ public class PageNameIdDTO {
 
     // This field will represent the default pageId for current page in git system where we are connecting resources
     // among the branches
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String defaultPageId;
 }

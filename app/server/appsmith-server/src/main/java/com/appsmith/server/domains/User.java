@@ -1,8 +1,10 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.models.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -40,7 +42,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private Boolean passwordResetInitiated = false;
 
     private LoginSource source = LoginSource.FORM;
@@ -78,7 +80,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     // This field is used when a user is invited to appsmith. This inviteToken is used to confirm the identity in verify
     // token flow.
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private String inviteToken;
 
     Boolean isAnonymous = false;
@@ -140,13 +142,13 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     }
 
     @Transient
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     public boolean isAnonymous() {
         return Boolean.TRUE.equals(isAnonymous);
     }
 
     @Transient
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     public String computeFirstName() {
         return (StringUtils.isEmpty(name) ? email : name).split("[\\s@]+", 2)[0];
     }

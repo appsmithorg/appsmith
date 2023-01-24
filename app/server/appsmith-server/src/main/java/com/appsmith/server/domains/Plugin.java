@@ -2,11 +2,13 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import net.minidev.json.annotate.JsonIgnore;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -67,7 +69,7 @@ public class Plugin extends BaseDomain {
 
     // Marking it as JsonIgnore because we don't want other users to be able to set this property. Only admins
     // must be able to mark a plugin for defaultInstall on all workspace creations
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Boolean defaultInstall;
 
     Boolean allowUserDatasources = true;

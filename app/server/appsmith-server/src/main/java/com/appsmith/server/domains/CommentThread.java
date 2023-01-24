@@ -1,6 +1,8 @@
 package com.appsmith.server.domains;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Transient;
@@ -33,13 +35,13 @@ public class CommentThread extends AbstractCommentDomain {
 
     String sequenceId;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Set<String> viewedByUsers;
 
     /**
      * username i.e. email of users who are subscribed for notifications in this thread
      */
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Set<String> subscribers;
 
 

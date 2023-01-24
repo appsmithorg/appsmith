@@ -1,7 +1,9 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,7 +26,7 @@ public class Comment extends AbstractCommentDomain {
     /**
      * The id of the user, who authored this comment.
      */
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String authorId;
     String authorPhotoId;
 
@@ -35,7 +37,7 @@ public class Comment extends AbstractCommentDomain {
     /**
      * Indicates whether this comment is the leading comment in it's thread. Such a comment cannot be deleted.
      */
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Boolean leading;
 
     @Data

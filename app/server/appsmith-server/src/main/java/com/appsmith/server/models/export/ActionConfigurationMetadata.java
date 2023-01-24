@@ -9,7 +9,8 @@ import com.appsmith.external.converters.HttpMethodConverter;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.annotations.JsonAdapter;
@@ -24,7 +25,7 @@ public class ActionConfigurationMetadata {
     Boolean encodeParamsToggle = true;
     List<Property> queryParameters;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String body;
     // For form-data input instead of json use the following
     List<Property> bodyFormData;

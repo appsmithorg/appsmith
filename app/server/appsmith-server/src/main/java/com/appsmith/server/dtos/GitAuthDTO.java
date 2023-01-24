@@ -1,6 +1,8 @@
 package com.appsmith.server.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
@@ -10,7 +12,7 @@ import java.util.List;
 public class GitAuthDTO {
     String publicKey;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String privateKey;
 
     String docUrl;

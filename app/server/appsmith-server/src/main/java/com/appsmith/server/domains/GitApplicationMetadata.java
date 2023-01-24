@@ -1,8 +1,10 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
+import com.appsmith.external.models.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Data;
 
 import org.springframework.data.annotation.Transient;
@@ -37,7 +39,7 @@ public class GitApplicationMetadata implements AppsmithDomain {
 
     // Git credentials used to push changes to remote repo and will be stored with default application only to optimise
     // space requirement and update operation
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     GitAuth gitAuth;
 
     @Transient

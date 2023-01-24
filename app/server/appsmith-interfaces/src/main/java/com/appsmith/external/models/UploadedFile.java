@@ -1,8 +1,9 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class UploadedFile implements AppsmithDomain {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String base64Content;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     public byte[] getDecodedContent() {
         if (base64Content == null) {
             return null;

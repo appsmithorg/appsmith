@@ -1,11 +1,13 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Views;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,12 +29,12 @@ public class Layout extends BaseDomain {
 
     ScreenType screen;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Boolean viewMode = false;
 
     JSONObject dsl;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     JSONObject publishedDsl;
 
     @Deprecated
@@ -45,28 +47,28 @@ public class Layout extends BaseDomain {
     List<ErrorDTO> layoutOnLoadActionErrors;
 
     @Deprecated
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Set<DslActionDTO> publishedLayoutActions;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     List<Set<DslActionDTO>> publishedLayoutOnLoadActions;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Set<String> widgetNames;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Set<String> allOnPageLoadActionNames;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Set<ActionDependencyEdge> allOnPageLoadActionEdges;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Set<String> actionsUsedInDynamicBindings;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Set<String> mongoEscapedWidgetNames;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Boolean validOnPageLoadActions = TRUE;
 
     /**

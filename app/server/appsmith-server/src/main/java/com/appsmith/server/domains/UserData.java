@@ -1,9 +1,11 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.constants.CommentOnboardingState;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,7 +29,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT;
 @NoArgsConstructor
 public class UserData extends BaseDomain {
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String userId;
 
     // Role of the user in their workspace, example, Designer, Developer, Product Lead etc.
@@ -57,11 +59,11 @@ public class UserData extends BaseDomain {
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Map<String, GitProfile> gitProfiles;
 
     // JWT tokens
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String accessToken;
 
     Map<String, Object> userClaims;

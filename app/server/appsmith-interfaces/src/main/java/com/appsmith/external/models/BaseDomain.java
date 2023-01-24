@@ -1,7 +1,8 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -34,12 +35,12 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @Id
     private String id;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Indexed
     @CreatedDate
     protected Instant createdAt;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @LastModifiedDate
     protected Instant updatedAt;
 
@@ -55,7 +56,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
 
     protected Instant deletedAt = null;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
     @Override
@@ -63,7 +64,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         return this.getId() == null;
     }
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     public boolean isDeleted() {
         return this.getDeletedAt() != null || Boolean.TRUE.equals(getDeleted());
     }
@@ -73,12 +74,12 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
 
     // This field will be used to store the default/root resource IDs for branched resources generated for git
     // connected applications and will be used to connect resources across the branches
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
 
     // This field will only be used for git related functionality to sync the action object across different instances.
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String gitSyncId;
 
     public void sanitiseToExportBaseObject() {

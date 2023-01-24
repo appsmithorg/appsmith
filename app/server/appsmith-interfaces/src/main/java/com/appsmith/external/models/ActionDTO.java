@@ -1,17 +1,10 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.ErrorDTO;
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.Property;
-import com.appsmith.external.models.ActionProvider;
-import com.appsmith.external.models.Documentation;
-import com.appsmith.external.models.PluginType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -93,7 +86,7 @@ public class ActionDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> jsonPathKeys;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String cacheResponse;
 
     @Transient
@@ -105,7 +98,7 @@ public class ActionDTO {
     @Transient
     ActionProvider provider;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Boolean userSetOnLoad = false;
 
     Boolean confirmBeforeExecute = false;
@@ -121,7 +114,7 @@ public class ActionDTO {
     Instant archivedAt = null;
 
     @Transient
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
     @Transient
@@ -129,7 +122,7 @@ public class ActionDTO {
 
     // This field will be used to store the default/root actionId and applicationId for actions generated for git
     // connected applications and will be used to connect actions across the branches
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
 
     /**

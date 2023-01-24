@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,12 +31,12 @@ public class TemplateCollection implements Persistable<String> {
     @Id
     private String id;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Indexed
     @CreatedDate
     protected Instant createdAt;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @LastModifiedDate
     protected Instant updatedAt;
 
@@ -47,11 +48,11 @@ public class TemplateCollection implements Persistable<String> {
 
     protected Boolean deleted = false;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Version
     protected Long documentVersion;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Override
     public boolean isNew() {
         return this.getId() == null;
@@ -60,7 +61,7 @@ public class TemplateCollection implements Persistable<String> {
     // TemplateCollection fields below :
     String name;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     List<String> apiTemplateIds;
 
     @Transient

@@ -1,9 +1,10 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.constants.Authentication;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,7 +47,7 @@ public class AuthenticationDTO implements AppsmithDomain {
 
     private Boolean isAuthorized;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     AuthenticationResponse authenticationResponse;
 
     public Mono<Boolean> hasExpired() {

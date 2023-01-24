@@ -1,7 +1,9 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.PluginType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,9 +19,9 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @EqualsAndHashCode
 public class DslActionDTO {
     String id;
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String defaultActionId;
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String defaultCollectionId;
     String name;
     String collectionId;

@@ -2,15 +2,16 @@ package com.appsmith.server.models.export;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 
 public class PageMetadata {
     String name;
     String slug;
     List<LayoutMetadata> layouts;
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     List<ActionMetadata> actions;
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     List<JSObjectMetadata> jsObjects;
     String gitSyncId;
     Boolean deleted;

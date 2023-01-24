@@ -2,7 +2,8 @@ package com.appsmith.server.models.export;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.Data;
 
@@ -13,15 +14,15 @@ public class ApplicationResource {
     private int clientSchemaVersion;
     private int serverSchemaVersion;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private DatasourceMetadata datasource;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private ApplicationMetadata application;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private ThemeMetadata theme;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     private List<PageMetadata> pages;
 }

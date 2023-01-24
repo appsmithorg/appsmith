@@ -1,9 +1,10 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Views;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -53,10 +54,10 @@ public class Application extends BaseDomain {
 
     List<ApplicationPage> pages;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     List<ApplicationPage> publishedPages;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Transient
     Boolean viewMode = false;
 
@@ -66,7 +67,7 @@ public class Application extends BaseDomain {
     @Transient
     long unreadCommentThreads;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String clonedFromApplicationId;
 
     String color;
@@ -75,10 +76,10 @@ public class Application extends BaseDomain {
 
     private String slug;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     AppLayout unpublishedAppLayout;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     AppLayout publishedAppLayout;
 
     Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
@@ -106,21 +107,21 @@ public class Application extends BaseDomain {
      * Other activities e.g. changing policy will not change this property.
      * We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
      */
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
     EmbedSetting embedSetting;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     NavigationSetting unpublishedNavigationSetting;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     NavigationSetting publishedNavigationSetting;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     AppPositioning publishedAppPositioning;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     AppPositioning unpublishedAppPositioning;
 
     /**
@@ -156,22 +157,22 @@ public class Application extends BaseDomain {
 
     // To convey current schema version for client and server. This will be used to check if we run the migration
     // between 2 commits if the application is connected to git
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Integer clientSchemaVersion;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     Integer serverSchemaVersion;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String publishedModeThemeId;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     String editModeThemeId;
 
     // TODO Temporary provision for exporting the application with datasource configuration for the sample/template apps
     Boolean exportWithConfiguration;
 
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @Deprecated
     String defaultPermissionGroup;
 
@@ -249,7 +250,7 @@ public class Application extends BaseDomain {
          * @deprecated The following field is deprecated and now removed, because it's needed in a migration. After the
          * migration has been run, it may be removed (along with the migration or there'll be compile errors there).
          */
-        @JsonIgnore
+        @JsonView(Views.Internal.class)
         @Deprecated(forRemoval = true)
         Integer width = null;
 

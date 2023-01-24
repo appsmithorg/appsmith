@@ -1,10 +1,12 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Views;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,7 +44,7 @@ public class PageDTO {
     public Set<String> userPermissions = new HashSet<>();
 
     @Transient
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
