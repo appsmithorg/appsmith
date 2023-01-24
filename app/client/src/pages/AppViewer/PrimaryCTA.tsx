@@ -41,6 +41,7 @@ type Props = {
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   insideSidebar?: boolean;
+  isMinimal?: boolean;
 };
 
 /**
@@ -50,7 +51,14 @@ type Props = {
  */
 
 function PrimaryCTA(props: Props) {
-  const { className, insideSidebar, navColorStyle, primaryColor, url } = props;
+  const {
+    className,
+    insideSidebar,
+    isMinimal,
+    navColorStyle,
+    primaryColor,
+    url,
+  } = props;
   const dispatch = useDispatch();
   const currentUser = useSelector(getCurrentUser);
   const currentPageID = useSelector(getCurrentPageId);
@@ -102,12 +110,13 @@ function PrimaryCTA(props: Props) {
             />
           }
           insideSidebar={insideSidebar}
+          isMinimal={isMinimal}
           navColorStyle={navColorStyle}
           onClick={() => {
             history.push(url);
           }}
           primaryColor={primaryColor}
-          text={insideSidebar && createMessage(EDIT_APP)}
+          text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
         />
       );
     }

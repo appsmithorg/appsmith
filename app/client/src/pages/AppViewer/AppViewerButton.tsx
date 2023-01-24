@@ -14,6 +14,7 @@ const StyledButton = styled(Button)<{
   navColorStyle: NavigationSetting["colorStyle"];
   varient?: ButtonVariant;
   insideSidebar?: boolean;
+  isMinimal?: boolean;
 }>`
   padding: 6px 12px;
   line-height: 1.2;
@@ -39,7 +40,7 @@ const StyledButton = styled(Button)<{
       )} !important;
   }
 
-  ${({ insideSidebar = false }) => {
+  ${({ insideSidebar = false, isMinimal }) => {
     if (!insideSidebar) {
       return "";
     }
@@ -48,7 +49,7 @@ const StyledButton = styled(Button)<{
       padding: 8px 10px;
       gap: 10px;
       width: 100%;
-      justify-content: flex-start;
+      justify-content: ${isMinimal ? "center" : "flex-start"};
       
       .bp3-button-text {
         ${getTypographyByKey("h5")}

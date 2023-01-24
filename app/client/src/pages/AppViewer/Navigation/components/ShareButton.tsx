@@ -24,6 +24,7 @@ type ShareButtonProps = {
   currentApplicationDetails?: ApplicationPayload;
   currentWorkspaceId: string;
   insideSidebar?: boolean;
+  isMinimal?: boolean;
 };
 
 const ShareButton = (props: ShareButtonProps) => {
@@ -31,6 +32,7 @@ const ShareButton = (props: ShareButtonProps) => {
     currentApplicationDetails,
     currentWorkspaceId,
     insideSidebar,
+    isMinimal,
   } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const showAppInviteUsersDialog = useSelector(
@@ -74,9 +76,10 @@ const ShareButton = (props: ShareButtonProps) => {
             />
           }
           insideSidebar={insideSidebar}
+          isMinimal={isMinimal}
           navColorStyle={navColorStyle}
           primaryColor={primaryColor}
-          text={insideSidebar && createMessage(SHARE_APP)}
+          text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
         />
       }
       workspaceId={currentWorkspaceId}

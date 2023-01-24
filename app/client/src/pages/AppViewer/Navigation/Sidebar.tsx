@@ -38,18 +38,26 @@ import { setIsSidebarPinned } from "actions/applicationActions";
 const StyledSidebar = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
+  isMinimal: boolean;
 }>`
-  width: ${SIDEBAR_WIDTH.REGULAR}px;
   height: 100vh;
   background-color: ${({ navColorStyle, primaryColor }) =>
     getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
   position: fixed;
   top: 0;
-  left: -${SIDEBAR_WIDTH.REGULAR}px;
   transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   border-right: 1px solid ${Colors.GRAY_300};
+
+  ${({ isMinimal }) => {
+    const width = isMinimal ? SIDEBAR_WIDTH.MINIMAL : SIDEBAR_WIDTH.REGULAR;
+
+    return `
+      width: ${width}px;
+      left: -${width}px;
+    `;
+  }}
 
   &.is-open {
     left: 0;
@@ -132,6 +140,9 @@ export function Sidebar(props: SidebarProps) {
   const navColorStyle =
     currentApplicationDetails?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
+  const isMinimal =
+    currentApplicationDetails?.navigationSetting?.navStyle ===
+    NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -182,24 +193,29 @@ export function Sidebar(props: SidebarProps) {
         "is-open": isOpen,
         "shadow-xl": !isPinned,
       })}
+      isMinimal={isMinimal}
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}
     >
       <StyledHeader>
-        <ApplicationName
-          appName={currentApplicationDetails?.name || "Application Name"}
-          forSidebar
-          navColorStyle={navColorStyle}
-          primaryColor={primaryColor}
-        />
+        {!isMinimal && (
+          <ApplicationName
+            appName={currentApplicationDetails?.name || "Application Name"}
+            forSidebar
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+          />
+        )}
 
-        <CollapseButton
-          borderRadius={borderRadius}
-          isPinned={isPinned}
-          navColorStyle={navColorStyle}
-          primaryColor={primaryColor}
-          setIsPinned={setIsPinned}
-        />
+        {!isMinimal && (
+          <CollapseButton
+            borderRadius={borderRadius}
+            isPinned={isPinned}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+            setIsPinned={setIsPinned}
+          />
+        )}
       </StyledHeader>
 
       <StyledMenuContainer
@@ -209,6 +225,7 @@ export function Sidebar(props: SidebarProps) {
         {pages.map((page) => {
           return (
             <MenuItem
+              isMinimal={isMinimal}
               key={page.pageId}
               navigationSetting={currentApplicationDetails?.navigationSetting}
               page={page}
@@ -227,12 +244,14 @@ export function Sidebar(props: SidebarProps) {
                 currentApplicationDetails={currentApplicationDetails}
                 currentWorkspaceId={currentWorkspaceId}
                 insideSidebar
+                isMinimal={isMinimal}
               />
             )}
 
             <PrimaryCTA
               className="t--back-to-editor"
               insideSidebar
+              isMinimal={isMinimal}
               navColorStyle={navColorStyle}
               primaryColor={primaryColor}
               url={editorURL}
@@ -242,6 +261,7 @@ export function Sidebar(props: SidebarProps) {
 
         <SidebarProfileComponent
           currentUser={currentUser}
+          isMinimal={isMinimal}
           navColorStyle={navColorStyle}
           primaryColor={primaryColor}
         />

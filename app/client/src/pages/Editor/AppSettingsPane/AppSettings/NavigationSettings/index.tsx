@@ -67,6 +67,28 @@ function NavigationSettings() {
                   : NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR;
             }
 
+            /**
+             * When the orientation is side and nav style changes -
+             * 1. to minimal, change the item style to icon
+             * 1. to sidebar, change the item style to text + icon
+             */
+            if (
+              newSettings.orientation ===
+                NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+              navigationSetting.navStyle !== newSettings.navStyle
+            ) {
+              if (
+                newSettings.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL
+              ) {
+                newSettings.itemStyle = NAVIGATION_SETTINGS.ITEM_STYLE.ICON;
+              } else if (
+                newSettings.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR
+              ) {
+                newSettings.itemStyle =
+                  NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON;
+              }
+            }
+
             payload.navigationSetting = newSettings as NavigationSetting;
 
             dispatch(updateApplication(applicationId, payload));
@@ -185,14 +207,25 @@ function NavigationSettings() {
           {
             label: "Text + Icon",
             value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
+            hidden:
+              navigationSetting?.navStyle ===
+              NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
           },
           {
             label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT),
             value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT,
+            hidden:
+              navigationSetting?.navStyle ===
+              NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
           },
           {
             label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.ICON),
             value: NAVIGATION_SETTINGS.ITEM_STYLE.ICON,
+            hidden:
+              navigationSetting?.orientation ===
+                NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+              navigationSetting?.navStyle ===
+                NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
           },
         ]}
         updateSetting={updateSetting}

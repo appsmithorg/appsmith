@@ -7,6 +7,7 @@ import {
   getMenuItemTextColor,
 } from "pages/AppViewer/utils";
 import { NavigationSetting } from "constants/AppConstants";
+import classNames from "classnames";
 
 const StyledContainer = styled.div<{
   primaryColor: string;
@@ -46,13 +47,18 @@ type SidebarProfileComponent = {
   currentUser: User | undefined;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
+  isMinimal: boolean;
 };
 
 const SidebarProfileComponent = (props: SidebarProfileComponent) => {
-  const { currentUser, navColorStyle, primaryColor } = props;
+  const { currentUser, isMinimal, navColorStyle, primaryColor } = props;
 
   return currentUser && currentUser.username !== ANONYMOUS_USERNAME ? (
-    <StyledContainer navColorStyle={navColorStyle} primaryColor={primaryColor}>
+    <StyledContainer
+      className={classNames({ "justify-center": isMinimal })}
+      navColorStyle={navColorStyle}
+      primaryColor={primaryColor}
+    >
       <ProfileDropdown
         modifiers={{
           offset: {
@@ -65,18 +71,20 @@ const SidebarProfileComponent = (props: SidebarProfileComponent) => {
         userName={currentUser?.username || ""}
       />
 
-      <StyledTextContainer>
-        <StyledText navColorStyle={navColorStyle} primaryColor={primaryColor}>
-          {currentUser.name}
-        </StyledText>
-        <StyledText
-          isEmail
-          navColorStyle={navColorStyle}
-          primaryColor={primaryColor}
-        >
-          {currentUser.email}
-        </StyledText>
-      </StyledTextContainer>
+      {!isMinimal && (
+        <StyledTextContainer>
+          <StyledText navColorStyle={navColorStyle} primaryColor={primaryColor}>
+            {currentUser.name}
+          </StyledText>
+          <StyledText
+            isEmail
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+          >
+            {currentUser.email}
+          </StyledText>
+        </StyledTextContainer>
+      )}
     </StyledContainer>
   ) : (
     // eslint-disable-next-line react/jsx-no-useless-fragment
