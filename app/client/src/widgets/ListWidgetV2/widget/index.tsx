@@ -112,7 +112,7 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
 type RenderChildrenOption = {
   componentWidth: number;
   parentColumnSpace: number;
-  selectedItemIndex: number;
+  selectedItemKey: string | null;
   startIndex: number;
 };
 
@@ -165,8 +165,8 @@ class ListWidget extends BaseWidget<
       triggeredItemView: "{{{}}}",
       selectedItem: undefined,
       triggeredItem: undefined,
-      selectedItemIndex: -1,
-      triggeredItemIndex: -1,
+      selectedItemKey: null,
+      triggeredItemKey: null,
     };
   }
 
@@ -209,6 +209,7 @@ class ListWidget extends BaseWidget<
     if (this.props.infiniteScroll) {
       this.generateMetaWidgets();
     }
+    this.updateCacheKey();
 
     this.setupMetaWidgets();
   }
@@ -226,9 +227,6 @@ class ListWidget extends BaseWidget<
       }
     }
 
-    if (this.props.serverSidePagination) {
-      this.updateRowCacheWithNewData();
-    }
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
       const maxPageNo = Math.max(
         Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
@@ -586,24 +584,24 @@ class ListWidget extends BaseWidget<
   };
 
   updateCacheKey = () => {
-    const { selectedItemIndex = -1, triggeredItemIndex = -1 } = this.props;
+    const { selectedItemKey, triggeredItemKey } = this.props;
     const cachedKeys: Record<string, number> = {};
 
-    if (selectedItemIndex === -1 && triggeredItemIndex === -1) return;
+    if (!selectedItemKey && !triggeredItemKey) return;
 
-    [selectedItemIndex, triggeredItemIndex].forEach((index) => {
-      if (index === -1) return;
+    [selectedItemKey, triggeredItemKey].forEach((key) => {
+      if (!key) return;
 
-      if (Object.values(this.cachedKeys).includes(index)) {
-        const key = Object.keys(this.cachedKeys).find(
-          (key) => this.cachedKeys[key] === index,
-        );
+      if (Object.keys(this.cachedKeys).includes(key)) {
+        const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(key);
         if (key) cachedKeys[key] = index;
         return;
       }
 
-      const key = this.metaWidgetGenerator.getPrimaryKey(index);
-      cachedKeys[key] = index;
+      if (this.getWidgetCache()?.[key]) {
+        const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(key);
+        cachedKeys[key] = index;
+      }
     });
 
     this.cachedKeys = cachedKeys;
@@ -611,8 +609,8 @@ class ListWidget extends BaseWidget<
 
   shouldUpdateCacheKeys = (prevProps: ListWidgetProps) => {
     return (
-      this.props.triggeredItemIndex !== prevProps.triggeredItemIndex ||
-      this.props.selectedItemIndex !== prevProps.selectedItemIndex
+      this.props.triggeredItemKey !== prevProps.triggeredItemKey ||
+      this.props.selectedItemKey !== prevProps.selectedItemKey
     );
   };
 
@@ -638,7 +636,7 @@ class ListWidget extends BaseWidget<
   };
 
   onItemClick = (rowIndex: number) => {
-    this.updateSelectedItemViewIndex(rowIndex);
+    this.updateSelectedItemKey(rowIndex);
     this.updateSelectedItemView(rowIndex);
 
     if (!this.props.onItemClick) return;
@@ -668,18 +666,19 @@ class ListWidget extends BaseWidget<
   };
 
   onItemClickCapture = (rowIndex: number) => {
-    this.updateTriggeredItemViewIndex(rowIndex);
+    this.updateTriggeredItemKey(rowIndex);
     this.updateTriggeredItemView(rowIndex);
   };
 
-  updateSelectedItemViewIndex = (rowIndex: number) => {
-    const { selectedItemIndex } = this.props;
+  updateSelectedItemKey = (rowIndex: number) => {
+    const { selectedItemKey } = this.props;
+    const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
 
-    if (rowIndex === selectedItemIndex) {
-      this.resetSelectedItemViewIndex();
+    if (key === selectedItemKey) {
+      this.resetSelectedItemKey();
       return;
     }
-    this.props.updateWidgetMetaProperty("selectedItemIndex", rowIndex);
+    this.props.updateWidgetMetaProperty("selectedItemKey", key);
   };
 
   handleTriggeredAndSelectedItem = () => {
@@ -688,18 +687,17 @@ class ListWidget extends BaseWidget<
   };
 
   updateSelectedItem = () => {
-    const { selectedItem, selectedItemIndex = -1 } = this.props;
+    const { selectedItem, selectedItemKey } = this.props;
     let data: Record<string, unknown> | undefined;
 
-    if (selectedItemIndex !== -1) {
+    if (selectedItemKey) {
       if (this.props.serverSidePagination) {
-        const key =
-          Object.keys(this.cachedKeys).find(
-            (key) => this.cachedKeys[key] === selectedItemIndex,
-          ) ?? this.metaWidgetGenerator.getPrimaryKey(selectedItemIndex);
-        data = this.metaWidgetGenerator.getRowDataCache()[key];
+        data = this.metaWidgetGenerator.getRowDataCache()[selectedItemKey];
       } else {
-        data = this.props.listData?.[selectedItemIndex];
+        const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(
+          selectedItemKey,
+        );
+        data = this.props.listData?.[index];
       }
     }
 
@@ -709,18 +707,17 @@ class ListWidget extends BaseWidget<
   };
 
   updateTriggeredItem = () => {
-    const { triggeredItem, triggeredItemIndex = -1 } = this.props;
+    const { triggeredItem, triggeredItemKey } = this.props;
     let data: Record<string, unknown> | undefined;
 
-    if (triggeredItemIndex !== -1) {
+    if (triggeredItemKey) {
       if (this.props.serverSidePagination) {
-        const key =
-          Object.keys(this.cachedKeys).find(
-            (key) => this.cachedKeys[key] === triggeredItemIndex,
-          ) ?? this.metaWidgetGenerator.getPrimaryKey(triggeredItemIndex);
-        data = this.metaWidgetGenerator.getRowDataCache()[key];
+        data = this.metaWidgetGenerator.getRowDataCache()[triggeredItemKey];
       } else {
-        data = this.props.listData?.[triggeredItemIndex];
+        const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(
+          triggeredItemKey,
+        );
+        data = this.props.listData?.[index];
       }
     }
 
@@ -733,9 +730,10 @@ class ListWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("selectedItem", undefined);
 
   updateSelectedItemView = (rowIndex: number) => {
-    const { selectedItemIndex } = this.props;
+    const { selectedItemKey } = this.props;
+    const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
 
-    if (rowIndex === selectedItemIndex) {
+    if (key === selectedItemKey) {
       this.resetSelectedItemView();
       this.resetSelectedItem();
       return;
@@ -780,16 +778,13 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  updateTriggeredItemViewIndex = (rowIndex: number) => {
-    this.props.updateWidgetMetaProperty("triggeredItemIndex", rowIndex);
+  updateTriggeredItemKey = (rowIndex: number) => {
+    const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+    this.props.updateWidgetMetaProperty("triggeredItemKey", key);
   };
 
-  resetSelectedItemViewIndex = () => {
-    this.props.updateWidgetMetaProperty("selectedItemIndex", -1);
-  };
-
-  resetTriggeredItemViewIndex = () => {
-    this.props.updateWidgetMetaProperty("triggeredItemIndex", -1);
+  resetSelectedItemKey = () => {
+    this.props.updateWidgetMetaProperty("selectedItemKey", null);
   };
 
   shouldPaginate = () => {
@@ -820,7 +815,7 @@ class ListWidget extends BaseWidget<
       const {
         componentWidth,
         parentColumnSpace,
-        selectedItemIndex,
+        selectedItemKey,
         startIndex,
       } = options;
 
@@ -836,10 +831,11 @@ class ListWidget extends BaseWidget<
             const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
+            const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
             return {
               ...container,
               focused,
-              selected: selectedItemIndex === rowIndex,
+              selected: selectedItemKey === key,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation();
                 this.onItemClick(rowIndex);
@@ -866,7 +862,7 @@ class ListWidget extends BaseWidget<
           prevMetaChildrenStructure === nextMetaChildrenStructure &&
           prevOptions.componentWidth === nextOptions.componentWidth &&
           prevOptions.parentColumnSpace === nextOptions.parentColumnSpace &&
-          prevOptions.selectedItemIndex === nextOptions.selectedItemIndex &&
+          prevOptions.selectedItemKey === nextOptions.selectedItemKey &&
           prevOptions.startIndex === nextOptions.startIndex
         );
       },
@@ -982,7 +978,7 @@ class ListWidget extends BaseWidget<
       isLoading,
       parentColumnSpace,
       parentRowSpace,
-      selectedItemIndex = -1,
+      selectedItemKey,
     } = this.props;
     const startIndex = this.metaWidgetGenerator.getStartIndex();
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
@@ -1036,7 +1032,7 @@ class ListWidget extends BaseWidget<
           {this.renderChildren(this.props.metaWidgetChildrenStructure, {
             componentWidth,
             parentColumnSpace,
-            selectedItemIndex,
+            selectedItemKey,
             startIndex,
           })}
         </MetaWidgetContextProvider>
@@ -1073,11 +1069,11 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   pageSize: number;
   prefixMetaWidgetId?: string;
   currentItemsView: string;
-  selectedItemIndex?: number;
+  selectedItemKey: string | null;
+  triggeredItemKey: string | null;
   selectedItemView: Record<string, unknown>;
   selectedItem?: Record<string, unknown>;
   triggeredItem?: Record<string, unknown>;
-  triggeredItemIndex?: number;
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;

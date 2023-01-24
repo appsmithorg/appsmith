@@ -1186,10 +1186,10 @@ class MetaWidgetGenerator {
    * 1. if Key is in primaryKeys i.e the row is in currentView, we use rowIndex
    * 2. if key isn't in primaryKeys i.e it's a cachedRow and we're in a diff page, we use prevRowIndex
    */
-  private getRowIndexFromPrimaryKey = (key: string) => {
+  getRowIndexFromPrimaryKey = (key: string) => {
     const rowCache = this.getRowCache(key) ?? {};
     const rowIndex = this.primaryKeys?.toString().includes(key)
-      ? rowCache[this.containerWidgetId].rowIndex
+      ? rowCache[this.containerWidgetId]?.rowIndex
       : rowCache[this.containerWidgetId]?.prevRowIndex ??
         rowCache[this.containerWidgetId].rowIndex;
     return rowIndex;

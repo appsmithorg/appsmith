@@ -37,7 +37,7 @@ const data = [
   },
 ];
 
-describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, SelectedRowIndex", () => {
+describe("List widget v2; TriggeredRow, SelectedRow", () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -60,39 +60,11 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
       .first()
       .should("have.text", JSON.stringify({}));
 
-    cy.openPropertyPaneByWidgetName("SelectedRowIndex", "textwidget");
-    cy.testJsontext("text", `{{List1.selectedItemIndex}}`);
-    cy.get(
-      `${widgetSelector("SelectedRowIndex")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "-1");
-
-    cy.openPropertyPaneByWidgetName("TriggeredRowIndex", "textwidget");
-    cy.testJsontext("text", `{{List1.triggeredItemIndex}}`);
-    cy.get(
-      `${widgetSelector("TriggeredRowIndex")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "-1");
-
     cy.openPropertyPaneByWidgetName("SelectedItem", "textwidget");
     cy.testJsontext("text", `{{List1.selectedItem}}`);
     cy.get(`${widgetSelector("SelectedItem")} ${commonlocators.bodyTextStyle}`)
       .first()
-      .then((el) => {
-        const value = JSON.parse(el.text());
-
-        const emptyRow = {
-          id: "",
-          name: "",
-          img: "",
-        };
-        Object.keys(emptyRow).forEach((key) => {
-          emptyRow[key] = "";
-        });
-        cy.wrap(value).should("deep.equal", emptyRow);
-      });
+      .should("not.have.text");
 
     cy.openPropertyPaneByWidgetName("PageNumber", "textwidget");
     cy.testJsontext("text", `{{List1.pageNo}}`);
@@ -113,6 +85,8 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
       .first()
       .click({ force: true });
+
+    cy.wait(500);
 
     // Confirm and validate data in a ll widgets
     cy.get(`${widgetSelector("TriggeredRow")} ${commonlocators.bodyTextStyle}`)
@@ -180,18 +154,6 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
         };
         cy.wrap(data).should("deep.equal", SelectedRow);
       });
-
-    cy.get(
-      `${widgetSelector("SelectedRowIndex")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "0");
-
-    cy.get(
-      `${widgetSelector("TriggeredRowIndex")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "0");
 
     cy.get(`${widgetSelector("SelectedItem")} ${commonlocators.bodyTextStyle}`)
       .first()
@@ -284,18 +246,6 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
         cy.wrap(data).should("deep.equal", selectedItemView);
       });
 
-    cy.get(
-      `${widgetSelector("SelectedRowIndex")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "0");
-
-    cy.get(
-      `${widgetSelector("TriggeredRowIndex")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "0");
-
     cy.get(`${widgetSelector("SelectedItem")} ${commonlocators.bodyTextStyle}`)
       .first()
       .then((el) => {
@@ -340,7 +290,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
       .first()
       .should("have.text", "4");
 
-    // Validate TriggeredRow and TriggeredRowIndex changed to data in page 3 and didn't change in Page 4
+    // Validate TriggeredRow changed to data in page 3 and didn't change in Page 4
     cy.get(`${widgetSelector("TriggeredRow")} ${commonlocators.bodyTextStyle}`)
       .first()
       .then((val) => {
@@ -373,11 +323,6 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
         };
         cy.wrap(data).should("deep.equal", triggeredItemView);
       });
-    cy.get(
-      `${widgetSelector("TriggeredRowIndex")} ${commonlocators.bodyTextStyle}`,
-    )
-      .first()
-      .should("have.text", "2");
   });
 
   // TODO: (Tolulope) Add a test for infinite scroll once it's ready to be shipped
