@@ -18,6 +18,10 @@ export const PortalStyles = createGlobalStyle`
     z-index: ${Layers.portals};
   }
 
+  .my-portal {
+    z-index: 5!important;
+  }
+
   .file-picker-dialog.bp3-dialog .${Classes.DIALOG_BODY} {
     padding: 0;
   }

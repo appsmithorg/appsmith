@@ -4,7 +4,7 @@ import { get } from "lodash";
 import * as log from "loglevel";
 import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
-
+import { Overlay } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { ReactTableColumnProps, ReactTableFilter } from "../../../Constants";
 import TableFilterPaneContent from "./FilterPaneContent";
@@ -85,32 +85,42 @@ class TableFilterPane extends Component<Props> {
       const boundaryParent = document.querySelector("#root");
 
       return (
-        <Popper
-          borderRadius={this.props.borderRadius}
-          boundaryParent={boundaryParent || "viewport"}
-          disablePopperEvents={get(this.props, "metaProps.isMoved", false)}
-          isDraggable
-          isOpen
-          onPositionChange={this.handlePositionUpdate}
-          parentElement={boundaryParent}
-          placement="top"
-          portalContainer={document.getElementById("art-board") || undefined}
-          position={get(this.props, "metaProps.position") as PositionPropsInt}
-          renderDragBlock={
-            <DragBlock>
-              <DragHandleIcon />
-              <span>Move</span>
-            </DragBlock>
-          }
-          renderDragBlockPositions={{
-            left: "0px",
-          }}
-          targetNode={el}
-          themeMode={this.getPopperTheme()}
-          zIndex={Layers.tableFilterPane}
-        >
-          <TableFilterPaneContent {...this.props} />
-        </Popper>
+        <>
+          <Popper
+            borderRadius={this.props.borderRadius}
+            boundaryParent={boundaryParent || "viewport"}
+            disablePopperEvents={get(this.props, "metaProps.isMoved", false)}
+            isDraggable
+            isOpen
+            onPositionChange={this.handlePositionUpdate}
+            parentElement={boundaryParent}
+            placement="top-end"
+            portalContainer={document.getElementById("art-board") || undefined}
+            position={get(this.props, "metaProps.position") as PositionPropsInt}
+            renderDragBlock={
+              <DragBlock>
+                <DragHandleIcon />
+                <span>Move</span>
+              </DragBlock>
+            }
+            renderDragBlockPositions={{
+              left: "0px",
+            }}
+            targetNode={el}
+            themeMode={this.getPopperTheme()}
+            zIndex={Layers.tableFilterPane}
+          >
+            <TableFilterPaneContent {...this.props} />
+          </Popper>
+          <Overlay
+            hasBackdrop
+            isOpen
+            portalClassName="my-portal"
+            portalContainer={document.getElementById("art-board") || undefined}
+            transitionDuration={25}
+            usePortal
+          />
+        </>
       );
     } else {
       return null;
