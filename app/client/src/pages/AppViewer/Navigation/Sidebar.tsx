@@ -9,7 +9,7 @@ import {
   SIDEBAR_WIDTH,
 } from "constants/AppConstants";
 import { get } from "lodash";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import styled from "styled-components";
@@ -32,6 +32,8 @@ import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
 import { useMouse } from "@mantine/hooks";
 import { Colors } from "constants/Colors";
+import { getSidebarPinned } from "selectors/applicationSelectors";
+import { setIsSidebarPinned } from "actions/applicationActions";
 
 const StyledSidebar = styled.div<{
   primaryColor: string;
@@ -139,7 +141,8 @@ export function Sidebar(props: SidebarProps) {
   const [query, setQuery] = useState("");
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
-  const [isPinned, setIsPinned] = useState(true);
+  const dispatch = useDispatch();
+  const isPinned = useSelector(getSidebarPinned);
   const [isOpen, setIsOpen] = useState(true);
   const { x } = useMouse();
 
@@ -163,6 +166,10 @@ export function Sidebar(props: SidebarProps) {
       }
     }
   }, [x]);
+
+  const setIsPinned = (isPinned: boolean) => {
+    dispatch(setIsSidebarPinned(isPinned));
+  };
 
   return (
     <StyledSidebar

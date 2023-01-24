@@ -31,6 +31,10 @@ import {
   isMultiPaneActive,
 } from "selectors/multiPaneSelectors";
 import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
+import {
+  getSidebarPinned,
+  getSidebarWidth,
+} from "selectors/applicationSelectors";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -51,6 +55,8 @@ export const useDynamicAppLayout = () => {
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
+  const isSidebarPinned = useSelector(getSidebarPinned);
+  const sidebarWidth = useSelector(getSidebarWidth);
 
   // /**
   //  * calculates min height
@@ -124,6 +130,14 @@ export const useDynamicAppLayout = () => {
     if (isMultiPane) {
       calculatedWidth = screenWidth - scrollbarWidth() - tabsPaneWidth - 100;
       if (paneCount === 3) calculatedWidth -= propertyPaneWidth;
+    }
+
+    /**
+     * If there is a sidebar for navigation, and it is pinned, we need
+     * to subtract the sidebar width as well.
+     */
+    if ((appMode === APP_MODE.PUBLISHED || isPreviewMode) && sidebarWidth) {
+      calculatedWidth -= sidebarWidth;
     }
 
     switch (true) {
@@ -205,6 +219,7 @@ export const useDynamicAppLayout = () => {
    *  - explorer width
    *  - explorer is pinned
    *  - theme mode is turned on
+   *  - sidebar pin/unpin
    */
   useEffect(() => {
     resizeToLayout();
@@ -218,6 +233,7 @@ export const useDynamicAppLayout = () => {
     isExplorerPinned,
     propertyPaneWidth,
     isAppSettingsPaneOpen,
+    isSidebarPinned,
   ]);
 
   return isCanvasInitialized;

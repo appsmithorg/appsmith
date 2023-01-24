@@ -196,3 +196,8 @@ export const showReconnectDatasourceModal = (payload: {
   type: ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
   payload,
 });
+
+export const setIsSidebarPinned = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SIDEBAR_PINNED,
+  payload,
+});
