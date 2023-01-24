@@ -3,7 +3,16 @@ const testdata = require("../../../fixtures/testdata.json");
 
 const testUrl = "http://localhost:5001/v1/parent/cmd";
 describe("Upgrade appsmith version", () => {
-  it.skip("Upgrade Appsmith version and verify the Applications", () => {
+  it("Upgrade Appsmith version and verify the Applications", () => {
+    cy.execute(testUrl, "uname -a").then((res) => {
+      cy.log("UNAME", res);
+    });
+    cy.execute(testUrl, "docker -v").then((res) => {
+      cy.log("DOCKER VERSION", res);
+    });
+    cy.execute(testUrl, "pwd").then((res) => {
+      cy.log("PWD", res);
+    });
     const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
     cy.wait(2000);
@@ -29,8 +38,8 @@ describe("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateAContainer(
         testUrl,
-        path + "$PWD/stack:/appsmith-stacks",
-        "latest",
+        path + "/oldstack",
+        "fatcontainer",
         `appsmith-160_${name}_updated`,
       );
       cy.wait(45000);
@@ -84,8 +93,8 @@ describe("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateEEContainer(
         testUrl,
-        path + "$PWD/stack:/appsmith-stacks",
-        "latest",
+        path + "/oldstack",
+        "fatcontainer",
         `appsmith-160-ce-${name}-enterprise`,
       );
       cy.wait(45000);
