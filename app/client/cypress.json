@@ -1,5 +1,5 @@
 {
-	"baseUrl": "http://localhost/",
+	"baseUrl": "https://dev.appsmith.com/",
 	"defaultCommandTimeout": 20000,
 	"requestTimeout": 21000,
 	"responseTimeout": 20000,
@@ -22,13 +22,5 @@
 	"retries": {
 		"runMode": 1,
 		"openMode": 0
-	},
-	"env": {
-		"USERNAME": "saroj@appsmith.com",
-		"PASSWORD": "abcd1234",
-		"TESTUSERNAME1": "viewerappsmith@mailinator.com",
-		"TESTPASSWORD1": "Test@123",
-		"TESTUSERNAME2": "developerappsmith@mailinator.com",
-		"TESTPASSWORD2": "Test@123"
 	}
 }
