@@ -428,7 +428,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4]
+        job: [0, 1, 2, 3, 4] #increase jobs count
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -662,7 +662,7 @@ jobs:
           CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
           CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
-          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }} #GITEA token variable
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
@@ -680,7 +680,7 @@ jobs:
           parallel: true
           config-file: cypress_fat.json
           group: "Electrons on Github Action Fat Container"
-          spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
+          spec: "cypress/integration/Smoke_TestSuite_Fat/**/*" #update path
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -813,7 +813,7 @@ jobs:
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
-  ui-test:
+  ui-test: ##remove this
     needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
@@ -1271,7 +1271,7 @@ jobs:
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test-result:
-    needs: [ui-test, fat-container-test]
+    needs: [ui-test, fat-container-test] #remove ui-test
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
@@ -1351,7 +1351,7 @@ jobs:
           name: combined_failed_spec_fat
           path: ~/combined_failed_spec_fat
 
-      - name: Return status for ui-matrix
+      - name: Return status for ui-matrix #replace ui-test with fat-container-test
         run: |
           if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
             echo "Integration tests completed successfully!";
