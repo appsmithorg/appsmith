@@ -32,7 +32,7 @@ import {
   createMessage,
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
 } from "@appsmith/constants/messages";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { onboardingCheckListUrl } from "RouteBuilder";
 

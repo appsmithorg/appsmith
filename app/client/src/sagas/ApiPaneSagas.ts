@@ -61,7 +61,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ERROR_ACTION_RENAME_FAIL,

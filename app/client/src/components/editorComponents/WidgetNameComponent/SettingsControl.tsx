@@ -1,8 +1,8 @@
 import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import { ControlIcons } from "icons/ControlIcons";
-import React, { CSSProperties } from "react";
+import { CSSProperties, default as React } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -64,7 +64,6 @@ type SettingsControlProps = {
 };
 
 const BindDataIcon = ControlIcons.BIND_DATA_CONTROL;
-const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
 const getStyles = (
   activity: Activities,
@@ -104,19 +103,6 @@ const getStyles = (
 
 export function SettingsControl(props: SettingsControlProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
-  const settingsIcon = (
-    <SettingsIcon
-      color={
-        !!props.errorCount
-          ? Colors.WHITE
-          : props.activity === Activities.HOVERING
-          ? Colors.BLACK_PEARL
-          : Colors.WHITE
-      }
-      height={14}
-      width={12}
-    />
-  );
   const errorIcon = (
     <StyledErrorIcon
       fillColor={Colors.WHITE}

@@ -18,7 +18,7 @@ import {
 } from "actions/widgetSelectionActions";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import log from "loglevel";
 import {
   CanvasWidgetsReduxState,

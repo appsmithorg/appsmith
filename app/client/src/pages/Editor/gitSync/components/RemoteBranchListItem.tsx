@@ -1,7 +1,7 @@
 import React from "react";
-import { TooltipComponent as Tooltip } from "design-system";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import { isEllipsisActive } from "utils/helpers";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 
 export function RemoteBranchListItem({ branch, className, onClick }: any) {

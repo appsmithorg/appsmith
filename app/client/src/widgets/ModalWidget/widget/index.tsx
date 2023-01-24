@@ -149,7 +149,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childData.positioning = this.props.positioning;
     childData.alignment = this.props.alignment;
     childData.spacing = this.props.spacing;
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childData, this.props.renderMode);
   };
 
   onModalClose = () => {
