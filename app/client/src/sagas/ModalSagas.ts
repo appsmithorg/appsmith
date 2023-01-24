@@ -44,7 +44,7 @@ import { flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { Toaster } from "design-system";
+import { Toaster } from "design-system-old";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { getCurrentPageId } from "selectors/editorSelectors";
