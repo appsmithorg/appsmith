@@ -1976,6 +1976,6 @@ Cypress.Commands.add("execute", (url, command) => {
     cy.log(res.body.stderr);
     cy.log(res.body.stdout);
     expect(res.status).equal(200);
-    return es.body.stdout;
+    return res.body.stdout;
   });
 });
