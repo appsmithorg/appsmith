@@ -203,7 +203,6 @@ const hasLevel = (value: string) =>
 
 class MetaWidgetGenerator {
   private batchSiblingUpdates: MetaWidgets;
-  private cacheIndexArr: number[];
   private cachedRows: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
@@ -245,7 +244,6 @@ class MetaWidgetGenerator {
 
   constructor(props: ConstructorProps) {
     this.batchSiblingUpdates = {};
-    this.cacheIndexArr = [];
     this.cachedRows = {
       prev: new Set(),
       curr: new Set(),
@@ -1199,7 +1197,7 @@ class MetaWidgetGenerator {
    * 1. if Key is in primaryKeys i.e the row is in currentView, we use rowIndex
    * 2. if key isn't in primaryKeys i.e it's a cachedRow and we're in a diff page, we use prevRowIndex
    */
-  getRowIndexFromPrimaryKey = (key: string) => {
+  private getRowIndexFromPrimaryKey = (key: string) => {
     const rowCache = this.getRowCache(key) ?? {};
     const rowIndex = this.primaryKeys?.toString().includes(key)
       ? rowCache[this.containerWidgetId]?.rowIndex
