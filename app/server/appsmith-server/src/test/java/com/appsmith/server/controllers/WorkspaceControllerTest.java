@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.UserDataService;
@@ -21,7 +22,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(WorkspaceController.class)
-@Import({SecurityTestConfig.class, RedisUtils.class})
+@Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
 public class WorkspaceControllerTest {
     @Autowired
     private WebTestClient webTestClient;

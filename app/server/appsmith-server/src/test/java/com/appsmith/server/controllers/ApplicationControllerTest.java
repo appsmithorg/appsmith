@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -31,7 +32,7 @@ import java.io.IOException;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(ApplicationController.class)
-@Import({SecurityTestConfig.class, RedisUtils.class})
+@Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
 public class ApplicationControllerTest {
     @Autowired
     private WebTestClient webTestClient;
