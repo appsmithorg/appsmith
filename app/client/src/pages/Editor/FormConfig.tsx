@@ -4,7 +4,7 @@ import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { TooltipComponent as Tooltip } from "design-system";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import {
   FormLabel,
   FormInputHelperText,

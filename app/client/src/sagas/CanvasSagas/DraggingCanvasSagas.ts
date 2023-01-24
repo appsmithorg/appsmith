@@ -12,7 +12,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { Toaster } from "design-system";
+import { Toaster } from "design-system-old";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";

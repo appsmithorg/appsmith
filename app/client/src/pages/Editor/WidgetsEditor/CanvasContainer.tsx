@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
+  getCanvasScale,
   getCanvasWidth,
   getCurrentApplicationLayout,
   getCurrentAppPositioningType,
@@ -9,7 +10,6 @@ import {
   getViewModePageList,
   previewModeSelector,
   showCanvasTopSectionSelector,
-  getCanvasScale,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -19,7 +19,7 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import classNames from "classnames";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { layoutConfigurations } from "constants/WidgetConstants";
-import { IconSize, Spinner } from "design-system";
+import { IconSize, Spinner } from "design-system-old";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { useDispatch } from "react-redux";
@@ -30,9 +30,9 @@ import {
 } from "selectors/appThemingSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
-// import { noop } from "utils/AppsmithUtils";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
+// import { noop } from "utils/AppsmithUtils";
 // import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import Canvas from "../Canvas";
