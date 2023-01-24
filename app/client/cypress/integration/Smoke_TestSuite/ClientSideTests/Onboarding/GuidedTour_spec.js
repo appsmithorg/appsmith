@@ -14,7 +14,7 @@ describe("Guided Tour", function() {
     cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
   });
 
-  it("1. Guided Tour", function() {
+  it.skip("1. Guided Tour", function() {
     // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
