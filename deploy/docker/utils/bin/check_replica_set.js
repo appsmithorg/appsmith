@@ -24,7 +24,7 @@ async function checkReplicaSet(client) {
   await client.connect();
   return await new Promise((resolve) => {
     try {
-      client
+      const changeStream = client
         .db()
         .collection("user")
         .watch()
@@ -37,6 +37,7 @@ async function checkReplicaSet(client) {
       // setTimeout so the error event can kick-in first
       setTimeout(() => {
         resolve(true);
+        changeStream.close();
       }, 1000);
     } catch (err) {
       console.error("Error thrown when checking replicaset", err);
