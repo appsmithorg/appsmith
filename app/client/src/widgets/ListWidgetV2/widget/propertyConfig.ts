@@ -1,4 +1,5 @@
 import { get, isPlainObject } from "lodash";
+import log from "loglevel";
 
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -81,6 +82,7 @@ const getPrimaryKeyFromDynamicValue = (
   try {
     return JSON.parse(value);
   } catch (error) {
+    log.error(error);
     return "";
   }
 };
