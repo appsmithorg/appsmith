@@ -29,7 +29,7 @@ const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 
-const { CanvasHelper } = ObjectsRegistry;
+const { AggregateHelper, CanvasHelper, CommonLocators } = ObjectsRegistry;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -402,7 +402,14 @@ Cypress.Commands.add("SelectAction", (action) => {
 });
 
 Cypress.Commands.add("ClearSearch", () => {
-  cy.get(commonlocators.entityExplorersearch).clear({ force: true });
+  const widgetPaneVisible = AggregateHelper.DoesElementExist(
+    CommonLocators._widgetPane,
+  );
+  widgetPaneVisible.then((value) => {
+    if (value) {
+      cy.get(commonlocators.entityExplorersearch).clear({ force: true });
+    }
+  });
 });
 
 Cypress.Commands.add(
