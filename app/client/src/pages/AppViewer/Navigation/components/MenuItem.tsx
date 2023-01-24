@@ -33,10 +33,16 @@ const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
     "properties.colors.primaryColor",
     "inherit",
   );
+  const borderRadius = get(
+    selectedTheme,
+    "properties.borderRadius.appBorderRadius",
+    "inherit",
+  );
 
   return (
     <StyledMenuItem
       activeClassName="is-active"
+      borderRadius={borderRadius}
       className="t--page-switch-tab"
       navColorStyle={navColorStyle}
       primaryColor={primaryColor}

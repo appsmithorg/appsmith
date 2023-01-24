@@ -137,6 +137,11 @@ export function Sidebar(props: SidebarProps) {
     "properties.colors.primaryColor",
     "inherit",
   );
+  const borderRadius = get(
+    selectedTheme,
+    "properties.borderRadius.appBorderRadius",
+    "inherit",
+  );
   const location = useLocation();
   const [query, setQuery] = useState("");
   const pageId = useSelector(getCurrentPageId);
@@ -189,6 +194,7 @@ export function Sidebar(props: SidebarProps) {
         />
 
         <CollapseButton
+          borderRadius={borderRadius}
           isPinned={isPinned}
           navColorStyle={navColorStyle}
           primaryColor={primaryColor}

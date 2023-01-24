@@ -9,6 +9,7 @@ import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 const StyledMenuItem = styled(NavLink)<{
+  borderRadius: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
@@ -20,7 +21,7 @@ const StyledMenuItem = styled(NavLink)<{
   text-decoration: none;
   transition: all 0.3s ease-in-out;
   padding: 6px 10px;
-  border-radius: 4px;
+  border-radius: ${({ borderRadius }) => borderRadius};
   background-color: transparent;
 
   .page-icon svg path {

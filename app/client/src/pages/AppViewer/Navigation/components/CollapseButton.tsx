@@ -16,13 +16,14 @@ import {
 } from "pages/AppViewer/utils";
 
 const CollapseIconContainer = styled.div<{
+  borderRadius: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
   height: 24px;
   width: 24px;
   transition: background 0.3s ease-in-out;
-  border-radius: 4px;
+  border-radius: ${({ borderRadius }) => borderRadius};
 
   :hover {
     background: ${({ navColorStyle, primaryColor }) =>
@@ -39,6 +40,7 @@ const StyledIconContainer = styled.div<{
 `;
 
 type CollapseButtonProps = {
+  borderRadius: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["navStyle"];
   isPinned: boolean;
@@ -46,7 +48,13 @@ type CollapseButtonProps = {
 };
 
 const CollapseButton = (props: CollapseButtonProps) => {
-  const { isPinned, navColorStyle, primaryColor, setIsPinned } = props;
+  const {
+    borderRadius,
+    isPinned,
+    navColorStyle,
+    primaryColor,
+    setIsPinned,
+  } = props;
 
   const handleOnClick = () => {
     setIsPinned(!isPinned);
@@ -67,6 +75,7 @@ const CollapseButton = (props: CollapseButtonProps) => {
         position="bottom-left"
       >
         <CollapseIconContainer
+          borderRadius={borderRadius}
           className={classNames({
             "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400": true,
           })}
