@@ -499,13 +499,13 @@ jobs:
       - name: Download the client build artifact
         uses: actions/download-artifact@v3
         with:
-          name: buildClient
+          name: build
           path: app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
         with:
-          name: buildServer
+          name: build
           path: app/server/dist/
 
       - name: Download the rts build artifact
