@@ -149,15 +149,16 @@ function AppRouter(props: {
 
   useBrandingTheme();
 
-  // This is a hack to show the loader for a minimum amount of time
+  // hide the top loader once the tenant is loaded
   useEffect(() => {
     if (tenantIsLoading === false) {
       const loader = document.getElementById("loader") as HTMLDivElement;
 
       if (loader) {
         loader.style.width = "100vw";
+
         setTimeout(() => {
-          loader.style.width = "0";
+          loader.style.opacity = "0";
         });
       }
     }
