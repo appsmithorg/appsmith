@@ -1,4 +1,5 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { klona } from "klona/full";
 
 export type VariableState = Record<string, Record<string, unknown>>;
 class JSObjectCollection {
@@ -7,8 +8,8 @@ class JSObjectCollection {
 
   setVariableState(currentVariableState: VariableState) {
     if (this.currentVariableState)
-      this.prevVariableState = this.currentVariableState;
-    this.currentVariableState = currentVariableState;
+      this.prevVariableState = klona(this.currentVariableState);
+    this.currentVariableState = klona(currentVariableState);
   }
 
   getCurrentVariableState(JSObjectName?: string) {

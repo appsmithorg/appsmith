@@ -1,6 +1,6 @@
 import { diff } from "deep-diff";
 import { jsObjectCollection } from "./Collection";
-import { get } from "lodash";
+import { get, isArray } from "lodash";
 
 export enum PatchType {
   "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
@@ -59,6 +59,13 @@ export function diffModifiedVariables(modifiedJSVariableList: string[]) {
       get(prevState, jsVariablePath),
       get(currentState, jsVariablePath),
     );
+
+    if (variableDiff && variableDiff[0]) {
+      if (isArray(variableDiff[0].path)) {
+        const difference = variableDiff[0].path;
+        difference.unshift(...jsVariablePath.split("."));
+      }
+    }
     variableDiffCollection.push(variableDiff);
   }
   return variableDiffCollection;
