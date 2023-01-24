@@ -100,13 +100,7 @@
     window.addEventListener("DOMContentLoaded", (event) => {
       document.getElementById("loader").style.width = "50vw";
     });
-    // window.addEventListener("load", (event) => {
 
-    //   document.getElementById("loader").style.width = "100vw";
-    //   setTimeout(() => {
-    //     document.getElementById("loader").style.opacity = 0;
-    //   });
-    // });
     const registerPageServiceWorker = () => {
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
