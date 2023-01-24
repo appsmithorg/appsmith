@@ -101,12 +101,14 @@ export const primaryKeyOptions = (props: ListWidgetProps) => {
   }[] = [];
 
   // Add previously selected key to options
-  options.push({
-    label: prevSelectedKey,
-    value: `${prefixTemplate} currentItem[${JSON.stringify(
-      prevSelectedKey,
-    )}] ${suffixTemplate}`,
-  });
+  if (prevSelectedKey) {
+    options.push({
+      label: prevSelectedKey,
+      value: `${prefixTemplate} currentItem[${JSON.stringify(
+        prevSelectedKey,
+      )}] ${suffixTemplate}`,
+    });
+  }
 
   if (isValidListData(listData)) {
     Object.keys(listData[0]).forEach((key) => {

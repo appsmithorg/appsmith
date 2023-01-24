@@ -1204,7 +1204,7 @@ class MetaWidgetGenerator {
     const rowIndex = this.primaryKeys?.toString().includes(key)
       ? rowCache[this.containerWidgetId]?.rowIndex
       : rowCache[this.containerWidgetId]?.prevRowIndex ??
-        rowCache[this.containerWidgetId].rowIndex;
+        rowCache[this.containerWidgetId]?.rowIndex;
     return rowIndex;
   };
 
@@ -1717,7 +1717,7 @@ class MetaWidgetGenerator {
     this.rowDataCache = data;
   };
 
-  getRowDataCache = () => this.rowDataCache;
+  getDataByPrimaryKey = (key: string) => this.rowDataCache?.[key];
 
   private unmountVirtualizer = () => {
     if (this.virtualizer) {

@@ -123,7 +123,6 @@ class ListWidget extends BaseWidget<
   WidgetState,
   MetaWidgetCache
 > {
-  cachedKeys: Record<string, number>;
   componentRef: RefObject<HTMLDivElement>;
   metaWidgetGenerator: MetaWidgetGenerator;
   prevFlattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
@@ -191,7 +190,6 @@ class ListWidget extends BaseWidget<
       setWidgetCache: this.setWidgetCache,
       setWidgetReferenceCache: this.setWidgetReferenceCache,
     });
-    this.cachedKeys = {};
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
@@ -210,7 +208,6 @@ class ListWidget extends BaseWidget<
     if (this.props.infiniteScroll) {
       this.generateMetaWidgets();
     }
-    this.updateCacheKey();
 
     this.setupMetaWidgets();
   }
@@ -245,7 +242,6 @@ class ListWidget extends BaseWidget<
     }
 
     if (this.shouldUpdateCacheKeys(prevProps)) {
-      this.updateCacheKey();
       this.handleRowCacheData();
       this.handleTriggeredAndSelectedItem();
     }
@@ -588,17 +584,23 @@ class ListWidget extends BaseWidget<
     });
   };
 
-  getCurrDataCache = () => this.metaWidgetGenerator.getRowDataCache();
+  getDataCacheByKey = (key: string) =>
+    this.metaWidgetGenerator.getDataByPrimaryKey(key);
 
   setRowDataCache = () => {
-    const prevDataCache = this.getCurrDataCache();
     const rowDataCache: RowDataCache = {};
+    const { selectedItemKey, triggeredItemKey } = this.props;
 
-    Object.entries(this.cachedKeys).forEach(([key, rowIndex]) => {
-      if (Object.keys(prevDataCache).includes(key)) {
-        rowDataCache[key] = prevDataCache[key];
+    [selectedItemKey, triggeredItemKey].forEach((key) => {
+      if (!key) return;
+
+      const rowIndex = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(key);
+      const dataCache = this.getDataCacheByKey(key);
+      if (dataCache) {
+        rowDataCache[key] = dataCache;
         return;
       }
+
       const viewIndex = this.metaWidgetGenerator.getViewIndex(rowIndex);
       const rowData = this.props.listData?.[viewIndex] ?? {};
       rowDataCache[key] = rowData;
@@ -618,30 +620,6 @@ class ListWidget extends BaseWidget<
     }
   };
 
-  updateCacheKey = () => {
-    const { selectedItemKey, triggeredItemKey } = this.props;
-    const cachedKeys: Record<string, number> = {};
-
-    if (!selectedItemKey && !triggeredItemKey) return;
-
-    [selectedItemKey, triggeredItemKey].forEach((key) => {
-      if (!key) return;
-
-      if (Object.keys(this.cachedKeys).includes(key)) {
-        const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(key);
-        if (key) cachedKeys[key] = index;
-        return;
-      }
-
-      if (this.getWidgetCache()?.[key]) {
-        const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(key);
-        cachedKeys[key] = index;
-      }
-    });
-
-    this.cachedKeys = cachedKeys;
-  };
-
   shouldUpdateCacheKeys = (prevProps: ListWidgetProps) => {
     return (
       this.props.triggeredItemKey !== prevProps.triggeredItemKey ||
@@ -654,19 +632,27 @@ class ListWidget extends BaseWidget<
   };
 
   updateRowCacheWithNewData = () => {
-    let rowDataCache: RowDataCache = { ...this.getCurrDataCache() };
-    Object.keys(this.cachedKeys).forEach((key) => {
+    let rowDataCache: RowDataCache = {};
+    const { selectedItemKey, triggeredItemKey } = this.props;
+
+    [selectedItemKey, triggeredItemKey].forEach((key) => {
+      if (!key) return;
+
       if (this.props.primaryKeys?.toString().includes(key)) {
-        const rowIndex = this.cachedKeys[key];
+        const rowIndex = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(
+          key,
+        );
         const startIndex = this.metaWidgetGenerator.getStartIndex();
         const viewIndex = rowIndex - startIndex;
 
         rowDataCache = {
           ...rowDataCache,
-          [key]: this.props.listData?.[viewIndex] ?? rowDataCache[key],
+          [key]:
+            this.props.listData?.[viewIndex] ?? this.getDataCacheByKey(key),
         };
       }
     });
+
     this.updateMetaGeneratorRowDataCache(rowDataCache);
   };
 
@@ -727,7 +713,7 @@ class ListWidget extends BaseWidget<
 
     if (selectedItemKey) {
       if (this.props.serverSidePagination) {
-        data = this.metaWidgetGenerator.getRowDataCache()[selectedItemKey];
+        data = this.getDataCacheByKey(selectedItemKey);
       } else {
         const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(
           selectedItemKey,
@@ -747,7 +733,7 @@ class ListWidget extends BaseWidget<
 
     if (triggeredItemKey) {
       if (this.props.serverSidePagination) {
-        data = this.metaWidgetGenerator.getRowDataCache()[triggeredItemKey];
+        data = this.getDataCacheByKey(triggeredItemKey);
       } else {
         const index = this.metaWidgetGenerator.getRowIndexFromPrimaryKey(
           triggeredItemKey,
