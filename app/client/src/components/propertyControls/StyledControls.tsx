@@ -13,10 +13,10 @@ import {
   InputWrapper,
   TextInput,
   TextInputProps,
-} from "design-system";
+} from "design-system-old";
 import { IconWrapper } from "constants/IconConstants";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
-import { Checkbox } from "design-system";
+import { Checkbox } from "design-system-old";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;

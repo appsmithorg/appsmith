@@ -8,7 +8,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
 import { Indices } from "constants/Layers";
-import { Size, Category } from "design-system";
+import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -33,7 +33,7 @@ import {
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Checkbox, CheckboxType } from "design-system";
+import { Checkbox, CheckboxType } from "design-system-old";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { Colors } from "constants/Colors";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";

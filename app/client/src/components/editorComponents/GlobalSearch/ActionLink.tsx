@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import { useContext } from "react";
 import styled, { useTheme } from "styled-components";
 import SearchContext from "./GlobalSearchContext";

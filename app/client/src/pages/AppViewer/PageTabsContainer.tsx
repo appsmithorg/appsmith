@@ -4,7 +4,7 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import PageTabs from "./PageTabs";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { Colors } from "constants/Colors";

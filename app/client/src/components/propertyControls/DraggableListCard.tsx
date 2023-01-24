@@ -14,7 +14,7 @@ import {
   StyledPinIcon,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
-import { CheckboxType } from "design-system";
+import { CheckboxType } from "design-system-old";
 
 const ItemWrapper = styled.div`
   display: flex;
