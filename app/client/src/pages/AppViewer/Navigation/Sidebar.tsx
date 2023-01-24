@@ -210,6 +210,7 @@ export function Sidebar(props: SidebarProps) {
         {!isMinimal && (
           <CollapseButton
             borderRadius={borderRadius}
+            isOpen={isOpen}
             isPinned={isPinned}
             navColorStyle={navColorStyle}
             primaryColor={primaryColor}
