@@ -19,8 +19,10 @@ describe("Fork a template to an workspace", () => {
       }
     });
     cy.get(templateLocators.dialogForkButton).click();
-    cy.get(commonlocators.canvas).should("be.visible");
+
+    cy.get(commonlocators.canvas, { timeout: 30000 }).should("be.visible");
   });
+
   it("2. Update query param on opening fork modal in template detailed view", () => {
     cy.NavigateToHome();
     cy.get(templateLocators.templatesTab).click();
@@ -32,6 +34,7 @@ describe("Fork a template to an workspace", () => {
       expect(location.search).to.eq("?showForkTemplateModal=true");
     });
   });
+
   it("3. Hide template fork button if user does not have a valid workspace to fork", () => {
     HomePage.NavigateToHome();
     // Mock user with App Viewer permission

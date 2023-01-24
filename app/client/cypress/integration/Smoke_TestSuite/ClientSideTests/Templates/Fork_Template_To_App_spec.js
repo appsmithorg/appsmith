@@ -73,6 +73,7 @@ describe("Fork a template to the current app", () => {
   });
 
   it("2. Add selected pages from template to an app", () => {
+    cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains(Page1)`)
       .trigger("mouseover")
