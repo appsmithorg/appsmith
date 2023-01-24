@@ -4,6 +4,7 @@ import { CellCheckboxWrapper, CellCheckbox } from "../TableStyledWrappers";
 import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
 import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
 import { CheckboxState } from "../Constants";
+import { Layers } from "constants/Layers";
 
 export const renderBodyCheckBoxCell = (
   isChecked: boolean,
@@ -14,6 +15,7 @@ export const renderBodyCheckBoxCell = (
     accentColor={accentColor}
     borderRadius={borderRadius}
     className="td t--table-multiselect"
+    data-sticky-td="true"
     isCellVisible
     isChecked={isChecked}
   >
@@ -35,6 +37,7 @@ export const renderHeaderCheckBoxCell = (
     accentColor={accentColor}
     borderRadius={borderRadius}
     className="th header-reorder t--table-multiselect-header"
+    data-sticky-td="true"
     isChecked={!!checkState}
     onClick={onClick}
     role="columnheader"

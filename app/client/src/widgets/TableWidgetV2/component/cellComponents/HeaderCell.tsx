@@ -1,15 +1,16 @@
 import React, { createRef, useEffect, useState } from "react";
-import { AnyStyledComponent } from "styled-components";
 import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
 import Check from "remixicon-react/CheckFillIcon";
 import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 
 import { Colors } from "constants/Colors";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import {
   CellAlignment,
+  HEADER_MENU_PORTAL_CLASS,
   JUSTIFY_CONTENT,
+  MENU_CONTENT_CLASS,
   POPOVER_ITEMS_TEXT_MAP,
   StickyType,
 } from "../Constants";
@@ -123,6 +124,8 @@ export function HeaderCell(props: {
   editMode?: boolean;
   isSortable?: boolean;
   width?: number;
+  widgetId: string;
+  stickyRightModifier: string;
 }) {
   const { column, editMode, isSortable } = props;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -155,7 +158,7 @@ export function HeaderCell(props: {
   return (
     <div
       {...column.getHeaderProps()}
-      className="th header-reorder"
+      className={`th header-reorder ${props.stickyRightModifier}`}
       data-header={props.columnName}
     >
       <div
@@ -174,7 +177,7 @@ export function HeaderCell(props: {
       <div className={`header-menu${!isMenuOpen ? " hide" : ""}`}>
         <Popover2
           content={
-            <Menu>
+            <Menu className={MENU_CONTENT_CLASS}>
               <MenuItem
                 disabled={disableSort}
                 labelElement={props.isAscOrder === true ? <Check /> : undefined}
@@ -221,11 +224,13 @@ export function HeaderCell(props: {
               />
             </Menu>
           }
-          interactionKind="click"
+          interactionKind="hover"
           isOpen={isMenuOpen}
           minimal
           onInteraction={setIsMenuOpen}
           placement="bottom-end"
+          portalClassName={`${HEADER_MENU_PORTAL_CLASS}-${props.widgetId}`}
+          portalContainer={document.getElementById("art-board") || undefined}
         >
           <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
         </Popover2>

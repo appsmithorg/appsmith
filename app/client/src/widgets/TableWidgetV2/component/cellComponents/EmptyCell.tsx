@@ -1,4 +1,4 @@
-import { pickBy } from "lodash";
+import { pickBy, sum } from "lodash";
 import React, { CSSProperties } from "react";
 import { Cell, Row } from "react-table";
 import { ReactTableColumnProps, StickyType } from "../Constants";
@@ -34,10 +34,28 @@ export const renderEmptyRows = (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection &&
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
-          {row.cells.map((cell: Cell<Record<string, unknown>>) => {
-            const cellProps = cell.getCellProps();
-            return <div {...cellProps} className="td" key={cellProps.key} />;
-          })}
+          {row.cells.map(
+            (cell: Cell<Record<string, unknown>>, cellIndex: number) => {
+              const cellProps = cell.getCellProps();
+              return (
+                <div
+                  {...cellProps}
+                  className={
+                    columns[cellIndex].isHidden
+                      ? "td hidden-cell"
+                      : `td${
+                          cellIndex !== 0 &&
+                          columns[cellIndex - 1].sticky === StickyType.RIGHT &&
+                          columns[cellIndex - 1].isHidden
+                            ? " sticky-right-modifier"
+                            : ""
+                        }`
+                  }
+                  key={cellProps.key}
+                />
+              );
+            },
+          )}
         </div>
       );
     });
@@ -60,7 +78,11 @@ export const renderEmptyRows = (
           {multiRowSelection &&
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
           {tableColumns.map((column: any, colIndex: number) => {
-            const distanceFromEdge: { left?: number; right?: number } = {};
+            const distanceFromEdge: {
+              left?: number;
+              right?: number;
+              width?: string;
+            } = {};
             const stickyAttributes: {
               "data-sticky-td"?: boolean;
               "data-sticky-last-left-td"?: boolean;
@@ -79,17 +101,27 @@ export const renderEmptyRows = (
               if (colIndex === lastLeftIdx - 1)
                 stickyAttributes["data-sticky-last-left-td"] = true;
             } else if (column.sticky === StickyType.RIGHT) {
+              const rightColWidths = tableColumns
+                .slice(colIndex + 1, tableColumns.length)
+                .map((col) => col.width);
+
               distanceFromEdge["right"] =
-                colIndex === tableColumns.length - 1
-                  ? 0
-                  : tableColumns[colIndex - 1].width;
+                colIndex === tableColumns.length - 1 ? 0 : sum(rightColWidths);
 
               if (colIndex === firstRightIdx)
                 stickyAttributes["data-sticky-first-right-td"] = true;
             }
+
             return (
               <EmptyCell
-                className="td"
+                className={
+                  column.isHidden
+                    ? "td hidden-cell"
+                    : `td ${colIndex !== 0 &&
+                        columns[colIndex - 1].sticky === StickyType.RIGHT &&
+                        columns[colIndex - 1].isHidden &&
+                        "sticky-right-modifier"}`
+                }
                 {...stickyAttributes}
                 key={colIndex}
                 sticky={column.sticky}

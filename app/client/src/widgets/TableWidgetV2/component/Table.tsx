@@ -26,6 +26,7 @@ import {
   StickyType,
   TABLE_SCROLLBAR_WIDTH,
   MULTISELECT_CHECKBOX_WIDTH,
+  TABLE_SCROLLBAR_HEIGHT,
 } from "./Constants";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -37,6 +38,28 @@ import { TableBody } from "./TableBody";
 import { areEqual } from "react-window";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
+import { createGlobalStyle } from "styled-components";
+import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
+
+const SCROLL_BAR_OFFSET = 2;
+const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
+
+const PopoverStyles = createGlobalStyle<{
+  widgetId: string;
+  borderRadius: string;
+}>`
+    ${HEADER_MENU_PORTAL_CLASS}-${({ widgetId }) => widgetId}
+    {
+      font-family: var(--wds-font-family) !important;
+  
+      & .${PopOver2Classes.POPOVER2},
+      .${PopOver2Classes.POPOVER2_CONTENT},
+      .bp3-menu {
+        border-radius: ${({ borderRadius }) =>
+          borderRadius >= `1.5rem` ? `0.375rem` : borderRadius} !important;
+      }
+    }   
+`;
 interface TableProps {
   width: number;
   height: number;
@@ -131,6 +154,7 @@ type HeaderComponentProps = {
   prepareRow: any;
   headerWidth?: number;
   rowSelectionState: 0 | 1 | 2 | null;
+  widgetId: string;
 };
 const HeaderComponent = (props: HeaderComponentProps) => {
   return (
@@ -154,6 +178,13 @@ const HeaderComponent = (props: HeaderComponentProps) => {
                 props.borderRadius,
               )}
             {headerGroup.headers.map((column: any, columnIndex: number) => {
+              const stickyRightModifier = !column.isHidden
+                ? columnIndex !== 0 &&
+                  props.columns[columnIndex - 1].sticky === StickyType.RIGHT &&
+                  props.columns[columnIndex - 1].isHidden
+                  ? "sticky-right-modifier"
+                  : ""
+                : "";
               return (
                 <HeaderCell
                   canFreezeColumn={props.canFreezeColumn}
@@ -168,6 +199,8 @@ const HeaderComponent = (props: HeaderComponentProps) => {
                   isSortable={props.isSortable}
                   key={columnIndex}
                   sortTableColumn={props.sortTableColumn}
+                  stickyRightModifier={stickyRightModifier}
+                  widgetId={props.widgetId}
                   width={column.width}
                 />
               );
@@ -193,6 +226,7 @@ const HeaderComponent = (props: HeaderComponentProps) => {
 
 export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
+  const scrollBarRef = React.useRef(null);
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnWidthMap = {
       ...props.columnWidthMap,
@@ -367,8 +401,10 @@ export function Table(props: TableProps) {
       rowSelectionState,
       shouldUseVirtual,
       totalColumnsWidth,
+      props.canFreezeColumn,
     ],
   );
+
   return (
     <TableWrapper
       accentColor={props.accentColor}
@@ -382,11 +418,16 @@ export function Table(props: TableProps) {
       isAddRowInProgress={props.isAddRowInProgress}
       isHeaderVisible={isHeaderVisible}
       isResizingColumn={isResizingColumn.current}
+      multiRowSelection={props.multiRowSelection}
       tableSizes={tableSizes}
       triggerRowSelection={props.triggerRowSelection}
       variant={props.variant}
       width={props.width}
     >
+      <PopoverStyles
+        borderRadius={props.borderRadius}
+        widgetId={props.widgetId}
+      />
       {isHeaderVisible && (
         <SimpleBar
           style={{
@@ -458,8 +499,14 @@ export function Table(props: TableProps) {
       >
         <div {...getTableProps()} className="table column-freeze">
           <SimpleBar
+            ref={scrollBarRef}
             style={{
-              height: props.height - tableSizes.TABLE_HEADER_HEIGHT - 11,
+              height: isHeaderVisible
+                ? props.height -
+                  tableSizes.TABLE_HEADER_HEIGHT -
+                  TABLE_SCROLLBAR_HEIGHT -
+                  SCROLL_BAR_OFFSET
+                : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
             }}
           >
             {({ scrollableNodeRef }) => {

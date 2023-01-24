@@ -24,8 +24,6 @@ import { Classes } from "@blueprintjs/core";
 import { TableVariant, TableVariantTypes } from "../constants";
 import { Layers } from "constants/Layers";
 
-const OFFSET_WITHOUT_HEADER = 40;
-const OFFSET_WITH_HEADER = 80;
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
 
@@ -44,6 +42,7 @@ export const TableWrapper = styled.div<{
   isResizingColumn?: boolean;
   variant?: TableVariant;
   isAddRowInProgress: boolean;
+  multiRowSelection?: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -75,6 +74,7 @@ export const TableWrapper = styled.div<{
 
     &.simplebar-vertical {
       direction: rtl;
+      top: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT - 10}px;
       width: ${TABLE_SCROLLBAR_WIDTH}px;
       &.simplebar-hover {
         width: 10px;
@@ -89,7 +89,7 @@ export const TableWrapper = styled.div<{
     display: block;
     position: relative;
     width: 100%;
-    overflow-x: auto;
+    overflow: auto hidden;
     &.virtual {
       ${hideScrollbar};
     }
@@ -102,10 +102,7 @@ export const TableWrapper = styled.div<{
     width: 100%;
     ${hideScrollbar};
     .tbody {
-      height: ${(props) =>
-        props.isHeaderVisible
-          ? props.height - OFFSET_WITH_HEADER
-          : props.height - OFFSET_WITHOUT_HEADER}px;
+      height: fit-content;
       width: fit-content;
     }
     .tr {
@@ -154,7 +151,7 @@ export const TableWrapper = styled.div<{
       :last-child {
         border-right: 0;
         .resizer {
-          display: none;
+          right: 5px;
         }
       }
       .resizer {
@@ -221,15 +218,42 @@ export const TableWrapper = styled.div<{
         props.variant === TableVariantTypes.VARIANT2
           ? "none"
           : "1px solid var(--wds-color-border-onaccent)"};
+      & .draggable-header {
+        cursor: pointer;
+      }
+      &.hidden-cell,
+      &:has(> .hidden-header) {
+        z-index: 0;
+        position: unset !important;
+      }
+
+      &:has(> .hidden-header) .resizer {
+        position: relative;
+      }
     }
 
     [data-sticky-last-left-td] {
-      left: 0px;
+      left: ${(props) =>
+        props.multiRowSelection
+          ? `${MULTISELECT_CHECKBOX_WIDTH}px !important`
+          : "0px"};
       border-right: 3px solid var(--wds-color-border);
+      &.hidden-cell,
+      &:has(> .hidden-header) {
+        border-right: 0.5px solid var(--wds-color-border);
+      }
     }
 
     [data-sticky-first-right-td] {
       right: 0px;
+      border-left: 3px solid var(--wds-color-border);
+      &.hidden-cell,
+      &:has(> .hidden-header) {
+        border-left: none;
+      }
+    }
+
+    & .sticky-right-modifier {
       border-left: 3px solid var(--wds-color-border);
     }
   }
@@ -597,6 +621,8 @@ export const CellCheckboxWrapper = styled(CellWrapper)<{
   accentColor?: string;
   borderRadius?: string;
 }>`
+  left: 0;
+  z-index: ${Layers.modalWidget};
   justify-content: center;
   width: ${MULTISELECT_CHECKBOX_WIDTH}px;
   height: auto;

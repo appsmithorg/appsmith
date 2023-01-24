@@ -78,6 +78,7 @@ import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigration
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
 import {
+  migrateInputWidgetsMultiLineInputType,
   migrateListWidgetChildrenForAutoHeight,
   migratePropertiesForDynamicHeight,
 } from "./migrations/autoHeightMigrations";
@@ -1166,6 +1167,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 75) {
+    currentDSL = migrateInputWidgetsMultiLineInputType(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
+  if (currentDSL.version === 76) {
     currentDSL = migrateColumnFreezeAttributes(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

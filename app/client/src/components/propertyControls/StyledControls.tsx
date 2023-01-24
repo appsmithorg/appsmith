@@ -306,7 +306,7 @@ export const StyledPinIcon = styled(ControlIcons.PIN as AnyStyledComponent)`
   padding: 0;
   position: absolute;
   margin-right: 15px;
-  cursor: move;
+  cursor: default;
   z-index: 1;
   left: 4px;
   && svg {

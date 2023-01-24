@@ -17,6 +17,7 @@ import _, {
   findIndex,
   orderBy,
   filter,
+  remove,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -70,6 +71,7 @@ import {
   getColumnOrderByWidgetIdFromLS,
   generateLocalNewColumnOrderFromStickyValue,
   updateAndSyncTableLocalColumnOrders,
+  getAllStickyColumnsCount,
 } from "./utilities";
 import {
   ColumnProperties,
@@ -614,12 +616,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
 
     if (localTableColumnOrder) {
-      const {
-        columnOrder,
-        columnUpdatedAt,
-        leftOrder: localLeftOrder,
-        rightOrder: localRightOrder,
-      } = localTableColumnOrder;
+      const { columnOrder, columnUpdatedAt } = localTableColumnOrder;
 
       if (this.props.columnUpdatedAt !== columnUpdatedAt) {
         // Delete and set the column orders defined by the developer
@@ -631,10 +628,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           rightOrder,
         );
       } else {
-        // TODO(Keyur): remove the below condition when the following bug is fixed: #17097
-        if (localLeftOrder.length !== 0 && localRightOrder.length !== 0) {
-          this.props.updateWidgetMetaProperty("columnOrder", columnOrder);
-        }
+        this.props.updateWidgetMetaProperty("columnOrder", columnOrder);
       }
     } else {
       // If user deletes local storage or no column orders for the given table widget exists hydrate it with the developer changes.
@@ -683,7 +677,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.primaryColumns &&
       (!equal(prevProps.columnOrder, this.props.columnOrder) ||
         filter(prevProps.orderedTableColumns, { isVisible: false }).length !==
-          filter(this.props.orderedTableColumns, { isVisible: false }).length)
+          filter(this.props.orderedTableColumns, { isVisible: false }).length ||
+        getAllStickyColumnsCount(prevProps.orderedTableColumns) !==
+          getAllStickyColumnsCount(this.props.orderedTableColumns))
     ) {
       if (this.props.renderMode === RenderModes.CANVAS) {
         super.updateWidgetProperty("columnUpdatedAt", Date.now());
@@ -1119,7 +1115,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               columnOrder: newColumnOrder,
             },
           },
-          true,
+          false,
         );
       } else if (
         localTableColumnOrder &&

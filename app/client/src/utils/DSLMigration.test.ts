@@ -730,8 +730,8 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
-        functionName: "migrateColumnFreezeAttributes",
+        moduleObj: migrateAutoHeight,
+        functionName: "migrateInputWidgetsMultiLineInputType",
       },
     ],
     version: 75,

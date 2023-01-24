@@ -107,7 +107,7 @@ export function DraggableListCard(props: RenderComponentProps) {
   const onFocus = () => {
     setEditing(false);
     if (updateFocus) {
-      updateFocus(index, true);
+      updateFocus(index, false);
     }
   };
 
@@ -145,7 +145,6 @@ export function DraggableListCard(props: RenderComponentProps) {
   };
 
   const showDelete = !!item.isDerived || isDelete;
-
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       {item?.isDragDisabled ? (

@@ -510,3 +510,6 @@ export const POPOVER_ITEMS_TEXT_MAP = {
   FREEZE_LEFT: "Freeze column left",
   FREEZE_RIGHT: "Freeze column right",
 };
+
+export const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
+export const MENU_CONTENT_CLASS = ".menu-content";

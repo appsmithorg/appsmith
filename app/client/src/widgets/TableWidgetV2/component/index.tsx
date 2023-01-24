@@ -268,7 +268,10 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         }
       };
     });
-  }, [props.columns.map((column) => column.alias).toString()]);
+  }, [
+    props.columns.map((column) => column.alias).toString(),
+    props.serverSidePaginationEnabled,
+  ]);
 
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
     if (allowSorting) {

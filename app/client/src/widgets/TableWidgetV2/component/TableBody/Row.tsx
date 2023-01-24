@@ -4,6 +4,7 @@ import { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
+import { StickyType } from "../Constants";
 
 type RowType = {
   className?: string;
@@ -16,6 +17,7 @@ export function Row(props: RowType) {
   const {
     accentColor,
     borderRadius,
+    columns,
     isAddRowInProgress,
     multiRowSelection,
     prepareRow,
@@ -64,7 +66,17 @@ export function Row(props: RowType) {
         return (
           <div
             {...cell.getCellProps()}
-            className="td"
+            className={
+              columns[cellIndex].isHidden
+                ? "td hidden-cell"
+                : `td${
+                    cellIndex !== 0 &&
+                    columns[cellIndex - 1].sticky === StickyType.RIGHT &&
+                    columns[cellIndex - 1].isHidden
+                      ? " sticky-right-modifier"
+                      : ""
+                  }`
+            }
             data-colindex={cellIndex}
             data-rowindex={props.index}
             key={cellIndex}

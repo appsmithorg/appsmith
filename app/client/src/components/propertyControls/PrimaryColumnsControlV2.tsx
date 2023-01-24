@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/react";
 import _, { toString } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import styled from "constants/DefaultTheme";
+import styled from "styled-components";
 import { Indices } from "constants/Layers";
 import { Size, Category } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -127,7 +127,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       hasScrollableList: false,
     };
   }
-
   componentDidMount() {
     this.checkAndUpdateIfEditableColumnPresent();
   }
@@ -249,6 +248,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               focusedIndex={this.state.focusedIndex}
               itemHeight={45}
               items={draggableComponentColumns}
+              keyAccessor="id"
               onEdit={this.onEdit}
               propertyPath={this.props.dataTreePath}
               renderComponent={(props: any) =>
