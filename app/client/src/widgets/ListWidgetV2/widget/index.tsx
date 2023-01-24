@@ -130,6 +130,7 @@ class ListWidget extends BaseWidget<
   prevMetaContainerNames: string[];
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
+  pageChangeEventTriggerFromPageNo?: number | null;
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -234,6 +235,13 @@ class ListWidget extends BaseWidget<
       );
 
       this.onPageChange(maxPageNo);
+    }
+
+    if (this.hasPageNoReset(prevProps.pageNo, this.props.pageNo)) {
+      this.executeOnPageChange();
+
+      // Reset
+      this.pageChangeEventTriggerFromPageNo = null;
     }
 
     if (this.shouldUpdateCacheKeys(prevProps)) {
@@ -379,15 +387,9 @@ class ListWidget extends BaseWidget<
       const tabsWidget = metaWidget as MetaWidget<
         TabsWidgetProps<TabContainerWidgetProps>
       >;
-      const widgetIdToMetaWidgetIdMap: Record<string, string> = {};
-      Object.values(options.childMetaWidgets).forEach(
-        ({ referencedWidgetId = "", widgetId }) => {
-          widgetIdToMetaWidgetIdMap[referencedWidgetId] = widgetId;
-        },
-      );
 
       Object.values(tabsWidget.tabsObj).forEach((tab) => {
-        tab.widgetId = widgetIdToMetaWidgetIdMap[tab.widgetId];
+        tab.widgetId = options.rowReferences[tab.widgetId] || tab.widgetId;
       });
     }
   };
@@ -473,6 +475,27 @@ class ListWidget extends BaseWidget<
     return isNaN(pageSize) ? 0 : floor(pageSize);
   };
 
+  /**
+   * If this object has some value then the onPageChange event was triggered
+   * and the prev and curr properties in it represent what was the transition
+   * when the event was triggered.
+   * This helps in ensuring that during a page change onPageChange event was
+   * successfully triggered.
+   *
+   * Page no can be changed in 2 ways
+   * 1. On clicking of page number in the pagination controls
+   * 2. The widget is reset and the page no resets to 1.
+   * 3. If current page is higher than the max page available.
+   *  */
+  hasPageNoReset = (prevPageNo: number, currPageNo: number) => {
+    return (
+      prevPageNo > 1 &&
+      currPageNo === 1 &&
+      (!this.pageChangeEventTriggerFromPageNo ||
+        this.pageChangeEventTriggerFromPageNo !== prevPageNo)
+    );
+  };
+
   updatePageSize = () => {
     super.updateWidgetProperty("pageSize", this.pageSize);
   };
@@ -548,9 +571,21 @@ class ListWidget extends BaseWidget<
           type: eventType,
         },
       });
+
+      this.pageChangeEventTriggerFromPageNo = currentPage;
     } else {
       this.props.updateWidgetMetaProperty("pageNo", page);
     }
+  };
+
+  executeOnPageChange = () => {
+    super.executeAction({
+      triggerPropertyName: "onPageChange",
+      dynamicString: this.props.onPageChange,
+      event: {
+        type: EventType.ON_PREV_PAGE,
+      },
+    });
   };
 
   getCurrDataCache = () => this.metaWidgetGenerator.getRowDataCache();
