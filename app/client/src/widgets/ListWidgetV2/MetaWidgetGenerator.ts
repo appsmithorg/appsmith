@@ -1,6 +1,6 @@
 import hash from "object-hash";
 import { klona } from "klona";
-import { difference, omit, set, get, isEmpty, isString } from "lodash";
+import { difference, omit, set, get, isEmpty, isString, isNil } from "lodash";
 import {
   elementScroll,
   observeElementOffset,
@@ -1687,6 +1687,29 @@ class MetaWidgetGenerator {
     this.cachedRows.curr = keys;
   };
 
+  private convertPrimaryKeyToString = () => {
+    const keys = this.primaryKeys?.map((key) => {
+      if (key === undefined) return "";
+      return key.toString();
+    });
+    return keys;
+  };
+
+  private getDataForCacheKey = (key: string) => {
+    const primaryKeys = this.convertPrimaryKeyToString();
+
+    if (primaryKeys?.includes(key)) {
+      const viewIndex = primaryKeys.indexOf(key);
+      return this.data[viewIndex];
+    }
+
+    const rowIndex = this.getRowIndexFromPrimaryKey(key);
+    if (!isNil(rowIndex)) {
+      const viewIndex = this.getViewIndex(rowIndex);
+      return this.data[viewIndex];
+    }
+  };
+
   /**
    * The Rows to be cached would be stored in this.cachedRows
    * The Data in these rows would be cached in this.rowDataCache
@@ -1696,14 +1719,25 @@ class MetaWidgetGenerator {
     this.updateRowDataCache(keys);
   };
 
+  /**
+   * We want to always get the current data before checking the cache
+   * in case the data changes.
+   *
+   * when Selected Row(Key) is in Current Page
+   * 1. Check PrimaryKey for SelectedKey
+   * 2. Check widgetCache for rowIndex and check if in view,
+   *
+   * else fall back to data cache.
+   */
   private updateRowDataCache = (keys: Set<string>) => {
     const rowDataCache: RowDataCache = {};
 
     keys.forEach((key) => {
-      if (this.primaryKeys?.includes(key)) {
-        const viewIndex = this.primaryKeys.indexOf(key);
-        rowDataCache[key] = this.data[viewIndex];
-      } else if (this.rowDataCache[key]) {
+      const data = this.getDataForCacheKey(key);
+
+      if (data) {
+        rowDataCache[key] = data;
+      } else {
         rowDataCache[key] = this.rowDataCache[key];
       }
     });
