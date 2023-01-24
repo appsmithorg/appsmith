@@ -59,7 +59,7 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
 
     if (addOrUpdate) {
       Object.entries(addOrUpdate).forEach(([metaWidgetId, widgetProps]) => {
-        state[metaWidgetId] = widgetProps;
+        state[metaWidgetId] = { ...widgetProps };
         state[metaWidgetId].isMetaWidget = true;
         state[metaWidgetId].creatorId = creatorId;
       });

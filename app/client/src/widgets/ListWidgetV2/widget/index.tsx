@@ -185,7 +185,6 @@ class ListWidget extends BaseWidget<
       isListCloned,
       level: props.level || 1,
       onVirtualListScroll: this.generateMetaWidgets,
-      onMetaWidgetsUpdate: this.onMetaWidgetsUpdate,
       prefixMetaWidgetId: props.prefixMetaWidgetId || props.widgetId,
       primaryWidgetType: ListWidget.getWidgetType(),
       renderMode: props.renderMode,
@@ -319,6 +318,7 @@ class ListWidget extends BaseWidget<
 
     const {
       metaWidgets,
+      propertyUpdates,
       removedMetaWidgetIds,
     } = this.metaWidgetGenerator.withOptions(generatorOptions).generate();
 
@@ -329,6 +329,7 @@ class ListWidget extends BaseWidget<
     const updates: ModifyMetaWidgetPayload = {
       addOrUpdate: metaWidgets,
       deleteIds: removedMetaWidgetIds,
+      propertyUpdates,
     };
 
     if (mainCanvasWidget) {
@@ -346,8 +347,9 @@ class ListWidget extends BaseWidget<
       // main template  canvas widgetId. This new widgetId has to be
       // updated as the "children" of the inner List widget.
       updates.propertyUpdates = [
+        ...propertyUpdates,
         {
-          path: "children",
+          path: `${this.props.widgetId}.children`,
           value: [metaMainCanvasId],
         },
       ];
@@ -360,13 +362,6 @@ class ListWidget extends BaseWidget<
     ) {
       this.modifyMetaWidgets(updates);
     }
-  };
-
-  onMetaWidgetsUpdate = (metaWidgets: MetaWidgets) => {
-    this.modifyMetaWidgets({
-      addOrUpdate: metaWidgets,
-      deleteIds: [],
-    });
   };
 
   generateMainMetaCanvasWidget = () => {

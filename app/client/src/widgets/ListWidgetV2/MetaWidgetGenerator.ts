@@ -1,14 +1,6 @@
 import hash from "object-hash";
 import { klona } from "klona";
-import {
-  difference,
-  omit,
-  set,
-  get,
-  isEmpty,
-  isString,
-  debounce,
-} from "lodash";
+import { difference, omit, set, get, isEmpty, isString } from "lodash";
 import {
   elementScroll,
   observeElementOffset,
@@ -53,7 +45,7 @@ type ReferenceCache = Record<
   string,
   | {
       siblings?: Set<string>;
-      callback?: () => void;
+      candidateWidgetId?: string;
     }
   | undefined
 >;
@@ -102,7 +94,6 @@ export type ConstructorProps = {
   isListCloned: boolean;
   level: number;
   onVirtualListScroll: () => void;
-  onMetaWidgetsUpdate: (metaWidgets: MetaWidgets) => void;
   prefixMetaWidgetId: string;
   primaryWidgetType: string;
   renderMode: string;
@@ -164,6 +155,8 @@ type AddDynamicPathsPropertiesOptions = {
   excludedPaths?: string[];
 };
 
+type Siblings = Record<string, string[]>;
+
 enum MODIFICATION_TYPE {
   LEVEL_DATA_UPDATED = "LEVEL_DATA_UPDATED",
   PAGE_NO_UPDATED = "PAGE_NO_UPDATED",
@@ -202,7 +195,7 @@ const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
 class MetaWidgetGenerator {
-  private batchSiblingUpdates: MetaWidgets;
+  private siblings: Siblings;
   private cacheIndexArr: number[];
   private cachedRows: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
@@ -222,7 +215,6 @@ class MetaWidgetGenerator {
   private modificationsQueue: Queue<MODIFICATION_TYPE>;
   private nestedViewIndex?: GeneratorOptions["nestedViewIndex"];
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
-  private onMetaWidgetsUpdate: ConstructorProps["onMetaWidgetsUpdate"];
   private pageNo?: number;
   private pageSize?: number;
   private prefixMetaWidgetId: string;
@@ -244,7 +236,7 @@ class MetaWidgetGenerator {
   private widgetName: GeneratorOptions["widgetName"];
 
   constructor(props: ConstructorProps) {
-    this.batchSiblingUpdates = {};
+    this.siblings = {};
     this.cacheIndexArr = [];
     this.cachedRows = {
       prev: new Set(),
@@ -263,7 +255,6 @@ class MetaWidgetGenerator {
     this.levelData = undefined;
     this.metaIdToTemplateIdMap = {};
     this.onVirtualListScroll = props.onVirtualListScroll;
-    this.onMetaWidgetsUpdate = props.onMetaWidgetsUpdate;
     this.pageNo = 1;
     this.pageSize = 0;
     this.prefixMetaWidgetId = props.prefixMetaWidgetId;
@@ -354,6 +345,7 @@ class MetaWidgetGenerator {
       this.containerParentId
     ];
     let metaWidgets: MetaWidgets = {};
+    this.siblings = {};
 
     if (
       this.modificationsQueue.has(MODIFICATION_TYPE.REGENERATE_META_WIDGETS)
@@ -410,6 +402,7 @@ class MetaWidgetGenerator {
     return {
       metaWidgets,
       removedMetaWidgetIds,
+      propertyUpdates: this.convertToPropertyUpdates(this.siblings),
     };
   };
 
@@ -748,6 +741,13 @@ class MetaWidgetGenerator {
         ...updatedRowCache,
       });
     }
+  };
+
+  private convertToPropertyUpdates = (siblings: Siblings) => {
+    return Object.entries(siblings).map(([candidateWidgetId, siblings]) => ({
+      path: `${candidateWidgetId}.siblingMetaWidgets`,
+      value: siblings,
+    }));
   };
 
   private disableWidgetOperations = (metaWidget: MetaWidget) => {
@@ -1345,29 +1345,6 @@ class MetaWidgetGenerator {
     this.setCache(updatedCache);
   };
 
-  queueMetaWidgetUpdate = (metaWidget: MetaWidget) => {
-    this.batchSiblingUpdates[metaWidget.widgetId] = metaWidget;
-
-    this.onMetaWidgetsUpdateDebounced();
-  };
-
-  onMetaWidgetsUpdateDebounced = debounce(() => {
-    this.onMetaWidgetsUpdate(this.batchSiblingUpdates);
-  }, 2000);
-
-  private buildReferenceUpdateCb = (
-    metaWidget: MetaWidget,
-    templateWidgetId: string,
-  ) => {
-    return () => {
-      const siblings = this.getSiblings(templateWidgetId);
-      const updatedMetaWidget = klona(metaWidget);
-      updatedMetaWidget.siblingMetaWidgets = siblings;
-
-      this.queueMetaWidgetUpdate(updatedMetaWidget);
-    };
-  };
-
   private updateSiblings = (
     rowIndex: number,
     options: UpdateSiblingsOptions,
@@ -1380,33 +1357,31 @@ class MetaWidgetGenerator {
     const isCandidateListWidget =
       this.nestedViewIndex === 0 || !this.nestedViewIndex;
     const isCandidateWidget = isCandidateListWidget && viewIndex === 0;
-    let callback = currentCache?.callback;
+    let candidateWidgetId = currentCache?.candidateWidgetId;
 
     siblings.add(originalMetaWidgetId);
 
     if (isCandidateWidget) {
-      // add callback to the cache
-      callback = this.buildReferenceUpdateCb(metaWidget, templateWidgetId);
+      candidateWidgetId = metaWidget.widgetId;
     }
 
     const updatedCache = {
       ...referenceCache,
       [templateWidgetId]: {
         siblings,
-        callback,
+        candidateWidgetId,
       },
     };
 
     this.setWidgetReferenceCache(updatedCache);
 
-    if (!isCandidateListWidget) {
-      // call callback
-      currentCache?.callback?.();
+    if (!isCandidateWidget && candidateWidgetId) {
+      this.siblings[candidateWidgetId] = [...siblings];
     }
   };
 
   private getSiblings = (templateWidgetId: string) => {
-    const referenceCache = klona(this.getWidgetReferenceCache());
+    const referenceCache = this.getWidgetReferenceCache();
     const currentCache = referenceCache?.[templateWidgetId];
     const siblings = currentCache?.siblings || new Set();
 
