@@ -59,7 +59,10 @@ import WDSPage from "components/wds/Showcase";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import {
+  getTenantPermissions,
+  isTenantLoading,
+} from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { Spinner } from "design-system";
@@ -136,6 +139,8 @@ function AppRouter(props: {
   featureFlags: FeatureFlags;
 }) {
   const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
+  const tenantIsLoading = useSelector(isTenantLoading);
+
   useEffect(() => {
     getCurrentUser();
     getFeatureFlags();
@@ -143,6 +148,22 @@ function AppRouter(props: {
   }, []);
 
   useBrandingTheme();
+
+  // This is a hack to show the loader for a minimum amount of time
+  useEffect(() => {
+    if (tenantIsLoading === false) {
+      const loader = document.getElementById("loader") as HTMLDivElement;
+
+      if (loader) {
+        loader.style.width = "100vw";
+        setTimeout(() => {
+          loader.style.width = "0";
+        });
+      }
+    }
+  }, [tenantIsLoading]);
+
+  if (tenantIsLoading) return null;
 
   return (
     <Router history={history}>
