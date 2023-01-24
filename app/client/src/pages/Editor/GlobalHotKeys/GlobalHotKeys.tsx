@@ -29,7 +29,7 @@ import {
   SearchCategory,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";

@@ -29,7 +29,7 @@ import {
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import {
   enableGuidedTour,

@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
-import { Category, Size } from "design-system";
+import { Category, Size } from "design-system-old";
 
 export type OnButtonClickProps = {
   props: ControlProps;

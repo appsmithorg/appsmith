@@ -59,9 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_COMMENTS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THREADS;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_NAME;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;

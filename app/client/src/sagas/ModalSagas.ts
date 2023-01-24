@@ -44,10 +44,9 @@ import { flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { Toaster } from "design-system";
+import { Toaster } from "design-system-old";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
-
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {

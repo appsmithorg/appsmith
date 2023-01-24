@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Classes, Text, TextType, Spinner } from "design-system";
+import { Classes, Text, TextType, Spinner } from "design-system-old";
 
 const Wrapper = styled.div`
   height: 85vh;
