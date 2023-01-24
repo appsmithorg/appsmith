@@ -81,7 +81,12 @@ export function Navigation(props: NavigationProps) {
   return (
     <ThemeProvider theme={props.lightTheme}>
       <div ref={headerRef}>
-        {renderNavigation()}
+        {/* Since the Backend doesn't have navigationSetting field by default
+        and we are creating the default values only when any nav settings via the
+        settings pane has changed, we need to hide the navbar ONLY when the showNavbar
+        setting is explicitly set to false by the user via the settings pane. */}
+        {currentApplicationDetails?.navigationSetting?.showNavbar !== false &&
+          renderNavigation()}
 
         <PageMenu
           application={currentApplicationDetails}

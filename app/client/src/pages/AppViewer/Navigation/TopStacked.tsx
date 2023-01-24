@@ -166,70 +166,67 @@ export function TopStacked(props: TopStackedProps) {
     return clear;
   }, [isScrolling, isScrollingLeft]);
 
-  return appPages.length > 1 &&
-    /**
-     * Since the Backend doesn't have navigationSetting field by default
-     * and we are creating the default values only when any nav settings via the
-     * settings pane has changed, we need to hide the navbar ONLY when the showNavbar
-     * setting is explicitly set to false by the user via the settings pane.
-     */
-    currentApplicationDetails?.navigationSetting?.showNavbar !== false ? (
-    <Container
-      className="relative hidden px-6 h-11 md:flex"
-      navColorStyle={navColorStyle}
-      primaryColor={primaryColor}
-    >
-      <ScrollBtnContainer
-        className="left-0 scroll-arrows"
+  return (
+    appPages.length > 1 && (
+      <Container
+        className="relative hidden px-6 h-11 md:flex"
         navColorStyle={navColorStyle}
-        onMouseDown={() => startScrolling(true)}
-        onMouseLeave={stopScrolling}
-        onMouseUp={stopScrolling}
-        onTouchEnd={stopScrolling}
-        onTouchStart={() => startScrolling(true)}
         primaryColor={primaryColor}
-        visible={shouldShowLeftArrow}
       >
-        <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
-      </ScrollBtnContainer>
+        <ScrollBtnContainer
+          className="left-0 scroll-arrows"
+          navColorStyle={navColorStyle}
+          onMouseDown={() => startScrolling(true)}
+          onMouseLeave={stopScrolling}
+          onMouseUp={stopScrolling}
+          onTouchEnd={stopScrolling}
+          onTouchStart={() => startScrolling(true)}
+          primaryColor={primaryColor}
+          visible={shouldShowLeftArrow}
+        >
+          <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
+        </ScrollBtnContainer>
 
-      <div
-        className="flex w-full hidden-scrollbar gap-x-2  items-center"
-        ref={measuredTabsRef}
-      >
-        {appPages.map((page) => {
-          return (
-            <MenuItemContainer
-              isTabActive={pathname.indexOf(page.pageId) > -1}
-              key={page.pageId}
-              setShowScrollArrows={setShowScrollArrows}
-              tabsScrollable={tabsScrollable}
-            >
-              <MenuItem
-                navigationSetting={currentApplicationDetails?.navigationSetting}
-                page={page}
-                query={query}
-              />
-            </MenuItemContainer>
-          );
-        })}
-      </div>
+        <div
+          className="flex w-full hidden-scrollbar gap-x-2  items-center"
+          ref={measuredTabsRef}
+        >
+          {appPages.map((page) => {
+            return (
+              <MenuItemContainer
+                isTabActive={pathname.indexOf(page.pageId) > -1}
+                key={page.pageId}
+                setShowScrollArrows={setShowScrollArrows}
+                tabsScrollable={tabsScrollable}
+              >
+                <MenuItem
+                  navigationSetting={
+                    currentApplicationDetails?.navigationSetting
+                  }
+                  page={page}
+                  query={query}
+                />
+              </MenuItemContainer>
+            );
+          })}
+        </div>
 
-      <ScrollBtnContainer
-        className="right-0 scroll-arrows"
-        navColorStyle={navColorStyle}
-        onMouseDown={() => startScrolling(false)}
-        onMouseLeave={stopScrolling}
-        onMouseUp={stopScrolling}
-        onTouchEnd={stopScrolling}
-        onTouchStart={() => startScrolling(false)}
-        primaryColor={primaryColor}
-        visible={shouldShowRightArrow}
-      >
-        <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
-      </ScrollBtnContainer>
-    </Container>
-  ) : null;
+        <ScrollBtnContainer
+          className="right-0 scroll-arrows"
+          navColorStyle={navColorStyle}
+          onMouseDown={() => startScrolling(false)}
+          onMouseLeave={stopScrolling}
+          onMouseUp={stopScrolling}
+          onTouchEnd={stopScrolling}
+          onTouchStart={() => startScrolling(false)}
+          primaryColor={primaryColor}
+          visible={shouldShowRightArrow}
+        >
+          <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
+        </ScrollBtnContainer>
+      </Container>
+    )
+  );
 }
 
 export default TopStacked;

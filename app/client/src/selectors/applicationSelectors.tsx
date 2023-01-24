@@ -201,6 +201,7 @@ export const getSidebarWidth = (state: AppState) => {
   const isSidebarPinned = state.ui.applications.isSidebarPinned;
 
   if (
+    navigationSetting?.showNavbar !== false &&
     navigationSetting?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
     isSidebarPinned
   ) {
