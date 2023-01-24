@@ -3,7 +3,7 @@
   "mongo-host": "host.docker.internal",
   "mongo-port": 28017,
   "mongo-databaseName": "mongo_samples",
-  "mongo-uri": "mongodb+srv://mockdb-admin:oIvmxhw67hEmatML@mockdb.swrsq.mongodb.net/movies?retryWrites=true&w=majority",
+  "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
 
   "postgres-host": "host.docker.internal",
   "postgres-host-fat": "host.docker.internal",

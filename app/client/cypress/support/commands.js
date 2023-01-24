@@ -1026,8 +1026,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       req.headers["origin"] = "Cypress";
     },
   ).as("connectGitLocalRepo");
-  // cy.intercept("POST", "/api/v1/git/connect/app/*",{fixture: "/Bugs/GitConnectResponse.json"}
-  // ).as("connectGitLocalRepo");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
