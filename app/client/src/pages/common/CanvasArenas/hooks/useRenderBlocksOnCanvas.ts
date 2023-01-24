@@ -2,9 +2,9 @@ import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { SpaceMap } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
+import { HighlightInfo } from "utils/autoLayout/highlightUtils";
 import { getAbsolutePixels } from "utils/helpers";
 import { modifyDrawingRectangles } from "./canvasDraggingUtils";
-import { HighlightInfo } from "./useAutoLayoutHighlights";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 export interface XYCord {
