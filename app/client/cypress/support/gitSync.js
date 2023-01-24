@@ -320,15 +320,15 @@ Cypress.Commands.add(
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 
     let generatedKey;
-    cy.intercept(
-      {
-        url: "api/v1/git/connect/app/*",
-        hostname: window.location.host,
-      },
-      (req) => {
-        req.headers["origin"] = "Cypress";
-      },
-    );
+    // cy.intercept(
+    //   {
+    //     url: "api/v1/git/connect/app/*",
+    //     hostname: window.location.host,
+    //   },
+    //   (req) => {
+    //     req.headers["origin"] = "Cypress";
+    //   },
+    // );
     cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
       `generateKey-${repo}`,
     );
