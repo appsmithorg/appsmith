@@ -10,6 +10,7 @@ import {
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   FLEXBOX_PADDING,
+  layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -383,7 +384,7 @@ export function getLayerIndexOfWidget(
 }
 
 export function getViewportClassName(viewportWidth: number) {
-  if (viewportWidth > 360) {
+  if (viewportWidth > layoutConfigurations.MOBILE.maxWidth) {
     return "desktop-view";
   } else {
     return "mobile-view";
