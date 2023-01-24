@@ -3,10 +3,9 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { NavigationSetting } from "constants/AppConstants";
-import { Dropdown, DropdownOption } from "design-system-old";
+import { Dropdown, DropdownOption, Text, TextType } from "design-system-old";
 import React from "react";
 import { UpdateSetting } from ".";
-import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 
 const LogoConfiguration = (props: {
   options: DropdownOption[];
@@ -15,7 +14,7 @@ const LogoConfiguration = (props: {
 }) => {
   const { options } = props;
 
-  const doesntWorkRightNowLabel = " - [Doesn't work (...right now)]";
+  const unavailableLabel = " - [Unavailable atm]";
 
   const handleOnSelect = (value?: { label: string; value: string }) => {
     props.updateSetting("logoConfiguration", value?.value || "");
@@ -23,14 +22,10 @@ const LogoConfiguration = (props: {
 
   return (
     <div className="pt-4">
-      <StyledPropertyHelpLabel
-        label={
-          createMessage(APP_NAVIGATION_SETTING.logoConfigurationLabel) +
-          doesntWorkRightNowLabel
-        }
-        lineHeight="1.17"
-        maxWidth="270px"
-      />
+      <Text type={TextType.P1}>
+        {createMessage(APP_NAVIGATION_SETTING.logoConfigurationLabel) +
+          unavailableLabel}
+      </Text>
       <Dropdown
         onSelect={handleOnSelect}
         options={options}

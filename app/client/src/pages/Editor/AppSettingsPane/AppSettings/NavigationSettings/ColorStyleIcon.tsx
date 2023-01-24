@@ -12,7 +12,7 @@ const StyledIcon = styled.div<{
   height: 14px;
   width: 14px;
   border-radius: 100%;
-  margin-right: 4px;
+  // margin-right: 4px;
   border: 1px solid ${Colors.GREY_200};
 `;
 

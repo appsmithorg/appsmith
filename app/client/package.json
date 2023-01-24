@@ -51,6 +51,7 @@
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
     "design-system-old": "npm:@appsmithorg/design-system-old@1.0.48",
+    "design-system-temp-button-fix": "npm:@appsmithorg/design-system@1.0.46-alpha.2",
     "downloadjs": "^1.4.7",
     "draft-js": "^0.11.7",
     "exceljs-lightweight": "^1.14.0",

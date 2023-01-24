@@ -6270,6 +6270,13 @@ depd@~1.1.2:
   dependencies:
     emoji-mart "3.0.1"
 
+"design-system-temp-button-fix@npm:@appsmithorg/design-system@1.0.46-alpha.2":
+  version "1.0.46-alpha.2"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.46-alpha.2.tgz#562e03cb717358df7680394ed9c21a7157cd1d11"
+  integrity sha512-OcoRZXhpUQobMCNyob7gzRygmyL8xgl8B2GN+Wa+llzJoINW4b7+4US5y0G6JlF/5fRhi3aXol2Aq2CfUdw6ng==
+  dependencies:
+    emoji-mart "3.0.1"
+
 destroy@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/destroy/-/destroy-1.2.0.tgz#4803735509ad8be552934c67df614f94e66fa015"
