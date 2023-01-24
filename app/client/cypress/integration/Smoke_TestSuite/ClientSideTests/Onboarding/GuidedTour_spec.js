@@ -2,6 +2,7 @@ const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Guided Tour", function() {
   it("Guided tour should work when started from the editor", function() {
@@ -26,6 +27,7 @@ describe("Guided Tour", function() {
         cy.get(guidedTourLocators.banner).should("be.visible");
       }
     });
+    _.dataSources.SetQueryTimeout();
     // Step 1: Run query
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
