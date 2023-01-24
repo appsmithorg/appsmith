@@ -1,9 +1,8 @@
 import React from "react";
 import classNames from "classnames";
 import { useSelector } from "react-redux";
-
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import PageTabsContainer from "pages/AppViewer/PageTabsContainer";
+import TopStacked from "pages/AppViewer/Navigation/TopStacked";
 import {
   getViewModePageList,
   previewModeSelector,
@@ -22,7 +21,7 @@ function PageTabs() {
         "-translate-y-full duration-0": !isPreviewMode,
       })}
     >
-      <PageTabsContainer
+      <TopStacked
         currentApplicationDetails={currentApplicationDetails}
         pages={pages}
       />

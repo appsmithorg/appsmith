@@ -114,7 +114,7 @@ const StyledFooter = styled.div`
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
-  appPages: Page[];
+  pages: Page[];
   currentWorkspaceId: string;
   currentUser: User | undefined;
 };
@@ -122,10 +122,10 @@ type SidebarProps = {
 export function Sidebar(props: SidebarProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const {
-    appPages,
     currentApplicationDetails,
     currentUser,
     currentWorkspaceId,
+    pages,
   } = props;
   const navColorStyle =
     currentApplicationDetails?.navigationSetting?.colorStyle ||
@@ -193,7 +193,7 @@ export function Sidebar(props: SidebarProps) {
         navColorStyle={navColorStyle}
         primaryColor={primaryColor}
       >
-        {appPages.map((page) => {
+        {pages.map((page) => {
           return (
             <MenuItem
               key={page.pageId}
