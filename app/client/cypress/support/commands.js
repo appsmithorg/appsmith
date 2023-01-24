@@ -27,7 +27,6 @@ const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-const exec = require("child_process").exec;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -1823,7 +1822,9 @@ Cypress.Commands.add(
       path +
       ";docker run -d --name " +
       containerName +
-      ' -p 80:80 -p 9001:9001 -v "$PWD/stacks:/appsmith-stacks"' +
+      ' -p 80:80 -p 9001:9001 -v "' +
+      path +
+      '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
       version;
 
     cy.log(comm);
@@ -1849,7 +1850,9 @@ Cypress.Commands.add(
       path +
       ";docker run -d --name " +
       containerName +
-      ' -p 80:80 -p 9001:9001 -v "$PWD/stacks:/appsmith-stacks" ' +
+      ' -p 80:80 -p 9001:9001 -v "' +
+      path +
+      '/stacks:/appsmith-stacks" appsmith/appsmith-ee:' +
       version;
 
     cy.log(comm);
@@ -1964,19 +1967,4 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
   cy.wait("@getMe");
   cy.wait(3000);
   initLocalstorage();
-});
-
-Cypress.Commands.add("execute", (url, command) => {
-  cy.request({
-    method: "GET",
-    url: url,
-    qs: {
-      cmd: command,
-    },
-  }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
-    expect(res.status).equal(200);
-    return es.body.stdout;
-  });
 });
