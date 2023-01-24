@@ -684,8 +684,7 @@ class ListWidget extends BaseWidget<
       ? `{{ ${triggeredContainer}.data }}`
       : "{{{}}}";
 
-    this.context?.syncUpdateWidgetMetaProperty?.(
-      this.props.widgetId,
+    this.props.updateWidgetMetaProperty(
       "selectedItemView",
       selectedItemViewBinding,
     );
@@ -700,19 +699,14 @@ class ListWidget extends BaseWidget<
       ? `{{ ${triggeredContainer}.data }}`
       : "{{{}}}";
 
-    this.context?.syncUpdateWidgetMetaProperty?.(
-      this.props.widgetId,
+    this.props.updateWidgetMetaProperty(
       "triggeredItemView",
       triggeredItemViewBinding,
     );
   };
 
   resetSelectedItemView = () => {
-    this.context?.syncUpdateWidgetMetaProperty?.(
-      this.props.widgetId,
-      "selectedItemView",
-      "{{{}}}",
-    );
+    this.props.updateWidgetMetaProperty("selectedItemView", "{{{}}}");
   };
 
   // Updates TriggeredItem and TriggeredItemKey Meta Properties.
