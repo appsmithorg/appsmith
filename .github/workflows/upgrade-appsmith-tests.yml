@@ -1,9 +1,8 @@
 name: Upgrde Appsmith Test Workflow
 
 on:
-  # This workflow is only triggered by the ok to test command dispatch
-  repository_dispatch:
-    types: [ ok-to-test-command ]
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
 
 jobs:
   notify:
