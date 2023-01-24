@@ -160,13 +160,13 @@ init_replica_set() {
     sleep 10
     echo "Creating MongoDB user"
     bash "/opt/appsmith/templates/mongo-init.js.sh" "$APPSMITH_MONGODB_USER" "$APPSMITH_MONGODB_PASSWORD" > "/appsmith-stacks/configuration/mongo-init.js"
-    mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
+    mongosh "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile /mongodb-key --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
-    mongo "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
+    mongosh "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
   fi
 
@@ -174,7 +174,7 @@ init_replica_set() {
     # Check mongodb cloud Replica Set
     echo "Checking Replica Set of external MongoDB"
 
-    mongo_state="$(mongo --host "$APPSMITH_MONGODB_URI" --quiet --eval "rs.status().ok")"
+    mongo_state="$(mongosh "$APPSMITH_MONGODB_URI" --quiet --eval "rs.status().ok")"
     if [[ ${mongo_state: -1} -eq 1 ]]; then
       echo "Mongodb cloud Replica Set is enabled"
     else
