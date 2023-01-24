@@ -47,7 +47,10 @@ import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import {
+  getCurrentUserLoading,
+  selectFeatureFlags,
+} from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "@appsmith/pages/AdminSettings";
 import SignupSuccess from "pages/setup/SignupSuccess";
@@ -140,6 +143,7 @@ function AppRouter(props: {
 }) {
   const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
   const tenantIsLoading = useSelector(isTenantLoading);
+  const currentUserIsLoading = useSelector(getCurrentUserLoading);
 
   useEffect(() => {
     getCurrentUser();
@@ -151,7 +155,7 @@ function AppRouter(props: {
 
   // hide the top loader once the tenant is loaded
   useEffect(() => {
-    if (tenantIsLoading === false) {
+    if (tenantIsLoading === false && currentUserIsLoading === false) {
       const loader = document.getElementById("loader") as HTMLDivElement;
 
       if (loader) {
@@ -164,7 +168,7 @@ function AppRouter(props: {
     }
   }, [tenantIsLoading]);
 
-  if (tenantIsLoading) return null;
+  if (tenantIsLoading || currentUserIsLoading) return null;
 
   return (
     <Router history={history}>
