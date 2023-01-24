@@ -1,11 +1,11 @@
-package com.external.plugins.constants;
+package com.external.plugins.exceptions;
 
 public class S3ErrorMessages {
     private S3ErrorMessages() {
         //Prevents instantiation
     }
     public static final String FILE_CONTENT_FETCHING_ERROR_MSG = "Appsmith server has encountered an unexpected error when fetching file " +
-            "content from AWS S3 server. Please reach out to Appsmith customer support to resolve this";
+            "content from AWS S3 server. Please reach out to Appsmith customer support to resolve this.";
 
     public static final String CONNECTIVITY_ERROR_MSG = "Appsmith server has encountered an unexpected error when establishing " +
             "connection with AWS S3 server. Please reach out to Appsmith customer support to resolve this.";
@@ -16,7 +16,7 @@ public class S3ErrorMessages {
     public static final String EMPTY_PREFIX_ERROR_MSG = "Appsmith has encountered an unexpected error when getting path prefix. Please reach out to " +
             "Appsmith customer support to resolve this.";
 
-    public static final String UNPARSABLE_CONTENT_ERROR_MSG = "Unable to parse content. Expected to receive an object with `data` and `type`";
+    public static final String UNPARSABLE_CONTENT_ERROR_MSG = "Unable to parse content. Expected to receive an object with `data` and `type`.";
 
     public static final String UNEXPECTED_ENCODING_IN_FILE_CONTENT_ERROR_MSG = "File content is not base64 encoded. File content needs to be base64 encoded when the " +
             "'File Data Type: Base64/Text' field is selected 'Yes'.";
@@ -54,12 +54,12 @@ public class S3ErrorMessages {
     public static final String UNSUPPORTED_ACTION_ERROR_MSG = "It seems that the query has requested an unsupported action: %s" +
             ". Please reach out to Appsmith customer support to resolve this.";
 
-    public static final String LIST_OF_BUCKET_FETCHING_ERROR_MSG = "Appsmith server has failed to fetch list of buckets from database. Please check if " +
-            "the database credentials are valid and/or you have the required permissions.";
+    public static final String LIST_OF_BUCKET_FETCHING_ERROR_MSG = "Appsmith server has failed to fetch list of buckets from database. Please check if \" +\n" +
+            "            \"the database credentials are valid and/or you have the required permissions.";
 
     public static final String S3_SERVICE_PROVIDER_IDENTIFICATION_ERROR_MSG = "Appsmith S3 plugin service has " +
             "failed to identify the S3 service provider type. Please reach out to Appsmith customer support" +
-            " to resolve this";
+            " to resolve this.";
 
     public static final String AWS_CREDENTIALS_PARSING_ERROR_MSG = "Appsmith server has encountered an error when parsing AWS credentials from datasource.";
 
@@ -77,7 +77,7 @@ public class S3ErrorMessages {
 
     /*
      ************************************************************************************************************************************************
-        Error messages related to validation of datasource. Let's follow a convention like starting the constant name with 'DS' (DS for Datasource)
+                                    Error messages related to validation of datasource.
      ************************************************************************************************************************************************
      */
     public static final String DS_AT_LEAST_ONE_MANDATORY_PARAMETER_MISSING_ERROR_MSG = "At least one of the mandatory fields in S3 datasource creation form is empty - " +

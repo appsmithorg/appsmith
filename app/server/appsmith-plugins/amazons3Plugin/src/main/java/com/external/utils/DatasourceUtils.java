@@ -11,7 +11,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
-import com.external.plugins.constants.S3ErrorMessages;
+import com.external.plugins.exceptions.S3ErrorMessages;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
@@ -19,7 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.amazonaws.regions.Regions.DEFAULT_REGION;
-import static com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError.PLUGIN_ERROR;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.external.plugins.AmazonS3Plugin.CUSTOM_ENDPOINT_INDEX;
 import static com.external.plugins.AmazonS3Plugin.CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX;
@@ -79,7 +78,7 @@ public class DatasourceUtils {
                 }
             }
 
-            throw new AppsmithPluginException(PLUGIN_ERROR, S3ErrorMessages.S3_SERVICE_PROVIDER_IDENTIFICATION_ERROR_MSG);
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, S3ErrorMessages.S3_SERVICE_PROVIDER_IDENTIFICATION_ERROR_MSG);
         }
     }
 
@@ -251,6 +250,6 @@ public class DatasourceUtils {
         }
 
         /* Code flow is never expected to reach here. */
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
     }
 }

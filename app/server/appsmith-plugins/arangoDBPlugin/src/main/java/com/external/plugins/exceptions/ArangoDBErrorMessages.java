@@ -23,7 +23,7 @@ public class ArangoDBErrorMessages {
 
     /*
      ************************************************************************************************************************************************
-        Error messages related to validation of datasource. Let's follow a convention like starting the constant name with 'DS' (DS for Datasource)
+                                        Error messages related to validation of datasource.
      ************************************************************************************************************************************************
      */
     public static final String DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG = "Could not find required authentication info. At least one of 'Username', 'Password', " +

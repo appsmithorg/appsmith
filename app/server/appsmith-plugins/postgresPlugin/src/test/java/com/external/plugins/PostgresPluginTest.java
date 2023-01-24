@@ -19,6 +19,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.PostgresErrorMessages;
+import com.external.plugins.exceptions.PostgresPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -1532,5 +1533,15 @@ public class PostgresPluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfPostgresPluginErrorCode() {
+        assert (Arrays.stream(PostgresPluginError.values()).map(PostgresPluginError::getAppErrorCode).distinct().count() == PostgresPluginError.values().length);
+
+        assert (Arrays.stream(PostgresPluginError.values()).map(PostgresPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-PGS"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }

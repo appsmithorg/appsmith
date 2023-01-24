@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -1137,6 +1138,11 @@ public class GraphQLPluginTest {
     @Test
     public void verifyUniquenessOfGraphQLPluginErrorCode() {
         assert (Arrays.stream(GraphQLPluginError.values()).map(GraphQLPluginError::getAppErrorCode).distinct().count() == GraphQLPluginError.values().length);
+
+        assert (Arrays.stream(GraphQLPluginError.values()).map(GraphQLPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-GQL"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 
 }

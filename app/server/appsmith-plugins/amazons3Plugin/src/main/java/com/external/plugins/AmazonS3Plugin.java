@@ -41,7 +41,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.FilterDataService;
 import com.external.plugins.constants.AmazonS3Action;
-import com.external.plugins.constants.S3ErrorMessages;
+import com.external.plugins.exceptions.S3ErrorMessages;
 import com.external.plugins.exceptions.S3PluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.external.utils.AmazonS3ErrorUtils;

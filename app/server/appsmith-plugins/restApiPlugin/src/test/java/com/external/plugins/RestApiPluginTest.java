@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -1486,6 +1487,11 @@ public class RestApiPluginTest {
     @Test
     public void verifyUniquenessOfRestApiPluginErrorCode() {
         assert (Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode).distinct().count() == RestApiPluginError.values().length);
+
+        assert (Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RST"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }
 
