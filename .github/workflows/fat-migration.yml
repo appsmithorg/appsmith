@@ -226,7 +226,7 @@ jobs:
           parallel: true
           config-file: cypress_fat.json
           group: "Electrons on Github Action Fat Container"
-          spec: "cypress/integration/Smoke_TestSuite/**/*"
+          spec: "cypress/integration/**/**/*"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
@@ -280,9 +280,9 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
           
-      - name: Setup tmate session
-        if: always()
-        uses: mxschmitt/action-tmate@v3
+      # - name: Setup tmate session
+      #   if: always()
+      #   uses: mxschmitt/action-tmate@v3
 
       - name: Collect fat container logs
         if: always()
