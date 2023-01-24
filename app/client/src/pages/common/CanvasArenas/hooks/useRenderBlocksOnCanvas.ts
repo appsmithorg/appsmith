@@ -146,6 +146,7 @@ export const useRenderBlocksOnCanvas = (
         stickyCanvasRef.current.width,
         stickyCanvasRef.current.height,
       );
+      canvasCtx.beginPath();
       isCurrUpdatingRows = false;
       canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
       if (canvasIsDragging) {
@@ -154,7 +155,11 @@ export const useRenderBlocksOnCanvas = (
         });
       }
       if (highlight) {
-        canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
+        const highlightColor = "rgba(196, 139, 181, 1)";
+        canvasCtx.fillStyle = highlightColor;
+        canvasCtx.lineWidth = 1;
+        canvasCtx.strokeStyle = highlightColor;
+        canvasCtx.setLineDash([]);
         const { height, posX, posY, width } = highlight;
         let val = 0;
         if (scrollParent?.scrollTop)
@@ -163,7 +168,9 @@ export const useRenderBlocksOnCanvas = (
             : parentOffsetTop && scrollParent.scrollTop > parentOffsetTop
             ? scrollParent.scrollTop - parentOffsetTop
             : 0;
-        canvasCtx.fillRect(posX, posY - val, width, height);
+        canvasCtx.roundRect(posX, posY - val, width, height, 4);
+        canvasCtx.fill();
+        canvasCtx.stroke();
         canvasCtx.save();
       }
       canvasCtx.restore();
