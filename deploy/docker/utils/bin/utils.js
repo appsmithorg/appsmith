@@ -106,7 +106,7 @@ async function getCurrentAppsmithVersion() {
 function preprocessMongoDBURI(uri /* string */) {
   // Partially taken from <https://github.com/mongodb-js/mongosh/blob/8fde100d6d5ec711eb9565b85cb2e28e2da47c80/packages/arg-parser/src/uri-generator.ts#L248>
   // If we don't add the `directConnection` parameter for non-SRV URIs, we'll see the problem at <https://github.com/appsmithorg/appsmith/issues/16104>.
-  const cs =new ConnectionString(uri);
+  const cs = new ConnectionString(uri);
 
   const params = cs.searchParams;
   params.set('appName', 'appsmithctl');
