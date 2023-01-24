@@ -1,9 +1,9 @@
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import { jsVariableUpdates } from "./MutationPatches";
+import { Patch, PatchType, jsVariableUpdates } from "./MutationPatches";
 
 export function jsVariableProxyHandler(
-  updateTracker: (v: any) => void,
-  variablePath: string,
+  updateTracker: (patch: Patch) => void,
+  path: string,
 ) {
   return {
     get: function(target: any, prop: string, receiver: any): any {
@@ -13,7 +13,10 @@ export function jsVariableProxyHandler(
         if (!target.hasOwnProperty(value)) {
           // HACK:
           // Assuming a prototype method call would mutate the property
-          updateTracker({ variablePath, method: "PROTOTYPE_METHOD_CALL" });
+          updateTracker({
+            path,
+            method: PatchType.PROTOTYPE_METHOD_CALL,
+          });
         }
 
         return (...args: any[]) => {
@@ -21,10 +24,10 @@ export function jsVariableProxyHandler(
         };
       }
 
-      if (typeof value === "object" && !value._isProxy) {
+      if (typeof value === "object") {
         return new Proxy(
           value,
-          jsVariableProxyHandler(updateTracker, `${variablePath}.${prop}`),
+          jsVariableProxyHandler(updateTracker, `${path}.${prop}`),
         );
       }
 
@@ -32,35 +35,36 @@ export function jsVariableProxyHandler(
     },
     set: function(target: any, prop: string, value: unknown, rec: any) {
       updateTracker({
-        variablePath: `${variablePath}.${prop}`,
-        method: "SET",
+        path: `${path}.${prop}`,
+        method: PatchType.SET,
       });
       return Reflect.set(target, prop, value, rec);
     },
     deleteProperty: function(target: any, prop: string) {
       updateTracker({
-        variablePath: `${variablePath}.${prop}`,
-        method: "DELETE",
+        path: `${path}.${prop}`,
+        method: PatchType.DELETE,
       });
       return Reflect.deleteProperty(target, prop);
     },
   };
 }
 
-export class JSProxy {
-  create(jsObject: DataTreeJSAction) {
-    const variableNames = jsObject.variables;
+function addPatch(patch: Patch) {
+  jsVariableUpdates.add(patch);
+}
 
-    const newJSObject: any = {};
-    for (const varName of variableNames) {
-      newJSObject[varName] = new Proxy(
-        jsObject[varName],
-        jsVariableProxyHandler((patch) => {
-          jsVariableUpdates.add(patch);
-        }, varName),
-      );
-    }
-
-    return newJSObject;
+class JSProxy {
+  fromJSObject(
+    jsObject: DataTreeJSAction,
+    jsObjectName: string,
+    varState: Record<string, unknown>,
+  ) {
+    return new Proxy(
+      Object.assign({}, jsObject, varState),
+      jsVariableProxyHandler(addPatch, jsObjectName),
+    );
   }
 }
+
+export const jsVarProxy = new JSProxy();

@@ -1,36 +1,44 @@
-import { jsVariableProxyHandler } from "../JSVariableProxy";
 import { jsVariableUpdates } from "../MutationPatches";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { createEvaluationContext } from "workers/Evaluation/evaluate";
+import { VariableState, jsObjectCollection } from "../Collection";
 
 describe("Mutation", () => {
   it("Global scope value mutation tracking", async () => {
-    const map = new Map();
-    const dataTree = {
-      JSObject1: { var: { a: [], b: new Set([1, 2]) } },
-      JSObject2: [...map],
-    };
+    const dataTree = ({
+      JSObject1: {
+        var: {},
+        var2: new Set([1, 2]),
+        variables: ["var", "var2"],
+        ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      },
+    } as unknown) as DataTree;
 
-    const newJSObject1 = new Proxy(
-      dataTree.JSObject1.var,
-      jsVariableProxyHandler((patch) => {
-        jsVariableUpdates.add(patch);
-      }, "var"),
-    );
+    jsObjectCollection.setVariableState((dataTree as unknown) as VariableState);
 
-    self["JSObject1"] = { var: newJSObject1 };
+    const evalContext = createEvaluationContext({
+      dataTree,
+      isTriggerBased: true,
+      resolvedFunctions: {},
+      skipEntityFunctions: true,
+    });
+
+    Object.assign(self, evalContext);
 
     eval(`
-    JSObject1.var.b = {}
-    JSObject1.var.b.a = {}
+    JSObject1.var = {};
+    JSObject1.var.b = {};
     JSObject1.var.b.a = [];
     JSObject1.var.b.a.push(2);
-    
+    JSObject1.var2.add(3);
     `);
 
     expect(jsVariableUpdates.getAll()).toEqual([
-      { variablePath: "var.b", method: "SET" },
-      { variablePath: "var.b.a", method: "SET" },
-      { variablePath: "var.b.a", method: "SET" },
-      { variablePath: "var.b.a", method: "PROTOTYPE_METHOD_CALL" },
+      { path: "JSObject1.var", method: "SET" },
+      { path: "JSObject1.var.b", method: "SET" },
+      { path: "JSObject1.var.b.a", method: "SET" },
+      { path: "JSObject1.var.b.a", method: "PROTOTYPE_METHOD_CALL" },
+      { path: "JSObject1.var2", method: "PROTOTYPE_METHOD_CALL" },
     ]);
   });
 });

@@ -1,22 +1,31 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 
-type VariableState = Record<string, Record<string, unknown>>;
+export type VariableState = Record<string, Record<string, unknown>>;
 class JSObjectCollection {
-  variableState: VariableState = {};
+  private prevVariableState: VariableState = {};
+  private currentVariableState: VariableState = {};
 
-  setVariableState(variableState: VariableState) {
-    this.variableState = variableState;
+  setVariableState(currentVariableState: VariableState) {
+    if (this.currentVariableState)
+      this.prevVariableState = this.currentVariableState;
+    this.currentVariableState = currentVariableState;
   }
 
-  getVariableState(JSObjectName?: string) {
-    if (JSObjectName) return this.variableState[JSObjectName];
-    return this.variableState;
+  getCurrentVariableState(JSObjectName?: string) {
+    if (JSObjectName && this.currentVariableState)
+      return this.currentVariableState[JSObjectName];
+    return this.currentVariableState;
+  }
+
+  getPrevVariableState() {
+    return this.prevVariableState;
   }
 
   removeVariable(fullPath: string) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
-    const jsObject = this.variableState[entityName];
-    delete jsObject[propertyPath];
+    const jsObject = this.currentVariableState[entityName];
+    if (jsObject && jsObject[propertyPath] !== undefined)
+      delete jsObject[propertyPath];
   }
 }
 

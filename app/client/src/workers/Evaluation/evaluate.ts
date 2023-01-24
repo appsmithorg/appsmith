@@ -20,6 +20,7 @@ import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { updateJSCollectionStateFromContext } from "./JSObject";
+import { jsVariableUpdates } from "./JSObject/MutationPatches";
 
 export type EvalResult = {
   result: any;
@@ -168,16 +169,21 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
-  assignJSFunctionsToContext(EVAL_CONTEXT, resolvedFunctions, JSFunctionProxy);
+  assignJSFunctionsToContext({
+    EVAL_CONTEXT,
+    resolvedFunctions,
+    JSFunctionProxy,
+  });
 
   return EVAL_CONTEXT;
 };
 
-export const assignJSFunctionsToContext = (
-  EVAL_CONTEXT: EvalContext,
-  resolvedFunctions: ResolvedFunctions,
-  JSFunctionProxy?: JSFunctionProxy,
-) => {
+export const assignJSFunctionsToContext = (args: {
+  EVAL_CONTEXT: EvalContext;
+  resolvedFunctions: ResolvedFunctions;
+  JSFunctionProxy?: JSFunctionProxy;
+}) => {
+  const { EVAL_CONTEXT, JSFunctionProxy, resolvedFunctions } = args;
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];
@@ -252,6 +258,7 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
+    jsVariableUpdates.disable();
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
@@ -312,6 +319,7 @@ export default function evaluateSync(
       if (isJSCollection) {
         updateJSCollectionStateFromContext();
       }
+      jsVariableUpdates.enable();
       if (!skipLogsOperations) logs = userLogs.flushLogs();
       for (const entityName in evalContext) {
         if (evalContext.hasOwnProperty(entityName)) {
@@ -385,6 +393,7 @@ export async function evaluateAsync(
     } finally {
       setEvaluationEnd(true);
       updateJSCollectionStateFromContext();
+
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.

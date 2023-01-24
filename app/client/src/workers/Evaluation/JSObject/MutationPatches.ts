@@ -1,7 +1,24 @@
-class MutationPatches {
-  patches: any[] = [];
+import { diff } from "deep-diff";
+import { jsObjectCollection } from "./Collection";
+import { get } from "lodash";
 
-  add(patch: any) {
+export enum PatchType {
+  "PROTOTYPE_METHOD_CALL" = "PROTOTYPE_METHOD_CALL",
+  "DELETE" = "DELETE",
+  "SET" = "SET",
+}
+
+export type Patch = {
+  path: string;
+  method: PatchType;
+  value?: unknown;
+};
+
+class MutationPatches {
+  private patches: Patch[] = [];
+  private disableTracking = true;
+
+  add(patch: Patch) {
     this.patches.push(patch);
   }
 
@@ -12,6 +29,37 @@ class MutationPatches {
   clear() {
     this.patches = [];
   }
+
+  disable() {
+    this.disableTracking = true;
+  }
+
+  enable() {
+    this.disableTracking = false;
+  }
 }
 
 export const jsVariableUpdates = new MutationPatches();
+
+export function filterPatches(patches: Patch[]) {
+  const modifiedVariablesSet = new Set<string>();
+  for (const patch of patches) {
+    const [jsObjectName, varName] = patch.path.split(".");
+    modifiedVariablesSet.add(`${jsObjectName}.${varName}`);
+  }
+  return [...modifiedVariablesSet];
+}
+
+export function diffModifiedVariables(modifiedJSVariableList: string[]) {
+  const prevState = jsObjectCollection.getPrevVariableState();
+  const currentState = jsObjectCollection.getCurrentVariableState();
+  const variableDiffCollection = [];
+  for (const jsVariablePath of modifiedJSVariableList) {
+    const variableDiff = diff(
+      get(prevState, jsVariablePath),
+      get(currentState, jsVariablePath),
+    );
+    variableDiffCollection.push(variableDiff);
+  }
+  return variableDiffCollection;
+}

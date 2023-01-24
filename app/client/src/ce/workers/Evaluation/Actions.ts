@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeEntity,
+  DataTreeJSAction,
+  DataTreeObjectEntity,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import set from "lodash/set";
 import {
   ActionDescription,
@@ -7,12 +13,7 @@ import {
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  isAction,
-  isAppsmithEntity,
-  isJSAction,
-  isTrueObject,
-} from "./evaluationUtils";
+import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 import { initStoreFns } from "workers/Evaluation/fns/storeFns";
@@ -22,6 +23,7 @@ import {
   PLATFORM_FUNCTIONS,
 } from "@appsmith/workers/Evaluation/PlatformFunctions";
 import { jsObjectCollection } from "workers/Evaluation/JSObject/Collection";
+import { jsVarProxy } from "workers/Evaluation/JSObject/JSVariableProxy";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -177,6 +179,33 @@ const ENTITY_FUNCTIONS: Record<
 
 const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
 const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
+
+function setEntityToEvalContext(
+  entity: DataTreeEntity,
+  entityName: string,
+  EVAL_CONTEXT: EvalContext,
+) {
+  const dataTreeObjectEntity = entity as DataTreeObjectEntity;
+
+  if (dataTreeObjectEntity.ENTITY_TYPE) {
+    switch (dataTreeObjectEntity.ENTITY_TYPE) {
+      case ENTITY_TYPE.JSACTION: {
+        const varState = jsObjectCollection.getCurrentVariableState(entityName);
+        if (varState) {
+          EVAL_CONTEXT[entityName] = jsVarProxy.fromJSObject(
+            entity as DataTreeJSAction,
+            entityName,
+            varState,
+          );
+          return;
+        }
+      }
+    }
+  }
+
+  EVAL_CONTEXT[entityName] = entity;
+}
+
 /**
  * This method returns new dataTree with entity function and platform function
  */
@@ -200,13 +229,7 @@ export const addDataTreeToContext = (args: {
   self.TRIGGER_COLLECTOR = [];
 
   for (const [entityName, entity] of dataTreeEntries) {
-    if (isJSAction(entity) && jsObjectCollection.getVariableState(entityName)) {
-      EVAL_CONTEXT[entityName] = jsObjectCollection.getVariableState(
-        entityName,
-      );
-    } else {
-      EVAL_CONTEXT[entityName] = entity;
-    }
+    setEntityToEvalContext(entity, entityName, EVAL_CONTEXT);
 
     if (skipEntityFunctions || !isTriggerBased) continue;
 
