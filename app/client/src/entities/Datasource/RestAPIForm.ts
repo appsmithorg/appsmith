@@ -70,7 +70,7 @@ export interface Oauth2Common {
   isAuthorizationHeader: boolean;
   audience: string;
   resource: string;
-  sendScopeWithRefreshToken: string;
+  sendScopeWithRefreshToken: boolean;
   refreshTokenClientCredentialsLocation: string;
   useSelfSignedCert?: boolean;
 }
@@ -91,6 +91,7 @@ export interface Basic {
   authenticationType: AuthType.basic;
   username: string;
   password: string;
+  secretExists?: Record<string, boolean>;
 }
 
 export interface ApiKey {

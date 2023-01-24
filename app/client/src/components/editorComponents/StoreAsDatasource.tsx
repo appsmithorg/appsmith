@@ -6,7 +6,7 @@ import {
 } from "actions/datasourceActions";
 import { connect, useDispatch, useSelector } from "react-redux";
 import history from "utils/history";
-import { Classes, FontWeight, Text, TextType } from "design-system";
+import { Classes, FontWeight, Text, TextType } from "design-system-old";
 import { datasourcesEditorIdURL } from "RouteBuilder";
 import CloudLine from "remixicon-react/CloudLineIcon";
 import Edit2Line from "remixicon-react/Edit2LineIcon";

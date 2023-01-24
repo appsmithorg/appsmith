@@ -5,12 +5,12 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.util.WebClientUtils;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
@@ -37,10 +37,12 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final CommonConfig commonConfig;
 
+    private final ApplicationContext applicationContext;
+
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
+
     private boolean isRtsAccessible = false;
 
-    @Autowired
-    private ApplicationContext applicationContext;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -55,7 +57,10 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(performRtsHealthCheck())
                 .doFinally(ignored -> this.printReady());
 
-        Mono.when(checkInstanceSchemaVersion(), registrationAndRtsCheckMono)
+        checkInstanceSchemaVersion()
+                .flatMap(signal -> registrationAndRtsCheckMono)
+                // Prefill the server cache with anonymous user permission group ids.
+                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
                 .subscribe(null, e -> {
                     log.debug("Application start up encountered an error: {}", e.getMessage());
                     Sentry.captureException(e);
@@ -72,11 +77,13 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                     return Mono.error(populateSchemaMismatchError((Integer) config.getConfig().get("value")));
                 })
                 .doOnError(errorSignal -> {
-                    log.error("\n" +
-                                    "################################################\n" +
-                                    "Error while trying to start up Appsmith instance: \n" +
-                                    "{}\n" +
-                                    "################################################\n",
+                    log.error("""
+
+                                    ################################################
+                                    Error while trying to start up Appsmith instance:\s
+                                    {}
+                                    ################################################
+                                    """,
                             errorSignal.getMessage());
 
                     SpringApplication.exit(applicationContext, () -> 1);
@@ -88,16 +95,18 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
     private AppsmithException populateSchemaMismatchError(Integer currentInstanceSchemaVersion) {
 
         List<String> versions = new LinkedList<>();
+        List<String> docs = new LinkedList<>();
 
         // Keep adding version numbers that brought in breaking instance schema migrations here
         switch (currentInstanceSchemaVersion) {
             // Example, we expect that in v1.8.14, all instances will have been migrated to instanceSchemaVer 2
             case 1:
-                versions.add("v1.9");
+                versions.add("v1.9.2");
+                docs.add("https://docs.appsmith.com/help-and-support/troubleshooting-guide/deployment-errors#server-shuts-down-with-schema-mismatch-error");
             default:
         }
 
-        return new AppsmithException(AppsmithError.SCHEMA_MISMATCH_ERROR, versions);
+        return new AppsmithException(AppsmithError.SCHEMA_MISMATCH_ERROR, versions, docs);
     }
 
     private Mono<? extends Config> registerInstance() {
@@ -152,15 +161,17 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private void printReady() {
         System.out.println(
-                "\n" +
-                        " █████╗ ██████╗ ██████╗ ███████╗███╗   ███╗██╗████████╗██╗  ██╗    ██╗███████╗    ██████╗ ██╗   ██╗███╗   ██╗███╗   ██╗██╗███╗   ██╗ ██████╗ ██╗\n" +
-                        "██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗ ████║██║╚══██╔══╝██║  ██║    ██║██╔════╝    ██╔══██╗██║   ██║████╗  ██║████╗  ██║██║████╗  ██║██╔════╝ ██║\n" +
-                        "███████║██████╔╝██████╔╝███████╗██╔████╔██║██║   ██║   ███████║    ██║███████╗    ██████╔╝██║   ██║██╔██╗ ██║██╔██╗ ██║██║██╔██╗ ██║██║  ███╗██║\n" +
-                        "██╔══██║██╔═══╝ ██╔═══╝ ╚════██║██║╚██╔╝██║██║   ██║   ██╔══██║    ██║╚════██║    ██╔══██╗██║   ██║██║╚██╗██║██║╚██╗██║██║██║╚██╗██║██║   ██║╚═╝\n" +
-                        "██║  ██║██║     ██║     ███████║██║ ╚═╝ ██║██║   ██║   ██║  ██║    ██║███████║    ██║  ██║╚██████╔╝██║ ╚████║██║ ╚████║██║██║ ╚████║╚██████╔╝██╗\n" +
-                        "╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝    ╚═╝╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝\n" +
-                        "\n" +
-                        "Please open http://localhost:<port> in your browser to experience Appsmith!\n"
+                """
+
+                         █████╗ ██████╗ ██████╗ ███████╗███╗   ███╗██╗████████╗██╗  ██╗    ██╗███████╗    ██████╗ ██╗   ██╗███╗   ██╗███╗   ██╗██╗███╗   ██╗ ██████╗ ██╗
+                        ██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗ ████║██║╚══██╔══╝██║  ██║    ██║██╔════╝    ██╔══██╗██║   ██║████╗  ██║████╗  ██║██║████╗  ██║██╔════╝ ██║
+                        ███████║██████╔╝██████╔╝███████╗██╔████╔██║██║   ██║   ███████║    ██║███████╗    ██████╔╝██║   ██║██╔██╗ ██║██╔██╗ ██║██║██╔██╗ ██║██║  ███╗██║
+                        ██╔══██║██╔═══╝ ██╔═══╝ ╚════██║██║╚██╔╝██║██║   ██║   ██╔══██║    ██║╚════██║    ██╔══██╗██║   ██║██║╚██╗██║██║╚██╗██║██║██║╚██╗██║██║   ██║╚═╝
+                        ██║  ██║██║     ██║     ███████║██║ ╚═╝ ██║██║   ██║   ██║  ██║    ██║███████║    ██║  ██║╚██████╔╝██║ ╚████║██║ ╚████║██║██║ ╚████║╚██████╔╝██╗
+                        ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝     ╚═╝╚═╝   ╚═╝   ╚═╝  ╚═╝    ╚═╝╚══════╝    ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝
+
+                        Please open http://localhost:<port> in your browser to experience Appsmith!
+                        """
         );
     }
 

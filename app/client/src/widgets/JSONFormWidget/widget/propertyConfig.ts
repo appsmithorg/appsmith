@@ -195,6 +195,16 @@ export const contentConfig = [
         validation: { type: ValidationTypes.BOOLEAN },
       },
       {
+        propertyName: "useSourceData",
+        helpText: "Use source data for hidden fields to show them in form data",
+        label: "Hidden Fields in Data",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         propertyName: "animateLoading",
         label: "Animate Loading",
         controlType: "SWITCH",

@@ -190,4 +190,54 @@ describe("JSON Form Widget Form Bindings", () => {
 
     cy.get(publishPage.backToEditor).click({ force: true });
   });
+
+  it("8. Form value should contain hidden fields value if useSourceData is set to true", () => {
+    cy.addDsl(dslWithoutSchema);
+
+    const schema = {
+      name: "",
+      age: 10,
+    };
+
+    cy.openPropertyPane("jsonformwidget");
+    cy.testJsontext("sourcedata", JSON.stringify(schema));
+
+    cy.togglebar(`${propertyControlPrefix}-hiddenfieldsindata input`);
+
+    cy.openFieldConfiguration("age");
+    cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
+
+    cy.get(".t--widget-textwidget .bp3-ui-text").contains(
+      JSON.stringify(schema),
+    );
+  });
+
+  it("9. Form value should not contain hidden fields value if useSourceData is set to false", () => {
+    cy.addDsl(dslWithoutSchema);
+
+    const name = "JOHN";
+
+    const schema = {
+      name,
+      age: 10,
+    };
+
+    cy.openPropertyPane("jsonformwidget");
+    cy.testJsontext("sourcedata", JSON.stringify(schema));
+
+    cy.togglebarDisable(`${propertyControlPrefix}-hiddenfieldsindata input`);
+
+    cy.openFieldConfiguration("age");
+    cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
+
+    cy.get(".t--widget-textwidget .bp3-ui-text").contains(
+      JSON.stringify({ name }),
+    );
+  });
 });

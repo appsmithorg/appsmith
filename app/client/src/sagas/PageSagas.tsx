@@ -28,6 +28,7 @@ import {
   fetchAllPageEntityCompletion,
   updatePageSuccess,
   updatePageError,
+  fetchPage,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -55,6 +56,7 @@ import {
   all,
   call,
   debounce,
+  delay,
   put,
   select,
   takeEvery,
@@ -95,7 +97,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import log from "loglevel";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
@@ -128,6 +130,7 @@ import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "selectors/entitiesSelector";
+import { setPreviewModeAction } from "actions/editorActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -157,6 +160,7 @@ export function* fetchPageListSaga(
       const workspaceId = response.data.workspaceId;
       const pages: Page[] = response.data.pages.map((page) => ({
         pageName: page.name,
+        description: page.description,
         pageId: page.id,
         isDefault: page.isDefault,
         isHidden: !!page.isHidden,
@@ -280,6 +284,7 @@ export function* handleFetchedPage({
     }
   }
 }
+
 const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
   pageResponse.data.lastUpdatedTime;
 
@@ -1073,6 +1078,8 @@ export function* generateTemplatePageSaga(
         isFirstLoad: true,
       });
 
+      yield put(fetchPage(pageId));
+
       // trigger evaluation after completion of page success & fetch actions for page + fetch jsobject for page
 
       const triggersAfterPageFetch = [
@@ -1156,6 +1163,26 @@ function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
   );
 }
 
+function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
+  const currentPageId: string = yield select(getCurrentPageId);
+  if (action.payload) {
+    // we animate out elements and then move to the canvas
+    yield put(setPreviewModeAction(action.payload));
+    history.push(
+      builderURL({
+        pageId: currentPageId,
+      }),
+    );
+  } else {
+    // when switching back to edit mode
+    // we go back to the previous route e.g query, api etc.
+    history.goBack();
+    // small delay to wait for the content to render and then animate
+    yield delay(10);
+    yield put(setPreviewModeAction(action.payload));
+  }
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -1185,5 +1212,6 @@ export default function* pageSagas() {
       ReduxActionTypes.DELETE_CANVAS_CARDS_STATE,
       deleteCanvasCardsStateSaga,
     ),
+    takeEvery(ReduxActionTypes.SET_PREVIEW_MODE_INIT, setPreviewModeInitSaga),
   ]);
 }

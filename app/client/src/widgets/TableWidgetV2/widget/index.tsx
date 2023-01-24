@@ -13,6 +13,7 @@ import _, {
   isEmpty,
   union,
   isObject,
+  orderBy,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -58,6 +59,7 @@ import {
   getCellProperties,
   isColumnTypeEditable,
   getColumnType,
+  getBooleanPropertyValue,
 } from "./utilities";
 import {
   ColumnProperties,
@@ -85,6 +87,9 @@ import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import { Stylesheet } from "entities/AppTheming";
+import { DateCell } from "../component/cellComponents/DateCell";
+import { MenuItem, MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1585,6 +1590,70 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       case ColumnTypes.MENU_BUTTON:
+        const getVisibleItems = (rowIndex: number) => {
+          const {
+            configureMenuItems,
+            menuItems,
+            menuItemsSource,
+            sourceData,
+          } = cellProperties;
+
+          if (menuItemsSource === MenuItemsSource.STATIC && menuItems) {
+            const visibleItems = Object.values(menuItems)?.filter((item) =>
+              getBooleanPropertyValue(item.isVisible, rowIndex),
+            );
+
+            return visibleItems?.length
+              ? orderBy(visibleItems, ["index"], ["asc"])
+              : [];
+          } else if (
+            menuItemsSource === MenuItemsSource.DYNAMIC &&
+            isArray(sourceData) &&
+            sourceData?.length &&
+            configureMenuItems?.config
+          ) {
+            const { config } = configureMenuItems;
+
+            const getValue = (
+              propertyName: keyof MenuItem,
+              index: number,
+              rowIndex: number,
+            ) => {
+              const value = config[propertyName];
+
+              if (isArray(value) && isArray(value[rowIndex])) {
+                return value[rowIndex][index];
+              } else if (isArray(value)) {
+                return value[index];
+              }
+
+              return value ?? null;
+            };
+
+            const visibleItems = sourceData
+              .map((item, index) => ({
+                ...item,
+                id: index.toString(),
+                isVisible: getValue("isVisible", index, rowIndex),
+                isDisabled: getValue("isDisabled", index, rowIndex),
+                index: index,
+                widgetId: "",
+                label: getValue("label", index, rowIndex),
+                onClick: config?.onClick,
+                textColor: getValue("textColor", index, rowIndex),
+                backgroundColor: getValue("backgroundColor", index, rowIndex),
+                iconAlign: getValue("iconAlign", index, rowIndex),
+                iconColor: getValue("iconColor", index, rowIndex),
+                iconName: getValue("iconName", index, rowIndex),
+              }))
+              .filter((item) => item.isVisible === true);
+
+            return visibleItems;
+          }
+
+          return [];
+        };
+
         return (
           <MenuButtonCell
             allowCellWrapping={cellProperties.allowCellWrapping}
@@ -1594,7 +1663,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             boxShadow={cellProperties.boxShadow}
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            configureMenuItems={cellProperties.configureMenuItems}
             fontStyle={cellProperties.fontStyle}
+            getVisibleItems={getVisibleItems}
             horizontalAlignment={cellProperties.horizontalAlignment}
             iconAlign={cellProperties.iconAlign}
             iconName={cellProperties.menuButtoniconName || undefined}
@@ -1609,17 +1680,34 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               cellProperties.menuColor || this.props.accentColor || Colors.GREEN
             }
             menuItems={cellProperties.menuItems}
+            menuItemsSource={cellProperties.menuItemsSource}
             menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
-            onCommandClick={(action: string, onComplete?: () => void) =>
-              this.onColumnEvent({
+            onCommandClick={(
+              action: string,
+              index?: number,
+              onComplete?: () => void,
+            ) => {
+              const additionalData: Record<
+                string,
+                string | number | Record<string, unknown>
+              > = {};
+
+              if (cellProperties?.sourceData && _.isNumber(index)) {
+                additionalData.currentItem = cellProperties.sourceData[index];
+                additionalData.currentIndex = index;
+              }
+
+              return this.onColumnEvent({
                 rowIndex,
                 action,
                 onComplete,
                 triggerPropertyName: "onClick",
                 eventType: EventType.ON_CLICK,
-              })
-            }
+                additionalData,
+              });
+            }}
             rowIndex={originalIndex}
+            sourceData={cellProperties.sourceData}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
@@ -1751,6 +1839,59 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.DATE:
+        return (
+          <DateCell
+            accentColor={this.props.accentColor}
+            alias={props.cell.column.columnProperties.alias}
+            borderRadius={this.props.borderRadius}
+            cellBackground={cellProperties.cellBackground}
+            closeOnSelection
+            columnType={column.columnType}
+            compactMode={compactMode}
+            disabledEditIcon={
+              shouldDisableEdit || this.props.isAddRowInProgress
+            }
+            disabledEditIconMessage={disabledEditMessage}
+            firstDayOfWeek={props.cell.column.columnProperties.firstDayOfWeek}
+            fontStyle={cellProperties.fontStyle}
+            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            inputFormat={cellProperties.inputFormat}
+            isCellDisabled={cellProperties.isCellDisabled}
+            isCellEditMode={isCellEditMode}
+            isCellEditable={isCellEditable}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isEditableCellValid={this.isColumnCellValid(alias)}
+            isHidden={isHidden}
+            isNewRow={isNewRow}
+            isRequired={
+              props.cell.column.columnProperties.validation
+                .isColumnEditableCellRequired
+            }
+            maxDate={props.cell.column.columnProperties.validation.maxDate}
+            minDate={props.cell.column.columnProperties.validation.minDate}
+            onCellTextChange={this.onCellTextChange}
+            onDateSave={this.onDateSave}
+            onDateSelectedString={
+              props.cell.column.columnProperties.onDateSelected
+            }
+            outputFormat={cellProperties.outputFormat}
+            rowIndex={rowIndex}
+            shortcuts={cellProperties.shortcuts}
+            tableWidth={this.getComponentDimensions().componentWidth}
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
+            timePrecision={cellProperties.timePrecision || TimePrecision.NONE}
+            toggleCellEditMode={this.toggleCellEditMode}
+            updateNewRowValues={this.updateNewRowValues}
+            validationErrorMessage="This field is required"
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+            widgetId={this.props.widgetId}
           />
         );
 
@@ -1903,6 +2044,35 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  onDateSave = (
+    rowIndex: number,
+    alias: string,
+    value: string,
+    onSubmit?: string,
+  ) => {
+    if (this.isColumnCellValid(alias)) {
+      this.updateTransientTableData({
+        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
+        [alias]: value,
+      });
+
+      if (onSubmit && this.props.editableCell?.column) {
+        this.onColumnEvent({
+          rowIndex: rowIndex,
+          action: onSubmit,
+          triggerPropertyName: "onSubmit",
+          eventType: EventType.ON_SUBMIT,
+          row: {
+            ...this.props.filteredTableData[rowIndex],
+            [this.props.editableCell.column]: value,
+          },
+        });
+      }
+
+      this.clearEditableCell();
+    }
+  };
+
   clearEditableCell = (skipTimeout?: boolean) => {
     const clear = () => {
       this.props.updateWidgetMetaProperty("editableCell", defaultEditableCell);
@@ -1916,6 +2086,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
        * We need to let the evaulations compute derived property (filteredTableData)
        * before we clear the editableCell to avoid the text flickering
        */
+      // @ts-expect-error: setTimeout return type mismatch
       this.inlineEditTimer = setTimeout(clear, 100);
     }
   };

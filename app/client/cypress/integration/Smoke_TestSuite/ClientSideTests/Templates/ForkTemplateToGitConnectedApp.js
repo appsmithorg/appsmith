@@ -42,16 +42,19 @@ describe("Fork a template to the current app", () => {
     )
       .scrollIntoView()
       .click();
-    cy.get("body").then(($ele) => {
-      if ($ele.find(template.templateViewForkButton).length) {
-        cy.get(template.templateViewForkButton).click();
-      }
-    });
     cy.wait("@getTemplatePages").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
+    cy.wait(6000);
+    cy.get("body").then(($ele) => {
+      if ($ele.find(widgetLocators.toastAction).length <= 0) {
+        if ($ele.find(template.templateViewForkButton).length > 0) {
+          cy.get(template.templateViewForkButton).click();
+        }
+      }
+    });
     cy.get(widgetLocators.toastAction).should(
       "contain",
       "template added successfully",

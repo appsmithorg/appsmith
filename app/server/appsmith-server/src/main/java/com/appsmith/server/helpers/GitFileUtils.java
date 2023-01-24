@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.helpers.FileUtilsImpl;
@@ -10,11 +11,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -48,6 +49,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.FieldName.ACTION_LIST;
+import static com.appsmith.server.constants.FieldName.CUSTOM_JS_LIB_LIST;
 import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
 import static com.appsmith.server.constants.FieldName.DECRYPTED_FIELDS;
 import static com.appsmith.server.constants.FieldName.EDIT_MODE_THEME;
@@ -64,15 +66,19 @@ public class GitFileUtils {
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
 
+    private final Gson gson;
+
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
-        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST, DECRYPTED_FIELDS, EDIT_MODE_THEME);
+        = Set.of(EXPORTED_APPLICATION, DATASOURCE_LIST, PAGE_LIST, ACTION_LIST, ACTION_COLLECTION_LIST,
+            DECRYPTED_FIELDS, EDIT_MODE_THEME, CUSTOM_JS_LIB_LIST);
     /**
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
-     * @param baseRepoSuffix path suffix used to create a local repo path
+     *
+     * @param baseRepoSuffix  path suffix used to create a local repo path
      * @param applicationJson application reference object from which entire application can be rehydrated
-     * @param branchName name of the branch for the current application
+     * @param branchName      name of the branch for the current application
      * @return repo path where the application is stored
      */
     public Mono<Path> saveApplicationToLocalRepo(Path baseRepoSuffix,
@@ -90,7 +96,7 @@ public class GitFileUtils {
         try {
             Mono<Path> repoPathMono = fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName).cache();
             return Mono.zip(repoPathMono, sessionUserService.getCurrentUser())
-                    .map(tuple -> {
+                    .flatMap(tuple -> {
                         stopwatch.stopTimer();
                         Path repoPath = tuple.getT1();
                         // Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/
@@ -100,8 +106,8 @@ public class GitFileUtils {
                                 FieldName.FLOW_NAME, stopwatch.getFlow(),
                                 "executionTime", stopwatch.getExecutionTime()
                         );
-                        analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
-                        return repoPath;
+                        return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data)
+                                .thenReturn(repoPath);
                     });
         } catch (IOException | GitAPIException e) {
             log.error("Error occurred while saving files to local git repo: ", e);
@@ -112,8 +118,9 @@ public class GitFileUtils {
     /**
      * Method to convert application resources to the structure which can be serialised by appsmith-git module for
      * serialisation
+     *
      * @param applicationJson application resource including actions, jsobjects, pages
-     * @return                resource which can be saved to file system
+     * @return resource which can be saved to file system
      */
     public ApplicationGitReference createApplicationReference(ApplicationJson applicationJson) {
         ApplicationGitReference applicationReference = new ApplicationGitReference();
@@ -187,6 +194,7 @@ public class GitFileUtils {
 
         // Insert JSOObjects and also assign the keys which later will be used for saving the resource in actual filepath
         // JSObjectName_pageName => nomenclature for the keys
+        Map<String, String> resourceMapBody = new HashMap<>();
         applicationJson
                 .getActionCollectionList()
                 .stream()
@@ -200,9 +208,13 @@ public class GitFileUtils {
                             : actionCollection.getPublishedCollection().getName() + NAME_SEPARATOR + actionCollection.getPublishedCollection().getPageId();
                     removeUnwantedFieldFromActionCollection(actionCollection);
 
+                    String body = actionCollection.getUnpublishedCollection().getBody() != null ? actionCollection.getUnpublishedCollection().getBody() : "";
+                    actionCollection.getUnpublishedCollection().setBody(null);
+                    resourceMapBody.put(prefix, body);
                     resourceMap.put(prefix, actionCollection);
                 });
         applicationReference.setActionCollections(new HashMap<>(resourceMap));
+        applicationReference.setActionCollectionBody(new HashMap<>(resourceMapBody));
         applicationReference.setUpdatedResources(updatedResources);
         resourceMap.clear();
 
@@ -215,15 +227,23 @@ public class GitFileUtils {
         applicationReference.setDatasources(new HashMap<>(resourceMap));
         resourceMap.clear();
 
+        applicationJson
+                .getCustomJSLibList()
+                .forEach(jsLib -> {
+                    resourceMap.put(jsLib.getUidString(), jsLib);
+                });
+        applicationReference.setJsLibraries(new HashMap<>(resourceMap));
+        resourceMap.clear();
+
         return applicationReference;
     }
 
     /**
      * Method to reconstruct the application from the local git repo
      *
-     * @param workspaceId To which workspace application needs to be rehydrated
+     * @param workspaceId          To which workspace application needs to be rehydrated
      * @param defaultApplicationId Root application for the current branched application
-     * @param branchName for which branch the application needs to rehydrate
+     * @param branchName           for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
     public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(String workspaceId,
@@ -234,7 +254,7 @@ public class GitFileUtils {
         Mono<ApplicationGitReference> appReferenceMono = fileUtils
                 .reconstructApplicationReferenceFromGitRepo(workspaceId, defaultApplicationId, repoName, branchName);
         return Mono.zip(appReferenceMono, sessionUserService.getCurrentUser())
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     ApplicationGitReference applicationReference = tuple.getT1();
                     // Extract application metadata from the json
                     ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
@@ -247,8 +267,8 @@ public class GitFileUtils {
                             FieldName.FLOW_NAME, stopwatch.getFlow(),
                             "executionTime", stopwatch.getExecutionTime()
                     );
-                    analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
-                    return applicationJson;
+                    return analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data)
+                            .thenReturn(applicationJson);
                 });
     }
 
@@ -263,11 +283,10 @@ public class GitFileUtils {
         return deserializedResources;
     }
 
-    private <T> T getApplicationResource(Object resource, Type type) {
+    public <T> T getApplicationResource(Object resource, Type type) {
         if (resource == null) {
             return null;
         }
-        Gson gson = new Gson();
         return gson.fromJson(gson.toJson(resource), type);
     }
 
@@ -286,12 +305,13 @@ public class GitFileUtils {
     public Mono<Path> initializeReadme(Path baseRepoSuffix,
                                        String viewModeUrl,
                                        String editModeUrl) throws IOException {
-        return fileUtils.initializeReadme(baseRepoSuffix,viewModeUrl, editModeUrl)
+        return fileUtils.initializeReadme(baseRepoSuffix, viewModeUrl, editModeUrl)
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
     /**
      * When the user clicks on detach remote, we need to remove the repo from the file system
+     *
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success on remove of file system
      */
@@ -339,7 +359,6 @@ public class GitFileUtils {
         // Clone the edit mode theme to published theme as both should be same for git connected application because we
         // do deploy and push as a single operation
         applicationJson.setPublishedTheme(applicationJson.getEditModeTheme());
-        Gson gson = new Gson();
 
         if (application != null && !CollectionUtils.isNullOrEmpty(application.getPages())) {
             // Remove null values
@@ -351,6 +370,10 @@ public class GitFileUtils {
                     .forEach(applicationPage -> applicationPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
             application.setPublishedPages(applicationPages);
         }
+
+        List<CustomJSLib> customJSLibList = getApplicationResource(applicationReference.getJsLibraries(),
+                CustomJSLib.class);
+        applicationJson.setCustomJSLibList(customJSLibList);
 
         // Extract pages
         List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
@@ -383,10 +406,17 @@ public class GitFileUtils {
         if (CollectionUtils.isNullOrEmpty(applicationReference.getActionCollections())) {
             applicationJson.setActionCollectionList(new ArrayList<>());
         } else {
+            Map<String, String> actionCollectionBody = applicationReference.getActionCollectionBody();
             List<ActionCollection> actionCollections = getApplicationResource(applicationReference.getActionCollections(), ActionCollection.class);
             // Remove null values if present
             org.apache.commons.collections.CollectionUtils.filter(actionCollections, PredicateUtils.notNullPredicate());
             actionCollections.forEach(actionCollection -> {
+                // Set the js object body to the unpublished collection
+                // Since file version v3 we are splitting the js object code and metadata separately
+                String keyName = actionCollection.getUnpublishedCollection().getName() + actionCollection.getUnpublishedCollection().getPageId();
+                if (actionCollectionBody!= null && actionCollectionBody.containsKey(keyName)) {
+                    actionCollection.getUnpublishedCollection().setBody(actionCollectionBody.get(keyName));
+                }
                 // As we are publishing the app and then committing to git we expect the published and unpublished
                 // actionCollectionDTO will be same, so we create a deep copy for the published version for
                 // actionCollection from unpublishedActionCollectionDTO

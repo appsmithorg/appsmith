@@ -12,9 +12,9 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { CalloutV2, CalloutType } from "design-system";
+import { CalloutV2, CalloutType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Button, Category, Icon, TooltipComponent } from "design-system";
+import { Button, Category, Icon, TooltipComponent } from "design-system-old";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -212,7 +212,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                 </MethodDetailsWrapper>
                 <StyledAuthButton
                   category={
-                    method.isConnected ? Category.primary : Category.tertiary
+                    method.isConnected ? Category.primary : Category.secondary
                   }
                   className={`t--settings-sub-category-${
                     method.needsUpgrade

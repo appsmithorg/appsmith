@@ -38,7 +38,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
@@ -80,10 +80,7 @@ import {
   CURL_IMPORT_PAGE_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import {
-  ActionTriggerType,
-  RunPluginActionDescription,
-} from "@appsmith/entities/DataTree/actionTriggers";
+import { RunPluginActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
@@ -335,7 +332,7 @@ export default function* executePluginActionTriggerSaga(
   const { actionId, onError, onSuccess, params } = pluginAction;
   if (getType(params) !== Types.OBJECT) {
     throw new ActionValidationError(
-      ActionTriggerType.RUN_PLUGIN_ACTION,
+      "RUN_PLUGIN_ACTION",
       "params",
       Types.OBJECT,
       getType(params),
@@ -533,8 +530,8 @@ function* runActionSaga(
   if (isSaving || isDirty || isSavingEntity) {
     if (isDirty && !isSaving) {
       yield put(updateAction({ id: actionId }));
+      yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
     }
-    yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
   }
   const actionObject = shouldBeDefined<Action>(
     yield select(getAction, actionId),

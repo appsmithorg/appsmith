@@ -13,6 +13,7 @@ import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
@@ -43,10 +44,12 @@ import static com.appsmith.server.constants.Url.PAGE_URL;
 import static com.appsmith.server.constants.Url.TENANT_URL;
 import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USER_URL;
+import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @EnableWebFluxSecurity
-@EnableReactiveMethodSecurity(useAuthorizationManager = true)
+@EnableReactiveMethodSecurity
+@Configuration
 public class SecurityConfig {
 
     @Autowired
@@ -120,6 +123,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeExchange()
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/forgotPassword"),
@@ -136,7 +140,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, THEME_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
-                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current")
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL)
                 )
                 .permitAll()
                 .pathMatchers("/public/**", "/oauth2/**").permitAll()

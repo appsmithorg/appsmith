@@ -20,7 +20,7 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
@@ -99,7 +99,7 @@ outline: none;
 padding: 0px 10px;
 gap: 8px;
 
-&:hover, &:active {
+&:hover, &:active, &:focus {
   ${buttonHoverActiveStyles}
  }
 

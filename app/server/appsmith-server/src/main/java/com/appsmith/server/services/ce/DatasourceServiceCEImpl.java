@@ -3,17 +3,20 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -44,10 +47,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 
-import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -480,7 +484,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return Mono.just(objects.getT1());
                 })
                 .flatMap(toDelete -> {
-                    return datasourceContextService.deleteDatasourceContext(toDelete.getId())
+                    return datasourceContextService.deleteDatasourceContext(datasourceContextService.createDsContextIdentifier(toDelete))
                             .then(repository.archive(toDelete))
                             .thenReturn(toDelete);
                 })
@@ -508,6 +512,10 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         analyticsProperties.put("dsName", datasource.getName());
         analyticsProperties.put("dsIsTemplate", ObjectUtils.defaultIfNull(datasource.getIsTemplate(), ""));
         analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""));
+        DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
+        if (dsConfig != null && dsConfig.getAuthentication() != null && dsConfig.getAuthentication() instanceof OAuth2) {
+            analyticsProperties.put("oAuthStatus", dsConfig.getAuthentication().getAuthenticationStatus());
+        }
         return analyticsProperties;
     }
 
@@ -546,5 +554,24 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             Datasource datasource = datasourceList.get(objects.getT1());
             datasource.setIsRecentlyCreated(true);
         }
+    }
+
+    /**
+     * This is a composite method for retrieving datasource, datasourceContextIdentifier and environmentMap
+     * See EE override for complete usage
+     * @param datasource
+     * @param environmentName
+     * @return
+     */
+    @Override
+    public Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
+    getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName) {
+        // see EE override for complete usage.
+        Mono<DatasourceContextIdentifier> datasourceContextIdentifierMono = Mono.just(datasourceContextService.createDsContextIdentifier(datasource));
+
+        // see EE override for complete usage,
+        // Here just returning an empty map, this map is not used here
+        Mono<Map<String, BaseDomain>> environmentMapMono = Mono.just(new HashMap<>());
+        return Mono.zip(Mono.just(datasource), datasourceContextIdentifierMono, environmentMapMono);
     }
 }

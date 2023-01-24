@@ -154,7 +154,7 @@ export class DataTreeFactory {
       ...appData,
       // combine both persistent and transient state with the transient state
       // taking precedence in case the key is the same
-      store: { ...appData.store.persistent, ...appData.store.transient },
+      store: appData.store,
       theme,
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;

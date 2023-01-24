@@ -392,7 +392,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             propertyName: "labelStyle",
             label: "Emphasis",
             helpText: "Control if the label should be bold or italics",
-            controlType: "BUTTON_TABS",
+            controlType: "BUTTON_GROUP",
             options: [
               {
                 icon: "BOLD_FONT",
@@ -504,11 +504,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           )
         }
         dateFormat={this.props.dateFormat}
-        datePickerType={"DATE_PICKER"}
+        datePickerType="DATE_PICKER"
         firstDayOfWeek={this.props.firstDayOfWeek}
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}

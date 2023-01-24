@@ -10,7 +10,7 @@ import {
   Category,
   DialogComponent as Dialog,
   Size,
-} from "design-system";
+} from "design-system-old";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
@@ -56,7 +56,7 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
       <div className="">
         <div className="flex items-center justify-end space-x-3">
           <Button
-            category={Category.tertiary}
+            category={Category.secondary}
             className="t--datasource-modal-do-not-save"
             onClick={onDiscard}
             size={Size.medium}

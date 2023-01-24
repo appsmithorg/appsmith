@@ -1,6 +1,7 @@
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import userLogs from "./UserLog";
 
 class FunctionDeterminer {
   private evalContext: EvalContext = {};
@@ -26,9 +27,11 @@ class FunctionDeterminer {
     Object.assign(self, evalContext);
 
     this.evalContext = evalContext;
+    userLogs.disable();
   }
 
-  setOffEval() {
+  close() {
+    userLogs.enable();
     for (const entityName in this.evalContext) {
       if (this.evalContext.hasOwnProperty(entityName)) {
         // @ts-expect-error: Types are not available

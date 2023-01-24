@@ -101,6 +101,7 @@ public enum AppsmithError {
     PLUGIN_RUN_FAILED(500, 5003, "Plugin execution failed with error {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint",
             AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR, null),
+    HEALTHCHECK_TIMEOUT(408, 4080, "{0} connection timed out.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR, null),
     PLUGIN_LOAD_FORM_JSON_FAIL(500, 5004, "[{0}] Unable to load datasource form configuration. Details: {1}.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     PLUGIN_LOAD_TEMPLATES_FAIL(500, 5005, "Unable to load datasource templates. Details: {0}.",
@@ -150,8 +151,10 @@ public enum AppsmithError {
     ENV_FILE_NOT_FOUND(500, 5019, "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
     PUBLIC_APP_NO_PERMISSION_GROUP(500, 5020, "Invalid state. Public application does not have the required roles set for public access. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     RTS_SERVER_ERROR(500, 5021, "RTS server error while processing request: {0}", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
-    SCHEMA_MISMATCH_ERROR(500, 5022, "Looks like you skipped some required update(s), please go back to the mandatory upgrade path {0}, or refer to ''https://docs.appsmith.com/'' for more info", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
-    SCHEMA_VERSION_NOT_FOUND_ERROR(500, 5023, "Could not find mandatory instance schema version config. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null)
+    SCHEMA_MISMATCH_ERROR(500, 5022, "Looks like you skipped some required update(s), please go back to the mandatory upgrade path {0}, or refer to {1} for more info", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    SCHEMA_VERSION_NOT_FOUND_ERROR(500, 5023, "Could not find mandatory instance schema version config. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    SERVER_NOT_READY(500, 5024, "Appsmith server is not ready. Please try again in some time.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
+    SESSION_BAD_STATE(500, 5025, "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null)
     ;
 
     private final Integer httpErrorCode;

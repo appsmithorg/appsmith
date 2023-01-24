@@ -30,6 +30,8 @@ public class DecryptedSensitiveFields {
     BasicAuth basicAuth;
     
     OAuth2 openAuth2;
+
+    BearerTokenAuth bearerTokenAuth;
     
     public DecryptedSensitiveFields(AuthenticationResponse authResponse) {
         this.token = authResponse.getToken();

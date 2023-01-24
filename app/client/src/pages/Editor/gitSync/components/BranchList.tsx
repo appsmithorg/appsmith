@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getTypographyByKey, TextInput } from "design-system";
+import { getTypographyByKey, TextInput } from "design-system-old";
 import styled, { useTheme } from "styled-components";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,9 +29,9 @@ import {
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
 import { Space } from "./StyledComponents";
-import { Icon, IconSize, IconWrapper } from "design-system";
+import { Icon, IconSize, IconWrapper } from "design-system-old";
 import { get } from "lodash";
-import { Spinner, TooltipComponent as Tooltip } from "design-system";
+import { Spinner, TooltipComponent as Tooltip } from "design-system-old";
 import {
   isLocalBranch,
   isRemoteBranch,
@@ -42,6 +42,7 @@ import { useActiveHoverIndex, useFilteredBranches } from "../hooks";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
+import { Theme } from "constants/DefaultTheme";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -119,7 +120,7 @@ function CreateNewBranch({
       });
   }, [shouldScrollIntoView]);
   const itemRef = React.useRef<HTMLDivElement>(null);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <div
@@ -174,7 +175,7 @@ export function Header({
   fetchBranches: () => void;
 }) {
   const title = createMessage(SWITCH_BRANCHES);
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
 
   return (
     <div

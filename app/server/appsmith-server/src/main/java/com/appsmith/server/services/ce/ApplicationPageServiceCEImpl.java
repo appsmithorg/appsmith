@@ -49,6 +49,7 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -57,7 +58,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -1011,6 +1011,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
+                    application.setPublishedAppPositioning(application.getUnpublishedAppPositioning());
+                    application.setPublishedNavigationSetting(application.getUnpublishedNavigationSetting());
                     if (isPublishedManually) {
                         application.setLastDeployedAt(Instant.now());
                     }
@@ -1023,7 +1025,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 //In each page, copy each layout's dsl to publishedDsl field
                 .flatMap(applicationPage -> newPageService
                         .findById(applicationPage.getId(), pagePermission.getEditPermission())
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, applicationPage.getId())))
+                        // For a git connected app if the user does not have permission to edit few pages in master branch
+                        // They don't get access to the same resources in feature branch. When they do operations like commit and push we publish the changes automatically
+                        // and this will fail due to permission issue. Hence removing the throwing error part and handling it gracefully
+                        // Only the pages which the user pocesses permission will be published
                         .map(page -> {
                             page.setPublishedPage(page.getUnpublishedPage());
                             return page;
