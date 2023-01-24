@@ -23,7 +23,7 @@ import { InputTypes, NumberInputStepButtonPosition } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import { Icon } from "design-system";
+import { Icon } from "design-system-old";
 import { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";

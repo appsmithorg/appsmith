@@ -11,7 +11,7 @@ import {
   Size,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import { IconProps } from "constants/IconConstants";
 import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";

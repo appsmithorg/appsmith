@@ -1,7 +1,3 @@
-import {
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
 import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
@@ -18,6 +14,10 @@ import {
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import styled, { StyledComponent } from "styled-components";
+import {
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { useReflow } from "utils/hooks/useReflow";
 import PerformanceTracker, {
@@ -268,7 +268,6 @@ export function ReflowResizable(props: ResizableProps) {
           movementLimitMap: MovementLimitMap | undefined = {};
 
         if (resizedPositions) {
-          console.log({ resizedPositions });
           //calling reflow to update movements of reflowing widgets and get movementLimit of current resizing widget
           ({ bottomMostRow, movementLimitMap } = reflow.reflowSpaces(
             [resizedPositions],

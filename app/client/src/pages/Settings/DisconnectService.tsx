@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Button, CalloutV2, getTypographyByKey, Variant } from "design-system";
+import {
+  Button,
+  CalloutV2,
+  getTypographyByKey,
+  Variant,
+} from "design-system-old";
 import {
   createMessage,
   DANGER_ZONE,

@@ -10,7 +10,7 @@ import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { getType, Types } from "utils/TypeHelpers";
 import { Colors } from "constants/Colors";
-import { Button } from "design-system";
+import { Button } from "design-system-old";
 
 export const PluginImageWrapper = styled.div`
   height: 34px;

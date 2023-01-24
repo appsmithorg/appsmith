@@ -6,12 +6,11 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
-import { Toaster } from "design-system";
+import { Toaster } from "design-system-old";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import produce from "immer";
@@ -29,6 +28,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { generateReactKey } from "utils/generators";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";

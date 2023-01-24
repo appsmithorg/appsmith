@@ -124,6 +124,7 @@ export const useCanvasDragging = (
     isDragging,
     useAutoLayout,
   });
+  let selectedHighlight: HighlightInfo | undefined;
 
   if (useAutoLayout) {
     setTimeout(() => {
@@ -432,7 +433,6 @@ export const useCanvasDragging = (
                     each.detachFromLayout,
                   )),
             }));
-            let highlight: HighlightInfo | undefined;
             if (rowDelta && slidingArenaRef.current && !useAutoLayout) {
               isUpdatingRows = true;
               canScroll.current = false;
@@ -447,11 +447,13 @@ export const useCanvasDragging = (
                   currentDirection.current,
                   updateMousePosition,
                 );
-                if (currentDirection.current !== ReflowDirection.UNSET)
-                  highlight = highlightDropPosition(
-                    e,
-                    currentDirection.current,
-                  );
+                setTimeout(() => {
+                  if (currentDirection.current !== ReflowDirection.UNSET)
+                    selectedHighlight = highlightDropPosition(
+                      e,
+                      currentDirection.current,
+                    );
+                }, 100);
               }
             }
             isUpdatingRows = renderBlocks(
@@ -460,7 +462,7 @@ export const useCanvasDragging = (
               isUpdatingRows,
               canvasIsDragging,
               scrollParent,
-              highlight,
+              selectedHighlight,
               widgetId === MAIN_CONTAINER_WIDGET_ID,
               parentOffsetTop,
             );

@@ -13,7 +13,7 @@ import * as Sentry from "@sentry/react";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { StyledToastContainer } from "design-system";
+import { StyledToastContainer } from "design-system-old";
 import "./assets/styles/index.css";
 import "./polyfills/corejs-add-on";
 import GlobalStyles from "globalStyles";
