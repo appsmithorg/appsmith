@@ -4,7 +4,11 @@ import * as Sentry from "@sentry/react";
 import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import { getTypographyByKey, SearchInput, SearchVariant } from "design-system";
+import {
+  getTypographyByKey,
+  SearchInput,
+  SearchVariant,
+} from "design-system-old";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";

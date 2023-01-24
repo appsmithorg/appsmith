@@ -64,7 +64,7 @@ import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions"
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,

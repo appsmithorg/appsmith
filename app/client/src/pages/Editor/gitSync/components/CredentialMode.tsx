@@ -7,7 +7,7 @@ import {
   FontWeight,
   TextType,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";

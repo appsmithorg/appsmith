@@ -130,7 +130,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
         log.debug("Going to get version release items");
         return applicationFetcher.getReleaseItems()
-                   .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
+                .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 
     @PutMapping("/{defaultApplicationId}/changeAccess")
@@ -222,11 +222,28 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
+    @PostMapping(value = "/{defaultApplicationId}/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ResponseDTO<Application>> uploadAppNavigationLogo(@PathVariable String defaultApplicationId,
+                                                                  @RequestPart("file") Mono<Part> fileMono,
+                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return fileMono
+                .flatMap(part -> service.saveAppNavigationLogo(branchName, defaultApplicationId, part))
+                .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
+    }
+
+    @DeleteMapping("/{defaultApplicationId}/logo")
+    public Mono<ResponseDTO<Void>> deleteAppNavigationLogo(@PathVariable String defaultApplicationId,
+                                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName){
+        return service.deleteAppNavigationLogo(branchName, defaultApplicationId)
+                .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+    }
+
+
     // !! This API endpoint should not be exposed !!
     @Override
     @GetMapping("")
     public Mono<ResponseDTO<List<Application>>> getAll(@RequestParam MultiValueMap<String, String> params,
-                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return Mono.just(
                 new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), null, AppsmithError.UNSUPPORTED_OPERATION.getMessage())
         );

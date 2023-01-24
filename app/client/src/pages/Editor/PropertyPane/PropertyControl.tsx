@@ -7,7 +7,7 @@ import {
   ControlPropertyLabelContainer,
   ControlWrapper,
 } from "components/propertyControls/StyledControls";
-import { JSToggleButton } from "design-system";
+import { JSToggleButton } from "design-system-old";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,7 +45,7 @@ import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AppState } from "@appsmith/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import {

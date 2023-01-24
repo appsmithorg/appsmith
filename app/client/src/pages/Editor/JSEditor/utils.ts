@@ -7,7 +7,7 @@ import {
   RUN_GUTTER_ID,
   NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
-import { DropdownOption } from "design-system";
+import { DropdownOption } from "design-system-old";
 import { find, memoize } from "lodash";
 import {
   isLiteralNode,

@@ -1,4 +1,4 @@
-import { SwitcherProps, TreeDropdownOption } from "design-system";
+import { SwitcherProps, TreeDropdownOption } from "design-system-old";
 import { ENTITY_TYPE, MetaArgs } from "entities/DataTree/types";
 import React from "react";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";

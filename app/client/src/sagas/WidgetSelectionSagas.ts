@@ -19,7 +19,7 @@ import {
   selectWidgetInitAction,
   silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   SELECT_ALL_WIDGETS_MSG,
