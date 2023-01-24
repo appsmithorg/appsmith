@@ -13,5 +13,9 @@ export const getProppanePreference = (
 export const getFeatureFlagsFetched = (state: AppState) =>
   state.ui.users.featureFlag.isFetched;
 
-export const selectFeatureFlags = (state: AppState) =>
-  state.ui.users.featureFlag.data;
+export const selectFeatureFlags = (state: AppState) => {
+  return {
+    ...state.ui.users.featureFlag.data,
+    USAGE_AND_BILLING: true,
+  };
+};
