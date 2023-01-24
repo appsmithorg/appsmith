@@ -389,7 +389,13 @@ jobs:
   fat-container-test:
     needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
-    if: success()
+    if: |
+      success() &&
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -414,14 +420,16 @@ jobs:
           - 27017:27017
 
     steps:
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
-
-      # Check out merge commit
-      - name: Fork based /ok-to-test checkout
-        uses: actions/checkout@v3
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v2
         with:
-          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v2
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -491,13 +499,13 @@ jobs:
       - name: Download the client build artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: buildClient
           path: app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: buildServer
           path: app/server/dist/
 
       - name: Download the rts build artifact
