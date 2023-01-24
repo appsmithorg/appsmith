@@ -4,7 +4,7 @@ import { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
-import { StickyType } from "../Constants";
+import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 
 type RowType = {
   className?: string;
@@ -63,9 +63,17 @@ export function Row(props: RowType) {
       {multiRowSelection &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
       {props.row.cells.map((cell, cellIndex) => {
+        const cellProperties = cell.getCellProps();
+        cellProperties["style"] = {
+          ...cellProperties.style,
+          left:
+            columns[cellIndex].sticky === StickyType.LEFT && multiRowSelection
+              ? cell.column.totalLeft + MULTISELECT_CHECKBOX_WIDTH
+              : cellProperties?.style?.left,
+        };
         return (
           <div
-            {...cell.getCellProps()}
+            {...cellProperties}
             className={
               columns[cellIndex].isHidden
                 ? "td hidden-cell"

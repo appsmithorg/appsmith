@@ -95,15 +95,19 @@ export const renderEmptyRows = (
                 : {};
 
             if (column.sticky === StickyType.LEFT) {
+              const leftColWidths = tableColumns
+                .slice(1, colIndex + 1)
+                .map((col) => col.columnProperties.width);
+
               distanceFromEdge["left"] =
-                colIndex === 0 ? 0 : tableColumns[colIndex - 1].width;
+                colIndex === 0 ? 0 : sum(leftColWidths);
 
               if (colIndex === lastLeftIdx - 1)
                 stickyAttributes["data-sticky-last-left-td"] = true;
             } else if (column.sticky === StickyType.RIGHT) {
               const rightColWidths = tableColumns
                 .slice(colIndex + 1, tableColumns.length)
-                .map((col) => col.width);
+                .map((col) => col.columnProperties.width);
 
               distanceFromEdge["right"] =
                 colIndex === tableColumns.length - 1 ? 0 : sum(rightColWidths);
@@ -117,10 +121,13 @@ export const renderEmptyRows = (
                 className={
                   column.isHidden
                     ? "td hidden-cell"
-                    : `td ${colIndex !== 0 &&
+                    : `td ${
+                        colIndex !== 0 &&
                         columns[colIndex - 1].sticky === StickyType.RIGHT &&
-                        columns[colIndex - 1].isHidden &&
-                        "sticky-right-modifier"}`
+                        columns[colIndex - 1].isHidden
+                          ? "sticky-right-modifier"
+                          : ""
+                      }`
                 }
                 {...stickyAttributes}
                 key={colIndex}

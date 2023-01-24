@@ -4,7 +4,6 @@ import { CellCheckboxWrapper, CellCheckbox } from "../TableStyledWrappers";
 import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
 import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
 import { CheckboxState } from "../Constants";
-import { Layers } from "constants/Layers";
 
 export const renderBodyCheckBoxCell = (
   isChecked: boolean,

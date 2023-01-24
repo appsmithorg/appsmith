@@ -12,11 +12,7 @@ import {
 } from "react-window";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EmptyRows, EmptyRow, Row } from "./Row";
-import {
-  ReactTableColumnProps,
-  TABLE_SCROLLBAR_HEIGHT,
-  TableSizes,
-} from "../Constants";
+import { ReactTableColumnProps, TableSizes } from "../Constants";
 
 type BodyContextType = {
   accentColor: string;

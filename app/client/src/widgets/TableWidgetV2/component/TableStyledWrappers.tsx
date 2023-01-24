@@ -233,10 +233,7 @@ export const TableWrapper = styled.div<{
     }
 
     [data-sticky-last-left-td] {
-      left: ${(props) =>
-        props.multiRowSelection
-          ? `${MULTISELECT_CHECKBOX_WIDTH}px !important`
-          : "0px"};
+      left: 0px;
       border-right: 3px solid var(--wds-color-border);
       &.hidden-cell,
       &:has(> .hidden-header) {

@@ -198,6 +198,7 @@ const HeaderComponent = (props: HeaderComponentProps) => {
                   isResizingColumn={props.isResizingColumn.current}
                   isSortable={props.isSortable}
                   key={columnIndex}
+                  multiRowSelection={props.multiRowSelection}
                   sortTableColumn={props.sortTableColumn}
                   stickyRightModifier={stickyRightModifier}
                   widgetId={props.widgetId}

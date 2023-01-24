@@ -11,6 +11,7 @@ import {
   HEADER_MENU_PORTAL_CLASS,
   JUSTIFY_CONTENT,
   MENU_CONTENT_CLASS,
+  MULTISELECT_CHECKBOX_WIDTH,
   POPOVER_ITEMS_TEXT_MAP,
   StickyType,
 } from "../Constants";
@@ -126,10 +127,19 @@ export function HeaderCell(props: {
   width?: number;
   widgetId: string;
   stickyRightModifier: string;
+  multiRowSelection?: boolean;
 }) {
   const { column, editMode, isSortable } = props;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const headerProps = { ...column.getHeaderProps() };
+  headerProps["style"] = {
+    ...headerProps.style,
+    left:
+      column.sticky === StickyType.LEFT && props.multiRowSelection
+        ? MULTISELECT_CHECKBOX_WIDTH + column.totalLeft
+        : headerProps.style.left,
+  };
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -157,7 +167,7 @@ export function HeaderCell(props: {
   };
   return (
     <div
-      {...column.getHeaderProps()}
+      {...headerProps}
       className={`th header-reorder ${props.stickyRightModifier}`}
       data-header={props.columnName}
     >

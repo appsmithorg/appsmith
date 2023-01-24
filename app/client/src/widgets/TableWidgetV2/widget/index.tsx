@@ -17,7 +17,6 @@ import _, {
   findIndex,
   orderBy,
   filter,
-  remove,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";

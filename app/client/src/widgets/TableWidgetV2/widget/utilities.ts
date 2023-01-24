@@ -4,13 +4,14 @@ import {
   RenderMode,
   RenderModes,
 } from "constants/WidgetConstants";
-import _, { isBoolean, isObject, uniq, without } from "lodash";
+import _, { filter, isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import {
   CellAlignmentTypes,
   CellLayoutProperties,
   ColumnProperties,
   StickyType,
+  TableColumnProps,
   TableStyles,
   VerticalAlignmentTypes,
 } from "../component/Constants";
@@ -951,4 +952,11 @@ export const getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
       log.debug("Unable to parse local column order:", { e });
     }
   }
+};
+
+export const getAllStickyColumnsCount = (columns: TableColumnProps[]) => {
+  return (
+    filter(columns, { sticky: StickyType.LEFT }).length +
+    filter(columns, { sticky: StickyType.RIGHT }).length
+  );
 };
