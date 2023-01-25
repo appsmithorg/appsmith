@@ -2,76 +2,17 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import MenuItemContainer from "./components/MenuItemContainer";
 import MenuItem from "./components/MenuItem";
-import styled from "styled-components";
 import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { Icon, IconSize } from "design-system-old";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import {
-  getMenuContainerBackgroundColor,
-  getMenuItemTextColor,
-} from "../utils";
-
-const Container = styled.div<{
-  primaryColor: string;
-  navColorStyle: NavigationSetting["colorStyle"];
-}>`
-  width: 100%;
-  align-items: center;
-  background-color: ${({ navColorStyle, primaryColor }) =>
-    getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-  border-bottom: 1px solid
-    ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
-
-  & {
-    .scroll-arrows svg path,
-    .scroll-arrows svg:hover path {
-      fill: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-      stroke: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemTextColor(primaryColor, navColorStyle)};
-    }
-  }
-`;
-
-const ScrollBtnContainer = styled.div<{
-  visible: boolean;
-  primaryColor: string;
-  navColorStyle: NavigationSetting["colorStyle"];
-}>`
-  cursor: pointer;
-  display: flex;
-  position: absolute;
-  height: 100%;
-  padding: 0 10px;
-
-  & > span {
-    background: ${({ navColorStyle, primaryColor }) =>
-      getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-    position: relative;
-    z-index: 1;
-  }
-
-  ${(props) =>
-    props.visible
-      ? `
-      visibility: visible;
-      opacity: 1;
-      z-index: 1;
-      transition: visibility 0s linear 0s, opacity 300ms;
-    `
-      : `
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0s linear 300ms, opacity 300ms;
-    `}
-`;
+import { Container, ScrollBtnContainer } from "./TopStacked.styled";
 
 // TODO - @Dhruvik - ImprovedAppNav
 // Replace with NavigationProps if nothing changes

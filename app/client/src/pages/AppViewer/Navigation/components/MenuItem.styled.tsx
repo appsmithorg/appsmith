@@ -8,7 +8,7 @@ import {
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
-const StyledMenuItem = styled(NavLink)<{
+export const StyledMenuItem = styled(NavLink)<{
   borderRadius: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
@@ -58,7 +58,7 @@ const StyledMenuItem = styled(NavLink)<{
   }
 `;
 
-const StyledMenuItemText = styled.div<{
+export const StyledMenuItemText = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
@@ -88,6 +88,3 @@ const StyledMenuItemText = styled.div<{
       getMenuItemTextColor(primaryColor, navColorStyle)};
   }
 `;
-
-export default StyledMenuItem;
-export { StyledMenuItemText };

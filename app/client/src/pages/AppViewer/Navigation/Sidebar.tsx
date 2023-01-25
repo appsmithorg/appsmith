@@ -3,24 +3,13 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  NavigationSetting,
-  NAVIGATION_SETTINGS,
-  SIDEBAR_WIDTH,
-} from "constants/AppConstants";
+import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import { get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import styled from "styled-components";
-import {
-  getMenuContainerBackgroundColor,
-  getMenuItemBackgroundColorOnHover,
-  getMenuItemBackgroundColorWhenActive,
-} from "../utils";
 import ApplicationName from "./components/ApplicationName";
 import MenuItem from "./components/MenuItem";
-import StyledMenuItem from "./components/StyledMenuItem";
 import ShareButton from "./components/ShareButton";
 import PrimaryCTA from "../PrimaryCTA";
 import { useHref } from "pages/Editor/utils";
@@ -31,96 +20,15 @@ import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
 import { useMouse } from "@mantine/hooks";
-import { Colors } from "constants/Colors";
 import { getSidebarPinned } from "selectors/applicationSelectors";
 import { setIsSidebarPinned } from "actions/applicationActions";
-
-const StyledSidebar = styled.div<{
-  primaryColor: string;
-  navColorStyle: NavigationSetting["colorStyle"];
-  isMinimal: boolean;
-}>`
-  height: 100vh;
-  background-color: ${({ navColorStyle, primaryColor }) =>
-    getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-  position: fixed;
-  top: 0;
-  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid ${Colors.GRAY_300};
-
-  ${({ isMinimal }) => {
-    const width = isMinimal ? SIDEBAR_WIDTH.MINIMAL : SIDEBAR_WIDTH.REGULAR;
-
-    return `
-      width: ${width}px;
-      left: -${width}px;
-    `;
-  }}
-
-  &.is-open {
-    left: 0;
-  }
-`;
-
-const StyledMenuContainer = styled.div<{
-  primaryColor: string;
-  navColorStyle: NavigationSetting["colorStyle"];
-}>`
-  margin: 16px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  overflow-y: auto;
-  padding: 0 8px;
-  flex-grow: 1;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: ${({ navColorStyle, primaryColor }) =>
-      getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-
-    &:hover {
-      background: ${({ navColorStyle, primaryColor }) =>
-        getMenuItemBackgroundColorOnHover(primaryColor, navColorStyle)};
-    }
-  }
-
-  ${StyledMenuItem} {
-    align-self: flex-start;
-    width: 100%;
-    max-width: initial;
-    padding: 8px 10px;
-  }
-`;
-
-const StyledCtaContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 0px 8px;
-`;
-
-const StyledHeader = styled.div`
-  padding: 16px 8px 0px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-`;
-
-const StyledFooter = styled.div`
-  margin-top: auto;
-  padding-bottom: 16px;
-`;
+import {
+  StyledCtaContainer,
+  StyledFooter,
+  StyledHeader,
+  StyledMenuContainer,
+  StyledSidebar,
+} from "./Sidebar.styled";
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;

@@ -8,11 +8,11 @@ import { useSelector } from "react-redux";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { getAppMode } from "selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import StyledMenuItem from "./StyledMenuItem";
 import { trimQueryString } from "utils/helpers";
 import { Icon } from "design-system-old";
 import MenuText from "./MenuText";
 import classNames from "classnames";
+import { StyledMenuItem } from "./MenuItem.styled";
 
 type MenuItemProps = {
   page: Page;

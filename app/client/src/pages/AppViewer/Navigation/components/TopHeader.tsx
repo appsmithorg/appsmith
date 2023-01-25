@@ -2,7 +2,7 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { NavigationSetting, NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";
 import React from "react";
@@ -13,11 +13,6 @@ import {
   getCurrentPageDescription,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import styled from "styled-components";
-import {
-  getMenuContainerBackgroundColor,
-  getMenuItemBackgroundColorWhenActive,
-} from "../../utils";
 import HtmlTitle from "../../AppViewerHtmlTitle";
 import MobileNavToggle from "./MobileNavToggle";
 import ApplicationName from "./ApplicationName";
@@ -27,26 +22,7 @@ import PrimaryCTA from "pages/AppViewer/PrimaryCTA";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import TopStacked from "../TopStacked";
-
-const HeaderRow = styled.div<{
-  primaryColor: string;
-  navColorStyle: NavigationSetting["colorStyle"];
-}>`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  border-bottom: 1px solid
-    ${({ navColorStyle, primaryColor }) =>
-      getMenuItemBackgroundColorWhenActive(primaryColor, navColorStyle)};
-`;
-
-const StyledNav = styled.div<{
-  primaryColor: string;
-  navColorStyle: NavigationSetting["colorStyle"];
-}>`
-  background-color: ${({ navColorStyle, primaryColor }) =>
-    getMenuContainerBackgroundColor(primaryColor, navColorStyle)};
-`;
+import { HeaderRow, StyledNav } from "./TopHeader.styled";
 
 type TopHeaderProps = {
   currentApplicationDetails?: ApplicationPayload;
