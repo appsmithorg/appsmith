@@ -45,11 +45,23 @@ describe("Upgrade appsmith version", () => {
         "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
       );
-      cy.wait(60000);
+      cy.wait(30000);
 
-      cy.execute(testUrl, "docker ps").then((res) => {
-        cy.log("Docker PS", res.stdout);
-      });
+      let done = true;
+      let count = 1;
+      while (done) {
+        cy.request({
+          method: "GET",
+          url: "http://localhost/api/v1/users/me",
+        }).then((res) => {
+          if (res.status != 200 && count != 12) {
+            cy.wait(5000);
+            count++;
+          } else {
+            done = false;
+          }
+        });
+      }
 
       cy.log("Verify Logs");
       cy.GetAndVerifyLogs(testUrl, `appsmith-160_${name}_updated`); // Get and verify the logs
