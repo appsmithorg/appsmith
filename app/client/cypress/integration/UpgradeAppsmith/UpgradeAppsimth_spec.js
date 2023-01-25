@@ -44,7 +44,7 @@ describe("Upgrade appsmith version", () => {
     });
 
     //verify the Applications after upgrade
-    cy.LoginFromAPI(testdata.UPGRADEUSERNAME, testdata.UPGRADEPASSWORD);
+    //cy.LoginFromAPI(testdata.UPGRADEUSERNAME, testdata.UPGRADEPASSWORD);
     cy.visit(testdata.APPURL);
 
     cy.get(".t--buttongroup-widget").should("exist");
