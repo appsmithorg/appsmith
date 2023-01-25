@@ -99,7 +99,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
         // Keep adding version numbers that brought in breaking instance schema migrations here
         switch (currentInstanceSchemaVersion) {
-            // Example, we expect that in v1.8.14, all instances will have been migrated to instanceSchemaVer 2
+            // Example, we expect that in v1.9.2, all instances will have been migrated to instanceSchemaVer 2
             case 1:
                 versions.add("v1.9.2");
                 docs.add("https://docs.appsmith.com/help-and-support/troubleshooting-guide/deployment-errors#server-shuts-down-with-schema-mismatch-error");
