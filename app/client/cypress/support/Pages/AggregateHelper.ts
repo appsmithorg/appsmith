@@ -776,6 +776,10 @@ export class AggregateHelper {
     });
   }
 
+  public BlurFocusedElement() {
+    cy.focused().blur();
+  }
+
   public BlurInput(propFieldName: string) {
     cy.get(propFieldName).then(($field: any) => {
       this.BlurCodeInput($field);
