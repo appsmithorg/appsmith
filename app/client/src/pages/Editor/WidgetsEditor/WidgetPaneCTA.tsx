@@ -1,24 +1,35 @@
 import React, { useEffect, useRef } from "react";
 import WidgetSidebar from "pages/Editor/WidgetSidebar";
 import { useDispatch, useSelector } from "react-redux";
+import DashboardLine from "remixicon-react/DashboardLineIcon";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getDragDetails } from "sagas/selectors";
 import { AppState } from "@appsmith/reducers";
 import { useMouseLocation } from "../GlobalHotKeys/useMouseLocation";
 import styled from "styled-components";
-import { Icon, IconSize, TooltipComponent } from "design-system-old";
+import {
+  Icon,
+  IconSize,
+  TooltipComponent,
+  Text,
+  IconWrapper,
+  TextType,
+} from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { selectForceOpenWidgetPanel } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
-import { ADD_WIDGET_TOOLTIP, createMessage } from "ce/constants/messages";
+import {
+  ADD_WIDGET_TOOLTIP,
+  createMessage,
+  WIDGET_USED,
+} from "@appsmith/constants/messages";
 
 const WIDGET_PANE_WIDTH = 246;
 const WIDGET_PANE_HEIGHT = 600;
 
 const StyledTrigger = styled.div<{ active: boolean }>`
   height: ${(props) => props.theme.widgetTopBar};
-  width: 36px;
 
   :hover {
     background-color: ${Colors.GRAY_100};
@@ -46,6 +57,13 @@ const PopoverContentWrapper = styled.div<{ isInGuidedTour: boolean }>`
     `
     height: min(60vh, 600px);
   `}
+`;
+
+const StyledIconWrapper = styled(IconWrapper)`
+  svg {
+    width: 12px;
+    height: 12px;
+  }
 `;
 
 function WidgetPaneTrigger() {
@@ -129,12 +147,18 @@ function WidgetPaneTrigger() {
         >
           <StyledTrigger
             active={openWidgetPanel}
-            className="flex ml-3 justify-center"
+            className="flex ml-3 justify-center items-center gap-1 px-1"
             data-cy="widget-page-cta"
             onClick={() => dispatch(forceOpenWidgetPanel(true))}
             ref={ref}
           >
-            <Icon fillColor={Colors.GRAY_700} name="plus" size={IconSize.XXL} />
+            <StyledIconWrapper fillColor={Colors.GRAY_700} size={IconSize.XXS}>
+              <DashboardLine />
+            </StyledIconWrapper>
+
+            <Text color={Colors.GRAY_700} type={TextType.P3}>
+              {createMessage(WIDGET_USED)}
+            </Text>
             <Icon
               fillColor={Colors.GREY_7}
               name="arrow-down-s-fill"
