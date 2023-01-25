@@ -17,7 +17,7 @@ import {
   LEARN_MORE,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { CalloutV2 } from "design-system";
+import { CalloutV2 } from "design-system-old";
 import { CopyUrlReduxForm } from "pages/Settings/FormGroup/CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";

@@ -1264,6 +1264,27 @@ public class AmazonS3PluginTest {
     }
 
     @Test
+    public void testExecuteCommonForIllegalStateException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        ActionConfiguration mockActionConfiguration = mock(ActionConfiguration.class);
+        Mockito.when(mockActionConfiguration.getFormData()).thenCallRealMethod().thenThrow(new IllegalStateException());
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new AmazonS3Plugin.S3PluginExecutor());
+        Mono<ActionExecutionResult> resultMono = pluginExecutorMono
+                .flatMap(executor -> {
+                    return executor.executeParameterized(
+                            null,
+                            executeActionDTO,
+                            datasourceConfiguration,
+                            mockActionConfiguration);
+                });
+
+        StepVerifier.create(resultMono)
+                .verifyError(StaleConnectionException.class);
+    }
+
+    @Test
     public void testExecuteCommonForAmazonServiceException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String errorMessage =  "The version ID specified in the request does not match an existing version.";
         String errorCode = "NoSuchVersion";

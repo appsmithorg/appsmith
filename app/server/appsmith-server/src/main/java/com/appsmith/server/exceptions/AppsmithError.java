@@ -153,6 +153,8 @@ public enum AppsmithError {
     SCHEMA_MISMATCH_ERROR(500, AppsmithErrorCode.SCHEMA_MISMATCH_ERROR.getCode(), "Looks like you skipped some required update(s), please go back to the mandatory upgrade path {0}, or refer to ''https://docs.appsmith.com/'' for more info", AppsmithErrorAction.LOG_EXTERNALLY, "Schema mismatch error", ErrorType.INTERNAL_ERROR, null),
     SCHEMA_VERSION_NOT_FOUND_ERROR(500, AppsmithErrorCode.SCHEMA_VERSION_NOT_FOUND_ERROR.getCode(), "Could not find mandatory instance schema version config. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, "Schema version not found", ErrorType.INTERNAL_ERROR, null),
     HEALTHCHECK_TIMEOUT(408, AppsmithErrorCode.HEALTHCHECK_TIMEOUT.getCode(), "{0} connection timed out.", AppsmithErrorAction.DEFAULT, "Connection timeout during health check", ErrorType.CONNECTIVITY_ERROR, null),
+    SERVER_NOT_READY(500, AppsmithErrorCode.SERVER_NOT_READY.getCode(), "Appsmith server is not ready. Please try again in some time.", AppsmithErrorAction.LOG_EXTERNALLY, "Server not ready", ErrorType.INTERNAL_ERROR, null),
+    SESSION_BAD_STATE(500, AppsmithErrorCode.SESSION_BAD_STATE.getCode(), "User session is invalid. Please log out and log in again.", AppsmithErrorAction.LOG_EXTERNALLY, "Invalid user session", ErrorType.INTERNAL_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

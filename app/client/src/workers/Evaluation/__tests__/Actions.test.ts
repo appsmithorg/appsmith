@@ -4,7 +4,6 @@ import {
   createEvaluationContext,
   EvalContext,
 } from "workers/Evaluation/evaluate";
-import uniqueId from "lodash/uniqueId";
 import { MessageType } from "utils/MessageUtil";
 import {
   addDataTreeToContext,

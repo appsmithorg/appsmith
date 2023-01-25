@@ -473,7 +473,6 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
 
                         Map<String, Object> formData = actionConfiguration.getFormData();
-
                         String command = getDataValueSafelyFromFormData(formData, COMMAND, STRING_TYPE);
 
                         if (StringUtils.isNullOrEmpty(command)) {
@@ -536,7 +535,6 @@ public class AmazonS3Plugin extends BasePlugin {
                                     )
                             );
                         }
-
                         Object actionResult;
                         switch (s3Action) {
                             case LIST:
@@ -684,9 +682,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 actionResult = new HashMap<String, Object>();
                                 ((HashMap<String, Object>) actionResult).put("signedUrl", signedUrl);
                                 ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
-
-                                requestParams.add(new RequestParamDTO(CREATE_EXPIRY,
-                                        expiryDateTimeString, null, null, null));
+                                requestParams.add(new RequestParamDTO(CREATE_EXPIRY, expiryDateTimeString, null, null, null));
                                 requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, body, null, null, null));
                                 break;
                             }
@@ -792,6 +788,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         }
                         return Mono.just(actionResult);
                     })
+                    .onErrorMap(IllegalStateException.class, error -> new StaleConnectionException())
                     .flatMap(obj -> obj)
                     .flatMap(result -> {
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
@@ -993,6 +990,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                     S3ErrorMessages.LIST_OF_BUCKET_FETCHING_ERROR_MSG,
                                     e.getMessage()
                             );
+                        } catch (IllegalStateException s) {
+                            throw new StaleConnectionException();
                         }
 
                         return new DatasourceStructure(tableList);
