@@ -7,6 +7,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -32,7 +33,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -1235,7 +1235,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         return applicationPageService.deleteApplication(importedApplication.getId())
                                 .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE));
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
@@ -2019,6 +2019,10 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
             authResponse.setExpiresAt(Instant.now());
             auth2.setAuthenticationResponse(authResponse);
             datasource.getDatasourceConfiguration().setAuthentication(auth2);
+        } else if (org.apache.commons.lang.StringUtils.equals(authType, BearerTokenAuth.class.getName())) {
+            BearerTokenAuth auth = new BearerTokenAuth();
+            auth.setBearerToken(decryptedFields.getBearerTokenAuth().getBearerToken());
+            datasource.getDatasourceConfiguration().setAuthentication(auth);
         }
         return datasource;
     }
@@ -2059,6 +2063,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 BasicAuth auth = (BasicAuth) authentication;
                 dsDecryptedFields.setPassword(auth.getPassword());
                 dsDecryptedFields.setBasicAuth(auth);
+            } else if (authentication instanceof BearerTokenAuth auth) {
+                dsDecryptedFields.setBearerTokenAuth(auth);
             }
             dsDecryptedFields.setAuthType(authentication.getClass().getName());
             return dsDecryptedFields;

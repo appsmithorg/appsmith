@@ -447,8 +447,6 @@ export const entityDefinitions = {
       widget.currentItemsView,
       extraDefsToDefine,
     ),
-    selectedItemIndex: "number",
-    triggeredItemIndex: "number",
   }),
   RATE_WIDGET: {
     "!doc": "Rating widget is used to display ratings in your app.",

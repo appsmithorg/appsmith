@@ -64,7 +64,7 @@ import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions"
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
@@ -78,6 +78,7 @@ import {
   WIDGET_COPY,
   WIDGET_CUT,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
+  ERROR_WIDGET_CUT_NOT_ALLOWED,
 } from "@appsmith/constants/messages";
 
 import {
@@ -1735,6 +1736,18 @@ function* cutWidgetSaga() {
   if (!selectedWidgets) {
     Toaster.show({
       text: createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED),
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const allAllowedToCut = selectedWidgets.some((each) => {
+    return allWidgets[each] && !allWidgets[each].disallowCopy;
+  });
+
+  if (!allAllowedToCut) {
+    Toaster.show({
+      text: createMessage(ERROR_WIDGET_CUT_NOT_ALLOWED),
       variant: Variant.info,
     });
     return;

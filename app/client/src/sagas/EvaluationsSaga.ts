@@ -66,7 +66,7 @@ import {
   TriggerMeta,
 } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,

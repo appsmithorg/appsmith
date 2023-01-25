@@ -29,7 +29,7 @@ import {
   TextType,
   TooltipComponent as Tooltip,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
@@ -230,7 +230,8 @@ function Deploy() {
     !!gitStatus?.modifiedPages ||
     !!gitStatus?.modifiedQueries ||
     !!gitStatus?.modifiedJSObjects ||
-    !!gitStatus?.modifiedDatasources;
+    !!gitStatus?.modifiedDatasources ||
+    !!gitStatus?.modifiedJSLibs;
   const isConflicting = !isFetchingGitStatus && !!pullFailed;
   const commitInputDisabled =
     isConflicting ||

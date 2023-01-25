@@ -10,7 +10,7 @@ import {
   Category,
   DialogComponent as Dialog,
   Size,
-} from "design-system";
+} from "design-system-old";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 

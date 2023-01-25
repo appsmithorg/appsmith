@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import { AppTheme } from "entities/AppTheming";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 
 interface ThemeColorControlProps {

@@ -2,7 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
-import { DropdownOption } from "design-system";
+import { DropdownOption } from "design-system-old";
 import {
   DSEventDetail,
   DSEventTypes,

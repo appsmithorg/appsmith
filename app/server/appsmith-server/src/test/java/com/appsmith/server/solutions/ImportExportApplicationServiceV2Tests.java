@@ -3,13 +3,17 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BearerTokenAuth;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -30,7 +34,6 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -95,7 +98,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -407,19 +409,27 @@ public class ImportExportApplicationServiceV2Tests {
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithCustomJSLibTest() {
         CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
-        Mono<Boolean> addJSLibMono =
-                customJSLibService.addJSLibToApplication(testAppId, jsLib, null, false).cache();
-        Mono<ApplicationJson> getExportedAppMono = addJSLibMono
+        Mono<Boolean> addJSLibMonoCached =
+                customJSLibService.addJSLibToApplication(testAppId, jsLib, null, false)
+                        .flatMap(isJSLibAdded -> Mono.zip(Mono.just(isJSLibAdded),
+                                applicationPageService.publish(testAppId, true)))
+                        .map(tuple2 -> {
+                            Boolean isJSLibAdded = tuple2.getT1();
+                            Application application = tuple2.getT2();
+                            return isJSLibAdded;
+                        })
+                        .cache();
+        Mono<ApplicationJson> getExportedAppMono = addJSLibMonoCached
                 .then(importExportApplicationService.exportApplicationById(testAppId, ""));
 
-        StepVerifier.create(Mono.zip(addJSLibMono, getExportedAppMono))
+        StepVerifier.create(Mono.zip(addJSLibMonoCached, getExportedAppMono))
                 .assertNext(tuple2 -> {
                     Boolean isJSLibAdded = tuple2.getT1();
                     assertEquals(true, isJSLibAdded);
 
-                    ApplicationJson exportedApp = tuple2.getT2();
-                    assertEquals(1, exportedApp.getCustomJSLibList().size());
-                    CustomJSLib exportedJSLib = exportedApp.getCustomJSLibList().get(0);
+                    ApplicationJson exportedAppJson = tuple2.getT2();
+                    assertEquals(1, exportedAppJson.getCustomJSLibList().size());
+                    CustomJSLib exportedJSLib = exportedAppJson.getCustomJSLibList().get(0);
                     assertEquals(jsLib.getName(), exportedJSLib.getName());
                     assertEquals(jsLib.getAccessor(), exportedJSLib.getAccessor());
                     assertEquals(jsLib.getUrl(), exportedJSLib.getUrl());
@@ -427,7 +437,9 @@ public class ImportExportApplicationServiceV2Tests {
                     assertEquals(jsLib.getVersion(), exportedJSLib.getVersion());
                     assertEquals(jsLib.getDefs(), exportedJSLib.getDefs());
                     assertEquals(getDTOFromCustomJSLib(jsLib),
-                            exportedApp.getExportedApplication().getUnpublishedCustomJSLibs().toArray()[0]);
+                            exportedAppJson.getExportedApplication().getUnpublishedCustomJSLibs().toArray()[0]);
+                    assertEquals(1, exportedAppJson.getExportedApplication().getUnpublishedCustomJSLibs().size());
+                    assertEquals(0, exportedAppJson.getExportedApplication().getPublishedCustomJSLibs().size());
                 })
                 .verifyComplete();
     }
@@ -2980,14 +2992,13 @@ public class ImportExportApplicationServiceV2Tests {
         assert appJson != null;
         final String randomId = UUID.randomUUID().toString();
         appJson.getDatasourceList().get(0).setPluginId(randomId);
-        final Mono<Application> resultMono = workspaceService
-                .create(newWorkspace)
-                .flatMap(workspace -> importExportApplicationService.importApplicationInWorkspace(workspace.getId(), appJson));
+        Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
+        final Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), appJson);
 
         StepVerifier
                 .create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.UNKNOWN_PLUGIN_REFERENCE.getMessage(randomId)))
+                        throwable.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
                 .verify();
     }
 
@@ -3591,5 +3602,80 @@ public class ImportExportApplicationServiceV2Tests {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplication_WithBearerTokenAndExportWithConfig_exportedWithDecryptedFields() {
+        String randomUUID = UUID.randomUUID().toString();
+
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("workspace-" + randomUUID);
+        // User apiUser = userService.findByEmail("api_user").block();
+        Mono<Workspace> workspaceMono = workspaceService.create(testWorkspace).cache();
+
+        Mono<Application> applicationMono = workspaceMono.flatMap(workspace -> {
+            Application testApplication = new Application();
+            testApplication.setName("application-" + randomUUID);
+            testApplication.setExportWithConfiguration(true);
+            testApplication.setWorkspaceId(workspace.getId());
+            return applicationPageService.createApplication(testApplication);
+        }).flatMap(application -> {
+            ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
+            accessDTO.setPublicAccess(true);
+            return applicationService.changeViewAccess(application.getId(), accessDTO).thenReturn(application);
+        });
+
+        Mono<Datasource> datasourceMono = workspaceMono.zipWith(pluginRepository.findByPackageName("restapi-plugin"))
+                .flatMap(objects -> {
+                    Workspace workspace = objects.getT1();
+                    Plugin plugin = objects.getT2();
+
+                    Datasource datasource = new Datasource();
+                    datasource.setPluginId(plugin.getId());
+                    datasource.setName("RestAPIWithBearerToken");
+                    datasource.setWorkspaceId(workspace.getId());
+                    datasource.setIsConfigured(true);
+
+                    BearerTokenAuth bearerTokenAuth = new BearerTokenAuth();
+                    bearerTokenAuth.setBearerToken("token_" + randomUUID);
+
+                    SSLDetails sslDetails = new SSLDetails();
+                    sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
+                    Connection connection = new Connection();
+                    connection.setSsl(sslDetails);
+
+                    DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+                    datasourceConfiguration.setAuthentication(bearerTokenAuth);
+                    datasourceConfiguration.setConnection(connection);
+                    datasourceConfiguration.setConnection(new Connection());
+                    datasourceConfiguration.setUrl("https://mock-api.appsmith.com");
+
+                    datasource.setDatasourceConfiguration(datasourceConfiguration);
+                    return datasourceService.create(datasource);
+                });
+
+        Mono<ApplicationJson> exportAppMono = Mono.zip(applicationMono, datasourceMono).flatMap(objects -> {
+            ApplicationPage applicationPage = objects.getT1().getPages().get(0);
+            ActionDTO action = new ActionDTO();
+            action.setName("validAction");
+            action.setPageId(applicationPage.getId());
+            action.setPluginId(objects.getT2().getPluginId());
+            action.setDatasource(objects.getT2());
+
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setHttpMethod(HttpMethod.GET);
+            actionConfiguration.setPath("/test/path");
+            action.setActionConfiguration(actionConfiguration);
+
+            return layoutActionService.createSingleAction(action, Boolean.FALSE)
+                    .then(importExportApplicationService.exportApplicationById(objects.getT1().getId(), ""));
+        });
+
+        StepVerifier.create(exportAppMono).assertNext(applicationJson -> {
+            assertThat(applicationJson.getDecryptedFields()).isNotEmpty();
+            DecryptedSensitiveFields fields = applicationJson.getDecryptedFields().get("RestAPIWithBearerToken");
+            assertThat(fields.getBearerTokenAuth().getBearerToken()).isEqualTo("token_" + randomUUID);
+        }).verifyComplete();
     }
 }

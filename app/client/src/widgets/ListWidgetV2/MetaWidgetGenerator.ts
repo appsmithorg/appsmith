@@ -1,6 +1,6 @@
 import hash from "object-hash";
 import { klona } from "klona";
-import { difference, omit, set, get, isEmpty, isString } from "lodash";
+import { difference, omit, set, get, isEmpty, isString, isNil } from "lodash";
 import {
   elementScroll,
   observeElementOffset,
@@ -196,7 +196,6 @@ const hasLevel = (value: string) =>
 
 class MetaWidgetGenerator {
   private siblings: Siblings;
-  private cacheIndexArr: number[];
   private cachedRows: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
@@ -237,7 +236,6 @@ class MetaWidgetGenerator {
 
   constructor(props: ConstructorProps) {
     this.siblings = {};
-    this.cacheIndexArr = [];
     this.cachedRows = {
       prev: new Set(),
       curr: new Set(),
@@ -687,6 +685,7 @@ class MetaWidgetGenerator {
         metaWidgetId,
         metaWidgetName,
         viewIndex,
+        prevViewIndex: currentCache.viewIndex,
         templateWidgetId,
         templateWidgetName,
         type,
@@ -1202,9 +1201,9 @@ class MetaWidgetGenerator {
   private getRowIndexFromPrimaryKey = (key: string) => {
     const rowCache = this.getRowCache(key) ?? {};
     const rowIndex = this.primaryKeys?.toString().includes(key)
-      ? rowCache[this.containerWidgetId].rowIndex
+      ? rowCache[this.containerWidgetId]?.rowIndex
       : rowCache[this.containerWidgetId]?.prevRowIndex ??
-        rowCache[this.containerWidgetId].rowIndex;
+        rowCache[this.containerWidgetId]?.rowIndex;
     return rowIndex;
   };
 
@@ -1252,7 +1251,7 @@ class MetaWidgetGenerator {
     templateWidgetId: string,
     key: string,
   ) => {
-    const { metaWidgetId, prevRowIndex, rowIndex, type } =
+    const { metaWidgetId, prevViewIndex, rowIndex, type, viewIndex } =
       this.getRowTemplateCache(key, templateWidgetId) || {};
     const { added, removed, unchanged } = this.templateWidgetStatus;
     const templateWidgetsAddedOrRemoved = added.size > 0 || removed.size > 0;
@@ -1296,7 +1295,7 @@ class MetaWidgetGenerator {
       hasTemplateWidgetChanged ||
       (type === this.primaryWidgetType && templateWidgetsAddedOrRemoved) ||
       levelDataUpdated ||
-      rowIndex !== prevRowIndex ||
+      viewIndex !== prevViewIndex ||
       (!isClonedRow && pageNoUpdated)
     );
   };
@@ -1587,10 +1586,6 @@ class MetaWidgetGenerator {
     return hash(dataToHash, { algorithm: "md5" });
   };
 
-  updateCurrCachedRows = (keys: string[]) => {
-    this.cachedRows.curr = new Set(keys);
-  };
-
   getTemplateWidgetIdByMetaWidgetId = (metaWidgetId: string) => {
     return this.metaIdToTemplateIdMap[metaWidgetId];
   };
@@ -1688,11 +1683,67 @@ class MetaWidgetGenerator {
     }
   };
 
-  updateRowDataCache = (data: RowDataCache) => {
-    this.rowDataCache = data;
+  private updateCurrCachedRows = (keys: Set<string>) => {
+    this.cachedRows.curr = keys;
   };
 
-  getRowDataCache = () => this.rowDataCache;
+  private convertPrimaryKeyToString = () => {
+    const keys = this.primaryKeys?.map((key) => {
+      if (key === undefined) return "";
+      return key.toString();
+    });
+    return keys;
+  };
+
+  private getDataForCacheKey = (key: string) => {
+    const primaryKeys = this.convertPrimaryKeyToString();
+
+    if (primaryKeys?.includes(key)) {
+      const viewIndex = primaryKeys.indexOf(key);
+      return this.data[viewIndex];
+    }
+
+    const rowIndex = this.getRowIndexFromPrimaryKey(key);
+    if (!isNil(rowIndex)) {
+      const viewIndex = this.getViewIndex(rowIndex);
+      return this.data[viewIndex];
+    }
+  };
+
+  /**
+   * The Rows to be cached would be stored in this.cachedRows
+   * The Data in these rows would be cached in this.rowDataCache
+   */
+  handleCachedKeys = (keys: Set<string>) => {
+    this.updateCurrCachedRows(keys);
+    this.updateRowDataCache(keys);
+  };
+
+  /**
+   * We want to always get the current data before checking the cache
+   * in case the data changes.
+   *
+   * when Selected Row(Key) is in Current Page
+   * 1. Check PrimaryKey for SelectedKey
+   * 2. Check widgetCache for rowIndex and check if in view,
+   *
+   * else fall back to data cache.
+   */
+  private updateRowDataCache = (keys: Set<string>) => {
+    const rowDataCache: RowDataCache = {};
+
+    keys.forEach((key) => {
+      const data = this.getDataForCacheKey(key);
+
+      if (data) {
+        rowDataCache[key] = data;
+      } else {
+        rowDataCache[key] = this.rowDataCache[key];
+      }
+    });
+
+    this.rowDataCache = { ...rowDataCache };
+  };
 
   private unmountVirtualizer = () => {
     if (this.virtualizer) {
