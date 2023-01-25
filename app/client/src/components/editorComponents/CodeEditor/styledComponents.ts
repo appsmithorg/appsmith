@@ -164,14 +164,19 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.bindingText};
       font-weight: 700;
     }
+    
+    .${PEEKABLE_CLASSNAME}:hover {
+      background-color:	#F4FFDE;
+    }
+
     .${NAVIGATION_CLASSNAME} {
       cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
-      &:hover {
+      ${(props) =>
+        props.ctrlPressed &&
+        `&:hover {
         text-decoration: underline;
-      }
-    }
-    .cm-m-javascript.${PEEKABLE_CLASSNAME}:hover {
-      text-decoration: underline;
+        background-color:	#FFEFCF;
+      }`}
     }
 
     .CodeMirror-matchingbracket {

@@ -1236,13 +1236,13 @@ class CodeEditor extends Component<Props, State> {
                   }
                   style={{
                     height: "127px",
-                    width: "298px",
+                    width: "300px",
                     backgroundColor: "white",
                     border: "1px solid #888888",
                     left:
                       this.state.peekOverlayProps.position.left +
                       this.state.peekOverlayProps.position.width -
-                      298 +
+                      300 +
                       "px",
                     top: this.state.peekOverlayProps.position.top - 127 + "px",
                     zIndex: 2,
