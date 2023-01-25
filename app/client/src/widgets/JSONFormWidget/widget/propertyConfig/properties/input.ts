@@ -31,7 +31,7 @@ function defaultValueValidation(
     return {
       isValid: true,
       parsed: value,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "ondhu 2", text: "eradu 2" }],
     };
   }
 
@@ -46,7 +46,7 @@ function defaultValueValidation(
         return {
           isValid: true,
           parsed: undefined,
-          messages: [{ name: "", text: "" }],
+          messages: [{ name: "ondhu 3", text: "eradu 3" }],
         };
       }
 
@@ -64,7 +64,7 @@ function defaultValueValidation(
     return {
       isValid: true,
       parsed,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "ondhu 4", text: "eradu 4" }],
     };
   }
 
@@ -77,10 +77,11 @@ function defaultValueValidation(
   }
 
   let parsed = value;
-  const isValid = lodash.isString(parsed);
+  let isValid = lodash.isString(parsed);
   if (!isValid) {
     try {
       parsed = lodash.toString(parsed);
+      isValid = true;
     } catch (e) {
       return {
         isValid: false,
@@ -115,7 +116,7 @@ export function minValueValidation(
     return {
       isValid: true,
       parsed: undefined,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "ondhu 6", text: "eradu 6" }],
     };
   } else if (!Number.isFinite(min)) {
     return {
@@ -138,7 +139,7 @@ export function minValueValidation(
     return {
       isValid: true,
       parsed: min,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "ondhu 7", text: "eradu 7" }],
     };
   }
 }
@@ -161,7 +162,7 @@ export function maxValueValidation(
     return {
       isValid: true,
       parsed: undefined,
-      messages: [{ name: "", text: "" }],
+      messages: [{ name: "ondhu 8", text: "eradu 8" }],
     };
   } else if (!Number.isFinite(max)) {
     return {
