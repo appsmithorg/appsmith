@@ -1160,10 +1160,8 @@ class CodeEditor extends Component<Props, State> {
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
           hasError={isInvalid}
-          hideEvaluatedValue={
-            hideEvaluatedValue || !!this.state.peekOverlayProps
-          }
-          isOpen={showEvaluatedValue}
+          hideEvaluatedValue={hideEvaluatedValue}
+          isOpen={showEvaluatedValue && !!!this.state.peekOverlayProps}
           popperPlacement={this.props.popperPlacement}
           popperZIndex={this.props.popperZIndex}
           theme={theme || EditorTheme.LIGHT}
