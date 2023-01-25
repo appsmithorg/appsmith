@@ -20,7 +20,7 @@ import {
   Icon,
   IconName,
   IconSize,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
