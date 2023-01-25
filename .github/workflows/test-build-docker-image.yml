@@ -407,7 +407,7 @@ jobs:
     uses: ./.github/workflows/perf-test.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
 
   ci-test:
     needs: [buildClient, buildServer, buildRts]
