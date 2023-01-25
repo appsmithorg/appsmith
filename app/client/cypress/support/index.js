@@ -12,7 +12,7 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
-/// <reference types="Cypress"/>
+/// <reference types="Cypress" />
 
 import "cypress-real-events/support";
 import "cypress-wait-until";
@@ -30,7 +30,7 @@ import "./queryCommands";
 import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
-/// <reference types="cypress-xpath"/>
+/// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
