@@ -51,6 +51,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
     const val = componentProps.input.value;
     const { onUpgrade } = useOnUpgrade({
       logEventName: props.upgradeLogEventName,
+      intercomMessage: props.upgradeIntercomMessage,
     });
 
     function onCheckbox(value?: boolean) {

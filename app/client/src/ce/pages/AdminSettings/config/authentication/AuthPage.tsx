@@ -128,6 +128,7 @@ export function Upgrade(message: string, method: string) {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD",
     logEventData: { method },
+    intercomMessage: message,
   });
 
   return onUpgrade();

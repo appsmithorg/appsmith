@@ -16,6 +16,7 @@ import {
   RESTRICT_PUBLIC_EXPOSURE_DETAIL1,
   SECURITY_APPS_LEAST_PRIVILEGE,
   SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1,
+  UPGRADE_TO_EE_FEATURE,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
@@ -23,6 +24,10 @@ export function AccessControlUpgradePage() {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "ADMIN_SETTINGS_UPGRADE_HOOK",
     logEventData: { source: "Granular Access Control" },
+    intercomMessage: createMessage(
+      UPGRADE_TO_EE_FEATURE,
+      "Granular Access Control for teams",
+    ),
   });
 
   const header: Header = {
