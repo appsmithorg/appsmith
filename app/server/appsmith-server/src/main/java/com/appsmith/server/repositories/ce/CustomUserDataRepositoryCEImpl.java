@@ -7,11 +7,14 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -44,4 +47,16 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                 query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class
         );
     }
+
+    /**
+     * Gets a list of UserData objects which have userId in the list of provided list of string.
+     * @param userId List of userId as a list
+     * @return Flux of UserData
+     */
+    @Override
+    public Flux<UserData> findAllByUserId(List<String> userId) {
+        Criteria criteria = where(fieldName(QUserData.userData.userId)).in(userId);
+        return queryAll(List.of(criteria), Optional.empty());
+    }
+
 }
