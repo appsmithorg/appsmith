@@ -20,7 +20,7 @@ import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { updateJSCollectionStateFromContext } from "./JSObject";
-import { jsVariableUpdates } from "./JSObject/MutationPatches";
+import { jsVariableUpdates } from "./JSObject/JSVariableUpdates";
 
 export type EvalResult = {
   result: any;

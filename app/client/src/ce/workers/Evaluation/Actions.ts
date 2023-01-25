@@ -13,12 +13,7 @@ import {
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  isAction,
-  isAppsmithEntity,
-  isJSAction,
-  isTrueObject,
-} from "./evaluationUtils";
+import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 import { initStoreFns } from "workers/Evaluation/fns/storeFns";

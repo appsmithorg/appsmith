@@ -2,7 +2,7 @@ import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { EvalContext, assignJSFunctionsToContext } from "./evaluate";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import userLogs from "./UserLog";
-import { jsVariableUpdates } from "./JSObject/MutationPatches";
+import { jsVariableUpdates } from "./JSObject/JSVariableUpdates";
 
 class FunctionDeterminer {
   private evalContext: EvalContext = {};

@@ -2,7 +2,7 @@ import {
   jsVariableUpdates,
   filterPatches,
   diffModifiedVariables,
-} from "../MutationPatches";
+} from "../JSVariableUpdates";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { VariableState, jsObjectCollection } from "../Collection";

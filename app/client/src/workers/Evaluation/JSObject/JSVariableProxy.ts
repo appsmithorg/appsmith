@@ -1,5 +1,5 @@
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import { Patch, PatchType, jsVariableUpdates } from "./MutationPatches";
+import { Patch, PatchType, jsVariableUpdates } from "./JSVariableUpdates";
 
 export function jsVariableProxyHandler(
   updateTracker: (patch: Patch) => void,

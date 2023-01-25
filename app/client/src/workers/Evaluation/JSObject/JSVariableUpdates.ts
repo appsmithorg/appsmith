@@ -14,11 +14,12 @@ export type Patch = {
   value?: unknown;
 };
 
-class MutationPatches {
+class JSVariableUpdates {
   private patches: Patch[] = [];
   private disableTracking = true;
 
   add(patch: Patch) {
+    if (this.disableTracking) return;
     this.patches.push(patch);
   }
 
@@ -39,7 +40,7 @@ class MutationPatches {
   }
 }
 
-export const jsVariableUpdates = new MutationPatches();
+export const jsVariableUpdates = new JSVariableUpdates();
 
 export function filterPatches(patches: Patch[]) {
   const modifiedVariablesSet = new Set<string>();
