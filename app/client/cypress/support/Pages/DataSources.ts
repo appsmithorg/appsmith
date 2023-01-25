@@ -301,7 +301,7 @@ export class DataSources {
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
-    cy.get(this._newDatasourceContainer).scrollTo("bottom");
+    cy.get(this._newDatasourceContainer).scrollTo("bottom", {ensureScrollable: false});
     cy.get(this._newDatabases).should("be.visible");
   }
 
