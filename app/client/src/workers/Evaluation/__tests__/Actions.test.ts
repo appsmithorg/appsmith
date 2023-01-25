@@ -4,7 +4,6 @@ import {
   createEvaluationContext,
   EvalContext,
 } from "workers/Evaluation/evaluate";
-import uniqueId from "lodash/uniqueId";
 import { MessageType } from "utils/MessageUtil";
 import {
   addDataTreeToContext,
@@ -316,64 +315,66 @@ describe("Add functions", () => {
     const key = "some";
     const value = "thing";
     const persist = false;
-    const uniqueActionRequestId = "kjebd";
-
-    // @ts-expect-error: mockReturnValueOnce is not available on uniqueId
-    uniqueId.mockReturnValueOnce(uniqueActionRequestId);
-
-    expect(evalContext.storeValue(key, value, persist)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith(
-      messageCreator("STORE_VALUE", {
-        data: {
-          trigger: {
-            type: "STORE_VALUE",
-            payload: {
-              key,
-              value,
-              persist,
-              uniqueActionRequestId,
-            },
-          },
-          eventType: undefined,
-        },
-        method: "PROCESS_TRIGGER",
-      }),
+    jest.useFakeTimers();
+    expect(evalContext.storeValue(key, value, persist)).resolves.toStrictEqual(
+      {},
     );
+    jest.runAllTimers();
+    expect(workerEventMock).lastCalledWith({
+      messageType: "DEFAULT",
+      body: {
+        data: [
+          {
+            payload: {
+              key: "some",
+              persist: false,
+              value: "thing",
+            },
+            type: "STORE_VALUE",
+          },
+        ],
+        method: "PROCESS_STORE_UPDATES",
+      },
+    });
   });
 
   it("removeValue works", () => {
     const key = "some";
-    expect(evalContext.removeValue(key)).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith(
-      messageCreator("REMOVE_VALUE", {
-        data: {
-          trigger: {
-            type: "REMOVE_VALUE",
+    jest.useFakeTimers();
+    expect(evalContext.removeValue(key)).resolves.toStrictEqual({});
+    jest.runAllTimers();
+    expect(workerEventMock).lastCalledWith({
+      messageType: "DEFAULT",
+      body: {
+        data: [
+          {
             payload: {
               key,
             },
+            type: "REMOVE_VALUE",
           },
-          eventType: undefined,
-        },
-        method: "PROCESS_TRIGGER",
-      }),
-    );
+        ],
+        method: "PROCESS_STORE_UPDATES",
+      },
+    });
   });
 
   it("clearStore works", () => {
-    expect(evalContext.clearStore()).resolves.toBe({});
-    expect(workerEventMock).lastCalledWith(
-      messageCreator("CLEAR_STORE", {
-        data: {
-          trigger: {
-            type: "CLEAR_STORE",
+    jest.useFakeTimers();
+    expect(evalContext.clearStore()).resolves.toStrictEqual({});
+    jest.runAllTimers();
+    expect(workerEventMock).lastCalledWith({
+      messageType: "DEFAULT",
+      body: {
+        data: [
+          {
             payload: null,
+            type: "CLEAR_STORE",
           },
-          eventType: undefined,
-        },
-        method: "PROCESS_TRIGGER",
-      }),
-    );
+        ],
+        method: "PROCESS_STORE_UPDATES",
+      },
+    });
   });
 
   it("download works", () => {
