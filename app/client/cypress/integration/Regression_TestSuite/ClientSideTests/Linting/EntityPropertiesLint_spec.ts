@@ -16,6 +16,7 @@ describe("Linting of entity properties", () => {
     const invalidProperty = "unknownProperty";
     // create Api1
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
+    agHelper.BlurFocusedElement();
     // Edit Button onclick property
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.EnterJSContext(
