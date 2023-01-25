@@ -24,7 +24,7 @@ import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";

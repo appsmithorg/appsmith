@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { find, noop } from "lodash";
 import { DropdownOption } from "components/constants";
 import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
-import { StyledMenu } from "design-system";
+import { StyledMenu } from "design-system-old";
 import {
   Button as BlueprintButton,
   PopoverInteractionKind,

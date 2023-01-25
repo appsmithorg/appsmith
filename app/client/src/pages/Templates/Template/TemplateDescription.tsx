@@ -12,7 +12,7 @@ import {
   Size,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import {
   createMessage,
   DATASOURCES,
