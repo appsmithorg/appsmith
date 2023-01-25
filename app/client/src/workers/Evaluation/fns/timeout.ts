@@ -1,6 +1,6 @@
-import { klona } from "klona/lite";
-import { createEvaluationContext, setupMetadata } from "../evaluate";
+import { createEvaluationContext } from "../evaluate";
 import { dataTreeEvaluator } from "../handlers/evalTree";
+import ExecutionMetaData from "./utils/ExecutionMetaData";
 import { addFn } from "./utils/fnGuard";
 
 export const _internalSetTimeout = self.setTimeout;
@@ -8,7 +8,7 @@ export const _internalClearTimeout = self.clearTimeout;
 
 export default function initTimeoutFns() {
   function setTimeout(cb: (...args: any) => any, delay: number, ...args: any) {
-    const metaData = klona(self["$metaData"]);
+    const metaData = ExecutionMetaData.getExecutionMetaData();
     return _internalSetTimeout(
       function(...args: any) {
         const evalContext = createEvaluationContext({
@@ -16,9 +16,12 @@ export default function initTimeoutFns() {
           resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
           isTriggerBased: true,
         });
-        self.ALLOW_ASYNC = true;
+        self["$allowAsync"] = true;
         Object.assign(self, evalContext);
-        setupMetadata(metaData);
+        ExecutionMetaData.setExecutionMetaData(
+          metaData.triggerMeta,
+          metaData.eventType,
+        );
         cb(...args);
       },
       delay,

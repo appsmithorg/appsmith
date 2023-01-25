@@ -1,9 +1,10 @@
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 
 export function addFn(
-  ctx: typeof globalThis,
+  ctx: any,
   fnName: string,
   fn: (...args: any[]) => any,
+  propertyDescriptor = {},
   fnGuards = [isAsyncGuard],
 ) {
   Object.defineProperty(ctx, fnName, {
@@ -14,11 +15,12 @@ export function addFn(
       return fn(...args);
     },
     enumerable: false,
+    ...propertyDescriptor,
   });
 }
 
-export function isAsyncGuard(_: (...args: any[]) => any, fnName: string) {
-  if (self.ALLOW_ASYNC) return;
-  self.IS_ASYNC = true;
+export function isAsyncGuard(fn: (...args: any[]) => any, fnName: string) {
+  if (self["$allowAsync"]) return fn;
+  self["$isAsync"] = true;
   throw new ActionCalledInSyncFieldError(fnName);
 }

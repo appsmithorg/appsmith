@@ -1,15 +1,19 @@
 import { uuid4 } from "@sentry/utils";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  LogObject,
+  Methods,
+  Severity,
+  SourceEntity,
+} from "entities/AppsmithConsole";
 import { klona } from "klona/lite";
 import moment from "moment";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import { ENTITY_TYPE } from "entities/DataTree/types";
-import { TriggerEmitter } from "./utils/TriggerEmitter";
+import TriggerEmitter from "./utils/TriggerEmitter";
 import { EventEmitter } from "events";
+import ExecutionMetaData from "./utils/ExecutionMetaData";
 
 class UserLog {
-  private source: any = {};
   private isEnabled = true;
   enable() {
     this.isEnabled = true;
@@ -17,17 +21,15 @@ class UserLog {
   disable() {
     this.isEnabled = false;
   }
-  constructor(private emitter: EventEmitter) {}
+  private emitter?: EventEmitter;
 
   private saveLog(method: Methods, data: any[]) {
     const parsed = this.parseLogs(method, data);
-    this.emitter.emit("process_logs", {
-      trigger: parsed,
-      metaData: self["$metaData"],
-    });
+    this.emitter?.emit("process_logs", parsed);
   }
 
   public overrideConsoleAPI() {
+    this.emitter = TriggerEmitter;
     const { debug, error, info, log, table, warn } = console;
     console = {
       ...console,
@@ -83,6 +85,17 @@ class UserLog {
       return [`There was some error: ${e} ${JSON.stringify(data)}`];
     }
   }
+
+  private getSource = (triggerMeta?: TriggerMeta): SourceEntity => {
+    const type = triggerMeta?.source?.entityType || ENTITY_TYPE.JSACTION;
+    const name =
+      triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "";
+    const propertyPath = triggerMeta?.triggerPropertyName || "";
+    const id = triggerMeta?.source?.id || "";
+    //@ts-expect-error : we are not using the source entity in the console
+    return { type, name, id, propertyPath };
+  };
+
   // parses the incoming log and converts it to the log object
   private parseLogs(method: Methods, data: any[]): LogObject {
     // Create an ID
@@ -101,27 +114,18 @@ class UserLog {
       severity = Severity.WARNING;
     }
 
+    const { triggerMeta } = ExecutionMetaData.getExecutionMetaData();
     return {
       method,
       id,
       data: this.sanitizeData(klona(output)),
       timestamp,
       severity,
-      source: this.source,
+      source: this.getSource(triggerMeta),
     };
   }
 }
 
-function setupConsole(eventType?: EventType, triggerMeta?: TriggerMeta) {
-  const type =
-    eventType === EventType.ON_JS_FUNCTION_EXECUTE
-      ? ENTITY_TYPE.JSACTION
-      : ENTITY_TYPE.WIDGET;
-  const name =
-    triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "";
-  const id = triggerMeta?.source?.id || "";
-}
-
-const userLogs = new UserLog(TriggerEmitter.getInstance());
+const userLogs = new UserLog();
 
 export default userLogs;

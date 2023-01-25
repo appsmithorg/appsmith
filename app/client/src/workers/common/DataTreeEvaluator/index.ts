@@ -6,6 +6,9 @@ import {
   EvaluationError,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
+  getEntityId,
+  getEntityName,
+  getEntityType,
   getEvalErrorPath,
   getEvalValuePath,
   isChildPropertyPath,
@@ -22,7 +25,7 @@ import {
   DataTreeWidget,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import { PrivateWidgets } from "entities/DataTree/types";
+import { ENTITY_TYPE, PrivateWidgets } from "entities/DataTree/types";
 import {
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,
@@ -68,11 +71,7 @@ import evaluateSync, {
   evaluateAsync,
 } from "workers/Evaluation/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
-import {
-  Severity,
-  SourceEntity,
-  ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
-} from "entities/AppsmithConsole";
+import { Severity } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
 import { JSUpdate } from "utils/JSPaneUtils";
 
@@ -104,6 +103,7 @@ import {
   isMetaWidgetTemplate,
   isWidgetDefaultPropertyPath,
 } from "entities/DataTree/utils";
+import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -942,26 +942,14 @@ export default class DataTreeEvaluator {
             : jsSnippet;
         if (jsSnippet) {
           if (entity && !propertyPath.includes("body")) {
-            let type = CONSOLE_ENTITY_TYPE.WIDGET;
-            let id = "";
-            // extracting the id and type of the entity from the entity for logs object
-            if (isWidget(entity)) {
-              type = CONSOLE_ENTITY_TYPE.WIDGET;
-              id = entity.widgetId;
-            } else if (isAction(entity)) {
-              type = CONSOLE_ENTITY_TYPE.ACTION;
-              id = entity.actionId;
-            } else if (isJSAction(entity)) {
-              type = CONSOLE_ENTITY_TYPE.JSACTION;
-              id = entity.actionId;
-            }
-            // This is the object that will help to associate the log with the origin entity
-            const source: SourceEntity = {
-              type,
-              name: fullPropertyPath?.split(".")[0] || "Widget",
-              id,
-            };
-            this.console.setSource(source);
+            ExecutionMetaData.setExecutionMetaData({
+              source: {
+                id: getEntityId(entity) || "",
+                entityType: getEntityType(entity) || ENTITY_TYPE.WIDGET,
+                name: getEntityName(entity) || "",
+              },
+              triggerPropertyName: fullPropertyPath?.split(".")[1] || "",
+            });
           }
 
           const result = this.evaluateDynamicBoundValue(

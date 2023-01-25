@@ -15,7 +15,7 @@ jest.mock("lodash/uniqueId");
 describe("Add functions", () => {
   const workerEventMock = jest.fn();
   self.postMessage = workerEventMock;
-  self.ALLOW_ASYNC = true;
+  self["$allowAsync"] = true;
   const dataTree: DataTree = {
     action1: {
       actionId: "123",

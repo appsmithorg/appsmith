@@ -12,5 +12,6 @@ export default function() {
     self[key] = value;
   }
   const dom = documentMock.parseHTML(`<!DOCTYPE html><body></body>`);
+  self.window = dom.window;
   self.document = dom.window.document;
 }

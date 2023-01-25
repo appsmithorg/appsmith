@@ -7,7 +7,6 @@ import {
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
 import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
-import userLogs from "./fns/console";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
@@ -246,10 +245,6 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
-    setupMetadata({
-      eventType: context?.eventType,
-      triggerMeta: context?.triggerMeta,
-    });
     const errors: EvaluationError[] = [];
     let result;
 
@@ -264,7 +259,7 @@ export default function evaluateSync(
       isTriggerBased: isJSCollection,
     });
 
-    evalContext.ALLOW_ASYNC = false;
+    evalContext["$allowAsync"] = false;
 
     const { script } = getUserScriptToEvaluate(
       userScript,
@@ -324,10 +319,6 @@ export async function evaluateAsync(
 ) {
   return (async function() {
     resetWorkerGlobalScope();
-    setupMetadata({
-      eventType: context?.eventType,
-      triggerMeta: context?.triggerMeta,
-    });
     const errors: EvaluationError[] = [];
     let result;
 
@@ -345,7 +336,7 @@ export async function evaluateAsync(
     });
 
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
-    evalContext.ALLOW_ASYNC = true;
+    evalContext["$allowAsync"] = true;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -378,13 +369,4 @@ export async function evaluateAsync(
       };
     }
   })();
-}
-
-export function setupMetadata(
-  metaData: {
-    eventType?: EventType;
-    triggerMeta?: TriggerMeta;
-  } = {},
-) {
-  self["$metaData"] = metaData;
 }

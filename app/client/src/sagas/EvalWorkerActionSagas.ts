@@ -3,8 +3,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { evalErrorHandler } from "../sagas/PostEvaluationSagas";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
 import { BatchedJSExecutionData } from "reducers/entityReducers/jsActionsReducer";
@@ -49,16 +47,7 @@ export function* lintTreeActionHandler(message: any) {
 export function* processLogsHandler(message: any) {
   const { body } = message;
   const { data } = body;
-  const { logs = [], triggerMeta, eventType } = data;
-  yield call(
-    storeLogs,
-    logs,
-    triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
-    eventType === EventType.ON_JS_FUNCTION_EXECUTE
-      ? ENTITY_TYPE.JSACTION
-      : ENTITY_TYPE.WIDGET,
-    triggerMeta?.source?.id || "",
-  );
+  yield call(storeLogs, data);
 }
 
 export function* processJSFunctionExecution(message: any) {
@@ -117,7 +106,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       yield logJSFunctionExecution(message);
       break;
     }
-    case MAIN_THREAD_ACTION.PROCESS_TRIGGERS: {
+    case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {
       const batchedTriggers = data;
       yield all(
         batchedTriggers.map((data: any) => {

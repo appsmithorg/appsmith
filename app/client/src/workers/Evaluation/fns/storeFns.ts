@@ -1,50 +1,56 @@
 import set from "lodash/set";
-import { addFn } from "./utils/fnGuard";
-import { TriggerEmitter } from "./utils/TriggerEmitter";
+import { batchedFn } from "./utils/batchedFn";
+import { BatchKey } from "./utils/TriggerEmitter";
 
-export function initStoreFns(ctx: typeof globalThis) {
-  const triggerEmitter = TriggerEmitter.getInstance();
-  function storeValue(key: string, value: string, persist = true) {
-    const requestPayload = {
-      type: "STORE_VALUE",
-      payload: {
-        key,
-        value,
-        persist,
-      },
-    };
-    set(self, ["appsmith", "store", key], value);
-    triggerEmitter.emit("process_store_updates", {
-      trigger: requestPayload,
-      metaData: self["$metaData"],
-    });
-    return Promise.resolve({});
-  }
+function storeFnDescriptor(key: string, value: string, persist = true) {
+  return {
+    type: "STORE_VALUE",
+    payload: {
+      key,
+      value,
+      persist,
+    },
+  };
+}
+export async function storeValue(key: string, value: string, persist = true) {
+  set(self, ["appsmith", "store", key], value);
+  const executor = batchedFn(storeFnDescriptor, BatchKey.process_store_updates);
+  executor(key, value, persist);
+  return {};
+}
 
-  function removeValue(key: string) {
-    const requestPayload = {
-      type: "REMOVE_VALUE",
-      payload: {
-        key,
-      },
-    };
-    //@ts-expect-error no types for store
-    delete self.appsmith.store[key];
-    triggerEmitter.emit("process_store_updates", requestPayload);
-    return Promise.resolve({});
-  }
+function removeValueFnDescriptor(key: string) {
+  return {
+    type: "REMOVE_VALUE",
+    payload: {
+      key,
+    },
+  };
+}
+export async function removeValue(key: string) {
+  //@ts-expect-error no types for store
+  delete self.appsmith.store[key];
+  const executor = batchedFn(
+    removeValueFnDescriptor,
+    BatchKey.process_store_updates,
+  );
+  executor(key);
+  return {};
+}
 
-  function clearStore() {
-    //@ts-expect-error no types for store
-    self.appsmith.store = {};
-    triggerEmitter.emit("process_store_updates", {
-      type: "CLEAR_STORE",
-      payload: null,
-    });
-    return Promise.resolve({});
-  }
-
-  addFn(ctx, "storeValue", storeValue);
-  addFn(ctx, "removeValue", removeValue);
-  addFn(ctx, "clearStore", clearStore);
+function clearStoreFnDescriptor() {
+  return {
+    type: "CLEAR_STORE",
+    payload: null,
+  };
+}
+export async function clearStore() {
+  //@ts-expect-error no types for store
+  self.appsmith.store = {};
+  const executor = batchedFn(
+    clearStoreFnDescriptor,
+    BatchKey.process_store_updates,
+  );
+  executor();
+  return {};
 }

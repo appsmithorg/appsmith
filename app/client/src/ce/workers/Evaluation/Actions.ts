@@ -1,22 +1,21 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import set from "lodash/set";
 import {
   ActionDescription,
   ActionTriggerFunctionNames,
 } from "@appsmith/entities/DataTree/actionTriggers";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
+import { isAction, isAppsmithEntity } from "./evaluationUtils";
 import { EvalContext } from "workers/Evaluation/evaluate";
-import { initStoreFns } from "workers/Evaluation/fns/storeFns";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { initIntervalFns } from "workers/Evaluation/fns/interval";
-import {
-  PLATFORM_FUNCTIONS,
-  promisifiedFnFactory,
-} from "@appsmith/workers/Evaluation/PlatformFunctions";
-import { TriggerMeta } from "ce/sagas/ActionExecution/ActionExecutionSagas";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
+import run from "workers/Evaluation/fns/actionFns";
+import { set } from "lodash";
+import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
+import TriggerEmitter from "workers/Evaluation/fns/utils/TriggerEmitter";
+import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
+import { promisifyAction } from "workers/Evaluation/fns/utils/PromisifyAction";
+import { entityFns, platformFns } from "workers/Evaluation/fns";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -26,13 +25,7 @@ declare global {
   interface Window {
     $allowAsync: boolean;
     $isAsync: boolean;
-    $metaData: {
-      eventType?: EventType;
-      triggerMeta?: TriggerMeta;
-    };
     $evaluationVersion: EvaluationVersion;
-    ALLOW_ASYNC?: boolean;
-    IS_ASYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
   }
 }
@@ -42,6 +35,14 @@ export enum ExecutionType {
   TRIGGER = "TRIGGER",
 }
 
+export type ActionDescriptionWithExecutionType = ActionDescription & {
+  executionType: ExecutionType;
+};
+
+export type ActionDispatcherWithExecutionType = (
+  ...args: any[]
+) => ActionDescriptionWithExecutionType;
+
 const ENTITY_FUNCTIONS: Record<
   string,
   {
@@ -50,47 +51,6 @@ const ENTITY_FUNCTIONS: Record<
     path?: string;
   }
 > = {
-  run: {
-    qualifier: (entity) => isAction(entity),
-    func: (entity) =>
-      function(
-        onSuccessOrParams?: () => unknown | Record<string, unknown>,
-        onError?: () => unknown,
-        params = {},
-      ): ActionDescriptionWithExecutionType {
-        const noArguments =
-          !onSuccessOrParams && !onError && isTrueObject(params);
-        const isNewSignature = noArguments || isTrueObject(onSuccessOrParams);
-
-        const actionParams = isTrueObject(onSuccessOrParams)
-          ? onSuccessOrParams
-          : params;
-
-        if (isNewSignature) {
-          return {
-            type: "RUN_PLUGIN_ACTION",
-            payload: {
-              actionId: isAction(entity) ? entity.actionId : "",
-              params: actionParams,
-            },
-            executionType: ExecutionType.PROMISE,
-          };
-        }
-        // Backwards compatibility
-        return {
-          type: "RUN_PLUGIN_ACTION",
-          payload: {
-            actionId: isAction(entity) ? entity.actionId : "",
-            onSuccess: onSuccessOrParams
-              ? onSuccessOrParams.toString()
-              : undefined,
-            onError: onError ? onError.toString() : undefined,
-            params: actionParams,
-          },
-          executionType: ExecutionType.TRIGGER,
-        };
-      },
-  },
   clear: {
     qualifier: (entity) => isAction(entity),
     func: (entity) =>
@@ -177,7 +137,6 @@ const ENTITY_FUNCTIONS: Record<
   },
 };
 
-const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
 const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
 /**
  * This method returns new dataTree with entity function and platform function
@@ -202,11 +161,13 @@ export const addDataTreeToContext = (args: {
   for (const [entityName, entity] of dataTreeEntries) {
     EVAL_CONTEXT[entityName] = entity;
     if (skipEntityFunctions || !isTriggerBased) continue;
-
-    for (const [functionName, funcCreator] of entityFunctionEntries) {
-      if (!funcCreator.qualifier(entity)) continue;
-      const func = funcCreator.func(entity);
-      const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
+    if (isAction(entity)) {
+      set(entityFunctionCollection, `${entityName}.run`, run.bind(entity));
+    }
+    for (const entityFn of entityFns) {
+      if (!entityFn.qualifier(entity)) continue;
+      const func = entityFn.fn(entity);
+      const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
       set(entityFunctionCollection, fullPath, func);
     }
   }
@@ -222,28 +183,50 @@ export const addDataTreeToContext = (args: {
 };
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
-  for (const [funcName, fn] of platformFunctionEntries) {
-    addFn(context, funcName, promisifiedFnFactory(funcName, fn));
+  for (const fnDef of platformFns) {
+    addFn(context, fnDef.name, fnDef.fn);
   }
-  initStoreFns(context);
   initIntervalFns(context);
 };
 
 export const getAllAsyncFunctions = (dataTree: DataTree) => {
   const asyncFunctionNameMap: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
-
   for (const [entityName, entity] of dataTreeEntries) {
+    if (isAction(entity)) {
+      asyncFunctionNameMap[`${entityName}.run`];
+    }
     for (const [functionName, funcCreator] of entityFunctionEntries) {
       if (!funcCreator.qualifier(entity)) continue;
       const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
       asyncFunctionNameMap[fullPath] = true;
     }
   }
-
   for (const name of Object.values(ActionTriggerFunctionNames)) {
     asyncFunctionNameMap[name] = true;
   }
-
   return asyncFunctionNameMap;
+};
+
+export const pusher = function(
+  this: any,
+  action: ActionDispatcherWithExecutionType,
+  ...args: any[]
+) {
+  const actionDescription = action(...args);
+  if (!self["$allowAsync"]) {
+    self["$isAsync"] = true;
+    const actionName = ActionTriggerFunctionNames[actionDescription.type];
+    throw new ActionCalledInSyncFieldError(actionName);
+  }
+  const { executionType, ...trigger } = actionDescription;
+  const executionMetaData = ExecutionMetaData.getExecutionMetaData();
+  if (executionType && executionType === ExecutionType.TRIGGER) {
+    TriggerEmitter.emit("process_batched_triggers", {
+      trigger,
+      ...executionMetaData,
+    });
+  } else {
+    return promisifyAction(trigger, executionMetaData);
+  }
 };

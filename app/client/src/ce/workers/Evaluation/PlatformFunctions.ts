@@ -1,9 +1,10 @@
-import { ActionDispatcher } from "entities/DataTree/types";
-import { klona } from "klona/lite";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
-import { promisifyAction } from "workers/Evaluation/fns/utils/PromisifyAction";
+import { ActionDispatcherWithExecutionType, ExecutionType } from "./Actions";
 
-export const PLATFORM_FUNCTIONS: Record<string, ActionDispatcher> = {
+export const PLATFORM_FUNCTIONS: Record<
+  string,
+  ActionDispatcherWithExecutionType
+> = {
   navigateTo: function(
     pageNameOrUrl: string,
     params: Record<string, string>,
@@ -12,6 +13,7 @@ export const PLATFORM_FUNCTIONS: Record<string, ActionDispatcher> = {
     return {
       type: "NAVIGATE_TO",
       payload: { pageNameOrUrl, params, target },
+      executionType: ExecutionType.PROMISE,
     };
   },
   showAlert: function(
@@ -21,24 +23,28 @@ export const PLATFORM_FUNCTIONS: Record<string, ActionDispatcher> = {
     return {
       type: "SHOW_ALERT",
       payload: { message, style },
+      executionType: ExecutionType.PROMISE,
     };
   },
   showModal: function(modalName: string) {
     return {
       type: "SHOW_MODAL_BY_NAME",
       payload: { modalName },
+      executionType: ExecutionType.PROMISE,
     };
   },
   closeModal: function(modalName: string) {
     return {
       type: "CLOSE_MODAL",
       payload: { modalName },
+      executionType: ExecutionType.PROMISE,
     };
   },
   download: function(data: string, name: string, type: string) {
     return {
       type: "DOWNLOAD",
       payload: { data, name, type },
+      executionType: ExecutionType.PROMISE,
     };
   },
   copyToClipboard: function(
@@ -51,34 +57,14 @@ export const PLATFORM_FUNCTIONS: Record<string, ActionDispatcher> = {
         data,
         options: { debug: options?.debug, format: options?.format },
       },
+      executionType: ExecutionType.PROMISE,
     };
   },
   resetWidget: function(widgetName: string, resetChildren = true) {
     return {
       type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
       payload: { widgetName, resetChildren },
-    };
-  },
-  postWindowMessage: function(
-    message: unknown,
-    source: string,
-    targetOrigin: string,
-  ) {
-    return {
-      type: "POST_MESSAGE",
-      payload: {
-        message,
-        source,
-        targetOrigin,
-      },
+      executionType: ExecutionType.PROMISE,
     };
   },
 };
-
-export function promisifiedFnFactory(fn: ActionDispatcher) {
-  const metaData = klona(self["$metaData"]);
-  return (...args: any[]) => {
-    const actionDescription = fn(...args);
-    return promisifyAction(actionDescription, metaData);
-  };
-}

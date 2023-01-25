@@ -3,19 +3,13 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import { _internalClearTimeout, _internalSetTimeout } from "../timeout";
 
-export class TriggerEmitter extends EventEmitter {
-  private static instance: TriggerEmitter;
-  private constructor() {
-    super();
-  }
-  static getInstance() {
-    if (!TriggerEmitter.instance) {
-      TriggerEmitter.instance = new TriggerEmitter();
-    }
-    return TriggerEmitter.instance;
-  }
+export enum BatchKey {
+  process_logs = "process_logs",
+  process_store_updates = "process_store_updates",
+  process_batched_triggers = "process_batched_triggers",
 }
 
+const TriggerEmitter = new EventEmitter();
 /**
  * This function is used to batch actions and send them to the main thread
  * in a single message. This is useful for actions that are called frequently
@@ -38,8 +32,6 @@ const priorityBatchedActionHandler = function(
     batchedData.push(data);
   };
 };
-
-const triggerEmitter = TriggerEmitter.getInstance();
 
 /**
  * This function is used to batch actions and send them to the main thread
@@ -70,7 +62,7 @@ const logsHandler = deferredBatchedActionHandler((batchedData) =>
   }),
 );
 
-triggerEmitter.on("process_logs", logsHandler);
+TriggerEmitter.on("process_logs", logsHandler);
 
 const storeUpdatesHandler = priorityBatchedActionHandler((batchedData) =>
   WorkerMessenger.ping({
@@ -79,13 +71,15 @@ const storeUpdatesHandler = priorityBatchedActionHandler((batchedData) =>
   }),
 );
 
-triggerEmitter.on("process_store_updates", storeUpdatesHandler);
+TriggerEmitter.on("process_store_updates", storeUpdatesHandler);
 
 const defaultTriggerHandler = priorityBatchedActionHandler((batchedData) =>
   WorkerMessenger.ping({
-    method: MAIN_THREAD_ACTION.PROCESS_TRIGGERS,
+    method: MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS,
     data: batchedData,
   }),
 );
 
-triggerEmitter.on("process_triggers", defaultTriggerHandler);
+TriggerEmitter.on("process_batched_triggers", defaultTriggerHandler);
+
+export default TriggerEmitter;

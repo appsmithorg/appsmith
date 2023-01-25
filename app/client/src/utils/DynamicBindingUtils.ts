@@ -5,8 +5,10 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
+  isAction,
   isJSAction,
   isTrueObject,
+  isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
@@ -522,4 +524,20 @@ export function getDynamicBindingsChangesSaga(
     }
   }
   return dynamicBindings;
+}
+
+export function getEntityType(entity: DataTreeEntity) {
+  return "ENTITY_TYPE" in entity && entity.ENTITY_TYPE;
+}
+
+export function getEntityId(entity: DataTreeEntity) {
+  if (isAction(entity)) return entity.actionId;
+  if (isWidget(entity)) return entity.widgetId;
+  if (isJSAction(entity)) return entity.actionId;
+}
+
+export function getEntityName(entity: DataTreeEntity) {
+  if (isAction(entity)) return entity.name;
+  if (isWidget(entity)) return entity.widgetName;
+  if (isJSAction(entity)) return entity.name;
 }
