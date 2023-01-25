@@ -307,7 +307,6 @@ export const Entity = forwardRef(
         content={props.addButtonHelptext || ""}
         disabled={!props.addButtonHelptext}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="right"
       >
         <AddButton
           className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
