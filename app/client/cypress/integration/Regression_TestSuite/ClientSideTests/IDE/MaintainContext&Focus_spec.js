@@ -183,6 +183,7 @@ describe("MaintainContext&Focus", function() {
     dataSources.ExpandSection(1);
     // Create and switch to datasource 2
     dataSources.SaveDSFromDialog(true);
+    cy.get(dataSources._editButton);
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("MongoDB");
     agHelper.RenameWithInPane("Mongo1", false);
