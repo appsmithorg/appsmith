@@ -26,25 +26,16 @@ describe("Upgrade appsmith version", () => {
 
       cy.execute(testUrl, "ls " + path + "/oldstack").then((res) => {
         cy.log("Files Inside oldstack", res.stdout);
-        cy.execute(testUrl, "ls " + path + "/oldstack/160" + res.stdout).then(
-          (res1) => {
-            cy.log("Files Inside oldstack/160", res1.stdout);
-          },
-        );
-        cy.execute(testUrl, "ls " + path + "/oldstack/ce" + res.stdout).then(
-          (res1) => {
-            cy.log("Files Inside oldstack/ce", res1.stdout);
-          },
-        );
       });
+
+      cy.execute(testUrl, "ls " + path + "/oldstack/160" + res.stdout).then(
+        (res1) => {
+          cy.log("Files Inside oldstack/160", res1.stdout);
+        },
+      );
 
       cy.execute(testUrl, "ls " + path + "/oldstack/ce").then((res) => {
         cy.log("Files Inside oldstack/ce", res.stdout);
-        // cy.execute(testUrl, "ls " + path + "/oldstack" + res.stdout).then(
-        //   (res1) => {
-        //     cy.log("Files Inside oldstack/" + res.stdout, res1.stdout);
-        //   },
-        // );
       });
 
       localStorage.setItem("ContainerName", `appsmith-160_${name}_updated`);
@@ -57,6 +48,10 @@ describe("Upgrade appsmith version", () => {
         `appsmith-160_${name}_updated`,
       );
       cy.wait(45000);
+
+      cy.execute(testUrl, "docker ps").then((res) => {
+        cy.log("Docker PS", res.stdout);
+      });
 
       cy.log("Verify Logs");
       cy.GetAndVerifyLogs(testUrl, `appsmith-160_${name}_updated`); // Get and verify the logs
