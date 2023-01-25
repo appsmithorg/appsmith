@@ -65,7 +65,7 @@ class FunctionDeterminer {
         // logLevel should help us in debugging this.
         logs.push({ error: "Error when determining async function" + e });
       }
-      const isAsync = !!self.IS_ASYNC;
+      const isAsync = !self.IS_SYNC;
 
       return isAsync;
     })();
