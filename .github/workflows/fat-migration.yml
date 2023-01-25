@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  fat-container-test:
+  ci-test:
     # Only run if the build step is successful
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
     # then we don't check for the PR approved state
@@ -77,7 +77,7 @@ jobs:
         uses: martijnhols/actions-cache/restore@v3
         with:
           path: |
-            ~/combined_failed_spec_fat
+            ~/combined_failed_spec_ci
           key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
@@ -87,7 +87,7 @@ jobs:
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_spec_env=$(cat ~/combined_failed_spec_fat)
+          failed_spec_env=$(cat ~/combined_failed_spec_ci)
           echo "failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -115,8 +115,8 @@ jobs:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
-          mkdir -p fatcontainerlocal/stacks/configuration/
-          mkdir -p fatcontainerlocal/oldstack
+          mkdir -p cicontainerlocal/stacks/configuration/
+          mkdir -p cicontainerlocal/oldstack
 
       - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
@@ -130,7 +130,7 @@ jobs:
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
           -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 --volume /:/host   \
           -v `pwd`/git-server/repos:/git-server/repos  appsmith/test-event-driver:nightly
-          cd fatcontainerlocal
+          cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 --add-host=host.docker.internal:host-gateway \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
             -e APPSMITH_AUDITLOG_ENABLED=true \
@@ -181,8 +181,8 @@ jobs:
           POSTGRES_PASSWORD: postgres
         run: |
           cd app/client
-          chmod a+x ./cypress/setup-test-fat.sh
-          ./cypress/setup-test-fat.sh
+          chmod a+x ./cypress/setup-test-ci.sh
+          ./cypress/setup-test-ci.sh
 
       - uses: browser-actions/setup-chrome@latest
         with:
@@ -225,7 +225,7 @@ jobs:
           record: true
           install: false
           parallel: true
-          config-file: cypress_fat.json
+          config-file: cypress_ci.json
           group: "Electrons on Github Action Fat Container"
           spec: "cypress/integration/**/**/*"
           working-directory: app/client
@@ -273,7 +273,7 @@ jobs:
           record: true
           install: false
           parallel: true
-          config-file: cypress_fat.json
+          config-file: cypress_ci.json
           group: "Electrons on Github Action"
           spec: "cypress/integration/**/**/*"
           working-directory: app/client
@@ -285,7 +285,7 @@ jobs:
       #   if: always()
       #   uses: mxschmitt/action-tmate@v3
 
-      - name: Collect fat container logs
+      - name: Collect CI container logs
         if: always()
         working-directory: "."
         run: |
@@ -304,28 +304,28 @@ jobs:
         if: failure()
         run: echo "::set-output name=run_result::failedtest" > ~/run_result
 
-      # Create a directory ~/failed_spec_fat and add a dummy file
+      # Create a directory ~/failed_spec_ci and add a dummy file
       # This will ensure upload and download steps are successfull
       - name: Create directories for failed tests
         if: always()
         run: |
-          mkdir -p  ~/failed_spec_fat
-          echo  "empty" >> ~/failed_spec_fat/dummy-${{ matrix.job }}
+          mkdir -p  ~/failed_spec_ci
+          echo  "empty" >> ~/failed_spec_ci/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
       - name: Incase of test failures copy them to a file
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
-          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_fat/failed_spec_fat-${{ matrix.job }}
+          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_ci/failed_spec_ci-${{ matrix.job }}
 
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: failed-spec-fat
-          path: ~/failed_spec_fat
+          name: failed-spec-ci
+          path: ~/failed_spec_ci
 
       # Force store previous run result to cache
       - name: Store the previous run result
@@ -344,7 +344,7 @@ jobs:
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
-            ~/failed_spec_fat
+            ~/failed_spec_ci
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
