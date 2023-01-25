@@ -4,18 +4,6 @@ const testdata = require("../../fixtures/testdata.json");
 const testUrl = "http://localhost:5001/v1/parent/cmd";
 describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
-    cy.execute(testUrl, "uname -a").then((res) => {
-      cy.log("UNAME", res.stdout);
-    });
-    cy.execute(testUrl, "docker -v").then((res) => {
-      cy.log("DOCKER VERSION", res.stdout);
-    });
-    cy.execute(testUrl, "pwd").then((res) => {
-      cy.log("PWD", res.stdout);
-    });
-    cy.execute(testUrl, "cd oldstack && ls").then((res) => {
-      cy.log("files inside oldstack", res.stdout);
-    });
     const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
     cy.wait(2000);
@@ -36,12 +24,16 @@ describe("Upgrade appsmith version", () => {
       path = path[0].slice(0, -7);
       cy.log(path);
 
+      cy.execute(testUrl, "ls " + path + "/oldstack").then((res) => {
+        cy.log("Files Inside oldstack", res);
+      });
+
       localStorage.setItem("ContainerName", `appsmith-160_${name}_updated`);
 
       cy.log("Start old stack container");
       cy.CreateAContainer(
         testUrl,
-        "oldstack",
+        path + "/oldstack",
         "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
       );
