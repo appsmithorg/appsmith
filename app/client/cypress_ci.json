@@ -1,10 +1,10 @@
 {
-	"baseUrl": "https://dev.appsmith.com/",
+	"baseUrl": "http://localhost/",
 	"defaultCommandTimeout": 20000,
 	"requestTimeout": 21000,
-	"responseTimeout": 20000,
+  "responseTimeout": 20000,
 	"pageLoadTimeout": 30000,
-	"videoUploadOnPasses": false,
+  "videoUploadOnPasses": false,
   "videoCompression": false,
   "numTestsKeptInMemory": 10,
 	"reporterOptions": {
