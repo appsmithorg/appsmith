@@ -385,7 +385,19 @@ class AnalyticsUtil {
             resolve(false);
           }, 2000);
           analytics.SNIPPET_VERSION = "4.1.0";
-          analytics.load(key);
+          analytics.load(key, {
+            integrations: {
+              "Segment.io": {
+                deliveryStrategy: {
+                  strategy: "batching",
+                  config: {
+                    size: 100,
+                    timeout: 5000,
+                  },
+                },
+              },
+            },
+          });
           analytics.page();
         }
       })(window);
