@@ -582,7 +582,7 @@ class ListWidget extends BaseWidget<
   /**
    * Only Initiate Cache if
    * 1. Triggered or Selected Key changes (i.e a  new row was triggered or selected)
-   * 2. If Server-side Pagination is just turned on. (The is mainly to cache any row previously selected)
+   * 2. If Server-side Pagination is just turned on. (This is mainly to cache any row previously selected)
    *
    * If this conditions are true, we'd send the keys to the MetaWidgetGenerator to handle all Caching.
    */
@@ -602,7 +602,7 @@ class ListWidget extends BaseWidget<
       ),
     );
 
-    this.metaWidgetGenerator.handleCache(keys);
+    this.metaWidgetGenerator.handleCachedKeys(keys);
   };
 
   onItemClick = (rowIndex: number) => {

@@ -1714,7 +1714,7 @@ class MetaWidgetGenerator {
    * The Rows to be cached would be stored in this.cachedRows
    * The Data in these rows would be cached in this.rowDataCache
    */
-  handleCache = (keys: Set<string>) => {
+  handleCachedKeys = (keys: Set<string>) => {
     this.updateCurrCachedRows(keys);
     this.updateRowDataCache(keys);
   };
