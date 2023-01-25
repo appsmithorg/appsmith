@@ -45,7 +45,7 @@ describe("Upgrade appsmith version", () => {
         "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
       );
-      cy.wait(45000);
+      cy.wait(60000);
 
       cy.execute(testUrl, "docker ps").then((res) => {
         cy.log("Docker PS", res.stdout);
