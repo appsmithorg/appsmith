@@ -11,7 +11,7 @@ import {
   IconName,
   Icon,
   IconSize,
-} from "design-system";
+} from "design-system-old";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";

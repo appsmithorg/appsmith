@@ -7,7 +7,7 @@ import {
 } from "@appsmith/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
-import { StyledToastContainer } from "design-system";
+import { StyledToastContainer } from "design-system-old";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { MemoryRouter } from "react-router-dom";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";

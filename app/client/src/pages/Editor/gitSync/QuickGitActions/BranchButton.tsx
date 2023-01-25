@@ -14,7 +14,7 @@ import {
   Icon,
   IconSize,
   TooltipComponent as Tooltip,
-} from "design-system";
+} from "design-system-old";
 import { isEllipsisActive } from "utils/helpers";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
