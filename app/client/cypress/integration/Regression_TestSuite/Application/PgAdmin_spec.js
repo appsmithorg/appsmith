@@ -19,13 +19,9 @@ describe("PgAdmin Clone App", function() {
   });
 
   it("1. Add dsl and authenticate datasource", function() {
-    // authenticating datasource
-    dataSources.NavigateToDSCreateNew();
-    cy.get(datasource.PostgreSQL).click({force: true});
-    dataSources.FillPostgresDSForm();
-    dataSources.TestSaveDatasource();
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
+    dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      datasourceName = $dsName;
     });
   });
 
@@ -96,11 +92,11 @@ describe("PgAdmin Clone App", function() {
     cy.WaitAutoSave();
     dataSources.RunQuery();
 
-    
     cy.get("#switcher--widgets").click();
     cy.xpath(appPage.viewButton)
       .first()
       .click({ force: true });
+    // adding new table
     cy.xpath(appPage.addNewtable).click({ force: true });
     cy.generateUUID().then((UUID) => {
       cy.xpath(appPage.addTablename)
@@ -122,7 +118,6 @@ describe("PgAdmin Clone App", function() {
       .click();
     cy.xpath(appPage.submitButton).click({ force: true });
     cy.xpath(appPage.addColumn).should("be.visible");
-    // cy.xpath(appPage.submitButton).click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
     cy.get("#switcher--explorer").click({ force: true });
     dataSources.NavigateToActiveTab();
