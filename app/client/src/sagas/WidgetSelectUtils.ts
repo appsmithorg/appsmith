@@ -95,7 +95,7 @@ export const deselectAll = (request: SelectionPayload): SetSelectionResult => {
 export const selectOneWidget = (
   request: SelectionPayload,
 ): SetSelectionResult => {
-  if (request.length > 1) {
+  if (request.length !== 1) {
     throw new WidgetSelectionError(
       "Wrong payload supplied",
       request,
@@ -110,7 +110,7 @@ export const selectMultipleWidgets = (
   allWidgets: CanvasWidgetsReduxState,
 ): SetSelectionResult => {
   const parentToMatch = allWidgets[request[0]]?.parentId;
-  const areSiblings = request.some((each) => {
+  const areSiblings = request.every((each) => {
     return allWidgets[each]?.parentId === parentToMatch;
   });
   if (!areSiblings) return;

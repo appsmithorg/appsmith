@@ -37,6 +37,7 @@ import {
 } from "sagas/WidgetSelectUtils";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { areArraysEqual } from "utils/AppsmithUtils";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
@@ -60,8 +61,6 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       widgetId in allWidgets ? allWidgets[widgetId].parentId : undefined;
 
     switch (selectionRequestType) {
-      // Deselect everything and set the lastSelected to the main container
-      // This will reset the last selected canvas and can be pasted into
       case SelectionRequestType.Empty: {
         newSelection = {
           widgets: [],
@@ -69,7 +68,6 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         };
         break;
       }
-      //
       case SelectionRequestType.One: {
         assertParentId(parentId);
         newSelection = selectOneWidget(payload);
@@ -117,6 +115,8 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
 
     if (!newSelection) return;
 
+    // When append selections happen, we want to ensure they all exist under the same parent
+    // Selections across parents is not possible.
     if (
       [SelectionRequestType.PushPop, SelectionRequestType.ShiftSelect].includes(
         selectionRequestType,
@@ -135,12 +135,16 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         );
       }
     }
-
-    yield put(setSelectedWidgets(newSelection.widgets));
+    if (!areArraysEqual(newSelection.widgets, selectedWidgets)) {
+      yield put(setSelectedWidgets(newSelection.widgets));
+    }
     if (parentId && newSelection.widgets.length === 1) {
       yield call(setWidgetAncestry, parentId, allWidgets);
     }
-    if (newSelection.lastWidgetSelected) {
+    if (
+      newSelection.lastWidgetSelected &&
+      newSelection.lastWidgetSelected !== lastSelectedWidget
+    ) {
       yield put(setLastSelectedWidget(newSelection.lastWidgetSelected));
     }
   } catch (error) {
