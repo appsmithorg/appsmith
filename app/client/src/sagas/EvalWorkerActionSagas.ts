@@ -14,9 +14,11 @@ import {
   ResponsePayload,
   evalWorker,
   executeTriggerRequestSaga,
+  updateDataTreeHandler,
 } from "../sagas/EvaluationsSaga";
 import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
+import { EvalTreeResponseData } from "workers/Evaluation/types";
 
 /*
  * Used to evaluate and execute dynamic trigger end to end
@@ -115,6 +117,15 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
       yield logJSFunctionExecution(message);
+      break;
+    }
+    case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
+      const { appMode, unevalTree, workerResponse } = data;
+      yield call(
+        updateDataTreeHandler,
+        workerResponse as EvalTreeResponseData,
+        { appMode, unevalTree },
+      );
       break;
     }
   }

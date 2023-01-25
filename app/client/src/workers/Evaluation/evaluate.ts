@@ -16,6 +16,7 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import { updateJSCollectionStateFromContext } from "./JSObject";
 
 export type EvalResult = {
   result: any;
@@ -305,6 +306,9 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
+      if (isJSCollection) {
+        updateJSCollectionStateFromContext();
+      }
       if (!skipLogsOperations) logs = userLogs.flushLogs();
       for (const entityName in evalContext) {
         if (evalContext.hasOwnProperty(entityName)) {
@@ -377,6 +381,7 @@ export async function evaluateAsync(
       logs = userLogs.flushLogs();
     } finally {
       setEvaluationEnd(true);
+      updateJSCollectionStateFromContext();
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.

@@ -1,5 +1,5 @@
 import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
-import { isEmpty, set } from "lodash";
+import { get, isEmpty, merge, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
@@ -16,6 +16,8 @@ import {
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
 import { functionDeterminer } from "../functionDeterminer";
+import { dataTreeEvaluator } from "../handlers/evalTree";
+import { jsObjectCollection } from "./Collection";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -281,4 +283,35 @@ export function getJSEntities(dataTree: DataTree) {
     }
   });
   return jsCollections;
+}
+
+export function updateJSCollectionStateFromContext() {
+  const newVarState = {};
+  const currentEvalContext = self;
+  const jsObjectCOllectionState = dataTreeEvaluator?.currentJSCollectionState;
+  const oldUnEvalTree = dataTreeEvaluator?.oldUnEvalTree || {};
+  const jsObjectNames = Object.keys(jsObjectCOllectionState || {});
+  for (const jsObjectName of jsObjectNames) {
+    const jsObjectEntity = oldUnEvalTree[jsObjectName] as DataTreeJSAction;
+    const variables = jsObjectEntity.variables;
+    for (const variableName of variables) {
+      const variableValue = get(currentEvalContext, [
+        jsObjectName,
+        variableName,
+      ]);
+      set(newVarState, [jsObjectName, variableName], variableValue);
+    }
+  }
+
+  jsObjectCollection.setVariableState(newVarState);
+}
+
+export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
+  // loop through jsCollectionState and set all values to evalTree
+  const jsCollection = jsObjectCollection.getVariableState();
+  const jsCollectionEntries = Object.entries(jsCollection);
+  for (const [jsObjectName, variableState] of jsCollectionEntries) {
+    const newJSObject = merge(evalTree[jsObjectName], variableState);
+    evalTree[jsObjectName] = newJSObject;
+  }
 }

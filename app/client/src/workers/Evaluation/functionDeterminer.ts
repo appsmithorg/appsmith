@@ -43,6 +43,7 @@ class FunctionDeterminer {
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {
     self.TRIGGER_COLLECTOR = [];
     self.IS_ASYNC = false;
+    self.ALLOW_ASYNC = false;
 
     return (function() {
       try {
