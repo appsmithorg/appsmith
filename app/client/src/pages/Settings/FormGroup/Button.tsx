@@ -1,6 +1,6 @@
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import React from "react";
-import { Button, Category } from "design-system";
+import { Button, Category } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";

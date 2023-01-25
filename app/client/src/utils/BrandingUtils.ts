@@ -1,6 +1,6 @@
 import tinycolor from "tinycolor2";
 import { darkenColor } from "widgets/WidgetUtils";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ADMIN_BRANDING_LOGO_SIZE_ERROR,
