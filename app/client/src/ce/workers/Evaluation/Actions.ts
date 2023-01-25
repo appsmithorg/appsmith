@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import {
-  ActionDescription,
-  ActionTriggerFunctionNames,
-} from "@appsmith/entities/DataTree/actionTriggers";
-import { isAction, isAppsmithEntity } from "./evaluationUtils";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { EvalContext } from "workers/Evaluation/evaluate";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { initIntervalFns } from "workers/Evaluation/fns/interval";
