@@ -7,10 +7,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import {
-  getMetaWidgetChildrenIds,
-  getMetaWidgetCreatorIds,
-} from "utils/metaWidgetReducerUtils";
 
 export type MetaWidgetsReduxState = {
   [widgetId: string]: FlattenedWidgetProps;
@@ -84,20 +80,13 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
     action: ReduxAction<DeleteMetaWidgetsPayload>,
   ) => {
     const { creatorIds } = action.payload;
-    const metaWidgetIds: string[] = getMetaWidgetChildrenIds(state, creatorIds);
-    const childMetaWidgetCreatorIds = getMetaWidgetCreatorIds(
-      state,
-      metaWidgetIds,
-    );
-    const allCreatorIds = [...creatorIds, ...childMetaWidgetCreatorIds];
 
-    metaWidgetIds.forEach((metaWidgetId) => {
-      if (
-        state[metaWidgetId]?.creatorId &&
-        allCreatorIds.includes(state[metaWidgetId].creatorId ?? "")
-      ) {
-        delete state[metaWidgetId];
-      }
+    creatorIds.forEach((creatorId) => {
+      Object.keys(state).forEach((metaWidgetId) => {
+        if (state[metaWidgetId]?.creatorId === creatorId) {
+          delete state[metaWidgetId];
+        }
+      });
     });
 
     return state;
