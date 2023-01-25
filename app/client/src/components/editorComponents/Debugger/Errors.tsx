@@ -42,7 +42,7 @@ function Errors(props: { hasShortCut?: boolean }) {
             const logItemProps = getLogItemProps(e);
             // Expand all errors by default
             return (
-              <LogItem key={`debugger-${index}`} {...logItemProps} expand />
+              <LogItem key={`debugger-${index}123`} {...logItemProps} expand />
             );
           })
         )}
