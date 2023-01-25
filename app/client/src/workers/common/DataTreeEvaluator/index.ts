@@ -357,6 +357,10 @@ export default class DataTreeEvaluator {
 
   setupUpdateTree(
     unEvalTree: DataTree,
+    _differences?: Diff<
+      Record<string, DataTreeJSAction>,
+      Record<string, DataTreeJSAction>
+    >[],
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -371,13 +375,12 @@ export default class DataTreeEvaluator {
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
     this.updateLocalUnEvalTree(localUnEvalTree);
-    //get difference in js collection body to be parsed
-    const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
-    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
+
     const jsDifferences: Diff<
       Record<string, DataTreeJSAction>,
       Record<string, DataTreeJSAction>
-    >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
+    >[] =
+      _differences || this.getDifferencesInJSCollectionBody(localUnEvalTree);
     const jsTranslatedDiffs = flatten(
       jsDifferences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
@@ -399,7 +402,7 @@ export default class DataTreeEvaluator {
     );
 
     const differences: Diff<DataTree, DataTree>[] =
-      diff(this.oldUnEvalTree, localUnEvalTree) || [];
+      _differences || diff(this.oldUnEvalTree, localUnEvalTree) || [];
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
@@ -526,179 +529,11 @@ export default class DataTreeEvaluator {
     };
   }
 
-  setupUpdateTreeFromWorker(
-    unEvalTree: DataTree,
-    differences: Diff<DataTree, DataTree>[],
-  ): {
-    unEvalUpdates: DataTreeDiff[];
-    evalOrder: string[];
-    lintOrder: string[];
-    jsUpdates: Record<string, JSUpdate>;
-    nonDynamicFieldValidationOrder: string[];
-  } {
-    const totalUpdateTreeSetupStartTime = performance.now();
-
-    let localUnEvalTree = Object.assign({}, unEvalTree);
-    let jsUpdates: Record<string, JSUpdate> = {};
-    const diffCheckTimeStartTime = performance.now();
-    //update uneval tree from previously saved current state of collection
-    this.updateLocalUnEvalTree(localUnEvalTree);
-
+  getDifferencesInJSCollectionBody(localUnEvalTree: DataTree) {
     //get difference in js collection body to be parsed
-    // const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
-    // const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
-    // const jsDifferences: Diff<
-    //   Record<string, DataTreeJSAction>,
-    //   Record<string, DataTreeJSAction>
-    //   >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
-
-    const jsTranslatedDiffs = flatten(
-      differences.map((diff) =>
-        translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
-      ),
-    );
-    //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = parseJSActions(
-      this,
-      localUnEvalTree,
-      jsTranslatedDiffs,
-      this.oldUnEvalTree,
-    );
-
-    jsUpdates = parsedCollections.jsUpdates;
-    //update local data tree if js body has updated (remove/update/add js functions or variables)
-    localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
-      jsUpdates,
-      localUnEvalTree,
-    );
-
-    // const differences: Diff<DataTree, DataTree>[] =
-    //   diff(this.oldUnEvalTree, localUnEvalTree) ||
-
-    // Since eval tree is listening to possible events that don't cause differences
-    // We want to check if no diffs are present and bail out early
-    if (differences.length === 0) {
-      return {
-        unEvalUpdates: [],
-        evalOrder: [],
-        lintOrder: [],
-        jsUpdates: {},
-        nonDynamicFieldValidationOrder: [],
-      };
-    }
-    //find all differences which can lead to updating of dependency map
-    const translatedDiffs = flatten(
-      differences.map((diff) =>
-        translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
-      ),
-    );
-    const diffCheckTimeStopTime = performance.now();
-    this.logs.push({
-      differences,
-      translatedDiffs,
-    });
-    const updateDependencyStartTime = performance.now();
-    // Find all the paths that have changed as part of the difference and update the
-    // global dependency map if an existing dynamic binding has now become legal
-    const {
-      dependenciesOfRemovedPaths,
-      extraPathsToLint,
-      removedPaths,
-    } = updateDependencyMap({
-      dataTreeEvalRef: this,
-      translatedDiffs,
-      unEvalDataTree: localUnEvalTree,
-    });
-    const updateDependencyEndTime = performance.now();
-
-    this.applyDifferencesToEvalTree({ differences, localUnEvalTree });
-
-    const calculateSortOrderStartTime = performance.now();
-    const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
-      differences,
-      dependenciesOfRemovedPaths,
-      removedPaths,
-      localUnEvalTree,
-    );
-    const calculateSortOrderEndTime = performance.now();
-    // Remove anything from the sort order that is not a dynamic leaf since only those need evaluation
-    const evaluationOrder: string[] = [];
-    let nonDynamicFieldValidationOrderSet = new Set<string>();
-
-    subTreeSortOrder.filter((propertyPath) => {
-      // We are setting all values from our uneval tree to the old eval tree we have
-      // So that the actual uneval value can be evaluated
-      if (isDynamicLeaf(localUnEvalTree, propertyPath)) {
-        const unEvalPropValue = get(localUnEvalTree, propertyPath);
-        const evalPropValue = get(this.evalTree, propertyPath);
-        if (!isFunction(evalPropValue)) {
-          set(this.evalTree, propertyPath, unEvalPropValue);
-        }
-        evaluationOrder.push(propertyPath);
-      } else {
-        /**
-         * if the non dynamic value changes that should trigger revalidation like tabs.tabsObj then we store it in nonDynamicFieldValidationOrderSet
-         */
-        if (this.inverseValidationDependencyMap[propertyPath]) {
-          nonDynamicFieldValidationOrderSet = new Set([
-            ...nonDynamicFieldValidationOrderSet,
-            propertyPath,
-          ]);
-        }
-      }
-    });
-
-    this.logs.push({
-      sortedDependencies: this.sortedDependencies,
-      inverse: this.inverseDependencyMap,
-      updatedDependencyMap: this.dependencyMap,
-      evaluationOrder: evaluationOrder,
-    });
-
-    // Remove any deleted paths from the eval tree
-    removedPaths.forEach((removedPath) => {
-      unset(this.evalTree, removedPath);
-    });
-
-    const cloneStartTime = performance.now();
-    // TODO: For some reason we are passing some reference which are getting mutated.
-    // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = klona(localUnEvalTree);
-    const cloneEndTime = performance.now();
-
-    const totalUpdateTreeSetupEndTime = performance.now();
-
-    const timeTakenForSetupUpdateTree = {
-      total: getFixedTimeDifference(
-        totalUpdateTreeSetupEndTime,
-        totalUpdateTreeSetupStartTime,
-      ),
-      updateDependencyMap: getFixedTimeDifference(
-        updateDependencyEndTime,
-        updateDependencyStartTime,
-      ),
-      calculateSubTreeSortOrder: getFixedTimeDifference(
-        calculateSortOrderEndTime,
-        calculateSortOrderStartTime,
-      ),
-      findDifferences: getFixedTimeDifference(
-        diffCheckTimeStopTime,
-        diffCheckTimeStartTime,
-      ),
-      clone: getFixedTimeDifference(cloneEndTime, cloneStartTime),
-    };
-
-    this.logs.push({ timeTakenForSetupUpdateTree });
-
-    return {
-      unEvalUpdates: translatedDiffs,
-      evalOrder: evaluationOrder,
-      lintOrder: union(evaluationOrder, extraPathsToLint),
-      jsUpdates,
-      nonDynamicFieldValidationOrder: Array.from(
-        nonDynamicFieldValidationOrderSet,
-      ),
-    };
+    const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
+    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
+    return diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
   }
 
   evalAndValidateSubTree(
