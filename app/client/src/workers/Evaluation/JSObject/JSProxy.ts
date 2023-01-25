@@ -123,7 +123,7 @@ export class JSProxy {
     const data: Record<string, unknown> = {};
     for (const funcName of Object.keys(dataStore)) {
       try {
-        structuredClone(dataStore[funcName]);
+        self.structuredClone(dataStore[funcName]);
         data[funcName] = dataStore[funcName];
       } catch (e) {
         errors[funcName] = {
