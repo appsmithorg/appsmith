@@ -1,5 +1,4 @@
-const adminSettings = require("../../../../locators/AdminsSettings");
-const commonlocators = require("../../../../locators/commonlocators.json");
+import adminSettings from "../../../../locators/AdminsSettings";
 import homePage from "../../../../locators/HomePage";
 
 describe("Form Login test functionality", function() {

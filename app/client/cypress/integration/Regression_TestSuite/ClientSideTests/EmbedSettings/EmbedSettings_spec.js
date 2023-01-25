@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const adminSettings = require("../../../../locators/AdminsSettings");
+import adminSettings from "../../../../locators/AdminsSettings";
 
 describe("Embed settings options", function() {
   const {
