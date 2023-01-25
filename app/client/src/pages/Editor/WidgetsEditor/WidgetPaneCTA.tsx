@@ -24,6 +24,10 @@ import {
   createMessage,
   WIDGET_USED,
 } from "@appsmith/constants/messages";
+import {
+  getExplorerActive,
+  getExplorerPinned,
+} from "selectors/explorerSelector";
 
 const WIDGET_PANE_WIDTH = 246;
 const WIDGET_PANE_HEIGHT = 600;
@@ -69,6 +73,8 @@ const StyledIconWrapper = styled(IconWrapper)`
 function WidgetPaneTrigger() {
   const dispatch = useDispatch();
   const openWidgetPanel = useSelector(selectForceOpenWidgetPanel);
+  const pinned = useSelector(getExplorerPinned);
+  const active = useSelector(getExplorerActive);
   const dragDetails = useSelector(getDragDetails);
   const getMousePosition = useMouseLocation();
   const ref = useRef<HTMLDivElement | null>(null);
@@ -98,6 +104,12 @@ function WidgetPaneTrigger() {
 
     return false;
   };
+
+  useEffect(() => {
+    if (!pinned && active && openWidgetPanel) {
+      dispatch(forceOpenWidgetPanel(false));
+    }
+  }, [pinned, active, openWidgetPanel]);
 
   // To close the pane when we see a drag of a new widget
   useEffect(() => {
