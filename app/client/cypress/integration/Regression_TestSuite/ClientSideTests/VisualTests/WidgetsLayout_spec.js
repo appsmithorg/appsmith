@@ -2,7 +2,7 @@ describe("Visual regression tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update
   //  2. Run test in headless mode with chrome (to maintain same resolution in CI)
-  //      command: "npx cypress run --spec cypress/integration/Smoke_TestSuite/ClientSideTests/VisualTests/WidgetsLayout_spec.js  --browser chrome"
+  //      command: "npx cypress run --spec cypress/integration/Regression_TestSuite/ClientSideTests/VisualTests/WidgetsLayout_spec.js  --browser chrome"
   //  3. New screenshot will be generated in the snapshot folder
 
   it("Verify SwitchGroup inline enable/disbale", () => {
