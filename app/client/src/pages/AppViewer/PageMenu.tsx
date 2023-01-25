@@ -150,12 +150,14 @@ export function PageMenu(props: NavigationProps) {
               workspaceId={workspaceID}
             />
           )}
-          <PrimaryCTA
-            className="t--back-to-editor--mobile"
-            navColorStyle={navColorStyle}
-            primaryColor={primaryColor}
-            url={props.url}
-          />
+          {isOpen && (
+            <PrimaryCTA
+              className="t--back-to-editor--mobile"
+              navColorStyle={navColorStyle}
+              primaryColor={primaryColor}
+              url={props.url}
+            />
+          )}
           {!hideWatermark && (
             <a
               className="flex hover:no-underline"
