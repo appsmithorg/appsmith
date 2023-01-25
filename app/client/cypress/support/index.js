@@ -12,7 +12,7 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
-/// <reference types="Cypress" />
+/// <reference types="Cypress"/>
 
 import "cypress-real-events/support";
 import "cypress-wait-until";
