@@ -400,7 +400,7 @@ jobs:
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   perf-test:
-    needs: [ client-build, server-build, rts-build ]
+    needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
     if: success()
     name: perf-test
