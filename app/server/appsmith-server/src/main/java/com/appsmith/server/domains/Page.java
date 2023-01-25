@@ -1,6 +1,9 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,10 +20,13 @@ import java.util.List;
 @Document
 @Deprecated
 public class Page extends BaseDomain {
+    @JsonView(Views.Api.class)
     String name;
 
     @NotNull
+    @JsonView(Views.Api.class)
     String applicationId;
 
+    @JsonView(Views.Api.class)
     List<Layout> layouts;
 }

@@ -6,13 +6,18 @@ import lombok.Setter;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 @Getter
 @Setter
 public class InviteUsersCE_DTO {
 
+    @JsonView(Views.Api.class)
     List<String> usernames;
 
     @NotNull
+    @JsonView(Views.Api.class)
     String permissionGroupId;
 
 }

@@ -8,6 +8,8 @@ import lombok.ToString;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 
 /**
  * This class is supposed to enclose all the parameters that are required to filter data as per the UQI
@@ -22,8 +24,15 @@ import java.util.Map;
 @ToString
 @AllArgsConstructor
 public class UQIDataFilterParams {
+    @JsonView(Views.Api.class)
     Condition condition; // where condition.
+
+    @JsonView(Views.Api.class)
     List<String> projectionColumns; // columns to show to user.
+
+    @JsonView(Views.Api.class)
     List<Map<String, String>> sortBy; // columns to sort by in ascending or descending order.
+
+    @JsonView(Views.Api.class)
     Map<String, String> paginateBy;  // limit and offset
 }

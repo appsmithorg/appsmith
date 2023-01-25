@@ -17,6 +17,7 @@ public class GitAuth implements AppsmithDomain {
     @Encrypted
     String privateKey;
 
+    @JsonView(Views.Api.class)
     String publicKey;
 
     @JsonView(Views.Internal.class)
@@ -24,8 +25,10 @@ public class GitAuth implements AppsmithDomain {
 
     // Deploy key documentation url
     @Transient
+    @JsonView(Views.Api.class)
     String docUrl;
 
     @Transient
+    @JsonView(Views.Api.class)
     boolean isRegeneratedKey = false;
 }

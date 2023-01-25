@@ -23,10 +23,12 @@ public class UploadedFile implements AppsmithDomain {
 
     private static final String BASE64_DELIMITER = ";base64,";
 
+    @JsonView(Views.Api.class)
     String name;
 
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonView(Views.Api.class)
     String base64Content;
 
     @JsonView(Views.Internal.class)

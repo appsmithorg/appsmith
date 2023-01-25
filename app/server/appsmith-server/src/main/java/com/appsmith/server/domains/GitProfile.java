@@ -7,6 +7,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 @Getter
 @Setter
 @ToString
@@ -15,9 +18,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class GitProfile {
 
+    @JsonView(Views.Api.class)
     String authorName;
 
+    @JsonView(Views.Api.class)
     String authorEmail;
 
+    @JsonView(Views.Api.class)
     Boolean useGlobalProfile;
 }

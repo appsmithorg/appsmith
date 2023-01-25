@@ -8,6 +8,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 @Getter
 @Setter
 @ToString
@@ -17,8 +19,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Endpoint {
 
+    @JsonView(Views.Api.class)
     String host;
 
+    @JsonView(Views.Api.class)
     Long port;
 
 }

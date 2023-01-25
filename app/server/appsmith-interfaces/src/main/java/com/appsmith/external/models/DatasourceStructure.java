@@ -2,6 +2,7 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.google.gson.InstanceCreator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +17,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class DatasourceStructure {
 
+    @JsonView(Views.Api.class)
     List<Table> tables;
 
     public DatasourceStructure(List<Table> tables) {
@@ -33,11 +35,23 @@ public class DatasourceStructure {
     @Data
     @AllArgsConstructor
     public static class Table {
+
+        @JsonView(Views.Api.class)
         TableType type;
+
+        @JsonView(Views.Api.class)
         String schema;
+
+        @JsonView(Views.Api.class)
         String name;
+
+        @JsonView(Views.Api.class)
         List<Column> columns;
+
+        @JsonView(Views.Api.class)
         List<Key> keys;
+
+        @JsonView(Views.Api.class)
         List<Template> templates;
     }
 
@@ -88,8 +102,13 @@ public class DatasourceStructure {
     @Data
     @AllArgsConstructor
     public static class PrimaryKey implements Key {
+        @JsonView(Views.Api.class)
         String name;
+
+        @JsonView(Views.Api.class)
         List<String> columnNames;
+
+        @JsonView(Views.Api.class)
         public String getType() {
             return "primary key";
         }
@@ -98,9 +117,16 @@ public class DatasourceStructure {
     @Data
     @AllArgsConstructor
     public static class ForeignKey implements Key {
+        @JsonView(Views.Api.class)
         String name;
+
+        @JsonView(Views.Api.class)
         List<String> fromColumns;
+
+        @JsonView(Views.Api.class)
         List<String> toColumns;
+
+        @JsonView(Views.Api.class)
         public String getType() {
             return "foreign key";
         }
@@ -109,8 +135,13 @@ public class DatasourceStructure {
     @Data
     @NoArgsConstructor
     public static class Template {
+        @JsonView(Views.Api.class)
         String title;
+
+        @JsonView(Views.Api.class)
         String body;
+
+        @JsonView(Views.Api.class)
         Object configuration;
 
         // To create templates for plugins which store the configurations

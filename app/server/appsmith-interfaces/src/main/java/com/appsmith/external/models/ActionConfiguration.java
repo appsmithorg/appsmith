@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.converters.HttpMethodConverter;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.annotations.JsonAdapter;
@@ -44,27 +45,48 @@ public class ActionConfiguration implements AppsmithDomain {
     @Range(min = MIN_TIMEOUT_VALUE,
             max = MAX_TIMEOUT_VALUE,
             message = TIMEOUT_OUT_OF_RANGE_MESSAGE)
+    @JsonView(Views.Api.class)
     Integer timeoutInMillisecond;
+
+    @JsonView(Views.Api.class)
     PaginationType paginationType = PaginationType.NONE;
 
     // API fields
+    @JsonView(Views.Api.class)
     String path;
+
+    @JsonView(Views.Api.class)
     List<Property> headers;
+
+    @JsonView(Views.Api.class)
     Boolean encodeParamsToggle = true;
+
+    @JsonView(Views.Api.class)
     List<Property> queryParameters;
+
+    @JsonView(Views.Api.class)
     String body;
     // For form-data input instead of json use the following
+    @JsonView(Views.Api.class)
     List<Property> bodyFormData;
+
     // For route parameters extracted from rapid-api
+    @JsonView(Views.Api.class)
     List<Property> routeParameters;
+
     // All the following adapters are registered so that we can serialize between enum HttpMethod,
     // and what is now the class HttpMethod
     @JsonSerialize(using = HttpMethodConverter.HttpMethodSerializer.class)
     @JsonDeserialize(using = HttpMethodConverter.HttpMethodDeserializer.class)
     @JsonAdapter(HttpMethodConverter.class)
+    @JsonView(Views.Api.class)
     HttpMethod httpMethod;
+
     // Paginated API fields
+    @JsonView(Views.Api.class)
     String next;
+
+    @JsonView(Views.Api.class)
     String prev;
 
     /**
@@ -74,6 +96,7 @@ public class ActionConfiguration implements AppsmithDomain {
      * cyclic dependency errors.
      */
     @Transient
+    @JsonView(Views.Api.class)
     Set<String> selfReferencingDataPaths = new HashSet<>();
 
     // DB action fields
@@ -81,8 +104,13 @@ public class ActionConfiguration implements AppsmithDomain {
     // JS action fields
     // Body, the raw class data, is shared with API type actions
     // Represents the values that need to be
+    @JsonView(Views.Api.class)
     List<JSValue> jsArguments;
+
+    @JsonView(Views.Api.class)
     Boolean isAsync;
+
+    @JsonView(Views.Api.class)
     Boolean isValid;
 
     /*
@@ -90,17 +118,21 @@ public class ActionConfiguration implements AppsmithDomain {
      * They will have to represented in a key-value format where the plugin
      * understands what the keys stand for.
      */
+    @JsonView(Views.Api.class)
     List<Property> pluginSpecifiedTemplates;
 
     /*
      * After porting plugins to UQI, we should be able to use a map for referring to form data
      * instead of a list of properties
      */
+    @JsonView(Views.Api.class)
     Map<String, Object> formData;
 
     @Transient
+    @JsonView(Views.Api.class)
     String templateName;
 
+    @JsonView(Views.Api.class)
     public void setTimeoutInMillisecond(String timeoutInMillisecond) {
         try {
             this.timeoutInMillisecond = Integer.valueOf(timeoutInMillisecond);
@@ -110,6 +142,7 @@ public class ActionConfiguration implements AppsmithDomain {
         }
     }
 
+    @JsonView(Views.Api.class)
     public Integer getTimeoutInMillisecond() {
         return (timeoutInMillisecond == null || timeoutInMillisecond <= 0) ?
                 DEFAULT_ACTION_EXECUTION_TIMEOUT_MS : timeoutInMillisecond;

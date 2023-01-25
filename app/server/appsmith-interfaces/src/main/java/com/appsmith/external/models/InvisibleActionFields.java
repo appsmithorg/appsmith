@@ -1,5 +1,7 @@
 package com.appsmith.external.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +18,10 @@ import lombok.ToString;
 @NoArgsConstructor
 public class InvisibleActionFields {
 
+    @JsonView(Views.Api.class)
     Boolean unpublishedUserSetOnLoad;
+
+    @JsonView(Views.Api.class)
     Boolean publishedUserSetOnLoad;
 
 }

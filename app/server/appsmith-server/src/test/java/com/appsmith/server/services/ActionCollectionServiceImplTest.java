@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.external.models.ActionDTO;
@@ -453,10 +454,10 @@ public class ActionCollectionServiceImplTest {
     @Test
     public void testUpdateUnpublishedActionCollection_withModifiedCollection_returnsValidCollection() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
-        final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
-        final ActionCollectionDTO modifiedActionCollectionDTO = objectMapper.convertValue(jsonNode.get("actionCollectionDTOWithModifiedActions"), ActionCollectionDTO.class);
-        final ActionCollection modifiedActionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionAfterModifiedActions"), ActionCollection.class);
+        final JsonNode jsonNode = objectMapper.readerWithView(Views.Api.class).readValue(mockObjects, JsonNode.class);
+        final ActionCollection actionCollection = objectMapper.readerWithView(Views.Api.class).readValue(objectMapper.writerWithView(Views.Api.class).writeValueAsString(jsonNode.get("actionCollectionWithAction")), ActionCollection.class);
+        final ActionCollectionDTO modifiedActionCollectionDTO = objectMapper.readerWithView(Views.Api.class).readValue(objectMapper.writerWithView(Views.Api.class).writeValueAsString(jsonNode.get("actionCollectionDTOWithModifiedActions")), ActionCollectionDTO.class);
+        final ActionCollection modifiedActionCollection = objectMapper.readerWithView(Views.Api.class).readValue(objectMapper.writerWithView(Views.Api.class).writeValueAsString(jsonNode.get("actionCollectionAfterModifiedActions")), ActionCollection.class);
         final ActionCollectionDTO unpublishedCollection = modifiedActionCollection.getUnpublishedCollection();
         unpublishedCollection.setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId1", "testActionId1", "defaultTestActionId3", "testActionId3"));
         unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(Map.of("defaultTestActionId2", "testActionId2"));
@@ -573,7 +574,7 @@ public class ActionCollectionServiceImplTest {
     public void testDeleteUnpublishedActionCollection_withPublishedCollectionAndNoActions_returnsActionCollectionDTO() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
-        final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
+        final ActionCollection actionCollection = objectMapper.readerWithView(Views.Api.class).readValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
         final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
         unpublishedCollection.setActions(List.of());
         actionCollection.setDefaultResources(setDefaultResources(actionCollection));
@@ -607,8 +608,8 @@ public class ActionCollectionServiceImplTest {
     @Test
     public void testDeleteUnpublishedActionCollection_withPublishedCollectionAndActions_returnsActionCollectionDTO() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
-        final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
+        final JsonNode jsonNode = objectMapper.readerWithView(Views.Api.class).readValue(mockObjects, JsonNode.class);
+        final ActionCollection actionCollection = objectMapper.readerWithView(Views.Api.class).readValue(objectMapper.writerWithView(Views.Api.class).writeValueAsString(jsonNode.get("actionCollectionWithAction")), ActionCollection.class);
         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
         unpublishedCollection.setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId1", "testActionId1", "defaultTestActionId2", "testActionId2"));
         actionCollection.setDefaultResources(setDefaultResources(actionCollection));
@@ -645,8 +646,8 @@ public class ActionCollectionServiceImplTest {
     @Test
     public void testDeleteUnpublishedActionCollection_withoutPublishedCollectionAndNoActions_returnsActionCollectionDTO() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
-        final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
+        final JsonNode jsonNode = objectMapper.readerWithView(Views.Api.class).readValue(mockObjects, JsonNode.class);
+        final ActionCollection actionCollection = objectMapper.readerWithView(Views.Api.class).readValue(objectMapper.writerWithView(Views.Api.class).writeValueAsString(jsonNode.get("actionCollectionWithAction")), ActionCollection.class);
 
         actionCollection.setPublishedCollection(null);
         actionCollection.setDefaultResources(setDefaultResources(actionCollection));
@@ -675,8 +676,8 @@ public class ActionCollectionServiceImplTest {
     @Test
     public void testDeleteUnpublishedActionCollection_withoutPublishedCollectionAndWithActions_returnsActionCollectionDTO() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
-        final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
+        final JsonNode jsonNode = objectMapper.readerWithView(Views.Api.class).readValue(mockObjects, JsonNode.class);
+        final ActionCollection actionCollection = objectMapper.readerWithView(Views.Api.class).readValue(objectMapper.writerWithView(Views.Api.class).writeValueAsString(jsonNode.get("actionCollectionWithAction")), ActionCollection.class);
         actionCollection.getUnpublishedCollection().setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId1", "testActionId1", "defaultTestActionId2", "testActionId2"));
         actionCollection.setPublishedCollection(null);
         DefaultResources resources = new DefaultResources();

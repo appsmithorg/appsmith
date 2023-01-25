@@ -7,6 +7,8 @@ import lombok.ToString;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 @Getter
 @Setter
 @ToString
@@ -15,6 +17,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Category extends BaseDomain {
 
     @Indexed(unique = true)
+    @JsonView(Views.Api.class)
     String name; //Category name here
 
 }

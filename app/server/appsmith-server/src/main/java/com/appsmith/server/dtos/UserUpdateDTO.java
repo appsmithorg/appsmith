@@ -1,5 +1,8 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Data;
 
 /**
@@ -8,16 +11,21 @@ import lombok.Data;
 @Data
 public class UserUpdateDTO {
 
+    @JsonView(Views.Api.class)
     private String name;
 
+    @JsonView(Views.Api.class)
     private String role;
 
+    @JsonView(Views.Api.class)
     private String useCase;
 
+    @JsonView(Views.Api.class)
     public boolean hasUserUpdates() {
         return name != null;
     }
 
+    @JsonView(Views.Api.class)
     public boolean hasUserDataUpdates() {
         return role != null || useCase != null;
     }

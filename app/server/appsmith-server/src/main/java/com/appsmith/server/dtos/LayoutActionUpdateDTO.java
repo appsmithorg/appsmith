@@ -13,10 +13,18 @@ import lombok.Setter;
  * consume this structure to update the actions in its local storage (instead of fetching all the page actions afresh).
  */
 public class LayoutActionUpdateDTO {
+    @JsonView(Views.Api.class)
     String id;
+
+    @JsonView(Views.Api.class)
     String name;
+
+    @JsonView(Views.Api.class)
     String collectionId;
+
+    @JsonView(Views.Api.class)
     Boolean executeOnLoad;
+    
     @JsonView(Views.Internal.class)
     String defaultActionId;
 }

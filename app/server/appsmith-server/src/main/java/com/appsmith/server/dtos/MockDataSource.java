@@ -1,5 +1,8 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,12 +10,16 @@ import lombok.Setter;
 @Setter
 public class MockDataSource {
 
+    @JsonView(Views.Api.class)
     String name;
 
+    @JsonView(Views.Api.class)
     String workspaceId;
 
+    @JsonView(Views.Api.class)
     String pluginId;
 
+    @JsonView(Views.Api.class)
     String packageName;
 
 }

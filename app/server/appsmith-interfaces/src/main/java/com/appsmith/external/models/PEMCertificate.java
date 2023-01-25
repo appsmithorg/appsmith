@@ -2,6 +2,8 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,10 +21,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class PEMCertificate implements AppsmithDomain {
 
+    @JsonView(Views.Api.class)
     UploadedFile file;
 
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonView(Views.Api.class)
     String password;
 
 }

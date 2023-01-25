@@ -7,6 +7,9 @@ import lombok.Setter;
 
 import static org.springframework.util.StringUtils.hasLength;
 
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 /**
  * This class is for generating keys for dsContext.
  * The object of this class will be used as keys for dsContext
@@ -17,7 +20,11 @@ import static org.springframework.util.StringUtils.hasLength;
 @AllArgsConstructor
 public class DatasourceContextIdentifierCE {
 
+    @JsonView(Views.Api.class)
     protected String datasourceId;
+
+    @JsonView(Views.Api.class)
+
     protected String environmentId;
 
     @Override

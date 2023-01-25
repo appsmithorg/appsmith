@@ -19,10 +19,16 @@ import java.util.Map;
 public class RequestParamDTO {
     @JsonView(Views.Internal.class)
     private String configProperty; // Only meant for internal use. It won't be returned back to the client.
+
+    @JsonView(Views.Api.class)
     private Object value;
+
     @JsonView(Views.Internal.class)
     private String label; // Only meant for internal use. It is returned as key for the RequestParamDTO object.
+
     @JsonView(Views.Internal.class)
     private List<ParsedDataType> types; // Not getting used for now but still keeping it here for future use.
+
+    @JsonView(Views.Api.class)
     private Map<String, Object> substitutedParams;
 }

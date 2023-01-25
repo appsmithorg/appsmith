@@ -1,6 +1,9 @@
 package com.appsmith.server.dtos;
 
 
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,11 +11,18 @@ import lombok.Setter;
 @Setter
 public class AuthorizationCodeCallbackDTO {
     // Present in success state
+    @JsonView(Views.Api.class)
     private String code;
+    
     // Required by Appsmith to preserve context of the request
+    @JsonView(Views.Api.class)
     private String state;
+
     // Optional depending on user configuration
+    @JsonView(Views.Api.class)
     private String scope;
+
     // Present in failure state
+    @JsonView(Views.Api.class)
     private String error;
 }

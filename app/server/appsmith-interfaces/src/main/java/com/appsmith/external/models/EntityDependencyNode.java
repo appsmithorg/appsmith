@@ -1,5 +1,7 @@
 package com.appsmith.external.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,13 +12,25 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EntityDependencyNode {
+    @JsonView(Views.Api.class)
     EntityReferenceType entityReferenceType;
+
+    @JsonView(Views.Api.class)
     String validEntityName;
+
+    @JsonView(Views.Api.class)
     String referenceString;
+
+    @JsonView(Views.Api.class)
     Boolean isAsync;
+
+    @JsonView(Views.Api.class)
     Boolean isFunctionCall;
+
+    @JsonView(Views.Api.class)
     ActionDTO actionDTO;
 
+    @JsonView(Views.Api.class)
     public boolean isValidDynamicBinding() {
         boolean result = true;
 

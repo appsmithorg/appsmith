@@ -26,26 +26,34 @@ public class Datasource extends BaseDomain {
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled Datasource";
 
+    @JsonView(Views.Api.class)
     String name;
 
+    @JsonView(Views.Api.class)
     String pluginId;
 
     // name of the plugin. used to log analytics events where pluginName is a required attribute
     // It'll be null if not set
     @Transient
+    @JsonView(Views.Api.class)
     String pluginName;
     
     //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
+    @JsonView(Views.Api.class)
     String organizationId;
 
+    @JsonView(Views.Api.class)
     String workspaceId;
 
+    @JsonView(Views.Api.class)
     String templateName;
 
+    @JsonView(Views.Api.class)
     DatasourceConfiguration datasourceConfiguration;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Api.class)
     Set<String> invalids;
 
     /*
@@ -54,6 +62,7 @@ public class Datasource extends BaseDomain {
      */
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Api.class)
     Set<String> messages = new HashSet<>();
 
     /*
@@ -75,9 +84,11 @@ public class Datasource extends BaseDomain {
      * This field is introduced as part of git sync feature, for the git import we will need to identify the datasource's
      * which are not configured. This way user can configure those datasource, which may have been introduced as part of git import.
      */
+    @JsonView(Views.Api.class)
     Boolean isConfigured;
 
     @Transient
+    @JsonView(Views.Api.class)
     Boolean isRecentlyCreated;
 
     /*
@@ -85,12 +96,14 @@ public class Datasource extends BaseDomain {
      * The field is not used anywhere in the codebase because templates are created directly in the DB, and the field
      * serves only as a DTO property.
      */
+    @JsonView(Views.Api.class)
     Boolean isTemplate;
 
     /*
      * This field is meant to indicate whether the datasource is part of a mock DB, or a copy of the same.
      * The field is set during the creation of the mock db
      */
+    @JsonView(Views.Api.class)
     Boolean isMock;
 
     /**
@@ -99,6 +112,7 @@ public class Datasource extends BaseDomain {
      *
      * @return boolean, indicating whether this datasource is valid or not.
      */
+    @JsonView(Views.Api.class)
     public boolean getIsValid() {
         return CollectionUtils.isEmpty(invalids);
     }

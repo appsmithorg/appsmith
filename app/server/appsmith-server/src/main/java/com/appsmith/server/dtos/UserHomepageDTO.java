@@ -1,6 +1,9 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.Views;
 import com.appsmith.server.domains.User;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +17,9 @@ import java.util.List;
 @ToString
 public class UserHomepageDTO {
 
+    @JsonView(Views.Api.class)
     User user;
 
+    @JsonView(Views.Api.class)
     List<WorkspaceApplicationsDTO> workspaceApplications;
 }

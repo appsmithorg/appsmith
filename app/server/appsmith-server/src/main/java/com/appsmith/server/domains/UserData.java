@@ -33,28 +33,36 @@ public class UserData extends BaseDomain {
     String userId;
 
     // Role of the user in their workspace, example, Designer, Developer, Product Lead etc.
+    @JsonView(Views.Api.class)
     private String role;
 
     // The goal the user is trying to solve with Appsmith.
+    @JsonView(Views.Api.class)
     private String useCase;
 
     // The ID of the asset which has the profile photo of this user.
+    @JsonView(Views.Api.class)
     private String profilePhotoAssetId;
 
     // The version where this user has last viewed the release notes.
+    @JsonView(Views.Api.class)
     private String releaseNotesViewedVersion;
 
     //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
+    @JsonView(Views.Api.class)
     private List<String> recentlyUsedOrgIds;
 
     // list of workspace ids that were recently accessed by the user
+    @JsonView(Views.Api.class)
     private List<String> recentlyUsedWorkspaceIds;
 
     // list of application ids that were recently accessed by the user
+    @JsonView(Views.Api.class)
     private List<String> recentlyUsedAppIds;
 
     // last state related to comment feature on-boarding
+    @JsonView(Views.Api.class)
     private CommentOnboardingState commentOnboardingState;
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
@@ -66,11 +74,14 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Internal.class)
     String accessToken;
 
+    @JsonView(Views.Api.class)
     Map<String, Object> userClaims;
 
     // list of template ids that were recently forked by the user
+    @JsonView(Views.Api.class)
     private List<String> recentlyUsedTemplateIds;
 
+    @JsonView(Views.Api.class)
     public GitProfile getGitProfileByKey(String key) {
         // Always use DEFAULT_GIT_PROFILE as fallback
         if (CollectionUtils.isNullOrEmpty(this.getGitProfiles())) {
@@ -81,6 +92,7 @@ public class UserData extends BaseDomain {
         return this.getGitProfiles().get(DEFAULT);
     }
 
+    @JsonView(Views.Api.class)
     public Map<String, GitProfile> setGitProfileByKey(String key, GitProfile gitProfile){
         if (CollectionUtils.isNullOrEmpty(this.getGitProfiles())) {
             return Map.of(key, gitProfile);

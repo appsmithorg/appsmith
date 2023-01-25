@@ -6,12 +6,17 @@ import lombok.ToString;
 
 import java.time.Instant;
 
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 @Getter
 @Setter
 @ToString
 public class DatasourceContext<T> {
+    @JsonView(Views.Api.class)
     T connection;
 
+    @JsonView(Views.Api.class)
     Instant creationTime;
 
     public DatasourceContext() {

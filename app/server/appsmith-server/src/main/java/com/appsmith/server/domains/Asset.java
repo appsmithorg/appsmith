@@ -1,6 +1,9 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,8 +18,10 @@ public class Asset extends BaseDomain {
         this(mediaType == null ? null : mediaType.toString(), data);
     }
 
+    @JsonView(Views.Api.class)
     String contentType;
 
+    @JsonView(Views.Api.class)
     byte[] data;
 
 }

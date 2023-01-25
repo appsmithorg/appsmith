@@ -4,6 +4,8 @@ import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,13 +24,17 @@ public class DBAuth extends AuthenticationDTO {
         SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
     }
 
+    @JsonView(Views.Api.class)
     Type authType;
 
+    @JsonView(Views.Api.class)
     String username;
 
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonView(Views.Api.class)
     String password;
 
+    @JsonView(Views.Api.class)
     String databaseName;
 }

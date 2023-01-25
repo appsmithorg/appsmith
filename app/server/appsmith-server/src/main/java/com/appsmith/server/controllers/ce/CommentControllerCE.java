@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.models.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Comment;
@@ -7,6 +8,8 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CommentService;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +39,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
     }
 
     @Override
+    @JsonView(Views.Api.class)
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Comment>> create(@Valid @RequestBody Comment resource,
@@ -49,6 +53,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @JsonView(Views.Api.class)
     @PostMapping("/threads")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CommentThread>> createThread(@Valid @RequestBody CommentThread resource,
@@ -59,6 +64,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
+    @JsonView(Views.Api.class)
     @GetMapping("/threads")
     public Mono<ResponseDTO<List<CommentThread>>> getCommentThread(@Valid CommentThreadFilterDTO filterDTO,
                                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -66,6 +72,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
                 .map(threads -> new ResponseDTO<>(HttpStatus.OK.value(), threads, null));
     }
 
+    @JsonView(Views.Api.class)
     @PutMapping("/threads/{threadId}")
     public Mono<ResponseDTO<CommentThread>> updateThread(
             @Valid @RequestBody CommentThread resource,
@@ -77,6 +84,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
     }
 
     @Override
+    @JsonView(Views.Api.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Comment>> delete(@PathVariable String id, String ignoreBranchName) {
         log.debug("Going to delete comment with id: {}", id);
@@ -84,6 +92,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
+    @JsonView(Views.Api.class)
     @DeleteMapping("/threads/{threadId}")
     public Mono<ResponseDTO<CommentThread>> deleteThread(@PathVariable String threadId) {
         log.debug("Going to delete thread with id: {}", threadId);
@@ -91,6 +100,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
+    @JsonView(Views.Api.class)
     @PostMapping("/{commentId}/reactions")
     public Mono<ResponseDTO<Boolean>> createReaction(
             @PathVariable String commentId,
@@ -101,6 +111,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
                 .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
     }
 
+    @JsonView(Views.Api.class)
     @DeleteMapping("/{commentId}/reactions")
     public Mono<ResponseDTO<Boolean>> deleteReaction(
             @PathVariable String commentId,
@@ -111,6 +122,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
                 .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
     }
 
+    @JsonView(Views.Api.class)
     @PostMapping("/threads/{threadId}/unsubscribe")
     public Mono<ResponseDTO<Boolean>> unsubscribeThread(@PathVariable String threadId) {
         log.debug("Going to unsubscribe user from thread {}", threadId);
@@ -118,6 +130,7 @@ public class CommentControllerCE extends BaseController<CommentService, Comment,
                 .map(updated -> new ResponseDTO<>(HttpStatus.OK.value(), updated, null));
     }
 
+    @JsonView(Views.Api.class)
     @GetMapping("/threads/{applicationId}/count/unread")
     public Mono<ResponseDTO<Long>> countUnreadCommentThreads(@PathVariable String applicationId,
                                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {

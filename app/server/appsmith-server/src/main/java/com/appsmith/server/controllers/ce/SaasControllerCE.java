@@ -1,10 +1,13 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.solutions.AuthenticationService;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +30,7 @@ public class SaasControllerCE {
         this.authenticationService = authenticationService;
     }
 
+    @JsonView(Views.Api.class)
     @PostMapping("/{datasourceId}/pages/{pageId}/oauth")
     public Mono<ResponseDTO<String>> getAppsmithToken(@PathVariable String datasourceId,
                                                       @PathVariable String pageId,
@@ -39,6 +43,7 @@ public class SaasControllerCE {
                 .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
     }
 
+    @JsonView(Views.Api.class)
     @PostMapping("/{datasourceId}/token")
     public Mono<ResponseDTO<Datasource>> getAccessToken(@PathVariable String datasourceId, @RequestParam String appsmithToken, ServerWebExchange serverWebExchange) {
 

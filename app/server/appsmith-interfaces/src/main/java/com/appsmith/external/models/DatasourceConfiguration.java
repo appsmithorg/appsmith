@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import java.util.List;
 
 @Builder(toBuilder = true)
@@ -21,24 +23,35 @@ import java.util.List;
 @Document
 public class DatasourceConfiguration implements AppsmithDomain {
 
+    @JsonView(Views.Api.class)
     Connection connection;
 
+    @JsonView(Views.Api.class)
     List<Endpoint> endpoints;
 
+    @JsonView(Views.Api.class)
     AuthenticationDTO authentication;
 
+    @JsonView(Views.Api.class)
     SSHConnection sshProxy;
 
+    @JsonView(Views.Api.class)
     Boolean sshProxyEnabled;
 
+    @JsonView(Views.Api.class)
     List<Property> properties;
 
     // For REST API.
+    @JsonView(Views.Api.class)
     String url;
 
+    @JsonView(Views.Api.class)
     List<Property> headers;
+
+    @JsonView(Views.Api.class)
     List<Property> queryParameters;
 
+    @JsonView(Views.Api.class)
     public boolean isSshProxyEnabled() {
         return sshProxyEnabled == null ? false : sshProxyEnabled;
     }

@@ -17,14 +17,18 @@ import com.fasterxml.jackson.annotation.JsonView;
 @EqualsAndHashCode
 public class ApplicationPage {
 
+    @JsonView(Views.Api.class)
     String id;
 
+    @JsonView(Views.Api.class)
     Boolean isDefault;
 
     @Transient
+    @JsonView(Views.Api.class)
     String slug;
 
     @Transient
+    @JsonView(Views.Api.class)
     String customSlug;
 
     // This field will represent the root pageId in git system where we are connecting resources among the branches

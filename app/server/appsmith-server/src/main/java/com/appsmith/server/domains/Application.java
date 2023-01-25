@@ -37,12 +37,15 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 public class Application extends BaseDomain {
 
     @NotNull
+    @JsonView(Views.Api.class)
     String name;
 
     //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
+    @JsonView(Views.Api.class)
     String organizationId;
 
+    @JsonView(Views.Api.class)
     String workspaceId;
 
     /*
@@ -50,8 +53,10 @@ public class Application extends BaseDomain {
      */
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Deprecated(forRemoval = true)
+    @JsonView(Views.Api.class)
     Boolean isPublic = false;
 
+    @JsonView(Views.Api.class)
     List<ApplicationPage> pages;
 
     @JsonView(Views.Internal.class)
@@ -62,18 +67,23 @@ public class Application extends BaseDomain {
     Boolean viewMode = false;
 
     @Transient
+    @JsonView(Views.Api.class)
     boolean appIsExample = false;
 
     @Transient
+    @JsonView(Views.Api.class)
     long unreadCommentThreads;
 
     @JsonView(Views.Internal.class)
     String clonedFromApplicationId;
 
+    @JsonView(Views.Api.class)
     String color;
 
+    @JsonView(Views.Api.class)
     String icon;
 
+    @JsonView(Views.Api.class)
     private String slug;
 
     @JsonView(Views.Internal.class)
@@ -82,15 +92,21 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     AppLayout publishedAppLayout;
 
+    @JsonView(Views.Api.class)
     Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+
+    @JsonView(Views.Api.class)
     Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
+    @JsonView(Views.Api.class)
     GitApplicationMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Api.class)
     Instant lastDeployedAt; // when this application was last deployed
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Api.class)
     Integer evaluationVersion;
 
     /**
@@ -100,6 +116,7 @@ public class Application extends BaseDomain {
      * so that they can update their application.
      * Once updated, we should set applicationVersion to latest version as well.
      */
+    @JsonView(Views.Api.class)
     Integer applicationVersion;
 
     /**
@@ -110,6 +127,7 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
+    @JsonView(Views.Api.class)
     EmbedSetting embedSetting;
 
     @JsonView(Views.Internal.class)
@@ -132,6 +150,7 @@ public class Application extends BaseDomain {
      * @return updated time as a string
      */
     @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Api.class)
     public String getLastUpdateTime() {
         if(lastEditedAt != null) {
             return ISO_FORMATTER.format(lastEditedAt);
@@ -139,6 +158,7 @@ public class Application extends BaseDomain {
         return null;
     }
 
+    @JsonView(Views.Api.class)
     public String getLastDeployedAt() {
         if(lastDeployedAt != null) {
             return ISO_FORMATTER.format(lastDeployedAt);
@@ -146,13 +166,16 @@ public class Application extends BaseDomain {
         return null;
     }
 
+    @JsonView(Views.Api.class)
     Boolean forkingEnabled;
 
     // Field to convey if the application is updated by the user
+    @JsonView(Views.Api.class)
     Boolean isManualUpdate;
 
     // Field to convey if the application is modified from the DB migration
     @Transient
+    @JsonView(Views.Api.class)
     Boolean isAutoUpdate;
 
     // To convey current schema version for client and server. This will be used to check if we run the migration
@@ -170,6 +193,7 @@ public class Application extends BaseDomain {
     String editModeThemeId;
 
     // TODO Temporary provision for exporting the application with datasource configuration for the sample/template apps
+    @JsonView(Views.Api.class)
     Boolean exportWithConfiguration;
 
     @JsonView(Views.Internal.class)
@@ -272,8 +296,14 @@ public class Application extends BaseDomain {
      */
     @Data
     public static class EmbedSetting {
+
+        @JsonView(Views.Api.class)
         private String height;
+
+        @JsonView(Views.Api.class)
         private String width;
+
+        @JsonView(Views.Api.class)
         private Boolean showNavigationBar;
     }
 
@@ -294,15 +324,34 @@ public class Application extends BaseDomain {
      */
     @Data
     public static class NavigationSetting {
+        @JsonView(Views.Api.class)
         private Boolean showNavbar;
+
+        @JsonView(Views.Api.class)
         private String orientation;
+
+        @JsonView(Views.Api.class)
         private String navStyle;
+
+        @JsonView(Views.Api.class)
         private String position;
+
+        @JsonView(Views.Api.class)
         private String itemStyle;
+
+        @JsonView(Views.Api.class)
         private String colorStyle;
+
+        @JsonView(Views.Api.class)
         private String logoAssetId;
+
+        @JsonView(Views.Api.class)
         private String logoConfiguration;
+
+        @JsonView(Views.Api.class)
         private Boolean showSignIn;
+
+        @JsonView(Views.Api.class)
         private Boolean showShareApp;
     }
 
@@ -324,6 +373,7 @@ public class Application extends BaseDomain {
     @Data
     @NoArgsConstructor
     public static class AppPositioning {
+        @JsonView(Views.Api.class)
         Type type;
 
         public AppPositioning(Type type) {

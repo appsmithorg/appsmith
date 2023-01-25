@@ -1,5 +1,7 @@
 package com.appsmith.external.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
@@ -18,9 +20,11 @@ import lombok.ToString;
 @DocumentType(Authentication.BASIC)
 public class BasicAuth extends AuthenticationDTO {
 
+    @JsonView(Views.Api.class)
     String username;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Encrypted
+    @JsonView(Views.Api.class)
     String password;
 }

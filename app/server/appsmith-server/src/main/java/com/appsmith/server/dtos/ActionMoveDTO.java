@@ -1,6 +1,9 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,8 +14,10 @@ import jakarta.validation.constraints.NotNull;
 public class ActionMoveDTO {
 
     @NotNull
+    @JsonView(Views.Api.class)
     ActionDTO action;
 
     @NotNull
+    @JsonView(Views.Api.class)
     String destinationPageId;
 }
