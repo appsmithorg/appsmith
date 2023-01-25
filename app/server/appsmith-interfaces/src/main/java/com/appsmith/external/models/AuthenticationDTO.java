@@ -1,12 +1,10 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.constants.Authentication;
-import com.appsmith.external.converters.AuthenticationDtoDeserializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +15,6 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode
-@JsonDeserialize(using = AuthenticationDtoDeserializer.class)
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         visible = true,
@@ -30,7 +27,7 @@ import java.util.Set;
         @JsonSubTypes.Type(value = ApiKeyAuth.class, name = Authentication.API_KEY),
         @JsonSubTypes.Type(value = BearerTokenAuth.class, name = Authentication.BEARER_TOKEN)
 })
-public abstract class AuthenticationDTO implements AppsmithDomain {
+public class AuthenticationDTO implements AppsmithDomain {
     // In principle, this class should've been abstract. However, when this class is abstract, Spring's deserialization
     // routines choke on identifying the correct class to instantiate and ends up trying to instantiate this abstract
     // class and fails.
@@ -53,7 +50,8 @@ public abstract class AuthenticationDTO implements AppsmithDomain {
     @JsonIgnore
     AuthenticationResponse authenticationResponse;
 
-    protected abstract void buildSecretExists(SecretExists secretExists);
+    protected void buildSecretExists(SecretExists secretExists) {
+    }
 
     @JsonProperty
     protected SecretExists secretExists() {
