@@ -28,11 +28,9 @@ describe("Upgrade appsmith version", () => {
         cy.log("Files Inside oldstack", res.stdout);
       });
 
-      cy.execute(testUrl, "ls " + path + "/oldstack/160" + res.stdout).then(
-        (res1) => {
-          cy.log("Files Inside oldstack/160", res1.stdout);
-        },
-      );
+      cy.execute(testUrl, "ls " + path + "/oldstack/160").then((res1) => {
+        cy.log("Files Inside oldstack/160", res1.stdout);
+      });
 
       cy.execute(testUrl, "ls " + path + "/oldstack/ce").then((res) => {
         cy.log("Files Inside oldstack/ce", res.stdout);
