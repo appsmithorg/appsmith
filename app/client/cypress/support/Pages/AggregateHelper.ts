@@ -987,7 +987,6 @@ export class AggregateHelper {
   public AssertElementDisabled(
     selector: string,
     disabled: "true" | "false" = "true",
-
   ) {
     return this.GetElement(
       selector
