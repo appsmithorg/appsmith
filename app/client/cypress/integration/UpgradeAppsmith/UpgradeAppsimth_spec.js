@@ -38,7 +38,7 @@ describe("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateAContainer(
         testUrl,
-        path + "/oldstack",
+        path + "/oldstack/160",
         "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
       );
