@@ -9,7 +9,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.LicenseValidator;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -27,9 +26,10 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              TenantRepository repository,
                              AnalyticsService analyticsService,
-                             LicenseValidator licenseValidator) {
+                             LicenseValidator licenseValidator,
+                             ConfigService configService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
         this.licenseValidator = licenseValidator;
     }
 

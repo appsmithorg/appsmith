@@ -62,15 +62,16 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(performRtsHealthCheck())
                 .doFinally(ignored -> this.printReady());
 
-        checkInstanceSchemaVersion()
+        Mono<?> startupProcess = checkInstanceSchemaVersion()
                 .flatMap(signal -> registrationAndRtsCheckMono)
                 // Prefill the server cache with anonymous user permission group ids.
-                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
-                .subscribe(null, e -> {
-                    log.debug("Application start up encountered an error: {}", e.getMessage());
-                    Sentry.captureException(e);
-                });
-
+                .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache());
+        try {
+            startupProcess.block();
+        } catch(Exception e) {
+            log.debug("Application start up encountered an error: {}", e.getMessage());
+            Sentry.captureException(e);
+        }
     }
 
     private Mono<Void> checkInstanceSchemaVersion() {
