@@ -41,7 +41,7 @@ describe("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateAContainer(
         testUrl,
-        path + "/oldstack/ce",
+        path + "/oldstack/160",
         "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
       );
@@ -56,7 +56,7 @@ describe("Upgrade appsmith version", () => {
     });
 
     //verify the Applications after upgrade
-    //cy.LoginFromAPI(testdata.UPGRADEUSERNAME, testdata.UPGRADEPASSWORD);
+    cy.LoginFromAPI(testdata.UPGRADEUSERNAME, testdata.UPGRADEPASSWORD);
     cy.visit(testdata.APPURL);
 
     cy.get(".t--buttongroup-widget").should("exist");
