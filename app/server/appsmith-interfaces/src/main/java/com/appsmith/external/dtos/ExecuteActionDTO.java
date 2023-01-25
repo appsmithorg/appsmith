@@ -21,10 +21,13 @@ public class ExecuteActionDTO {
     @JsonView(Views.Api.class)
     String actionId;
 
+    @JsonView(Views.Api.class)
     List<Param> params;
 
+    @JsonView(Views.Api.class)
     PaginationField paginationField;
 
+    @JsonView(Views.Api.class)
     Boolean viewMode = false;
 
     /*
@@ -44,11 +47,16 @@ public class ExecuteActionDTO {
      * "k5": "boolean"
      * }
      */
+    @JsonView(Views.Api.class)
     Map<String, Object> paramProperties;
 
+    @JsonView(Views.Api.class)
     Map<String, String> parameterMap; // e.g. {"Text1.text": "k1","Table1.data": "k2", "Api1.data": "k3"}
+
+    @JsonView(Views.Api.class)
     Map<String, String> invertParameterMap; // e.g. {"k1":"Text1.text","k2":"Table1.data", "k3": "Api1.data"}
 
+    @JsonView(Views.Api.class)
     public void setParameterMap(Map<String, String> parameterMap) {
         this.parameterMap = parameterMap;
         invertParameterMap = parameterMap.entrySet().stream()

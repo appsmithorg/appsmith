@@ -268,6 +268,7 @@ public class Application extends BaseDomain {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AppLayout implements Serializable {
+        @JsonView(Views.Api.class)
         Type type;
 
         /**

@@ -28,11 +28,17 @@ public class ApiKeyAuth extends AuthenticationDTO {
         HEADER,
     }
 
+    @JsonView(Views.Api.class)
     Type addTo;
+    
+    @JsonView(Views.Api.class)
     String label;
+
+    @JsonView(Views.Api.class)
     String headerPrefix;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Encrypted
+    @JsonView(Views.Api.class)
     String value;
 }

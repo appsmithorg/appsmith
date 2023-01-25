@@ -50,17 +50,22 @@ public class GitStatusDTO {
         int modifiedJSObjects;
 
         // number of modified JSObjects
+        @JsonView(Views.Api.class)
         int modifiedDatasources;
 
         // number of local commits which are not present in remote repo
+        @JsonView(Views.Api.class)
         Integer aheadCount;
 
         // number of remote commits which are not present in local repo
+        @JsonView(Views.Api.class)
         Integer behindCount;
 
         // Remote tracking branch name
+        @JsonView(Views.Api.class)
         String remoteBranch;
 
         // Documentation url for discard and pull functionality
+        @JsonView(Views.Api.class)
         String discardDocUrl = Assets.GIT_DISCARD_DOC_URL;
 }

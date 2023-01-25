@@ -44,8 +44,10 @@ public abstract class AbstractCommentDomain extends BaseDomain {
 
 
     @Transient
+    @JsonView(Views.Api.class)
     String branchName;
 
+    @JsonView(Views.Api.class)
     public String getType() {
         return getClass().getSimpleName();
     }

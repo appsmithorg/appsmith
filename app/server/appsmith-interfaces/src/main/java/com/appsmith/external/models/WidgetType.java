@@ -1,5 +1,7 @@
 package com.appsmith.external.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.Getter;
 
 @Getter
@@ -10,12 +12,14 @@ public enum WidgetType {
     TABLE_WIDGET_V2("data"),
     INPUT_WIDGET("data");
 
+    @JsonView(Views.Api.class)
     public final String query;
 
     WidgetType(String query) {
         this.query = query;
     }
 
+    @JsonView(Views.Api.class)
     public String getMessage() {
         return this.query;
     }
