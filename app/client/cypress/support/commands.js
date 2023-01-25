@@ -1973,9 +1973,9 @@ Cypress.Commands.add("execute", (url, command) => {
       cmd: command,
     },
   }).then((res) => {
-    cy.log(res.body.stderr);
-    cy.log(res.body.stdout);
+    //cy.log(res.body.stderr);
+    //cy.log(res.body.stdout);
     //expect(res.status).equal(200);
-    return res.body.stdout;
+    return res.body;
   });
 });
