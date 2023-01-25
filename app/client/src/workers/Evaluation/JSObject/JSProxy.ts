@@ -96,16 +96,35 @@ export class JSProxy {
     // We ensure that all function executions have completed.
     const { dataStore, evaluationEnded, pendingExecutionCount } = this;
     if (evaluationEnded && pendingExecutionCount === 0 && !isEmpty(dataStore)) {
+      const { data, errors } = this.getSanitizedData(dataStore);
       sendMessage.call(self, {
         messageType: MessageType.DEFAULT,
         body: {
           data: {
-            JSData: dataStore,
+            JSExecutionData: data,
+            JSExecutionErrors: errors,
           },
           method: MAIN_THREAD_ACTION.PROCESS_JS_FUNCTION_EXECUTION,
         },
       });
     }
+  }
+
+  private getSanitizedData(dataStore: Record<string, unknown>) {
+    const errors: Record<string, unknown> = {};
+    const data: Record<string, unknown> = {};
+    for (const funcName of Object.keys(dataStore)) {
+      try {
+        structuredClone(dataStore[funcName]);
+        data[funcName] = dataStore[funcName];
+      } catch (e) {
+        errors[funcName] = {
+          message: `Execution of ${funcName} returned an unserializable data`,
+        };
+        data[funcName] = undefined;
+      }
+    }
+    return { data, errors };
   }
 
   // Wrapper around JS Functions
