@@ -10,7 +10,7 @@ export default function overrideTimeout() {
     writable: true,
     configurable: true,
     value: function(cb: (...args: any) => any, delay: number, ...args: any) {
-      if (!self.ALLOW_SYNC) {
+      if (self.ALLOW_SYNC) {
         self.IS_SYNC = false;
         throw new ActionCalledInSyncFieldError("setTimeout");
       }
