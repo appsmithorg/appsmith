@@ -520,11 +520,7 @@ Cypress.Commands.add(
   (currentValue, isValueToBeEvaluatedDynamic = false) => {
     // if the value is not dynamic, evaluated popup must be hidden
     if (!isValueToBeEvaluatedDynamic) {
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(3000);
-      cy.get(commonlocators.evaluatedCurrentValue)
-        .first()
-        .should("not.be.visible");
+      cy.get(commonlocators.evaluatedCurrentValue).should("not.exist");
     } else {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(3000);

@@ -13,7 +13,7 @@ describe("Table widget edge case scenario testing", function() {
     cy.updateCodeInput(".t--property-control-defaultselectedrow", "");
 
     // ensure evaluated value popup does not show up
-    cy.get(commonlocators.evaluatedCurrentValue).should("not.be.visible");
+    cy.get(commonlocators.evaluatedCurrentValue).should("not.exist");
 
     //Check the value present in the textfield which is selectedRowIndices is blank
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should("have.text", "");
