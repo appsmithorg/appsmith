@@ -4,7 +4,7 @@ import UpgradePage from "./UpgradePage";
 import DebuggingImage from "assets/svg/upgrade/audit-logs/debugging.svg";
 import IncidentManagementImage from "assets/svg/upgrade/audit-logs/incident-management.svg";
 import SecurityAndComplianceImage from "assets/svg/upgrade/audit-logs/security-and-compliance.svg";
-import { createMessage } from "design-system/build/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 import {
   AUDIT_LOGS,
   AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING,

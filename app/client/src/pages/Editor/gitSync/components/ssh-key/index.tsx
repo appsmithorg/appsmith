@@ -13,7 +13,7 @@ import {
   Text,
   TextType,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";

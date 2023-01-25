@@ -31,7 +31,7 @@ import {
   createMessage,
   LOGIN_PAGE_SUBTITLE,
 } from "@appsmith/constants/messages";
-import { Button, FormGroup, FormMessage, Size } from "design-system";
+import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";

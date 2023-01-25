@@ -5,7 +5,7 @@ import {
   APP_SETTINGS_PANE_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize, TooltipComponent } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system-old";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";

@@ -12,7 +12,7 @@ import {
   Text,
   TextType,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { useState } from "react";
 import history from "utils/history";
 import Connections from "./Connections";
