@@ -553,8 +553,8 @@ Cypress.Commands.add(
   "fillPostgresDatasourceFormFat",
   (shouldAddTrailingSpaces = false) => {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["postgres-host-fat"] + "  "
-      : datasourceFormData["postgres-host-fat"];
+      ? datasourceFormData["postgres-host"] + "  "
+      : datasourceFormData["postgres-host"];
     const databaseName = shouldAddTrailingSpaces
       ? datasourceFormData["postgres-databaseName"] + "  "
       : datasourceFormData["postgres-databaseName"];
@@ -577,8 +577,8 @@ Cypress.Commands.add(
   "fillMySQLDatasourceFormFat",
   (shouldAddTrailingSpaces = false) => {
     const hostAddress = shouldAddTrailingSpaces
-      ? datasourceFormData["mysql-host-fat"] + "  "
-      : datasourceFormData["mysql-host-fat"];
+      ? datasourceFormData["mysql-host"] + "  "
+      : datasourceFormData["mysql-host"];
     const databaseName = shouldAddTrailingSpaces
       ? datasourceFormData["mysql-databaseName"] + "  "
       : datasourceFormData["mysql-databaseName"];

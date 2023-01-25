@@ -1,9 +1,8 @@
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import * as _ from "../../../support/Objects/ObjectsCore";
 const homePage = require("../../../locators/HomePage");
 const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 const jsEditorLocators = require("../../../locators/JSEditor.json");
-let jsEditor = ObjectsRegistry.JSEditor;
 
 describe("JSEditor tests", function() {
   before(() => {
@@ -14,11 +13,9 @@ describe("JSEditor tests", function() {
   });
 
   it("Testing promises with resetWidget, storeValue action and API call", () => {
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("TC1api");
-    cy.enterDatasourceAndPath("https://mock-api.appsmith.com/", "users");
-    cy.SaveAndRunAPI();
-    jsEditor.CreateJSObject(
+    _.apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users", "TC1api");
+    _.apiPage.RunAPI();
+    _.jsEditor.CreateJSObject(
       `export default {
         myFun1: async () => { //comment
           await this.clearStore()		//clear store value before running the case
@@ -53,9 +50,7 @@ describe("JSEditor tests", function() {
         shouldCreateNewJSObj: true,
       },
     );
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Page1")`).click();
-    cy.wait(2000);
+    _.ee.SelectEntityByName("Page1", "Pages");
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
       .eq(2)
@@ -121,14 +116,12 @@ describe("JSEditor tests", function() {
       "GREEN",
     ); */
   });
+
+  //Skipping reason? to add
   it.skip("Testing dynamic widgets display using consecutive storeValue calls", () => {
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(".t--entity-item:contains(JSObject1)");
-    cy.xpath("//span[name='expand-more']").click();
-    cy.get("[data-cy='t--dropdown-option-clearStore']").click();
-    cy.get(jsEditorLocators.runButton)
-      .first()
-      .click();
+    _.ee.SelectEntityByName("JSObject1", "Queries/JS");
+    _.jsEditor.SelectFunctionDropdown("clearStore");
+    _.jsEditor.RunJSObj();
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
