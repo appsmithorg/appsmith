@@ -403,7 +403,7 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
 
   // Identifiers added to worker scope by Appsmith
   evaluationVersion: "evaluationVersion",
-  ALLOW_ASYNC: "ALLOW_ASYNC",
-  IS_ASYNC: "IS_ASYNC",
+  ALLOW_SYNC: "ALLOW_SYNC",
+  IS_SYNC: "IS_SYNC",
   TRIGGER_COLLECTOR: "TRIGGER_COLLECTOR",
 };

@@ -9,8 +9,8 @@ class FunctionDeterminer {
   setupEval(dataTree: DataTree, resolvedFunctions: Record<string, any>) {
     /**** Setting the eval context ****/
     const evalContext: EvalContext = {
-      ALLOW_ASYNC: false,
-      IS_ASYNC: false,
+      ALLOW_SYNC: true,
+      IS_SYNC: true,
     };
 
     addDataTreeToContext({
@@ -42,21 +42,21 @@ class FunctionDeterminer {
 
   isFunctionAsync(userFunction: unknown, logs: unknown[] = []) {
     self.TRIGGER_COLLECTOR = [];
-    self.IS_ASYNC = false;
+    self.IS_SYNC = true;
 
     return (function() {
       try {
         if (typeof userFunction === "function") {
           if (userFunction.constructor.name === "AsyncFunction") {
             // functions declared with an async keyword
-            self.IS_ASYNC = true;
+            self.IS_SYNC = false;
           } else {
             const returnValue = userFunction();
             if (!!returnValue && returnValue instanceof Promise) {
-              self.IS_ASYNC = true;
+              self.IS_SYNC = false;
             }
             if (self.TRIGGER_COLLECTOR.length) {
-              self.IS_ASYNC = true;
+              self.IS_SYNC = false;
             }
           }
         }

@@ -23,8 +23,8 @@ declare global {
    * */
 
   interface Window {
-    ALLOW_ASYNC?: boolean;
-    IS_ASYNC?: boolean;
+    ALLOW_SYNC?: boolean;
+    IS_SYNC?: boolean;
     TRIGGER_COLLECTOR: ActionDescription[];
   }
 }
@@ -236,6 +236,16 @@ export const addPlatformFunctionsToEvalContext = (context: any) => {
   initStoreFns(context);
 };
 
+export const removePlatformFunctionsFromEvalContext = (context: any) => {
+  for (const [funcName] of platformFunctionEntries) {
+    try {
+      delete context[funcName];
+    } catch (error) {
+      context[funcName] = undefined;
+    }
+  }
+};
+
 export const getAllAsyncFunctions = (dataTree: DataTree) => {
   const asyncFunctionNameMap: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
@@ -277,8 +287,8 @@ export const pusher = function(
   ...args: any[]
 ) {
   const actionDescription = action(...args);
-  if (!self.ALLOW_ASYNC) {
-    self.IS_ASYNC = true;
+  if (self.ALLOW_SYNC) {
+    self.IS_SYNC = false;
     const actionName = ActionTriggerFunctionNames[actionDescription.type];
     throw new ActionCalledInSyncFieldError(actionName);
   }
