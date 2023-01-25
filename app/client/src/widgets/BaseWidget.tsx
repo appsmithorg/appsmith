@@ -633,6 +633,7 @@ export interface WidgetBaseProps {
   isMetaWidget?: boolean;
   suppressAutoComplete?: boolean;
   suppressDebuggerError?: boolean;
+  disallowCopy?: boolean;
   /**
    * The keys of the props mentioned here would always be picked from the canvas widget
    * rather than the evaluated values in withWidgetProps HOC.

@@ -1,4 +1,5 @@
 import { get, isPlainObject } from "lodash";
+import log from "loglevel";
 
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -65,21 +66,67 @@ export const primaryColumnValidation = (
   };
 };
 
+const getPrimaryKeyFromDynamicValue = (
+  prefixTemplate: string,
+  suffixTemplate: string,
+  dynamicValue?: string,
+) => {
+  if (!dynamicValue) return "";
+
+  const updatedPrefix = `${prefixTemplate} currentItem[`;
+  const updatedSuffix = `] ${suffixTemplate}`;
+  const suffixLength = dynamicValue.length - updatedSuffix.length;
+
+  const value = dynamicValue.substring(updatedPrefix.length, suffixLength);
+
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    log.error(error);
+    return "";
+  }
+};
+
 export const primaryKeyOptions = (props: ListWidgetProps) => {
   const { widgetName } = props;
+  // Since this is uneval value, coercing it to primitive type
+  const primaryKeys = (props.primaryKeys as unknown) as string | undefined;
   const listData = props[EVALUATION_PATH]?.evaluatedValues?.listData || [];
   const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 
-  if (isValidListData(listData)) {
-    return Object.keys(listData[0]).map((key) => ({
-      label: key,
+  const prevSelectedKey = getPrimaryKeyFromDynamicValue(
+    prefixTemplate,
+    suffixTemplate,
+    primaryKeys,
+  );
+  const options: {
+    label: string;
+    value: string;
+  }[] = [];
+
+  // Add previously selected key to options
+  if (prevSelectedKey) {
+    options.push({
+      label: prevSelectedKey,
       value: `${prefixTemplate} currentItem[${JSON.stringify(
-        key,
+        prevSelectedKey,
       )}] ${suffixTemplate}`,
-    }));
-  } else {
-    return [];
+    });
   }
+
+  if (isValidListData(listData)) {
+    Object.keys(listData[0]).forEach((key) => {
+      if (key !== prevSelectedKey) {
+        options.push({
+          label: key,
+          value: `${prefixTemplate} currentItem[${JSON.stringify(
+            key,
+          )}] ${suffixTemplate}`,
+        });
+      }
+    });
+  }
+  return options;
 };
 
 export const PropertyPaneContentConfig = [
