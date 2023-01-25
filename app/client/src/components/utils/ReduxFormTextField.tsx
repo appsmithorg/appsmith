@@ -4,10 +4,10 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import { TextInput, InputType } from "design-system";
+import { TextInput, InputType } from "design-system-old";
 
 import { Intent } from "constants/DefaultTheme";
-import { FieldError } from "design-system";
+import { FieldError } from "design-system-old";
 
 const renderComponent = (
   componentProps: FormTextFieldProps & {

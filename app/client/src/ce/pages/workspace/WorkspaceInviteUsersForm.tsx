@@ -54,7 +54,7 @@ import {
   TextType,
   TextProps,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";

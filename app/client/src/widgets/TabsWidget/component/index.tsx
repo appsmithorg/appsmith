@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { MaybeElement } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "widgets/BaseComponent";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
 import PageTabs from "./PageTabs";

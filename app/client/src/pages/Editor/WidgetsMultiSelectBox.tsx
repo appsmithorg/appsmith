@@ -12,7 +12,7 @@ import {
 import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
 import { FormIcons } from "icons/FormIcons";
-import { TooltipComponent as Tooltip } from "design-system";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 
