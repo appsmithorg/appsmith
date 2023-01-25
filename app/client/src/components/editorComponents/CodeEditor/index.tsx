@@ -1231,9 +1231,9 @@ class CodeEditor extends Component<Props, State> {
               <Portal>
                 <div
                   className="absolute"
-                  // onMouseLeave={() =>
-                  //   this.setState({ peekOverlayProps: undefined })
-                  // }
+                  onMouseLeave={() =>
+                    this.setState({ peekOverlayProps: undefined })
+                  }
                   style={{
                     height: "127px",
                     width: "298px",
