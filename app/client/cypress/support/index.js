@@ -30,7 +30,7 @@ import "./queryCommands";
 import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
-/// <reference types="cypress-xpath" />
+/// <reference types="cypress-xpath"/>
 
 Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
