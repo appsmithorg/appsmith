@@ -400,14 +400,14 @@ jobs:
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   perf-test:
-    needs: [ client-build, server-build, rts-build ]
+    needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
     if: success()
     name: perf-test
     uses: ./.github/workflows/perf-test.yml
     secrets: inherit
     with:
-      pr: ${{ github.event.client_payload.pull_request.number }}
+      pr: 0
 
   fat-container-test:
     needs: [buildClient, buildServer, buildRts]
