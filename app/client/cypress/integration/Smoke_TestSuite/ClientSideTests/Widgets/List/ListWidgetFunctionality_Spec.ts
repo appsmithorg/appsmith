@@ -170,7 +170,7 @@ it("8. Verify onPageSizeChange functionality in Server Side Pagination of list w
     _.propPane.ToggleOnOrOff("Server Side Pagination","Off")
     _.propPane.ToggleOnOrOff("Server Side Pagination","On")
     _.agHelper.ValidateToastMessage("Page size changed 2")
-    _.agHelper.Sleep()  
+    _.agHelper.Sleep()
 })
 
 after(() => {
