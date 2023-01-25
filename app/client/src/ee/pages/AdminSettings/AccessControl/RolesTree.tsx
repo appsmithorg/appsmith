@@ -8,8 +8,8 @@ import {
   Spinner,
   TabComponent,
   TabProp,
-} from "design-system";
-import { HighlightText } from "design-system";
+} from "design-system-old";
+import { HighlightText } from "design-system-old";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
 import {

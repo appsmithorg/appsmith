@@ -8,7 +8,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { RouteComponentProps } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Table } from "design-system";
+import { Table } from "design-system-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -26,7 +26,7 @@ import {
   TableDropdownOption,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";

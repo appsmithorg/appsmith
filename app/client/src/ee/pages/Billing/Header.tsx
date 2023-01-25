@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextType } from "design-system";
+import { Text, TextType } from "design-system-old";
 import { HeaderProps } from "./types";
 import { PageHeader } from "./styles";
 

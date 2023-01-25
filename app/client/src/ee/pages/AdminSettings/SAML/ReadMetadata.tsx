@@ -14,7 +14,7 @@ import { getSettingsSavingState } from "selectors/settingsSelectors";
 import SaveAdminSettings from "pages/Settings/SaveSettings";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { CopyUrlReduxForm } from "pages/Settings/FormGroup/CopyUrlForm";
-import { CalloutV2, Toaster, Variant } from "design-system";
+import { CalloutV2, Toaster, Variant } from "design-system-old";
 import {
   BodyContainer,
   Info,

@@ -19,6 +19,7 @@ import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
 import com.appsmith.server.solutions.UserChangedHandler;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -37,7 +38,6 @@ import reactor.core.scheduler.Scheduler;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jakarta.validation.Validator;
 
 @Slf4j
 @Service
@@ -194,11 +194,20 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
     @Override
     public Mono<User> userCreate(User user, boolean isAdminUser) {
-        return super.userCreate(user, isAdminUser)
+        Mono<User> userCreateAndDefaultRoleAssignmentMono = super.userCreate(user, isAdminUser)
                 // After creating the user, assign the default role to the newly created user.
                 .flatMap(createdUser -> userUtils.getDefaultUserPermissionGroup()
-                        .flatMap(permissionGroup -> permissionGroupService.bulkAssignToUsersWithoutPermission(permissionGroup, List.of(createdUser)))
+                        .flatMap(permissionGroup -> {
+                            log.debug("Assigning default user role to newly created user {}", createdUser.getUsername());
+                            return permissionGroupService.bulkAssignToUsersWithoutPermission(permissionGroup, List.of(createdUser));
+                        })
                         .then(Mono.just(createdUser))
                 );
+
+        //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
+        //  subscriber has cancelled its subscription, the user create method will still generate its event.
+        return Mono.create(sink -> userCreateAndDefaultRoleAssignmentMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 }

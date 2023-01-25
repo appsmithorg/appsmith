@@ -105,7 +105,7 @@ describe("<GroupListing />", () => {
     const searched = screen.queryAllByText("Design");
     expect(searched).toHaveLength(1);
 
-    waitFor(() => {
+    await waitFor(() => {
       const filtered = screen.queryAllByText("Eng_New");
       return expect(filtered).toHaveLength(0);
     });

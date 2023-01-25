@@ -7,7 +7,7 @@ import {
   MenuItemProps,
   Menu,
   Table,
-} from "design-system";
+} from "design-system-old";
 import { Position } from "@blueprintjs/core";
 import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";

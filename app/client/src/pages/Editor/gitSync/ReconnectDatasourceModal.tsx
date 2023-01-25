@@ -23,7 +23,7 @@ import {
   TextType,
   TooltipComponent,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 
 import styled, { useTheme } from "styled-components";
@@ -66,6 +66,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getOAuthAccessToken } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
+import { Theme } from "constants/DefaultTheme";
 
 const Container = styled.div`
   height: 765px;
@@ -278,7 +279,7 @@ function SuccessMessages() {
 }
 
 function ReconnectDatasourceModal() {
-  const theme = useTheme();
+  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const workspaceId = useSelector(getWorkspaceIdForImport);

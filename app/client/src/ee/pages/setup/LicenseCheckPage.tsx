@@ -1,5 +1,12 @@
 import React, { useEffect } from "react";
-import { Category, Icon, IconSize, Size, Text, TextType } from "design-system";
+import {
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+} from "design-system-old";
 import AppsmithImage from "assets/images/appsmith_logo_square.png";
 import { validateLicense } from "@appsmith/actions/tenantActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,11 +38,15 @@ import {
   IconBadge,
 } from "./styles";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
-import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
+import {
+  isValidLicense,
+  isTenantLoading,
+} from "@appsmith/selectors/tenantSelectors";
 
 function LicenseCheckPage() {
   const dispatch = useDispatch();
   const isValid = useSelector(isValidLicense);
+  const isLoading = useSelector(isTenantLoading);
   const {
     formState: { errors },
     getFieldState,
@@ -109,7 +120,7 @@ function LicenseCheckPage() {
                 placeholder={createMessage(ADD_KEY)}
                 {...register("licenseKey")}
               />
-              {errors.licenseKey && (
+              {errors.licenseKey && !isLoading && (
                 <Text className="input-error-msg" type={TextType.P3}>
                   {errors.licenseKey.message}
                 </Text>
@@ -117,6 +128,7 @@ function LicenseCheckPage() {
             </InputWrapper>
             <StyledButton
               fill
+              isLoading={isLoading}
               size={Size.large}
               tag="button"
               text={createMessage(ACTIVATE_INSTANCE)}

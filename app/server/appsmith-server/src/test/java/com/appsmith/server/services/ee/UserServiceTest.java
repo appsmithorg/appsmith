@@ -19,8 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -147,6 +149,38 @@ public class UserServiceTest {
                     assertThat(userProfileDTO.isSuperUser()).isFalse();
                     assertThat(userProfileDTO.isAdminSettingsVisible()).isTrue();
                 }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "anonymousUser")
+    public void validUserCreate_defaultRoleAssigned_cancelledMidway() {
+        User user = new User();
+        String email = UUID.randomUUID() + "@email.com";
+        user.setEmail(email);
+        user.setPassword("TestPassword");
+
+        userService.userCreate(user, false)
+                .timeout(Duration.ofMillis(5))
+                .subscribe();
+
+        // Sleep for user creation to finish before proceeding ahead.
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        User createdUser = userRepository.findByEmail(email)
+                .block();
+
+
+        Mono<PermissionGroup> defaultUserPermissionGroupMono = userUtils.getDefaultUserPermissionGroup();
+
+        StepVerifier.create(defaultUserPermissionGroupMono)
+                .assertNext(defaultUserPermissionGroup -> {
+                    assertThat(defaultUserPermissionGroup.getAssignedToUserIds()).contains(createdUser.getId());
+                })
+                .verifyComplete();
     }
 
 }

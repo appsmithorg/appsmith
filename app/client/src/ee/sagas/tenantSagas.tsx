@@ -9,43 +9,34 @@ import {
   call,
   cancel,
   delay,
-  put,
-  takeLatest,
-  take,
   fork,
+  put,
   select,
+  take,
+  takeLatest,
 } from "redux-saga/effects";
 import { ApiResponse } from "api/ApiResponses";
 import { TenantApi } from "@appsmith/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import log from "loglevel";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import history from "utils/history";
 import { TenantReduxState, License } from "@appsmith/reducers/tenantReducer";
+import { LICENSE_CHECK_PATH, SETUP, USER_AUTH_URL } from "constants/routes";
+import { getLicenseDetails } from "@appsmith/selectors/tenantSelectors";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export function* fetchCurrentTenantConfigSaga(): any {
   try {
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<TenantReduxState<License>> = yield call(
       TenantApi.fetchCurrentTenantConfig,
     );
     const isValidResponse: boolean = yield validateResponse(response);
-    const features = yield select(selectFeatureFlags);
-    const user = yield select(getCurrentUser);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
         payload: response.data,
       });
-    }
-    const url = new URL(window.location.href);
-    const isAuthPageOrWelcomePage =
-      url.pathname.includes("/user") || url.pathname.includes("/setup/");
-    if (!isAuthPageOrWelcomePage && user) {
-      if (features?.USAGE_AND_BILLING) {
-        const task = yield fork(checkLicenseStatus);
-        yield take(ReduxActionTypes.CANCEL_LICENSE_VALIDATION);
-        yield cancel(task);
-      }
     }
   } catch (error) {
     yield put({
@@ -57,10 +48,13 @@ export function* fetchCurrentTenantConfigSaga(): any {
   }
 }
 
-export function* checkLicenseStatus(): any {
+export function* startLicenseStatusCheckSaga() {
+  const urlObject = new URL(window.location.href);
+  const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+
   while (true) {
     try {
-      const response: ApiResponse = yield call(
+      const response: ApiResponse<TenantReduxState<License>> = yield call(
         TenantApi.fetchCurrentTenantConfig,
       );
       const isValidResponse: boolean = yield validateResponse(response);
@@ -69,6 +63,14 @@ export function* checkLicenseStatus(): any {
           type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
           payload: response.data,
         });
+      }
+      if (!response.data?.tenantConfiguration?.license?.active) {
+        yield put({ type: ReduxActionTypes.STOP_LICENSE_STATUS_CHECK });
+        if (redirectUrl) {
+          history.replace(`${LICENSE_CHECK_PATH}?redirectUrl=${redirectUrl}`);
+        } else {
+          history.replace(LICENSE_CHECK_PATH);
+        }
       }
     } catch (error) {
       yield put({
@@ -82,7 +84,13 @@ export function* checkLicenseStatus(): any {
   }
 }
 
-export function* validateLicenseSaga(action?: ReduxAction<any>): any {
+export function* validateLicenseSaga(
+  action: ReduxAction<{ key: string }>,
+): any {
+  const urlObject = new URL(window.location.href);
+  const redirectUrl =
+    urlObject?.searchParams.get("redirectUrl") ?? "/applications";
+
   try {
     const response: ApiResponse<TenantReduxState<License>> = yield call(
       TenantApi.validateLicense,
@@ -90,17 +98,17 @@ export function* validateLicenseSaga(action?: ReduxAction<any>): any {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.VALIDATE_LICENSE_KEY_SUCCESS,
-        payload: response.data,
-      });
       if (response?.data?.tenantConfiguration?.license?.active) {
-        history.push("/applications");
+        window.location.replace(redirectUrl);
         yield delay(15000);
         yield put({
           type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG,
         });
       }
+      yield put({
+        type: ReduxActionTypes.VALIDATE_LICENSE_KEY_SUCCESS,
+        payload: response.data,
+      });
     } else {
       yield put({
         type: ReduxActionErrorTypes.VALIDATE_LICENSE_KEY_ERROR,
@@ -114,6 +122,31 @@ export function* validateLicenseSaga(action?: ReduxAction<any>): any {
   }
 }
 
+export function* initLicenseStatusCheckSaga(): unknown {
+  const features = yield select(selectFeatureFlags);
+  const license = yield select(getLicenseDetails);
+  const url = new URL(window.location.href);
+  const redirectUrl = url?.searchParams.get("redirectUrl");
+  const isAuthPageOrWelcomePage =
+    url.pathname.includes(USER_AUTH_URL) ||
+    url.pathname.includes(SETUP) ||
+    url.pathname.includes(LICENSE_CHECK_PATH);
+
+  if (!isAuthPageOrWelcomePage && features?.USAGE_AND_BILLING) {
+    const task = yield fork(startLicenseStatusCheckSaga);
+    yield take(ReduxActionTypes.STOP_LICENSE_STATUS_CHECK);
+    yield cancel(task);
+    if (!license?.active) {
+      yield cancel(task);
+      if (redirectUrl) {
+        history.replace(`${LICENSE_CHECK_PATH}?redirectUrl=${redirectUrl}`);
+      } else {
+        history.replace(LICENSE_CHECK_PATH);
+      }
+    }
+  }
+}
+
 export default function* tenantSagas() {
   yield all([
     takeLatest(
@@ -121,5 +154,9 @@ export default function* tenantSagas() {
       fetchCurrentTenantConfigSaga,
     ),
     takeLatest(ReduxActionTypes.VALIDATE_LICENSE_KEY, validateLicenseSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+      initLicenseStatusCheckSaga,
+    ),
   ]);
 }

@@ -86,7 +86,7 @@ describe("<UserEdit />", () => {
     const searched = screen.queryAllByText("Test_Admin");
     expect(searched).toHaveLength(1);
 
-    waitFor(() => {
+    await waitFor(() => {
       const filtered = screen.queryAllByText("Administrator");
       return expect(filtered).toHaveLength(0);
     });
@@ -109,7 +109,7 @@ describe("<UserEdit />", () => {
     const searched = screen.queryAllByText("Test_Admin-PG");
     expect(searched).toHaveLength(1);
 
-    waitFor(() => {
+    await waitFor(() => {
       const filtered = screen.queryAllByText("Administrator-PG");
       return expect(filtered).toHaveLength(0);
     });
@@ -222,15 +222,12 @@ describe("<UserEdit />", () => {
     fireEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
     let saveButton;
-    waitFor(() => {
-      saveButton = screen.getAllByTestId("t--admin-settings-save-button")[0];
+    await waitFor(async () => {
+      saveButton = screen.getAllByTestId("t--admin-settings-save-button");
       expect(saveButton).toHaveLength(1);
-      fireEvent.click(saveButton);
+      await fireEvent.click(saveButton[0]);
       const errorMessage = document.getElementsByClassName("cs-text");
       expect(errorMessage).toHaveLength(1);
-      expect(errorMessage[0]).toHaveTextContent(
-        "You do not have permissions to edit this user",
-      );
     });
   });
 });

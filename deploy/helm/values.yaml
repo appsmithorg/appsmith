@@ -69,7 +69,10 @@ initContainer: {}
 ## Image
 ##
 image:
-  pullPolicy: Always
+  registry: index.docker.io
+  repository: appsmith/appsmith-ce
+  pullPolicy: IfNotPresent
+  pullSecrets: ""
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 ## ServiceAccount
@@ -187,7 +190,7 @@ ingress:
   ## e.g:
   ## className: "nginx"
   ##
-  className: ""
+  className: "nginx"
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious

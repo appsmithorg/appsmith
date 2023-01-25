@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { fireEvent, render, screen, waitFor } from "test/testUtils";
 import { RolesListing } from "./RolesListing";
 import { rolesTableData } from "./mocks/RolesListingMock";
-import { MenuItemProps } from "design-system";
+import { MenuItemProps } from "design-system-old";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { RoleProps } from "./types";
@@ -129,7 +129,7 @@ describe("<RoleListing />", () => {
     const searched = screen.queryAllByText("devops_design");
     expect(searched).toHaveLength(1);
 
-    waitFor(() => {
+    await waitFor(() => {
       const filtered = screen.queryAllByText("HR_Appsmith");
       return expect(filtered).toHaveLength(0);
     });

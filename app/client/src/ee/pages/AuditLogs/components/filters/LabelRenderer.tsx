@@ -1,5 +1,5 @@
 import React from "react";
-import { DropdownOption, Text, TextType } from "design-system";
+import { DropdownOption, Text, TextType } from "design-system-old";
 import { Chips, ChipsWrapper } from "../../styled-components/label-renderer";
 
 export function LabelRenderer(selected: DropdownOption[]) {

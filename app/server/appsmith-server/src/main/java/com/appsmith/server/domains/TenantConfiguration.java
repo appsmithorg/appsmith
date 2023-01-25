@@ -83,6 +83,11 @@ public class TenantConfiguration extends TenantConfigurationCE {
         String key;
         LicenseType type;
         Instant expiry;
+        // Instance id of this tenant in Cloud Services
+        // This is a unique ID on Cloud Services for a combination of tenantId and instanceId on the instance
+        // Passed while reporting usage to Cloud Services
+        // Is returned on license checks with Cloud Services and stored locally
+        String csInstanceId;
     }
 
 }

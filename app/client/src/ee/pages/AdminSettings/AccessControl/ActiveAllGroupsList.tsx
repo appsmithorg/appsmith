@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon, IconSize, TooltipComponent } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { ContentWrapper } from "./components";
-import { HighlightText } from "design-system";
+import { HighlightText } from "design-system-old";
 import {
   createMessage,
   ACTIVE_ENTITIES,

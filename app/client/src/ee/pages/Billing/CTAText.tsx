@@ -1,4 +1,4 @@
-import { Icon, Text, TextType } from "design-system";
+import { Icon, Text, TextType } from "design-system-old";
 import React from "react";
 import { CTATextWrapper } from "./styles";
 import { CTATextProps } from "./types";

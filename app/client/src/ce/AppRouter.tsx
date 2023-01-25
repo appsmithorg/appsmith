@@ -14,6 +14,7 @@ import {
   BUILDER_PATCH_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  LICENSE_CHECK_PATH,
   PROFILE,
   SETUP,
   SIGNUP_SUCCESS_URL,
@@ -61,7 +62,7 @@ import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelecto
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
-import { Spinner } from "design-system";
+import { Spinner } from "design-system-old";
 
 /*
     We use this polyfill to show emoji flags
@@ -114,13 +115,21 @@ export function Routes() {
       />
       <SentryRoute component={EditorLoader} path={BUILDER_PATH_DEPRECATED} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH_DEPRECATED} />
+      {/*
+       * Note: When making changes to the order of these paths
+       * Be sure to check if it is sync with the order of checks in getUpdatedRoute helper method
+       * Context: https://github.com/appsmithorg/appsmith/pull/19833
+       */}
       <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
       <SentryRoute component={EditorLoader} path={BUILDER_CUSTOM_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_CUSTOM_PATH} />
+      {/*
+       * End Note: When making changes to the order of the paths above
+       */}
       <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
       <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
-      <SentryRoute component={Spinner} path="/license-check" />
+      <SentryRoute component={Spinner} path={LICENSE_CHECK_PATH} />
       <SentryRoute component={PageNotFound} />
     </Switch>
   );

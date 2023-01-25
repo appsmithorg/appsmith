@@ -43,4 +43,8 @@ public interface Url {
     String USER_GROUP_URL = BASE_URL + VERSION + "/user-groups";
     // For sending special FE only events for Audit Logs
     String ANALYTICS_URL = BASE_URL + VERSION + "/analytics";
+
+    // Cloud Services URLs
+    String USAGE_REPORT_URL = BASE_URL + VERSION + "/usage/report";
+
 }

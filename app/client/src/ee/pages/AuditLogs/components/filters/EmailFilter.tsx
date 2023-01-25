@@ -1,5 +1,5 @@
 import React from "react";
-import { Dropdown, DropdownOption } from "design-system";
+import { Dropdown, DropdownOption } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAuditLogsData,
@@ -20,7 +20,7 @@ import { StyledFilterContainer as Container } from "@appsmith/pages/AuditLogs/st
 import { useGoToTop } from "@appsmith/pages/AuditLogs/hooks/useGoToTop";
 import { StyledLabel as Label } from "@appsmith/pages/AuditLogs/styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createMessage } from "design-system/build/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 import { USERS_LABEL, USERS_PLACEHOLDER } from "@appsmith/constants/messages";
 
 /**

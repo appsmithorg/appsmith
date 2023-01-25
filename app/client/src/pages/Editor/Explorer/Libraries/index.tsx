@@ -7,7 +7,7 @@ import {
   Toaster,
   TooltipComponent,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
 import {
@@ -35,6 +35,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import recommendedLibraries from "./recommendedLibraries";
+import { useTransition, animated } from "react-spring";
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;
@@ -286,8 +287,16 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
 
 function JSDependencies() {
   const libraries = useSelector(selectLibrariesForExplorer);
-  const dependencyList = libraries.map((lib) => (
-    <LibraryEntity key={lib.name} lib={lib} />
+  const transitions = useTransition(libraries, {
+    keys: (lib) => lib.name,
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 1 },
+  });
+  const dependencyList = transitions((style, lib) => (
+    <animated.div style={style}>
+      <LibraryEntity lib={lib} />
+    </animated.div>
   ));
   const isOpen = useSelector(selectIsInstallerOpen);
   const dispatch = useDispatch();

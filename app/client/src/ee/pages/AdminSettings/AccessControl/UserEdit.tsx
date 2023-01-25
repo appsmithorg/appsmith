@@ -14,7 +14,7 @@ import {
   TabProp,
   Toaster,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import ProfileImage from "pages/common/ProfileImage";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import {

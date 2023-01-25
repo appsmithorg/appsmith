@@ -5,7 +5,7 @@ import NoAuditLogs from "./NoAuditLogs";
 import useIntersectionObserver from "../hooks/useIntersectionObserver";
 import { AuditLogType } from "../types";
 import { DATE_SORT_ORDER } from "@appsmith/reducers/auditLogsReducer";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize } from "design-system-old";
 import { StyledAuditLogsTableContainer as Table } from "../styled-components/container";
 import {
   StyledAuditLogsTableHead as THead,
@@ -25,7 +25,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useGoToTop } from "../hooks/useGoToTop";
 import { AUDIT_LOGS_PAGE_SIZE } from "../config/audit-logs-config";
-import { createMessage } from "design-system/build/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 import {
   DATE_LABEL,
   EVENT_DESCRIPTION_LABEL,

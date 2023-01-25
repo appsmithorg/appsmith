@@ -1,4 +1,4 @@
-import { Toaster, ToastTypeOptions, Variant } from "design-system";
+import { Toaster, ToastTypeOptions, Variant } from "design-system-old";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ShowAlertActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import {

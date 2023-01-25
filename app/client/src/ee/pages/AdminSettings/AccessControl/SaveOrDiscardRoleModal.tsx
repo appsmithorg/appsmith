@@ -8,7 +8,7 @@ import {
   Category,
   DialogComponent as Dialog,
   Size,
-} from "design-system";
+} from "design-system-old";
 
 interface SaveOrDiscardModalProps {
   isOpen: boolean;

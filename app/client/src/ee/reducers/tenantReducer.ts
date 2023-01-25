@@ -3,6 +3,7 @@ import {
   handlers as CE_Handlers,
   initialState as CE_InitialState,
   TenantReduxState,
+  defaultBrandingConfig,
 } from "ce/reducers/tenantReducer";
 import {
   ReduxActionTypes,
@@ -31,6 +32,25 @@ export const initialState: TenantReduxState<any> = {
 
 export const handlers = {
   ...CE_Handlers,
+  [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
+    state: TenantReduxState<any>,
+    action: ReduxAction<TenantReduxState<any>>,
+  ) => ({
+    ...state,
+    userPermissions: action.payload.userPermissions || [],
+    tenantConfiguration: {
+      ...defaultBrandingConfig,
+      ...action.payload?.tenantConfiguration,
+      license: {
+        ...action.payload.tenantConfiguration?.license,
+        showBEBanner:
+          action.payload.tenantConfiguration?.license?.type === "TRIAL",
+        closedBannerAlready:
+          state.tenantConfiguration.license?.closedBannerAlready ?? false,
+      },
+    },
+    isLoading: false,
+  }),
   [ReduxActionTypes.VALIDATE_LICENSE_KEY]: (
     state: TenantReduxState<License>,
   ) => ({
@@ -62,7 +82,7 @@ export const handlers = {
     ...state,
     isLoading: false,
   }),
-  [ReduxActionTypes.CANCEL_LICENSE_VALIDATION]: (
+  [ReduxActionTypes.STOP_LICENSE_STATUS_CHECK]: (
     state: TenantReduxState<License>,
   ) => ({
     ...state,

@@ -13,7 +13,6 @@ import { error } from "loglevel";
 import { matchPath } from "react-router";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const redirectUserAfterSignup = (
   redirectUrl: string,
@@ -22,7 +21,7 @@ export const redirectUserAfterSignup = (
   validLicense?: boolean,
   dispatch?: any,
 ): any => {
-  if (redirectUrl && !isUsageAndBillingEnabled) {
+  if (!isUsageAndBillingEnabled && redirectUrl) {
     try {
       if (
         window.location.pathname == SIGNUP_SUCCESS_URL &&
@@ -50,18 +49,17 @@ export const redirectUserAfterSignup = (
           dispatch(
             firstTimeUserOnboardingInit(applicationId, pageId as string),
           );
-          dispatch({
-            type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG,
-          });
         }
-      } else if (isUsageAndBillingEnabled && !validLicense) {
-        history.push(LICENSE_CHECK_PATH);
       } else if (getIsSafeRedirectURL(redirectUrl)) {
         window.location.replace(redirectUrl);
       }
     } catch (e) {
-      error("Error handling the redirect url");
+      error("Error handling the redirect url", e);
     }
+  } else if (getIsSafeRedirectURL(redirectUrl) && validLicense) {
+    window.location.replace(redirectUrl);
+  } else if (isUsageAndBillingEnabled && !validLicense) {
+    history.replace(`${LICENSE_CHECK_PATH}?redirectUrl=${redirectUrl}`);
   } else {
     history.replace(APPLICATIONS_URL);
   }

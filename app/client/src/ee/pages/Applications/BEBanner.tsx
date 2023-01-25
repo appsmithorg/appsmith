@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Category, Size, Text, TextType } from "design-system";
+import { Button, Category, Size, Text, TextType } from "design-system-old";
 import AppsmithImage from "assets/images/appsmith_logo_square.png";
 import { useDispatch, useSelector } from "react-redux";
 import { getRemainingDays } from "@appsmith/selectors/tenantSelectors";

@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import com.appsmith.server.services.ConfigService;
 import java.nio.charset.StandardCharsets;
@@ -111,22 +111,22 @@ public class LicenseValidator {
      * @param tenant
      * @return License
      */
-    public TenantConfiguration.License licenseCheck(Tenant tenant) {
+    public Mono<TenantConfiguration.License> licenseCheck(Tenant tenant) {
         log.debug("Initiating License Check");
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        if (baseUrl == null || !org.springframework.util.StringUtils.hasText(baseUrl)) {
+        if (StringUtils.isEmpty(baseUrl)) {
             log.debug("Unable to find cloud services base URL. Shutting down.");
             System.exit(1);
         }
-        if (tenant == null || tenant.getTenantConfiguration() == null || tenant.getTenantConfiguration().getLicense() == null || tenant.getTenantConfiguration().getLicense().getKey() == null) {
+        if (!isLicenseKeyValid(tenant)) {
             log.debug("No License Key Present");
-            return new TenantConfiguration.License();
+            return Mono.just(new TenantConfiguration.License());
         }
         TenantConfiguration.License license = tenant.getTenantConfiguration().getLicense();
         license.setActive(true);
         license.setType(PAID);
         license.setExpiry(Instant.now().plus(30, ChronoUnit.DAYS));
-        TenantConfiguration.License license1 = configService.getInstanceId()
+        return configService.getInstanceId()
                 .flatMap(instanceId -> WebClientUtils.create(
                                         cloudServicesConfig.getBaseUrl() + "/api/v1/license/check"
                                 )
@@ -165,14 +165,15 @@ public class LicenseValidator {
                         // to protect the users from errors bringing down their EE instances
                         log.debug("ERROR : JSON Processing Exception - Invalid response structure from Cloud Services for License Check");
                     }
-
+                    log.debug("Completed License Check");
                     return license;
+                });
+    }
 
-                })
-                .subscribeOn(Schedulers.boundedElastic())
-                .block();
-        log.debug("Completed License Check");
-
-        return license1;
+    private Boolean isLicenseKeyValid(Tenant tenant) {
+        return tenant != null
+            && tenant.getTenantConfiguration() != null
+            && tenant.getTenantConfiguration().getLicense() != null
+            && !StringUtils.isEmpty(tenant.getTenantConfiguration().getLicense().getKey());
     }
 }

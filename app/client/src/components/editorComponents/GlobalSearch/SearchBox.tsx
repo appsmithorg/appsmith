@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { connectSearchBox } from "react-instantsearch-dom";
 import { SearchBoxProvided } from "react-instantsearch-core";
-import { getTypographyByKey, Icon } from "design-system";
+import { getTypographyByKey, Icon } from "design-system-old";
 import { AppState } from "@appsmith/reducers";
 import {
   createMessage,
@@ -103,7 +103,7 @@ const useListenToChange = (modalOpen: boolean) => {
 
   useEffect(() => {
     setListenToChange(false);
-    let timer: number;
+    let timer: ReturnType<typeof setTimeout>;
     if (modalOpen) {
       timer = setTimeout(() => setListenToChange(true), 100);
     }

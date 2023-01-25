@@ -1,8 +1,16 @@
 {{- /* Fail helm chart if autoscaling is enabled and mongo is disabled */ -}}
 {{- if and ( .Values.autoscaling.enabled ) ( not .Values.mongodb.enabled ) ( not .Values.applicationConfig.APPSMITH_MONGODB_URI ) }}
-{{- fail "We Recommend enabling mongo if autoscaling is enabled" }}
+{{- fail "To enable autoscaling on Appsmith, MongoDB needs to be enabled or an external MongoDB needs to be configured. Refer: https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes#install-appsmith" }}
 {{- end }}
 {{- /* Fail helm chart if autoscaling is enabled and postgresql is disabled */ -}}
 {{- if and ( .Values.autoscaling.enabled ) ( not .Values.postgresql.enabled ) ( not .Values.applicationConfig.APPSMITH_KEYCLOAK_DB_URL ) }}
-{{- fail "We Recommend enabling postgresql to have HA for keycloak or an external postgres" }}
+{{- fail "To enable autoscaling on Appsmith, PostgreSQL needs to be enabled or an external PostgreSQL has to be configured. Refer: https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes#install-appsmith" }}
+{{- end }}
+{{- /* Fail helm chart if mongodb is enabled along with APPSMITH_MONGODB_URI in the ApplicationConfig */ -}}
+{{- if and ( .Values.mongodb.enabled ) ( .Values.applicationConfig.APPSMITH_MONGODB_URI ) }}
+{{- fail "MongoDB is enabled, but also found APPSMITH_MONGODB_URI configured to an external instance, MongoDB needs to be disabled if using an external MongoDB instance" }}
+{{- end }}
+{{- /* Fail helm chart if postgresqul is enabled along with APPSMITH_MONGODB_URI in the ApplicationConfig */ -}}
+{{- if and ( .Values.postgresql.enabled ) ( .Values.applicationConfig.APPSMITH_KEYCLOAK_DB_DRIVER ) ( .Values.applicationConfig.APPSMITH_KEYCLOAK_DB_URL )  }}
+{{- fail "PostgreSQL is enabled, but also found APPSMITH_KEYCLOAK_DB_URL configured to an external instance, PostgreSQL needs to be disabled if using an external PostgreSQL instance" }}
 {{- end }}

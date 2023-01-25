@@ -11,7 +11,7 @@ import {
   IconSize,
   MenuItem,
   MenuItemProps,
-} from "design-system";
+} from "design-system-old";
 import { Position } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -19,7 +19,7 @@ import {
   selectAuditLogsIsLoading,
 } from "@appsmith/selectors/auditLogsSelectors";
 import { StyledHeaderRightContainer as RightSide } from "../styled-components/container";
-import { createMessage } from "design-system/build/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 import { AUDIT_LOGS, REFRESH } from "@appsmith/constants/messages";
 import { downloadDocumentFromURL } from "@appsmith/pages/AuditLogs/utils/downloadDocumentFromURL";
 import { downloadAuditLogAPIRoute } from "@appsmith/constants/ApiConstants";

@@ -10,7 +10,7 @@ import {
   Size,
   StyledButton,
   TooltipComponent as Tooltip,
-} from "design-system";
+} from "design-system-old";
 import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,

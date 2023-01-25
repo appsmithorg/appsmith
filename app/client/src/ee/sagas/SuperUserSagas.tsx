@@ -8,7 +8,7 @@ import {
   SendTestEmail,
 } from "ce/sagas/SuperUserSagas";
 import UserApi, { FetchSamlMetadataPayload } from "@appsmith/api/UserApi";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   ReduxAction,
   ReduxActionErrorTypes,

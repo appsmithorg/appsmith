@@ -75,10 +75,10 @@ ff4j:
       enable: true
       description: Ability to use custom JS libraries
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
+          - name: weight
+            value: 1
 
     - uid: MULTIPLE_PANES
       enable: true
@@ -88,6 +88,15 @@ ff4j:
         param:
           - name: emails
             value: multipanes@appsmith.com,ndx@appsmith.com
+
+    - uid: AUTO_LAYOUT
+      enable: true
+      description: Enable auto layout editor by email domain of user.
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com,moolya.com
 
     # Put EE flags below this line, to avoid conflicts.
     - uid: RBAC
@@ -106,4 +115,4 @@ ff4j:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
           - name: emails
-            value: demo@appsmith.com
+            value: usage@appsmith.com

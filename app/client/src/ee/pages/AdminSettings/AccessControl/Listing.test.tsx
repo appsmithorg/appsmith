@@ -7,7 +7,7 @@ import { UserListing } from "./UserListing";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ListingType } from "./types";
-import { MenuItemProps } from "design-system";
+import { MenuItemProps } from "design-system-old";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -140,7 +140,7 @@ describe("<Listing />", () => {
     await fireEvent.dblClick(deleteOption[0]);
     user = queryByText(userListingProps.data[0].username);
     /*expect(user).not.toBeInTheDocument();*/
-    waitFor(() => {
+    await waitFor(() => {
       expect(userListingProps.listMenuItems[1].onSelect).toHaveBeenCalledTimes(
         1,
       );

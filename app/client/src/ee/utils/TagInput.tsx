@@ -6,7 +6,7 @@ import {
   createMessage,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
 } from "@appsmith/constants/messages";
-import { HighlightText } from "design-system";
+import { HighlightText } from "design-system-old";
 import {
   Field,
   WrappedFieldInputProps,

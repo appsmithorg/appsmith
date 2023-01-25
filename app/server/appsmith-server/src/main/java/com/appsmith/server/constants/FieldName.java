@@ -61,4 +61,8 @@ public class FieldName extends FieldNameCE {
     public static final String DEFAULT_USER_PERMISSION_GROUP = "Default Role For All Users";
     public static final String GAC_TAB = "gacTab";
     public static final String ENTITY_UPDATED_PERMISSIONS = "entityUpdatedPermissions";
+    public static final String INSTANCE_ID = "instanceId";
+    public static final String HASHED_INSTANCE_ID = "hashedInstanceId";
+    public static final String USAGE_DATA = "usageData";
+    public static final String TENANT = "tenant";
 }

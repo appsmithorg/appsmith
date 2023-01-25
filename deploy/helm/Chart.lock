@@ -4,9 +4,9 @@ dependencies:
   version: 17.0.10
 - name: mongodb
   repository: https://charts.bitnami.com/bitnami
-  version: 10.31.5
+  version: 13.6.0
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 11.9.5
-digest: sha256:91698d8b4ec30144cef1f6d6e27d167be0447b7401afbee24e16588075a03ff2
-generated: "2022-10-17T15:07:03.894081+05:30"
+digest: sha256:6f49fb7832eebffcef759e937dcd53eb16c49795f325d0a98bfdbc6088ac93bd
+generated: "2022-12-29T12:15:20.136654+05:30"

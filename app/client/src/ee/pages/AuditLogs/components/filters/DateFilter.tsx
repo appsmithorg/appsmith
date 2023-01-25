@@ -1,5 +1,5 @@
 import React from "react";
-import { DateRangePicker } from "design-system";
+import { DateRangePicker } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAuditLogsSearchFilters } from "@appsmith/selectors/auditLogsSelectors";
 import {
@@ -17,7 +17,7 @@ import {
   AUDIT_LOGS_FILTER_WIDTH,
 } from "../../config/audit-logs-config";
 import { parseDateFilterInput } from "@appsmith/pages/AuditLogs/utils/dateFilter";
-import { createMessage } from "design-system/build/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 import { DATE_RANGE_LABEL } from "@appsmith/constants/messages";
 
 export default function DateFilter() {

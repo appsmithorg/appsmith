@@ -1,4 +1,4 @@
-import { MenuItemProps } from "design-system";
+import { MenuItemProps } from "design-system-old";
 import { DebouncedFunc } from "lodash";
 
 export type BaseAclProps = { id: string; name: string };
@@ -68,6 +68,7 @@ export type GroupProps = BaseAclProps & {
   allRoles: BaseAclProps[];
   userPermissions?: string[];
   isNew?: boolean;
+  description?: string;
 };
 
 export type GroupEditProps = {

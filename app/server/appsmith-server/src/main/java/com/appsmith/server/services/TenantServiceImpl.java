@@ -4,9 +4,12 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.LicenseValidator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -57,7 +60,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     @Override
     public Mono<Tenant> getTenantConfiguration() {
         return this.getDefaultTenant()
-                .map(dbTenant -> getClientPertinentTenant(dbTenant));
+                .map(this::getClientPertinentTenant);
     }
 
     /**
@@ -66,11 +69,12 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @param licenseKey
      * @return Mono of Tenant
      */
-    public Mono<Tenant> setTenantLicenseKey (String licenseKey) {
+    public Mono<Tenant> setTenantLicenseKey(String licenseKey) {
         TenantConfiguration.License license = new TenantConfiguration.License();
         license.setKey(licenseKey);
         // TODO: Update to getCurrentTenant when multi tenancy is introduced
-        return this.getDefaultTenant()
+        return repository.findBySlug(FieldName.DEFAULT, AclPermission.MANAGE_TENANT)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TENANT, FieldName.DEFAULT)))
                 .flatMap(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
                     tenantConfiguration.setLicense(license);
@@ -85,7 +89,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     }
                     return Mono.just(tenant);
                 })
-                .map(dbTenant -> getClientPertinentTenant(dbTenant));
+                .map(this::getClientPertinentTenant);
     }
 
     /**
@@ -94,12 +98,14 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
      * @return Mono of Tenant
      */
     private Mono<Tenant> checkTenantLicense(Tenant tenant) {
-        TenantConfiguration.License license = licenseValidator.licenseCheck(tenant);
-        TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-        tenantConfiguration.setLicense(license);
-        tenant.setTenantConfiguration(tenantConfiguration);
-
-        return Mono.just(tenant);
+        Mono<TenantConfiguration.License> licenseMono = licenseValidator.licenseCheck(tenant);
+        return licenseMono
+            .map(license -> {
+                TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+                tenantConfiguration.setLicense(license);
+                tenant.setTenantConfiguration(tenantConfiguration);
+                return tenant;
+            });
     }
 
     /**
@@ -128,5 +134,17 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         tenant.setUserPermissions(dbTenant.getUserPermissions());
 
         return tenant;
+    }
+
+    /**
+     * To check whether a tenant have valid license configuration
+     * @param tenant Tenant
+     * @return
+     */
+    public Boolean isValidLicenseConfiguration(Tenant tenant) {
+        return tenant.getTenantConfiguration() != null &&
+                tenant.getTenantConfiguration().getLicense() != null &&
+                tenant.getTenantConfiguration().getLicense().getKey() != null &&
+                tenant.getTenantConfiguration().getLicense().getCsInstanceId() != null;
     }
 }

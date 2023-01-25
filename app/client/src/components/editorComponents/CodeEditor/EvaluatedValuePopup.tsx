@@ -15,7 +15,7 @@ import {
   Toaster,
   TooltipComponent as Tooltip,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {
@@ -577,6 +577,7 @@ function EvaluatedValuePopup(props: Props) {
           }}
           onMouseLeave={() => {
             const id = setTimeout(() => setContentHovered(false), 500);
+            // @ts-expect-error: setTimeout return type mismatch
             setTimeoutId(id);
           }}
           preparedStatementViewer={

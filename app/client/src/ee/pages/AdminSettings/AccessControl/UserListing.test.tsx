@@ -5,7 +5,7 @@ import { UserListing } from "./UserListing";
 import { allUsers } from "./mocks/UserListingMock";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import { MenuItemProps } from "design-system";
+import { MenuItemProps } from "design-system-old";
 import * as userSelectors from "selectors/usersSelectors";
 import userEvent from "@testing-library/user-event";
 
@@ -127,7 +127,7 @@ describe("<UserListing />", () => {
     const searched = screen.queryAllByText("sangy123@appsmith.com");
     expect(searched).toHaveLength(1);
 
-    waitFor(() => {
+    await waitFor(() => {
       const filtered = screen.queryAllByText("techak@appsmith.com");
       return expect(filtered).toHaveLength(0);
     });

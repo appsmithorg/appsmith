@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { IconSize, Text, TextType } from "design-system";
+import { IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useDispatch, useSelector } from "react-redux";

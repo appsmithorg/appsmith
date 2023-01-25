@@ -19,7 +19,7 @@ import { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
 import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/AccessControl/components";
 import log from "loglevel";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ACL_DELETED_SUCCESS,
