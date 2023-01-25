@@ -56,6 +56,7 @@ describe("Upgrade appsmith version", () => {
     });
 
     //verify the Applications after upgrade
+    cy.visit("/");
     cy.LoginFromAPI(testdata.UPGRADEUSERNAME, testdata.UPGRADEPASSWORD);
     cy.visit(testdata.APPURL);
 
