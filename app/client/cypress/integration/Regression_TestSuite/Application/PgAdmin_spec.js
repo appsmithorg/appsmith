@@ -96,6 +96,7 @@ describe("PgAdmin Clone App", function() {
     cy.WaitAutoSave();
     dataSources.RunQuery();
 
+    
     cy.get("#switcher--widgets").click();
     cy.xpath(appPage.viewButton)
       .first()
