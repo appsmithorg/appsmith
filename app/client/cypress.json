@@ -1,5 +1,5 @@
 {
-	"baseUrl": "https://release.app.appsmith.com/",
+	"baseUrl": "https://dev.appsmith.com/",
 	"defaultCommandTimeout": 20000,
 	"requestTimeout": 21000,
 	"responseTimeout": 20000,
@@ -22,10 +22,5 @@
 	"retries": {
 		"runMode": 1,
 		"openMode": 0
-	},
-	"env":
-	{
-		"USERNAME" : "chandan1@appsmith.com",
-		"PASSWORD" : "Qwerty@123"
 	}
 }

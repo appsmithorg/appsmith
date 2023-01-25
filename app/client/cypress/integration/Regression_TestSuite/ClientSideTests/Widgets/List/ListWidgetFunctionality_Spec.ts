@@ -27,7 +27,7 @@ import {
 
 let dsName : any;
 
-describe("Verify List widget binding & functionalities with Queries and API", function() {
+describe("Verify List widget binding, Server side Pagination & functionalities with Queries and API", function() {
 
 it("1. Create new API & verify data on List widget", function(){
     const apiUrl = `https://mock-api.appsmith.com/users`
