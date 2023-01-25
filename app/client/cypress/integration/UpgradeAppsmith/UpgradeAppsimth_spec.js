@@ -25,7 +25,12 @@ describe("Upgrade appsmith version", () => {
       cy.log(path);
 
       cy.execute(testUrl, "ls " + path + "/oldstack").then((res) => {
-        cy.log("Files Inside oldstack", JSON.stringify(res));
+        cy.log("Files Inside oldstack", res.stdout);
+        cy.execute(testUrl, "ls " + path + "/oldstack" + res.stdout).then(
+          (res1) => {
+            cy.log("Files Inside oldstack/" + res.stdout, res1.stdout);
+          },
+        );
       });
 
       localStorage.setItem("ContainerName", `appsmith-160_${name}_updated`);
