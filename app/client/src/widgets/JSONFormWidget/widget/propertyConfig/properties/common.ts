@@ -83,7 +83,9 @@ function accessorValidation(
     return {
       isValid: false,
       parsed: value,
-      messages: ["Property Name cannot be empty"],
+      messages: [
+        { name: "ValidationError", text: "Property Name cannot be empty" },
+      ],
     };
   }
 
@@ -96,7 +98,9 @@ function accessorValidation(
     return {
       isValid: false,
       parsed: "",
-      messages: ["Property name already in use."],
+      messages: [
+        { name: "ValidationError", text: "Property name already in use." },
+      ],
     };
   }
 
@@ -104,14 +108,19 @@ function accessorValidation(
     return {
       isValid: false,
       parsed: "",
-      messages: ["This is a restricted Property Name"],
+      messages: [
+        {
+          name: "ValidationError",
+          text: "This is a restricted Property Name",
+        },
+      ],
     };
   }
 
   return {
     isValid: true,
     parsed: value,
-    messages: [""],
+    messages: [{ name: "", text: "" }],
   };
 }
 

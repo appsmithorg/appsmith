@@ -16,6 +16,12 @@ import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";
 import { isEmpty } from "lodash";
 
+export interface ErrorObject {
+  payload: LogActionPayload;
+  severity?: Severity;
+  category?: LOG_CATEGORY;
+}
+
 function dispatchAction(action: ReduxAction<unknown>) {
   store.dispatch(action);
 }
@@ -31,7 +37,7 @@ function log(ev: Log) {
 }
 
 function getTimeStamp() {
-  return moment().format("hh:mm:ss");
+  return moment().format("HH:mm:ss");
 }
 
 function addLogs(logs: Log[]) {
@@ -84,13 +90,7 @@ function error(
 }
 
 // Function used to add errors to the error tab of the debugger
-function addErrors(
-  errors: {
-    payload: LogActionPayload;
-    severity?: Severity;
-    category?: LOG_CATEGORY;
-  }[],
-) {
+function addErrors(errors: ErrorObject[]) {
   if (isEmpty(errors)) return;
   const refinedErrors = errors.map((error) => ({
     ...error.payload,

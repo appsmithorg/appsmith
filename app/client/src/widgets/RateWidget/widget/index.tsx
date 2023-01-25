@@ -30,7 +30,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
         return {
           isValid: false,
           parsed: 0,
-          messages: [`Value must be a number`],
+          messages: [{ name: "TypeError", text: `Value must be a number` }],
         };
       }
     }
@@ -44,7 +44,12 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
       return {
         isValid: false,
         parsed,
-        messages: [`This value must be less than or equal to max count`],
+        messages: [
+          {
+            name: "RangeError",
+            text: `This value must be less than or equal to max count`,
+          },
+        ],
       };
     }
 
@@ -53,7 +58,12 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
       return {
         isValid: false,
         parsed,
-        messages: [`This value can be a decimal only if 'Allow half' is true`],
+        messages: [
+          {
+            name: "ValidationError",
+            text: `This value can be a decimal only if 'Allow half' is true`,
+          },
+        ],
       };
     }
 
@@ -62,7 +72,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
     return {
       isValid: false,
       parsed: value,
-      messages: [`Could not validate `],
+      messages: [{ name: "ValidationError", text: `Could not validate ` }],
     };
   }
 }
