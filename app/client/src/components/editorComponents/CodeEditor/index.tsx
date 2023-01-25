@@ -534,7 +534,8 @@ class CodeEditor extends Component<Props, State> {
       const tokenElement = event.target;
       const tokenElementPosition = tokenElement.getBoundingClientRect();
       const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
-      this.debouncedPeek(peekableAttribute ?? "", tokenElementPosition);
+      peekableAttribute &&
+        this.debouncedPeek(peekableAttribute, tokenElementPosition);
     } else {
       console.log("text hover - close");
       this.debouncedPeek.cancel();
