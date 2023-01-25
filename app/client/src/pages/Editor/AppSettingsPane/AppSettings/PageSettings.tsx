@@ -18,8 +18,8 @@ import {
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
-import { Text, TextInput, TextType } from "design-system";
-import AdsSwitch from "design-system/build/Switch";
+import { Text, TextInput, TextType } from "design-system-old";
+import AdsSwitch from "design-system-old/build/Switch";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";

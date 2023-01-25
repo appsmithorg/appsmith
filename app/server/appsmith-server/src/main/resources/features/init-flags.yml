@@ -75,10 +75,10 @@ ff4j:
       enable: true
       description: Ability to use custom JS libraries
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
+          - name: weight
+            value: 1
 
     - uid: MULTIPLE_PANES
       enable: true

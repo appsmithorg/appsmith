@@ -9,7 +9,7 @@ import {
   UseFormResetField,
 } from "react-hook-form";
 import QuestionIcon from "remixicon-react/QuestionFillIcon";
-import { Button, Size, TooltipComponent } from "design-system";
+import { Button, Size, TooltipComponent } from "design-system-old";
 
 import { Inputs } from "./BrandingPage";
 import {

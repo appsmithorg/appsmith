@@ -9,7 +9,7 @@ import {
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
-import { Category, Size } from "design-system";
+import { Category, Size } from "design-system-old";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
