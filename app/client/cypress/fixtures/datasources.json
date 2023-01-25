@@ -5,17 +5,33 @@
   "mongo-databaseName": "mongo_samples",
   "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   "postgres-host": "host.docker.internal",
+=======
+=======
+>>>>>>> Stashed changes
+  "postgres-host": "postgres-test-db.cz8diybf9wdj.ap-south-1.rds.amazonaws.com",
+  "postgres-host-fat": "host.docker.internal",
+>>>>>>> Stashed changes
   "postgres-port": 5432,
   "postgres-databaseName": "fakeapi",
-  "postgres-username": "docker",
-  "postgres-password": "docker",
+  "postgres-username": "postgres",
+  "postgres-password": "all-new-password-for-test-db",
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	"mysql-host": "host.docker.internal",
+=======
+=======
+>>>>>>> Stashed changes
+  "mysql-host": "test-db.cz8diybf9wdj.ap-south-1.rds.amazonaws.com",
+  "mysql-host-fat": "host.docker.internal",
+>>>>>>> Stashed changes
   "mysql-port": 3306,
-  "mysql-databaseName": "fakeapi",
-  "mysql-username": "root",
-  "mysql-password": "root",
+  "mysql-databaseName": "testdb",
+  "mysql-username": "admin",
+  "mysql-password": "Appsmith2020#",
 
 	"mssql-host": "localhost",
   "mssql-port": 1433,
