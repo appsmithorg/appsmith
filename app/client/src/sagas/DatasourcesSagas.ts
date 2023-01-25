@@ -57,7 +57,7 @@ import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";

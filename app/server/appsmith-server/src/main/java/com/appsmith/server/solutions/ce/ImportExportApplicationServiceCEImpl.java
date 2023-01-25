@@ -7,6 +7,7 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -1983,6 +1984,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             authResponse.setExpiresAt(Instant.now());
             auth2.setAuthenticationResponse(authResponse);
             datasource.getDatasourceConfiguration().setAuthentication(auth2);
+        } else if (StringUtils.equals(authType, BearerTokenAuth.class.getName())) {
+            BearerTokenAuth auth = new BearerTokenAuth();
+            auth.setBearerToken(decryptedFields.getBearerTokenAuth().getBearerToken());
+            datasource.getDatasourceConfiguration().setAuthentication(auth);
         }
         return datasource;
     }
@@ -2020,6 +2025,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             } else if (authentication instanceof BasicAuth auth) {
                 dsDecryptedFields.setPassword(auth.getPassword());
                 dsDecryptedFields.setBasicAuth(auth);
+            } else if (authentication instanceof BearerTokenAuth auth) {
+                dsDecryptedFields.setBearerTokenAuth(auth);
             }
             dsDecryptedFields.setAuthType(authentication.getClass().getName());
             return dsDecryptedFields;
