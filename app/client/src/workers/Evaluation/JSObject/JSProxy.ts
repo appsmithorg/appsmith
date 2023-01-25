@@ -4,6 +4,14 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import { isPromise } from "workers/Evaluation/JSObject/utils";
 import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObject/postJSFunctionExecution";
 
+declare global {
+  interface Window {
+    structuredClone: (
+      value: any,
+      options?: StructuredSerializeOptions | undefined,
+    ) => any;
+  }
+}
 export interface JSExecutionData {
   data: unknown;
   funcName: string;
