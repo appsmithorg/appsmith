@@ -79,6 +79,7 @@ function WidgetTopBar() {
             return (
               <TooltipComponent content={widget.displayName} key={widget.type}>
                 <WidgetWrapper
+                  data-cy={`popular-widget-${widget.type}`}
                   draggable
                   onDragStart={(e) => onDragStart(e, widget)}
                 >
