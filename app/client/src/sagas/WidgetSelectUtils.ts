@@ -128,7 +128,7 @@ export const shiftSelectWidgets = (
   if (currentlySelectedWidgets.includes(request[0])) {
     return currentlySelectedWidgets.filter((w) => request[0] !== w);
   }
-  let widgets: string[] = [...request, ...currentlySelectedWidgets];
+  let widgets: string[] = [...currentlySelectedWidgets, ...request];
   const start =
     siblingIndexOfLastSelectedWidget < selectedWidgetIndex
       ? siblingIndexOfLastSelectedWidget
@@ -165,11 +165,7 @@ export const unselectWidget = (
   request: SelectionPayload,
   currentlySelectedWidgets: string[],
 ): SetSelectionResult => {
-  const widgets = currentlySelectedWidgets.filter((w) => !request.includes(w));
-  return {
-    widgets,
-    lastWidgetSelected: widgets[0],
-  };
+  return currentlySelectedWidgets.filter((w) => !request.includes(w));
 };
 
 const WidgetTypes = WidgetFactory.widgetTypes;

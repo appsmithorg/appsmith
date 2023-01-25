@@ -147,7 +147,7 @@ function* waitForPathLoad(currentPath: string, previousPath?: string) {
   }
 }
 
-function* storeStateOfPath(path: string, hash?: string) {
+function* storeStateOfPath(path: string) {
   const focusHistory: FocusState | undefined = yield select(
     getCurrentFocusInfo,
     path,

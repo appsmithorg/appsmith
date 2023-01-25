@@ -19,7 +19,7 @@ import {
   getCurrentPageId,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { widgetURL } from "RouteBuilder";
+import { builderURL, widgetURL } from "RouteBuilder";
 import { getParentModalId } from "selectors/entitiesSelector";
 import {
   assertParentId,
@@ -36,7 +36,6 @@ import {
 } from "sagas/WidgetSelectUtils";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { flashElementsById, quickScrollToWidget } from "utils/helpers";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { areArraysEqual } from "utils/AppsmithUtils";
 
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
@@ -133,11 +132,8 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       }
     }
 
-    // yield put(setSelectedWidgets(newSelection.widgets));
-
     if (parentId && newSelection.length === 1) {
       yield call(setWidgetAncestry, parentId, allWidgets);
-      quickScrollToWidget(newSelection[0]);
     }
     if (!areArraysEqual(newSelection, selectedWidgets)) {
       yield call(appendSelectedWidgetToUrlSaga, newSelection, invokedBy);
@@ -168,20 +164,18 @@ function* appendSelectedWidgetToUrlSaga(
   const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
   const currentURL = pathname;
-  const widgetsUrl = widgetURL({
-    pageId: currentPageId,
-    persistExistingParams: true,
-    selectedWidgets,
-  });
-  if (currentURL !== widgetsUrl) {
-    history.push(widgetsUrl, { invokedBy });
-
-    setTimeout(() => {
-      // Scrolling will hide some part of the content at the top during guided tour. To avoid that
-      // we skip scrolling altogether during guided tour as we don't have
-      // too many widgets during the same
-      flashElementsById(selectedWidgets[0]);
-    }, 0);
+  const newUrl = selectedWidgets.length
+    ? widgetURL({
+        pageId: currentPageId,
+        persistExistingParams: true,
+        selectedWidgets,
+      })
+    : builderURL({
+        pageId: currentPageId,
+        persistExistingParams: true,
+      });
+  if (currentURL !== newUrl) {
+    history.push(newUrl, { invokedBy });
   }
 }
 
@@ -226,6 +220,19 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   yield put(closeAllModals());
 }
 
+function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
+  const widgetId = action.payload.widgetIds[0];
+  if (widgetId) {
+    setTimeout(() => {
+      // Scrolling will hide some part of the content at the top during guided tour. To avoid that
+      // we skip scrolling altogether during guided tour as we don't have
+      // too many widgets during the same
+      flashElementsById(widgetId);
+      quickScrollToWidget(widgetId);
+    }, 0);
+  }
+}
+
 export function* widgetSelectionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
@@ -234,5 +241,6 @@ export function* widgetSelectionSagas() {
       canPerformSelectionSaga,
       openOrCloseModalSaga,
     ),
+    takeLatest(ReduxActionTypes.SET_SELECTED_WIDGETS, focusOnWidgetSaga),
   ]);
 }
