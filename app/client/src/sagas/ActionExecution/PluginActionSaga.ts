@@ -388,12 +388,15 @@ export default function* executePluginActionTriggerSaga(
       {
         payload: {
           id: actionId,
+          iconId: action.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${payload.statusCode}`,
           source: {
             type: ENTITY_TYPE.ACTION,
             name: action.name,
             id: actionId,
+            httpMethod: action.actionConfiguration.httpMethod,
+            pluginType: action.pluginType,
           },
           state: payload.request,
           messages: [
@@ -410,6 +413,7 @@ export default function* executePluginActionTriggerSaga(
               subType: payload.errorType,
             },
           ],
+          pluginErrorDetails: payload.pluginErrorDetails,
         },
       },
     ]);
@@ -647,17 +651,21 @@ function* runActionSaga(
       {
         payload: {
           id: actionId,
+          iconId: actionObject.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed${
-            payload.statusCode ? ` with status ${payload.statusCode}123` : ""
+            payload.statusCode ? ` with status ${payload.statusCode}` : ""
           }`,
           source: {
             type: ENTITY_TYPE.ACTION,
             name: actionObject.name,
             id: actionId,
+            httpMethod: actionObject.actionConfiguration.httpMethod,
+            pluginType: actionObject.pluginType,
           },
           messages: appsmithConsoleErrorMessageList,
           state: payload.request,
+          pluginErrorDetails: payload.pluginErrorDetails,
         },
       },
     ]);
@@ -783,6 +791,11 @@ function* executePageLoadAction(pageAction: PageAction) {
       isExampleApp: currentApp.appIsExample,
     });
 
+    const action = shouldBeDefined<Action>(
+      yield select(getAction, pageAction.id),
+      `action not found for id - ${pageAction.id}`,
+    );
+
     let payload = EMPTY_RESPONSE;
     let isError = true;
     let error = {
@@ -812,12 +825,15 @@ function* executePageLoadAction(pageAction: PageAction) {
         {
           payload: {
             id: pageAction.id,
+            iconId: action.pluginId,
             logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
             text: `Execution failed with status ${payload.statusCode}`,
             source: {
               type: ENTITY_TYPE.ACTION,
               name: pageAction.name,
               id: pageAction.id,
+              httpMethod: action.actionConfiguration.httpMethod,
+              pluginType: action.pluginType,
             },
             state: payload.request,
             messages: [
@@ -827,6 +843,7 @@ function* executePageLoadAction(pageAction: PageAction) {
                 subType: payload.errorType,
               },
             ],
+            pluginErrorDetails: payload.pluginErrorDetails,
           },
         },
       ]);
