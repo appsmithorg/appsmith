@@ -111,7 +111,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      selectWidget && selectWidget(SelectionRequestType.ONE, [props.widgetId]);
+      selectWidget && selectWidget(SelectionRequestType.One, [props.widgetId]);
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,

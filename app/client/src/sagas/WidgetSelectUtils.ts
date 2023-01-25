@@ -15,7 +15,7 @@ import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedC
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { setSelectedWidgetAncestry } from "actions/widgetSelectionActions";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { createMessage, SELECT_ALL_WIDGETS_MSG } from "ce/constants/messages";
 import {
   ReduxActionErrorTypes,
@@ -30,23 +30,26 @@ import {
  */
 export enum SelectionRequestType {
   /** Remove all selections, reset last selected widget to the main container  */
-  EMPTY = "EMPTY",
+  Empty = "Empty",
   /** Replace the existing selection with a new single selection.
    * The new selection will be the last selected widget */
-  ONE = "ONE",
+  One = "One",
   /** Replace the existing selection with a new selection of multiple widgets.
    * The new selection's first widget becomes the last selected widget
    * */
-  MULTIPLE = "MULTIPLE",
+  Multiple = "Multiple",
   /** Adds or removes a widget selection. Similar to CMD/Ctrl selections,
    *  if the payload exits in the selection, it will be removed.
    *  If the payload is new, it will be added.*/
   PushPop = "PushPop",
   /** Selects all widgets in the last selected canvas */
-  ALL = "ALL",
+  All = "All",
   /** Add selection like shift select where the widgets between two selections
    * are also selected. Widget order is taken from children order of the canvas */
-  SHIFT_SELECT = "SHIFT_SELECT",
+  ShiftSelect = "ShiftSelect",
+  /**
+   * Unselect specific widgets */
+  Unselect = "Unselect",
 }
 
 export type SelectionPayload = string[];
@@ -78,7 +81,7 @@ export const deselectAll = (request: SelectionPayload): SetSelectionResult => {
     throw new WidgetSelectionError(
       "Wrong payload supplied",
       request,
-      SelectionRequestType.EMPTY,
+      SelectionRequestType.Empty,
     );
   }
   return [];
@@ -87,11 +90,11 @@ export const deselectAll = (request: SelectionPayload): SetSelectionResult => {
 export const selectOneWidget = (
   request: SelectionPayload,
 ): SetSelectionResult => {
-  if (request.length > 1) {
+  if (request.length !== 1) {
     throw new WidgetSelectionError(
       "Wrong payload supplied",
       request,
-      SelectionRequestType.ONE,
+      SelectionRequestType.One,
     );
   }
   return request;
@@ -102,7 +105,7 @@ export const selectMultipleWidgets = (
   allWidgets: CanvasWidgetsReduxState,
 ): SetSelectionResult => {
   const parentToMatch = allWidgets[request[0]]?.parentId;
-  const areSiblings = request.some((each) => {
+  const areSiblings = request.every((each) => {
     return allWidgets[each]?.parentId === parentToMatch;
   });
   if (!areSiblings) return;
@@ -156,6 +159,17 @@ export const pushPopWidgetSelection = (
       siblingWidgets.includes(w),
     );
   }
+};
+
+export const unselectWidget = (
+  request: SelectionPayload,
+  currentlySelectedWidgets: string[],
+): SetSelectionResult => {
+  const widgets = currentlySelectedWidgets.filter((w) => !request.includes(w));
+  return {
+    widgets,
+    lastWidgetSelected: widgets[0],
+  };
 };
 
 const WidgetTypes = WidgetFactory.widgetTypes;

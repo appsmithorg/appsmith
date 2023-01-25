@@ -29,7 +29,7 @@ import {
   SearchCategory,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
@@ -403,9 +403,9 @@ const mapDispatchToProps = (dispatch: any) => {
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () =>
-      dispatch(selectWidgetInitAction(SelectionRequestType.ALL)),
+      dispatch(selectWidgetInitAction(SelectionRequestType.All)),
     deselectAllWidgets: () =>
-      dispatch(selectWidgetInitAction(SelectionRequestType.EMPTY)),
+      dispatch(selectWidgetInitAction(SelectionRequestType.Empty)),
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),

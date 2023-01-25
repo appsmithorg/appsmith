@@ -138,14 +138,14 @@ const mapDispatchToProps = (dispatch: any) => {
           position,
         },
       });
-      dispatch(selectWidgetInitAction(SelectionRequestType.ONE, [widgetId]));
+      dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
     },
     hideFilterPane: (widgetId: string) => {
       dispatch({
         type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
         payload: { widgetId },
       });
-      dispatch(selectWidgetInitAction(SelectionRequestType.ONE, [widgetId]));
+      dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
     },
   };
 };

@@ -1,5 +1,5 @@
 import { enableGuidedTour } from "actions/onboardingActions";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 import { createMessage, END_TUTORIAL } from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";

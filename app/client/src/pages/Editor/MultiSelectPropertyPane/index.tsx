@@ -34,7 +34,7 @@ function MultiSelectPropertyPane() {
                 className={className}
                 key={selectedWidgetId}
                 onClick={() => {
-                  selectWidget(SelectionRequestType.ONE, [selectedWidgetId]);
+                  selectWidget(SelectionRequestType.One, [selectedWidgetId]);
                   focusWidget(selectedWidgetId);
                 }}
               >

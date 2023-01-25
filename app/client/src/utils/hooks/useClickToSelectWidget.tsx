@@ -75,11 +75,11 @@ export const useClickToSelectWidget = (widgetId: string) => {
       // 2. If table filter property pane is open.
       if (shouldIgnoreClicks) return;
       if ((!isPropPaneVisible && isSelected) || !isSelected) {
-        let type: SelectionRequestType = SelectionRequestType.ONE;
+        let type: SelectionRequestType = SelectionRequestType.One;
         if (e.metaKey || e.ctrlKey) {
           type = SelectionRequestType.PushPop;
         } else if (e.shiftKey) {
-          type = SelectionRequestType.SHIFT_SELECT;
+          type = SelectionRequestType.ShiftSelect;
         }
 
         if (parentWidgetToOpen) {
@@ -91,7 +91,7 @@ export const useClickToSelectWidget = (widgetId: string) => {
 
         if (
           type === SelectionRequestType.PushPop ||
-          type === SelectionRequestType.SHIFT_SELECT
+          type === SelectionRequestType.ShiftSelect
         ) {
           e.stopPropagation();
         }

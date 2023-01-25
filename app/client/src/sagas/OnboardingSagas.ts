@@ -29,7 +29,7 @@ import {
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import {
   enableGuidedTour,
@@ -362,7 +362,7 @@ function* selectWidgetSaga(
 
   if (widget) {
     yield put(
-      selectWidgetInitAction(SelectionRequestType.ONE, [widget.widgetId]),
+      selectWidgetInitAction(SelectionRequestType.One, [widget.widgetId]),
     );
     // Delay to wait for the fields to render
     yield delay(1000);

@@ -28,7 +28,7 @@ export const useNavigateToWidget = () => {
     pageId: string,
     navigationMethod?: NavigationMethod,
   ) => {
-    selectWidget(SelectionRequestType.ONE, [widgetId], navigationMethod);
+    selectWidget(SelectionRequestType.One, [widgetId], navigationMethod);
   };
 
   const navigateToWidget = useCallback(
@@ -47,7 +47,7 @@ export const useNavigateToWidget = () => {
         return;
 
       if (isShiftSelect) {
-        selectWidget(SelectionRequestType.SHIFT_SELECT, [widgetId]);
+        selectWidget(SelectionRequestType.ShiftSelect, [widgetId]);
       } else if (isMultiSelect) {
         multiSelectWidgets(widgetId, pageId);
       } else {

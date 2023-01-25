@@ -1,4 +1,4 @@
-import { call, fork, put, select } from "redux-saga/effects";
+import { call, fork, put, select, take } from "redux-saga/effects";
 import {
   RouteChangeActionPayload,
   setFocusHistory,
@@ -24,7 +24,10 @@ import history, {
 } from "utils/history";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "ce/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
@@ -128,11 +131,23 @@ function* contextSwitchingSaga(pathname: string, state: AppsmithLocationState) {
   // Check if it should restore the stored state of the path
   if (shouldSetState(previousPath, pathname, state)) {
     // restore old state for new path
+    yield call(waitForPathLoad, pathname, previousPath);
     yield call(setStateOfPath, pathname);
   }
 }
 
-function* storeStateOfPath(path: string) {
+function* waitForPathLoad(currentPath: string, previousPath?: string) {
+  if (previousPath) {
+    const currentFocus = identifyEntityFromPath(currentPath);
+    const prevFocus = identifyEntityFromPath(previousPath);
+
+    if (currentFocus.pageId !== prevFocus.pageId) {
+      yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
+    }
+  }
+}
+
+function* storeStateOfPath(path: string, hash?: string) {
   const focusHistory: FocusState | undefined = yield select(
     getCurrentFocusInfo,
     path,

@@ -5048,19 +5048,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0:
-  version "1.0.30001148"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001148.tgz"
-
-caniuse-lite@^1.0.30001332, caniuse-lite@^1.0.30001335:
-  version "1.0.30001341"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001341.tgz"
-  integrity sha512-2SodVrFFtvGENGCv0ChVJIDQ0KPaS1cg7/qtfMaICgeMolDdo/Z2OD32F0Aq9yl6F4YFwGPBS5AaPqNYiW4PoA==
-
-caniuse-lite@^1.0.30001426:
-  version "1.0.30001431"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001431.tgz#e7c59bd1bc518fae03a4656be442ce6c4887a795"
-  integrity sha512-zBUoFU0ZcxpvSt9IU66dXVT/3ctO1cy4y9cscs1szkPlcWb6pasYM144GqrUygUbT+k7cmUCW61cvskjcv0enQ==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001332, caniuse-lite@^1.0.30001335, caniuse-lite@^1.0.30001426:
+  version "1.0.30001444"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001444.tgz"
+  integrity sha512-ecER9xgJQVMqcrxThKptsW0pPxSae8R2RB87LNa+ivW9ppNWRHEplXcDzkCOP4LYWGj8hunXLqaiC41iBATNyg==
 
 capital-case@^1.0.4:
   version "1.0.4"
@@ -6267,10 +6258,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.46":
-  version "1.0.46"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.46.tgz#f2091ee536def9cce2f170aed036d62ae4752bb5"
-  integrity sha512-o1h72Sf0ZX/sUYibhxcPD4s8Z4e/AWRxPO5M45m3+g5sVZHMH25ydEEPBWODxFK2CeaNOU0NP+sBc063Q07NKA==
+"design-system-old@npm:@appsmithorg/design-system-old@1.0.48":
+  version "1.0.48"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.0.48.tgz#69c1a1421486af8be52cbad4d3d7c261ba206ed2"
+  integrity sha512-W03JOzbyhDIEdT0KGnXJh36xrve2/bLi/cGJxpWVSfvYgxWjEFITFszpAt8MORg9JF4rD9DKMrvUEG/dnTzyLg==
   dependencies:
     emoji-mart "3.0.1"
 

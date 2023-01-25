@@ -180,7 +180,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.SelectedWidgets,
       selector: getSelectedWidgets,
       setter: (widgetIds: string[]) =>
-        selectWidgetInitAction(SelectionRequestType.MULTIPLE, widgetIds),
+        selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds),
       defaultValue: [],
     },
     {

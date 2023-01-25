@@ -47,4 +47,6 @@ public interface UserServiceCE extends CrudService<User, String> {
     Flux<User> getAllByEmails(Set<String> emails, AclPermission permission);
 
     Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params);
+
+    Mono<User> updateWithoutPermission(String id, User update);
 }
