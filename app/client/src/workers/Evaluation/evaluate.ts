@@ -352,7 +352,7 @@ export async function evaluateAsync(
     });
 
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
-    evalContext.ALLOW_SYNC = false;
+    evalContext.ALLOW_SYNC = true;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -377,6 +377,8 @@ export async function evaluateAsync(
       logs = userLogs.flushLogs();
     } finally {
       setEvaluationEnd(true);
+      self.ALLOW_SYNC = false;
+
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.
