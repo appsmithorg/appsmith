@@ -155,7 +155,7 @@ export default {
           value: StickyType.LEFT,
         },
         {
-          icon: "CENTER_ALIGN",
+          icon: "COLUMN_UNFREEZE",
           value: StickyType.NONE,
         },
         {
