@@ -9,7 +9,6 @@ import { EvalContext } from "workers/Evaluation/evaluate";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { initIntervalFns } from "workers/Evaluation/fns/interval";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
-import run from "workers/Evaluation/fns/actionFns";
 import { set } from "lodash";
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 import TriggerEmitter from "workers/Evaluation/fns/utils/TriggerEmitter";
@@ -136,8 +135,6 @@ const ENTITY_FUNCTIONS: Record<
       },
   },
 };
-
-const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
 /**
  * This method returns new dataTree with entity function and platform function
  */
@@ -161,9 +158,6 @@ export const addDataTreeToContext = (args: {
   for (const [entityName, entity] of dataTreeEntries) {
     EVAL_CONTEXT[entityName] = entity;
     if (skipEntityFunctions || !isTriggerBased) continue;
-    if (isAction(entity)) {
-      set(entityFunctionCollection, `${entityName}.run`, run.bind(entity));
-    }
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;
       const func = entityFn.fn(entity);
@@ -193,17 +187,14 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
   const asyncFunctionNameMap: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
   for (const [entityName, entity] of dataTreeEntries) {
-    if (isAction(entity)) {
-      asyncFunctionNameMap[`${entityName}.run`];
-    }
-    for (const [functionName, funcCreator] of entityFunctionEntries) {
-      if (!funcCreator.qualifier(entity)) continue;
-      const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
+    for (const entityFn of entityFns) {
+      if (!entityFn.qualifier(entity)) continue;
+      const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
       asyncFunctionNameMap[fullPath] = true;
     }
   }
-  for (const name of Object.values(ActionTriggerFunctionNames)) {
-    asyncFunctionNameMap[name] = true;
+  for (const platformFn of platformFns) {
+    asyncFunctionNameMap[platformFn.name] = true;
   }
   return asyncFunctionNameMap;
 };
