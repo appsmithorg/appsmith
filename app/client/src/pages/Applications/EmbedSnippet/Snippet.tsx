@@ -1,6 +1,6 @@
 import React from "react";
 import copy from "copy-to-clipboard";
-import { Toaster, Variant, Text, TextType } from "design-system";
+import { Toaster, Variant, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
   createMessage,

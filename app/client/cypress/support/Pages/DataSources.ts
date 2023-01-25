@@ -29,9 +29,9 @@ export class DataSources {
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
-  private _saveDs = ".t--save-datasource";
   private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
-  private _datasourceCard = ".t--datasource";
+  _saveDs = ".t--save-datasource";
+  _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
   _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
@@ -134,6 +134,7 @@ export class DataSources {
 
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
+  public _deleteDatasourceButton = ".t--delete-datasource";
 
   public AssertViewMode() {
     this.agHelper.AssertElementExist(this._editButton);

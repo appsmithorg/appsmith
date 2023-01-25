@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
-// import AppsmithLogo from "assets/images/appsmith_logo.png";
 import {
   ApplicationPayload,
   Page,
@@ -11,6 +10,7 @@ import { AppState } from "@appsmith/reducers";
 import {
   getCurrentPageId,
   getViewModePageList,
+  getCurrentPageDescription,
 } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
@@ -90,6 +90,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   );
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
+  const description = useSelector(getCurrentPageDescription);
 
   if (hideHeader) return <HtmlTitle />;
 
@@ -101,7 +102,10 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
           data-testid={"t--appsmith-app-viewer-header"}
           ref={headerRef}
         >
-          <HtmlTitle name={currentApplicationDetails?.name} />
+          <HtmlTitle
+            description={description}
+            name={currentApplicationDetails?.name}
+          />
           <HeaderRow className="relative h-12 px-3 py-3 md:px-6">
             <section className="flex items-center gap-3 z-1">
               <div

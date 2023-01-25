@@ -7,7 +7,7 @@ import {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { isEllipsisActive, trimQueryString } from "utils/helpers";
-import { getTypographyByKey, TooltipComponent } from "design-system";
+import { getTypographyByKey, TooltipComponent } from "design-system-old";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";

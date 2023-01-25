@@ -8,7 +8,7 @@ import {
   Text,
   TextType,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import {
   DELETE_CONFIRMATION_MODAL_TITLE,
   DELETE_CONFIRMATION_MODAL_SUBTITLE,

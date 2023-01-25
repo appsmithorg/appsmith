@@ -1,9 +1,9 @@
-import { parse, Node, SourceLocation, Options, Comment } from "acorn";
-import { ancestor, simple } from "acorn-walk";
-import { ECMA_VERSION, NodeTypes } from "./constants/ast";
-import { has, isFinite, isString, memoize, toPath } from "lodash";
-import { isTrueObject, sanitizeScript } from "./utils";
-import { jsObjectDeclaration } from "./jsObject/index";
+import { parse, Node, SourceLocation, Options, Comment } from 'acorn';
+import { ancestor, simple } from 'acorn-walk';
+import { ECMA_VERSION, NodeTypes } from './constants/ast';
+import { has, isFinite, isString, memoize, toPath } from 'lodash';
+import { isTrueObject, sanitizeScript } from './utils';
+import { jsObjectDeclaration } from './jsObject/index';
 /*
  * Valuable links:
  *
@@ -104,7 +104,7 @@ export interface PropertyNode extends Node {
   type: NodeTypes.Property;
   key: LiteralNode | IdentifierNode;
   value: Node;
-  kind: "init" | "get" | "set";
+  kind: 'init' | 'get' | 'set';
 }
 
 // Node with location details
@@ -112,7 +112,7 @@ type NodeWithLocation<NodeType> = NodeType & {
   loc: SourceLocation;
 };
 
-type AstOptions = Omit<Options, "ecmaVersion">;
+type AstOptions = Omit<Options, 'ecmaVersion'>;
 
 type EntityRefactorResponse = {
   isSuccess: boolean;
@@ -225,7 +225,7 @@ export const extractIdentifierInfoFromCode = (
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
 ): IdentifierInfo => {
-  let ast: Node = { end: 0, start: 0, type: "" };
+  let ast: Node = { end: 0, start: 0, type: '' };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
@@ -281,7 +281,7 @@ export const entityRefactorFromCode = (
   //Hence we are not sanatizing the script. Fix(#18492)
   //If script is a JSObject then replace export default to decalartion.
   if (isJSObject) script = jsObjectToCode(script);
-  let ast: Node = { end: 0, start: 0, type: "" };
+  let ast: Node = { end: 0, start: 0, type: '' };
   //Copy of script to refactor
   let refactorScript = script;
   //Difference in length of oldName and newName
@@ -302,7 +302,7 @@ export const entityRefactorFromCode = (
       identifierList
     ) as Array<RefactorIdentifierNode>;
     //To handle if oldName has property ("JSObject.myfunc")
-    const oldNameArr = oldName.split(".");
+    const oldNameArr = oldName.split('.');
     const referencesArr = Array.from(references).filter((reference) => {
       // To remove references derived from declared variables and function params,
       // We extract the topLevelIdentifier Eg. Api1.name => Api1
@@ -318,7 +318,7 @@ export const entityRefactorFromCode = (
       if (identifier.name === oldNameArr[0]) {
         let index = 0;
         while (index < referencesArr.length) {
-          if (identifier.name === referencesArr[index].split(".")[0]) {
+          if (identifier.name === referencesArr[index].split('.')[0]) {
             //Replace the oldName by newName
             //Get start index from node and get subarray from index 0 till start
             //Append above with new name
@@ -363,7 +363,7 @@ export const entityRefactorFromCode = (
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list
-      return { isSuccess: false, body: { error: "Syntax Error" } };
+      return { isSuccess: false, body: { error: 'Syntax Error' } };
     }
     throw e;
   }
@@ -405,7 +405,7 @@ export const getFunctionalParamsFromNode = (
 
 const constructFinalMemberExpIdentifier = (
   node: MemberExpressionNode,
-  child = ""
+  child = ''
 ): string => {
   const propertyAccessor = getPropertyAccessor(node.property);
   if (isIdentifierNode(node.object)) {
@@ -466,7 +466,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
   const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
   const variableDeclarations = new Set<string>();
   let functionalParams = new Set<string>();
-  let ast: Node = { end: 0, start: 0, type: "" };
+  let ast: Node = { end: 0, start: 0, type: '' };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     const wrappedCode = wrapCode(sanitizedScript);
@@ -480,7 +480,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
   }
   simple(ast, {
     MemberExpression(node: Node) {
-      const { object, property } = node as MemberExpressionNode;
+      const { object, property, computed } = node as MemberExpressionNode;
       // We are only interested in top-level MemberExpression nodes
       // Eg. for Api1.data.name, we are only interested in Api1.data
       if (!isIdentifierNode(object)) return;
@@ -497,7 +497,13 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
           property,
         } as MemberExpressionData);
       }
-      if (isIdentifierNode(property) && !(property.name in data[object.name])) {
+      // We ignore computed member expressions if property is an identifier (JSObject[name])
+      // This is because we can't statically determine what the value of the identifier might be.
+      if (
+        isIdentifierNode(property) &&
+        !computed &&
+        !(property.name in data[object.name])
+      ) {
         invalidTopLevelMemberExpressions.add({
           object,
           property,
@@ -665,5 +671,5 @@ const jsObjectToCode = (script: string) => {
 //Revert the string replacement from 'jsObjectToCode'.
 //variable declaration is replaced back by export default.
 const jsCodeToObject = (script: string) => {
-  return script.replace(jsObjectDeclaration, "export default");
+  return script.replace(jsObjectDeclaration, 'export default');
 };
