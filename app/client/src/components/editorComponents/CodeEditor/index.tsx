@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useCallback } from "react";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import CodeMirror, {
@@ -23,7 +23,7 @@ import "codemirror/addon/comment/comment";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _, { isEqual } from "lodash";
+import _, { debounce, isEqual } from "lodash";
 
 import {
   DataTree,
@@ -511,25 +511,36 @@ class CodeEditor extends Component<Props, State> {
     this.editor.clearHistory();
   }
 
+  debouncedPeek = debounce(
+    (peekableAttribute: string, tokenElementPosition: DOMRect) => {
+      console.log("text hover", peekableAttribute);
+      console.log("text hover", tokenElementPosition);
+      this.setState({
+        peekOverlayProps: {
+          name: peekableAttribute ?? "",
+          position: tokenElementPosition,
+          textWidth: tokenElementPosition.width,
+        },
+      });
+    },
+    200,
+  );
+
   handleMouseOver = (event: MouseEvent) => {
     if (
       event.target instanceof Element &&
       event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
     ) {
-      console.log("text hover", event.target.getAttribute(PEEKABLE_ATTRIBUTE));
-      console.log("text hover", event.target.getBoundingClientRect());
-      this.setState({
-        peekOverlayProps: {
-          name: event.target.getAttribute(PEEKABLE_ATTRIBUTE) ?? "",
-          position: event.target.getBoundingClientRect(),
-          textWidth: event.target.getBoundingClientRect().width,
-        },
-      });
+      const tokenElement = event.target;
+      const tokenElementPosition = tokenElement.getBoundingClientRect();
+      const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
+      this.debouncedPeek(peekableAttribute ?? "", tokenElementPosition);
     } else {
+      console.log("text hover - close");
+      this.debouncedPeek.cancel();
       this.setState({
         peekOverlayProps: undefined,
       });
-      console.log("text hover - close");
     }
   };
 
