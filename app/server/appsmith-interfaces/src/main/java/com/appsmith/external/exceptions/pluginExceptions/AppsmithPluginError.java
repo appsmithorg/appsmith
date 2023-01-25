@@ -129,16 +129,6 @@ public enum AppsmithPluginError implements BasePluginError{
             "{1}",
             "{2}"
     ),
-    UNSUPPORTED_PLUGIN_OPERATION(
-            500,
-            AppsmithPluginErrorCode.UNSUPPORTED_PLUGIN_OPERATION.getCode(),
-            "Testing datasource for SaaS plugin is not supported",
-            AppsmithErrorAction.DEFAULT,
-            "Unsupported operation",
-            ErrorType.INTERNAL_ERROR,
-            "{0}",
-            "{1}"
-    ),
     INCOMPATIBLE_FILE_FORMAT(
             400,
             AppsmithPluginErrorCode.INCOMPATIBLE_FILE_FORMAT.getCode(),

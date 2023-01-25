@@ -9,6 +9,26 @@ import java.text.MessageFormat;
 
 @Getter
 public enum MongoPluginError implements BasePluginError {
+    UNSUPPORTED_OPERATION(
+            500,
+            "PE-MNG-4005",
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Unsupported operation",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
+    QUERY_EXECUTION_FAILED(
+            500,
+            "PE-MNG-5000",
+            "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY,
+            "Query execution error",
+            ErrorType.INTERNAL_ERROR,
+            "{1}",
+            "{2}"
+    ),
     FORM_TO_NATIVE_TRANSLATION_ERROR(
             500,
             "PE-MNG-5001",

@@ -26,7 +26,8 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.external.plugins.constants.AmazonS3Action;
-import com.external.plugins.constants.S3ErrorMessages;
+import com.external.plugins.exceptions.S3ErrorMessages;
+import com.external.plugins.exceptions.S3PluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -43,11 +44,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
@@ -361,7 +359,7 @@ public class AmazonS3PluginTest {
                     String message = (String) result.getBody();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -402,7 +400,7 @@ public class AmazonS3PluginTest {
                     String message = (String) result.getBody();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -448,7 +446,7 @@ public class AmazonS3PluginTest {
                     String message = (String) result.getBody();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -588,7 +586,7 @@ public class AmazonS3PluginTest {
                     String message = (String) result.getBody();
                     assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
-                    assertEquals(AppsmithPluginError.PLUGIN_ERROR.getTitle(), result.getTitle());
+                    assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
                 .verifyComplete();
     }
@@ -1266,6 +1264,27 @@ public class AmazonS3PluginTest {
     }
 
     @Test
+    public void testExecuteCommonForIllegalStateException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        ActionConfiguration mockActionConfiguration = mock(ActionConfiguration.class);
+        Mockito.when(mockActionConfiguration.getFormData()).thenCallRealMethod().thenThrow(new IllegalStateException());
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new AmazonS3Plugin.S3PluginExecutor());
+        Mono<ActionExecutionResult> resultMono = pluginExecutorMono
+                .flatMap(executor -> {
+                    return executor.executeParameterized(
+                            null,
+                            executeActionDTO,
+                            datasourceConfiguration,
+                            mockActionConfiguration);
+                });
+
+        StepVerifier.create(resultMono)
+                .verifyError(StaleConnectionException.class);
+    }
+
+    @Test
     public void testExecuteCommonForAmazonServiceException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String errorMessage =  "The version ID specified in the request does not match an existing version.";
         String errorCode = "NoSuchVersion";
@@ -1453,5 +1472,15 @@ public class AmazonS3PluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfAmazonS3PluginErrorCode() {
+        assert (Arrays.stream(S3PluginError.values()).map(S3PluginError::getAppErrorCode).distinct().count() == S3PluginError.values().length);
+
+        assert (Arrays.stream(S3PluginError.values()).map(S3PluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-AS3"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }

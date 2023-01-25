@@ -18,6 +18,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -219,6 +220,7 @@ public class Application extends BaseDomain {
         this.setIsManualUpdate(false);
         this.sanitiseToExportBaseObject();
         this.setDefaultPermissionGroup(null);
+        this.setPublishedCustomJSLibs(new HashSet<>());
     }
 
     public List<ApplicationPage> getPages() {

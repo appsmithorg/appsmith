@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import { TagInput } from "design-system";
+import { TagInput } from "design-system-old";
 import { Intent } from "constants/DefaultTheme";
 
 const renderComponent = (

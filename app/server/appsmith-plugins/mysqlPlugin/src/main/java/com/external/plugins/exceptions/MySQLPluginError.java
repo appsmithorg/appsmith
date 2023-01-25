@@ -44,7 +44,7 @@ public enum MySQLPluginError implements BasePluginError {
             "PE-MYS-4002",
             "Query is syntactically wrong",
             AppsmithErrorAction.LOG_EXTERNALLY,
-            "Syntax error",
+            "Query syntax error",
             ErrorType.ACTION_CONFIGURATION_ERROR,
             "{0}",
             "{1}"

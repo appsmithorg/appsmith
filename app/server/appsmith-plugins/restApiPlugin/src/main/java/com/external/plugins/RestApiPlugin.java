@@ -140,7 +140,7 @@ public class RestApiPlugin extends BasePlugin {
             try {
                 uri = uriUtils.createUriWithQueryParams(actionConfiguration, datasourceConfiguration, url,
                         encodeParamsToggle);
-            } catch (URISyntaxException e) {
+            } catch (Exception e) {
                 ActionExecutionRequest actionExecutionRequest =
                         RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
                 actionExecutionRequest.setUrl(url);

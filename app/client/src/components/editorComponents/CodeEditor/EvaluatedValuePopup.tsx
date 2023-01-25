@@ -15,7 +15,7 @@ import {
   Toaster,
   TooltipComponent as Tooltip,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {

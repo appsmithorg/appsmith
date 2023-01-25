@@ -17,8 +17,15 @@ public class MySQLErrorMessages {
     public static final String UNEXPECTED_SSL_OPTION_ERROR_MSG = "Appsmith server has found an unexpected SSL option: %s. Please reach out to" +
             " Appsmith customer support to resolve this.";
 
+    public static final String SSL_CONFIGURATION_FETCHING_ERROR_MSG = "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+            "Please reach out to Appsmith customer support to resolve this.";
 
-    public static final String DS_MISSING_CONNECTION_MODE_ERROR_MSG = "Missing Connection Mode.";
+
+    /*
+     ************************************************************************************************************************************************
+                                        Error messages related to validation of datasource.
+     ************************************************************************************************************************************************
+    */
     public static final String DS_MISSING_ENDPOINT_ERROR_MSG = "Missing endpoint and url";
     public static final String DS_MISSING_HOSTNAME_ERROR_MSG = "Host value cannot be empty";
     public static final String DS_INVALID_HOSTNAME_ERROR_MSG = "Host value cannot contain `/` or `:` characters. Found `%s`.";

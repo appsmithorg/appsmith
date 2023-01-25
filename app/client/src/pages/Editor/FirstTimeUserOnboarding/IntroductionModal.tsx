@@ -1,5 +1,5 @@
 import { Icon, Overlay } from "@blueprintjs/core";
-import { Button, Category, Size } from "design-system";
+import { Button, Category, Size } from "design-system-old";
 import {
   HOW_APPSMITH_WORKS,
   BUILD_MY_FIRST_APP,

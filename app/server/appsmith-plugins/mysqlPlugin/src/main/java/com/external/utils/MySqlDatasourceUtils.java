@@ -85,9 +85,9 @@ public class MySqlDatasourceUtils {
                 || datasourceConfiguration.getConnection().getSsl() == null
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
             throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                                    "Please reach out to Appsmith customer support to resolve this.");
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            MySQLErrorMessages.SSL_CONFIGURATION_FETCHING_ERROR_MSG
+                            );
         }
 
         /*
@@ -111,7 +111,7 @@ public class MySqlDatasourceUtils {
                 break;
             default:
                 throw new AppsmithPluginException(
-                        MySQLPluginError.MYSQL_PLUGIN_ERROR,
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                         String.format(MySQLErrorMessages.UNEXPECTED_SSL_OPTION_ERROR_MSG, sslAuthType)
                         );
         }

@@ -25,9 +25,10 @@ public class PostgresErrorMessages {
 
     /*
      ************************************************************************************************************************************************
-        Error messages related to validation of datasource. Let's follow a convention like starting the constant name with 'DS' (DS for Datasource)
+                                        Error messages related to validation of datasource.
      ************************************************************************************************************************************************
      */
+
     public static final String DS_MISSING_ENDPOINT_ERROR_MSG = "Missing endpoint.";
 
     public static final String DS_MISSING_HOSTNAME_ERROR_MSG = "Missing hostname.";

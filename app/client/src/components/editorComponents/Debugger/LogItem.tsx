@@ -23,7 +23,7 @@ import {
   Text,
   TextType,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 import {
   createMessage,
   TROUBLESHOOT_ISSUE,

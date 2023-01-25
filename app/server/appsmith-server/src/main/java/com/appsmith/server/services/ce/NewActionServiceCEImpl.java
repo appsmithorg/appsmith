@@ -781,7 +781,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                             return getValidatedDatasourceForActionExecution(datasource1, environmentName)
                                     .zipWhen(validatedDatasource -> getDsContextForActionExecution(validatedDatasource,
-                                                                                                   plugin, datasourceContextIdentifier,
+                                                                                                   plugin,
+                                                                                                   datasourceContextIdentifier,
                                                                                                    environmentMap))
                                     .flatMap(tuple2 -> {
                                         Datasource validatedDatasource = tuple2.getT1();
@@ -1394,6 +1395,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, String.valueOf(executionParams.size()),
                             FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams.stream().collect(Collectors.joining(",", "[", "]"))
                     ));
+
+                    data.putAll(
+                            Map.of(
+                                    "pluginErrorDetails", ObjectUtils.defaultIfNull(actionExecutionResult.getPluginErrorDetails(), "")
+                            )
+                    );
                     data.putAll(Map.of(
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
                             "dsName", datasource.getName(),

@@ -7,7 +7,7 @@ import {
   getTypographyByKey,
   Size,
   TooltipComponent as Tooltip,
-} from "design-system";
+} from "design-system-old";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";

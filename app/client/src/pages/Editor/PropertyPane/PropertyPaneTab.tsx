@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { TabComponent, TabProp, TabTitle } from "design-system";
+import { TabComponent, TabProp, TabTitle } from "design-system-old";
 import { Tab, TabList, Tabs } from "react-tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";

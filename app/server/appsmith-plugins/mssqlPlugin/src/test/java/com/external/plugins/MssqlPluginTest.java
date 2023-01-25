@@ -14,6 +14,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.external.plugins.exceptions.MssqlPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -695,5 +696,15 @@ public class MssqlPluginTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyUniquenessOfMssqlPluginErrorCode() {
+        assert (Arrays.stream(MssqlPluginError.values()).map(MssqlPluginError::getAppErrorCode).distinct().count() == MssqlPluginError.values().length);
+
+        assert (Arrays.stream(MssqlPluginError.values()).map(MssqlPluginError::getAppErrorCode)
+                .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-MSS"))
+                .collect(Collectors.toList()).size() == 0);
+
     }
 }
