@@ -57,6 +57,7 @@ import {
   bindingMarker,
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
+  PEEKABLE_ATTRIBUTE,
 } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
@@ -123,6 +124,7 @@ import {
 import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { Portal } from "@blueprintjs/core";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -216,6 +218,13 @@ type State = {
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
   ctrlPressed: boolean;
+  peekOverlayProps:
+    | {
+        name: string;
+        position: DOMRect;
+        textWidth: number;
+      }
+    | undefined;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -245,6 +254,7 @@ class CodeEditor extends Component<Props, State> {
       hinterOpen: false,
       changeStarted: false,
       ctrlPressed: false,
+      peekOverlayProps: undefined,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -358,9 +368,11 @@ class CodeEditor extends Component<Props, State> {
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
-        CodeMirror.on(editor.getWrapperElement(), "mouseover", (e: any) => {
-          console.log("text hover", e.target);
-        });
+        CodeMirror.on(
+          editor.getWrapperElement(),
+          "mousemove",
+          this.handleMouseOver,
+        );
 
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
@@ -499,6 +511,28 @@ class CodeEditor extends Component<Props, State> {
     this.editor.clearHistory();
   }
 
+  handleMouseOver = (event: MouseEvent) => {
+    if (
+      event.target instanceof Element &&
+      event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
+    ) {
+      console.log("text hover", event.target.getAttribute(PEEKABLE_ATTRIBUTE));
+      console.log("text hover", event.target.getBoundingClientRect());
+      this.setState({
+        peekOverlayProps: {
+          name: event.target.getAttribute(PEEKABLE_ATTRIBUTE) ?? "",
+          position: event.target.getBoundingClientRect(),
+          textWidth: event.target.getBoundingClientRect().width,
+        },
+      });
+    } else {
+      this.setState({
+        peekOverlayProps: undefined,
+      });
+      console.log("text hover - close");
+    }
+  };
+
   handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     this.handleCustomGutter(this.editor.lineAtHeight(e.clientY, "window"));
     // this code only runs when we want custom tool tip for any highlighted text inside codemirror instance
@@ -552,6 +586,11 @@ class CodeEditor extends Component<Props, State> {
     this.editor.off("blur", this.handleEditorBlur);
     this.editor.off("postPick", () =>
       this.handleAutocompleteVisibility(this.editor),
+    );
+    CodeMirror.off(
+      this.editor.getWrapperElement(),
+      "mousemove",
+      this.handleMouseOver,
     );
     // @ts-expect-error: Types are not available
     this.editor.closeHint();
@@ -1110,7 +1149,9 @@ class CodeEditor extends Component<Props, State> {
           evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
           hasError={isInvalid}
-          hideEvaluatedValue={hideEvaluatedValue}
+          hideEvaluatedValue={
+            hideEvaluatedValue || !!this.state.peekOverlayProps
+          }
           isOpen={showEvaluatedValue}
           popperPlacement={this.props.popperPlacement}
           popperZIndex={this.props.popperZIndex}
@@ -1140,6 +1181,31 @@ class CodeEditor extends Component<Props, State> {
             ref={this.editorWrapperRef}
             size={size}
           >
+            {this.state.peekOverlayProps && (
+              <Portal>
+                <div
+                  className="absolute"
+                  onMouseLeave={() =>
+                    this.setState({ peekOverlayProps: undefined })
+                  }
+                  style={{
+                    height: "127px",
+                    width: "298px",
+                    backgroundColor: "white",
+                    border: "1px solid #888888",
+                    left:
+                      this.state.peekOverlayProps.position.left +
+                      this.state.peekOverlayProps.position.width -
+                      298 +
+                      "px",
+                    top: this.state.peekOverlayProps.position.top - 127 + "px",
+                    zIndex: 2,
+                  }}
+                >
+                  {this.state.peekOverlayProps.name}
+                </div>
+              </Portal>
+            )}
             {this.props.leftIcon && (
               <IconContainer>{this.props.leftIcon}</IconContainer>
             )}

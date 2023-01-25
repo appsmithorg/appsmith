@@ -91,7 +91,7 @@ export const entityMarker: MarkHelper = (
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               attributes: {
-                [PEEKABLE_ATTRIBUTE]: data.id,
+                [PEEKABLE_ATTRIBUTE]: data.name,
               },
               atomic: false,
               title: data.name,
@@ -151,7 +151,7 @@ const addMarksForChildren = (
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             attributes: {
-              [PEEKABLE_ATTRIBUTE]: childLink.id,
+              [PEEKABLE_ATTRIBUTE]: childLink.name,
             },
             atomic: false,
             title: childLink.name,

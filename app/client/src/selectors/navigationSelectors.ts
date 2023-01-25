@@ -188,7 +188,7 @@ const getActionPeekData = (
         peekData[key] = dataTree[key];
         childNavData[key] = {
           id: `${action.config.name}.${key}`,
-          name: key,
+          name: `${action.config.name}.${key}`,
           type: ENTITY_TYPE.ACTION,
           navigable: false,
           url: undefined,
