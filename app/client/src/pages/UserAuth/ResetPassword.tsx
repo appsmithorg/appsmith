@@ -15,21 +15,13 @@ import {
   FormMessageProps,
   MessageAction,
   Size,
-} from "design-system";
+} from "design-system-old";
 import Spinner from "components/editorComponents/Spinner";
-
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
-import {
-  AuthCardHeader,
-  BlackAuthCardNavLink,
-  FormActions,
-} from "./StyledComponents";
+import { BlackAuthCardNavLink, FormActions } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
-import { withTheme } from "styled-components";
-import { Theme } from "constants/DefaultTheme";
-
 import {
   RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL,
   RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER,
@@ -45,6 +37,9 @@ import {
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
   createMessage,
 } from "@appsmith/constants/messages";
+import Container from "./Container";
+import { useTheme } from "styled-components";
+import { Theme } from "constants/DefaultTheme";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
@@ -67,7 +62,6 @@ type ResetPasswordProps = InjectedFormProps<
   verifyToken: (token: string) => void;
   isTokenValid: boolean;
   validatingToken: boolean;
-  theme: Theme;
 } & RouteComponentProps<{ email: string; token: string }>;
 
 export function ResetPassword(props: ResetPasswordProps) {
@@ -83,6 +77,8 @@ export function ResetPassword(props: ResetPasswordProps) {
     validatingToken,
     verifyToken,
   } = props;
+
+  const theme = useTheme() as Theme;
 
   useLayoutEffect(() => {
     if (initialValues.token) verifyToken(initialValues.token);
@@ -168,19 +164,15 @@ export function ResetPassword(props: ResetPasswordProps) {
     return <Spinner />;
   }
   return (
-    <>
-      <AuthCardHeader>
-        <h1>{createMessage(RESET_PASSWORD_PAGE_TITLE)}</h1>
-      </AuthCardHeader>
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
-          <Icon
-            icon="arrow-left"
-            style={{ marginRight: props.theme.spaces[3] }}
-          />
+    <Container
+      subtitle={
+        <BlackAuthCardNavLink className="text-sm" to={AUTH_LOGIN_URL}>
+          <Icon icon="arrow-left" style={{ marginRight: theme.spaces[3] }} />
           {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
         </BlackAuthCardNavLink>
-      </div>
+      }
+      title={createMessage(RESET_PASSWORD_PAGE_TITLE)}
+    >
       {(showSuccessMessage || showFailureMessage) && (
         <FormMessage {...messageTagProps} />
       )}
@@ -212,7 +204,7 @@ export function ResetPassword(props: ResetPasswordProps) {
           />
         </FormActions>
       </StyledForm>
-    </>
+    </Container>
   );
 }
 
@@ -246,5 +238,5 @@ export default connect(
     validate,
     form: RESET_PASSWORD_FORM_NAME,
     touchOnBlur: true,
-  })(withRouter(withTheme(ResetPassword))),
+  })(withRouter(ResetPassword)),
 );

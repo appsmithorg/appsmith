@@ -9,7 +9,7 @@ import { getQueryStringfromObject } from "RouteBuilder";
 import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { NavigateActionDescription } from "entities/DataTree/actionTriggers";
+import { NavigateActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { TriggerFailureError } from "./errorUtils";
 import { isValidURL } from "utils/URLUtils";

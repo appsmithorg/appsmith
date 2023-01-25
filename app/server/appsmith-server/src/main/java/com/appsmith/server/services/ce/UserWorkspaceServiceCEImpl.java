@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -55,8 +54,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
 
-    private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
-
     @Autowired
     public UserWorkspaceServiceCEImpl(SessionUserService sessionUserService,
                                       WorkspaceRepository workspaceRepository,
@@ -96,6 +93,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     User user = tuple.getT2();
                     return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, permissionGroupPermission.getUnAssignPermission());
                 })
+                /*
+                 * The below switchIfEmpty will be invoked in 2 cases.
+                 * 1. Explicit Backend Invocation: The user actually didn't have access to the Workspace.
+                 * 2. User Interaction: User who is part of a UserGroup.
+                 */
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Workspace is not assigned to the user.")))
                 .single()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR) && permissionGroup.getAssignedToUserIds().size() == 1) {

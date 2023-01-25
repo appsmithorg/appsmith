@@ -8,6 +8,7 @@ import homePage from "../locators/HomePage";
 
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
+const GITEA_API_BASE = "http://35.154.225.218";
 
 Cypress.Commands.add("revokeAccessGit", (appName) => {
   cy.xpath("//span[text()= `${appName}`]")
@@ -32,6 +33,7 @@ Cypress.Commands.add("revokeAccessGit", (appName) => {
       expect(id).to.eq("");
     });
 });
+
 Cypress.Commands.add(
   "connectToGitRepo",
   (repo, shouldCommit = true, assertConnectFailure) => {
@@ -44,15 +46,15 @@ Cypress.Commands.add(
     cy.get(homePage.deployPopupOptionTrigger).click();
     cy.get(homePage.connectToGitBtn).click({ force: true });
 
-    cy.intercept(
-      {
-        url: "api/v1/git/connect/app/*",
-        hostname: window.location.host,
-      },
-      (req) => {
-        req.headers["origin"] = "Cypress";
-      },
-    );
+    // cy.intercept(
+    //   {
+    //     url: "api/v1/git/connect/app/*",
+    //     hostname: window.location.host,
+    //   },
+    //   (req) => {
+    //     req.headers["origin"] = "Cypress";
+    //   },
+    // );
 
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       `generateKey-${repo}`,
@@ -93,7 +95,7 @@ Cypress.Commands.add(
 
       if (!assertConnectFailure) {
         // check for connect success
-        cy.wait("@connectGitRepo").should(
+        cy.wait("@connectGitLocalRepo").should(
           "have.nested.property",
           "response.body.responseMeta.status",
           200,
@@ -114,7 +116,7 @@ Cypress.Commands.add(
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     }
   } else {
-    cy.wait("@connectGitRepo").then((interception) => {
+    cy.wait("@connectGitLocalRepo").then((interception) => {
       const status = interception.response.body.responseMeta.status;
       expect(status).to.be.gte(400);
     });
@@ -123,6 +125,7 @@ Cypress.Commands.add(
     });
   },
 );
+
 Cypress.Commands.add("latestDeployPreview", () => {
   cy.server();
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
@@ -317,37 +320,51 @@ Cypress.Commands.add(
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
 
     let generatedKey;
-    cy.intercept(
-      {
-        url: "api/v1/git/connect/app/*",
-        hostname: window.location.host,
-      },
-      (req) => {
-        req.headers["origin"] = "Cypress";
-      },
-    );
+    // cy.intercept(
+    //   {
+    //     url: "api/v1/git/connect/app/*",
+    //     hostname: window.location.host,
+    //   },
+    //   (req) => {
+    //     req.headers["origin"] = "Cypress";
+    //   },
+    // );
     cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
       `generateKey-${repo}`,
     );
     cy.get(gitSyncLocators.gitRepoInput).type(
-      `git@github.com:${owner}/${repo}.git`,
+      //`git@github.com:${owner}/${repo}.git`,
+      `git@35.154.225.218:CI-Gitea/${repo}.git`,
     );
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
     cy.wait(`@generateKey-${repo}`).then((result) => {
       generatedKey = result.response.body.data.publicKey;
       generatedKey = generatedKey.slice(0, generatedKey.length - 1);
       // fetch the generated key and post to the github repo
+      // cy.request({
+      //   method: "POST",
+      //   url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+      //     "TEST_GITHUB_USER_NAME",
+      //   )}/${repo}/keys`,
+      //   headers: {
+      //     Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+      //   },
+      //   body: {
+      //     title: "key0",
+      //     key: generatedKey,
+      //   },
+      // });
+
       cy.request({
         method: "POST",
-        url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-          "TEST_GITHUB_USER_NAME",
-        )}/${repo}/keys`,
+        url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repo}/keys`,
         headers: {
-          Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+          Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
         },
         body: {
-          title: "key0",
+          title: "key1",
           key: generatedKey,
+          read_only: false,
         },
       });
 
@@ -431,19 +448,32 @@ Cypress.Commands.add(
           generatedKey = result.response.body.data.publicKey;
           generatedKey = generatedKey.slice(0, generatedKey.length - 1);
           // fetch the generated key and post to the github repo
+          // cy.request({
+          //   method: "POST",
+          //   url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+          //     "TEST_GITHUB_USER_NAME",
+          //   )}/${repo}/keys`,
+          //   headers: {
+          //     Authorization: `token ${Cypress.env(
+          //       "GITHUB_PERSONAL_ACCESS_TOKEN",
+          //     )}`,
+          //   },
+          //   body: {
+          //     title: "key0",
+          //     key: generatedKey,
+          //   },
+          // });
+
           cy.request({
             method: "POST",
-            url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-              "TEST_GITHUB_USER_NAME",
-            )}/${repo}/keys`,
+            url: `${GITEA_API_BASE}:3000/api/v1/repos/CI-Gitea/${repo}/keys`,
             headers: {
-              Authorization: `token ${Cypress.env(
-                "GITHUB_PERSONAL_ACCESS_TOKEN",
-              )}`,
+              Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
             },
             body: {
-              title: "key0",
+              title: "key1",
               key: generatedKey,
+              read_only: false,
             },
           });
 

@@ -2,6 +2,7 @@ import React from "react";
 import {
   createMessage,
   DELETE_CONFIRMATION_MODAL_TITLE,
+  DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT,
   SAVE_OR_DISCARD_DATASOURCE_WARNING,
 } from "@appsmith/constants/messages";
 import {
@@ -9,7 +10,7 @@ import {
   Category,
   DialogComponent as Dialog,
   Size,
-} from "design-system";
+} from "design-system-old";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
@@ -20,6 +21,7 @@ interface SaveOrDiscardModalProps {
   onClose(): void;
   datasourceId: string;
   datasourcePermissions: string[];
+  saveButtonText: string;
 }
 
 function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
@@ -30,6 +32,7 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
     onClose,
     onDiscard,
     onSave,
+    saveButtonText,
   } = props;
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
@@ -53,17 +56,19 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
       <div className="">
         <div className="flex items-center justify-end space-x-3">
           <Button
-            category={Category.tertiary}
+            category={Category.secondary}
+            className="t--datasource-modal-do-not-save"
             onClick={onDiscard}
             size={Size.medium}
-            text="DON'T SAVE"
+            text={createMessage(DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT)}
           />
           <Button
             category={Category.primary}
+            className="t--datasource-modal-save"
             disabled={disableSaveButton}
             onClick={!disableSaveButton && onSave}
             size={Size.medium}
-            text="SAVE"
+            text={saveButtonText}
           />
         </div>
       </div>

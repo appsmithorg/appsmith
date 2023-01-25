@@ -1,5 +1,6 @@
 import React from "react";
 import log from "loglevel";
+import styled from "styled-components";
 import { klona } from "klona";
 import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
@@ -8,9 +9,8 @@ import EmptyDataState from "components/utils/EmptyDataState";
 import SchemaParser, {
   getKeysFromSchema,
 } from "widgets/JSONFormWidget/schemaParser";
-import styled from "constants/DefaultTheme";
 import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
-import { Category, Size } from "design-system";
+import { Category, Size } from "design-system-old";
 import { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";
@@ -133,6 +133,9 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
       widgetName,
       isCustomField: true,
       skipDefaultValueProcessing: true,
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       identifier: nextFieldKey,
       fieldThemeStylesheets: childStylesheet,
     });

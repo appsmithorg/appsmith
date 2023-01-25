@@ -1,6 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType } from "../../propertyUtils";
+import {
+  hideByColumnType,
+  selectColumnOptionsValidation,
+} from "../../propertyUtils";
 
 export default {
   sectionName: "Select Properties",
@@ -12,37 +15,18 @@ export default {
       propertyName: "selectOptions",
       helpText: "Options to be shown on the select dropdown",
       label: "Options",
-      controlType: "INPUT_TEXT",
+      controlType: "TABLE_COMPUTE_VALUE",
       isJSConvertible: false,
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.ARRAY,
+        type: ValidationTypes.FUNCTION,
         params: {
-          unique: ["value"],
-          children: {
-            type: ValidationTypes.OBJECT,
-            params: {
-              required: true,
-              allowedKeys: [
-                {
-                  name: "label",
-                  type: ValidationTypes.TEXT,
-                  params: {
-                    default: "",
-                    requiredKey: true,
-                  },
-                },
-                {
-                  name: "value",
-                  type: ValidationTypes.TEXT,
-                  params: {
-                    default: "",
-                    requiredKey: true,
-                  },
-                },
-              ],
-            },
+          expected: {
+            type:
+              'Array<{ "label": string | number, "value": string | number}>',
+            example: '[{"label": "abc", "value": "abc"}]',
           },
+          fnString: selectColumnOptionsValidation.toString(),
         },
       },
       isTriggerProperty: false,

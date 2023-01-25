@@ -4,7 +4,11 @@ import * as Sentry from "@sentry/react";
 import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import { getTypographyByKey, SearchInput, SearchVariant } from "design-system";
+import {
+  getTypographyByKey,
+  SearchInput,
+  SearchVariant,
+} from "design-system-old";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -31,7 +35,7 @@ import {
 import { getAllApplications } from "actions/applicationActions";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
 import { Template } from "api/TemplatesApi";
 import LoadingScreen from "./TemplatesModal/LoadingScreen";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";

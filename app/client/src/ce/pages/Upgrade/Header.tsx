@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import React from "react";
 import { HeaderProps } from "./types";
-import { FontWeight, Text, TextType } from "design-system";
+import { FontWeight, Text, TextType } from "design-system-old";
 
 export const HeaderContainer = styled.div`
   padding: 32px 32px 20px;
@@ -17,7 +17,7 @@ export const HeaderContainer = styled.div`
 
   & .header-subHeadings-container {
     margin: 8px auto;
-    max-width: 640px;
+    max-width: 720px;
     & .header-subHeading-container {
       & .cs-text {
         font-size: 16px;

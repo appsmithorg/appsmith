@@ -9,6 +9,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.git.service.GitExecutorImpl;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
@@ -17,14 +18,15 @@ import com.appsmith.server.constants.GitDefaultCommitMessage;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
@@ -51,6 +53,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -66,6 +69,7 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DuplicateKeyException;
 import reactor.core.Exceptions;
@@ -90,8 +94,6 @@ import static com.appsmith.external.constants.GitConstants.EMPTY_COMMIT_ERROR_ME
 import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.external.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
@@ -121,7 +123,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils fileUtils;
-    private final ImportExportApplicationService importExportApplicationService;
+    private final @Qualifier("importExportServiceCEImplV2") ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
@@ -134,6 +136,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final WorkspaceService workspaceService;
 
     @Override
     public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata) {
@@ -367,9 +370,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         updateProfiles.put(DEFAULT, gitProfile);
                                     }
 
-                                    UserData update = new UserData();
-                                    update.setGitProfiles(updateProfiles);
-                                    return userDataService.update(userData.getUserId(), update);
+                                    userData.setGitProfiles(updateProfiles);
+                                    return userDataService.updateForCurrentUser(userData);
                                 });
                     }
                     return Mono.just(userData);
@@ -939,7 +941,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     String pushResult = tuple.getT1();
                     Application application = tuple.getT2();
-                    if (pushResult.contains("REJECTED")) {
+                    if (pushResult.contains("REJECTED_NONFASTFORWARD")) {
 
                         return addAnalyticsForGitOperation(
                                 AnalyticsEvents.GIT_PUSH.getEventName(),
@@ -947,8 +949,17 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 AppsmithError.GIT_UPSTREAM_CHANGES.getErrorType(),
                                 AppsmithError.GIT_UPSTREAM_CHANGES.getMessage(),
                                 application.getGitApplicationMetadata().getIsRepoPrivate()
-                        )
-                                .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
+                        ).flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
+                    } else if (pushResult.contains("REJECTED_OTHERREASON") || pushResult.contains("pre-receive hook declined")) {
+                        // Mostly happens when the remote branch is protected or any specific rules in place on the branch
+                        // Since the users will be in a bad state where the changes are committed locally but they are not able to
+                        // push them changes or revert the changes either.
+                        // TODO Support protected branch flow within Appsmith
+                        Path path = Paths.get(application.getWorkspaceId(), application.getGitApplicationMetadata().getDefaultApplicationId(), application.getGitApplicationMetadata().getRepoName());
+                        return gitExecutor.resetHard(path, application.getGitApplicationMetadata().getBranchName())
+                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push",
+                                        "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch "
+                                                + application.getGitApplicationMetadata().getBranchName())));
                     }
                     return Mono.just(pushResult).zipWith(Mono.just(tuple.getT2()));
                 })
@@ -1035,14 +1046,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                         // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
                         // will be deleted
                         Flux.fromIterable(application.getPages())
-                                .flatMap(page -> newPageService.findById(page.getId(), pagePermission.getEditPermission()))
+                                .flatMap(page -> newPageService.findById(page.getId(), Optional.empty()))
                                 .map(newPage -> {
                                     newPage.setDefaultResources(null);
                                     return createDefaultIdsOrUpdateWithGivenResourceIds(newPage, null);
                                 })
                                 .collectList()
                                 .flatMapMany(newPageService::saveAll)
-                                .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), actionPermission.getEditPermission())
+                                .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), Optional.empty())
                                         .map(newAction -> {
                                             newAction.setDefaultResources(null);
                                             if (newAction.getUnpublishedAction() != null) {
@@ -1490,12 +1501,11 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
         }
         final String finalBranchName = branchName.replaceFirst("origin/", "");
+
         /*
             1. Copy resources from DB to local repo
             2. Fetch the current status from local repo
          */
-
-
         Mono<GitStatusDTO> statusMono = Mono.zip(
                         getGitApplicationMetadata(defaultApplicationId),
                         applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
@@ -1822,9 +1832,12 @@ public class GitServiceCEImpl implements GitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid workspace id"));
         }
 
+        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, AclPermission.WORKSPACE_CREATE_APPLICATION)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
+
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
         Mono<Boolean> isPrivateRepoMono = GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl())).cache();
-        Mono<ApplicationImportDTO> importedApplicationMono = getSSHKeyForCurrentUser()
+        Mono<ApplicationImportDTO> importedApplicationMono = workspaceMono.then(getSSHKeyForCurrentUser())
                 .zipWith(isPrivateRepoMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git configuration for logged-in user. Please contact Appsmith team for support")))
@@ -2440,10 +2453,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         );
         analyticsProps.put(FieldName.EVENT_DATA, eventData);
         return sessionUserService.getCurrentUser()
-                .map(user -> {
-                    analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
-                    return application;
-                });
+                .flatMap(user -> analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps).thenReturn(application));
     }
 
     @Override

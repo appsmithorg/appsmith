@@ -27,7 +27,11 @@ import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
+import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.UnmergedPathsException;
+import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -54,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -207,7 +212,12 @@ public class GitExecutorImpl implements GitExecutor {
                         .call()
                         .forEach(pushResult ->
                                 pushResult.getRemoteUpdates()
-                                        .forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getStatus().name()).append(","))
+                                        .forEach(remoteRefUpdate -> {
+                                            result.append(remoteRefUpdate.getStatus()).append(",");
+                                            if (!StringUtils.isEmptyOrNull(remoteRefUpdate.getMessage())) {
+                                                result.append(remoteRefUpdate.getMessage()).append(",");
+                                            }
+                                        })
                         );
                 // We can support username and password in future if needed
                 // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
@@ -473,10 +483,11 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setAdded(status.getAdded());
                 response.setRemoved(status.getRemoved());
 
-                long modifiedPages = 0L;
-                long modifiedQueries = 0L;
-                long modifiedJSObjects = 0L;
-                long modifiedDatasources = 0L;
+                int modifiedPages = 0;
+                int modifiedQueries = 0;
+                int modifiedJSObjects = 0;
+                int modifiedDatasources = 0;
+                int modifiedJSLibs = 0;
                 for (String x : modifiedAssets) {
                     if (x.contains(CommonConstants.CANVAS)) {
                         modifiedPages++;
@@ -486,6 +497,8 @@ public class GitExecutorImpl implements GitExecutor {
                         modifiedJSObjects++;
                     } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + "/")) {
                         modifiedDatasources++;
+                    } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + "/")) {
+                        modifiedJSLibs++;
                     }
                 }
                 response.setModified(modifiedAssets);
@@ -495,6 +508,7 @@ public class GitExecutorImpl implements GitExecutor {
                 response.setModifiedQueries(modifiedQueries);
                 response.setModifiedJSObjects(modifiedJSObjects);
                 response.setModifiedDatasources(modifiedDatasources);
+                response.setModifiedJSLibs(modifiedJSLibs);
 
                 BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
                 if (trackingStatus != null) {
@@ -735,5 +749,18 @@ public class GitExecutorImpl implements GitExecutor {
                         }
                     });
         }
+    }
+
+    public Mono<Boolean> resetHard(Path repoSuffix, String branchName) {
+        return this.checkoutToBranch(repoSuffix, branchName)
+                .flatMap(aBoolean -> {
+                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
+                        Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).setRef("HEAD~1").call();
+                        return Mono.just(true);
+                    } catch (GitAPIException | IOException e) {
+                        log.error("Error while resetting the commit, {}", e.getMessage());
+                    }
+                    return Mono.just(false);
+                });
     }
 }

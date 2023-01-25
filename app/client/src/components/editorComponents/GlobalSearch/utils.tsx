@@ -28,6 +28,7 @@ import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
+import { FocusEntity } from "navigation/FocusEntity";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -36,9 +37,9 @@ export type SelectEvent =
   | null;
 
 export type RecentEntity = {
-  type: string;
+  type: FocusEntity;
   id: string;
-  params?: Record<string, string | undefined>;
+  pageId: string;
 };
 
 export enum SEARCH_CATEGORY_ID {

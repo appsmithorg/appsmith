@@ -33,7 +33,7 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
@@ -49,6 +49,7 @@ import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
+import { toggleInstaller } from "actions/JSLibraryActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -77,6 +78,7 @@ type Props = {
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
+  hideInstaller: () => void;
 };
 
 @HotkeysTarget
@@ -109,6 +111,7 @@ class GlobalHotKeys extends React.Component<Props> {
 
     const category = filterCategories[categoryId];
     this.props.setGlobalSearchCategory(category);
+    this.props.hideInstaller();
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "HOTKEY_COMBO",
       category: category.title,
@@ -359,6 +362,7 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Pin/Unpin Entity Explorer"
           onKeyDown={() => {
             this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
+            this.props.hideInstaller();
           }}
         />
         <Hotkey
@@ -414,6 +418,7 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(
         setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
       ),
+    hideInstaller: () => dispatch(toggleInstaller(false)),
   };
 };
 

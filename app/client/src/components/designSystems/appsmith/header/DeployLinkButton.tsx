@@ -1,7 +1,6 @@
 import React, { ReactNode, useState } from "react";
-import styled, { withTheme } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { Icon, Popover, PopoverPosition } from "@blueprintjs/core";
-import { Theme } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
@@ -13,7 +12,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
+import { Theme } from "constants/DefaultTheme";
 
 const DeployLinkDialog = styled.div`
   flex-direction: column;
@@ -68,10 +68,10 @@ const IconWrapper = styled.div`
 type Props = {
   trigger: ReactNode;
   link: string;
-  theme: Theme;
 };
 
-export const DeployLinkButton = withTheme((props: Props) => {
+export const DeployLinkButton = (props: Props) => {
+  const theme = useTheme() as Theme;
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const isGitConnected = useSelector(getIsGitConnected);
@@ -118,7 +118,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
           >
             <IconWrapper>
               <Icon
-                color={props.theme.colors.header.deployToolTipText}
+                color={theme.colors.header.deployToolTipText}
                 icon="share"
               />
             </IconWrapper>
@@ -140,6 +140,6 @@ export const DeployLinkButton = withTheme((props: Props) => {
       </div>
     </Popover>
   );
-});
+};
 
 export default DeployLinkButton;

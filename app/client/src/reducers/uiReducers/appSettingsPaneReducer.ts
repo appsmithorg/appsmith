@@ -1,7 +1,7 @@
 import {
   ReduxAction,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { createReducer } from "utils/ReducerUtils";
 

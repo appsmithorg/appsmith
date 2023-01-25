@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.helpers.MustacheHelper.ACTION_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.WIDGET_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -50,10 +49,9 @@ import static java.lang.Boolean.TRUE;
 public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
 
     private final NewActionService newActionService;
-
     private final AstService astService;
     private final ActionPermission actionPermission;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     /**
      * The following regex finds the immediate parent of an entity path.
@@ -934,7 +932,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
                         Set<String> mustacheKeysFromFields;
                         // Stricter extraction of dynamic bindings
                         if (isBindingPresentInString) {
-                            mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                            mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream().map(token -> token.getValue()).collect(Collectors.toSet());
                         } else {
                             // this must be a JS function. No need to extract mustache. The entire string is JS body
                             mustacheKeysFromFields = Set.of((String) parent);

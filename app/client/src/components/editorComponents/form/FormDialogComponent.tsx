@@ -9,7 +9,9 @@ import {
   Text,
   TextType,
   IconName,
-} from "design-system";
+  Icon,
+  IconSize,
+} from "design-system-old";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
@@ -22,18 +24,26 @@ const LabelText = styled(Text)`
   letter-spacing: -0.24px;
 `;
 
-const TabWrapper = styled.div`
+const TabWrapper = styled.div<{ hasMessage: boolean }>`
+  position: relative;
   .react-tabs__tab-list {
-    margin: 16px 0;
+    margin: ${(props) => (props.hasMessage ? `16px 0` : `0 0 16px`)};
     border-bottom: 2px solid var(--appsmith-color-black-200);
   }
+`;
+
+const TabCloseBtnContainer = styled.div`
+  position: absolute;
+  right: 0;
+  top: 0;
 `;
 
 type FormDialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
+  noModalBodyMarginTop?: boolean;
   workspaceId?: string;
-  title: string;
+  title?: string;
   message?: string;
   Form: any;
   trigger: ReactNode;
@@ -132,6 +142,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
       canOutsideClickClose={!!props.canOutsideClickClose}
       headerIcon={props.headerIcon}
       isOpen={isOpen}
+      noModalBodyMarginTop={props.noModalBodyMarginTop}
       onClose={onCloseHandler}
       onOpening={() => setIsOpen(true)}
       setMaxWidth={props.setMaxWidth}
@@ -140,8 +151,23 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
       trigger={props.trigger}
     >
       {updatedTabs && updatedTabs.length > 0 ? (
-        <TabWrapper>
-          <LabelText type={TextType.P0}>{props.message}</LabelText>
+        <TabWrapper hasMessage={!!props.message}>
+          {!props.message && (
+            <TabCloseBtnContainer
+              className="t--close-form-dialog"
+              onClick={onCloseHandler}
+            >
+              <Icon
+                fillColor={Colors.SCORPION}
+                hoverFillColor={Colors.GREY_900}
+                name="close-modal"
+                size={IconSize.XXXXL}
+              />
+            </TabCloseBtnContainer>
+          )}
+          {props.message && (
+            <LabelText type={TextType.P0}>{props.message}</LabelText>
+          )}
           <TabComponent
             onSelect={setSelectedTabIndex}
             selectedIndex={selectedTabIndex}

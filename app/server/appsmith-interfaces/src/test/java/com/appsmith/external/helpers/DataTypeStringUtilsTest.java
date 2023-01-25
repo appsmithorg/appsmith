@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
+import static com.appsmith.external.helpers.DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -203,5 +204,24 @@ public class DataTypeStringUtilsTest {
         final List<ParsedDataType> displayDataTypes = getDisplayDataTypes(data.toString());
 
         assertThat(displayDataTypes).anyMatch(parsedDataType -> parsedDataType.getDataType().equals(DisplayDataType.TABLE));
+    }
+
+    @Test
+    public void testJsonSmartReplacementPlaceholderWithValue_withReplacementDataTypeArray_returnsCorrectMultilineString() {
+        final String input = "#_appsmith_placeholder#";
+        final String replacement = "[{\"Address\":\"Line1.\\nLine2.\\nLine3\"}]";
+
+        List<Map.Entry<String, String>> insertedParams = (List) new ArrayList<>();
+
+        final String replacedValue = jsonSmartReplacementPlaceholderWithValue(
+            input,
+            replacement,
+            DataType.ARRAY,
+            insertedParams,
+            null,
+                null
+        );
+        final String expectedValue = "[{\"Address\":\"Line1.\\nLine2.\\nLine3\"}]";
+        assertThat(expectedValue).isEqualTo(replacedValue);
     }
 }

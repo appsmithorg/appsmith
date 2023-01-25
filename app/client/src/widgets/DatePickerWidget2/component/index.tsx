@@ -23,7 +23,17 @@ import LabelWithTooltip, {
 } from "widgets/components/LabelWithTooltip";
 
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
+import { required } from "utils/validation/common";
 
+function hasFulfilledRequiredCondition(
+  isRequired: boolean | undefined,
+  value: any,
+) {
+  // if the required condition is not enabled then it has fulfilled
+  if (!isRequired) return true;
+
+  return !required(value);
+}
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
   compactMode: boolean;
@@ -167,19 +177,31 @@ class DatePickerComponent extends React.Component<
     return _date.isValid() ? _date.toDate() : undefined;
   };
 
+  getConditionalPopoverProps = (props: DatePickerComponentProps) => {
+    if (typeof props.isPopoverOpen === "boolean") {
+      return {
+        isOpen: props.isPopoverOpen,
+      };
+    }
+    return {};
+  };
+
   render() {
     const {
       compactMode,
       isDisabled,
       isLoading,
+      isRequired,
       labelAlignment,
       labelPosition,
       labelStyle,
       labelText,
       labelTextColor,
       labelTextSize,
+      labelTooltip,
       labelWidth,
     } = this.props;
+
     const now = moment();
     const year = now.get("year");
     const minDate = this.props.minDate
@@ -201,6 +223,11 @@ class DatePickerComponent extends React.Component<
       isValid && this.state.selectedDate
         ? new Date(this.state.selectedDate)
         : null;
+
+    const hasFulfilledRequired = hasFulfilledRequiredCondition(
+      isRequired,
+      value,
+    );
 
     const getInitialMonth = () => {
       // None
@@ -299,7 +326,7 @@ class DatePickerComponent extends React.Component<
         compactMode={this.props.compactMode}
         data-testid="datepicker-container"
         fill
-        isValid={isValid}
+        isValid={isValid && hasFulfilledRequired}
         labelPosition={this.props.labelPosition}
         onClick={(e: any) => {
           e.stopPropagation();
@@ -311,9 +338,11 @@ class DatePickerComponent extends React.Component<
             className={`datepicker-label`}
             color={labelTextColor}
             compact={compactMode}
+            cyHelpTextClassName="datepicker-tooltip"
             disabled={isDisabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            helpText={labelTooltip}
             isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
@@ -340,6 +369,8 @@ class DatePickerComponent extends React.Component<
               initialMonth={initialMonth}
               inputProps={{
                 inputRef: this.props.inputRef,
+                onFocus: () => this.props.onFocus?.(),
+                onBlur: () => this.props.onBlur?.(),
               }}
               maxDate={maxDate}
               minDate={minDate}
@@ -352,6 +383,14 @@ class DatePickerComponent extends React.Component<
                 usePortal: !this.props.withoutPortal,
                 canEscapeKeyClose: true,
                 portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
+                onClose: this.props.onPopoverClosed,
+                /* 
+                  Conditional popover props are the popover props that should not be sent to
+                  DateInput in any way if they are not applicable.
+                  Here isOpen prop if sent in any way will interfere with the normal functionality
+                  of Date Picker widget's popover but is required for Table Widget's date cell popover
+                */
+                ...this.getConditionalPopoverProps(this.props),
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
@@ -398,6 +437,9 @@ class DatePickerComponent extends React.Component<
       ) {
         isValid = false;
       }
+    }
+    if (!isValid && this.props?.onDateOutOfRange) {
+      this.props.onDateOutOfRange();
     }
     return isValid;
   };
@@ -466,6 +508,13 @@ interface DatePickerComponentProps extends ComponentProps {
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
+  labelTooltip?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  onPopoverClosed?: (e: unknown) => void;
+  isPopoverOpen?: boolean;
+  onDateOutOfRange?: () => void;
+  isRequired?: boolean;
 }
 
 interface DatePickerComponentState {

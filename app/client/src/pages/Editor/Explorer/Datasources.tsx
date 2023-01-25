@@ -29,8 +29,8 @@ import {
   useDatasourceIdFromURL,
   getExplorerStatus,
   saveExplorerStatus,
-} from "./helpers";
-import { Icon } from "design-system";
+} from "@appsmith/pages/Editor/Explorer/helpers";
+import { Icon } from "design-system-old";
 import { AddEntity, EmptyComponent } from "./common";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";

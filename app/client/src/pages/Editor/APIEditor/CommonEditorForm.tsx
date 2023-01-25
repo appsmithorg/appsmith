@@ -26,7 +26,7 @@ import { AppState } from "@appsmith/reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
-import { ExplorerURLParams } from "../Explorer/helpers";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -43,7 +43,7 @@ import {
   TextType,
   TooltipComponent,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -712,6 +712,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                             data={props.datasourceHeaders}
                           />
                         )}
+
                         <KeyValueFieldArray
                           actionConfig={actionConfigurationHeaders}
                           dataTreePath={`${actionName}.config.headers`}
@@ -719,7 +720,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                           label="Headers"
                           name="actionConfiguration.headers"
                           placeholder="Value"
-                          pushFields
+                          pushFields={isChangePermitted}
                           theme={theme}
                         />
                       </TabSection>
@@ -743,7 +744,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                           hideHeader={!!props.datasourceParams.length}
                           label="Params"
                           name="actionConfiguration.queryParameters"
-                          pushFields
+                          pushFields={isChangePermitted}
                           theme={theme}
                         />
                       </TabSection>

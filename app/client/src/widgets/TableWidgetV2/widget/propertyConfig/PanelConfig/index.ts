@@ -10,10 +10,12 @@ import DiscardButtonproperties, {
 } from "./DiscardButtonproperties";
 import Icon from "./Icon";
 import TextFormatting from "./TextFormatting";
+import Alignment from "./Alignment";
 import Color from "./Color";
 import BorderAndShadow from "./BorderAndShadow";
 import Validations from "./Validation";
 import Select from "./Select";
+import DateProperties from "./DateProperties";
 import { updateCustomColumnAliasOnLabelChange } from "../../propertyUtils";
 
 export default {
@@ -30,10 +32,12 @@ export default {
     DiscardButtonproperties,
     Select,
     Events,
+    DateProperties,
   ],
   styleChildren: [
     GeneralStyle,
     Icon,
+    Alignment,
     TextFormatting,
     Color,
     saveButtonStyleConfig,

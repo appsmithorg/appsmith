@@ -1,18 +1,15 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
-  PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import {
   GridDefaults,
   WidgetHeightLimits,
   WidgetType,
 } from "constants/WidgetConstants";
-import { klona } from "klona/lite";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
-import WidgetFactory from "./WidgetFactory";
 
 export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
@@ -67,7 +64,17 @@ export const WidgetFeaturePropertyEnhancements: Record<
       newProperties.minDynamicHeight =
         config.defaults.minDynamicHeight ||
         WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
+      newProperties.maxDynamicHeight =
+        config.defaults.maxDynamicHeight ||
+        WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
       newProperties.shouldScrollContents = true;
+    } else {
+      newProperties.minDynamicHeight =
+        config.defaults.minDynamicHeight ||
+        WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+      newProperties.maxDynamicHeight =
+        config.defaults.maxDynamicHeight ||
+        WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
     }
     if (config.defaults.overflow) newProperties.overflow = "NONE";
     return newProperties;
@@ -341,36 +348,3 @@ export const PropertyPaneConfigTemplates: Record<
     },
   ],
 };
-
-//TODO make this logic a lot cleaner
-export function disableWidgetFeatures(
-  widgetType: WidgetType,
-  disabledWidgetFeatures?: string[],
-): PropertyPaneConfig[] {
-  const widgetConfig = WidgetFactory.getWidgetPropertyPaneContentConfig(
-    widgetType,
-  ) as PropertyPaneConfig[];
-
-  if (!disabledWidgetFeatures || disabledWidgetFeatures.length <= 0)
-    return widgetConfig;
-
-  const clonedConfig = klona(widgetConfig);
-  const GeneralConfig = clonedConfig.find(
-    (sectionConfig) =>
-      (sectionConfig as PropertyPaneSectionConfig)?.sectionName === "General",
-  );
-
-  for (let i = 0; i < (GeneralConfig?.children?.length || -1); i++) {
-    const config = GeneralConfig?.children?.[i];
-    if (
-      disabledWidgetFeatures.indexOf(
-        (config as PropertyPaneControlConfig)?.propertyName || "",
-      ) > -1
-    ) {
-      GeneralConfig?.children?.splice(i, 1);
-      i--;
-    }
-  }
-
-  return clonedConfig;
-}

@@ -39,6 +39,7 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserChangedHandler;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -57,7 +58,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import javax.validation.Validator;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -99,8 +99,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
-    private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
-    public static final String USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE = "email/inviteExistingUserToWorkspaceTemplate.html";
+    public static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
 
     @Autowired
     public UserServiceCEImpl(Scheduler scheduler,
@@ -238,7 +237,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 resetToken.setTokenHash(passwordEncoder.encode(token));
                                 return resetToken;
                             });
-                }).flatMap(passwordResetTokenRepository::save)
+                })
+                .flatMap(passwordResetTokenRepository::save)
                 .flatMap(passwordResetToken -> {
                     log.debug("Password reset Token: {} for email: {}", token, passwordResetToken.getEmail());
 
@@ -258,12 +258,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     params.put("resetUrl", resetUrl);
 
                     return updateTenantLogoInParams(params)
-                            .then(emailSender.sendMail(
-                                    email,
-                                    "Appsmith Password Reset",
-                                    FORGOT_PASSWORD_EMAIL_TEMPLATE,
-                                    params
-                            ));
+                            .flatMap(updatedParams ->
+                                    emailSender.sendMail(email, "Appsmith Password Reset", FORGOT_PASSWORD_EMAIL_TEMPLATE, updatedParams)
+                            );
                 })
                 .thenReturn(true);
     }
@@ -306,7 +303,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         EmailTokenDTO emailTokenDTO;
         try {
             emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
-        } catch (IllegalStateException e) {
+        } catch (ArrayIndexOutOfBoundsException | IllegalStateException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
@@ -329,7 +326,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         EmailTokenDTO emailTokenDTO;
         try {
             emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
-        } catch (IllegalStateException e) {
+        } catch (ArrayIndexOutOfBoundsException | IllegalStateException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
@@ -503,11 +500,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 final UserSignupDTO userSignupDTO = new UserSignupDTO();
                                 userSignupDTO.setUser(savedUser);
 
-                                log.debug("Creating blank default workspace for user '{}'.", savedUser.getEmail());
                                 return workspaceService.createDefault(new Workspace(), savedUser)
                                         .map(workspace -> {
+                                            log.debug("Created blank default workspace for user '{}'.", savedUser.getEmail());
                                             userSignupDTO.setDefaultWorkspaceId(workspace.getId());
                                             return userSignupDTO;
+                                        })
+                                        .onErrorResume(e -> {
+                                            log.debug("Error creating default workspace for user '{}'.", savedUser.getEmail(), e);
+                                            return Mono.just(userSignupDTO);
                                         });
                             })
                             .flatMap(userSignupDTO -> findByEmail(userSignupDTO.getUser().getEmail()).map(user1 -> {
@@ -559,10 +560,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     public Mono<User> sendWelcomeEmail(User user, String originHeader) {
         Map<String, String> params = new HashMap<>();
-        params.put("firstName", user.getName());
-        params.put("inviteUrl", originHeader);
-        Mono<User> emailMono = emailSender
-                .sendMail(user.getEmail(), "Welcome to Appsmith", WELCOME_USER_EMAIL_TEMPLATE, params)
+        params.put("primaryLinkUrl", originHeader);
+
+        return updateTenantLogoInParams(params)
+                .flatMap(updatedParams -> emailSender.sendMail(
+                        user.getEmail(),
+                        "Welcome to Appsmith",
+                        WELCOME_USER_EMAIL_TEMPLATE,
+                        updatedParams))
                 .onErrorResume(error -> {
                     // Swallowing this exception because we don't want this to affect the rest of the flow.
                     log.error(
@@ -573,9 +578,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return Mono.just(TRUE);
                 })
                 .thenReturn(user);
-
-        return updateTenantLogoInParams(params)
-                .then(Mono.defer(() -> emailMono));
     }
 
     @Override
@@ -583,25 +585,40 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Mono<User> userFromRepository = repository.findById(id, MANAGE_USERS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
+        return userFromRepository
+                .flatMap(existingUser -> this.update(existingUser, userUpdate));
+    }
+
+    /**
+     * Method to update user without ACL permission. This will be used internally to update the user
+     * @param id        UserId which needs to be updated
+     * @param update    User object
+     * @return          Updated user
+     */
+    @Override
+    public Mono<User> updateWithoutPermission(String id, User update) {
+        Mono<User> userFromRepository = repository.findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
+
+        return userFromRepository
+                .flatMap(existingUser -> this.update(existingUser, update));
+    }
+
+    private Mono<User> update(User existingUser, User userUpdate) {
+
+        // The password is being updated. Hash it first and then store it
         if (userUpdate.getPassword() != null) {
-            // The password is being updated. Hash it first and then store it
             userUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
         }
 
-        return userFromRepository
-                .map(existingUser -> {
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
-                    return existingUser;
-                })
-                .flatMap(repository::save)
+        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
+        return repository.save(existingUser)
                 .map(userChangedHandler::publish);
     }
 
-
-
     @Override
     public Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
-                                                                 Workspace workspace, User inviter, String role) {
+                                                                Workspace workspace, User inviter, String role) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
@@ -627,11 +644,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     // Email template parameters initialization below.
                     Map<String, String> params = getEmailParams(workspace, inviter, inviteUrl, true);
 
-                    Mono<Boolean> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
-
                     // We have sent out the emails. Just send back the saved user.
                     return updateTenantLogoInParams(params)
-                            .then(Mono.defer(() -> emailMono))
+                            .flatMap(updatedParams ->
+                                    emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, updatedParams)
+                            )
                             .thenReturn(createdUser);
                 });
     }
@@ -691,19 +708,19 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Map<String, String> params = new HashMap<>();
 
         if (inviter != null) {
-            if (!StringUtils.isEmpty(inviter.getName())) {
-                params.put("Inviter_First_Name", inviter.getName());
-            } else {
-                params.put("Inviter_First_Name", inviter.getEmail());
-            }
+            params.put("inviterFirstName", org.apache.commons.lang3.StringUtils.defaultIfEmpty(inviter.getName(), inviter.getEmail()));
         }
         if (workspace != null) {
-            params.put("inviter_org_name", workspace.getName());
+            params.put("inviterWorkspaceName", workspace.getName());
         }
         if (isNewUser) {
-            params.put("inviteUrl", inviteUrl);
+            params.put("primaryLinkUrl", inviteUrl);
+            params.put("primaryLinkText", "Sign up now");
         } else {
-            params.put("inviteUrl", inviteUrl + "/applications#" + workspace.getId());
+            if (workspace != null) {
+                params.put("primaryLinkUrl", inviteUrl + "/applications#" + workspace.getId());
+            }
+            params.put("primaryLinkText", "Go to workspace");
         }
         return params;
     }

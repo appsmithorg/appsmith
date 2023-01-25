@@ -15,6 +15,7 @@ export interface ChartDataPoint {
 export interface ChartData {
   seriesName?: string;
   data: ChartDataPoint[];
+  color?: string;
 }
 
 export interface CustomFusionChartConfig {

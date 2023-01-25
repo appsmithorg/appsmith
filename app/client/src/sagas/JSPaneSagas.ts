@@ -29,7 +29,7 @@ import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeFunction } from "./EvaluationsSaga";
-import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
   JSUpdate,
@@ -51,7 +51,7 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { PluginPackageName, PluginType } from "entities/Action";
 import {
   createMessage,
@@ -379,7 +379,6 @@ export function* handleExecuteJSFunctionSaga(data: {
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
-        results: result,
         collectionId,
         actionId,
         isDirty,
@@ -394,6 +393,20 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
+    if (!action.actionConfiguration.isAsync) {
+      yield put({
+        type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
+        payload: {
+          [collectionId]: [
+            {
+              data: result,
+              collectionId,
+              actionId,
+            },
+          ],
+        },
+      });
+    }
     appMode === APP_MODE.EDIT &&
       !isDirty &&
       Toaster.show({

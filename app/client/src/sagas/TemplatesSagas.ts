@@ -33,12 +33,13 @@ import {
 } from "actions/pluginActionActions";
 import { fetchJSCollections } from "actions/jsActionActions";
 import { failFastApiCalls } from "./InitSagas";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { showReconnectDatasourceModal } from "actions/applicationActions";
 import { getAllPageIds } from "./selectors";
+import { fetchPageDSLSaga } from "sagas/PageSagas";
 
 function* getAllTemplatesSaga() {
   try {
@@ -220,6 +221,7 @@ function* forkTemplateToApplicationSaga(
       : undefined;
     const applicationId: string = yield select(getCurrentApplicationId);
     const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const prevPageIds: string[] = yield select(getAllPageIds);
     const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplateToApplication,
       action.payload.templateId,
@@ -235,11 +237,21 @@ function* forkTemplateToApplicationSaga(
       }),
     );
     const isValid: boolean = yield validateResponse(response);
-
     if (isValid) {
       yield call(postPageAdditionSaga, applicationId);
       const pages: string[] = yield select(getAllPageIds);
-
+      const templatePageIds: string[] = pages.filter(
+        (pageId) => !prevPageIds.includes(pageId),
+      );
+      const pageDSLs: unknown = yield all(
+        templatePageIds.map((pageId: string) => {
+          return call(fetchPageDSLSaga, pageId);
+        }),
+      );
+      yield put({
+        type: ReduxActionTypes.UPDATE_PAGE_LIST,
+        payload: pageDSLs,
+      });
       if (response.data.isPartialImport) {
         yield put(
           showReconnectDatasourceModal({

@@ -8,14 +8,14 @@ import {
   TRIGGER_ACTION_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
 import { Types } from "utils/TypeHelpers";
 import {
   ActionTriggerFunctionNames,
-  ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+  ActionTriggerKeys,
+} from "@appsmith/entities/DataTree/actionTriggers";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 /*
@@ -42,7 +42,7 @@ export class PluginTriggerFailureError extends TriggerFailureError {
 
 export class ActionValidationError extends TriggerFailureError {
   constructor(
-    functionName: ActionTriggerType,
+    functionName: ActionTriggerKeys,
     argumentName: string,
     expectedType: Types,
     received: Types,

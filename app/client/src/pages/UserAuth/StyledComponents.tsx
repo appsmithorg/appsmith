@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey } from "design-system-old";
 
 export const AuthContainer = styled.section`
   position: absolute;
@@ -129,7 +129,6 @@ export const ForgotPasswordLink = styled.div`
   ${getTypographyByKey("cardSubheader")}
   color: ${(props) => props.theme.colors.auth.text};
   text-align: center;
-  margin-top: ${(props) => props.theme.spaces[11]}px;
   & a {
     color: ${(props) => props.theme.colors.auth.text};
   }

@@ -12,30 +12,30 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { CalloutV2, CalloutType } from "design-system";
+import { CalloutV2, CalloutType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Button, Category, Icon, TooltipComponent } from "design-system";
+import { Button, Category, Icon, TooltipComponent } from "design-system-old";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding-top: 40px;
+  padding: 40px 0 0 24px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
 `;
 
-const SettingsFormWrapper = styled.div``;
+export const SettingsFormWrapper = styled.div``;
 
-const SettingsHeader = styled.h2`
+export const SettingsHeader = styled.h2`
   font-size: 24px;
   font-weight: 500;
   text-transform: capitalize;
   margin-bottom: 0;
 `;
 
-const SettingsSubHeader = styled.div`
+export const SettingsSubHeader = styled.div`
   font-size: 14px;
   margin-bottom: 0;
 `;
@@ -212,7 +212,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                 </MethodDetailsWrapper>
                 <StyledAuthButton
                   category={
-                    method.isConnected ? Category.primary : Category.tertiary
+                    method.isConnected ? Category.primary : Category.secondary
                   }
                   className={`t--settings-sub-category-${
                     method.needsUpgrade

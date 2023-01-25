@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { getFormValues, isDirty } from "redux-form";
+import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
 import { AppState } from "@appsmith/reducers";
 import _ from "lodash";
 import {
@@ -16,6 +16,7 @@ import {
   toggleSaveActionFlag,
   toggleSaveActionFromPopupFlag,
   createTempDatasourceFromForm,
+  resetDefaultKeyValPairFlag,
 } from "actions/datasourceActions";
 import {
   DATASOURCE_DB_FORM,
@@ -41,8 +42,9 @@ import {
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
+  SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
@@ -71,6 +73,9 @@ interface ReduxStateProps {
   triggerSave: boolean;
   isFormDirty: boolean;
   datasource: Datasource | undefined;
+  defaultKeyValueArrayConfig: Array<string>;
+  restAPIFormData: Datasource;
+  initialValue: Datasource | undefined;
 }
 
 interface DatasourcEditorProps {
@@ -203,6 +208,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const datasource = getDatasource(state, datasourceId);
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
+  const restAPIFormData = getFormValues(DATASOURCE_REST_API_FORM)(
+    state,
+  ) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
   const { applicationSlug, pageSlug } = selectURLSlugs(state);
@@ -210,6 +218,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     plugin?.type === "API" ? DATASOURCE_REST_API_FORM : DATASOURCE_DB_FORM;
   const isFormDirty =
     datasourceId === TEMP_DATASOURCE_ID ? true : isDirty(formName)(state);
+  const initialValue = getFormInitialValues(formName)(state) as Datasource;
 
   return {
     datasourceId,
@@ -235,6 +244,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     triggerSave: datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     datasource,
+    defaultKeyValueArrayConfig: datasourcePane.defaultKeyValueArrayConfig,
+    restAPIFormData,
+    initialValue,
   };
 };
 
@@ -259,6 +271,7 @@ const mapDispatchToProps = (
     dispatch(toggleSaveActionFromPopupFlag(flag)),
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
+  resetDefaultKeyValPairFlag: () => dispatch(resetDefaultKeyValPairFlag()),
 });
 
 export interface DatasourcePaneFunctions {
@@ -270,6 +283,7 @@ export interface DatasourcePaneFunctions {
   toggleSaveActionFlag: (flag: boolean) => void;
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
   createTempDatasource: (data: any) => void;
+  resetDefaultKeyValPairFlag: () => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props, State> {
@@ -303,6 +317,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.closeDialogAndUnblockRoutes();
     }
     this.setViewModeFromQueryParams();
+    this.initializeFormWithDefaults();
   }
 
   componentDidMount() {
@@ -357,6 +372,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.props.discardTempDatasource();
     this.props.deleteTempDSFromDraft();
     !!this.state.unblock && this.state.unblock();
+    this.props.resetDefaultKeyValPairFlag();
   }
 
   routesBlockFormChangeCallback() {
@@ -419,6 +435,31 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     !!this.state.unblock && this.state.unblock();
   }
 
+  initializeFormWithDefaults() {
+    // This is required because once datasource form is loaded, we initialize key value pairs to have default empty values
+    // This initialization makes the form dirty and shows the discard popup on back button click even if the user has not made any changes
+    // This function will initialize redux form with those default empty key value pairs, so when it checks if the form is dirty or not
+    // Both initial and current value will be same and form will not be dirty as expected by user.
+    if (
+      this.props.defaultKeyValueArrayConfig.length > 0 &&
+      !!this.props.initialValue
+    ) {
+      const formData: Datasource =
+        this.props.pluginType === "API"
+          ? this.props.restAPIFormData
+          : this.props.formData;
+      for (const prop of this.props.defaultKeyValueArrayConfig) {
+        const propPath: string[] = prop.split("[*].");
+        const newValues = _.get(formData, propPath[0], []);
+        _.set(this.props.initialValue, propPath[0], newValues);
+      }
+
+      // since we have consumed key value pair config to initialize datasource form,
+      // below function will reset the config array in redux store
+      this.props.resetDefaultKeyValPairFlag();
+    }
+  }
+
   renderSaveDisacardModal() {
     return (
       <SaveOrDiscardDatasourceModal
@@ -428,6 +469,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         onClose={this.closeDialog}
         onDiscard={this.onDiscard}
         onSave={this.onSave}
+        saveButtonText={createMessage(SAVE_BUTTON_TEXT)}
       />
     );
   }

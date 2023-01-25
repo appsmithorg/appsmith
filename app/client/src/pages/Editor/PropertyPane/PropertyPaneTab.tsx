@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { TabComponent, TabProp, TabTitle } from "design-system";
+import { TabComponent, TabProp, TabTitle } from "design-system-old";
 import { Tab, TabList, Tabs } from "react-tabs";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
@@ -24,7 +24,7 @@ const StyledTabComponent = styled(TabComponent)`
 
 const StyledTabs = styled(Tabs)`
   position: sticky;
-  top: 46px;
+  top: 78px;
   z-index: 3;
   background: ${Colors.WHITE};
   padding: 0px 12px;
@@ -61,7 +61,7 @@ const StyledTabs = styled(Tabs)`
     border-width: 2px;
     border-radius: 0;
     border-color: transparent;
-    border-bottom: 2px solid ${Colors.PRIMARY_ORANGE};
+    border-bottom: 2px solid var(--ads-color-brand);
   }
 
   .tab-title {

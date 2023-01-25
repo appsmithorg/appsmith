@@ -13,18 +13,17 @@ import {
   PAGE_SETTINGS_NAME_EMPTY_MESSAGE,
   PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
-  PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR as PAGE_SETTINGS_SPECIAL_CHARACTER_ERROR,
-} from "ce/constants/messages";
-import { Page } from "ce/constants/ReduxActionConstants";
+  PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
+} from "@appsmith/constants/messages";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
-import { Colors } from "constants/Colors";
-import { Text, TextInput, TextType } from "design-system";
-import AdsSwitch from "design-system/build/Switch";
+import { Text, TextInput, TextType } from "design-system-old";
+import AdsSwitch from "design-system-old/build/Switch";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   selectApplicationVersion,
@@ -32,24 +31,12 @@ import {
 import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
-import { checkRegex } from "utils/validation/CheckRegex";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
-import { getUrlPreview, specialCharacterCheckRegex } from "../Utils";
-
-const SwitchWrapper = styled.div`
-  &&&&&&&
-    .bp3-control.bp3-switch
-    input:checked:disabled
-    ~ .bp3-control-indicator {
-    background: ${Colors.GREY_200};
-  }
-
-  .bp3-control.bp3-switch
-    input:checked:disabled
-    ~ .bp3-control-indicator::before {
-    box-shadow: none;
-  }
-`;
+import { getUrlPreview } from "../Utils";
+import { AppState } from "@appsmith/reducers";
+import { getUsedActionNames } from "selectors/actionSelectors";
+import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
+import SwitchWrapper from "../Components/SwitchWrapper";
 
 const UrlPreviewWrapper = styled.div`
   height: 54px;
@@ -79,6 +66,8 @@ const UrlPreviewScroll = styled.div`
   }
 `;
 
+const specialCharacterCheckRegex = /^[A-Za-z0-9\s\-]+$/g;
+
 function PageSettings(props: { page: Page }) {
   const dispatch = useDispatch();
   const page = props.page;
@@ -100,7 +89,6 @@ function PageSettings(props: { page: Page }) {
   const [isPageNameValid, setIsPageNameValid] = useState(true);
 
   const [customSlug, setCustomSlug] = useState(page.customSlug);
-  const [isCustomSlugValid, setIsCustomSlugValid] = useState(true);
   const [isCustomSlugSaving, setIsCustomSlugSaving] = useState(false);
 
   const [isShown, setIsShown] = useState(!!!page.isHidden);
@@ -116,6 +104,16 @@ function PageSettings(props: { page: Page }) {
     customSlug,
     page.customSlug,
   ])(page.pageId, pageName, page.pageName, customSlug, page.customSlug);
+
+  const conflictingNames = useSelector(
+    (state: AppState) => getUsedActionNames(state, ""),
+    shallowEqual,
+  );
+
+  const hasActionNameConflict = useCallback(
+    (name: string) => !isNameValid(name, conflictingNames),
+    [conflictingNames],
+  );
 
   useEffect(() => {
     setPageName(page.pageName);
@@ -151,15 +149,14 @@ function PageSettings(props: { page: Page }) {
   }, [page.pageId, page.pageName, pageName, isPageNameValid]);
 
   const saveCustomSlug = useCallback(() => {
-    if (!canManagePages || !isCustomSlugValid || page.customSlug === customSlug)
-      return;
+    if (!canManagePages || page.customSlug === customSlug) return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
       customSlug: customSlug || "",
     };
     setIsCustomSlugSaving(true);
     dispatch(updatePage(payload));
-  }, [page.pageId, page.customSlug, customSlug, isCustomSlugValid]);
+  }, [page.pageId, page.customSlug, customSlug]);
 
   const saveIsShown = useCallback(
     (isShown: boolean) => {
@@ -190,7 +187,9 @@ function PageSettings(props: { page: Page }) {
           fill
           id="t--page-settings-name"
           onBlur={savePageName}
-          onChange={setPageName}
+          onChange={(value: string) =>
+            setPageName(resolveAsSpaceChar(value, 30))
+          }
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               savePageName();
@@ -198,13 +197,27 @@ function PageSettings(props: { page: Page }) {
           }}
           placeholder="Page name"
           type="input"
-          validator={checkRegex(
-            specialCharacterCheckRegex,
-            PAGE_SETTINGS_SPECIAL_CHARACTER_ERROR(),
-            true,
-            setIsPageNameValid,
-            PAGE_SETTINGS_NAME_EMPTY_MESSAGE(),
-          )}
+          validator={(value: string) => {
+            let result: { isValid: boolean; message?: string } = {
+              isValid: true,
+            };
+            if (!value || value.trim().length === 0) {
+              result = {
+                isValid: false,
+                message: PAGE_SETTINGS_NAME_EMPTY_MESSAGE(),
+              };
+            } else if (
+              value !== page.pageName &&
+              hasActionNameConflict(value)
+            ) {
+              result = {
+                isValid: false,
+                message: PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR(value),
+              };
+            }
+            setIsPageNameValid(result.isValid);
+            return result;
+          }}
           value={pageName}
         />
       </div>
@@ -230,7 +243,6 @@ function PageSettings(props: { page: Page }) {
         className={classNames({
           "py-1 relative": true,
           "pb-2": appNeedsUpdate,
-          "pb-6": !appNeedsUpdate && !isCustomSlugValid,
         })}
       >
         {isCustomSlugSaving && <TextLoaderIcon />}
@@ -240,7 +252,11 @@ function PageSettings(props: { page: Page }) {
           fill
           id="t--page-settings-custom-slug"
           onBlur={saveCustomSlug}
-          onChange={setCustomSlug}
+          onChange={(value: string) =>
+            value.length > 0
+              ? specialCharacterCheckRegex.test(value) && setCustomSlug(value)
+              : setCustomSlug(value)
+          }
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               saveCustomSlug();
@@ -249,12 +265,6 @@ function PageSettings(props: { page: Page }) {
           placeholder="Page URL"
           readOnly={appNeedsUpdate}
           type="input"
-          validator={checkRegex(
-            specialCharacterCheckRegex,
-            PAGE_SETTINGS_SPECIAL_CHARACTER_ERROR(),
-            false,
-            setIsCustomSlugValid,
-          )}
           value={customSlug}
         />
       </div>

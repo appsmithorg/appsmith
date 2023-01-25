@@ -3,9 +3,9 @@ import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import {
   APP_SETTINGS_CLOSE_TOOLTIP,
   APP_SETTINGS_PANE_HEADER,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon, IconSize, TooltipComponent } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system-old";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";

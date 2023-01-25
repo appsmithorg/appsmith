@@ -10,7 +10,7 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidget, getWidgets } from "./selectors";
+import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 import {
   actionChannel,
   all,
@@ -39,7 +39,7 @@ import {
   isChildPropertyPath,
   isDynamicValue,
   isPathADynamicBinding,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import _, { cloneDeep, isString, set, uniq } from "lodash";
@@ -64,13 +64,13 @@ import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions"
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
 } from "entities/Widget/utils";
-import { getAllPaths } from "workers/Evaluation/evaluationUtils";
+import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   createMessage,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
@@ -85,7 +85,7 @@ import {
   doesTriggerPathsContainPropertyPath,
   getParentBottomRowAfterAddingWidget,
   getParentWidgetIdForPasting,
-  getWidgetChildren,
+  getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
   handleSpecificCasesWhilePasting,
   getSelectedWidgetWhenPasting,
@@ -139,11 +139,13 @@ import { WidgetSpace } from "constants/CanvasEditorConstants";
 import { reflow } from "reflow";
 import { getBottomMostRow } from "reflow/reflowUtils";
 import { flashElementsById } from "utils/helpers";
-import { getSlidingCanvasName } from "constants/componentClassNameConstants";
+import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
+import { MetaState } from "reducers/entityReducers/metaReducer";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -328,12 +330,12 @@ function getDynamicTriggerPathListUpdate(
   propertyPath: string,
   propertyValue: string,
 ): DynamicPathUpdate {
-  if (propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+  if (propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.ADD,
     };
-  } else if (!propertyValue && !isPathADynamicTrigger(widget, propertyPath)) {
+  } else if (!propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.REMOVE,
@@ -814,10 +816,12 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const { widgetId: parentWidgetId } = action.payload;
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const evaluatedDataTree: DataTree = yield select(getDataTree);
-  const childrenList = getWidgetChildren(
+  const widgetsMeta: MetaState = yield select(getWidgetsMeta);
+  const childrenList = getWidgetDescendantToReset(
     canvasWidgets,
     parentWidgetId,
     evaluatedDataTree,
+    widgetsMeta,
   );
 
   for (const childIndex in childrenList) {
@@ -1102,9 +1106,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
   const containerId = getContainerIdForCanvas(parentId);
 
   const containerWidget = canvasWidgets[containerId];
-  const canvasDOM = document.querySelector(
-    `#${getSlidingCanvasName(parentId)}`,
-  );
+  const canvasDOM = document.querySelector(`#${getSlidingArenaName(parentId)}`);
 
   if (!canvasDOM || !containerWidget) return {};
 
@@ -1691,7 +1693,18 @@ function* pasteWidgetSaga(
     reflowedMovementMap,
   );
 
-  yield put(updateAndSaveLayout(reflowedWidgets));
+  // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
+  // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
+  // while traversing, if we find any widget which has CHILD_OPERATION, we will call the fn in it
+  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    traverseTreeAndExecuteBlueprintChildOperations,
+    reflowedWidgets[pastingIntoWidgetId],
+    newlyCreatedWidgetIds.filter(
+      (widgetId) => !reflowedWidgets[widgetId]?.detachFromLayout,
+    ),
+    reflowedWidgets,
+  );
+  yield put(updateAndSaveLayout(updatedWidgets));
 
   const pageId: string = yield select(getCurrentPageId);
 

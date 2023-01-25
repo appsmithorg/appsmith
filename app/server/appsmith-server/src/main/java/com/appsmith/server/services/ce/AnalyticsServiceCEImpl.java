@@ -8,15 +8,14 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.helpers.ExchangeUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import com.segment.analytics.Analytics;
-import com.segment.analytics.Log;
 import com.segment.analytics.messages.IdentifyMessage;
-import com.segment.analytics.messages.Message;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -24,15 +23,11 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.segment.analytics.internal.AnalyticsClient.getGsonInstance;
 
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
@@ -44,18 +39,22 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     private final UserUtils userUtils;
 
+    private final Gson gson;
+
     @Autowired
     public AnalyticsServiceCEImpl(@Autowired(required = false) Analytics analytics,
                                   SessionUserService sessionUserService,
                                   CommonConfig commonConfig,
                                   ConfigService configService,
                                   PolicyUtils policyUtils,
-                                  UserUtils userUtils) {
+                                  UserUtils userUtils,
+                                  Gson gson) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
         this.configService = configService;
         this.userUtils = userUtils;
+        this.gson = gson;
     }
 
     public boolean isActive() {
@@ -120,14 +119,14 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     }
 
     @Override
-    public void sendEvent(String event, String userId, Map<String, ?> properties) {
-        sendEvent(event, userId, properties, true);
+    public Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties) {
+        return sendEvent(event, userId, properties, true);
     }
 
     @Override
-    public void sendEvent(String event, String userId, Map<String, ?> properties, boolean hashUserId) {
+    public Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties, boolean hashUserId) {
         if (!isActive()) {
-            return;
+            return Mono.empty();
         }
 
         // Can't update the properties directly as it's throwing ImmutableCollection error
@@ -160,14 +159,26 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         }
 
         final String finalUserId = userId;
-        configService.getInstanceId().map(instanceId -> {
-            TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(finalUserId);
-            analyticsProperties.put("originService", "appsmith-server");
-            analyticsProperties.put("instanceId", instanceId);
-            messageBuilder = messageBuilder.properties(analyticsProperties);
-            analytics.enqueue(messageBuilder);
-            return instanceId;
-        }).subscribeOn(Schedulers.boundedElastic()).subscribe();
+
+        return Mono.zip(
+                        ExchangeUtils.getAnonymousUserIdFromCurrentRequest(),
+                        configService.getInstanceId()
+                                .defaultIfEmpty("unknown-instance-id")
+                ).map(tuple -> {
+                    final String userIdFromClient = tuple.getT1();
+                    final String instanceId = tuple.getT2();
+                    String userIdToSend = finalUserId;
+                    if (FieldName.ANONYMOUS_USER.equals(finalUserId)) {
+                        userIdToSend = StringUtils.defaultIfEmpty(userIdFromClient, FieldName.ANONYMOUS_USER);
+                    }
+                    TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userIdToSend);
+                    analyticsProperties.put("originService", "appsmith-server");
+                    analyticsProperties.put("instanceId", instanceId);
+                    messageBuilder = messageBuilder.properties(analyticsProperties);
+                    analytics.enqueue(messageBuilder);
+                    return instanceId;
+                })
+                .then();
     }
 
     @Override
@@ -196,7 +207,15 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 .switchIfEmpty(Mono.just(anonymousUser));
 
         return userMono
-                .map(user -> {
+                .flatMap(user -> Mono.zip(
+                        user.isAnonymous()
+                                ? ExchangeUtils.getAnonymousUserIdFromCurrentRequest()
+                                : Mono.just(user.getUsername()),
+                        Mono.just(user)
+                ))
+                .flatMap(tuple -> {
+                    final String id = tuple.getT1();
+                    final User user = tuple.getT2();
 
                     // In case the user is anonymous, don't raise an event, unless it's a signup, logout, page view or action execution event.
                     boolean isEventUserSignUpOrLogout = object instanceof User && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.LOGOUT);
@@ -204,13 +223,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     boolean isEventActionExecution = object instanceof NewAction && event == AnalyticsEvents.EXECUTE_ACTION;
                     boolean isAvoidLoggingEvent = user.isAnonymous() && !(isEventUserSignUpOrLogout || isEventPageView || isEventActionExecution);
                     if (isAvoidLoggingEvent) {
-                        return object;
+                        return Mono.just(object);
                     }
 
                     final String username = (object instanceof User ? (User) object : user).getUsername();
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", username);
+                    analyticsProperties.put("id", id);
                     analyticsProperties.put("oid", object.getId());
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
@@ -218,14 +237,15 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         analyticsProperties.remove(FieldName.EVENT_DATA);
                     }
 
-                    sendEvent(eventTag, username, analyticsProperties);
-                    return object;
+                    return sendEvent(eventTag, username, analyticsProperties)
+                            .thenReturn(object);
                 });
     }
 
     /**
      * Generates event name tag to analytic events
-     * @param event AnalyticsEvents
+     *
+     * @param event  AnalyticsEvents
      * @param object Analytic event resource object
      * @return String
      */

@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import styled, { ThemeProvider } from "styled-components";
-// import AppsmithLogo from "assets/images/appsmith_logo.png";
 import {
   ApplicationPayload,
   Page,
@@ -11,6 +10,7 @@ import { AppState } from "@appsmith/reducers";
 import {
   getCurrentPageId,
   getViewModePageList,
+  getCurrentPageDescription,
 } from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
@@ -30,7 +30,7 @@ import Button from "./AppViewerButton";
 import MenuIcon from "remixicon-react/MenuFillIcon";
 import CloseIcon from "remixicon-react/CloseFillIcon";
 import PageMenu from "./PageMenu";
-import BackToHomeButton from "./BackToHomeButton";
+import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
@@ -39,6 +39,9 @@ import {
   INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { cloudHosting } = getAppsmithConfigs();
 
 /**
  * ----------------------------------------------------------------------------
@@ -87,6 +90,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   );
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
+  const description = useSelector(getCurrentPageDescription);
 
   if (hideHeader) return <HtmlTitle />;
 
@@ -94,11 +98,14 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
     <ThemeProvider theme={props.lightTheme}>
       <>
         <nav
-          className="relative js-appviewer-header bg-white"
+          className="relative bg-white js-appviewer-header"
           data-testid={"t--appsmith-app-viewer-header"}
           ref={headerRef}
         >
-          <HtmlTitle name={currentApplicationDetails?.name} />
+          <HtmlTitle
+            description={description}
+            name={currentApplicationDetails?.name}
+          />
           <HeaderRow className="relative h-12 px-3 py-3 md:px-6">
             <section className="flex items-center gap-3 z-1">
               <div
@@ -124,7 +131,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             </div>
             <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
-                <div className="hidden md:flex space-x-3">
+                <div className="hidden space-x-3 md:flex">
                   <FormDialogComponent
                     Form={AppInviteUsersForm}
                     applicationId={currentApplicationDetails.id}
@@ -134,8 +141,11 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                       bgColor: "transparent",
                     }}
                     isOpen={showAppInviteUsersDialog}
-                    message={createMessage(INVITE_USERS_MESSAGE)}
-                    placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
+                    message={createMessage(INVITE_USERS_MESSAGE, cloudHosting)}
+                    placeholder={createMessage(
+                      INVITE_USERS_PLACEHOLDER,
+                      cloudHosting,
+                    )}
                     title={currentApplicationDetails.name}
                     trigger={
                       <Button

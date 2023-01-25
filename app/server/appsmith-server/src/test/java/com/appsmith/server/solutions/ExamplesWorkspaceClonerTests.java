@@ -715,7 +715,7 @@ public class ExamplesWorkspaceClonerTests {
                 .flatMap(page -> {
                     newPageAction.setPageId(page.getId());
                     return applicationPageService.addPageToApplication(app, page, false)
-                            .then(layoutActionService.createSingleAction(newPageAction))
+                            .then(layoutActionService.createSingleAction(newPageAction, Boolean.FALSE))
                             .flatMap(savedAction -> layoutActionService.updateSingleAction(savedAction.getId(), savedAction))
                             .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction))
                             .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
@@ -724,8 +724,8 @@ public class ExamplesWorkspaceClonerTests {
                     log.info("Created action and added page to app {}", tuple2);
                     return tuple2;
                 }).block();
-        layoutActionService.createSingleAction(action1).block();
-        layoutActionService.createSingleAction(action3).block();
+        layoutActionService.createSingleAction(action1, Boolean.FALSE).block();
+        layoutActionService.createSingleAction(action3, Boolean.FALSE).block();
         layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
         final Mono<WorkspaceData> resultMono = examplesWorkspaceCloner.cloneWorkspaceForUser(
@@ -919,9 +919,9 @@ public class ExamplesWorkspaceClonerTests {
                                 action3.setPluginId(installedPlugin.getId());
 
                                 return Mono.when(
-                                        layoutActionService.createSingleAction(action1),
-                                        layoutActionService.createSingleAction(action2),
-                                        layoutActionService.createSingleAction(action3)
+                                        layoutActionService.createSingleAction(action1, Boolean.FALSE),
+                                        layoutActionService.createSingleAction(action2, Boolean.FALSE),
+                                        layoutActionService.createSingleAction(action3, Boolean.FALSE)
                                 ).then(Mono.zip(
                                         workspaceService.create(targetOrg),
                                         Mono.just(app)

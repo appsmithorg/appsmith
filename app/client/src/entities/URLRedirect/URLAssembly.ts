@@ -169,7 +169,7 @@ export class URLBuilder {
       baseURLRegistry[URL_TYPE.CUSTOM_SLUG][APP_MODE.PUBLISHED];
     return generatePath(urlPattern, {
       pageId,
-      customSlug: `${customSlug.replaceAll(" ", "-")}-`,
+      customSlug: `${customSlug}-`,
     }).toLowerCase();
   }
 
@@ -182,7 +182,7 @@ export class URLBuilder {
 
     const formattedParams = this.getFormattedParams(pageId);
 
-    formattedParams.pageSlug = `${pageName.replaceAll(" ", "-")}-`;
+    formattedParams.pageSlug = `${pageName}-`;
 
     return generatePath(urlPattern, formattedParams).toLowerCase();
   }

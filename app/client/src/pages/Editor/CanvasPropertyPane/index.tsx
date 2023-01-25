@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import * as Sentry from "@sentry/react";
 import { PopoverPosition } from "@blueprintjs/core";
-import { TooltipComponent, Button, Size, Category } from "design-system";
+import { TooltipComponent, Button, Size, Category } from "design-system-old";
 
 import { Colors } from "constants/Colors";
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
@@ -39,7 +39,7 @@ export function CanvasPropertyPane() {
             position={PopoverPosition.BOTTOM}
           >
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               fill
               id="t--app-settings-cta"
               onClick={openAppSettingsPane}

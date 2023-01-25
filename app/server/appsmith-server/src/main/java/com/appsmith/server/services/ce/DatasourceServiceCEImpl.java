@@ -3,16 +3,20 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -43,10 +47,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 
-import javax.validation.Validator;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -54,6 +59,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -106,6 +112,15 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> create(@NotNull Datasource datasource) {
+        return createEx(datasource, Optional.of(workspacePermission.getDatasourceCreatePermission()));
+    }
+
+    @Override
+    public Mono<Datasource> createWithoutPermissions(Datasource datasource) {
+        return createEx(datasource, Optional.empty());
+    }
+
+    private Mono<Datasource> createEx(@NotNull Datasource datasource, Optional<AclPermission> permission) {
         String workspaceId = datasource.getWorkspaceId();
         if (workspaceId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
@@ -130,7 +145,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         Mono<Datasource> datasourceWithPoliciesMono = datasourceMono
                 .flatMap(datasource1 -> {
                     Mono<User> userMono = sessionUserService.getCurrentUser();
-                    return generateAndSetDatasourcePolicies(userMono, datasource1);
+                    return generateAndSetDatasourcePolicies(userMono, datasource1, permission);
                 });
 
         return datasourceWithPoliciesMono
@@ -142,10 +157,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .flatMap(repository::setUserPermissionsInObject);
     }
 
-    private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
+    private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource, Optional<AclPermission> permission) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), workspacePermission.getDatasourceCreatePermission())
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), permission)
+                    .log()
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
                     return workspaceMono.map(workspace -> {
@@ -390,6 +406,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission) {
+        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
+    }
+
+    @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission);
     }
@@ -400,7 +421,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Set<String> extractKeysFromDatasource(Datasource datasource) {
+    public Set<MustacheBindingToken> extractKeysFromDatasource(Datasource datasource) {
         if (datasource == null || datasource.getDatasourceConfiguration() == null) {
             return new HashSet<>();
         }
@@ -435,6 +456,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
+    public Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
+        return repository.findAllByWorkspaceId(workspaceId, permission)
+                .flatMap(this::populateHintMessages);
+    }
+
+    @Override
     public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
         datasourceList
                 .stream()
@@ -457,7 +484,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return Mono.just(objects.getT1());
                 })
                 .flatMap(toDelete -> {
-                    return datasourceContextService.deleteDatasourceContext(toDelete.getId())
+                    return datasourceContextService.deleteDatasourceContext(datasourceContextService.createDsContextIdentifier(toDelete))
                             .then(repository.archive(toDelete))
                             .thenReturn(toDelete);
                 })
@@ -485,6 +512,10 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         analyticsProperties.put("dsName", datasource.getName());
         analyticsProperties.put("dsIsTemplate", ObjectUtils.defaultIfNull(datasource.getIsTemplate(), ""));
         analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""));
+        DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
+        if (dsConfig != null && dsConfig.getAuthentication() != null && dsConfig.getAuthentication() instanceof OAuth2) {
+            analyticsProperties.put("oAuthStatus", dsConfig.getAuthentication().getAuthenticationStatus());
+        }
         return analyticsProperties;
     }
 
@@ -523,5 +554,24 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             Datasource datasource = datasourceList.get(objects.getT1());
             datasource.setIsRecentlyCreated(true);
         }
+    }
+
+    /**
+     * This is a composite method for retrieving datasource, datasourceContextIdentifier and environmentMap
+     * See EE override for complete usage
+     * @param datasource
+     * @param environmentName
+     * @return
+     */
+    @Override
+    public Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
+    getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName) {
+        // see EE override for complete usage.
+        Mono<DatasourceContextIdentifier> datasourceContextIdentifierMono = Mono.just(datasourceContextService.createDsContextIdentifier(datasource));
+
+        // see EE override for complete usage,
+        // Here just returning an empty map, this map is not used here
+        Mono<Map<String, BaseDomain>> environmentMapMono = Mono.just(new HashMap<>());
+        return Mono.zip(Mono.just(datasource), datasourceContextIdentifierMono, environmentMapMono);
     }
 }

@@ -13,14 +13,16 @@ export class CommonLocators {
     widgetName +
     "') span.bp3-editable-text-content";
   _widgetNameTxt = ".editable-text-container input.bp3-editable-text-input";
-  _saveStatusSuccess = ".t--save-status-success";
+  _saveStatusContainer = ".t--save-status-container";
+  _statusSaving = ".t--save-status-is-saving";
+  _saveStatusError = ".t--save-status-error";
   _codeMirrorTextArea = ".CodeMirror textarea";
   _codeMirrorCode = ".CodeMirror-code";
   _codeEditorTargetTextArea = ".CodeEditorTarget textarea";
   _codeEditorTarget = "div.CodeEditorTarget";
   _entityExplorersearch = "#entity-explorer-search";
   _propertyControl = ".t--property-control-";
-  _textWidget = ".t--draggable-textwidget span";
+  _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
@@ -72,6 +74,10 @@ export class CommonLocators {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//button[contains(@class, 't--open-dropdown-Select-Action')]";
+  _selectPropPageDropdown = (ddName: string) =>
+    "//div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//button[contains(@class, 't--open-dropdown-Select-Page')]";
   _dropDownValue = (dropdownOption: string) =>
     ".single-select:contains('" + dropdownOption + "')";
   _selectOptionValue = (dropdownOption: string) =>
@@ -160,6 +166,10 @@ export class CommonLocators {
     "']";
   _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
   _omnibarDescription = "[data-cy='description']";
-  _previewModeToggle = ".t--switch-preview-mode-toggle";
+  _previewModeToggle = (currentMode: "preview" | "edit") =>
+    `[data-cy='${currentMode}-mode']`;
   _editModeToggle = ".t--switch-comment-mode-off";
+  _editorVariable = ".cm-variable";
+  _consoleString = ".cm-string";
+  _commentString = ".cm-comment";
 }

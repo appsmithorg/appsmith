@@ -14,16 +14,22 @@ import SchemaParser, {
   normalizeArrayValue,
   subDataTypeFor,
 } from "./schemaParser";
-import testData from "./schemaTestData";
+import testData, {
+  replaceBindingWithValue,
+  schemaItemFactory,
+  schemaItemStyles,
+} from "./schemaTestData";
 import {
   ARRAY_ITEM_KEY,
   DataType,
   FieldType,
+  ROOT_SCHEMA_KEY,
   Schema,
   SchemaItem,
 } from "./constants";
 
 const widgetName = "JSONForm1";
+const BASE_PATH = `schema.${ROOT_SCHEMA_KEY}`;
 
 describe("#parse", () => {
   it("returns a new schema for a valid data source", () => {
@@ -33,42 +39,325 @@ describe("#parse", () => {
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(result).toEqual(testData.initialDataset.schemaOutput);
+    expect(result.schema).toEqual(testData.initialDataset.schemaOutput);
   });
 
   it("returns an updated schema when a key removed from existing data source", () => {
-    const result = SchemaParser.parse(widgetName, {
+    const expectedRemovedSchemaItems = [
+      `${BASE_PATH}.children.boolean`,
+      `${BASE_PATH}.children.__`,
+    ];
+    const expectedModifiedSchemaItems = {};
+    const {
+      modifiedSchemaItems,
+      removedSchemaItems,
+      schema,
+    } = SchemaParser.parse(widgetName, {
       currSourceData: testData.withRemovedKeyFromInitialDataset.dataSource,
       schema: testData.initialDataset.schemaOutput,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(result).toEqual(
+    expect(schema).toEqual(
       testData.withRemovedKeyFromInitialDataset.schemaOutput,
     );
+    expect(modifiedSchemaItems).toEqual(expectedModifiedSchemaItems);
+    expect(removedSchemaItems).toEqual(expectedRemovedSchemaItems);
   });
 
   it("returns an updated schema when new key added to existing data source", () => {
     const widgetName = "JSONForm1";
+    const expectedSchema =
+      testData.withRemovedAddedKeyToInitialDataset.schemaOutput;
+    const expectedRemovedSchemaItems = [
+      `${BASE_PATH}.children.boolean`,
+      `${BASE_PATH}.children.__`,
+    ];
+    const expectedModifiedSchemaItems = {
+      [`${BASE_PATH}.children.gender`]: expectedSchema.__root_schema__.children
+        .gender,
+    };
 
-    const result = SchemaParser.parse(widgetName, {
+    const {
+      modifiedSchemaItems,
+      removedSchemaItems,
+      schema,
+    } = SchemaParser.parse(widgetName, {
       currSourceData: testData.withRemovedAddedKeyToInitialDataset.dataSource,
       schema: testData.initialDataset.schemaOutput,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(result).toEqual(
-      testData.withRemovedAddedKeyToInitialDataset.schemaOutput,
+    expect(schema).toEqual(expectedSchema);
+    expect(modifiedSchemaItems).toEqual(expectedModifiedSchemaItems);
+    expect(removedSchemaItems).toEqual(expectedRemovedSchemaItems);
+  });
+
+  it("returns modified and removed keys for added/modified/removed keys in data source", () => {
+    const initialSourceData = {
+      name: "Test name",
+      age: 20,
+      dob: "10/12/2021",
+      boolean: true,
+      hobbies: ["travelling", "skating", "off-roading"],
+      "%%": "%",
+      education: [
+        {
+          college: "String field ",
+          number: 1,
+          graduationDate: "10/12/2021",
+          boolean: true,
+        },
+      ],
+      arr: [
+        {
+          key1: "value",
+          key2: 1,
+        },
+      ],
+      address: {
+        Line1: "String field ",
+        city: "1",
+        हिन्दि: "हिन्दि",
+      },
+    };
+
+    const modifiedSourceData = {
+      name: "Test name",
+      age: "20",
+      dob: "10/12/2021",
+      boolean: true,
+      hobbies: ["travelling", "skating", "off-roading"],
+      "%%": "%",
+      हिन्दि: "हिन्दि",
+      primaryEducation: [
+        {
+          college: "String field ",
+          number: 1,
+          graduationDate: "10/12/2021",
+          boolean: true,
+        },
+      ],
+      arr: [
+        {
+          key2: "1",
+          key3: 2,
+        },
+      ],
+      address: {
+        city: 1,
+        state: "KA",
+      },
+    };
+
+    const expectedRemovedSchemaItems: string[] = [
+      `${BASE_PATH}.children.education`,
+      `${BASE_PATH}.children.address.children.Line1`,
+      `${BASE_PATH}.children.address.children.xn__j2bd4cyac6f`,
+      `${BASE_PATH}.children.arr.children.${ARRAY_ITEM_KEY}.children.key1`,
+    ];
+
+    const expectedModifiedSchemaItems = {
+      [`${BASE_PATH}.children.xn__j2bd4cyac6f`]: schemaItemFactory({
+        isSpellCheck: false,
+        iconAlign: "left",
+        label: "हिन्दि",
+        sourceData: "हिन्दि",
+        accessor: "हिन्दि",
+        identifier: "xn__j2bd4cyac6f",
+        originalIdentifier: "हिन्दि",
+        defaultValue:
+          '{{((sourceData, formData, fieldState) => (sourceData["हिन्दि"]))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}',
+        position: 8,
+        ...schemaItemStyles,
+      }),
+      [`${BASE_PATH}.children.primaryEducation`]: schemaItemFactory({
+        backgroundColor: "#FAFAFA",
+        isCollapsible: true,
+        children: {
+          __array_item__: schemaItemFactory({
+            children: {
+              college: schemaItemFactory({
+                isSpellCheck: false,
+                defaultValue: undefined,
+                iconAlign: "left",
+                sourceData: "String field ",
+                identifier: "college",
+                position: 0,
+                ...schemaItemStyles,
+              }),
+              number: schemaItemFactory({
+                isSpellCheck: false,
+                dataType: DataType.NUMBER,
+                defaultValue: undefined,
+                fieldType: FieldType.NUMBER_INPUT,
+                iconAlign: "left",
+                sourceData: 1,
+                identifier: "number",
+                position: 1,
+                ...schemaItemStyles,
+              }),
+              graduationDate: schemaItemFactory({
+                closeOnSelection: false,
+                dateFormat: "MM/DD/YYYY",
+                label: "Graduation Date",
+                maxDate: "2121-12-31T18:29:00.000Z",
+                minDate: "1920-12-31T18:30:00.000Z",
+                shortcuts: false,
+                defaultValue: undefined,
+                fieldType: FieldType.DATEPICKER,
+                timePrecision: "minute",
+                convertToISO: false,
+                sourceData: "10/12/2021",
+                identifier: "graduationDate",
+                position: 2,
+                ...schemaItemStyles,
+              }),
+              boolean: schemaItemFactory({
+                alignWidget: "LEFT",
+                dataType: DataType.BOOLEAN,
+                defaultValue: undefined,
+                fieldType: FieldType.SWITCH,
+                sourceData: true,
+                identifier: "boolean",
+                position: 3,
+                backgroundColor:
+                  "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+                boxShadow: "none",
+              }),
+            },
+            dataType: DataType.OBJECT,
+            defaultValue: undefined,
+            fieldType: FieldType.OBJECT,
+            sourceData: {
+              college: "String field ",
+              number: 1,
+              graduationDate: "10/12/2021",
+              boolean: true,
+            },
+            identifier: ARRAY_ITEM_KEY,
+            position: -1,
+          }),
+        },
+        dataType: DataType.ARRAY,
+        fieldType: FieldType.ARRAY,
+        sourceData: [
+          {
+            boolean: true,
+            college: "String field ",
+            graduationDate: "10/12/2021",
+            number: 1,
+          },
+        ],
+        identifier: "primaryEducation",
+        position: 9,
+      }),
+      [`${BASE_PATH}.children.age`]: schemaItemFactory({
+        isSpellCheck: false,
+        iconAlign: "left",
+        dataType: DataType.STRING,
+        identifier: "age",
+        position: 1,
+        sourceData: "20",
+        ...schemaItemStyles,
+      }),
+      [`${BASE_PATH}.children.arr.children.${ARRAY_ITEM_KEY}.children.key2`]: schemaItemFactory(
+        {
+          isSpellCheck: false,
+          iconAlign: "left",
+          defaultValue: undefined,
+          sourceData: "1",
+          identifier: "key2",
+          position: 0,
+          ...schemaItemStyles,
+        },
+      ),
+      [`${BASE_PATH}.children.arr.children.${ARRAY_ITEM_KEY}.children.key3`]: schemaItemFactory(
+        {
+          isSpellCheck: false,
+          iconAlign: "left",
+          dataType: DataType.NUMBER,
+          defaultValue: undefined,
+          fieldType: FieldType.NUMBER_INPUT,
+          sourceData: 2,
+          identifier: "key3",
+          position: 1,
+          ...schemaItemStyles,
+        },
+      ),
+      [`${BASE_PATH}.children.address.children.city`]: schemaItemFactory({
+        isSpellCheck: false,
+        iconAlign: "left",
+        dataType: DataType.NUMBER,
+        defaultValue:
+          "{{((sourceData, formData, fieldState) => (sourceData.address.city))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+        fieldType: FieldType.NUMBER_INPUT,
+        sourceData: 1,
+        identifier: "city",
+        position: 0,
+        ...schemaItemStyles,
+      }),
+      [`${BASE_PATH}.children.address.children.state`]: schemaItemFactory({
+        isSpellCheck: false,
+        iconAlign: "left",
+        label: "State",
+        dataType: DataType.STRING,
+        defaultValue:
+          "{{((sourceData, formData, fieldState) => (sourceData.address.state))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+        fieldType: FieldType.TEXT_INPUT,
+        sourceData: "KA",
+        identifier: "state",
+        position: 1,
+        ...schemaItemStyles,
+      }),
+    };
+
+    const initialResult = SchemaParser.parse(widgetName, {
+      currSourceData: initialSourceData,
+      schema: {},
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    const updatedResult = SchemaParser.parse(widgetName, {
+      currSourceData: modifiedSourceData,
+      schema: initialResult.schema,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+    expect(updatedResult.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(updatedResult.removedSchemaItems.sort()).toEqual(
+      expectedRemovedSchemaItems.sort(),
+    );
+
+    const schemaWithEvalValues = {
+      [ROOT_SCHEMA_KEY]: replaceBindingWithValue(
+        initialResult.schema[ROOT_SCHEMA_KEY],
+      ),
+    };
+
+    const updatedResultWithEval = SchemaParser.parse(widgetName, {
+      currSourceData: modifiedSourceData,
+      schema: schemaWithEvalValues,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+    expect(updatedResultWithEval.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(updatedResultWithEval.removedSchemaItems.sort()).toEqual(
+      expectedRemovedSchemaItems.sort(),
     );
   });
 
   it("returns unmodified schema when existing field's value in data source changes to null and back", () => {
     // Get the initial schema
-    const initialSchema = SchemaParser.parse(widgetName, {
+    const { schema: initialSchema } = SchemaParser.parse(widgetName, {
       currSourceData: testData.initialDataset.dataSource,
       schema: {},
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
+    const expectedRemovedSchemaItems: string[] = [];
+    const expectedModifiedSchemaItems = {};
 
     expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
 
@@ -110,38 +399,53 @@ describe("#parse", () => {
     set(expectedSchema, "__root_schema__.sourceData.address", null);
 
     // Parse with the nulled sourceData
-    const schemaWithNullKeys = SchemaParser.parse(widgetName, {
+    const resultWithNullKeys = SchemaParser.parse(widgetName, {
       currSourceData: nulledSourceData,
       schema: initialSchema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithNullKeys).toEqual(expectedSchema);
+    expect(resultWithNullKeys.schema).toEqual(expectedSchema);
+    expect(resultWithNullKeys.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(resultWithNullKeys.removedSchemaItems).toEqual(
+      expectedRemovedSchemaItems,
+    );
 
     /**
      * Parse with initial sourceData to check if previous schema with null sourceData
      * can still retain the schema structure
      */
-    const schemaWithRevertedData = SchemaParser.parse(widgetName, {
+    const resultWithRevertedData = SchemaParser.parse(widgetName, {
       currSourceData: testData.initialDataset.dataSource,
-      schema: schemaWithNullKeys,
+      schema: resultWithNullKeys.schema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithRevertedData).toEqual(
+    expect(resultWithRevertedData.schema).toEqual(
       testData.initialDataset.schemaOutput,
+    );
+    expect(resultWithRevertedData.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(resultWithRevertedData.removedSchemaItems).toEqual(
+      expectedRemovedSchemaItems,
     );
   });
 
   it("returns unmodified schema when existing fields value in data source changes to undefined and back", () => {
+    const expectedRemovedSchemaItems: string[] = [];
+    const expectedModifiedSchemaItems = {};
+
     // Get the initial schema
-    const initialSchema = SchemaParser.parse(widgetName, {
+    const initialResult = SchemaParser.parse(widgetName, {
       currSourceData: testData.initialDataset.dataSource,
       schema: {},
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
+    expect(initialResult.schema).toEqual(testData.initialDataset.schemaOutput);
 
     // Set all keys to undefined
     const undefinedDataSource = klona(testData.initialDataset.dataSource);
@@ -156,7 +460,7 @@ describe("#parse", () => {
     set(undefinedDataSource, "address", undefined);
 
     // Set the sourceData entry in each SchemaItem to undefined (only property that changes)
-    const expectedSchema = klona(initialSchema);
+    const expectedSchema = klona(initialResult.schema);
     set(expectedSchema, "__root_schema__.children.name.sourceData", undefined);
     set(expectedSchema, "__root_schema__.sourceData.name", undefined);
     set(expectedSchema, "__root_schema__.children.age.sourceData", undefined);
@@ -197,38 +501,53 @@ describe("#parse", () => {
     set(expectedSchema, "__root_schema__.sourceData.address", undefined);
 
     // Parse with the undefined sourceData keys
-    const schemaWithUndefinedKeys = SchemaParser.parse(widgetName, {
+    const resultWithUndefinedKeys = SchemaParser.parse(widgetName, {
       currSourceData: undefinedDataSource,
-      schema: initialSchema,
+      schema: initialResult.schema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithUndefinedKeys).toEqual(expectedSchema);
+    expect(resultWithUndefinedKeys.schema).toEqual(expectedSchema);
+    expect(resultWithUndefinedKeys.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(resultWithUndefinedKeys.removedSchemaItems).toEqual(
+      expectedRemovedSchemaItems,
+    );
 
     /**
      * Parse with initial sourceData to check if previous schema with null sourceData
      * can still retain the schema structure
      */
-    const schemaWithRevertedData = SchemaParser.parse(widgetName, {
+    const resultWithRevertedData = SchemaParser.parse(widgetName, {
       currSourceData: testData.initialDataset.dataSource,
-      schema: schemaWithUndefinedKeys,
+      schema: resultWithUndefinedKeys.schema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithRevertedData).toEqual(
+    expect(resultWithRevertedData.schema).toEqual(
       testData.initialDataset.schemaOutput,
+    );
+    expect(resultWithRevertedData.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(resultWithRevertedData.removedSchemaItems).toEqual(
+      expectedRemovedSchemaItems,
     );
   });
 
   it("returns unmodified schema when existing inner field's value in data source changes to null and back", () => {
+    const expectedRemovedSchemaItems: string[] = [];
+    const expectedModifiedSchemaItems = {};
+
     // Get the initial schema
-    const initialSchema = SchemaParser.parse(widgetName, {
+    const initialResult = SchemaParser.parse(widgetName, {
       currSourceData: testData.initialDataset.dataSource,
       schema: {},
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
+    expect(initialResult.schema).toEqual(testData.initialDataset.schemaOutput);
 
     // Set all keys to null
     const nulledSourceData = klona(testData.initialDataset.dataSource);
@@ -240,7 +559,7 @@ describe("#parse", () => {
     set(nulledSourceData, "education[0].boolean", null);
 
     // Set the sourceData entry in each SchemaItem to null (only property that changes)
-    const expectedSchema = klona(initialSchema);
+    const expectedSchema = klona(initialResult.schema);
     set(
       expectedSchema,
       "__root_schema__.children.address.children.Line1.sourceData",
@@ -314,13 +633,19 @@ describe("#parse", () => {
     );
 
     // Parse with the nulled sourceData
-    const schemaWithNullKeys = SchemaParser.parse(widgetName, {
+    const resultWithNullKeys = SchemaParser.parse(widgetName, {
       currSourceData: nulledSourceData,
-      schema: initialSchema,
+      schema: initialResult.schema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithNullKeys).toEqual(expectedSchema);
+    expect(resultWithNullKeys.schema).toEqual(expectedSchema);
+    expect(resultWithNullKeys.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(resultWithNullKeys.removedSchemaItems).toEqual(
+      expectedRemovedSchemaItems,
+    );
 
     /**
      * Parse with initial sourceData to check if previous schema with null sourceData
@@ -328,24 +653,33 @@ describe("#parse", () => {
      */
     const schemaWithRevertedData = SchemaParser.parse(widgetName, {
       currSourceData: testData.initialDataset.dataSource,
-      schema: schemaWithNullKeys,
+      schema: resultWithNullKeys.schema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithRevertedData).toEqual(
+    expect(schemaWithRevertedData.schema).toEqual(
       testData.initialDataset.schemaOutput,
+    );
+    expect(schemaWithRevertedData.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(schemaWithRevertedData.removedSchemaItems).toEqual(
+      expectedRemovedSchemaItems,
     );
   });
 
   it("returns unmodified schema when existing inner field's value in data source changes to undefined and back", () => {
+    const expectedRemovedSchemaItems: string[] = [];
+    const expectedModifiedSchemaItems = {};
+
     // Get the initial schema
-    const initialSchema = SchemaParser.parse(widgetName, {
+    const initialResult = SchemaParser.parse(widgetName, {
       currSourceData: testData.initialDataset.dataSource,
       schema: {},
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
+    expect(initialResult.schema).toEqual(testData.initialDataset.schemaOutput);
 
     // Set all keys to undefined
     const undefinedSourceData = klona(testData.initialDataset.dataSource);
@@ -357,7 +691,7 @@ describe("#parse", () => {
     set(undefinedSourceData, "education[0].boolean", undefined);
 
     // Set the sourceData entry in each SchemaItem to undefined (only property that changes)
-    const expectedSchema = klona(initialSchema);
+    const expectedSchema = klona(initialResult.schema);
     set(
       expectedSchema,
       "__root_schema__.children.address.children.Line1.sourceData",
@@ -435,26 +769,38 @@ describe("#parse", () => {
     );
 
     // Parse with the undefined sourceData
-    const schemaWithUndefinedKeys = SchemaParser.parse(widgetName, {
+    const resultWithUndefinedKeys = SchemaParser.parse(widgetName, {
       currSourceData: undefinedSourceData,
-      schema: initialSchema,
+      schema: initialResult.schema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithUndefinedKeys).toEqual(expectedSchema);
+    expect(resultWithUndefinedKeys.schema).toEqual(expectedSchema);
+    expect(resultWithUndefinedKeys.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(resultWithUndefinedKeys.removedSchemaItems).toEqual(
+      expectedRemovedSchemaItems,
+    );
 
     /**
      * Parse with initial sourceData to check if previous schema with undefined sourceData
      * can still retain the schema structure
      */
-    const schemaWithRevertedData = SchemaParser.parse(widgetName, {
+    const resultWithRevertedData = SchemaParser.parse(widgetName, {
       currSourceData: testData.initialDataset.dataSource,
-      schema: schemaWithUndefinedKeys,
+      schema: resultWithUndefinedKeys.schema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithRevertedData).toEqual(
+    expect(resultWithRevertedData.schema).toEqual(
       testData.initialDataset.schemaOutput,
+    );
+    expect(resultWithRevertedData.modifiedSchemaItems).toEqual(
+      expectedModifiedSchemaItems,
+    );
+    expect(resultWithRevertedData.removedSchemaItems).toEqual(
+      expectedRemovedSchemaItems,
     );
   });
 });
@@ -686,6 +1032,9 @@ describe("#getSchemaItemFor", () => {
       widgetName,
       currSourceData: "John",
       sourceDataPath: "sourceData.firstName",
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       skipDefaultValueProcessing: false,
       identifier: key,
     });
@@ -722,6 +1071,9 @@ describe("#getSchemaItemFor", () => {
       sourceDataPath: "sourceData.firstName",
       isCustomField: true,
       skipDefaultValueProcessing: false,
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       identifier: key,
     });
 
@@ -757,6 +1109,9 @@ describe("#getSchemaItemFor", () => {
       isCustomField: true,
       fieldType: FieldType.SWITCH,
       skipDefaultValueProcessing: false,
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       identifier: key,
     });
 
@@ -797,6 +1152,9 @@ describe("#getSchemaItemFor", () => {
       currSourceData: ["one", "two"],
       sourceDataPath: "sourceData.hobbies",
       skipDefaultValueProcessing: false,
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       identifier: key,
     });
 
@@ -833,6 +1191,9 @@ describe("#getUnModifiedSchemaItemFor", () => {
       schemaItem,
       sourceDataPath,
       widgetName,
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       skipDefaultValueProcessing: false,
       identifier: schemaItem.identifier,
     });
@@ -873,6 +1234,9 @@ describe("#getUnModifiedSchemaItemFor", () => {
       schemaItem,
       sourceDataPath,
       widgetName,
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       skipDefaultValueProcessing: false,
       identifier: schemaItem.identifier,
     });
@@ -883,6 +1247,8 @@ describe("#getUnModifiedSchemaItemFor", () => {
 
 describe("#convertArrayToSchema", () => {
   it("returns schema for array data", () => {
+    const removedSchemaItems: string[] = [];
+    const modifiedSchemaItems = {};
     const currSourceData = [
       {
         firstName: "John",
@@ -931,17 +1297,29 @@ describe("#convertArrayToSchema", () => {
       },
     };
 
+    const expectedModifiedSchemaItems = {
+      [`schema.${ROOT_SCHEMA_KEY}.entries.${ARRAY_ITEM_KEY}`]: expectedSchema[
+        ARRAY_ITEM_KEY
+      ],
+    };
+
     const result = SchemaParser.convertArrayToSchema({
       currSourceData,
       widgetName,
+      baseSchemaPath: `schema.${ROOT_SCHEMA_KEY}.entries`,
+      removedSchemaItems,
+      modifiedSchemaItems,
       sourceDataPath: "sourceData.entries",
       skipDefaultValueProcessing: false,
     });
-
     expect(result).toEqual(expectedSchema);
+    expect(removedSchemaItems).toEqual([]);
+    expect(modifiedSchemaItems).toEqual(expectedModifiedSchemaItems);
   });
 
   it("returns modified schema with only modified updates when data changes", () => {
+    const removedSchemaItems: string[] = [];
+    const modifiedSchemaItems = {};
     const currSourceData = [
       {
         firstName: "John",
@@ -1051,15 +1429,27 @@ describe("#convertArrayToSchema", () => {
       },
     };
 
+    const expectedModifiedSchemaItems = {
+      [`schema.${ROOT_SCHEMA_KEY}.entries.${ARRAY_ITEM_KEY}.children.lastName`]: expectedSchema[
+        ARRAY_ITEM_KEY
+      ].children.lastName,
+    };
+
     const result = SchemaParser.convertArrayToSchema({
       currSourceData,
       widgetName,
       sourceDataPath: "sourceData.entries",
+      baseSchemaPath: `schema.${ROOT_SCHEMA_KEY}.entries`,
+      removedSchemaItems,
+      modifiedSchemaItems,
       prevSchema,
       skipDefaultValueProcessing: false,
     });
 
     expect(result).toEqual(expectedSchema);
+    expect(result).toEqual(expectedSchema);
+    expect(removedSchemaItems).toEqual([]);
+    expect(modifiedSchemaItems).toEqual(expectedModifiedSchemaItems);
   });
 });
 
@@ -1093,10 +1483,13 @@ describe("#convertObjectToSchema", () => {
     };
 
     const result = SchemaParser.convertObjectToSchema({
+      baseSchemaPath: null,
       currSourceData,
-      widgetName,
-      sourceDataPath: "sourceData.entry",
+      modifiedSchemaItems: {},
+      removedSchemaItems: [],
       skipDefaultValueProcessing: false,
+      sourceDataPath: "sourceData.entry",
+      widgetName,
     });
 
     expect(result).toEqual(expectedSchema);
@@ -1175,6 +1568,9 @@ describe("#convertObjectToSchema", () => {
       widgetName,
       sourceDataPath: "sourceData.entries",
       prevSchema,
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       skipDefaultValueProcessing: false,
     });
 
@@ -1292,6 +1688,9 @@ describe("#convertObjectToSchema", () => {
       currSourceData,
       widgetName,
       sourceDataPath: "sourceData.entries",
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       prevSchema,
       skipDefaultValueProcessing: false,
     });
@@ -1600,22 +1999,22 @@ describe(".getKeysFromSchema", () => {
 
     expect(result).toEqual(expectedOutput);
   });
-});
 
-it("return only custom field keys", () => {
-  const schema = klona(
-    testData.initialDataset.schemaOutput.__root_schema__.children,
-  );
+  it("return only custom field keys", () => {
+    const schema = klona(
+      testData.initialDataset.schemaOutput.__root_schema__.children,
+    );
 
-  schema.name.isCustomField = true;
+    schema.name.isCustomField = true;
 
-  const expectedOutput = ["name"];
+    const expectedOutput = ["name"];
 
-  const result = getKeysFromSchema(schema, ["originalIdentifier"], {
-    onlyCustomFieldKeys: true,
+    const result = getKeysFromSchema(schema, ["originalIdentifier"], {
+      onlyCustomFieldKeys: true,
+    });
+
+    expect(result).toEqual(expectedOutput);
   });
-
-  expect(result).toEqual(expectedOutput);
 });
 
 describe("#applyPositions", () => {

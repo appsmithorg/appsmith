@@ -1,12 +1,10 @@
 import React from "react";
 import { Route, Switch, useLocation, useRouteMatch } from "react-router-dom";
 import Login from "@appsmith/pages/UserAuth/Login";
-import { AuthCard, AuthCardContainer, AuthContainer } from "./StyledComponents";
 import SignUp from "@appsmith/pages/UserAuth/SignUp";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
-import PageNotFound from "pages/common/PageNotFound";
-import FooterLinks from "./FooterLinks";
+import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import * as Sentry from "@sentry/react";
 import { requiresUnauth } from "./requiresAuthHOC";
 import { useSelector } from "react-redux";
@@ -25,28 +23,23 @@ export function UserAuth() {
 
   return (
     <ThemeProvider theme={lightTheme}>
-      <AuthContainer>
-        <AuthCardContainer>
-          <AuthCard>
-            <Switch location={location}>
-              <SentryRoute component={Login} exact path={`${path}/login`} />
-              <SentryRoute component={SignUp} exact path={`${path}/signup`} />
-              <SentryRoute
-                component={ResetPassword}
-                exact
-                path={`${path}/resetPassword`}
-              />
-              <SentryRoute
-                component={ForgotPassword}
-                exact
-                path={`${path}/forgotPassword`}
-              />
-              <SentryRoute component={PageNotFound} />
-            </Switch>
-          </AuthCard>
-        </AuthCardContainer>
-        <FooterLinks />
-      </AuthContainer>
+      <div className="absolute inset-0 flex flex-col overflow-y-auto auth-container bg-[color:var(--ads-color-background-secondary)] p-4 t--auth-container">
+        <Switch location={location}>
+          <SentryRoute component={Login} exact path={`${path}/login`} />
+          <SentryRoute component={SignUp} exact path={`${path}/signup`} />
+          <SentryRoute
+            component={ResetPassword}
+            exact
+            path={`${path}/resetPassword`}
+          />
+          <SentryRoute
+            component={ForgotPassword}
+            exact
+            path={`${path}/forgotPassword`}
+          />
+          <SentryRoute component={PageNotFound} />
+        </Switch>
+      </div>
     </ThemeProvider>
   );
 }

@@ -8,7 +8,11 @@ import React, {
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
-import { TabComponent } from "design-system";
+import {
+  DropdownOnSelect,
+  SearchSnippet,
+  TabComponent,
+} from "design-system-old";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
@@ -24,8 +28,8 @@ import {
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../Explorer/helpers";
+import { useLocation, useParams } from "react-router";
+import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
@@ -44,9 +48,9 @@ import {
   getActionFromJsCollection,
   getJSActionOption,
   getJSFunctionLineGutter,
+  getJSPropertyLineFromName,
   JSActionDropdownOption,
 } from "./utils";
-import { DropdownOnSelect, SearchSnippet } from "design-system";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import {
@@ -65,8 +69,14 @@ import {
   hasExecuteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
-import { executeCommandAction } from "../../../actions/apiPaneActions";
-import { SlashCommand } from "../../../entities/Action";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { SlashCommand } from "entities/Action";
+import {
+  setCodeEditorCursorAction,
+  setFocusableInputField,
+} from "actions/editorContextActions";
+import history from "utils/history";
+import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -78,6 +88,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const theme = EditorTheme.LIGHT;
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
+  const { hash } = useLocation();
+
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
 
   // Currently active response (only changes upon execution)
@@ -110,6 +122,37 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       currentJSCollection.id,
       selectedJSActionOption.data?.id || "",
     ),
+  );
+
+  useEffect(() => {
+    if (hash) {
+      const actionName = hash.substring(1);
+      const position = getJSPropertyLineFromName(
+        currentJSCollection.body,
+        actionName,
+      );
+      if (position) {
+        dispatch(setFocusableInputField(`${currentJSCollection.name}.body`));
+        dispatch(
+          setCodeEditorCursorAction(
+            `${currentJSCollection.name}.body`,
+            position,
+            CursorPositionOrigin.Navigation,
+          ),
+        );
+        history.replace(window.location.pathname);
+      }
+    }
+  }, [hash]);
+
+  const isChangePermitted = hasManageActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+  const isExecutePermitted = hasExecuteActionPermission(
+    currentJSCollection?.userPermissions || [],
+  );
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentJSCollection?.userPermissions || [],
   );
 
   // Triggered when there is a change in the code editor
@@ -162,8 +205,9 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         executeJSAction,
         !parseErrors.length,
         handleActiveActionChange,
+        isExecutePermitted,
       ),
-    [jsActions, parseErrors, handleActiveActionChange],
+    [jsActions, parseErrors, handleActiveActionChange, isExecutePermitted],
   );
 
   const handleJSActionOptionSelection: DropdownOnSelect = (
@@ -219,16 +263,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     }
     return [];
   }, [selectedJSActionOption.label, currentJSCollection.name]);
-
-  const isChangePermitted = hasManageActionPermission(
-    currentJSCollection?.userPermissions || [],
-  );
-  const isExecutePermitted = hasExecuteActionPermission(
-    currentJSCollection?.userPermissions || [],
-  );
-  const isDeletePermitted = hasDeleteActionPermission(
-    currentJSCollection?.userPermissions || [],
-  );
 
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTabIndex);
 

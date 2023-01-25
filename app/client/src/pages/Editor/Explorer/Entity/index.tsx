@@ -20,7 +20,7 @@ import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent } from "design-system-old";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
@@ -219,6 +219,7 @@ export type EntityProps = {
   isSticky?: boolean;
   collapseRef?: RefObject<HTMLDivElement> | null;
   customAddButton?: ReactNode;
+  forceExpand?: boolean;
 };
 
 export const Entity = forwardRef(
@@ -246,6 +247,10 @@ export const Entity = forwardRef(
     useEffect(() => {
       if (isEntityOpen !== undefined) open(isOpen);
     }, [props.name]);
+
+    useEffect(() => {
+      if (!!props.forceExpand) open(true);
+    }, [props.forceExpand]);
 
     /* eslint-enable react-hooks/exhaustive-deps */
     const toggleChildren = (e: any) => {

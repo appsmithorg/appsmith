@@ -8,7 +8,7 @@ import {
   Size,
   Toaster,
   Variant,
-} from "design-system";
+} from "design-system-old";
 import { StyledDialog } from "./ForkModalStyles";
 import { useDispatch, useSelector } from "react-redux";
 import { importApplication } from "actions/applicationActions";
@@ -104,7 +104,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       </FilePickerWrapper>
       <ButtonWrapper>
         <ImportButton
-          // category={ButtonCategory.tertiary}
+          // category={ButtonCategory.secondary}
           cypressSelector={"t--workspace-import-app-button"}
           disabled={!appFileToBeUploaded}
           isLoading={importingApplication}
