@@ -5,13 +5,16 @@ const testUrl = "http://localhost:5001/v1/parent/cmd";
 describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
     cy.execute(testUrl, "uname -a").then((res) => {
-      cy.log("UNAME", res.stdout);
+      console.log("UNAME", res.stdout);
     });
     cy.execute(testUrl, "docker -v").then((res) => {
-      cy.log("DOCKER VERSION", res.stdout);
+      console.log("DOCKER VERSION", res.stdout);
     });
     cy.execute(testUrl, "pwd").then((res) => {
-      cy.log("PWD", res.stdout);
+      console.log("PWD", res.stdout);
+    });
+    cy.execute(testUrl, "cd oldstack && ls").then((res) => {
+      console.log("files inside oldstack", res.stdout);
     });
     const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
@@ -38,8 +41,8 @@ describe("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateAContainer(
         testUrl,
-        path + "/oldstack",
-        "fatcontainer",
+        "oldstack",
+        "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
       );
       cy.wait(45000);
