@@ -52,13 +52,13 @@ export const getEntitiesForNavigation = createSelector(
         dataTree[action.config.name] as DataTreeAction,
         {},
       );
-      console.log(
-        "entitiesForNav",
-        config,
-        action.config,
-        dataTree[action.config.name],
-        definitions,
-      );
+      // console.log(
+      //   "entitiesForNav",
+      //   config,
+      //   action.config,
+      //   dataTree[action.config.name],
+      //   definitions,
+      // );
       const { childNavData, peekData } = getActionPeekData(
         action,
         entityDefinitions.ACTION(
@@ -83,7 +83,6 @@ export const getEntitiesForNavigation = createSelector(
         peekable: true, // hide tooltip when set to false
         peekData,
       };
-      console.log("--- entitiesForNav", navigationData[action.config.name]);
     });
 
     jsActions.forEach((jsAction) => {
@@ -194,7 +193,6 @@ const getActionPeekData = (
           url: undefined,
           children: {},
           peekable: true,
-          peekData: dataTree[key],
         };
       }
     }

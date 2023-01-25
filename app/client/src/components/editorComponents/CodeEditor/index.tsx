@@ -125,6 +125,7 @@ import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import { Portal } from "@blueprintjs/core";
+import ReactJson from "react-json-view";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -223,6 +224,7 @@ type State = {
         name: string;
         position: DOMRect;
         textWidth: number;
+        data: unknown;
       }
     | undefined;
 };
@@ -244,6 +246,16 @@ class CodeEditor extends Component<Props, State> {
   hinters: Hinter[] = [];
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
+  reactJsonProps = {
+    name: null,
+    enableClipboard: false,
+    displayObjectSize: false,
+    displayDataTypes: false,
+    style: {
+      fontSize: "13px",
+    },
+    collapsed: 1,
+  };
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   constructor(props: Props) {
     super(props);
@@ -512,7 +524,11 @@ class CodeEditor extends Component<Props, State> {
   }
 
   debouncedPeek = debounce(
-    (peekableAttribute: string, tokenElementPosition: DOMRect) => {
+    (
+      peekableAttribute: string,
+      tokenElementPosition: DOMRect,
+      dataToShow: unknown,
+    ) => {
       console.log("text hover", peekableAttribute);
       console.log("text hover", tokenElementPosition);
       this.setState({
@@ -520,6 +536,7 @@ class CodeEditor extends Component<Props, State> {
           name: peekableAttribute ?? "",
           position: tokenElementPosition,
           textWidth: tokenElementPosition.width,
+          data: dataToShow,
         },
       });
     },
@@ -535,7 +552,25 @@ class CodeEditor extends Component<Props, State> {
       const tokenElementPosition = tokenElement.getBoundingClientRect();
       const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
       if (peekableAttribute) {
-        this.debouncedPeek(peekableAttribute, tokenElementPosition);
+        const paths = peekableAttribute.split(".");
+        if (paths.length) {
+          const propertyAccessor =
+            paths.length > 1
+              ? "peekData." +
+                paths.slice(1).reduce((prev, cur) => prev + cur, "")
+              : "peekData";
+          console.log(
+            "entitiesForNav",
+            this.props.entitiesForNavigation[paths[0]],
+            propertyAccessor,
+            _.get(this.props.entitiesForNavigation[paths[0]], propertyAccessor),
+          );
+          this.debouncedPeek(
+            peekableAttribute,
+            tokenElementPosition,
+            _.get(this.props.entitiesForNavigation[paths[0]], propertyAccessor),
+          );
+        }
       }
     } else {
       console.log("text hover - close");
@@ -1196,9 +1231,9 @@ class CodeEditor extends Component<Props, State> {
               <Portal>
                 <div
                   className="absolute"
-                  onMouseLeave={() =>
-                    this.setState({ peekOverlayProps: undefined })
-                  }
+                  // onMouseLeave={() =>
+                  //   this.setState({ peekOverlayProps: undefined })
+                  // }
                   style={{
                     height: "127px",
                     width: "298px",
@@ -1213,7 +1248,15 @@ class CodeEditor extends Component<Props, State> {
                     zIndex: 2,
                   }}
                 >
-                  {this.state.peekOverlayProps.name}
+                  <div className="overflow-y-auto h-full">
+                    {this.state.peekOverlayProps.data && (
+                      <ReactJson
+                        src={this.state.peekOverlayProps.data}
+                        {...this.reactJsonProps}
+                      />
+                    )}
+                    {!this.state.peekOverlayProps.data && <div>undefined</div>}
+                  </div>
                 </div>
               </Portal>
             )}
