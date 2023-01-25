@@ -19,7 +19,7 @@ import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.s
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
 import { Popover2 } from "@blueprintjs/popover2";
-import { MenuDivider } from "design-system";
+import { MenuDivider } from "design-system-old";
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
   padding: 0;

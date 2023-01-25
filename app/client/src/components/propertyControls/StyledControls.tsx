@@ -300,7 +300,7 @@ export const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL)`
   }
 `;
 
-export const StyledPinIcon = styled(ControlIcons.PIN as AnyStyledComponent)`
+export const StyledPinIcon = styled(ControlIcons.PIN)`
   padding: 0;
   position: absolute;
   margin-right: 15px;
