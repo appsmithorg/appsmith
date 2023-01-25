@@ -236,16 +236,6 @@ export const addPlatformFunctionsToEvalContext = (context: any) => {
   initStoreFns(context);
 };
 
-export const removePlatformFunctionsFromEvalContext = (context: any) => {
-  for (const [funcName] of platformFunctionEntries) {
-    try {
-      delete context[funcName];
-    } catch (error) {
-      context[funcName] = undefined;
-    }
-  }
-};
-
 export const getAllAsyncFunctions = (dataTree: DataTree) => {
   const asyncFunctionNameMap: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
