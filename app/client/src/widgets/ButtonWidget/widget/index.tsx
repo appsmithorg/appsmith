@@ -19,6 +19,7 @@ import {
   ButtonPlacement,
 } from "components/constants";
 import { Stylesheet } from "entities/AppTheming";
+import { Button, transformV1ButtonProps } from "components/wds";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -428,29 +429,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       "isFormValid" in this.props &&
       !this.props.isFormValid;
     const isDisabled = this.props.isDisabled || disabled;
+
     return (
-      <ButtonComponent
-        borderRadius={this.props.borderRadius}
-        boxShadow={this.props.boxShadow}
-        buttonColor={this.props.buttonColor}
-        buttonVariant={this.props.buttonVariant}
-        clickWithRecaptcha={this.clickWithRecaptchaBound}
-        googleRecaptchaKey={this.props.googleRecaptchaKey}
-        handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
-        iconAlign={this.props.iconAlign}
-        iconName={this.props.iconName}
-        isDisabled={isDisabled}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        key={this.props.widgetId}
-        onClick={isDisabled ? undefined : this.onButtonClickBound}
-        placement={this.props.placement}
-        recaptchaType={this.props.recaptchaType}
-        text={this.props.text}
-        tooltip={this.props.tooltip}
-        type={this.props.buttonType || ButtonType.BUTTON}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
-      />
+      <Button {...transformV1ButtonProps(this.props)} isDisabled={isDisabled} />
     );
   }
 

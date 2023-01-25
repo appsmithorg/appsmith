@@ -1,3 +1,2 @@
-export { Checkbox } from "./Checkbox";
-export { withTooltip } from "./Tooltip";
-export { default as Button } from "./Button";
+export { Checkbox } from "./components/Checkbox";
+export { Button, transformV1ButtonProps } from "./components/Button";

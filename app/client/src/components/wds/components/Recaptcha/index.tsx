@@ -1,0 +1,1 @@
+export { withRecaptcha } from "./withRecaptcha";

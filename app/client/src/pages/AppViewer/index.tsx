@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { CSSProperties, useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
@@ -273,6 +273,14 @@ function AppViewer(props: Props) {
             headerHeight={headerHeight}
             ref={focusRef}
             showGuidedTourMessage={showGuidedTourMessage}
+            style={
+              {
+                "--wds-radii":
+                  selectedTheme.properties.borderRadius.appBorderRadius,
+                "--wds-shadow":
+                  selectedTheme.properties.boxShadow.appBorderRadius,
+              } as CSSProperties
+            }
           >
             {isInitialized && registered && <AppViewerPageContainer />}
           </AppViewerBody>

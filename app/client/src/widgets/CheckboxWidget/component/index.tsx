@@ -6,7 +6,7 @@ import { AlignWidgetTypes } from "widgets/constants";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import { Checkbox } from "components/wds/Checkbox";
+import { Checkbox } from "components/wds/components/Checkbox/Checkbox";
 
 type StyledCheckboxContainerProps = {
   isValid: boolean;

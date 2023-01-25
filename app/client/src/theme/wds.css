@@ -1,7 +1,8 @@
 :root {
   --wds-color-border: #E0DEDE;
+  --wds-color-border-focus: rgb(9, 105, 218);
   --wds-color-border-onaccent: rgba(161, 161, 161, 0.3);
-  --wds-color-border-light: #FDDDDD;
+  --wds-color-border-light: #EBEBEB;
   --wds-color-border-hover: #B3B3B3;
   --wds-color-border-disabled: #E0DEDE;
   --wds-color-border-danger: #D91921;
@@ -31,5 +32,15 @@
   --wds-color-text-light: #716E6E;
   --wds-color-text-disabled: #A9A7A7;
   --wds-color-text-disabled-light: #CAC7C7;
+
+
+  /* spacing */
+  --wds-space-xxs: 4px;
+  --wds-space-xs: 8px;
+  --wds-space-s: 12px;
+  --wds-space-m: 16px;
+  --wds-space-l: 20px;
+  --wds-space-xl: 24px;
+  --wds-space-xxl: 32px;
 }
 

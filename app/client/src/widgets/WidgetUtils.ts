@@ -168,7 +168,7 @@ export const getCustomHoverColor = (
  * @returns An RGB string (in case of transparent backgrounds) or a HSL string (in case of solid backgrounds).
  */
 export const calulateHoverColor = (
-  backgroundColor: string,
+  backgroundColor = "#000",
   hasTransparentBackground?: boolean,
 ) => {
   // For transparent backgrounds

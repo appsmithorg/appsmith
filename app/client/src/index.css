@@ -5,6 +5,8 @@
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
+@import "components/wds/theme/tokens/raw.css";
+@import "components/wds/theme/tokens/semantic";
 
 body {
   margin: 0;
