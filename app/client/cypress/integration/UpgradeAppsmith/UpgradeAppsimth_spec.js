@@ -5,16 +5,16 @@ const testUrl = "http://localhost:5001/v1/parent/cmd";
 describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
     cy.execute(testUrl, "uname -a").then((res) => {
-      console.log("UNAME", res.stdout);
+      cy.log("UNAME", res.stdout);
     });
     cy.execute(testUrl, "docker -v").then((res) => {
-      console.log("DOCKER VERSION", res.stdout);
+      cy.log("DOCKER VERSION", res.stdout);
     });
     cy.execute(testUrl, "pwd").then((res) => {
-      console.log("PWD", res.stdout);
+      cy.log("PWD", res.stdout);
     });
     cy.execute(testUrl, "cd oldstack && ls").then((res) => {
-      console.log("files inside oldstack", res.stdout);
+      cy.log("files inside oldstack", res.stdout);
     });
     const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
