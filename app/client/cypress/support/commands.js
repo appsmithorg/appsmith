@@ -515,21 +515,33 @@ Cypress.Commands.add("clickTest", (testbutton) => {
   cy.wait("@postExecute");
 });
 
-Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(3000);
-  cy.get(commonlocators.evaluatedCurrentValue)
-    .first()
-    .should("be.visible")
-    .should("not.have.text", "undefined");
-  cy.get(commonlocators.evaluatedCurrentValue)
-    .first()
-    //.should("be.visible")
-    .click({ force: true })
-    .then(($text) => {
-      if ($text.text()) expect($text.text()).to.eq(currentValue);
-    });
-});
+Cypress.Commands.add(
+  "EvaluateCurrentValue",
+  (currentValue, isValueToBeEvaluatedDynamic = false) => {
+    // if the value is not dynamic, evaluated popup must be hidden
+    if (!isValueToBeEvaluatedDynamic) {
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(3000);
+      cy.get(commonlocators.evaluatedCurrentValue)
+        .first()
+        .should("not.be.visible");
+    } else {
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(3000);
+      cy.get(commonlocators.evaluatedCurrentValue)
+        .first()
+        .should("be.visible")
+        .should("not.have.text", "undefined");
+      cy.get(commonlocators.evaluatedCurrentValue)
+        .first()
+        //.should("be.visible")
+        .click({ force: true })
+        .then(($text) => {
+          if ($text.text()) expect($text.text()).to.eq(currentValue);
+        });
+    }
+  },
+);
 
 Cypress.Commands.add("PublishtheApp", () => {
   cy.server();
@@ -1154,7 +1166,7 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 Cypress.Commands.add("CheckForPageSaveError", () => {
   cy.get("body").then(($ele) => {
     if ($ele.find(commonlocators.saveStatusError).length) {
-      cy.reload()
+      cy.reload();
     }
   });
 });
@@ -1385,25 +1397,28 @@ Cypress.Commands.add(
 // the way we target form controls from now on has to change
 // we would be getting the form controls by their class names and not their xpaths.
 // the xpath method is flaky and highly subjected to change.
-Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
-  cy.wait(2000);
-  if (fieldName) {
-    cy.get(fieldName).then(($field) => {
-      cy.updateCodeInput($field, valueToType);
-    });
-  } else {
-    cy.xpath("//div[@class='CodeEditorTarget']").then(($field) => {
-      cy.updateCodeInput($field, valueToType);
-    });
-  }
-  cy.EvaluateCurrentValue(valueToType);
-  // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
-  //   textF = fieldValue.innerText
-  //   fieldValue.innerText = ""
-  // }).then(() => {
-  //   cy.log("current field value is : '" + textF + "'")
-  // })
-});
+Cypress.Commands.add(
+  "typeValueNValidate",
+  (valueToType, fieldName = "", isDynamic = false) => {
+    cy.wait(2000);
+    if (fieldName) {
+      cy.get(fieldName).then(($field) => {
+        cy.updateCodeInput($field, valueToType);
+      });
+    } else {
+      cy.xpath("//div[@class='CodeEditorTarget']").then(($field) => {
+        cy.updateCodeInput($field, valueToType);
+      });
+    }
+    cy.EvaluateCurrentValue(valueToType, isDynamic);
+    // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
+    //   textF = fieldValue.innerText
+    //   fieldValue.innerText = ""
+    // }).then(() => {
+    //   cy.log("current field value is : '" + textF + "'")
+    // })
+  },
+);
 
 Cypress.Commands.add("clickButton", (btnVisibleText, toForceClick = true) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")

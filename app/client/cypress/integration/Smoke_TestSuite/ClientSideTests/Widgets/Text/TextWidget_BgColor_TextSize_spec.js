@@ -106,8 +106,6 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       "16px",
     );
 
-    cy.get(commonlocators.evaluatedCurrentValue)
-      .first()
-      .should("not.be.visible");
+    cy.get(commonlocators.evaluatedCurrentValue).should("not.be.visible");
   });
 });

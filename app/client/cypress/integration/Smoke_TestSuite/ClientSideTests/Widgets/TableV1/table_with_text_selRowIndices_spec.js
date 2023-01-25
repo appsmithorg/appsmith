@@ -12,11 +12,8 @@ describe("Table widget edge case scenario testing", function() {
     //Update the property default selected row to blank
     cy.updateCodeInput(".t--property-control-defaultselectedrow", "");
 
-    //Check if the evaluated value is undefined
-    cy.get(commonlocators.evaluatedCurrentValue)
-      .first()
-      .should("be.visible")
-      .should("have.text", "undefined");
+    // ensure evaluated value popup does not show up
+    cy.get(commonlocators.evaluatedCurrentValue).should("not.be.visible");
 
     //Check the value present in the textfield which is selectedRowIndices is blank
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should("have.text", "");

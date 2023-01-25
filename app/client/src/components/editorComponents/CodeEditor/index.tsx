@@ -1076,12 +1076,14 @@ class CodeEditor extends Component<Props, State> {
     }
     const isDynamic = isDynamicValue(this.props?.input?.value) || false;
 
-    const showEvaluatedValue =
+    // show features like evaluatedvaluepopup or binding prompts
+    const showFeatures =
       this.state.isFocused &&
-      isDynamic &&
       !hideEvaluatedValue &&
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!dataTreePath));
+
+    const showEvaluatedValue = showFeatures && (isDynamic || isInvalid);
 
     return (
       <DynamicAutocompleteInputWrapper
@@ -1167,7 +1169,7 @@ class CodeEditor extends Component<Props, State> {
                 editorTheme={this.props.theme}
                 isOpen={
                   showBindingPrompt(
-                    showEvaluatedValue,
+                    showFeatures,
                     input.value,
                     this.state.hinterOpen,
                   ) && !_.get(this.editor, "state.completionActive")

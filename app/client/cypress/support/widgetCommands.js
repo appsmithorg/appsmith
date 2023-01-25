@@ -1723,3 +1723,11 @@ Cypress.Commands.add("checkMaxDefaultValue", (endp, value) => {
       expect(someText).to.equal(value);
     });
 });
+
+Cypress.Commands.add("findAndExpandEvaluatedTypeTitle", () => {
+  cy.get(commonlocators.evaluatedTypeTitle)
+    .first()
+    .next()
+    .find("span")
+    .click();
+});
