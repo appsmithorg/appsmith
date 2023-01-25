@@ -1,10 +1,12 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.converters.AuthenticationDtoDeserializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +17,7 @@ import java.util.Set;
 @Getter
 @Setter
 @EqualsAndHashCode
+@JsonDeserialize(using = AuthenticationDtoDeserializer.class)
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         visible = true,
