@@ -21,15 +21,20 @@ describe("Datasource form related tests", function() {
       agHelper.GetNClick(dataSources._editButton);
       dataSources.UpdatePassword("docker");
       dataSources.VerifySchema(dataSourceName, "public.", true);
+      agHelper.GetNClick(dataSources._createQuery)
     });
   });
 
   it("2. Verify if schema was fetched once #18448", () => {
+    agHelper.RefreshPage()
+    ee.ExpandCollapseEntity("Datasources");
+    ee.ExpandCollapseEntity(dataSourceName,false);
     cy.intercept("GET", dataSources._getStructureReq).as("getDSStructure");
     ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dataSourceName);
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
+    dataSources.DeleteQuery("Query1");
     dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
   });
 });

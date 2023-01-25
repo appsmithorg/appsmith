@@ -21,7 +21,7 @@ describe("PgAdmin Clone App", function() {
   it("1. Add dsl and authenticate datasource", function() {
     // authenticating datasource
     dataSources.NavigateToDSCreateNew();
-    cy.get(datasource.PostgreSQL).click();
+    cy.get(datasource.PostgreSQL).click({force: true});
     dataSources.FillPostgresDSForm();
     dataSources.TestSaveDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {

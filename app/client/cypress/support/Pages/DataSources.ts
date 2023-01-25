@@ -41,7 +41,7 @@ export class DataSources {
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
-  private _createQuery = ".t--create-query";
+  _createQuery = ".t--create-query";
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
   _dropdownTitle = (ddTitle: string) =>
