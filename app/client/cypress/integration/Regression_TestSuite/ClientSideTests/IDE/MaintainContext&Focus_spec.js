@@ -1,7 +1,8 @@
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -183,7 +184,6 @@ describe("MaintainContext&Focus", function() {
     dataSources.ExpandSection(1);
     // Create and switch to datasource 2
     dataSources.SaveDSFromDialog(true);
-    cy.get(dataSources._editButton);
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("MongoDB");
     agHelper.RenameWithInPane("Mongo1", false);
@@ -193,7 +193,6 @@ describe("MaintainContext&Focus", function() {
     dataSources.SaveDSFromDialog(false);
     dataSources.CreateNewQueryInDS("Postgres1");
     ee.SelectEntityByName("Postgres1");
-    dataSources.EditDatasource();
     // Validate if section with index 1 is expanded
     dataSources.AssertSectionCollapseState(1, false);
   });
