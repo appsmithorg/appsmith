@@ -187,8 +187,8 @@ export const getWorkspaceCreateApplication = createSelector(
   },
 );
 
-export const getSidebarPinned = (state: AppState) => {
-  return state.ui.applications.isSidebarPinned;
+export const getAppSidebarPinned = (state: AppState) => {
+  return state.ui.applications.isAppSidebarPinned;
 };
 
 /**
@@ -198,12 +198,12 @@ export const getSidebarPinned = (state: AppState) => {
 export const getSidebarWidth = (state: AppState) => {
   const navigationSetting =
     state.ui.applications.currentApplication?.navigationSetting;
-  const isSidebarPinned = state.ui.applications.isSidebarPinned;
+  const isAppSidebarPinned = state.ui.applications.isAppSidebarPinned;
 
   if (
     navigationSetting?.showNavbar !== false &&
     navigationSetting?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
-    isSidebarPinned
+    isAppSidebarPinned
   ) {
     if (navigationSetting?.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL) {
       return SIDEBAR_WIDTH.MINIMAL;

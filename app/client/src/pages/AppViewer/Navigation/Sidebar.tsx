@@ -20,8 +20,8 @@ import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
 import { useMouse } from "@mantine/hooks";
-import { getSidebarPinned } from "selectors/applicationSelectors";
-import { setIsSidebarPinned } from "actions/applicationActions";
+import { getAppSidebarPinned } from "selectors/applicationSelectors";
+import { setIsAppSidebarPinned } from "actions/applicationActions";
 import {
   StyledCtaContainer,
   StyledFooter,
@@ -66,7 +66,7 @@ export function Sidebar(props: SidebarProps) {
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
   const dispatch = useDispatch();
-  const isPinned = useSelector(getSidebarPinned);
+  const isPinned = useSelector(getAppSidebarPinned);
   const [isOpen, setIsOpen] = useState(true);
   const { x } = useMouse();
 
@@ -92,7 +92,7 @@ export function Sidebar(props: SidebarProps) {
   }, [x]);
 
   const setIsPinned = (isPinned: boolean) => {
-    dispatch(setIsSidebarPinned(isPinned));
+    dispatch(setIsAppSidebarPinned(isPinned));
   };
 
   return (

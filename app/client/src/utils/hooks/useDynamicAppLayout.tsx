@@ -32,7 +32,7 @@ import {
 } from "selectors/multiPaneSelectors";
 import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import {
-  getSidebarPinned,
+  getAppSidebarPinned,
   getSidebarWidth,
 } from "selectors/applicationSelectors";
 
@@ -55,7 +55,7 @@ export const useDynamicAppLayout = () => {
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
-  const isSidebarPinned = useSelector(getSidebarPinned);
+  const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
 
   // /**
@@ -233,7 +233,7 @@ export const useDynamicAppLayout = () => {
     isExplorerPinned,
     propertyPaneWidth,
     isAppSettingsPaneOpen,
-    isSidebarPinned,
+    isAppSidebarPinned,
   ]);
 
   return isCanvasInitialized;

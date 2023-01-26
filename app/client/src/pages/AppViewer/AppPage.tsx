@@ -8,7 +8,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
   getCurrentApplication,
-  getSidebarPinned,
+  getAppSidebarPinned,
   getSidebarWidth,
 } from "selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
@@ -38,7 +38,7 @@ type AppPageProps = {
 
 export function AppPage(props: AppPageProps) {
   const currentApplicationDetails = useSelector(getCurrentApplication);
-  const isSidebarPinned = useSelector(getSidebarPinned);
+  const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
 
   useDynamicAppLayout();
@@ -56,7 +56,7 @@ export function AppPage(props: AppPageProps) {
     <PageViewContainer
       hasPinnedSidebar={
         currentApplicationDetails?.navigationSetting?.orientation ===
-          NAVIGATION_SETTINGS.ORIENTATION.SIDE && isSidebarPinned
+          NAVIGATION_SETTINGS.ORIENTATION.SIDE && isAppSidebarPinned
       }
       sidebarWidth={sidebarWidth}
     >

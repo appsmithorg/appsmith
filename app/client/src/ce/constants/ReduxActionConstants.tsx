@@ -760,7 +760,7 @@ export const ReduxActionTypes = {
   SEGMENT_INIT_UNCERTAIN: "SEGMENT_INIT_UNCERTAIN",
   SET_TABS_PANE_WIDTH: "SET_TABS_PANE_WIDTH",
   SET_PANE_COUNT: "SET_PANE_COUNT",
-  SET_SIDEBAR_PINNED: "SET_SIDEBAR_PINNED",
+  SET_APP_SIDEBAR_PINNED: "SET_APP_SIDEBAR_PINNED",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
