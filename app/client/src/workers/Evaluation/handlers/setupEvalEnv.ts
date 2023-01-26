@@ -35,7 +35,5 @@ export function setEvaluationVersion(request: EvalWorkerSyncRequest) {
   const { data } = request;
   const { version } = data;
   self.evaluationVersion = version || 1;
-  // TODO: Move this to setup
-  resetJSLibraries();
   return true;
 }
