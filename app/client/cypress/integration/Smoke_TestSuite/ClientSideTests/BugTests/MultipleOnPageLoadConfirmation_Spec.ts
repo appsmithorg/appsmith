@@ -3,7 +3,6 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
-  locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Multiple rejection of confirmation for onPageLoad function execution", function() {
