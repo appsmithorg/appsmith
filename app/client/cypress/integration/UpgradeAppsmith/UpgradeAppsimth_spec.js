@@ -47,13 +47,13 @@ describe("Upgrade appsmith version", () => {
       );
       cy.wait(90000);
 
-      console.log("Container ID", localStorage.getItem("ContainerID"));
+      cy.log("ContainerID", localStorage.getItem("ContainerID"));
 
       cy.execute(
         testUrl,
         "docker logs --details " + localStorage.getItem("ContainerID"),
       ).then((res) => {
-        console.log(res.stdout);
+        cy.log(res.stdout);
       });
 
       cy.log("Verify Logs");

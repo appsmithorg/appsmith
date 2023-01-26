@@ -1837,7 +1837,7 @@ Cypress.Commands.add(
     }).then((res) => {
       localStorage.setItem("ContainerID", res.body.stdout);
       cy.log(res.body.stderr);
-      cy.log(res.body.stdout);
+      cy.log("ContainerID", res.body.stdout);
       //expect(res.status).equal(200);
     });
   },
