@@ -188,6 +188,10 @@ jobs:
           chrome-version: stable
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+        
+        # Install Currents
+      - name: Install dependencies
+        run: yarn install --ci
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
@@ -231,6 +235,8 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+          command: yarn currents run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }} --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}"
+
           
       #- name: Setup tmate session
       #  if: always()
