@@ -14,5 +14,5 @@ public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData>
 
     Mono<UpdateResult> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds);
 
-    Flux<UserData> findAllByUserId(List<String> userId);
+    Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId);
 }
