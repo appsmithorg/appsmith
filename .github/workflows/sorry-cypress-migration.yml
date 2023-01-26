@@ -196,6 +196,10 @@ jobs:
        # Install Currents
       - name: Install cypress dependencies 
         run: yarn add cypress --dev
+        
+      # Install Currents
+      - name: Install cypress dependencies 
+        run:  yarn add @currents/cli
 
       #- name: Run the cypress test
        # if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
