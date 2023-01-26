@@ -383,6 +383,9 @@ class ListWidget extends BaseWidget<
         tab.widgetId = options.rowReferences[tab.widgetId] || tab.widgetId;
       });
     }
+    if (metaWidget.dynamicHeight === "AUTO_HEIGHT") {
+      metaWidget.dynamicHeight = "FIXED";
+    }
   };
 
   updateCurrentItemsViewBinding = () => {
