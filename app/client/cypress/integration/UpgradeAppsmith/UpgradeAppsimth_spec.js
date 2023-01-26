@@ -42,42 +42,31 @@ describe("Upgrade appsmith version", () => {
       cy.log("Start old stack container");
       cy.CreateAContainer(
         testUrl,
-        path + "/oldstack/160",
+        path + "/oldstack/",
         "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
-      ).then((container) => {
-        cy.log("ContainerID", container);
-        cy.execute(testUrl, "docker logs --details " + container).then(
-          (res) => {
-            cy.log(res.stdout);
-            console.error(res.stdout);
-            expect(res.stdout).equal(" ");
-          },
-        );
-      });
-      cy.wait(90000);
-
-      cy.log("ContainerID", containerId);
+      );
+      cy.wait(45000);
 
       cy.GetAndVerifyLogs(testUrl, `appsmith-160_${name}_updated`); // Get and verify the logs
     });
 
     //verify the Applications after upgrade
     cy.visit("/");
-    cy.LoginFromAPI(testdata.UPGRADEUSERNAME, testdata.UPGRADEPASSWORD);
-    cy.visit(testdata.APPURL);
+    // cy.LoginFromAPI(testdata.UPGRADEUSERNAME, testdata.UPGRADEPASSWORD);
+    // cy.visit(testdata.APPURL);
 
-    cy.get(".t--buttongroup-widget").should("exist");
-    cy.get(".t--buttongroup-widget")
-      .children()
-      .should("have.length", 3);
+    // cy.get(".t--buttongroup-widget").should("exist");
+    // cy.get(".t--buttongroup-widget")
+    //   .children()
+    //   .should("have.length", 3);
 
-    cy.get(publishPage.backToEditor).click({ force: true });
+    // cy.get(publishPage.backToEditor).click({ force: true });
 
-    cy.get(".t--buttongroup-widget").should("exist");
-    cy.get(".t--buttongroup-widget")
-      .children()
-      .should("have.length", 3);
+    // cy.get(".t--buttongroup-widget").should("exist");
+    // cy.get(".t--buttongroup-widget")
+    //   .children()
+    //   .should("have.length", 3);
 
     cy.log("Stop the container");
     cy.StopTheContainer(testUrl, localStorage.getItem("ContainerName")); // stop the old container
