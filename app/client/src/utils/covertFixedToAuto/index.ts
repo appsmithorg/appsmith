@@ -52,6 +52,7 @@ function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
     children,
     flexLayers,
     useAutoLayout: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
     positioning: Positioning.Vertical,
   };
 }
