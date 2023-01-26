@@ -1387,8 +1387,10 @@ class MetaWidgetGenerator {
   };
 
   private getData = () => {
-    if (this.serverSidePagination) {
-      return this.data;
+    if (this.serverSidePagination && typeof this.pageSize === "number") {
+      const startIndex = 0;
+      const endIndex = this.pageSize;
+      return this.data.slice(startIndex, endIndex);
     }
 
     const startIndex = this.getStartIndex();

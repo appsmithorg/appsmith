@@ -101,7 +101,7 @@ describe("List widget v2 - Basic server side data tests", () => {
     });
   });
 
-  it("re-runs query of page 1 when reset", () => {
+  it("3. re-runs query of page 1 when reset", () => {
     // Modify onPageChange
     cy.openPropertyPane("listwidgetv2");
     cy.get(toggleJSButton("onpagechange")).click({ force: true });
@@ -149,5 +149,59 @@ describe("List widget v2 - Basic server side data tests", () => {
     cy.get(commonlocators.toastmsg)
       .should("exist")
       .should("have.length", 1);
+  });
+
+  it("4. no of items rendered should be equal to page size", () => {
+    cy.NavigateToDatasourceEditor();
+
+    // Click on sample(mock) user database.
+    cy.get(datasource.mockUserDatabase).click();
+
+    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
+    cy.get(`${datasource.datasourceCard}`)
+      .contains("Users")
+      .get(`${datasource.createQuery}`)
+      .last()
+      .click({ force: true });
+
+    // Click the editing field
+    cy.get(".t--action-name-edit-field").click({ force: true });
+
+    // Click the editing field
+    cy.get(queryLocators.queryNameField).type("Query2");
+
+    // switching off Use Prepared Statement toggle
+    cy.get(queryLocators.switch)
+      .last()
+      .click({ force: true });
+
+    //.1: Click on Write query area
+    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.query).click({ force: true });
+
+    // writing query to get the schema
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type("SELECT * FROM users LIMIT 20;", {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+    cy.WaitAutoSave();
+
+    cy.runQuery();
+
+    cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+
+    cy.wait(1000);
+
+    cy.openPropertyPane("listwidgetv2");
+
+    cy.testJsontext("items", "{{Query2.data}}");
+
+    cy.wait(1000);
+
+    // Check if container no of containers are still 3
+    cy.get(publishLocators.containerWidget).should("have.length", 3);
   });
 });
