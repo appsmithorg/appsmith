@@ -251,7 +251,7 @@ jobs:
         uses: cypress-io/github-action@v4
         with:
           working-directory: app/client
-          command: yarn currents run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }} --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js 
+          command: yarn currents run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js 
 
 
           
