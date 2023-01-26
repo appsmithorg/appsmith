@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
-import ErrorLog from "./ErrorLog";
+import ErrorLog from "./ErrorLogs/ErrorLog";
 
 function Errors(props: { hasShortCut?: boolean }) {
   const errors = useSelector(getFilteredErrors);

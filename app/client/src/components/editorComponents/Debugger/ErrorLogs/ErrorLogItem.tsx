@@ -11,9 +11,9 @@ import {
   SourceEntity,
 } from "entities/AppsmithConsole";
 import styled, { useTheme } from "styled-components";
-import EntityLink, { DebuggerLinkUI } from "./EntityLink";
+import EntityLink, { DebuggerLinkUI } from "../EntityLink";
 import ReactJson from "react-json-view";
-import { getLogIcon } from "./helpers";
+import { getLogIcon } from "../helpers";
 import {
   Classes,
   getTypographyByKey,
@@ -41,26 +41,32 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 6px 12px 6px 12px;
+
   &.${Severity.INFO} {
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.info.borderBottom};
   }
+
   &.${Severity.ERROR} {
     background-color: #fff8f8;
     border-bottom: 1px solid #ffecec;
   }
+
   &.${Severity.WARNING} {
     background-color: ${(props) =>
       props.theme.colors.debugger.warning.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.warning.borderBottom};
   }
+
   .bp3-popover-target {
     display: inline;
   }
+
   .${Classes.ICON} {
     display: inline-block;
   }
+
   .debugger-toggle {
     margin-right: -4px;
     ${(props) =>
@@ -76,13 +82,16 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
     }
+
     &.${Severity.ERROR} {
       color: ${(props) => props.theme.colors.debugger.error.time};
     }
+
     &.${Severity.WARNING} {
       color: ${(props) => props.theme.colors.debugger.warning.time};
     }
   }
+
   .debugger-error-type {
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
@@ -91,12 +100,14 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     cursor: default;
     color: ${(props) => props.theme.colors.debugger.error.type};
   }
+
   .debugger-description {
     display: flex;
     align-items: center;
     overflow-wrap: anywhere;
     word-break: break-word;
     margin-right: 4px;
+
     .debugger-label {
       ${getTypographyByKey("h6")}
       font-weight: 400;
@@ -114,8 +125,10 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       color: ${(props) => props.theme.colors.debugger.entity};
       ${getTypographyByKey("h6")}
       margin-left: 6px;
+
       & > span {
         cursor: pointer;
+
         &:hover {
           text-decoration: underline;
           text-decoration-color: ${(props) =>
@@ -124,6 +137,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       }
     }
   }
+
   .debugger-entity-link {
     ${getTypographyByKey("h6")}
     font-weight: 400;
@@ -175,7 +189,7 @@ const IconWrapper = styled.span`
   color: ${Colors.CHARCOAL};
   display: flex;
   align-items: center;
-  cursor: default;
+
   svg {
     width: 12px;
     height: 12px;
@@ -192,7 +206,7 @@ const LineNumber = styled.div`
 `;
 
 const showToggleIcon = (e: Log) => {
-  return !!e.state || !!e.pluginErrorDetails;
+  return !!e.state;
 };
 
 export const getLogItemProps = (e: Log) => {
@@ -213,7 +227,6 @@ export const getLogItemProps = (e: Log) => {
     messages: e.messages,
     collapsable: showToggleIcon(e),
     occurences: e.occurrenceCount || 1,
-    pluginErrorDetails: e.pluginErrorDetails,
   };
 };
 

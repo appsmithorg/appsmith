@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import styled from "styled-components";
 import ErrorLogItem, { getLogItemProps } from "./ErrorLogItem";
-import { BlankState } from "./helpers";
+import { BlankState } from "../helpers";
 import { createMessage, NO_ERRORS } from "@appsmith/constants/messages";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { Log } from "entities/AppsmithConsole";
@@ -22,6 +22,25 @@ function ErrorLog(props: {
   errors: Record<string, Log>;
   hasShortCut?: boolean;
 }) {
+  const getLogItem = (error: Log, index: number) => {
+    const logItemProps = getLogItemProps(error);
+    const messages = error.messages || [];
+    const logItems = [];
+    if (messages) {
+      messages.forEach((message) => {
+        logItemProps.messages = [message];
+        logItems.push(
+          <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
+        );
+      });
+    } else {
+      logItems.push(
+        <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
+      );
+    }
+    return logItems;
+  };
+
   return (
     <ContainerWrapper>
       <ListWrapper className="debugger-list">
@@ -31,23 +50,8 @@ function ErrorLog(props: {
             placeholderText={createMessage(NO_ERRORS)}
           />
         ) : (
-          Object.values(props.errors).map((e, index) => {
-            const logItemProps = getLogItemProps(e);
-            const messages = e.messages || [];
-            const logItems = [];
-            if (messages) {
-              messages.forEach((message) => {
-                logItemProps.messages = [message];
-                logItems.push(
-                  <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
-                );
-              });
-            } else {
-              logItems.push(
-                <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
-              );
-            }
-            return logItems;
+          Object.values(props.errors).map((error, index) => {
+            return getLogItem(error, index);
           })
         )}
       </ListWrapper>
