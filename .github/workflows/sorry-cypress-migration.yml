@@ -221,7 +221,8 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
-          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+          COMMIT_INFO_MESSAGE: ${{ github.even t.pull_request.title }}
+          CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
         with:
           browser: ${{ env.BROWSER_PATH }}
           headless: true
@@ -235,7 +236,7 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
-          command: yarn currents run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --group "Electrons on Github Action Fat Container" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js --tag ${{ github.event_name }} --env "NODE_ENV=development"
+          command: yarn currents run --record --parallel --browser chrome --key $CURRENTS_RECORD_KEY  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --group "Electrons on Github Action Fat Container" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js --tag ${{ github.event_name }} --env "NODE_ENV=development"
 
           
       #- name: Setup tmate session
