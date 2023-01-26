@@ -274,7 +274,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
       payload: {
         dropPayload,
         newWidget: widgetPayload,
-        parentId: widgetId,
+        parentId: newWidget.detachFromLayout
+          ? MAIN_CONTAINER_WIDGET_ID
+          : widgetId,
         direction,
       },
     });
