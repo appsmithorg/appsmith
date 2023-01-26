@@ -192,10 +192,14 @@ jobs:
         # Install Currents
       - name: Install dependencies
         run: yarn install --ci
+        
+       # Install Currents
+      - name: Install cypress dependencies 
+        run: yarn add cypress --dev
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
