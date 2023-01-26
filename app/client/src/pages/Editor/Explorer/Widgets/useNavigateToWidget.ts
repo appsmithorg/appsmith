@@ -6,7 +6,10 @@ import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
-import { getCurrentPageWidgets } from "selectors/entitiesSelector";
+import {
+  getCanvasWidgets,
+  getCurrentPageWidgets,
+} from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import store from "store";
 import { NavigationMethod } from "utils/history";
@@ -17,6 +20,7 @@ export const useNavigateToWidget = () => {
 
   const dispatch = useDispatch();
   const { selectWidget } = useWidgetSelection();
+  const canvasWidgets = useSelector(getCanvasWidgets);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
     navigateToCanvas(pageId);
@@ -32,7 +36,7 @@ export const useNavigateToWidget = () => {
   ) => {
     selectWidget(SelectionRequestType.One, [widgetId]);
     navigateToCanvas(pageId, widgetId, navigationMethod);
-    quickScrollToWidget(widgetId);
+    quickScrollToWidget(widgetId, canvasWidgets);
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here
     setTimeout(() => {
