@@ -149,6 +149,22 @@ jobs:
         run: |
           cd app/client
           yarn install
+      
+      # Install Currents
+      - name: Install dependencies
+        run: yarn install --ci
+        
+       # Install Currents
+      - name: Install cypress dependencies 
+        run: yarn add cypress --dev
+        
+      # Install Currents
+      - name: Install cypress dependencies 
+        run:  yarn add @currents/cli
+        
+     # Install Currents
+      - name: Install cypress dependencies 
+        run:  yarn add cy2
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -195,8 +211,8 @@ jobs:
         uses: cypress-io/github-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          #CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -232,6 +248,8 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+          command: yarn cy2 run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/**/* 
+          
           
       #- name: Setup tmate session
       #  if: always()
@@ -243,8 +261,8 @@ jobs:
         uses: cypress-io/github-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          #CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
@@ -280,6 +298,8 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+          command: yarn cy2 run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/**/* 
+
           
       # - name: Setup tmate session
       #   if: always()
