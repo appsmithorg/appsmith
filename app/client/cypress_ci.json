@@ -1,7 +1,7 @@
 {
 	"baseUrl": "http://localhost/",
 	"defaultCommandTimeout": 20000,
-  "projectId": "lfWVjN",
+  "projectId": "Appsmith-CE",
 	"requestTimeout": 21000,
 	"pageLoadTimeout": 20000,
 	"video": true,
