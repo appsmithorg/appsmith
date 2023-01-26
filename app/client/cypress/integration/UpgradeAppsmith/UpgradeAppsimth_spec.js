@@ -44,15 +44,17 @@ describe("Upgrade appsmith version", () => {
         path + "/oldstack/160",
         "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
-      ).then((res) => {
-        cy.execute(testUrl, "docker logs --details " + res.stdout).then(
-          (res1) => {
-            // eslint-disable-next-line no-console
-            console.log("Logs for the container", res1.stdout);
-          },
-        );
-      });
+      );
       cy.wait(90000);
+
+      console.log("Container ID", localStorage.getItem("ContainerID"));
+
+      cy.execute(
+        testUrl,
+        "docker logs --details " + localStorage.getItem("ContainerID"),
+      ).then((res) => {
+        console.log(res.stdout);
+      });
 
       cy.log("Verify Logs");
       cy.GetAndVerifyLogs(testUrl, `appsmith-160_${name}_updated`); // Get and verify the logs

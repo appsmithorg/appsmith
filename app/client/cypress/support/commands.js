@@ -1835,10 +1835,10 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
-      //cy.log(res.body.stderr);
-      //cy.log(res.body.stdout);
+      localStorage.setItem("ContainerID", res.body.stdout);
+      cy.log(res.body.stderr);
+      cy.log(res.body.stdout);
       //expect(res.status).equal(200);
-      return res.body;
     });
   },
 );
