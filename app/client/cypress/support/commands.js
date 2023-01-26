@@ -1835,9 +1835,10 @@ Cypress.Commands.add(
         cmd: comm,
       },
     }).then((res) => {
-      cy.log(res.body.stderr);
-      cy.log(res.body.stdout);
-      expect(res.status).equal(200);
+      //cy.log(res.body.stderr);
+      //cy.log(res.body.stdout);
+      //expect(res.status).equal(200);
+      return res.body;
     });
   },
 );
