@@ -46,7 +46,7 @@ describe("Upgrade appsmith version", () => {
         "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
       );
-      cy.wait(45000);
+      cy.wait(60000);
 
       cy.GetAndVerifyLogs(testUrl, `appsmith-160_${name}_updated`); // Get and verify the logs
     });
@@ -55,7 +55,6 @@ describe("Upgrade appsmith version", () => {
     cy.visit("/");
     cy.LoginFromAPI(testdata.UPGRADEUSERNAME, testdata.UPGRADEPASSWORD);
     cy.visit(testdata.APPURL);
-    cy.visit("/");
 
     cy.get(".t--buttongroup-widget").should("exist");
     // cy.get(".t--buttongroup-widget")
