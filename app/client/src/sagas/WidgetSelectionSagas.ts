@@ -20,7 +20,7 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { builderURL, widgetURL } from "RouteBuilder";
-import { getParentModalId } from "selectors/entitiesSelector";
+import { getCanvasWidgets, getParentModalId } from "selectors/entitiesSelector";
 import {
   assertParentId,
   isInvalidSelectionRequest,
@@ -222,13 +222,14 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
 
 function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   const widgetId = action.payload.widgetIds[0];
+  const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
   if (widgetId) {
     setTimeout(() => {
       // Scrolling will hide some part of the content at the top during guided tour. To avoid that
       // we skip scrolling altogether during guided tour as we don't have
       // too many widgets during the same
       flashElementsById(widgetId);
-      quickScrollToWidget(widgetId);
+      quickScrollToWidget(widgetId, allWidgets);
     }, 0);
   }
 }
