@@ -11,12 +11,16 @@ import {
   isAction,
   isAppsmithEntity,
 } from "ce/workers/Evaluation/evaluationUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeAction,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeFactory";
 import {
   getGeoLocation,
   stopWatchGeoLocation,
   watchGeoLocation,
 } from "./geolocationFns";
+import { isAsyncGuard } from "./utils/fnGuard";
 
 export const platformFns = [
   {
@@ -68,32 +72,35 @@ export const platformFns = [
 export const entityFns = [
   {
     name: "run",
-    path: "",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeEntity) => run.bind(entity),
+    fn: (entity: DataTreeAction) =>
+      isAsyncGuard(run.bind(entity), `${entity.name}.run`),
   },
   {
     name: "clear",
-    path: "data",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeEntity) => clear.bind(entity),
+    fn: (entity: DataTreeAction) =>
+      isAsyncGuard(clear.bind(entity), `${entity.name}.clear`),
   },
   {
     name: "getGeoLocation",
     path: "appsmith.geolocation.getCurrentPosition",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
-    fn: () => getGeoLocation,
+    fn: () =>
+      isAsyncGuard(getGeoLocation, "appsmith.geolocation.getCurrentPosition"),
   },
   {
     name: "watchGeoLocation",
     path: "appsmith.geolocation.watchPosition",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
-    fn: () => watchGeoLocation,
+    fn: () =>
+      isAsyncGuard(watchGeoLocation, "appsmith.geolocation.watchPosition"),
   },
   {
     name: "stopWatchGeoLocation",
     path: "appsmith.geolocation.clearWatch",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
-    fn: () => stopWatchGeoLocation,
+    fn: () =>
+      isAsyncGuard(stopWatchGeoLocation, "appsmith.geolocation.clearWatch"),
   },
 ];

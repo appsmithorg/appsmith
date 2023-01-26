@@ -99,7 +99,6 @@ import {
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 import { lintWorker } from "./LintingSagas";
 import {
   EvalTreeRequestData,
@@ -274,11 +273,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       triggerMeta,
     },
   );
-
-  const { logs = [], errors = [], triggers = [] } = response as any;
-  yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
-  yield call(storeLogs, logs);
-
+  const { errors = [] } = response as any;
   yield call(evalErrorHandler, errors);
   if (errors.length) {
     if (
@@ -288,14 +283,6 @@ export function* evaluateAndExecuteDynamicTrigger(
       throw new UncaughtPromiseError(errors[0].errorMessage);
     }
   }
-
-  log.debug({ triggers });
-  yield all(
-    triggers.map((trigger: ActionDescription) =>
-      call(executeActionTriggers, trigger, eventType, triggerMeta),
-    ),
-  );
-
   return response;
 }
 
@@ -305,7 +292,6 @@ export interface ResponsePayload {
     resolve?: unknown;
   };
   success: boolean;
-  eventType?: EventType;
 }
 
 /*
@@ -317,36 +303,29 @@ export function* executeTriggerRequestSaga(
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {
-  const responsePayload: ResponsePayload = {
-    data: {
-      resolve: undefined,
-      reason: undefined,
-    },
-    success: false,
-    eventType,
+  const responsePayload = {
+    data: null,
+    error: null,
   };
   try {
-    responsePayload.data.resolve = yield call(
+    responsePayload.data = yield call(
       executeActionTriggers,
       trigger,
       eventType,
       triggerMeta,
     );
-    responsePayload.success = true;
   } catch (error) {
     // When error occurs in execution of triggers,
     // a success: false is sent to reject the promise
 
     // @ts-expect-error: reason is of type string
-    responsePayload.data.reason = { message: error.message };
-    responsePayload.success = false;
+    responsePayload.error = { message: error.message, errorBody: error.data };
   }
   return responsePayload;
 }
 
 export function* clearEvalCache() {
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
-
   return true;
 }
 
@@ -356,7 +335,6 @@ export function* executeFunction(
   collectionId: string,
 ) {
   const functionCall = `${collectionName}.${action.name}()`;
-  const { isAsync } = action.actionConfiguration;
   let response: {
     errors: any[];
     result: any;
@@ -371,36 +349,21 @@ export function* executeFunction(
     triggerPropertyName: `${collectionName}.${action.name}`,
   };
   const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
-  if (isAsync) {
-    try {
-      response = yield call(
-        evaluateAndExecuteDynamicTrigger,
-        functionCall,
-        eventType,
-        triggerMeta,
-      );
-    } catch (e) {
-      if (e instanceof UncaughtPromiseError) {
-        logActionExecutionError(e.message);
-      }
-      response = { errors: [e], result: undefined };
-    }
-  } else {
+  try {
     response = yield call(
-      evalWorker.request,
-      EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS,
-      {
-        functionCall,
-        eventType,
-        triggerMeta,
-      },
+      evaluateAndExecuteDynamicTrigger,
+      functionCall,
+      eventType,
+      triggerMeta,
     );
+  } catch (e) {
+    if (e instanceof UncaughtPromiseError) {
+      logActionExecutionError(e.message);
+    }
+    response = { errors: [e], result: undefined };
   }
-
   const { errors, result } = response;
-
   const isDirty = !!errors.length;
-
   yield call(
     handleJSFunctionExecutionErrorLog,
     collectionId,
@@ -552,35 +515,20 @@ export function* evaluateSnippetSaga(action: any) {
       expression,
       dataType,
     });
-    const { errors, result, triggers } = workerResponse;
-    if (triggers && triggers.length > 0) {
-      yield all(
-        triggers.map((trigger: any) =>
-          call(
-            executeActionTriggers,
-            trigger,
-            EventType.ON_SNIPPET_EXECUTE,
-            {},
-          ),
-        ),
-      );
-      //Result is when trigger is present. Following code will hide the evaluated snippet section
-      yield put(setEvaluatedSnippet(result));
-    } else {
-      /*
+    const { errors, result } = workerResponse;
+    /*
         JSON.stringify(undefined) is undefined.
         We need to set it manually to "undefined" for codeEditor to display it.
       */
-      yield put(
-        setEvaluatedSnippet(
-          errors?.length
-            ? JSON.stringify(errors, null, 2)
-            : isUndefined(result)
-            ? "undefined"
-            : JSON.stringify(result),
-        ),
-      );
-    }
+    yield put(
+      setEvaluatedSnippet(
+        errors?.length
+          ? JSON.stringify(errors, null, 2)
+          : isUndefined(result)
+          ? "undefined"
+          : JSON.stringify(result),
+      ),
+    );
     Toaster.show({
       text: createMessage(
         errors?.length ? SNIPPET_EXECUTION_FAILED : SNIPPET_EXECUTION_SUCCESS,

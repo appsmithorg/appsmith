@@ -12,20 +12,21 @@ import { WorkerMessenger } from "./Messenger";
 export function promisify<P extends ReadonlyArray<unknown>>(
   fnDescriptor: (...params: P) => { type: string; payload: any },
 ) {
-  return async function(this: any, ...args: P) {
+  return async function(...args: P) {
     const actionDescription = fnDescriptor(...args);
     const metaData = ExecutionMetaData.getExecutionMetaData();
     const response = await WorkerMessenger.request({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
         trigger: actionDescription,
+        ...metaData,
       },
     });
+    if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
     ExecutionMetaData.setExecutionMetaData(
       metaData.triggerMeta,
       metaData.eventType,
     );
-    if (!dataTreeEvaluator) throw new Error("No Data Tree Evaluator found");
     self["$allowAsync"] = true;
     const evalContext = createEvaluationContext({
       dataTree: dataTreeEvaluator.evalTree,
@@ -33,10 +34,10 @@ export function promisify<P extends ReadonlyArray<unknown>>(
       isTriggerBased: true,
     });
     Object.assign(self, evalContext);
-    const { data, success } = response;
-    if (!success) {
-      throw new Error(data.reason);
+    const { data, error } = response;
+    if (error) {
+      throw error;
     }
-    return data.resolve;
+    return data;
   };
 }

@@ -37,7 +37,7 @@ import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
-} from "sagas/ActionExecution/GetCurrentLocationSaga";
+} from "sagas/ActionExecution/geolocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";

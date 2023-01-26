@@ -170,8 +170,6 @@ type GeolocationOptions = {
 };
 
 type GeolocationPayload = {
-  onSuccess?: string;
-  onError?: string;
   options?: GeolocationOptions;
 };
 
@@ -181,7 +179,7 @@ export type GetCurrentLocationDescription = ActionDescriptionInterface<
 >;
 
 export type WatchCurrentLocationDescription = ActionDescriptionInterface<
-  GeolocationPayload,
+  GeolocationPayload & { listenerId?: string },
   "WATCH_CURRENT_LOCATION"
 >;
 

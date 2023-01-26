@@ -3,12 +3,12 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 
 type TPromiseResponse =
   | {
-      data: { reason: string };
-      success: false;
+      data: any;
+      error: null;
     }
   | {
-      data: { resolve: any };
-      success: true;
+      error: { message: string; errorBody: unknown };
+      data: null;
     };
 
 function responseHandler(requestId: string): Promise<TPromiseResponse> {
@@ -26,7 +26,7 @@ function responseHandler(requestId: string): Promise<TPromiseResponse> {
 
 export class WorkerMessenger {
   static async request(payload: any) {
-    const messageId = uniqueId(`request-${payload.type}-`);
+    const messageId = uniqueId(`request-${payload.method}-`);
     sendMessage.call(self, {
       messageId,
       messageType: MessageType.REQUEST,

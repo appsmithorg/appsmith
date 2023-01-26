@@ -19,8 +19,13 @@ export function addFn(
   });
 }
 
-export function isAsyncGuard(fn: (...args: any[]) => any, fnName: string) {
-  if (self["$allowAsync"]) return fn;
-  self["$isAsync"] = true;
-  throw new ActionCalledInSyncFieldError(fnName);
+export function isAsyncGuard<P extends ReadonlyArray<unknown>>(
+  fn: (...args: P) => unknown,
+  fnName: string,
+) {
+  return (...args: P) => {
+    if (self["$allowAsync"]) return fn(...args);
+    self["$isAsync"] = true;
+    throw new ActionCalledInSyncFieldError(fnName);
+  };
 }

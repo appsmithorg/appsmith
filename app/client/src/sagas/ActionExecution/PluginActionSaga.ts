@@ -425,7 +425,7 @@ export default function* executePluginActionTriggerSaga(
       },
     });
   }
-  return [payload.body, params];
+  return payload.body;
 }
 
 function* runActionShortcutSaga() {

@@ -3,17 +3,21 @@ import {
   WatchCurrentLocationDescription,
 } from "@appsmith/entities/DataTree/actionTriggers";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  executeAppAction,
-  TriggerMeta,
-} from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { call, put, spawn, take } from "redux-saga/effects";
-import {
-  logActionExecutionError,
-  TriggerFailureError,
-} from "sagas/ActionExecution/errorUtils";
+import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import { Channel, channel } from "redux-saga";
+import { evalWorker } from "sagas/EvaluationsSaga";
+
+class GeoLocationError extends Error {
+  constructor(message: string, private data?: any) {
+    super(message);
+  }
+}
+
+let successChannel: Channel<GeolocationPosition> | null = null;
+let errorChannel: Channel<GeolocationPositionError> | null = null;
 
 // Making the getCurrentPosition call in a promise fashion
 const getUserLocation = (options?: PositionOptions) =>
@@ -69,72 +73,46 @@ export const extractGeoLocation = (
  * https://developer.mozilla.org/en-US/docs/Web/API/GeolocationPositionError
  * Hence we're creating a new object with same structure which can be passed to the worker thread
  */
-function sanitizeGeolocationError(error: any) {
-  if (error instanceof GeolocationPositionError) {
-    const { code, message } = error;
-    return {
-      code,
-      message,
-    };
-  }
-
-  return error;
+function sanitizeGeolocationError(error: GeolocationPositionError) {
+  const { code, message } = error;
+  return {
+    code,
+    message,
+  };
 }
 
-let successChannel: Channel<any> | undefined;
-let errorChannel: Channel<any> | undefined;
-
-function* successCallbackHandler() {
-  if (successChannel) {
-    while (true) {
-      const payload: unknown = yield take(successChannel);
-      // @ts-expect-error: payload is unknown
-      const { callback, eventType, location, triggerMeta } = payload;
-      const currentLocation = extractGeoLocation(location);
-      yield put(setUserCurrentGeoLocation(currentLocation));
-      if (callback) {
-        yield call(executeAppAction, {
-          dynamicString: callback,
-          callbackData: [currentLocation],
-          event: { type: eventType },
-          triggerPropertyName: triggerMeta.triggerPropertyName,
-          source: triggerMeta.source,
-        });
-      }
-    }
+function* successCallbackHandler(listenerId?: string) {
+  let payload: GeolocationPosition;
+  if (!successChannel) return;
+  while ((payload = yield take(successChannel))) {
+    const currentLocation = extractGeoLocation(payload);
+    yield put(setUserCurrentGeoLocation(currentLocation));
+    if (listenerId)
+      yield call(evalWorker.ping, { data: currentLocation }, listenerId);
   }
 }
 
-function* errorCallbackHandler() {
-  if (errorChannel) {
-    while (true) {
-      const payload: unknown = yield take(errorChannel);
-      // @ts-expect-error: payload is unknown
-      const { callback, error, eventType, triggerMeta } = payload;
-      if (callback) {
-        yield call(executeAppAction, {
-          dynamicString: callback,
-          callbackData: [sanitizeGeolocationError(error)],
-          event: { type: eventType },
-          triggerPropertyName: triggerMeta.triggerPropertyName,
-          source: triggerMeta.source,
-        });
-
-        logActionExecutionError(
-          (error as Error).message,
-          triggerMeta.source,
-          triggerMeta.triggerPropertyName,
-        );
-      } else {
-        throw new TriggerFailureError(error.message, triggerMeta);
-      }
-    }
+function* errorCallbackHandler(triggerMeta: TriggerMeta, listenerId?: string) {
+  if (!errorChannel) return;
+  let error: GeolocationPositionError;
+  while ((error = yield take(errorChannel))) {
+    if (listenerId)
+      yield call(
+        evalWorker.ping,
+        { error: sanitizeGeolocationError(error) },
+        listenerId,
+      );
+    logActionExecutionError(
+      error.message,
+      triggerMeta.source,
+      triggerMeta.triggerPropertyName,
+    );
   }
 }
 
 export function* getCurrentLocationSaga(
   actionPayload: GetCurrentLocationDescription["payload"],
-  eventType: EventType,
+  _: EventType,
   triggerMeta: TriggerMeta,
 ) {
   try {
@@ -142,38 +120,19 @@ export function* getCurrentLocationSaga(
       getUserLocation,
       actionPayload.options,
     );
-
     const currentLocation = extractGeoLocation(location);
-
     yield put(setUserCurrentGeoLocation(currentLocation));
-
-    if (actionPayload.onSuccess) {
-      yield call(executeAppAction, {
-        dynamicString: actionPayload.onSuccess,
-        callbackData: [currentLocation],
-        event: { type: eventType },
-        triggerPropertyName: triggerMeta.triggerPropertyName,
-        source: triggerMeta.source,
-      });
-    }
-
-    return [currentLocation];
+    return currentLocation;
   } catch (error) {
-    if (actionPayload.onError) {
-      yield call(executeAppAction, {
-        dynamicString: actionPayload.onError,
-        callbackData: [sanitizeGeolocationError(error)],
-        event: { type: eventType },
-        triggerPropertyName: triggerMeta.triggerPropertyName,
-        source: triggerMeta.source,
-      });
-    }
-
     logActionExecutionError(
       (error as Error).message,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
+    if (error instanceof GeolocationPositionError) {
+      const sanitizedError = sanitizeGeolocationError(error);
+      throw new GeoLocationError(sanitizedError.message, sanitizedError);
+    }
   }
 }
 
@@ -194,37 +153,22 @@ export function* watchCurrentLocation(
 
     return;
   }
-  successChannel = channel();
-  errorChannel = channel();
-  yield spawn(successCallbackHandler);
-  yield spawn(errorCallbackHandler);
+  successChannel = channel<GeolocationPosition>();
+  errorChannel = channel<GeolocationPositionError>();
+  yield spawn(successCallbackHandler, actionPayload.listenerId);
+  yield spawn(errorCallbackHandler, triggerMeta, actionPayload.listenerId);
   watchId = navigator.geolocation.watchPosition(
     (location) => {
-      if (successChannel) {
-        successChannel.put({
-          location,
-          callback: actionPayload.onSuccess,
-          eventType,
-          triggerMeta,
-        });
-      }
+      successChannel?.put(location);
     },
     (error) => {
       // When location is turned off, the watch fails but watchId is generated
       // Resetting the watchId to undefined so that a new watch can be started
-      if (watchId && error instanceof GeolocationPositionError) {
+      if (watchId) {
         navigator.geolocation.clearWatch(watchId);
         watchId = undefined;
       }
-
-      if (errorChannel) {
-        errorChannel.put({
-          error,
-          callback: actionPayload.onError,
-          eventType,
-          triggerMeta,
-        });
-      }
+      errorChannel?.put(error);
     },
     actionPayload.options,
   );
@@ -244,10 +188,6 @@ export function* stopWatchCurrentLocation(
   }
   navigator.geolocation.clearWatch(watchId);
   watchId = undefined;
-  if (successChannel) {
-    successChannel.close();
-  }
-  if (errorChannel) {
-    errorChannel.close();
-  }
+  successChannel?.close();
+  errorChannel?.close();
 }

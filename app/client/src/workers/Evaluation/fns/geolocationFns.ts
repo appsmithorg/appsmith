@@ -7,8 +7,8 @@ import { BatchKey } from "./utils/TriggerEmitter";
 export let geoLocationListener: ((e: MessageEvent<any>) => void) | null = null;
 
 function getGeoLocationFnDescriptor(
-  successCallback?: () => unknown,
-  errorCallback?: () => unknown,
+  successCallback?: (position: GeolocationPosition) => unknown,
+  errorCallback?: (err: unknown) => unknown,
   options?: {
     maximumAge?: number;
     timeout?: number;
@@ -19,17 +19,13 @@ function getGeoLocationFnDescriptor(
     type: "GET_CURRENT_LOCATION",
     payload: {
       options,
-      onError: errorCallback ? `{{${errorCallback.toString()}}}` : undefined,
-      onSuccess: successCallback
-        ? `{{${successCallback.toString()}}}`
-        : undefined,
     },
   };
 }
 
 export async function getGeoLocation(
-  successCallback?: () => unknown,
-  errorCallback?: () => unknown,
+  successCallback?: (position: GeolocationPosition) => unknown,
+  errorCallback?: (err: unknown) => unknown,
   options?: {
     maximumAge?: number;
     timeout?: number;
@@ -41,12 +37,12 @@ export async function getGeoLocation(
   try {
     response = await executor(successCallback, errorCallback, options);
     if (typeof successCallback === "function") {
-      successCallback();
+      successCallback(response);
       return;
     }
   } catch (e) {
     if (typeof errorCallback === "function") {
-      errorCallback();
+      errorCallback(e);
       return;
     }
     throw e;
@@ -93,10 +89,10 @@ export function watchGeoLocation(
     if (message.messageId !== listenerId) return;
     const { body } = message;
     // setup eval context
-    if (body.success) {
+    if (body.data) {
       if (typeof onSuccessCallback === "function") onSuccessCallback(body.data);
-    } else {
-      if (typeof onErrorCallback === "function") onErrorCallback(body.data);
+    } else if (body.error) {
+      if (typeof onErrorCallback === "function") onErrorCallback(body.error);
       self.removeEventListener("message", messageHandler);
       geoLocationListener = null;
     }
