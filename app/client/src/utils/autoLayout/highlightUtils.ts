@@ -463,9 +463,9 @@ function generateHorizontalHighlights(
       alignment,
       posX: hasFillWidget
         ? alignment === FlexLayerAlignment.Start
-          ? 0
+          ? FLEXBOX_PADDING
           : containerWidth
-        : width * index,
+        : width * index + FLEXBOX_PADDING,
       posY: offsetTop,
       width: hasFillWidget
         ? alignment === FlexLayerAlignment.Start
