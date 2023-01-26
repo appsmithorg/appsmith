@@ -218,7 +218,7 @@ export function* fetchAppAndPagesSaga(
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
-
+    const updateWorker = params.updateWorker ?? false;
     const response: FetchApplicationResponse = yield call(
       PageApi.fetchAppAndPages,
       params,
@@ -268,10 +268,12 @@ export function* fetchAppAndPagesSaga(
         localStorage.setItem("GIT_DISCARD_CHANGES", "");
       }
 
-      yield put({
-        type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
-        payload: response.data.application?.evaluationVersion,
-      });
+      if (updateWorker) {
+        yield put({
+          type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
+          payload: response.data.application?.evaluationVersion,
+        });
+      }
     } else {
       yield call(handleFetchApplicationError, response.responseMeta?.error);
     }

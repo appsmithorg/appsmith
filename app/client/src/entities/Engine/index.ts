@@ -56,7 +56,14 @@ export default abstract class AppEngine {
   *loadAppData(payload: AppEnginePayload) {
     const { applicationId, branch, pageId } = payload;
     const apiCalls: boolean = yield failFastApiCalls(
-      [fetchApplication({ applicationId, pageId, mode: this._mode })],
+      [
+        fetchApplication({
+          applicationId,
+          pageId,
+          mode: this._mode,
+          updateWorker: true,
+        }),
+      ],
       [
         ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
