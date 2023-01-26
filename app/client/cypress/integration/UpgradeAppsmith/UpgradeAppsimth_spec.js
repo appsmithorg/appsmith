@@ -17,7 +17,7 @@ describe("Upgrade appsmith version", () => {
     cy.GetCWD(testUrl);
 
     cy.log("Get path");
-    cy.GetPath(testUrl, "appsmith").then((path) => {
+    cy.GetPath(testUrl, "appsmith").then(async (path) => {
       cy.log(path);
       path = path.split("  ");
       path = path[1].split(" ");
@@ -39,7 +39,7 @@ describe("Upgrade appsmith version", () => {
       localStorage.setItem("ContainerName", `appsmith-160_${name}_updated`);
 
       cy.log("Start old stack container");
-      cy.CreateAContainer(
+      let containerId = await cy.CreateAContainer(
         testUrl,
         path + "/oldstack/160",
         "appsmith/appsmith-ce:release",
@@ -47,14 +47,13 @@ describe("Upgrade appsmith version", () => {
       );
       cy.wait(90000);
 
-      cy.log("ContainerID", localStorage.getItem("ContainerID"));
+      cy.log("ContainerID", containerId);
 
-      cy.execute(
-        testUrl,
-        "docker logs --details " + localStorage.getItem("ContainerID"),
-      ).then((res) => {
-        cy.contains(res).should("not.exist");
-      });
+      cy.execute(testUrl, "docker logs --details " + containerId).then(
+        (res) => {
+          cy.contains(res.stdout).should("not.exist");
+        },
+      );
 
       cy.log("Verify Logs");
       cy.GetAndVerifyLogs(testUrl, `appsmith-160_${name}_updated`); // Get and verify the logs
