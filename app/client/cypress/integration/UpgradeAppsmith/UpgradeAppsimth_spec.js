@@ -57,7 +57,7 @@ describe("Upgrade appsmith version", () => {
     cy.visit(testdata.APPURL);
     cy.visit("/");
 
-    // cy.get(".t--buttongroup-widget").should("exist");
+    cy.get(".t--buttongroup-widget").should("exist");
     // cy.get(".t--buttongroup-widget")
     //   .children()
     //   .should("have.length", 3);
