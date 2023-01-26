@@ -200,6 +200,10 @@ jobs:
       # Install Currents
       - name: Install cypress dependencies 
         run:  yarn add @currents/cli
+        
+     # Install Currents
+      - name: Install cypress dependencies 
+        run:  yarn add cy2
 
       #- name: Run the cypress test
        # if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
@@ -254,6 +258,7 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_PROJECT_ID: 'Appsmith-CE'
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
@@ -264,6 +269,7 @@ jobs:
           CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_API_URL: $ {{ CYPRESS_URL }}
           CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
@@ -277,7 +283,8 @@ jobs:
           CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
         with:
           working-directory: app/client
-          command: yarn currents run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/**/* 
+          #command: yarn currents run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/**/* 
+          command: yarn cy2 run --record --parallel --browser chrome --key ${{ secrets.SORRYCYPRESS }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/**/* 
 
 
           
