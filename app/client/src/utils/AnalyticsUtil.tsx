@@ -390,10 +390,10 @@ class AnalyticsUtil {
             integrations: {
               "Segment.io": {
                 deliveryStrategy: {
-                  strategy: "batching",
+                  strategy: "batching", // The delivery strategy used for sending events to Segment
                   config: {
-                    size: 100,
-                    timeout: 5000,
+                    size: 100, // The batch size is the threshold that forces all batched events to be sent once it’s reached.
+                    timeout: 5000, // The number of milliseconds that forces all events queued for batching to be sent, regardless of the batch size, once it’s reached
                   },
                 },
               },
