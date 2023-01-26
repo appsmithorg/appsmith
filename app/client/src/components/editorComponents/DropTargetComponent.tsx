@@ -138,7 +138,6 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
       // Set the new value locally
       rowRef.current = newRows;
       // If the parent container like widget has auto height enabled
-      // or if the parent is the MainContainer
       // We'd like to immediately update the parent's height
       // based on the auto height computations
       // This also updates any "dropTargets" that need to change height
