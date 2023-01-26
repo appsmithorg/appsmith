@@ -236,7 +236,7 @@ jobs:
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
-          command: yarn currents run --record --parallel --browser chrome --key $CURRENTS_RECORD_KEY  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --group "Electrons on Github Action Fat Container" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js --tag ${{ github.event_name }} --env "NODE_ENV=development"
+          command: yarn currents run --record --parallel --browser chrome --key nWKRco2xSAZEo37f  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --group "Electrons on Github Action Fat Container" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js --tag ${{ github.event_name }} --env "NODE_ENV=development"
 
           
       #- name: Setup tmate session
