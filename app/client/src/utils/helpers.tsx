@@ -226,7 +226,8 @@ export const quickScrollToWidget = (widgetId?: string) => {
 
     if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
       el.scrollIntoView({
-        block: "nearest",
+        block: "center",
+        inline: "nearest",
         behavior: "smooth",
       });
     }
@@ -807,6 +808,7 @@ export function shouldBeDefined<T>(
 
   return result;
 }
+
 /*
  * Check if a value is null / undefined / empty string
  *
