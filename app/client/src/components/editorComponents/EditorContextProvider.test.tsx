@@ -61,6 +61,7 @@ describe("EditorContextProvider", () => {
   it("it checks context methods in View mode", () => {
     const expectedMethods = [
       "batchUpdateWidgetProperty",
+      "deleteMetaWidgets",
       "executeAction",
       "getWidgetCache",
       "modifyMetaWidgets",

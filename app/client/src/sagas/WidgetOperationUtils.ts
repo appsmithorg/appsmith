@@ -304,20 +304,6 @@ export function getWidgetChildrenIds(
   return childrenIds;
 }
 
-export function getAllMetaWidgetCreatorIds(
-  widgets: FlattenedWidgetProps[],
-): string[] {
-  const creatorIds: string[] = [];
-
-  widgets.forEach((widget) => {
-    if (widget.hasMetaWidgets) {
-      creatorIds.push(widget.widgetId);
-    }
-  });
-
-  return creatorIds;
-}
-
 function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
   return reduce(
     widgetsMeta,

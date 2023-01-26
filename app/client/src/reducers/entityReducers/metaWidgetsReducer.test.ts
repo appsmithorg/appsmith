@@ -1,6 +1,7 @@
 import reducer, { MetaWidgetsReduxState } from "./metaWidgetsReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { metaWidgetState } from "utils/metaWidgetState";
+import { nestedMetaWidgetInitialState } from "./testData/metaWidgetReducer";
 
 const modifiedState: MetaWidgetsReduxState = {
   baowuczcgg: {
@@ -324,14 +325,24 @@ const modifiedState: MetaWidgetsReduxState = {
 
 describe("meta widget reducer test", () => {
   it("DELETE_META_WIDGETS", () => {
+    const creatorId = "u9ibqgimu2";
+    const expectedState: Record<string, unknown> = {};
+    Object.entries(nestedMetaWidgetInitialState).forEach(
+      ([widgetId, widgetProps]) => {
+        if (widgetProps.creatorId !== creatorId) {
+          expectedState[widgetId] = widgetProps;
+        }
+      },
+    );
+
     expect(
-      reducer(metaWidgetState, {
+      reducer(nestedMetaWidgetInitialState, {
         type: ReduxActionTypes.DELETE_META_WIDGETS,
         payload: {
-          creatorIds: ["hwgin979n4"],
+          creatorIds: [creatorId],
         },
       }),
-    ).toEqual({});
+    ).toEqual(expectedState);
   });
   it("INIT_CANVAS_LAYOUT", () => {
     expect(
