@@ -13,7 +13,7 @@ import {
   EditInteractionKind,
   SavingState,
   TooltipComponent,
-} from "design-system";
+} from "design-system-old";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { AppState } from "@appsmith/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";

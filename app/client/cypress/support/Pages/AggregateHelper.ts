@@ -136,7 +136,19 @@ export class AggregateHelper {
     this.Sleep();
   }
 
+  public CheckForPageSaveError() {
+    // Wait for "saving" status to disappear
+    this.GetElement(this.locator._statusSaving).should("not.exist");
+    // Check for page save error
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this.locator._saveStatusError).length) {
+        this.RefreshPage();
+      }
+    });
+  }
+
   public AssertAutoSave() {
+    this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
     cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
       "not.exist",
@@ -983,6 +995,16 @@ export class AggregateHelper {
       .should("be.visible");
   }
 
+  public CheckForErrorToast(error: string) {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this.locator._toastMsg).length) {
+        if ($ele.find(this.locator._specificToast(error)).length) {
+          throw new Error("Error Toast from Application:" + error);
+        }
+      }
+    });
+  }
+
   public AssertElementExist(selector: ElementType, index = 0) {
     return this.GetElement(selector)
       .eq(index)
@@ -1071,6 +1093,22 @@ export class AggregateHelper {
       }
     });
     this.Sleep();
+  }
+
+  public AssertElementEnabledDisabled(
+    selector: ElementType,
+    index = 0,
+    disabled = true,
+  ) {
+    if (disabled) {
+      return this.GetElement(selector)
+        .eq(index)
+        .should("be.disabled");
+    } else {
+      return this.GetElement(selector)
+        .eq(index)
+        .should("not.be.disabled");
+    }
   }
 
   //Not used:

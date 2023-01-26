@@ -1,16 +1,23 @@
 import React from "react";
-import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import styled from "styled-components";
 
-import styled from "constants/DefaultTheme";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import { Button, Category, Classes, Size, Text, TextType } from "design-system";
+import {
+  Button,
+  Category,
+  Classes,
+  Size,
+  Text,
+  TextType,
+} from "design-system-old";
 import {
   CodeEditorBorder,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { GifPlayer } from "design-system";
+import { GifPlayer } from "design-system-old";
 import lightmodeGif from "assets/icons/gifs/config_pagination_lightmode.gif";
 import darkmodeGif from "assets/icons/gifs/config_pagination_darkmode.gif";
 import lightmodeThumbnail from "assets/icons/gifs/lightmode_thumbnail.png";
