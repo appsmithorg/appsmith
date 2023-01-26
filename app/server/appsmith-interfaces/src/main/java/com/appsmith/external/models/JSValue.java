@@ -13,15 +13,15 @@ import lombok.Setter;
 @AllArgsConstructor
 public class JSValue {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String dataType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object value;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isValid;
 }

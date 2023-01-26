@@ -12,9 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 public class ProviderPaginatedDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Provider> providers;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Long total;
 }

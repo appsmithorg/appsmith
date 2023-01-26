@@ -30,35 +30,35 @@ public class ApplicationTemplateControllerCE {
         this.applicationTemplateService = applicationTemplateService;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getAll() {
         return applicationTemplateService.getActiveTemplates(null)
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("{templateId}")
     public Mono<ResponseDTO<ApplicationTemplate>> getTemplateDetails(@PathVariable String templateId) {
         return applicationTemplateService.getTemplateDetails(templateId)
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("{templateId}/similar")
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getSimilarTemplates(@PathVariable String templateId, @RequestParam MultiValueMap<String, String> params) {
         return applicationTemplateService.getSimilarTemplates(templateId, params).collectList()
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("filters")
     public Mono<ResponseDTO<ApplicationTemplate>> getFilters() {
         return applicationTemplateService.getFilters()
                 .map(filters -> new ResponseDTO<>(HttpStatus.OK.value(), filters, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("{templateId}/import/{workspaceId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromTemplate(@PathVariable String templateId,
                                                                                  @PathVariable String workspaceId) {
@@ -66,14 +66,14 @@ public class ApplicationTemplateControllerCE {
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("recent")
     public Mono<ResponseDTO<List<ApplicationTemplate>>> getRecentlyUsedTemplates() {
         return applicationTemplateService.getRecentlyUsedTemplates()
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("{templateId}/merge/{applicationId}/{organizationId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> mergeTemplateWithApplication(@PathVariable String templateId,
                                                                        @PathVariable String applicationId,

@@ -20,21 +20,21 @@ import com.fasterxml.jackson.annotation.JsonView;
 public class CRUDPageResourceDTO {
 
     // This will be defaultApplicationId if the application is connected with git
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String datasourceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String tableName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String searchColumn;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> columns;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, String> pluginSpecificParams;
 }

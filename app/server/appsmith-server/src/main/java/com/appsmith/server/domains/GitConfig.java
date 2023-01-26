@@ -21,10 +21,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class GitConfig implements AppsmithDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authorName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authorEmail;
 
 }

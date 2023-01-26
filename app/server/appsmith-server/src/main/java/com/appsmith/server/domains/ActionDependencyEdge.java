@@ -15,10 +15,10 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @AllArgsConstructor
 public class ActionDependencyEdge {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     EntityDependencyNode sourceNode;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     EntityDependencyNode targetNode;
 
     @Override

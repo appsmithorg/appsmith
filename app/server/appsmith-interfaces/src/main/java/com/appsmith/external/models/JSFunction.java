@@ -15,12 +15,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 @AllArgsConstructor
 public class JSFunction {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String body;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<JSValue> arguments;
 }

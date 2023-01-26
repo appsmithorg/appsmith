@@ -18,13 +18,13 @@ public class UserRole {
     @JsonView(Views.Internal.class)
     String userId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String username;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String roleName;
 
     @JsonView(Views.Internal.class)

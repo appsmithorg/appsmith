@@ -9,22 +9,22 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PageNameIdDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String id;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String slug;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String customSlug;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isDefault;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isHidden;
 
     // This field will represent the default pageId for current page in git system where we are connecting resources

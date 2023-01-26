@@ -12,9 +12,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DatasourceDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String id;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
 }

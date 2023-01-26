@@ -16,7 +16,7 @@ public enum ApiContentType {
     GRAPHQL("application/graphql")
     ;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String value;
 
     private static final Map<String, ApiContentType> map = Stream.of(ApiContentType.values()).collect(
@@ -26,7 +26,7 @@ public enum ApiContentType {
         this.value = value;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public String getValue() {
         return value;
     }

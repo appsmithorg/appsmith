@@ -31,7 +31,7 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
         super(service);
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/install")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Workspace>> install(@Valid @RequestBody PluginWorkspaceDTO plugin) {
@@ -39,7 +39,7 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
                 .map(workspace -> new ResponseDTO<>(HttpStatus.CREATED.value(), workspace, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/uninstall")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Workspace>> uninstall(@Valid @RequestBody PluginWorkspaceDTO plugin) {
@@ -47,14 +47,14 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
                 .map(workspace -> new ResponseDTO<>(HttpStatus.CREATED.value(), workspace, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/{pluginId}/form")
     public Mono<ResponseDTO<Object>> getDatasourceForm(@PathVariable String pluginId) {
         return service.getFormConfig(pluginId)
                 .map(form -> new ResponseDTO<>(HttpStatus.OK.value(), form, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/default/icons")
     public Mono<ResponseDTO<List<Plugin>>> getDefaultPluginIcons() {
         return service.getDefaultPluginIcons()

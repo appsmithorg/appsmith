@@ -24,15 +24,15 @@ import com.fasterxml.jackson.annotation.JsonView;
 @ToString
 @AllArgsConstructor
 public class UQIDataFilterParams {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Condition condition; // where condition.
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<String> projectionColumns; // columns to show to user.
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Map<String, String>> sortBy; // columns to sort by in ascending or descending order.
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, String> paginateBy;  // limit and offset
 }

@@ -9,9 +9,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class EmailTokenDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String email;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String token;
 }

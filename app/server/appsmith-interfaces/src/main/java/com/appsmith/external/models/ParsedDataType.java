@@ -13,6 +13,6 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class ParsedDataType {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private final DisplayDataType dataType;
 }

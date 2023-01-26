@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdatePermissionGroupCE_DTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String username;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String newPermissionGroupId;
 }

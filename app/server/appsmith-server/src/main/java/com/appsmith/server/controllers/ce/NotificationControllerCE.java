@@ -31,14 +31,14 @@ public class NotificationControllerCE extends BaseController<NotificationService
         super(service);
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("count/unread")
     public Mono<ResponseDTO<Long>> getUnreadCount() {
         return service.getUnreadCount()
                 .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PatchMapping("isRead")
     public Mono<ResponseDTO<UpdateIsReadNotificationByIdDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationByIdDTO body) {
@@ -48,7 +48,7 @@ public class NotificationControllerCE extends BaseController<NotificationService
         );
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PatchMapping("isRead/all")
     public Mono<ResponseDTO<UpdateIsReadNotificationDTO>> updateIsRead(
             @RequestBody @Valid UpdateIsReadNotificationDTO body) {

@@ -15,12 +15,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MultipartFormDataDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String type;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object data;
 }

@@ -17,12 +17,12 @@ import lombok.ToString;
 @AllArgsConstructor
 public class SSHPrivateKey implements AppsmithDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     UploadedFile keyFile;
 
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String password;
 
 }

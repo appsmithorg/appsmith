@@ -15,15 +15,15 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OldAuthenticationDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String expiresAt;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String username;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String password;
 }

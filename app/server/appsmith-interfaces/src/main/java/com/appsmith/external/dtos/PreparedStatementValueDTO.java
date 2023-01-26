@@ -15,9 +15,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PreparedStatementValueDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String value;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     DataType dataType;
 }

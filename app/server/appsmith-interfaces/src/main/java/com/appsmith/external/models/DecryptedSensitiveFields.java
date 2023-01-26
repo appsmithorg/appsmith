@@ -16,31 +16,31 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 public class DecryptedSensitiveFields {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String password;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String token;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String refreshToken;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object tokenResponse;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authType;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     DBAuth dbAuth;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     BasicAuth basicAuth;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     OAuth2 openAuth2;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     BearerTokenAuth bearerTokenAuth;
     
     public DecryptedSensitiveFields(AuthenticationResponse authResponse) {

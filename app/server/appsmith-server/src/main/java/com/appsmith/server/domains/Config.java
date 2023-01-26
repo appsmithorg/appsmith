@@ -19,9 +19,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Document
 public class Config extends BaseDomain {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     JSONObject config;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 }

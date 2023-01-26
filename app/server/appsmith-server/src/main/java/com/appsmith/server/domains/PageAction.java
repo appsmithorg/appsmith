@@ -15,6 +15,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 @NoArgsConstructor
 @Document
 public class PageAction {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String id;
 }

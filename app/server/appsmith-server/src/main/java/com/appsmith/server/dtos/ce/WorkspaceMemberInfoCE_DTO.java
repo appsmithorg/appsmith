@@ -9,14 +9,14 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class WorkspaceMemberInfoCE_DTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String userId;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String username;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String permissionGroupName;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String permissionGroupId;
 }

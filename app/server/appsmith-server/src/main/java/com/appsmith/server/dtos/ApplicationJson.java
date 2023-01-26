@@ -31,47 +31,47 @@ public class ApplicationJson {
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Integer clientSchemaVersion;
 
     // To convey the schema version of the server and will be used to check if the imported file is compatible with
     // current DB schema
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Integer serverSchemaVersion;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Application exportedApplication;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Datasource> datasourceList;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<CustomJSLib> customJSLibList;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<NewPage> pageList;
 
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<String> pageOrder;
 
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<String> publishedPageOrder;
 
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String publishedDefaultPageName;
 
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String unpublishedDefaultPageName;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<NewAction> actionList;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<ActionCollection> actionCollectionList;
 
     /**
@@ -84,27 +84,27 @@ public class ApplicationJson {
     Map<String, Set<String>> updatedResources;
 
     // TODO remove the plain text fields during the export once we have a way to address sample apps DB authentication
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, DecryptedSensitiveFields> decryptedFields;
 
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, InvisibleActionFields> invisibleActionFields;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Theme editModeTheme;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Theme publishedTheme;
 
     /**
      * Mapping mongoEscapedWidgets with layoutId
      */
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Set<String>> publishedLayoutmongoEscapedWidgets;
 
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Set<String>> unpublishedLayoutmongoEscapedWidgets;
 }

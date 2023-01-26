@@ -20,33 +20,33 @@ import java.util.Map;
 @AllArgsConstructor
 public class ActionExecutionRequest {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String actionId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Instant requestedAt;
 
     @JsonView(Views.Internal.class)
     String query; // Only used for analytics. Not to be returned back to the client.
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object body;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object headers;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     HttpMethod httpMethod;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String url;
 
     @JsonView(Views.Internal.class)
     Map<String, ?> properties; // Only used for analytics. Not to be returned back to the client.
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<String> executionParameters;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object requestParams;
 }

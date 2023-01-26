@@ -24,65 +24,65 @@ import java.util.Set;
 @NoArgsConstructor
 public class OAuth2AuthorizedClientDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String principalName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private ClientRegistrationDTO clientRegistration;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private OAuth2AccessTokenDTO accessToken;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private OAuth2RefreshTokenDTO refreshToken;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     private static class ClientRegistrationDTO {
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String registrationId;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String clientId;
         
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String clientSecret;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String clientAuthenticationMethod;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String authorizationGrantType;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String redirectUri;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private Set<String> scopes;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String clientName;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String authorizationUri;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String tokenUri;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String jwkSetUri;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String issuerUri;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String userInfoUri;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String userInfoAuthenticationMethod;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String userNameAttributeName;
     }
 
@@ -90,19 +90,19 @@ public class OAuth2AuthorizedClientDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     private static class OAuth2AccessTokenDTO {
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String tokenType;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String tokenValue;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String issuedAt;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String expiresAt;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private Set<String> scopes;
     }
 
@@ -110,13 +110,13 @@ public class OAuth2AuthorizedClientDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     private static class OAuth2RefreshTokenDTO {
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String tokenValue;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String issuedAt;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         private String expiresAt;
     }
 

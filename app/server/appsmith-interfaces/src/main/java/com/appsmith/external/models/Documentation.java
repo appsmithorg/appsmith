@@ -10,8 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Documentation {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String text;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String url;
 }

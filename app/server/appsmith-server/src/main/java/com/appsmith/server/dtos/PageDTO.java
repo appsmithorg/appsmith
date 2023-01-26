@@ -25,30 +25,30 @@ import java.util.Set;
 public class PageDTO {
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String id;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String description;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String slug;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String customSlug;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Layout> layouts;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
     @Transient
@@ -56,20 +56,20 @@ public class PageDTO {
     protected Set<Policy> policies = new HashSet<>();
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Instant deletedAt = null;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isHidden;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Long lastUpdatedTime;
 
     // This field will be used to store the default/root pageId and applicationId for actions generated for git
     // connected applications and will be used to connect actions across the branches
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     DefaultResources defaultResources;
 
     public void sanitiseToExportDBObject() {

@@ -13,14 +13,14 @@ import jakarta.validation.constraints.NotNull;
 public class ActionCollectionMoveDTO {
 
     @NotNull
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
     @NotNull
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String collectionId;
 
     @NotNull
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String destinationPageId;
 }

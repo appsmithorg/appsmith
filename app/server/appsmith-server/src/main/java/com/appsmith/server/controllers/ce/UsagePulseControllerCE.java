@@ -22,7 +22,7 @@ public class UsagePulseControllerCE {
 
     private final UsagePulseService service;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Boolean>> create(@RequestBody @Valid UsagePulseDTO usagePulseDTO) {

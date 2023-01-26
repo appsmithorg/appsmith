@@ -15,57 +15,57 @@ import java.util.Set;
 public class GitStatusDTO {
 
         // Name of modified, added and deleted resources in local git repo
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Set<String> modified;
 
         // Name of added resources to local git repo
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Set<String> added;
 
         // Name of deleted resources from local git repo
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Set<String> removed;
 
         // Name of conflicting resources
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Set<String> conflicting;
 
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Boolean isClean;
 
         // number of modified custom JS libs
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         int modifiedJSLibs;
 
         // number of modified pages
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         int modifiedPages;
 
         // number of modified actions
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         int modifiedQueries;
 
         // number of modified JSObjects
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         int modifiedJSObjects;
 
         // number of modified JSObjects
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         int modifiedDatasources;
 
         // number of local commits which are not present in remote repo
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Integer aheadCount;
 
         // number of remote commits which are not present in local repo
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Integer behindCount;
 
         // Remote tracking branch name
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         String remoteBranch;
 
         // Documentation url for discard and pull functionality
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         String discardDocUrl = Assets.GIT_DISCARD_DOC_URL;
 }

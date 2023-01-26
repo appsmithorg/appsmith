@@ -11,9 +11,9 @@ import lombok.ToString;
 @ToString
 public class WidgetSuggestionDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     WidgetType type;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String bindingQuery;
 }

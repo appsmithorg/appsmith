@@ -21,12 +21,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class PEMCertificate implements AppsmithDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     UploadedFile file;
 
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String password;
 
 }

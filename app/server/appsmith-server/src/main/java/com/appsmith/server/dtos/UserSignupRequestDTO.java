@@ -10,34 +10,34 @@ import lombok.Data;
 @Data
 public class UserSignupRequestDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String email;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private LoginSource source = LoginSource.FORM;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private UserState state = UserState.ACTIVATED;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private boolean isEnabled = true;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String password;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String role;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String useCase;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private boolean allowCollectingAnonymousData;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private boolean signupForNewsletter;
 
 }

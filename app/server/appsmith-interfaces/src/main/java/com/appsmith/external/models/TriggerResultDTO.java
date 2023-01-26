@@ -12,6 +12,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TriggerResultDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object trigger;
 }

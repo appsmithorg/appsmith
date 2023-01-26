@@ -24,6 +24,6 @@ public class Role extends BaseDomain {
     private static final long serialVersionUID = -9218373922209100577L;
 
     @NotEmpty
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String name;
 }

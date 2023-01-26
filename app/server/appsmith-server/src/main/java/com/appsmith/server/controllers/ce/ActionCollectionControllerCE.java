@@ -46,7 +46,7 @@ public class ActionCollectionControllerCE {
         this.layoutCollectionService = layoutCollectionService;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionCollectionDTO>> create(@Valid @RequestBody ActionCollectionDTO resource,
@@ -56,7 +56,7 @@ public class ActionCollectionControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("")
     public Mono<ResponseDTO<List<ActionCollectionDTO>>> getAllUnpublishedActionCollections(
             @RequestParam MultiValueMap<String, String> params,
@@ -67,7 +67,7 @@ public class ActionCollectionControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PutMapping("/move")
     public Mono<ResponseDTO<ActionCollectionDTO>> moveActionCollection(@RequestBody @Valid ActionCollectionMoveDTO actionCollectionMoveDTO,
                                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -76,7 +76,7 @@ public class ActionCollectionControllerCE {
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollectionName(@RequestBody RefactorActionCollectionNameDTO refactorActionCollectionNameDTO,
                                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -84,7 +84,7 @@ public class ActionCollectionControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionCollectionViewDTO>>> getAllPublishedActionCollections(@RequestParam String applicationId,
                                                                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -94,7 +94,7 @@ public class ActionCollectionControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PutMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollection(@PathVariable String id,
                                                                          @Valid @RequestBody ActionCollectionDTO resource,
@@ -104,7 +104,7 @@ public class ActionCollectionControllerCE {
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PutMapping("/refactorAction")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollection(@Valid @RequestBody RefactorActionNameInCollectionDTO resource,
                                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -113,7 +113,7 @@ public class ActionCollectionControllerCE {
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> deleteActionCollection(@PathVariable String id,
                                                                          @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {

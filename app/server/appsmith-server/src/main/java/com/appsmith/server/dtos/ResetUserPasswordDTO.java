@@ -13,10 +13,10 @@ import jakarta.validation.constraints.NotEmpty;
 @Setter
 public class ResetUserPasswordDTO extends User {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String baseUrl;
 
     @NotEmpty
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String token;
 }

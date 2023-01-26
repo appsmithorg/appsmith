@@ -10,9 +10,9 @@ import lombok.Setter;
 @Setter
 public class GitMergeDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String sourceBranch;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String destinationBranch;
 }

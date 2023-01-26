@@ -8,12 +8,12 @@ import lombok.Data;
 @Data
 public class GitCommitDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String commitMessage;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String commitHeader;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean doPush;
 }

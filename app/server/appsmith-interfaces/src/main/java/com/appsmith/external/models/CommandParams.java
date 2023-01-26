@@ -10,10 +10,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Getter
 @Setter
 public class CommandParams {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Param> queryParams;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Param> headerParams;
 }
 

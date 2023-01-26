@@ -14,20 +14,20 @@ import java.util.List;
 public class MergeStatusDTO {
 
     @JsonProperty(value="isMergeAble")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean MergeAble;
 
     // Merge status received from JGIT
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String status;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<String> conflictingFiles;
 
     // Human readable message derived from the status
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String message;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String referenceDoc;
 }

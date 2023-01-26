@@ -20,13 +20,13 @@ import java.util.List;
 @Document
 @Deprecated
 public class Page extends BaseDomain {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
     @NotNull
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Layout> layouts;
 }

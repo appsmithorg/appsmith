@@ -13,21 +13,21 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RefactorActionNameDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String actionId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pageId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String layoutId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String oldName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String newName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String collectionName;
 }

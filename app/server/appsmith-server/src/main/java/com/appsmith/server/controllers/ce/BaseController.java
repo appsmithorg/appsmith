@@ -34,7 +34,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
 
     protected final S service;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<T>> create(@Valid @RequestBody T resource,
@@ -53,7 +53,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
      * @param params
      * @return
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("")
     public Mono<ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params,
                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -66,7 +66,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/{id}")
     public Mono<ResponseDTO<T>> getByIdAndBranchName(@PathVariable ID id,
                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -75,7 +75,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PutMapping("/{id}")
     public Mono<ResponseDTO<T>> update(@PathVariable ID id,
                                        @RequestBody T resource,
@@ -85,7 +85,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<T>> delete(@PathVariable ID id,
                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {

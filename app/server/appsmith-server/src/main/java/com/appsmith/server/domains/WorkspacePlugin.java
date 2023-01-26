@@ -20,10 +20,10 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class WorkspacePlugin extends BaseDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     WorkspacePluginStatus status;
 
 }

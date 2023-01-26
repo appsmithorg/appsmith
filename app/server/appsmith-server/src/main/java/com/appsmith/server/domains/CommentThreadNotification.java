@@ -12,9 +12,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EqualsAndHashCode(callSuper = true)
 @Document
 public class CommentThreadNotification extends Notification {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     CommentNotificationEvent event;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     CommentThread commentThread;
 }

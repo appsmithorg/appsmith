@@ -23,35 +23,35 @@ import java.util.List;
 @Document
 public class DatasourceConfiguration implements AppsmithDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Connection connection;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Endpoint> endpoints;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     AuthenticationDTO authentication;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     SSHConnection sshProxy;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean sshProxyEnabled;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Property> properties;
 
     // For REST API.
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String url;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Property> headers;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Property> queryParameters;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public boolean isSshProxyEnabled() {
         return sshProxyEnabled == null ? false : sshProxyEnabled;
     }

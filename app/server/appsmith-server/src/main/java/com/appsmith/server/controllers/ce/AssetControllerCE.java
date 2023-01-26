@@ -19,7 +19,7 @@ public class AssetControllerCE {
 
     private final AssetService service;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/{id}")
     public Mono<Void> getById(@PathVariable String id, ServerWebExchange exchange) {
         exchange.getResponse().getHeaders().set(HttpHeaders.CACHE_CONTROL, "public, max-age=7776000, immutable");

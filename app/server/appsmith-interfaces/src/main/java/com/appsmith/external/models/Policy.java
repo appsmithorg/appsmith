@@ -20,20 +20,20 @@ import com.fasterxml.jackson.annotation.JsonView;
 @EqualsAndHashCode
 public class Policy implements Serializable {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String permission;
 
     @Deprecated
     @Builder.Default
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> users = new HashSet<>();
 
     @Deprecated
     @Builder.Default
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> groups = new HashSet<>();
 
     @Builder.Default
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> permissionGroups = new HashSet<>();
 }

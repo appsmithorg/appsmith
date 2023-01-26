@@ -9,9 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RefactorActionNameInCollectionDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     RefactorActionNameDTO refactorAction;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionCollectionDTO actionCollection;
 }

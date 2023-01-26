@@ -29,7 +29,7 @@ public class TemplateCollection implements Persistable<String> {
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String id;
 
     @JsonView(Views.Internal.class)
@@ -42,14 +42,14 @@ public class TemplateCollection implements Persistable<String> {
     protected Instant updatedAt;
 
     @CreatedBy
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     protected String createdBy;
 
     @LastModifiedBy
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     protected String modifiedBy;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     protected Boolean deleted = false;
 
     @JsonView(Views.Internal.class)
@@ -63,13 +63,13 @@ public class TemplateCollection implements Persistable<String> {
     }
 
     // TemplateCollection fields below :
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
     @JsonView(Views.Internal.class)
     List<String> apiTemplateIds;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<ApiTemplate> apiTemplateList;
 }

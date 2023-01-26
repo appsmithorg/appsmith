@@ -10,9 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GitDocsDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ErrorReferenceDocUrl docKey;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String docUrl;
 }

@@ -17,12 +17,12 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class WorkspaceApplicationsDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Workspace workspace;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Application> applications;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<WorkspaceMemberInfoDTO> users;
 }

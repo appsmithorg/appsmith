@@ -9,18 +9,18 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class GitLogDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String commitId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authorName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authorEmail;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String commitMessage;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String timestamp;
 }

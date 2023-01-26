@@ -13,12 +13,12 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ApiTemplateConfiguration implements AppsmithDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String documentation; //Documentation for this particular API comes here
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String documentationUrl; //URL for this particular api's documentation comes here
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionExecutionResult sampleResponse;
 }

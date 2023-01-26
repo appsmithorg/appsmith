@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 public class HealthCheckControllerCE {
     private final HealthCheckService healthCheckService;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<String>> getHealth() {
         return healthCheckService.getHealth().map(health -> new ResponseDTO<>(HttpStatus.OK.value(), health, null));

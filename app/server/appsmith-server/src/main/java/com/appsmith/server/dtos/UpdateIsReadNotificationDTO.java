@@ -14,6 +14,6 @@ import jakarta.validation.constraints.NotNull;
 @EqualsAndHashCode
 public class UpdateIsReadNotificationDTO {
     @NotNull
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Boolean isRead;
 }

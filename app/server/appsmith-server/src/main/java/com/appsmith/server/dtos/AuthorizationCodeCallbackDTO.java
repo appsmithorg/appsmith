@@ -11,18 +11,18 @@ import lombok.Setter;
 @Setter
 public class AuthorizationCodeCallbackDTO {
     // Present in success state
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String code;
     
     // Required by Appsmith to preserve context of the request
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String state;
 
     // Optional depending on user configuration
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String scope;
 
     // Present in failure state
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String error;
 }

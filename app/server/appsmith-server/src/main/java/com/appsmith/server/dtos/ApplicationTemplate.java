@@ -12,57 +12,57 @@ import java.util.List;
 @Getter
 @Setter
 public class ApplicationTemplate extends BaseDomain {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String title;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String description;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String appUrl;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String appDataUrl;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String gifUrl;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String productImageUrl;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String sortPriority;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private List<String> screenshotUrls;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private List<String> widgets;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private List<String> functions;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private List<String> useCases;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private List<String> datasources;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private List<PageNameIdDTO> pages;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String minVersion;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String minVersionPadded;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Long downloadCount;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Object appData;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Boolean active;
 }

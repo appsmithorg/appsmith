@@ -10,9 +10,9 @@ import lombok.Setter;
 @Setter
 public class OldParam {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String key;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String value;
 }

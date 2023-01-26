@@ -59,7 +59,7 @@ public class GitControllerCE {
      * Note : The master branch here refers to the app that was created even before connecting to git
      * */
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/profile/default")
     public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@RequestBody GitProfile gitProfile) {
         log.debug("Going to add default git profile for user");
@@ -67,7 +67,7 @@ public class GitControllerCE {
                 .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PutMapping("/profile/app/{defaultApplicationId}")
     public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@PathVariable String defaultApplicationId,
                                                                      @RequestBody GitProfile gitProfile) {
@@ -76,28 +76,28 @@ public class GitControllerCE {
                 .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), response, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/profile/default")
     public Mono<ResponseDTO<GitProfile>> getDefaultGitConfigForUser() {
         return service.getDefaultGitProfileOrCreateIfEmpty()
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/profile/app/{defaultApplicationId}")
     public Mono<ResponseDTO<GitProfile>> getGitConfigForUser(@PathVariable String defaultApplicationId) {
         return service.getGitProfileForUser(defaultApplicationId)
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/metadata/app/{defaultApplicationId}")
     public Mono<ResponseDTO<GitApplicationMetadata>> getGitMetadata(@PathVariable String defaultApplicationId) {
         return service.getGitApplicationMetadata(defaultApplicationId)
                 .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/connect/app/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@PathVariable String defaultApplicationId,
                                                                          @RequestBody GitConnectDTO gitConnectDTO,
@@ -106,7 +106,7 @@ public class GitControllerCE {
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/commit/app/{defaultApplicationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<String>> commit(@RequestBody GitCommitDTO commitDTO,
@@ -118,7 +118,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/commit-history/app/{defaultApplicationId}")
     public Mono<ResponseDTO<List<GitLogDTO>>> getCommitHistory(@PathVariable String defaultApplicationId,
                                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -127,7 +127,7 @@ public class GitControllerCE {
                 .map(logs -> new ResponseDTO<>(HttpStatus.OK.value(), logs, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/push/app/{defaultApplicationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<String>> push(@PathVariable String defaultApplicationId,
@@ -137,7 +137,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/create-branch/app/{defaultApplicationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Application>> createBranch(@PathVariable String defaultApplicationId,
@@ -148,7 +148,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/checkout-branch/app/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> checkoutBranch(@PathVariable String defaultApplicationId,
                                                          @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -157,7 +157,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/disconnect/app/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> disconnectFromRemote(@PathVariable String defaultApplicationId) {
         log.debug("Going to remove the remoteUrl for application {}", defaultApplicationId);
@@ -165,7 +165,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/pull/app/{defaultApplicationId}")
     public Mono<ResponseDTO<GitPullDTO>> pull(@PathVariable String defaultApplicationId,
                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -174,7 +174,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/branch/app/{defaultApplicationId}")
     public Mono<ResponseDTO<List<GitBranchDTO>>> branch(@PathVariable String defaultApplicationId,
                                                         @RequestParam(required = false, defaultValue = "false") Boolean pruneBranches,
@@ -184,7 +184,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/status/app/{defaultApplicationId}")
     public Mono<ResponseDTO<GitStatusDTO>> getStatus(@PathVariable String defaultApplicationId,
                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -193,7 +193,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/merge/app/{defaultApplicationId}")
     public Mono<ResponseDTO<MergeStatusDTO>> merge(@PathVariable String defaultApplicationId,
                                                @RequestBody GitMergeDTO gitMergeDTO) {
@@ -202,7 +202,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/merge/status/app/{defaultApplicationId}")
     public Mono<ResponseDTO<MergeStatusDTO>> mergeStatus(@PathVariable String defaultApplicationId,
                                                          @RequestBody GitMergeDTO gitMergeDTO) {
@@ -211,7 +211,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/conflicted-branch/app/{defaultApplicationId}")
     public Mono<ResponseDTO<String>> createConflictedBranch(@PathVariable String defaultApplicationId,
                                                             @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
@@ -220,14 +220,14 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/import/keys")
     public Mono<ResponseDTO<GitAuth>> generateKeyForGitImport(@RequestParam(required = false) String keyType) {
         return service.generateSSHKey(keyType)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/import/{workspaceId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(@PathVariable String workspaceId,
                                                                             @RequestBody GitConnectDTO gitConnectDTO) {
@@ -235,14 +235,14 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/test-connection/app/{defaultApplicationId}")
     public Mono<ResponseDTO<Boolean>> testGitConnection(@PathVariable String defaultApplicationId) {
         return service.testConnection(defaultApplicationId)
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @DeleteMapping("/branch/app/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> deleteBranch(@PathVariable String defaultApplicationId, @RequestParam String branchName) {
         log.debug("Going to delete branch {} for defaultApplicationId {}", branchName, defaultApplicationId);
@@ -250,7 +250,7 @@ public class GitControllerCE {
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PutMapping("/discard/app/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> discardChanges(@PathVariable String defaultApplicationId,
                                                          @RequestParam(required = false, defaultValue = "true") Boolean doPull,
@@ -260,7 +260,7 @@ public class GitControllerCE {
                 .map(result -> new ResponseDTO<>((HttpStatus.OK.value()), result, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/protocol/key-types")
     public Mono<ResponseDTO<List<GitDeployKeyDTO>>> getSupportedKeys() {
         log.debug("Going to list the list of supported keys");
@@ -268,7 +268,7 @@ public class GitControllerCE {
                 .map(gitDeployKeyDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), gitDeployKeyDTOS, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/doc-urls")
     public Mono<ResponseDTO<List<GitDocsDTO>>> getGitDocs() {
         return service.getGitDocUrls()

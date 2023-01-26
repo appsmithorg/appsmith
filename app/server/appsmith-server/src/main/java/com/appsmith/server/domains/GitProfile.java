@@ -18,12 +18,12 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Document
 public class GitProfile {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authorName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authorEmail;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean useGlobalProfile;
 }

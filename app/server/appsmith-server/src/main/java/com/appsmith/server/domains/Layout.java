@@ -27,28 +27,28 @@ import static java.lang.Boolean.TRUE;
 @NoArgsConstructor
 public class Layout extends BaseDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ScreenType screen;
 
     @JsonView(Views.Internal.class)
     Boolean viewMode = false;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     JSONObject dsl;
 
     @JsonView(Views.Internal.class)
     JSONObject publishedDsl;
 
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<DslActionDTO> layoutActions;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Set<DslActionDTO>> layoutOnLoadActions;
 
     // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<ErrorDTO> layoutOnLoadActionErrors;
 
     @Deprecated
@@ -80,18 +80,18 @@ public class Layout extends BaseDomain {
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
      * the dsl returned should be JSONObject dsl
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public JSONObject getDsl() {
         return viewMode ? publishedDsl : dsl;
     }
 
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public Set<DslActionDTO> getLayoutActions() {
         return viewMode ? publishedLayoutActions : layoutActions;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public List<Set<DslActionDTO>> getLayoutOnLoadActions() {
         return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
     }

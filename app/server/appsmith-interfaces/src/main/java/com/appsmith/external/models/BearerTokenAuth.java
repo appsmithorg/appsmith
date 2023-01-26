@@ -22,6 +22,6 @@ public class BearerTokenAuth extends AuthenticationDTO {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Encrypted
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String bearerToken;
 }

@@ -14,73 +14,73 @@ import java.util.Set;
 @Data
 public class UserProfileDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String email;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> workspaceIds;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String username;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String gender;
 
     @JsonProperty(value = "isAnonymous")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean isAnonymous;
 
     @JsonProperty(value = "isEnabled")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean isEnabled;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean isEmptyInstance = false;
 
     @JsonProperty("isSuperUser")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean isSuperUser = false;
 
     @JsonProperty("isConfigurable")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean isConfigurable = false;
 
     @JsonProperty("adminSettingsVisible")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean adminSettingsVisible = false;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     CommentOnboardingState commentOnboardingState;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String photoId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String role;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String useCase;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean enableTelemetry = false;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Object> idToken = new HashMap<>();
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public boolean isAccountNonExpired() {
         return this.isEnabled;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public boolean isAccountNonLocked() {
         return this.isEnabled;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public boolean isCredentialsNonExpired() {
         return this.isEnabled;
     }

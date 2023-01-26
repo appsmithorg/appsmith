@@ -17,41 +17,41 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 public class IntegrationDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String installationKey;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String datasourceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pageId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginVersion;
 
     // TODO start using this in the future
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Type authenticationType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> scope;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     AuthenticationResponse authenticationResponse;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String redirectionDomain;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String branch;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String importForGit;
 
     public enum Type {

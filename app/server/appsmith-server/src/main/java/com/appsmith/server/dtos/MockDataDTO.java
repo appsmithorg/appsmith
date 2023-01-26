@@ -11,15 +11,15 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Getter
 @Setter
 public class MockDataDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String id;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<MockDataSet> mockdbs;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<MockDataCredentials> credentials;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 }

@@ -16,31 +16,31 @@ import com.fasterxml.jackson.annotation.JsonView;
 @NoArgsConstructor
 public class ApplicationGitReference {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object application;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object metadata;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object theme;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Object> actions;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Object> actionCollections;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, String> actionCollectionBody;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Object> pages;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Object> datasources;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Object> jsLibraries;
 
     /**
@@ -49,6 +49,6 @@ public class ApplicationGitReference {
      * This field can be used while saving resources to local file system and only update the resource files which
      * are updated in the database.
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Set<String>> updatedResources;
 }

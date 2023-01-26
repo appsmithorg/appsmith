@@ -7,12 +7,12 @@ import lombok.Data;
 
 @Data
 public class GitBranchDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String branchName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean isDefault;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean createdFromLocal;
 }

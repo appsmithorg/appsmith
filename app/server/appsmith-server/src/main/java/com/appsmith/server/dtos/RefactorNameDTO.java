@@ -9,15 +9,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RefactorNameDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pageId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String layoutId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String oldName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String newName;
 }

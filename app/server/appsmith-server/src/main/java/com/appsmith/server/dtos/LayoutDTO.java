@@ -21,32 +21,32 @@ import java.util.Set;
 @Setter
 public class LayoutDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String id;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ScreenType screen;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     JSONObject dsl;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Set<DslActionDTO>> layoutOnLoadActions;
 
     // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<ErrorDTO> layoutOnLoadActionErrors;
 
     // All the actions which have been updated as part of updateLayout function call
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<LayoutActionUpdateDTO> actionUpdates;
 
     // All the toast messages that the developer user should be displayed to inform about the consequences of update layout.
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<String> messages;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 }

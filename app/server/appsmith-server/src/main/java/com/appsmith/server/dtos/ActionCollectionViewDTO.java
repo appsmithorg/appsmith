@@ -18,27 +18,27 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class ActionCollectionViewDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String id;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pageId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<JSValue> variables;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<ActionDTO> actions;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String body;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     DefaultResources defaultResources;
 }

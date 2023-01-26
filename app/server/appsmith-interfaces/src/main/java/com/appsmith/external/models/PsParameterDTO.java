@@ -14,9 +14,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @JsonPropertyOrder({"value", "type"})
 public class PsParameterDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String value;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String type;
 }

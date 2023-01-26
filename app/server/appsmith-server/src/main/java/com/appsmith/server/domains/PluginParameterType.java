@@ -13,8 +13,8 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class PluginParameterType {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String key;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String dataType;
 }

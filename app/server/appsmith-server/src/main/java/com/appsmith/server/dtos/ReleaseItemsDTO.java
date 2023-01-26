@@ -14,9 +14,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 @AllArgsConstructor
 public class ReleaseItemsDTO {
     // This is a string so that it can hold values like `10+` if there's more than 10 new versions, for example.
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String newReleasesCount;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<ReleaseNode> releaseItems;
 }

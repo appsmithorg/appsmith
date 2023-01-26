@@ -11,18 +11,18 @@ import lombok.Data;
 
 @Data
 public class DefaultResources {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String actionId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pageId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String collectionId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String branchName;
 }

@@ -39,22 +39,22 @@ public class AuthenticationDTO implements AppsmithDomain {
         FAILURE
     };
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authenticationType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     AuthenticationStatus authenticationStatus;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<Property> customAuthenticationParameters;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Boolean isAuthorized;
 
     @JsonView(Views.Internal.class)
     AuthenticationResponse authenticationResponse;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public Mono<Boolean> hasExpired() {
         return Mono.just(Boolean.FALSE);
     }

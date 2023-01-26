@@ -10,27 +10,27 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ExecutePluginDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String installationKey;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginVersion;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String actionTemplateName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String datasourceTemplateName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     DatasourceDTO datasource;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionConfiguration actionConfiguration;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ExecuteActionDTO executeActionDTO;
 }

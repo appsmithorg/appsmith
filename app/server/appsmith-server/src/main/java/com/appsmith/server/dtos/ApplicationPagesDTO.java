@@ -13,13 +13,13 @@ import java.util.List;
 @Setter
 public class ApplicationPagesDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Application application;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<PageNameIdDTO> pages;
 
 }

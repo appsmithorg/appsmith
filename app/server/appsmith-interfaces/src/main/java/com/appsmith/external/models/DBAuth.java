@@ -24,17 +24,17 @@ public class DBAuth extends AuthenticationDTO {
         SCRAM_SHA_1, SCRAM_SHA_256, MONGODB_CR, USERNAME_PASSWORD
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Type authType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String username;
 
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String password;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String databaseName;
 }

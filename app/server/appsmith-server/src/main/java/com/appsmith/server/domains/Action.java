@@ -29,81 +29,81 @@ import java.util.Set;
 @Deprecated
 public class Action extends BaseDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Datasource datasource;
 
     //Organizations migrated to workspaces, kept the field as depricated to support the old migration
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String organizationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pageId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String collectionId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionConfiguration actionConfiguration;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PluginType pluginType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean executeOnLoad;
 
     /*
      * This is a list of fields specified by the client to signify which fields have dynamic bindings in them.
      * TODO: The server can use this field to simplify our Mustache substitutions in the future
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Property> dynamicBindingPathList;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isValid;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> invalids;
 
 
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> jsonPathKeys;
 
     @JsonView(Views.Internal.class)
     String cacheResponse;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String templateId; //If action is created via a template, store the id here.
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String providerId; //If action is created via a template, store the template's provider id here.
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionProvider provider;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginId;
 
     @JsonView(Views.Internal.class)
     Boolean userSetOnLoad = false;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean confirmBeforeExecute = false;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Documentation documentation;
 
     /**
@@ -113,7 +113,7 @@ public class Action extends BaseDomain {
      *
      * @return
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public Datasource getDatasource() {
         if (this.datasource == null) {
             this.datasource = new Datasource();

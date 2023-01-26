@@ -19,20 +19,20 @@ import java.time.Instant;
 public class AuthenticationResponse implements AppsmithDomain {
 
     @Encrypted
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String token;
 
     @Encrypted
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String refreshToken;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Instant issuedAt;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Instant expiresAt;
 
     @Encrypted
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object tokenResponse;
 }

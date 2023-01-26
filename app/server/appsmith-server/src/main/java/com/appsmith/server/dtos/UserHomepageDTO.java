@@ -17,9 +17,9 @@ import java.util.List;
 @ToString
 public class UserHomepageDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     User user;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<WorkspaceApplicationsDTO> workspaceApplications;
 }

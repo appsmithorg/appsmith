@@ -12,14 +12,14 @@ public enum WidgetType {
     TABLE_WIDGET_V2("data"),
     INPUT_WIDGET("data");
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public final String query;
 
     WidgetType(String query) {
         this.query = query;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public String getMessage() {
         return this.query;
     }

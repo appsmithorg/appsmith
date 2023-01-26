@@ -24,7 +24,7 @@ public class IndexControllerCE {
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping
     public Mono<String> index(Mono<Principal> principal) {
         Mono<User> userMono = service.getCurrentUser();
@@ -37,7 +37,7 @@ public class IndexControllerCE {
      * This function is primarily for testing if we can publish to Redis successfully. If yes, the response should be
      * non-zero value number of subscribers who've successfully gotten the published message
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/redisPub")
     public Mono<Long> pubRedisMessage() {
         return reactiveTemplate.convertAndSend(topic.getTopic(), "This is a test message");

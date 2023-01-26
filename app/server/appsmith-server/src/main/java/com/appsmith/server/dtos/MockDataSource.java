@@ -10,16 +10,16 @@ import lombok.Setter;
 @Setter
 public class MockDataSource {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String packageName;
 
 }

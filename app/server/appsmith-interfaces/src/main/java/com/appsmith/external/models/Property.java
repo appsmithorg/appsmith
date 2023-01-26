@@ -23,37 +23,37 @@ public class Property {
         this.value = value;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String key;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object value;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean editable;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean internal;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String description;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean mandatory;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String type;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String defaultValue;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String minRange;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String maxRange;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String[] valueOptions; // This stores the values that are permitted by the api for the given key
 
 }

@@ -10,9 +10,9 @@ import lombok.Setter;
 @Setter
 public class GitBranchListDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String branchName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean isDefault;
 }

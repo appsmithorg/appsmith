@@ -11,12 +11,12 @@ import jakarta.validation.constraints.NotNull;
 @Data
 public class CommentThreadFilterDTO {
     @NotNull
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String applicationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Boolean resolved;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private ApplicationMode mode;
 }

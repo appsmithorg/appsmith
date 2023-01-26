@@ -29,13 +29,13 @@ public class Condition {
     public static final String PATH_KEY = "path";
     public static final String OPERATOR_KEY = "operator";
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String path;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ConditionalOperator operator;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object value;
 
     @JsonView(Views.Internal.class)

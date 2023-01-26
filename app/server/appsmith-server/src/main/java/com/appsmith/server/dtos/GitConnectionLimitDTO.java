@@ -13,9 +13,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Setter
 public class GitConnectionLimitDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     int repoLimit;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Instant expiryTime;
 }

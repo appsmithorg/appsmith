@@ -10,18 +10,18 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ActionProvider {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String imageUrl;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String url;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String description;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String credentialSteps;
 }

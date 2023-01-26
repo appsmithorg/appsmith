@@ -18,10 +18,10 @@ import lombok.ToString;
 @NoArgsConstructor
 public class InvisibleActionFields {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean unpublishedUserSetOnLoad;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean publishedUserSetOnLoad;
 
 }

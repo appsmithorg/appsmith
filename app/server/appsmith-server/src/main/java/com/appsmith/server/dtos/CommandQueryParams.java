@@ -11,9 +11,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Getter
 @Setter
 public class CommandQueryParams {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<OldParam> queryOldParams;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<OldParam> headerOldParams;
 }

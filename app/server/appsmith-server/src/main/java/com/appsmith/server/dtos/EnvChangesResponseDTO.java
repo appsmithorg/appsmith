@@ -12,7 +12,7 @@ import lombok.Data;
 public class EnvChangesResponseDTO {
 
     @JsonProperty(value = "isRestartRequired")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean isRestartRequired;
 
 }

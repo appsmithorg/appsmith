@@ -12,9 +12,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ItemDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ItemType type;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ApiTemplate item;
 }

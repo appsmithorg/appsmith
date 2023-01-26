@@ -17,16 +17,16 @@ import lombok.ToString;
 @AllArgsConstructor
 public class ResponseMetaDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private int status;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String message;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private boolean success = true;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private ErrorDTO error;
 
     public ResponseMetaDTO(int status, String message, boolean success) {

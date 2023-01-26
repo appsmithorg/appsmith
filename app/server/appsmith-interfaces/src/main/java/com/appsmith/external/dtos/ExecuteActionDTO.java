@@ -18,16 +18,16 @@ import java.util.stream.Collectors;
 @ToString
 public class ExecuteActionDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String actionId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Param> params;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PaginationField paginationField;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean viewMode = false;
 
     /*
@@ -47,16 +47,16 @@ public class ExecuteActionDTO {
      * "k5": "boolean"
      * }
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, Object> paramProperties;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, String> parameterMap; // e.g. {"Text1.text": "k1","Table1.data": "k2", "Api1.data": "k3"}
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Map<String, String> invertParameterMap; // e.g. {"k1":"Text1.text","k2":"Table1.data", "k3": "Api1.data"}
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public void setParameterMap(Map<String, String> parameterMap) {
         this.parameterMap = parameterMap;
         invertParameterMap = parameterMap.entrySet().stream()

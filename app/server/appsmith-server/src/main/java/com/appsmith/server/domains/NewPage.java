@@ -16,13 +16,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class NewPage extends BaseDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PageDTO unpublishedPage;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PageDTO publishedPage;
 
     public void sanitiseToExportDBObject() {

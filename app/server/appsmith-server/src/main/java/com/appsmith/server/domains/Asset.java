@@ -18,10 +18,10 @@ public class Asset extends BaseDomain {
         this(mediaType == null ? null : mediaType.toString(), data);
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String contentType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     byte[] data;
 
 }

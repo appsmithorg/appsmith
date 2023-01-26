@@ -19,10 +19,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Document
 public class Endpoint {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String host;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Long port;
 
 }

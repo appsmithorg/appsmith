@@ -39,7 +39,7 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
         throw new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION);
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("applications/{applicationId}")
     public Mono<ResponseDTO<List<Theme>>> getApplicationThemes(@PathVariable String applicationId,
                                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -47,7 +47,7 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
                 .map(themes -> new ResponseDTO<>(HttpStatus.OK.value(), themes, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("applications/{applicationId}/current")
     public Mono<ResponseDTO<Theme>> getCurrentTheme(@PathVariable String applicationId,
                                                     @RequestParam(required = false, defaultValue = "EDIT") ApplicationMode mode,
@@ -56,7 +56,7 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PutMapping("applications/{applicationId}")
     public Mono<ResponseDTO<Theme>> updateTheme(@PathVariable String applicationId,
                                                 @Valid @RequestBody Theme resource,
@@ -65,7 +65,7 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PatchMapping("applications/{applicationId}")
     public Mono<ResponseDTO<Theme>> publishCurrentTheme(@PathVariable String applicationId,
                                                         @RequestBody Theme resource,
@@ -74,7 +74,7 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PatchMapping("{themeId}")
     public Mono<ResponseDTO<Theme>> updateName(@PathVariable String themeId, @Valid @RequestBody Theme resource) {
         return service.updateName(themeId, resource)

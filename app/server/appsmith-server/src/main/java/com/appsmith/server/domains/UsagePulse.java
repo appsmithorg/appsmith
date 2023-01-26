@@ -14,23 +14,23 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class UsagePulse extends BaseDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String email;
 
     // Hashed user email
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String user;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String instanceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String tenantId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Boolean viewMode;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Boolean isAnonymousUser;
 
 }

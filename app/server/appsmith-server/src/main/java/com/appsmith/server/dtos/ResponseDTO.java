@@ -21,10 +21,10 @@ public class ResponseDTO<T> implements Serializable {
 
     private static final long serialVersionUID = 8965011907233699993L;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private ResponseMetaDTO responseMeta;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private T data;
 
     public ResponseDTO(int status, T data, String message) {

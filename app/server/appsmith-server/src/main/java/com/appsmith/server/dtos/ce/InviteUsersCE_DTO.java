@@ -13,11 +13,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Setter
 public class InviteUsersCE_DTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<String> usernames;
 
     @NotNull
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String permissionGroupId;
 
 }

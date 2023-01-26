@@ -16,12 +16,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PluginWorkspaceDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     WorkspacePluginStatus status;
 }

@@ -19,10 +19,10 @@ import lombok.Setter;
 @Builder
 public class Permission {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String documentId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     AclPermission aclPermission;
 
 }

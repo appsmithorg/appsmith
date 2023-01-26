@@ -13,12 +13,12 @@ import java.util.List;
 @Getter
 @Setter
 public class ApplicationImportDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Application application;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Datasource> unConfiguredDatasourceList;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isPartialImport;
 }

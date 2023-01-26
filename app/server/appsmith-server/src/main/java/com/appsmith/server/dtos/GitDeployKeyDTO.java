@@ -9,12 +9,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GitDeployKeyDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String protocolName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String platFormSupported;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     int keySize;
 }

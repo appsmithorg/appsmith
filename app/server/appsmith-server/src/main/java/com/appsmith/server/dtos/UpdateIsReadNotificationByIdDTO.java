@@ -18,6 +18,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 public class UpdateIsReadNotificationByIdDTO extends UpdateIsReadNotificationDTO {
     @NotNull
     @NotEmpty
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private List<String> idList;
 }

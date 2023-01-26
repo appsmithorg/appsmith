@@ -20,10 +20,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 @AllArgsConstructor
 public class DatasourceContextIdentifierCE {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     protected String datasourceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
 
     protected String environmentId;
 

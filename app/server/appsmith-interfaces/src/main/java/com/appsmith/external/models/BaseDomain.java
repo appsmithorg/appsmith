@@ -33,7 +33,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String id;
 
     @JsonView(Views.Internal.class)
@@ -46,26 +46,26 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     protected Instant updatedAt;
 
     @CreatedBy
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     protected String createdBy;
 
     @LastModifiedBy
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     protected String modifiedBy;
 
     // Deprecating this so we can move on to using `deletedAt` for all domain models.
     @Deprecated(forRemoval = true)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     protected Boolean deleted = false;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
     @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
     @Override
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public boolean isNew() {
         return this.getId() == null;
     }
@@ -76,7 +76,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     }
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
     // This field will be used to store the default/root resource IDs for branched resources generated for git

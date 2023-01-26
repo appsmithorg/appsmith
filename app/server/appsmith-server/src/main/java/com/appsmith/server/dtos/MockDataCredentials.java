@@ -9,18 +9,18 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MockDataCredentials {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String dbname;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String username;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String password;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String host;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Integer port;
 }

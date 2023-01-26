@@ -9,9 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UsagePulseDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String anonymousUserId;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean viewMode;
 }

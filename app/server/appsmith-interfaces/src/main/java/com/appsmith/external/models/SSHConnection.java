@@ -19,19 +19,19 @@ public class SSHConnection implements AppsmithDomain {
         IDENTITY_FILE, PASSWORD
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String host;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Long port;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String username;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     AuthType authType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     SSHPrivateKey privateKey;
 
 }

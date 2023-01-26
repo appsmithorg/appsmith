@@ -13,12 +13,12 @@ import lombok.ToString;
 @NoArgsConstructor
 public class PricingPlan {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Double pricePerMonthInUSD;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Integer quotaPerMonth;
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String details;
 }

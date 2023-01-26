@@ -19,28 +19,28 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @Document
 public class CommentThread extends AbstractCommentDomain {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isPrivate;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String tabId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Position position;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String refId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String widgetType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     CommentThreadState pinnedState;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     CommentThreadState resolvedState;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String sequenceId;
 
     @JsonView(Views.Internal.class)
@@ -54,44 +54,44 @@ public class CommentThread extends AbstractCommentDomain {
 
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isViewed;
 
     // These comments are saved in a separate collection and loaded by the APIs separately.
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Comment> comments;
 
     @Data
     public static class Position {
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Integer top;
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Integer left;
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Float topPercent;
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Float leftPercent;
     }
 
     @Data
     public static class CommentThreadState {
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         String authorName;
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         String authorUsername;
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Instant updatedAt;
-        @JsonView(Views.Api.class)
+        @JsonView(Views.Public.class)
         Boolean active;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public String getCreationTime() {
         return ISO_FORMATTER.format(createdAt);
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public String getUpdationTime() {
         return ISO_FORMATTER.format(updatedAt);
     }

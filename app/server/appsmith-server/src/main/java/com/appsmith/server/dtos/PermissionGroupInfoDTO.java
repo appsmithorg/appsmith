@@ -9,13 +9,13 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode
 public class PermissionGroupInfoDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String id;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String name;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String description;
 
 }

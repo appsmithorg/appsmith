@@ -11,9 +11,9 @@ import lombok.Setter;
 @Setter
 public class GitConnectDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String remoteUrl;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     GitProfile gitProfile;
 }

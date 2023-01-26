@@ -47,25 +47,25 @@ public class SSLDetails implements AppsmithDomain {
         BASE64_STRING
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     AuthType authType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     CACertificateType caCertificateType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     UploadedFile keyFile;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     UploadedFile certificateFile;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     UploadedFile caCertificateFile;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean usePemCertificate;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PEMCertificate pemCertificate;
 
 }

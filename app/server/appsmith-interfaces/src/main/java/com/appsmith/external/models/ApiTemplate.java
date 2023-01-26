@@ -16,33 +16,33 @@ import com.fasterxml.jackson.annotation.JsonView;
 public class ApiTemplate extends BaseDomain {
 
     // ApiTemplate fields below :
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name; //API name here
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String providerId; //Providers, e.g. Salesforce should exist in the db and its id should come here.
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String publisher; //e.g. RapidAPI
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String packageName; //Plugin package name used to execute the final action created by this template
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String versionId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ApiTemplateConfiguration apiTemplateConfiguration;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionConfiguration actionConfiguration;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String hashValue;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String scraperId;
 }

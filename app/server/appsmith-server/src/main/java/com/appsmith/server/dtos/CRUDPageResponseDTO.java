@@ -15,16 +15,16 @@ import lombok.Setter;
 @Setter
 public class CRUDPageResponseDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PageDTO page;
 
     // This field will give some guidelines how to interact with the widgets on the canvas created by CreateDBTablePageSolution
     // e.g. We have generated the table from Datasource. You can use the Form> to modify it. Since all your data is
     // already connected you can add more queries and modify the bindings
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String successMessage;
 
     // This field will be used to display the image on how to use the template application
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String successImageUrl;
 }

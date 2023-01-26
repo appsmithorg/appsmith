@@ -9,9 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class InstallPluginRedisDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PluginWorkspaceDTO pluginWorkspaceDTO;
 }

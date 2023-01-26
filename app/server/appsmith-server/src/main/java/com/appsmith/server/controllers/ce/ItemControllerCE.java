@@ -30,7 +30,7 @@ public class ItemControllerCE {
         this.service = service;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("")
     public Mono<ResponseDTO<List<ItemDTO>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all items by parameters " + params);
@@ -38,7 +38,7 @@ public class ItemControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/addToPage")
     public Mono<ResponseDTO<ActionDTO>> addItemToPage(@RequestBody AddItemToPageDTO addItemToPageDTO) {
         log.debug("Going to add item {} to page {} with new name {}", addItemToPageDTO.getMarketplaceElement().getItem().getName(),

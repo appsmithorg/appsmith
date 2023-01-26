@@ -9,9 +9,9 @@ import lombok.Data;
 
 @Data
 public class GitDeployKeys extends BaseDomain {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String email;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     GitAuth gitAuth;
 }

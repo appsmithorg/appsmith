@@ -10,16 +10,16 @@ import java.util.List;
 @Getter
 @Setter
 public class GitAuthDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String publicKey;
 
     @JsonView(Views.Internal.class)
     String privateKey;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String docUrl;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<GitDeployKeyDTO> gitSupportedSSHKeyType;
 
 }

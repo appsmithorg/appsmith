@@ -23,43 +23,43 @@ import java.util.Set;
 @Data
 public class UserSessionDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String userId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String email;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String hashedEmail;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private LoginSource source;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private UserState state;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Boolean isEnabled;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String currentWorkspaceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Set<String> workspaceIds;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String tenantId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Object credentials;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Collection<? extends GrantedAuthority> authorities;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String authorizedClientRegistrationId;
 
     private static final String PASSWORD_PROVIDER = "password";

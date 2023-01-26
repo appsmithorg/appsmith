@@ -13,12 +13,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class InviteUser extends User {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String inviterUserId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String token;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     AppsmithRole role;
 }

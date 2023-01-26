@@ -12,9 +12,9 @@ import lombok.Setter;
 @Setter
 public class GitPullDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Application application;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     MergeStatusDTO mergeStatus;
 }

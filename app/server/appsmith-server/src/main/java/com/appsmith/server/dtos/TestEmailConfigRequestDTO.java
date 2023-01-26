@@ -13,22 +13,22 @@ import jakarta.validation.constraints.NotNull;
 public class TestEmailConfigRequestDTO {
     @NotNull
     @NotEmpty
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String smtpHost;
 
     @NotNull
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Integer smtpPort;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String username;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String password;
 
     @NotNull
     @NotEmpty
     @Email
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String fromEmail;
 }

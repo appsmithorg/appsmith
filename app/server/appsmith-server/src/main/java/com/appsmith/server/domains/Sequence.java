@@ -10,10 +10,10 @@ import lombok.Setter;
 @Setter
 public class Sequence {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private Long nextNumber;
 
 }

@@ -23,121 +23,121 @@ import java.util.Set;
 public class ActionDTO {
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String id;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String applicationId;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String workspaceId;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PluginType pluginType;
 
     // name of the plugin. used to log analytics events where pluginName is a required attribute
     // It'll be null if not set
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginName;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pluginId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
     // The FQN for an action will also include any collection it is a part of as collectionName.actionName
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String fullyQualifiedName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Datasource datasource;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pageId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String collectionId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionConfiguration actionConfiguration;
 
     //this attribute carries error messages while processing the actionCollection
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<ErrorDTO> errorReports;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean executeOnLoad;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean clientSideExecution;
 
     /*
      * This is a list of fields specified by the client to signify which fields have dynamic bindings in them.
      * TODO: The server can use this field to simplify our Mustache substitutions in the future
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Property> dynamicBindingPathList;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isValid;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> invalids;
 
     @Transient
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> messages = new HashSet<>();
 
 
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> jsonPathKeys;
 
     @JsonView(Views.Internal.class)
     String cacheResponse;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String templateId; //If action is created via a template, store the id here.
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String providerId; //If action is created via a template, store the template's provider id here.
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionProvider provider;
 
     @JsonView(Views.Internal.class)
     Boolean userSetOnLoad = false;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean confirmBeforeExecute = false;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Documentation documentation;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Instant deletedAt = null;
 
     @Deprecated
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Instant archivedAt = null;
 
     @Transient
@@ -145,7 +145,7 @@ public class ActionDTO {
     protected Set<Policy> policies = new HashSet<>();
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
     // This field will be used to store the default/root actionId and applicationId for actions generated for git
@@ -160,7 +160,7 @@ public class ActionDTO {
      *
      * @return
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public Datasource getDatasource() {
         if (this.datasource == null) {
             this.datasource = new Datasource();
@@ -169,7 +169,7 @@ public class ActionDTO {
         return datasource;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public String getValidName() {
         if (this.fullyQualifiedName == null) {
             return this.name;

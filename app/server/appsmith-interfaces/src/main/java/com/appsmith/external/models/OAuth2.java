@@ -43,60 +43,60 @@ public class OAuth2 extends AuthenticationDTO {
         BODY
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Type grantType;
 
     // Send tokens as query params if false
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isTokenHeader = false;
 
     // Send auth details in body if false
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isAuthorizationHeader = false;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String clientId;
 
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String clientSecret;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String authorizationUrl;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String accessTokenUrl;
 
     @Transient
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String scopeString;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> scope;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean sendScopeWithRefreshToken;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     RefreshTokenClientCredentialsLocation refreshTokenClientCredentialsLocation;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String headerPrefix;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<Property> customTokenParameters;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String audience;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String resource;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     boolean useSelfSignedCert = false;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {
             return scopeString;
@@ -105,7 +105,7 @@ public class OAuth2 extends AuthenticationDTO {
         } else return null;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public void setScopeString(String scopeString) {
         this.scopeString = scopeString;
         if (scopeString != null && !scopeString.isBlank()) {

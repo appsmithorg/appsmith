@@ -10,9 +10,9 @@ import lombok.Setter;
 @Setter
 public class ApplicationNameIdDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String id;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 }

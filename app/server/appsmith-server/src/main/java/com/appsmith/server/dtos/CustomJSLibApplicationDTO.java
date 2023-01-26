@@ -14,7 +14,7 @@ public class CustomJSLibApplicationDTO {
      * This string is used to uniquely identify a given library. We expect this to be universally unique for a given
      * JS library
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String uidString;
 
     @Override
@@ -34,7 +34,7 @@ public class CustomJSLibApplicationDTO {
         return this.uidString.hashCode();
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public static CustomJSLibApplicationDTO getDTOFromCustomJSLib(CustomJSLib jsLib) {
         CustomJSLibApplicationDTO customJSLibApplicationDTO = new CustomJSLibApplicationDTO();
         customJSLibApplicationDTO.setUidString(jsLib.getUidString());

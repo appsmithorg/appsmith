@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 @Data
 public class ExportFileDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     HttpHeaders httpHeaders;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object applicationResource;
 }

@@ -22,16 +22,16 @@ import java.util.Map;
 public class Tenant extends BaseDomain {
 
     @Unique
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String slug;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String displayName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PricingPlan pricingPlan;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     TenantConfiguration tenantConfiguration;
 
     // TODO add SSO and other configurations here after migrating from environment variables to database configuration

@@ -30,7 +30,7 @@ public class CustomJSLibControllerCE {
         this.customJSLibService = customJSLibService;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PatchMapping("/{applicationId}/add")
     public Mono<ResponseDTO<Boolean>> addJSLibToApplication(@RequestBody @Valid CustomJSLib customJSLib,
                                                             @PathVariable String applicationId, @RequestHeader(name =
@@ -42,7 +42,7 @@ public class CustomJSLibControllerCE {
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PatchMapping("/{applicationId}/remove")
     public Mono<ResponseDTO<Boolean>> removeJSLibFromApplication(@RequestBody @Valid CustomJSLib customJSLib,
                                                                  @PathVariable String applicationId,
@@ -56,7 +56,7 @@ public class CustomJSLibControllerCE {
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/{applicationId}")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplication(@PathVariable String applicationId,
                                                                                       @RequestHeader(name =
@@ -67,7 +67,7 @@ public class CustomJSLibControllerCE {
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/{applicationId}/view")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplicationForViewMode(@PathVariable String applicationId,
                                                                                                  @RequestHeader(name =FieldName.BRANCH_NAME,

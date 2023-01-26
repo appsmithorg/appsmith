@@ -23,7 +23,7 @@ public class ProviderControllerCE extends BaseController<ProviderService, Provid
         super(service);
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/categories")
     public Mono<ResponseDTO<List<String>>> getAllCategories() {
         return service.getAllCategories()

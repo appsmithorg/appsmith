@@ -30,7 +30,7 @@ public class SaasControllerCE {
         this.authenticationService = authenticationService;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/{datasourceId}/pages/{pageId}/oauth")
     public Mono<ResponseDTO<String>> getAppsmithToken(@PathVariable String datasourceId,
                                                       @PathVariable String pageId,
@@ -43,7 +43,7 @@ public class SaasControllerCE {
                 .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @PostMapping("/{datasourceId}/token")
     public Mono<ResponseDTO<Datasource>> getAccessToken(@PathVariable String datasourceId, @RequestParam String appsmithToken, ServerWebExchange serverWebExchange) {
 

@@ -13,10 +13,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Setter
 @ToString
 public class DatasourceContext<T> {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     T connection;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Instant creationTime;
 
     public DatasourceContext() {

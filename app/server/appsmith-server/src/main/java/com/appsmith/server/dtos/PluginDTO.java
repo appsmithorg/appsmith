@@ -10,15 +10,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PluginDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     PluginType type;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String executorClass;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String jarLocation;
 }

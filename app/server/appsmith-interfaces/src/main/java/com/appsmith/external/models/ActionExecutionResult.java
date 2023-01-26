@@ -20,44 +20,44 @@ import java.util.Set;
 @NoArgsConstructor
 public class ActionExecutionResult {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String statusCode;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String title;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String errorType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     JsonNode headers;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Object body;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String readableError;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isExecutionSuccess = false;
 
     /*
      * - To return useful hints to the user.
      * - E.g. if sql query result has identical columns
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Set<String> messages;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionExecutionRequest request;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<ParsedDataType> dataTypes;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<WidgetSuggestionDTO> suggestedWidgets;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public void setErrorInfo(Throwable error, AppsmithPluginErrorUtils pluginErrorUtils) {
         this.body = error.getMessage();
 
@@ -75,7 +75,7 @@ public class ActionExecutionResult {
         }
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public void setErrorInfo(Throwable error) {
         this.setErrorInfo(ExceptionHelper.getRootCause(error), null);
     }

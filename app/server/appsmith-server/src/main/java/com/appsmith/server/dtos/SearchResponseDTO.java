@@ -20,12 +20,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchResponseDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Provider> providers;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<ApiTemplate> apiTemplates;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     List<Action> actions;
 }

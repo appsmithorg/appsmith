@@ -27,15 +27,15 @@ public class Connection implements AppsmithDomain {
         DIRECT, REPLICA_SET
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Mode mode;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Type type;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     SSLDetails ssl;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String defaultDatabaseName;
 }

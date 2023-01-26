@@ -15,7 +15,7 @@ import jakarta.validation.constraints.NotNull;
 public class ApplicationAccessDTO {
 
     @NotNull
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean publicAccess;
 
 }

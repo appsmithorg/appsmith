@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class GitCheckoutBranchDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isRemote;
 
 }

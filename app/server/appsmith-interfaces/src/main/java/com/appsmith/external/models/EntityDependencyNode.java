@@ -12,25 +12,25 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EntityDependencyNode {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     EntityReferenceType entityReferenceType;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String validEntityName;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String referenceString;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isAsync;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean isFunctionCall;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionDTO actionDTO;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public boolean isValidDynamicBinding() {
         boolean result = true;
 

@@ -11,21 +11,21 @@ import lombok.Data;
 @Data
 public class UserUpdateDTO {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String role;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String useCase;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public boolean hasUserUpdates() {
         return name != null;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     public boolean hasUserDataUpdates() {
         return role != null || useCase != null;
     }

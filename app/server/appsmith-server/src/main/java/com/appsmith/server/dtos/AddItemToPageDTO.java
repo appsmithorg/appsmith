@@ -11,15 +11,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class AddItemToPageDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String pageId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ItemDTO marketplaceElement;
 }

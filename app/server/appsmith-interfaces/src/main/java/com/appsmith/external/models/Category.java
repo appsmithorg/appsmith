@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 public class Category extends BaseDomain {
 
     @Indexed(unique = true)
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String name; //Category name here
 
 }

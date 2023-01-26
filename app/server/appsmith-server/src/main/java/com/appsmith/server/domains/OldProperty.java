@@ -10,15 +10,15 @@ import lombok.Setter;
 @Setter
 public class OldProperty {
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String key;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String value;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean editable;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     Boolean internal;
 }

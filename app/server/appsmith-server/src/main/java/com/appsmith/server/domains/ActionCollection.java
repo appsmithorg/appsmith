@@ -24,21 +24,21 @@ public class ActionCollection extends BaseDomain {
 
     // Default resources from base domain will be used to store branchName, defaultApplicationId and defaultActionCollectionId
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String applicationId;
 
     //Organizations migrated to workspaces, kept the field as depricated to support the old migration
     @Deprecated
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String organizationId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionCollectionDTO unpublishedCollection;
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     ActionCollectionDTO publishedCollection;
 
     public void sanitiseToExportDBObject() {

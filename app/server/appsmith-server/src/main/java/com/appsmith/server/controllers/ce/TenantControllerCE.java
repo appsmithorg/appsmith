@@ -33,7 +33,7 @@ public class TenantControllerCE {
      *
      * @return
      */
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/current")
     public Mono<ResponseDTO<Tenant>> getTenantConfig() {
         return service.getTenantConfiguration()

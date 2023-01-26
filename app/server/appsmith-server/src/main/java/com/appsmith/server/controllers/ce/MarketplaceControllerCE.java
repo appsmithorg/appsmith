@@ -32,7 +32,7 @@ public class MarketplaceControllerCE {
         this.marketplaceService = marketplaceService;
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/search")
     Mono<ResponseDTO<SearchResponseDTO>> searchAPIOrProviders(@RequestParam String searchKey, @RequestParam(required = false) Integer limit) {
 
@@ -44,7 +44,7 @@ public class MarketplaceControllerCE {
                 });
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/templates")
     public Mono<ResponseDTO<List<ApiTemplate>>> getAllTemplatesFromMarketplace(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all templates from Marketplace");
@@ -52,7 +52,7 @@ public class MarketplaceControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/providers")
     public Mono<ResponseDTO<ProviderPaginatedDTO>> getAllProvidersFromMarketplace(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all providers from Marketplace");
@@ -60,7 +60,7 @@ public class MarketplaceControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/providers/{id}")
     public Mono<ResponseDTO<Provider>> getProviderByIdFromMarketplace(@PathVariable String id) {
         log.debug("Going to get provider from Marketplace with id {}", id);
@@ -68,7 +68,7 @@ public class MarketplaceControllerCE {
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/categories")
     public Mono<ResponseDTO<List<String>>> getAllCategoriesFromMarketplace() {
         log.debug("Going to get all categories from Marketplace");

@@ -8,9 +8,9 @@ import lombok.Data;
 
 @Data
 public class UserSignupDTO {
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private User user;
     
-    @JsonView(Views.Api.class)
+    @JsonView(Views.Public.class)
     private String defaultWorkspaceId;
 }
