@@ -333,7 +333,7 @@ class ListWidget extends BaseWidget<
       this.metaWidgetGenerator.getContainerParentCache() || {};
     if (
       this.props.isMetaWidget &&
-      metaMainCanvasId !== this.props.children?.[0]?.widgetId
+      metaMainCanvasId !== this.props.metaWidgetChildrenStructure?.[0]?.widgetId
     ) {
       // Inner list widget's cloned row's main canvas widget
       // will have a new widgetId as it has to be different from the
