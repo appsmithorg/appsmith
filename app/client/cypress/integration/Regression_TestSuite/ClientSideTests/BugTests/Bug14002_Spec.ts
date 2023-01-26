@@ -1,0 +1,30 @@
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const jsEditor = ObjectsRegistry.JSEditor,
+  agHelper = ObjectsRegistry.AggregateHelper;
+
+describe("Invalid JSObject export statement", function() {
+  it("Completes execution properly", function() {
+    const JSObjectWithInvalidExport = `{
+        myFun1: ()=>{
+            return (name)=>name
+        },
+        myFun2: async ()=>{
+            return this.myFun1()("John Doe")
+        }
+    }`;
+
+    const INVALID_START_STATEMENT = "Start object with export default";
+
+    jsEditor.CreateJSObject(JSObjectWithInvalidExport, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+      prettify: false,
+    });
+
+    // Assert toast message
+    agHelper.ValidateToastMessage(INVALID_START_STATEMENT);
+  });
+});
