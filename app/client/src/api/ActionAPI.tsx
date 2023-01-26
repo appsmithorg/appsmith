@@ -95,6 +95,7 @@ export interface ActionResponse {
   errorType?: string;
   readableError?: string;
   responseDisplayFormat?: string;
+  pluginErrorDetails?: any;
 }
 
 export interface MoveActionRequest {
