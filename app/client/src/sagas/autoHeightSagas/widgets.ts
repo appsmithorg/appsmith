@@ -82,10 +82,19 @@ export function* updateWidgetAutoHeightSaga(
   const widgetsMeasuredInPixels = [];
   const widgetCanvasOffsets: Record<string, number> = {};
 
-  log.debug("Dynamic Height: updates to process", { updates });
+  // Get all widgets from canvasWidgetsReducer
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   if (action?.payload) {
-    updates = { [action.payload.widgetId]: action.payload.height };
+    const offset = getCanvasHeightOffset(
+      stateWidgets[action.payload.widgetId].type,
+      stateWidgets[action.payload.widgetId],
+    );
+
+    updates = {
+      [action.payload.widgetId]:
+        action.payload.height + offset * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    };
     /* Creating a new type called dynamicHeightLayoutTree. */
     dynamicHeightLayoutTree = yield select(getAutoHeightLayoutTree);
   } else {
@@ -96,8 +105,7 @@ export function* updateWidgetAutoHeightSaga(
     dynamicHeightLayoutTree = result.tree;
   }
 
-  // Get all widgets from canvasWidgetsReducer
-  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  log.debug("Auto Height: updates to process", { updates });
 
   // Initialise all the widgets we will be updating
   const widgetsToUpdate: UpdateWidgetsPayload = {};

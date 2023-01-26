@@ -41,8 +41,13 @@ export function getNodesAndStylesToUpdate(
       ? 1
       : GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
-    height =
-      (propertiesToUpdate.bottomRow - propertiesToUpdate.topRow) * multiplier;
+    if (propertiesToUpdate.height) {
+      height = propertiesToUpdate.height * multiplier;
+    } else {
+      height =
+        (propertiesToUpdate.bottomRow - propertiesToUpdate.topRow) * multiplier;
+    }
+
     y = propertiesToUpdate.topRow * multiplier + CONTAINER_GRID_PADDING;
 
     result[widgetId] = { y, height };

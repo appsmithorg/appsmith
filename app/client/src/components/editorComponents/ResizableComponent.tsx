@@ -314,7 +314,6 @@ export const ResizableComponent = memo(function ResizableComponent(
       zWidgetType={props.type}
     >
       <VisibilityContainer
-        className={`visibility-container-${props.widgetId}`}
         padding={props.paddingOffset}
         visible={!!props.isVisible}
       >

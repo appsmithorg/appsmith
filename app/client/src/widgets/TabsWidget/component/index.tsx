@@ -64,7 +64,7 @@ export interface TabsContainerProps {
 const Container = styled.div`
   width: 100%;
   align-items: flex-end;
-  height: 44px;
+  height: 40px;
 
   & {
     svg path,
@@ -80,7 +80,7 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
   cursor: pointer;
   display: flex;
   position: absolute;
-  height: 34px;
+  height: 30px;
   padding: 0 10px;
 
   & > span {

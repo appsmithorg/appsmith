@@ -1,30 +1,12 @@
 import React, { MouseEventHandler, PropsWithChildren, ReactNode } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import WidgetStyleContainer, {
   WidgetStyleContainerProps,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
 import tinycolor from "tinycolor2";
 import { WidgetType } from "utils/WidgetFactory";
-
-// This is to be applied to only those widgets which will scroll for example, container widget, etc.
-// But this won't apply to CANVAS_WIDGET.
-const scrollCSS = css`
-  position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overflow-y: overlay;
-
-  scrollbar-color: #cccccc transparent;
-  scroolbar-width: thin;
-
-  &::-webkit-scrollbar-thumb {
-    background: #cccccc !important;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent !important;
-  }
-`;
+import { scrollCSS } from "widgets/WidgetUtils";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">

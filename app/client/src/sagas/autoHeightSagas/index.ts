@@ -24,7 +24,7 @@ export default function* autoHeightSagas() {
       updateWidgetAutoHeightSaga,
     ),
     takeEvery(
-      ReduxActionTypes.IMMEDIATELY_UPDATE_AUTO_HEIGHT,
+      ReduxActionTypes.DIRECT_DOM_UPDATE_AUTO_HEIGHT,
       updateWidgetAutoHeightSaga,
     ),
     takeLatest(

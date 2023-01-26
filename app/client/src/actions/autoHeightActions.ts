@@ -57,12 +57,12 @@ export function checkContainersForAutoHeightAction(resettingTabs?: boolean) {
   };
 }
 
-export function immediatelyUpdateAutoHeightAction(
+export function updateDOMDirectlyBasedOnAutoHeightAction(
   widgetId: string,
   height: number,
 ) {
   return {
-    type: ReduxActionTypes.IMMEDIATELY_UPDATE_AUTO_HEIGHT,
+    type: ReduxActionTypes.DIRECT_DOM_UPDATE_AUTO_HEIGHT,
     payload: {
       height: height * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       widgetId,

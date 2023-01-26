@@ -387,8 +387,9 @@ export function getCanvasWidgetHeightsToUpdate(
               childCanvasWidgetId,
               canvasWidgets,
             );
-            if (bottomRow > 0)
+            if (bottomRow > 0) {
               updatedCanvasWidgets[childCanvasWidgetId] = bottomRow;
+            }
           }
         }
       }
@@ -414,27 +415,61 @@ export function getCanvasBottomRow(
   canvasWidgets: Record<string, FlattenedWidgetProps>,
 ) {
   const canvasWidget = canvasWidgets[canvasWidgetId];
-  if (canvasWidget === undefined) return 0;
-  if (canvasWidget.type !== "CANVAS_WIDGET") return canvasWidget.bottomRow;
+  // If this widget is not defined
+  // It is likely a part of the list widget's canvases
+  if (canvasWidget === undefined) {
+    return 0;
+  }
+  // If this widget is not a CANVAS_WIDGET
+  if (canvasWidget.type !== "CANVAS_WIDGET") {
+    return canvasWidget.bottomRow;
+  }
+
   const children = canvasWidget.children;
   let parentHeightInRows = Math.ceil(
     canvasWidget.bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
+
+  // Hypothetical thoughts:
+  // If this is the MainContainer
+  // We need some special handling.
+  // What we can do is use the viewport height and compute the minimum using that
+  // in the edit mode
+  // In the view mode, we can do the same?
+  // This is because, we might have changed the "bottomRow" somewhere and that will
+  // cause it to consider that value, and give us a large scroll.
+
   if (canvasWidget.parentId) {
     const parentWidget = canvasWidgets[canvasWidget.parentId];
-    if (parentWidget === undefined) return 0;
-    if (parentWidget.type === "LIST_WIDGET") return canvasWidget.bottomRow;
+    // If the parent widget is undefined but the parentId exists
+    // It is likely a part of the list widget
+    if (parentWidget === undefined) {
+      return 0;
+    }
+    // If the parent is list widget, let's return the canvasWidget.bottomRow
+    // We'll be handling this specially in withWidgetProps
+    if (parentWidget.type === "LIST_WIDGET") {
+      return canvasWidget.bottomRow;
+    }
+
+    // Widgets like Tabs widget have an offset we need to subtract
     const parentHeightOffset = getCanvasHeightOffset(
       parentWidget.type,
       parentWidget,
     );
+    // The parent's height in rows
     parentHeightInRows = parentWidget.bottomRow - parentWidget.topRow;
 
+    // If the parent is modal widget, we need to consider the `height` instead
+    // of the bottomRow
+    // TODO(abhinav): We could use one or the other and not have both, maybe
+    // update the bottomRow of the modal widget instead?
     if (parentWidget.type === "MODAL_WIDGET" && parentWidget.height) {
       parentHeightInRows = Math.floor(
         parentWidget.height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       );
     }
+    // Subtract the canvas offset due to some parent elements
     parentHeightInRows = parentHeightInRows - parentHeightOffset;
   }
 

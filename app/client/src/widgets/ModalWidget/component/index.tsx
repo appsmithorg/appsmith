@@ -81,6 +81,7 @@ const Container = styled.div<{
         background: ${({ backgroundColor }) =>
           `${backgroundColor || Colors.WHITE}`};
         border-radius: ${({ borderRadius }) => borderRadius};
+        overflow: hidden;
       }
     }
   }
@@ -90,7 +91,6 @@ const Content = styled.div<{
   scroll: boolean;
   ref: RefObject<HTMLDivElement>;
 }>`
-  overflow-y: ${(props) => (props.scroll ? "visible" : "hidden")};
   overflow-x: hidden;
   width: 100%;
   height: 100%;

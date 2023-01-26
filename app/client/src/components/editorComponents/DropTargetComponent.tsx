@@ -27,7 +27,7 @@ import {
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getDragDetails } from "sagas/selectors";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
-import { immediatelyUpdateAutoHeightAction } from "actions/autoHeightActions";
+import { updateDOMDirectlyBasedOnAutoHeightAction } from "actions/autoHeightActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 type DropTargetComponentProps = PropsWithChildren<{
@@ -79,6 +79,10 @@ const updateHeight = (
   if (ref.current) {
     const height = `${currentRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
     ref.current.style.height = height;
+    const artboard = document.getElementById("art-board");
+    if (artboard) {
+      artboard.style.height = height;
+    }
   }
 };
 
@@ -136,10 +140,8 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
       // based on the auto height computations
       // This also updates any "dropTargets" that need to change height
       // hence, this and the `updateHeight` function are mutually exclusive.
-      if (isParentAutoHeightEnabled || widgetId === MAIN_CONTAINER_WIDGET_ID) {
-        dispatch(
-          immediatelyUpdateAutoHeightAction(parentId || widgetId, newRows),
-        );
+      if (isParentAutoHeightEnabled && parentId) {
+        dispatch(updateDOMDirectlyBasedOnAutoHeightAction(parentId, newRows));
       } else {
         // Basically, we don't have auto height triggering, so the dropTarget height should be updated using
         // the `updateHeight` function

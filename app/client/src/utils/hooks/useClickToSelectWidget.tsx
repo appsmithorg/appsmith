@@ -8,8 +8,16 @@ import {
   isWidgetSelected,
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
+import styled from "styled-components";
 import { stopEventPropagation } from "utils/AppsmithUtils";
+import { scrollCSS } from "widgets/WidgetUtils";
 import { useWidgetSelection } from "./useWidgetSelection";
+
+const ContentWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  ${scrollCSS}
+`;
 
 export function ClickContentToOpenPropPane({
   children,
@@ -41,20 +49,14 @@ export function ClickContentToOpenPropPane({
     e.stopPropagation();
   };
 
-  const styles = {
-    width: "100%",
-    height: "100%",
-  };
-
   return (
-    <div
+    <ContentWrapper
       onClick={stopEventPropagation}
       onMouseDownCapture={clickToSelectWidget}
       onMouseOver={handleMouseOver}
-      style={styles}
     >
       {children}
-    </div>
+    </ContentWrapper>
   );
 }
 
