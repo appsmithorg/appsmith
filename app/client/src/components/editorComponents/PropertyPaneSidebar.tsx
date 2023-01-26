@@ -22,6 +22,7 @@ import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { getPaneCount, isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { PaneLayoutOptions } from "reducers/uiReducers/multiPaneReducer";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 type Props = {
   width: number;
@@ -65,6 +66,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
 
   const selectedWidgets = useSelector(selectedWidgetsPresentInCanvas, equal);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
