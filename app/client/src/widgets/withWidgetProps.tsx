@@ -151,7 +151,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
       shouldResetCollapsedContainerHeightInCanvasMode
     ) {
-      dispatch(checkContainersForAutoHeightAction());
       // We also need to check if a non-auto height widget has collapsed earlier
       // We can figure this out if the widget height is zero and the beforeCollapse
       // topRow and bottomRow are available.
@@ -174,6 +173,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
             height: heightBeforeCollapse,
           },
         });
+      } else {
+        dispatch(checkContainersForAutoHeightAction());
       }
     }
 
