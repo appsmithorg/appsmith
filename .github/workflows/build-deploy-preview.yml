@@ -17,6 +17,6 @@ jobs:
         uses: peter-evans/slash-command-dispatch@v3
         with:
           issue-type: pull-request
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
           commands: |
             build-deploy-preview
