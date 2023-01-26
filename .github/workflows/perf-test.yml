@@ -291,6 +291,11 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: performance-test-logs
+          path: app/client/perf/traces/reports
+
         # Set status = success
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
