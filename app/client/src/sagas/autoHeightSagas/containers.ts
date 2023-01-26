@@ -1,4 +1,7 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
 import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
@@ -18,7 +21,9 @@ import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 
-export function* dynamicallyUpdateContainersSaga() {
+export function* dynamicallyUpdateContainersSaga(
+  action?: ReduxAction<{ resettingTabs: boolean }>,
+) {
   const start = performance.now();
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -54,8 +59,9 @@ export function* dynamicallyUpdateContainersSaga() {
         dataTreeWidget &&
         (dataTreeWidget as DataTreeWidget).isVisible !== true &&
         shouldCollapse
-      )
+      ) {
         continue;
+      }
 
       if (isAutoHeightEnabledForWidget(parentContainerWidget)) {
         // Get the child we need to consider
@@ -71,7 +77,9 @@ export function* dynamicallyUpdateContainersSaga() {
         // For example, if this canvas widget in consideration
         // is not the selected tab's canvas in a tabs widget
         // we don't have to consider it at all
-        if (childWidgetId !== canvasWidget.widgetId) continue;
+        if (childWidgetId !== canvasWidget.widgetId) {
+          continue;
+        }
 
         // Get the boundaries for possible min and max dynamic height.
         const minDynamicHeightInRows = getWidgetMinAutoHeight(
@@ -122,6 +130,21 @@ export function* dynamicallyUpdateContainersSaga() {
         // If the new height is above the max threshold
         if (maxBottomRow > maxDynamicHeightInRows) {
           maxBottomRow = maxDynamicHeightInRows;
+        }
+
+        if (
+          action?.payload.resettingTabs &&
+          parentContainerWidget.type === "TABS_WIDGET"
+        ) {
+          const layoutNode =
+            dynamicHeightLayoutTree[parentContainerWidget.widgetId];
+
+          if (
+            layoutNode &&
+            maxBottomRow === layoutNode.bottomRow - layoutNode.topRow
+          ) {
+            continue;
+          }
         }
 
         // If we have a new height to set and

@@ -100,13 +100,22 @@ export function directlyMutateDOMNodes(
       skipTop = true;
     }
 
+    const widgetBoundary = document.querySelector(
+      `.widget-boundary-${widgetId}`,
+    );
+    if (widgetBoundary) {
+      (widgetBoundary as HTMLDivElement).style.opacity = "0";
+    }
+
     const dropTarget = widgetNode?.querySelector(`.drop-target-${widgetId}`);
 
     if (widgetNode) {
       widgetNode.style.height = `${height}px`;
       // For some widgets the top is going to be useless,
       // for example, modal widget and main container
-      if (!skipTop) widgetNode.style.top = `${updates[widgetId].y}px`;
+      if (!skipTop) {
+        widgetNode.style.top = `${updates[widgetId].y}px`;
+      }
 
       if (dropTarget) {
         const dropTargetHeight =

@@ -32,7 +32,6 @@ type DraggableComponentProps = WidgetProps;
 
 // Widget Boundaries which is shown to indicate the boundaries of the widget
 const WidgetBoundaries = styled.div`
-  transform: translate3d(-${WIDGET_PADDING + 1}px, -${WIDGET_PADDING + 1}px, 0);
   z-index: 0;
   width: calc(100% + ${WIDGET_PADDING - 2}px);
   height: calc(100% + ${WIDGET_PADDING - 2}px);
@@ -40,6 +39,9 @@ const WidgetBoundaries = styled.div`
   border: 1px dashed
     ${(props) => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
   pointer-events: none;
+  top: 0;
+  position: absolute;
+  left: 0;
 `;
 
 /**
@@ -122,10 +124,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
     return {
       opacity: !isResizingOrDragging || isCurrentWidgetResizing ? 0 : 1,
-      position: "absolute",
-      transform: `translate(-50%, -50%)`,
-      top: "50%",
-      left: "50%",
     };
   }, [isResizingOrDragging, isCurrentWidgetResizing]);
 
@@ -191,7 +189,10 @@ function DraggableComponent(props: DraggableComponentProps) {
       style={dragWrapperStyle}
     >
       {shouldRenderComponent && props.children}
-      <WidgetBoundaries style={dragBoundariesStyle} />
+      <WidgetBoundaries
+        className={`widget-boundary-${props.widgetId}`}
+        style={dragBoundariesStyle}
+      />
     </DraggableWrapper>
   );
 }

@@ -528,7 +528,7 @@ export function* updateWidgetAutoHeightSaga(
     }
   }
 
-  log.debug("Dynamic height: Widgets to update:", { widgetsToUpdate });
+  log.debug("Auto height: Widgets to update:", { widgetsToUpdate });
 
   if (Object.keys(widgetsToUpdate).length > 0) {
     if (!action?.payload) {
