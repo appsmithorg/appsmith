@@ -13,6 +13,7 @@
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
+    "@currents/cli": "4.0.2",
     "@draft-js-plugins/editor": "^4.1.0",
     "@draft-js-plugins/mention": "^4.5.1",
     "@fusioncharts/powercharts": "^3.16.0",
