@@ -661,9 +661,8 @@ public class RestApiPluginTest {
                 dsConfig,
                 actionConfig));
         StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof IllegalArgumentException);
-                    assertTrue(e.getMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\""));
+                .assertNext(actionExecutionResult -> {
+                    assertTrue(actionExecutionResult.getPluginErrorDetails().getDownstreamErrorMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\""));
                 });
     }
 
