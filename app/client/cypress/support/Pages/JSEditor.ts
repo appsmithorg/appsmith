@@ -7,7 +7,6 @@ export interface ICreateJSObjectOptions {
   shouldCreateNewJSObj: boolean;
   lineNumber?: number;
   prettify?: boolean;
-  toWriteAfterToastsDisappear?: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
@@ -16,7 +15,6 @@ const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   shouldCreateNewJSObj: true,
   lineNumber: 4,
   prettify: true,
-  toWriteAfterToastsDisappear: false,
 };
 
 export class JSEditor {
@@ -103,6 +101,19 @@ export class JSEditor {
   private selectAllJSObjectContentShortcut = `${
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
+
+  private handleContentFilling(toPaste: boolean, JSCode: string, el: any) {
+    if (toPaste) {
+      //input.invoke("val", value);
+      this.agHelper.Paste(el, JSCode);
+    } else {
+      cy.get(el).type(JSCode, {
+        parseSpecialCharSequences: false,
+        delay: 40,
+        force: true,
+      });
+    }
+  }
   //#endregion
 
   //#region Page functions
@@ -141,7 +152,6 @@ export class JSEditor {
       prettify = true,
       shouldCreateNewJSObj,
       toRun,
-      toWriteAfterToastsDisappear = false,
     } = options;
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
@@ -150,33 +160,19 @@ export class JSEditor {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type(`${downKeys}  `);
+        .type(`${downKeys}  `)
+        .then((el: any) => {
+          this.handleContentFilling(paste, JSCode, el);
+        });
     } else {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
-        .type("{backspace}", { force: true });
-      this.agHelper.AssertContains("Start object with export default");
-      //this.agHelper.AssertAutoSave();
+        .then((el: any) => {
+          this.handleContentFilling(paste, JSCode, el);
+        });
     }
-
-    toWriteAfterToastsDisappear && this.agHelper.WaitUntilAllToastsDisappear();
-
-    cy.get(this.locator._codeMirrorTextArea)
-      .first()
-      .then((el: any) => {
-        if (paste) {
-          //input.invoke("val", value);
-          this.agHelper.Paste(el, JSCode);
-        } else {
-          cy.get(el).type(JSCode, {
-            parseSpecialCharSequences: false,
-            delay: 40,
-            force: true,
-          });
-        }
-      });
 
     this.agHelper.AssertAutoSave();
     // Ample wait due to open bug # 10284
