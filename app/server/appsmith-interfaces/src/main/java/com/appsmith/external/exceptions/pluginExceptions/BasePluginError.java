@@ -28,10 +28,12 @@ public interface BasePluginError {
          if (origin == null) {
              return null;
          }
-         String formattedErrorAttributed = new MessageFormat(origin).format(args);
-         if (errorPlaceholderPattern.matcher(formattedErrorAttributed).matches()) {
+         String formattedErrorAttribute = new MessageFormat(origin).format(args);
+         if (errorPlaceholderPattern.matcher(formattedErrorAttribute).matches()) {
+             return null;
+         } else if (formattedErrorAttribute.equals("null")) {
              return null;
          }
-         return formattedErrorAttributed;
+         return formattedErrorAttribute;
      }
 }
