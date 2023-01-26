@@ -734,7 +734,7 @@ const getDataTreeWithoutSuppressedAutoComplete = (
   return _.omit(dataTree, entityIds);
 };
 
-export const getFilteredDataTree = (dataTree: DataTree): DataTree => {
+export const getDataTreeForAutocomplete = (dataTree: DataTree): DataTree => {
   const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
   const treeWithoutSuppressedAutoComplete = getDataTreeWithoutSuppressedAutoComplete(
     treeWithoutPrivateWidgets,

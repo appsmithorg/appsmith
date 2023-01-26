@@ -18,6 +18,15 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
+/**
+ * addOrUpdate - Set of meta widgets that needs to be added to the metaWidgetReducer.
+ * deleteIds - List of meta widget ids that is to be removed from the metaWidgetReducer.
+ * propertyUpdates - These are specific updates that needs to be carried out based on the
+ *  path provided. This is an array of objects (path, value).
+ * creatorId - This represents the creator of the meta widgets that are passed to
+ *  addOrUpdate/deleteIds. If a list widget creates creates/adds a bunch of meta widgets then
+ *  the creatorId would be the list widget's widgetId.
+ */
 export type ModifyMetaWidgetPayload = {
   addOrUpdate: Record<string, FlattenedWidgetProps>;
   deleteIds: string[];

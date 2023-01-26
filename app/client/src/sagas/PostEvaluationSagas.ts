@@ -8,7 +8,7 @@ import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
-  getFilteredDataTree,
+  getDataTreeForAutocomplete,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -361,10 +361,10 @@ export function* updateTernDefinitions(
   if (!shouldUpdate) return;
   const start = performance.now();
   // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
-  const filteredDataTree = getFilteredDataTree(dataTree);
+  const dataTreeForAutocomplete = getDataTreeForAutocomplete(dataTree);
   const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
   const { def, entityInfo } = dataTreeTypeDefCreator(
-    filteredDataTree,
+    dataTreeForAutocomplete,
     !!featureFlags.JS_EDITOR,
     jsData,
   );
