@@ -132,7 +132,7 @@ export const handlers = {
     action: ReduxAction<{ applicationList: ApplicationPayload[] }>,
   ) => ({
     ...state,
-    currentApplication: action.payload,
+    currentApplication: { ...action.payload, collapseInvisibleWidgets: true },
     isFetchingApplication: false,
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (

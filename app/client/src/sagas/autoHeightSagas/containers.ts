@@ -54,8 +54,9 @@ export function* dynamicallyUpdateContainersSaga() {
         dataTreeWidget &&
         (dataTreeWidget as DataTreeWidget).isVisible !== true &&
         shouldCollapse
-      )
+      ) {
         continue;
+      }
 
       let bottomRow, topRow;
       // If the parent exists in the layout tree

@@ -26,7 +26,8 @@ import {
   getChildOfContainerLikeWidget,
   getMinHeightBasedOnChildren,
   getParentCurrentHeightInRows,
-  shouldWidgetsCollapse,
+  mutation_setPropertiesToUpdate,
+  shouldCollapseThisWidget,
 } from "./helpers";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
@@ -66,15 +67,13 @@ export function* updateWidgetAutoHeightSaga() {
   const start = performance.now();
   let shouldRecomputeContainers = false;
 
-  const shouldCollapse: boolean = yield shouldWidgetsCollapse();
-
   const { tree: dynamicHeightLayoutTree } = yield getLayoutTree(false);
 
   // Get all widgets from canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   // Initialise all the widgets we will be updating
-  const widgetsToUpdate: UpdateWidgetsPayload = {};
+  let widgetsToUpdate: UpdateWidgetsPayload = {};
 
   // Initialise all expected updates
   const expectedUpdates: Array<{
@@ -102,9 +101,28 @@ export function* updateWidgetAutoHeightSaga() {
 
       // In case of a widget going invisible in view mode
       if (updates[widgetId] === 0) {
-        if (shouldCollapse && isAutoHeightEnabledForWidget(widget)) {
+        const shouldCollapse: boolean = yield shouldCollapseThisWidget(
+          stateWidgets,
+          widgetId,
+        );
+        if (shouldCollapse) {
           minDynamicHeightInPixels = 0;
-        } else continue;
+          if (
+            !isAutoHeightEnabledForWidget(widget) &&
+            widget.topRow !== widget.bottomRow
+          ) {
+            widgetsToUpdate = mutation_setPropertiesToUpdate(
+              widgetsToUpdate,
+              widgetId,
+              {
+                topRowBeforeCollapse: widget.topRow + 0,
+                bottomRowBeforeCollapse: widget.bottomRow + 0,
+              },
+            );
+          }
+        } else {
+          continue;
+        }
       }
 
       const maxDynamicHeightInPixels =
@@ -148,36 +166,27 @@ export function* updateWidgetAutoHeightSaga() {
       const newHeight = updates[widgetId];
 
       // Setting the height and dimensions of the Modal Widget
-      widgetsToUpdate[widgetId] = [
+      widgetsToUpdate = mutation_setPropertiesToUpdate(
+        widgetsToUpdate,
+        widgetId,
         {
-          propertyPath: "height",
-          propertyValue: newHeight,
+          height: newHeight,
+          bottomRow: widget.topRow + newHeight,
+          topRow: widget.topRow,
         },
-        {
-          propertyPath: "bottomRow",
-          propertyValue: widget.topRow + newHeight,
-        },
-        {
-          propertyPath: "topRow",
-          propertyValue: widget.topRow,
-        },
-      ];
+      );
+
       // Setting the child canvas widget's dimensions in the Modal Widget
       if (Array.isArray(widget.children) && widget.children.length === 1) {
-        widgetsToUpdate[widget.children[0]] = [
+        widgetsToUpdate = mutation_setPropertiesToUpdate(
+          widgetsToUpdate,
+          widget.children[0],
           {
-            propertyPath: "minHeight",
-            propertyValue: newHeight,
+            minHeight: newHeight,
+            bottomRow: newHeight,
+            topRow: 0,
           },
-          {
-            propertyPath: "bottomRow",
-            propertyValue: newHeight,
-          },
-          {
-            propertyPath: "topRow",
-            propertyValue: 0,
-          },
-        ];
+        );
       }
     }
   }
@@ -334,16 +343,14 @@ export function* updateWidgetAutoHeightSaga() {
               // As they simply take up whatever space the parent has, but this doesn't effect
               // the `minHeight`, which leads to scroll if the `minHeight` is a larger value.
               // Also, for canvas widgets, the values are in pure pixels instead of rows.
-              widgetsToUpdate[parentCanvasWidgetId] = [
+              widgetsToUpdate = mutation_setPropertiesToUpdate(
+                widgetsToUpdate,
+                parentCanvasWidgetId,
                 {
-                  propertyPath: "bottomRow",
-                  propertyValue: minCanvasHeightInPixels,
+                  bottomRow: minCanvasHeightInPixels,
+                  minHeight: minCanvasHeightInPixels,
                 },
-                {
-                  propertyPath: "minHeight",
-                  propertyValue: minCanvasHeightInPixels,
-                },
-              ];
+              );
 
               // Make sure we're not overflowing the max height bounds
               const maxDynamicHeight = getWidgetMaxAutoHeight(
@@ -378,24 +385,19 @@ export function* updateWidgetAutoHeightSaga() {
               // In this case we're updating minHeight and height as well.
               if (parentContainerLikeWidget.detachFromLayout) {
                 // DRY this
-                widgetsToUpdate[parentContainerLikeWidget.widgetId] = [
+                widgetsToUpdate = mutation_setPropertiesToUpdate(
+                  widgetsToUpdate,
+                  parentContainerLikeWidget.widgetId,
                   {
-                    propertyPath: "bottomRow",
-                    propertyValue: minHeightInRows,
-                  },
-                  {
-                    propertyPath: "height",
-                    propertyValue:
+                    bottomRow: minHeightInRows,
+                    height:
+                      (minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+                      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                    minHeight:
                       (minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
                       GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
                   },
-                  {
-                    propertyPath: "minHeight",
-                    propertyValue:
-                      (minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-                      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-                  },
-                ];
+                );
               }
 
               // If this is not a widget which is outside of the layout,
@@ -496,16 +498,14 @@ export function* updateWidgetAutoHeightSaga() {
               // As they simply take up whatever space the parent has, but this doesn't effect
               // the `minHeight`, which leads to scroll if the `minHeight` is a larger value.
               // Also, for canvas widgets, the values are in pure pixels instead of rows.
-              widgetsToUpdate[parentCanvasWidgetId] = [
+              widgetsToUpdate = mutation_setPropertiesToUpdate(
+                widgetsToUpdate,
+                parentCanvasWidgetId,
                 {
-                  propertyPath: "bottomRow",
-                  propertyValue: minCanvasHeightInPixels,
+                  bottomRow: minCanvasHeightInPixels,
+                  minHeight: minCanvasHeightInPixels,
                 },
-                {
-                  propertyPath: "minHeight",
-                  propertyValue: minCanvasHeightInPixels,
-                },
-              ];
+              );
             }
           }
         }
@@ -530,14 +530,15 @@ export function* updateWidgetAutoHeightSaga() {
     );
 
     // Add the MainContainer's update.
-    widgetsToUpdate[MAIN_CONTAINER_WIDGET_ID] = [
+    widgetsToUpdate = mutation_setPropertiesToUpdate(
+      widgetsToUpdate,
+      MAIN_CONTAINER_WIDGET_ID,
       {
-        propertyPath: "bottomRow",
-        propertyValue:
+        bottomRow:
           (maxCanvasHeightInRows + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET) *
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       },
-    ];
+    );
 
     // Convert the changesSoFar (this are the computed changes)
     // To the widgetsToUpdate data structure for final reducer update.
@@ -547,24 +548,17 @@ export function* updateWidgetAutoHeightSaga() {
         changedWidgetId
       ];
 
-      widgetsToUpdate[changedWidgetId] = [
+      widgetsToUpdate = mutation_setPropertiesToUpdate(
+        widgetsToUpdate,
+        changedWidgetId,
         {
-          propertyPath: "bottomRow",
-          propertyValue: changesSoFar[changedWidgetId].bottomRow,
+          bottomRow: changesSoFar[changedWidgetId].bottomRow,
+          topRow: changesSoFar[changedWidgetId].topRow,
+          originalTopRow: originalTopRow,
+          originalBottomRow: originalBottomRow,
         },
-        {
-          propertyPath: "topRow",
-          propertyValue: changesSoFar[changedWidgetId].topRow,
-        },
-        {
-          propertyPath: "originalTopRow",
-          propertyValue: originalTopRow,
-        },
-        {
-          propertyPath: "originalBottomRow",
-          propertyValue: originalBottomRow,
-        },
-      ];
+      );
+
       const containerLikeWidget = stateWidgets[changedWidgetId];
 
       if (
@@ -589,22 +583,18 @@ export function* updateWidgetAutoHeightSaga() {
             );
             canvasHeight += GridDefaults.CANVAS_EXTENSION_OFFSET;
 
-            const propertyUpdates = [
-              {
-                propertyPath: "minHeight",
-                propertyValue:
-                  canvasHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-              },
-              {
-                propertyPath: "bottomRow",
-                propertyValue:
-                  canvasHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-              },
-            ];
+            const propertyUpdates = {
+              minHeight: canvasHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              bottomRow: canvasHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            };
 
             containerLikeWidget.children.forEach((childWidgetId) => {
               if (!widgetsToUpdate.hasOwnProperty(childWidgetId)) {
-                widgetsToUpdate[childWidgetId] = propertyUpdates;
+                widgetsToUpdate = mutation_setPropertiesToUpdate(
+                  widgetsToUpdate,
+                  childWidgetId,
+                  propertyUpdates,
+                );
               }
             });
           }

@@ -1,4 +1,8 @@
-import { GridDefaults } from "constants/WidgetConstants";
+import { AppState } from "@appsmith/reducers";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import {
@@ -12,12 +16,21 @@ import {
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(previewModeSelector);
   const appMode: APP_MODE = yield select(getAppMode);
 
   return isPreviewMode || appMode === APP_MODE.PUBLISHED;
+}
+
+export function* shouldAllInvisibleWidgetsInAutoHeightContainersCollapse() {
+  const flag: boolean = yield select((state: AppState) => {
+    return !!state.ui.applications.currentApplication?.collapseInvisibleWidgets;
+  });
+
+  return flag;
 }
 
 export function* getChildOfContainerLikeWidget(
@@ -163,4 +176,89 @@ export function* getMinHeightBasedOnChildren(
   }
 
   return minHeightInRows;
+}
+/**
+ * This function takes a widgetId and computes whether it can have zero height
+ * Widget can have zero height if it has auto height enabled
+ *
+ *
+ * Or if it is a child of a widget which has auto height enabled
+ * (This is verified using shouldAllInvisibleWidgetsInAutoHeightContainersCollapse)
+ *
+ * @param stateWidgets The canvas widgets redux state needed for computations
+ * @param widgetId The widget which is trying to collapse
+ * @returns true if this widget can be collapsed to zero height
+ */
+export function* shouldCollapseThisWidget(
+  stateWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+) {
+  const shouldCollapse: boolean = yield shouldWidgetsCollapse();
+  const canCollapseAllWidgets: boolean = yield shouldAllInvisibleWidgetsInAutoHeightContainersCollapse();
+  const widget = stateWidgets[widgetId];
+
+  // If we're in preview or view mode
+  if (shouldCollapse) {
+    // If this widget has auto height enabled
+    if (isAutoHeightEnabledForWidget(widget)) {
+      return true;
+    }
+
+    // Get the parent Canvas widgetId
+    const parentId = widget.parentId;
+
+    // Get the grandparent or the parent container like widget
+    const parentContainerLikeWidgetId = parentId
+      ? stateWidgets[parentId].parentId
+      : false;
+
+    // If the parent container like widget exists
+    if (parentContainerLikeWidgetId) {
+      const parentContainerLikeWidget =
+        stateWidgets[parentContainerLikeWidgetId];
+      // If we can collapse widgets within all auto height container like widgets
+      // and if the parent container like widget exists
+      // and if auto height is enabled for the parent container
+      // or if the parent is the main container
+      if (
+        parentContainerLikeWidget &&
+        canCollapseAllWidgets &&
+        (isAutoHeightEnabledForWidget(parentContainerLikeWidget) ||
+          parentContainerLikeWidgetId === MAIN_CONTAINER_WIDGET_ID)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * This function converts a standard object containing the properties to update
+ * into the expected structure of { propertyPath: string, propertyValue: unknown }
+ * @param originalObject The original object to mutate
+ * @param widgetId The widgetId which will be the key in the object to mutate
+ * @param propertiesToUpdate The properties which need to be added in the original object's widgetId key
+ * @returns mutated object
+ */
+export function mutation_setPropertiesToUpdate(
+  originalObject: Record<
+    string,
+    Array<{ propertyPath: string; propertyValue: unknown }>
+  >,
+  widgetId: string,
+  propertiesToUpdate: Record<string, unknown>,
+) {
+  if (!originalObject.hasOwnProperty(widgetId)) {
+    originalObject[widgetId] = [];
+  }
+
+  for (const [key, value] of Object.entries(propertiesToUpdate)) {
+    originalObject[widgetId].push({
+      propertyPath: key,
+      propertyValue: value,
+    });
+  }
+
+  return originalObject;
 }
