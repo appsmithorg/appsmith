@@ -408,7 +408,7 @@ function getPositionForInitialHighlight(
   startPosition: number | undefined,
 ): number {
   const endPosition =
-    64 * columnSpace - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 4 : 0);
+    64 * columnSpace - (canvasId !== MAIN_CONTAINER_WIDGET_ID ? 6 : -2);
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
