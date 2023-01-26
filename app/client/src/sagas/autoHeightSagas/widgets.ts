@@ -11,7 +11,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
-import { getCanvasHeightOffset } from "utils/WidgetPropsUtils";
+import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
 import { FlattenedWidgetProps } from "widgets/constants";
 import {
   getWidgetMaxAutoHeight,

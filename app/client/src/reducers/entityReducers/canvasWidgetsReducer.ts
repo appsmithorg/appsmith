@@ -10,7 +10,7 @@ import { Diff, diff } from "deep-diff";
 import {
   getCanvasBottomRow,
   getCanvasWidgetHeightsToUpdate,
-} from "utils/WidgetPropsUtils";
+} from "utils/WidgetSizeUtils";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values 

@@ -23,14 +23,12 @@ export function setAutoHeightLayoutTreeAction(
 export function generateAutoHeightLayoutTreeAction(
   shouldCheckContainersForAutoHeightUpdates: boolean,
   layoutUpdated?: boolean,
-  resettingTabs?: boolean,
 ) {
   return {
     type: ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE,
     payload: {
       shouldCheckContainersForAutoHeightUpdates,
       layoutUpdated: !!layoutUpdated,
-      resettingTabs: !!resettingTabs,
     },
   };
 }
@@ -48,12 +46,9 @@ export function updateWidgetAutoHeightAction(
   };
 }
 
-export function checkContainersForAutoHeightAction(resettingTabs?: boolean) {
+export function checkContainersForAutoHeightAction() {
   return {
     type: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
-    payload: {
-      resettingTabs: !!resettingTabs,
-    },
   };
 }
 

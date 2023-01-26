@@ -75,13 +75,16 @@ export const DropTargetContext: Context<{
 const updateHeight = (
   ref: React.MutableRefObject<HTMLDivElement | null>,
   currentRows: number,
+  isMainContainer: boolean,
 ) => {
   if (ref.current) {
     const height = `${currentRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
     ref.current.style.height = height;
-    const artboard = document.getElementById("art-board");
-    if (artboard) {
-      artboard.style.height = height;
+    if (isMainContainer) {
+      const artboard = document.getElementById("art-board");
+      if (artboard) {
+        artboard.style.height = height;
+      }
     }
   }
 };
@@ -151,7 +154,11 @@ function useUpdateRows(bottomRow: number, widgetId: string, parentId?: string) {
         // We can't update the height of the "Canvas" or "dropTarget" using this function
         // in the previous if clause, because, there could be more "dropTargets" updating
         // and this information can only be computed using auto height
-        updateHeight(dropTargetRef, rowRef.current);
+        updateHeight(
+          dropTargetRef,
+          rowRef.current,
+          widgetId === MAIN_CONTAINER_WIDGET_ID,
+        );
       }
       return newRows;
     }
@@ -216,9 +223,13 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows && !isDragging && !isResizing) {
       rowRef.current = snapRows;
-      updateHeight(dropTargetRef, snapRows);
+      updateHeight(
+        dropTargetRef,
+        snapRows,
+        props.widgetId === MAIN_CONTAINER_WIDGET_ID,
+      );
     }
-  }, [props.bottomRow, isDragging, isResizing]);
+  }, [props.widgetId, props.bottomRow, isDragging, isResizing]);
 
   const handleFocus = (e: any) => {
     // Making sure that we don't deselect the widget
