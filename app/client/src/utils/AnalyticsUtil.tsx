@@ -385,6 +385,7 @@ class AnalyticsUtil {
             resolve(false);
           }, 2000);
           analytics.SNIPPET_VERSION = "4.1.0";
+          // Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#batching
           analytics.load(key, {
             integrations: {
               "Segment.io": {
