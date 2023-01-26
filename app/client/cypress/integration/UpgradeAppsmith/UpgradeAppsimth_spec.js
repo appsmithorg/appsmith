@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const publishPage = require("../../locators/publishWidgetspage.json");
 const testdata = require("../../fixtures/testdata.json");
 
@@ -17,7 +18,7 @@ describe("Upgrade appsmith version", () => {
     cy.GetCWD(testUrl);
 
     cy.log("Get path");
-    cy.GetPath(testUrl, "appsmith").then(async (path) => {
+    cy.GetPath(testUrl, "appsmith").then((path) => {
       cy.log(path);
       path = path.split("  ");
       path = path[1].split(" ");
@@ -39,23 +40,25 @@ describe("Upgrade appsmith version", () => {
       localStorage.setItem("ContainerName", `appsmith-160_${name}_updated`);
 
       cy.log("Start old stack container");
-      let containerId = await cy.CreateAContainer(
+      cy.CreateAContainer(
         testUrl,
         path + "/oldstack/160",
         "appsmith/appsmith-ce:release",
         `appsmith-160_${name}_updated`,
-      );
+      ).then((container) => {
+        cy.log("ContainerID", container);
+        cy.execute(testUrl, "docker logs --details " + container).then(
+          (res) => {
+            cy.log(res.stdout);
+            console.error(res.stdout);
+            expect(res.stdout).equal(" ");
+          },
+        );
+      });
       cy.wait(90000);
 
       cy.log("ContainerID", containerId);
 
-      cy.execute(testUrl, "docker logs --details " + containerId).then(
-        (res) => {
-          cy.contains(res.stdout).should("not.exist");
-        },
-      );
-
-      cy.log("Verify Logs");
       cy.GetAndVerifyLogs(testUrl, `appsmith-160_${name}_updated`); // Get and verify the logs
     });
 
