@@ -53,7 +53,7 @@ describe("Upgrade appsmith version", () => {
         testUrl,
         "docker logs --details " + localStorage.getItem("ContainerID"),
       ).then((res) => {
-        cy.log(res.stdout);
+        cy.contains(res).should("not.exist");
       });
 
       cy.log("Verify Logs");
