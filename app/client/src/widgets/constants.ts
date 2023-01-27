@@ -15,14 +15,19 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
 
-interface AutoLayoutWidgetConfiguration {
-  defaults: {
-    rows?: number;
-  };
-}
+type WidgetSizeConfig = {
+  viewportMinWidth: number;
+  configuration: (props: WidgetProps) => { [key: string]: string | number };
+};
+
+export type AutoLayoutConfig = {
+  defaults: Record<string, string>;
+  mobile: Record<string, string>;
+  widgetSize: Array<WidgetSizeConfig>;
+};
 
 export interface WidgetConfiguration {
-  autoLayout?: AutoLayoutWidgetConfiguration;
+  autoLayout?: AutoLayoutConfig;
   type: string;
   name: string;
   iconSVG?: string;

@@ -47,27 +47,27 @@ export const CONFIG = {
     mobile: {
       rows: 7,
     },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "60px",
+            minHeight: "70px",
+          };
+        },
+      },
+      {
+        viewportMinWidth: layoutConfigurations.MOBILE.maxWidth,
+        configuration: () => {
+          return {
+            minWidth: "60px",
+            minHeight: "80px",
+          };
+        },
+      },
+    ],
   },
-  widgetSize: [
-    {
-      viewportMinWidth: 0,
-      configuration: () => {
-        return {
-          minWidth: "60px",
-          minHeight: "70px",
-        };
-      },
-    },
-    {
-      viewportMinWidth: layoutConfigurations.MOBILE.maxWidth,
-      configuration: () => {
-        return {
-          minWidth: "60px",
-          minHeight: "80px",
-        };
-      },
-    },
-  ],
 };
 
 export default Widget;
