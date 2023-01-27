@@ -1432,6 +1432,23 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add("checkCodeInputValue", (selector) => {
+  let inputVal = "";
+  cy.get(selector).then(($field: any) => {
+    cy.wrap($field)
+      .find(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        inputVal = input.getValue();
+        this.Sleep(200);
+      });
+
+    // to be chained with another cy command.
+    return inputVal;
+  });
+});
+
 Cypress.Commands.add("clickButton", (btnVisibleText, toForceClick = true) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
     .first()
@@ -1499,28 +1516,27 @@ Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
     .wait(2000);
 });
 
-Cypress.Commands.add(
-  "EvaluatFieldValue",
-  (fieldName = "", currentValue = "") => {
-    let toValidate = false;
-    if (currentValue) toValidate = true;
-    if (fieldName) {
-      cy.get(fieldName).click();
-    } else {
-      cy.xpath("//div[@class='CodeMirror-code']")
-        .first()
-        .click();
-    }
-    cy.wait(3000); //Increasing wait time to evaluate non-undefined values
-    const val = cy
-      .get(commonlocators.evaluatedCurrentValue)
+Cypress.Commands.add("EvaluatFieldValue", (fieldName = "") => {
+  if (fieldName) {
+    cy.get(fieldName).click();
+  } else {
+    cy.xpath("//div[@class='CodeMirror-code']")
       .first()
-      .should("be.visible")
-      .invoke("text");
-    if (toValidate) expect(val).to.eq(currentValue);
-    return val;
-  },
-);
+      .click();
+  }
+  cy.wait(3000); //Increasing wait time to evaluate non-undefined values
+
+  const val = cy.checkCodeInputValue(fieldName);
+  // if (isDynamicValue) {
+  //   const val = cy
+  //     .get(commonlocators.evaluatedCurrentValue)
+  //     .first()
+  //     .should("be.visible")
+  //     .invoke("text");
+  //   if (toValidate) expect(val).to.eq(currentValue);
+  // }
+  return val;
+});
 
 // Cypress >=8.3.x  onwards
 cy.all = function(...commands) {

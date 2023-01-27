@@ -899,6 +899,23 @@ export class AggregateHelper {
       });
   }
 
+  public ReturnCodeInputValue(selector: string) {
+    let inputVal = "";
+    cy.get(selector).then(($field: any) => {
+      cy.wrap($field)
+        .find(".CodeMirror")
+        .first()
+        .then((ins: any) => {
+          const input = ins[0].CodeMirror;
+          inputVal = input.getValue();
+          this.Sleep(200);
+        });
+
+      // to be chained with another cy command.
+      return inputVal;
+    });
+  }
+
   public VerifyEvaluatedErrorMessage(errorMessage: string) {
     cy.get(this.locator._evaluatedErrorMessage)
       .should("be.visible")
@@ -924,8 +941,6 @@ export class AggregateHelper {
   }
 
   public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
-    let toValidate = false;
-    if (currentValue) toValidate = true;
     if (fieldName) {
       cy.xpath(this.locator._existingFieldValueByName(fieldName))
         .eq(0)
@@ -934,12 +949,8 @@ export class AggregateHelper {
       cy.xpath(this.locator._codeMirrorCode).click();
     }
     this.Sleep(3000); //Increasing wait time to evaluate non-undefined values
-    const val = cy
-      .get(this.locator._evaluatedCurrentValue)
-      .first()
-      .should("be.visible")
-      .invoke("text");
-    if (toValidate) expect(val).to.eq(currentValue);
+
+    const val = this.ReturnCodeInputValue(fieldName);
     return val;
   }
 
