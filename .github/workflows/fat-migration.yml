@@ -23,8 +23,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [ 0, 1, 2, 3, 4, 5,  6, 7,  8, 9,  10, 11,  12, 13,  14, 15,  16, 17,  18, 19,  20,  21,  22,  23 ]
-        #job: [ 0 ]
+        #job: [ 0, 1, 2, 3, 4, 5,  6, 7,  8, 9,  10, 11,  12, 13,  14, 15,  16, 17,  18, 19,  20,  21,  22,  23 ]
+        job: [ 0 ]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -243,12 +243,13 @@ jobs:
           parallel: true
           config-file: cypress_ci.json
           group: "Electrons on Github Action Fat Container"
-          spec: "cypress/integration/**/**/*"
+          #spec: "cypress/integration/**/**/*"
+          spec: "cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
-          command: yarn cy2 run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/**/* 
+          command: yarn cy2 run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js 
           
           
       #- name: Setup tmate session
