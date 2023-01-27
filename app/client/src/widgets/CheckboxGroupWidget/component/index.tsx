@@ -4,7 +4,6 @@ import { Alignment } from "@blueprintjs/core";
 
 import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
-import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 
