@@ -28,9 +28,9 @@ export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId'
 export AWS_SECRET_ACCESS_KEY=$(echo $sts_output | jq -r '.Credentials''.SecretAccessKey');\
 export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken');
 
-export NAMESPACE="$PULL_REQUEST_NUMBER"ce
-export SECRET="$PULL_REQUEST_NUMBER"ce
-export DOMAINNAME="$PULL_REQUEST_NUMBER"-ce.dp.appsmith.com
+export NAMESPACE="$PULL_REQUEST_NUMBER"ee
+export SECRET="$PULL_REQUEST_NUMBER"ee
+export DOMAINNAME="$PULL_REQUEST_NUMBER"-ee.dp.appsmith.com
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm.appsmith.com"
 export HELMCHART_VERSION="2.0.0"
@@ -48,6 +48,7 @@ kubectl delete ns $NAMESPACE || echo "true"
 
 echo "Use kubernetes secret to Pull Image"
 kubectl create ns $NAMESPACE
+
 kubectl create secret docker-registry $SECRET \
   --docker-server=https://index.docker.io/v1/ \
   --docker-username=$DOCKER_HUB_USERNAME \
@@ -62,4 +63,5 @@ helm install appsmith/appsmith --generate-name -n $NAMESPACE \
   --set image.pullSecrets=$SECRET --set redis.enabled=false --set mongodb.enabled=false --set ingress.enabled=true \
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
-  --set ingress.className="nginx" --set autoupdate.enabled="true" --version $HELMCHART_VERSION
+  --set ingress.className="nginx" --set applicationConfig.APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+  --set autoupdate.enabled="true" --version $HELMCHART_VERSION
