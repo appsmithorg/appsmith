@@ -1,0 +1,26 @@
+{
+	"baseUrl": "http://localhost/",
+	"defaultCommandTimeout": 20000,
+	"requestTimeout": 21000,
+  "responseTimeout": 20000,
+	"pageLoadTimeout": 30000,
+  "videoUploadOnPasses": false,
+  "videoCompression": false,
+  "numTestsKeptInMemory": 10,
+	"reporterOptions": {
+		"reportDir": "results",
+		"overwrite": false,
+		"html": true,
+		"json": false
+	},
+	"ignoreTestFiles": [
+		"**/Regression_TestSuite/Application/PgAdmin_spec*.js"
+	],
+	"chromeWebSecurity": false,
+	"viewportHeight": 1100,
+	"viewportWidth": 1400,
+	"retries": {
+		"runMode": 1,
+		"openMode": 0
+	}
+}
