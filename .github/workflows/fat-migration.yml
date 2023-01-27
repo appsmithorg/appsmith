@@ -251,12 +251,12 @@ jobs:
           config-file: cypress_ci.json
           group: "Electrons on Github Action Fat Container"
           #spec: "cypress/integration/**/**/*"
-          spec: "cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js"
+          spec: "cypress/integration/Regression_TestSuite/ClientSideTests/AdminSettings/Admin_settings_spec.js"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
-          command: yarn cy2 run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Smoke_TestSuite_Fat/ClientSideTests/AdminSettings/Admin_settings_spec.js 
+          command: yarn cy2 run --record --parallel --browser chrome --key ${{ secrets.CURRENTS_RECORD_KEY }}  --config-file cypress_ci.json --ci-build-id "${{ github.repository }}-${{ github.run_id }}-${{ github.run_attempt}}" --spec cypress/integration/Regression_TestSuite/ClientSideTests/AdminSettings/Admin_settings_spec.js 
           
           
       #- name: Setup tmate session
