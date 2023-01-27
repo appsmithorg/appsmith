@@ -231,6 +231,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Create a map of UserData.userUd to UserData
         Mono<Map<String, UserData>> userDataMapMono = userIdsMono
+                // get the profile photos of the list of users
                 .flatMapMany(userIdsSet -> userDataRepository.findPhotoAssetsByUserIds(userIdsSet.stream().toList()))
                 .collectMap(UserData::getUserId);
 
@@ -291,7 +292,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Create a map of UserData.userUd to UserData
         Mono<Map<String, UserData>> userDataMapMono = userIdsMono
-                .flatMapMany(userIdsSet -> userDataRepository.findPhotoAssetsByUserIds(userIdsSet))
+                .flatMapMany(userDataRepository::findPhotoAssetsByUserIds)
                 .collectMap(UserData::getUserId);
 
         Flux<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspaceFlux = permissionGroupsByWorkspacesMono
