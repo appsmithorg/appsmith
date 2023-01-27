@@ -2320,6 +2320,11 @@
   version "1.0.0"
   resolved "https://registry.npmjs.org/@manaflair/redux-batch/-/redux-batch-1.0.0.tgz"
 
+"@mantine/hooks@^5.10.1":
+  version "5.10.1"
+  resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-5.10.1.tgz#0227441a818144932dd6e8fd8f53eb7525dfe005"
+  integrity sha512-Fhl2f5z/F+NVzZgPUPP9tP4NUUMeTBpmlmlo3mPuQztw1kmXdxtBjD1MzRS7A84FuaJNo2wxLhQ+Gnjtf3hZ8A==
+
 "@mswjs/cookies@^0.1.4":
   version "0.1.4"
   resolved "https://registry.npmjs.org/@mswjs/cookies/-/cookies-0.1.4.tgz"
@@ -6262,6 +6267,13 @@ depd@~1.1.2:
   version "1.0.48"
   resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.0.48.tgz#69c1a1421486af8be52cbad4d3d7c261ba206ed2"
   integrity sha512-W03JOzbyhDIEdT0KGnXJh36xrve2/bLi/cGJxpWVSfvYgxWjEFITFszpAt8MORg9JF4rD9DKMrvUEG/dnTzyLg==
+  dependencies:
+    emoji-mart "3.0.1"
+
+"design-system-temp-button-fix@npm:@appsmithorg/design-system@1.0.46-alpha.2":
+  version "1.0.46-alpha.2"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.46-alpha.2.tgz#562e03cb717358df7680394ed9c21a7157cd1d11"
+  integrity sha512-OcoRZXhpUQobMCNyob7gzRygmyL8xgl8B2GN+Wa+llzJoINW4b7+4US5y0G6JlF/5fRhi3aXol2Aq2CfUdw6ng==
   dependencies:
     emoji-mart "3.0.1"
 

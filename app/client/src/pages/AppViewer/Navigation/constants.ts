@@ -4,9 +4,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 
 export type NavigationProps = {
-  appPages: Page[];
+  pages: Page[];
   currentApplicationDetails?: ApplicationPayload;
-  measuredTabsRef: (ref: HTMLElement | null) => void;
-  tabsScrollable: boolean;
-  setShowScrollArrows: () => void;
 };

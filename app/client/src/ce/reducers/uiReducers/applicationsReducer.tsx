@@ -46,6 +46,7 @@ export const initialState: ApplicationsReduxState = {
   isImportAppModalOpen: false,
   workspaceIdForImport: null,
   pageIdForImport: "",
+  isAppSidebarPinned: true,
 };
 
 export const handlers = {
@@ -543,6 +544,13 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.SET_APP_SIDEBAR_PINNED]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    isAppSidebarPinned: action.payload,
+  }),
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -572,6 +580,7 @@ export interface ApplicationsReduxState {
   workspaceIdForImport: any;
   pageIdForImport: string;
   isDatasourceConfigForImportFetched?: boolean;
+  isAppSidebarPinned: boolean;
 }
 
 export interface Application {

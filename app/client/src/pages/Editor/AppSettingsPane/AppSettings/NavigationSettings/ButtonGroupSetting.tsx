@@ -1,5 +1,8 @@
 import React from "react";
-import { TextType, Text, ButtonGroup, ButtonGroupOption } from "design-system";
+import { TextType, Text, ButtonGroupOption } from "design-system-old";
+// TODO - @Dhruvik - ImprovedAppNav
+// Update the DS package
+import { ButtonGroup } from "design-system-temp-button-fix";
 import {
   NavigationSetting,
   StringsFromNavigationSetting,
@@ -8,7 +11,7 @@ import { UpdateSetting } from ".";
 
 export type ButtonGroupSettingProps = {
   heading: string;
-  options: ButtonGroupOption[];
+  options: Array<ButtonGroupOption & { hidden?: boolean }>;
   navigationSetting: NavigationSetting;
   keyName: keyof StringsFromNavigationSetting;
   updateSetting: UpdateSetting;
@@ -24,6 +27,15 @@ const ButtonGroupSetting = ({
   const onChange = (value: string) => {
     updateSetting(keyName as keyof NavigationSetting, value);
   };
+  const visibleOptions = options.filter((item) =>
+    !item.hidden
+      ? {
+          label: item.label,
+          value: item.value,
+          icon: item.icon,
+        }
+      : null,
+  );
 
   return (
     <div className="pt-4">
@@ -31,7 +43,7 @@ const ButtonGroupSetting = ({
       <div className="pt-1">
         <ButtonGroup
           fullWidth
-          options={options}
+          options={visibleOptions}
           selectButton={onChange}
           values={[navigationSetting[keyName]]}
         />

@@ -12,6 +12,7 @@ import Fuse from "fuse.js";
 import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
+import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name"],
@@ -185,3 +186,31 @@ export const getWorkspaceCreateApplication = createSelector(
     );
   },
 );
+
+export const getAppSidebarPinned = (state: AppState) => {
+  return state.ui.applications.isAppSidebarPinned;
+};
+
+/**
+ * Return the width of the sidbar depending on the sidebar style.
+ * If there isn't any sidebar or it is unpinned, return 0.
+ */
+export const getSidebarWidth = (state: AppState) => {
+  const navigationSetting =
+    state.ui.applications.currentApplication?.navigationSetting;
+  const isAppSidebarPinned = state.ui.applications.isAppSidebarPinned;
+
+  if (
+    navigationSetting?.showNavbar !== false &&
+    navigationSetting?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+    isAppSidebarPinned
+  ) {
+    if (navigationSetting?.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL) {
+      return SIDEBAR_WIDTH.MINIMAL;
+    } else {
+      return SIDEBAR_WIDTH.REGULAR;
+    }
+  }
+
+  return 0;
+};

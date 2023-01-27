@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import {
@@ -12,7 +11,12 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { createMessage, FORK_APP, SIGN_IN } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  EDIT_APP,
+  FORK_APP,
+  SIGN_IN,
+} from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
@@ -34,6 +38,8 @@ type Props = {
   className?: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
+  insideSidebar?: boolean;
+  isMinimal?: boolean;
 };
 
 /**
@@ -43,7 +49,14 @@ type Props = {
  */
 
 function PrimaryCTA(props: Props) {
-  const { className, navColorStyle, primaryColor, url } = props;
+  const {
+    className,
+    insideSidebar,
+    isMinimal,
+    navColorStyle,
+    primaryColor,
+    url,
+  } = props;
   const currentUser = useSelector(getCurrentUser);
   const currentPageID = useSelector(getCurrentPageId);
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -84,19 +97,26 @@ function PrimaryCTA(props: Props) {
       return (
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          className={`w-full md:w-auto ${className}`}
+          className={className}
+          icon={
+            <Icon
+              fillColor={getApplicationNameTextColor(
+                primaryColor,
+                navColorStyle,
+              )}
+              name="edit-line"
+              size="extraLarge"
+            />
+          }
+          insideSidebar={insideSidebar}
+          isMinimal={isMinimal}
           navColorStyle={navColorStyle}
           onClick={() => {
             history.push(url);
           }}
           primaryColor={primaryColor}
-        >
-          <Icon
-            fillColor={getApplicationNameTextColor(primaryColor, navColorStyle)}
-            name="edit-line"
-            size="extraLarge"
-          />
-        </Button>
+          text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
+        />
       );
     }
 
@@ -163,6 +183,7 @@ function PrimaryCTA(props: Props) {
         <Button
           borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
           className="t--sign-in"
+          insideSidebar={insideSidebar}
           navColorStyle={navColorStyle}
           onClick={() => {
             window.location.href = LOGIN_URL;

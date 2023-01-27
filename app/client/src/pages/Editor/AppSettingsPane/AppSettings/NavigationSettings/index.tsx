@@ -11,6 +11,8 @@ import { ReactComponent as NavPositionStickyIcon } from "assets/icons/settings/n
 import { ReactComponent as NavPositionStaticIcon } from "assets/icons/settings/nav-position-static.svg";
 import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
 import { ReactComponent as NavStyleStackedIcon } from "assets/icons/settings/nav-style-stacked.svg";
+import { ReactComponent as NavStyleSidebarIcon } from "assets/icons/settings/nav-style-sidebar.svg";
+import { ReactComponent as NavStyleMinimalIcon } from "assets/icons/settings/nav-style-minimal.svg";
 import { NAVIGATION_SETTINGS, NavigationSetting } from "constants/AppConstants";
 import _, { debounce, isEmpty, isPlainObject } from "lodash";
 import ButtonGroupSetting from "./ButtonGroupSetting";
@@ -21,7 +23,7 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "actions/applicationActions";
-import { Spinner } from "design-system";
+import { Spinner } from "design-system-old";
 
 export type UpdateSetting = (
   key: keyof NavigationSetting,
@@ -33,7 +35,6 @@ function NavigationSettings() {
   const applicationId = useSelector(getCurrentApplicationId);
   const dispatch = useDispatch();
   const navigationSetting = application?.navigationSetting;
-  const doesntWorkRightNowLabel = " - [Doesn't work (...right now)]";
 
   const updateSetting = useCallback(
     debounce(
@@ -53,6 +54,40 @@ function NavigationSettings() {
 
           if (!equal(navigationSetting, newSettings)) {
             const payload: UpdateApplicationPayload = { currentApp: true };
+
+            /**
+             * If the orientation changes, we need to set a new default value
+             * 1. in case of top, the default is stacked
+             * 2. in case of side, the default is sidebar
+             */
+            if (navigationSetting.orientation !== newSettings.orientation) {
+              newSettings.navStyle =
+                newSettings.orientation === NAVIGATION_SETTINGS.ORIENTATION.TOP
+                  ? NAVIGATION_SETTINGS.NAV_STYLE.STACKED
+                  : NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR;
+            }
+
+            /**
+             * When the orientation is side and nav style changes -
+             * 1. to minimal, change the item style to icon
+             * 1. to sidebar, change the item style to text + icon
+             */
+            if (
+              newSettings.orientation ===
+                NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+              navigationSetting.navStyle !== newSettings.navStyle
+            ) {
+              if (
+                newSettings.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL
+              ) {
+                newSettings.itemStyle = NAVIGATION_SETTINGS.ITEM_STYLE.ICON;
+              } else if (
+                newSettings.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR
+              ) {
+                newSettings.itemStyle =
+                  NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON;
+              }
+            }
 
             payload.navigationSetting = newSettings as NavigationSetting;
 
@@ -83,10 +118,7 @@ function NavigationSettings() {
       />
 
       <ButtonGroupSetting
-        heading={
-          createMessage(APP_NAVIGATION_SETTING.orientationLabel) +
-          doesntWorkRightNowLabel
-        }
+        heading={createMessage(APP_NAVIGATION_SETTING.orientationLabel)}
         keyName="orientation"
         navigationSetting={navigationSetting}
         options={[
@@ -105,10 +137,7 @@ function NavigationSettings() {
       />
 
       <ButtonGroupSetting
-        heading={
-          createMessage(APP_NAVIGATION_SETTING.navStyleLabel) +
-          doesntWorkRightNowLabel
-        }
+        heading={createMessage(APP_NAVIGATION_SETTING.navStyleLabel)}
         keyName="navStyle"
         navigationSetting={navigationSetting}
         options={[
@@ -116,11 +145,33 @@ function NavigationSettings() {
             label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.STACKED),
             value: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
             icon: <NavStyleStackedIcon />,
+            hidden:
+              navigationSetting?.orientation ===
+              NAVIGATION_SETTINGS.ORIENTATION.SIDE,
           },
           {
             label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.INLINE),
             value: NAVIGATION_SETTINGS.NAV_STYLE.INLINE,
             icon: <NavStyleInlineIcon />,
+            hidden:
+              navigationSetting?.orientation ===
+              NAVIGATION_SETTINGS.ORIENTATION.SIDE,
+          },
+          {
+            label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR),
+            value: NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
+            icon: <NavStyleSidebarIcon />,
+            hidden:
+              navigationSetting?.orientation ===
+              NAVIGATION_SETTINGS.ORIENTATION.TOP,
+          },
+          {
+            label: _.startCase(NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL),
+            value: NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
+            icon: <NavStyleMinimalIcon />,
+            hidden:
+              navigationSetting?.orientation ===
+              NAVIGATION_SETTINGS.ORIENTATION.TOP,
           },
         ]}
         updateSetting={updateSetting}
@@ -129,7 +180,7 @@ function NavigationSettings() {
       <ButtonGroupSetting
         heading={
           createMessage(APP_NAVIGATION_SETTING.positionLabel) +
-          doesntWorkRightNowLabel
+          " - [Unavailable atm]"
         }
         keyName="position"
         navigationSetting={navigationSetting}
@@ -154,16 +205,27 @@ function NavigationSettings() {
         navigationSetting={navigationSetting}
         options={[
           {
-            label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON),
+            label: "Text + Icon",
             value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
+            hidden:
+              navigationSetting?.navStyle ===
+              NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
           },
           {
             label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.TEXT),
             value: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT,
+            hidden:
+              navigationSetting?.navStyle ===
+              NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL,
           },
           {
             label: _.startCase(NAVIGATION_SETTINGS.ITEM_STYLE.ICON),
             value: NAVIGATION_SETTINGS.ITEM_STYLE.ICON,
+            hidden:
+              navigationSetting?.orientation ===
+                NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+              navigationSetting?.navStyle ===
+                NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR,
           },
         ]}
         updateSetting={updateSetting}

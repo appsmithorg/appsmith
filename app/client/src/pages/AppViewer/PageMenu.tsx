@@ -34,7 +34,7 @@ import { get } from "lodash";
 
 const { cloudHosting } = getAppsmithConfigs();
 
-type AppViewerHeaderProps = {
+type NavigationProps = {
   isOpen?: boolean;
   application?: ApplicationPayload;
   pages: Page[];
@@ -43,7 +43,7 @@ type AppViewerHeaderProps = {
   headerRef?: React.RefObject<HTMLDivElement>;
 };
 
-export function PageMenu(props: AppViewerHeaderProps) {
+export function PageMenu(props: NavigationProps) {
   const { application, headerRef, isOpen, pages, setMenuOpen } = props;
   const menuRef = useRef<any>();
   const selectedTheme = useSelector(getSelectedAppTheme);
