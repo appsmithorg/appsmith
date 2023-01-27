@@ -5,7 +5,7 @@ import overrideTimeout from "../TimeoutOverride";
 import { EvalWorkerSyncRequest } from "../types";
 import userLogs from "../UserLog";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
-import initLocalStorage from "../fns/localStorage";
+import initLocalStorage from "../fns/LocalStorage";
 
 export default function() {
   ///// Remove all unsafe functions
