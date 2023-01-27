@@ -12,8 +12,6 @@ import lombok.ToString;
 import org.checkerframework.common.aliasing.qual.Unique;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Map;
-
 @Getter
 @Setter
 @ToString
@@ -27,6 +25,9 @@ public class Tenant extends BaseDomain {
 
     @JsonView(Views.Public.class)
     String displayName;
+
+    @JsonView(Views.Public.class)
+    String instanceId;
 
     @JsonView(Views.Public.class)
     PricingPlan pricingPlan;
