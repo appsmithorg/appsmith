@@ -23,14 +23,14 @@ echo "Region: $region"
 echo "Cluster name: $cluster_name"
 echo "Pull Request Number: $PULL_REQUEST_NUMBER"
 
-sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession
+sts_output=$(aws sts assume-role --role-arn env.AWS_ROLE_ARN --role-session-name ekscisession)
 export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
 export AWS_SECRET_ACCESS_KEY=$(echo $sts_output | jq -r '.Credentials''.SecretAccessKey');\
 export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken');
 
 export NAMESPACE="$PULL_REQUEST_NUMBER"ce
 export SECRET="$PULL_REQUEST_NUMBER"ce
-export DOMAINNAME="$PULL_REQUEST_NUMBER"-ce.appsmith.com
+export DOMAINNAME="$PULL_REQUEST_NUMBER"-ce.dp.appsmith.com
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm.appsmith.com"
 export HELMCHART_VERSION="2.0.0"
@@ -58,7 +58,7 @@ AWS_REGION=ap-south-1 helm repo add $HELMCHART $HELMCHART_URL
 
 echo "Deploy appsmith helm chart"
 helm install appsmith/appsmith --generate-name -n $NAMESPACE \
-  --create-namespace --set image.repository=$DOCKER_HUB_ORGANIZATION/appsmith-ce --set image.tag=$IMAGE_HASH \
+  --create-namespace --set image.repository=$DOCKER_HUB_ORGANIZATION/appsmith-dp --set image.tag=$IMAGE_HASH \
   --set image.pullSecrets=$SECRET --set redis.enabled=false --set mongodb.enabled=false --set ingress.enabled=true \
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \

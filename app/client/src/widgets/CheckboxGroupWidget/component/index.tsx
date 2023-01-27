@@ -73,9 +73,6 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
-  & .select-all {
-    white-space: nowrap;
-  }
 `;
 
 export interface SelectAllProps {
@@ -86,7 +83,6 @@ export interface SelectAllProps {
   onChange: React.FormEventHandler<HTMLInputElement>;
   accentColor: string;
   borderRadius: string;
-  isDisabled?: boolean;
 }
 
 function SelectAll(props: SelectAllProps) {
@@ -97,7 +93,6 @@ function SelectAll(props: SelectAllProps) {
     disabled,
     indeterminate,
     inline,
-    isDisabled,
     onChange,
   } = props;
   return (
@@ -105,7 +100,7 @@ function SelectAll(props: SelectAllProps) {
       accentColor={accentColor}
       borderRadius={borderRadius}
       checked={checked}
-      className="select-all"
+      className="whitespace-nowrap"
       disabled={disabled}
       indeterminate={indeterminate}
       inline={inline}
@@ -113,8 +108,7 @@ function SelectAll(props: SelectAllProps) {
         <CheckboxLabel
           alignment={AlignWidgetTypes.LEFT}
           className="t--checkbox-widget-label"
-          disabled={isDisabled}
-          labelTextColor={disabled ? Colors.GREY_8 : "inherit"}
+          disabled={disabled}
         >
           Select all
         </CheckboxLabel>
