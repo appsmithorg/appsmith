@@ -142,7 +142,7 @@ public class FieldNameCE {
     public static final String FORM_LOGIN = "FormLogin";
     public static final String APP_MODE = "appMode";
     public static final String PAGE_ORDER = "order";
-    public static final String ACTION_EXECUTION_REQUEST_PARAMS = "actionExecutionRequestParams";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS_SIZE = "totalReadableByteCount";
     public static final String ACTION_EXECUTION_REQUEST_PARAMS_COUNT = "actionExecutionRequestParamsCount";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";

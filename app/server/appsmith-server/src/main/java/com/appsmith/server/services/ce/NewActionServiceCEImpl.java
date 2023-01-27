@@ -14,6 +14,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ActionProvider;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
@@ -24,7 +25,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -104,6 +104,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -705,6 +706,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * fetches and caches plugin by pluginId after checking datasource for invalids(issues)
+     *
      * @param datasourceMono
      * @param actionId
      * @return pluginMono if datasource has no issues and plugin is find, else throws error
@@ -771,7 +773,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         Mono<ActionExecutionResult> executionMono =
                 datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
-                        .flatMap( tuple3 -> {
+                        .flatMap(tuple3 -> {
                             Datasource datasource1 = tuple3.getT1();
                             DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
                             Map<String, BaseDomain> environmentMap = tuple3.getT3();
@@ -781,20 +783,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                             return getValidatedDatasourceForActionExecution(datasource1, environmentName)
                                     .zipWhen(validatedDatasource -> getDsContextForActionExecution(validatedDatasource,
-                                                                                                   plugin,
-                                                                                                   datasourceContextIdentifier,
-                                                                                                   environmentMap))
+                                            plugin,
+                                            datasourceContextIdentifier,
+                                            environmentMap))
                                     .flatMap(tuple2 -> {
                                         Datasource validatedDatasource = tuple2.getT1();
                                         DatasourceContext<?> resourceContext = tuple2.getT2();
                                         // Now that we have the context (connection details), execute the action.
 
-                                        Instant requestedAt  = Instant.now();
+                                        Instant requestedAt = Instant.now();
                                         return ((Mono<ActionExecutionResult>)
                                                 pluginExecutor.executeParameterized(resourceContext.getConnection(),
-                                                                                    executeActionDTO,
-                                                                                    validatedDatasource.getDatasourceConfiguration(),
-                                                                                    actionDTO.getActionConfiguration()))
+                                                        executeActionDTO,
+                                                        validatedDatasource.getDatasourceConfiguration(),
+                                                        actionDTO.getActionConfiguration()))
                                                 .map(actionExecutionResult -> {
                                                     ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
                                                     if (actionExecutionRequest == null) {
@@ -808,7 +810,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                     return actionExecutionResult;
                                                 });
                                     });
-                });
+                        });
 
         return executionMono.onErrorResume(StaleConnectionException.class, error -> {
             log.info("Looks like the connection is stale. Retrying with a fresh context.");
@@ -818,11 +820,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * This is a composite method for fetching authenticated datasource, datasourceContextIdentifier, and environmentMap
+     *
      * @param datasource
      * @param environmentName
      * @return
      */
-    protected Mono<Tuple3 <Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
+    protected Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
     getValidatedDatasourceWithDsContextKeyAndEnvMap(Datasource datasource, String environmentName) {
         // see EE override for complete usage.
         return datasourceService.getEvaluatedDSAndDsContextKeyWithEnvMap(datasource, environmentName)
@@ -833,14 +836,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return getValidatedDatasourceForActionExecution(datasource1, environmentName)
                             .flatMap(datasource2 -> Mono.zip(Mono.just(datasource2),
-                                                             Mono.just(datasourceContextIdentifier),
-                                                             Mono.just(environmentMap))
+                                    Mono.just(datasourceContextIdentifier),
+                                    Mono.just(environmentMap))
                             );
                 });
     }
 
     /**
      * Validates the datasource for further execution
+     *
      * @param datasource
      * @return
      */
@@ -859,9 +863,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param environmentMap
      * @return datasourceContextMono
      */
-    protected Mono<DatasourceContext<?>> getDsContextForActionExecution (Datasource validatedDatasource, Plugin plugin,
-                                                                         DatasourceContextIdentifier datasourceContextIdentifier,
-                                                                         Map<String, BaseDomain> environmentMap) {
+    protected Mono<DatasourceContext<?>> getDsContextForActionExecution(Datasource validatedDatasource, Plugin plugin,
+                                                                        DatasourceContextIdentifier datasourceContextIdentifier,
+                                                                        Map<String, BaseDomain> environmentMap) {
         if (plugin.isRemotePlugin()) {
             return datasourceContextService.getRemoteDatasourceContext(plugin, validatedDatasource);
         }
@@ -870,6 +874,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     /**
      * Deletes the datasourceContext for the given datasource
+     *
      * @param datasourceContextIdentifier
      * @return datasourceContextMono
      */
@@ -1055,6 +1060,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @return an executionDTO object with parameterMap
      */
     protected Mono<ExecuteActionDTO> createExecuteActionDTO(Flux<Part> partFlux) {
+        final AtomicLong totalReadableByteCount = new AtomicLong(0);
         final ExecuteActionDTO dto = new ExecuteActionDTO();
         return partFlux
                 .flatMap(part -> {
@@ -1107,6 +1113,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             .join(part.content())
                             .map(dataBuffer -> {
                                 byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                                totalReadableByteCount.addAndGet(dataBuffer.readableByteCount());
                                 dataBuffer.read(bytes);
                                 DataBufferUtils.release(dataBuffer);
                                 param.setValue(new String(bytes, StandardCharsets.UTF_8));
@@ -1118,6 +1125,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (dto.getActionId() == null) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
                     }
+
+                    dto.setTotalReadableByteCount(totalReadableByteCount.longValue());
 
                     final Set<String> visitedBindings = new HashSet<>();
                     /*
@@ -1398,7 +1407,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (paramsList == null) {
                         paramsList = new ArrayList<>();
                     }
-                    List<String> executionParams = paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.putAll(Map.of(
                             "request", request,
@@ -1408,9 +1416,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
                             "timeElapsed", timeElapsed,
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
-                            "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, String.valueOf(executionParams.size()),
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams.stream().collect(Collectors.joining(",", "[", "]"))
+                            "actionId", ObjectUtils.defaultIfNull(action.getId(), "")
+                    ));
+                    // Execution DTO related properties
+                    data.putAll(Map.of(
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_SIZE, executeActionDto.getTotalReadableByteCount(),
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, paramsList.size()
                     ));
                     data.putAll(Map.of(
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
@@ -1439,9 +1450,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
 
                     String executionRequestQuery = "";
-                    if (actionExecutionResult != null &&
-                            actionExecutionResult.getRequest() != null &&
-                            actionExecutionResult.getRequest().getQuery() != null) {
+                    if (actionExecutionResult.getRequest() != null && actionExecutionResult.getRequest().getQuery() != null) {
                         executionRequestQuery = actionExecutionResult.getRequest().getQuery();
                     }
 
@@ -1451,7 +1460,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             FieldName.APP_MODE, appMode,
                             FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
                             FieldName.ACTION_EXECUTION_TIME, timeElapsed,
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams,
                             FieldName.ACTION_EXECUTION_QUERY, executionRequestQuery,
                             FieldName.APPLICATION, application,
                             FieldName.PLUGIN, plugin
