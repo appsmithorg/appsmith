@@ -553,7 +553,8 @@ function updateVerticalHighlightDropZone(
   highlights: HighlightInfo[],
   canvasWidth: number,
 ): HighlightInfo[] {
-  const zoneSize = 0.35;
+  const dropArea = localStorage.getItem("verticalHighlightDropArea");
+  const zoneSize = dropArea !== null ? parseFloat(dropArea) : 0.35;
   for (const [index, highlight] of highlights.entries()) {
     const nextHighlight: HighlightInfo | undefined = highlights[index + 1];
     const previousHighlight: HighlightInfo | undefined = highlights[index - 1];
