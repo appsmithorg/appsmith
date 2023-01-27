@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 const publishPage = require("../../locators/publishWidgetspage.json");
 const testdata = require("../../fixtures/testdata.json");
+import { ObjectsRegistry } from "../../support/Objects/Registry";
 
+//let agHelper = ObjectsRegistry.AggregateHelper;
 const testUrl = "http://localhost:5001/v1/parent/cmd";
 describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
@@ -25,18 +27,6 @@ describe("Upgrade appsmith version", () => {
       path = path[0].slice(0, -7);
       cy.log(path);
 
-      cy.execute(testUrl, "ls " + path + "/oldstack").then((res) => {
-        cy.log("Files Inside oldstack", res.stdout);
-      });
-
-      cy.execute(testUrl, "ls " + path + "/oldstack/160").then((res1) => {
-        cy.log("Files Inside oldstack/160", res1.stdout);
-      });
-
-      cy.execute(testUrl, "ls " + path + "/oldstack/ce").then((res) => {
-        cy.log("Files Inside oldstack/ce", res.stdout);
-      });
-
       localStorage.setItem("ContainerName", `appsmith-160_${name}_updated`);
 
       cy.log("Start old stack container");
@@ -52,21 +42,54 @@ describe("Upgrade appsmith version", () => {
     });
 
     //verify the Applications after upgrade
-    cy.visit("/");
-    //cy.LoginFromAPI(testdata.UPGRADEUSERNAME, testdata.UPGRADEPASSWORD);
     cy.visit(testdata.APPURL);
+    cy.get(".t--widget-tablewidgetv2").should("exist");
+    cy.wait(1000);
+    cy.get(".bp3-icon-refresh").click();
+    cy.get(".tbody>div:nth-child(2)", { timeout: 2000 }).click({ force: true });
 
-    cy.get(".t--buttongroup-widget").should("exist");
-    // cy.get(".t--buttongroup-widget")
-    //   .children()
-    //   .should("have.length", 3);
+    cy.get(".tbody>div:nth-child(2)", { timeout: 2000 }).should(
+      "have.text",
+      "1Development3expertise",
+    );
 
-    // cy.get(publishPage.backToEditor).click({ force: true });
+    cy.get(".t--jsonformfield-label input", { timeout: 2000 }).should(
+      "have.value",
+      "Development3",
+    );
+    cy.get(".t--jsonformfield-type input", { timeout: 2000 }).should(
+      "have.value",
+      "expertise",
+    );
+    cy.get(".t--jsonformfield-rowIndex input", { timeout: 2000 }).should(
+      "have.value",
+      "1",
+    );
 
-    // cy.get(".t--buttongroup-widget").should("exist");
-    // cy.get(".t--buttongroup-widget")
-    //   .children()
-    //   .should("have.length", 3);
+    cy.get(".t--jsonform-footer .bp3-button>span", { timeout: 2000 })
+      .eq(1)
+      .click({ force: true });
+
+    cy.wait(2000);
+
+    cy.get(".t--widget-iconbuttonwidget", { timeout: 2000 }).click({
+      force: true,
+    });
+    cy.wait(2000);
+
+    cy.get(".tbody>div:nth-child(2)", { timeout: 2000 }).should(
+      "have.text",
+      "1Development2expertise",
+    );
+
+    // cy.get(".tbody>div:nth-child(2)", { timeout: 2000 }).click();
+
+    // cy.get(".t--jsonformfield-label input", { timeout: 2000 }).type(
+    //   "Development3",
+    // );
+    // cy.get(".t--jsonform-footer .bp3-button>span", { timeout: 2000 })
+    //   .eq(1)
+    //   .click({ force: true });
 
     cy.log("Stop the container");
     cy.StopTheContainer(testUrl, localStorage.getItem("ContainerName")); // stop the old container
