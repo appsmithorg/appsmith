@@ -140,7 +140,9 @@ jobs:
           /bin/bash ./scripts/deploy_preview.sh
 
   notify-url:
+    needs: [build-deploy-preview]
     runs-on: ubuntu-latest
+    if: success()
     steps:
       # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to workflow run
