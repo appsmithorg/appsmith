@@ -152,7 +152,9 @@ jobs:
       
       # Install Currents
       - name: Install dependencies
-        run: yarn install --ci
+        run: |
+          cd app/client
+          yarn install --ci
         
        # Install Currents
       - name: Install cypress dependencies 
@@ -160,11 +162,15 @@ jobs:
         
       # Install Currents
       - name: Install cypress dependencies 
-        run:  yarn add @currents/cli
+        run: |
+          cd app/client 
+          yarn add @currents/cli
         
      # Install Currents
       - name: Install cypress dependencies 
-        run:  yarn add cy2
+        run: |
+          cd app/client
+          yarn add cy2
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
