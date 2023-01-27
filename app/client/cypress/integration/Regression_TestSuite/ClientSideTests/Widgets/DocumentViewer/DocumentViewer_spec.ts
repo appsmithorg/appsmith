@@ -40,16 +40,24 @@ describe("DocumentViewer Widget Functionality", () => {
     );
     deployMode.NavigateBacktoEditor();
   });
-  it("5. Should show an empty word document when a malformed input is provided", () => {
+  it("5. Should show an errored state when a malformed docx input is provided", () => {
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
-    const someGarbageString = "fdfdfdf";
+    const someGarbageString = "+dsds";
     // previously the document is set as "Some doc content"
-    propPane.UpdatePropertyFieldValue("Document Link", someGarbageString);
+    // give a corrupted docx string
+    propPane.UpdatePropertyFieldValue(
+      "Document Link",
+      encodedWordDoc + someGarbageString,
+    );
     deployMode.DeployApp();
     // now the doc should not contain "Some doc content" after a malformed input is provided
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
       "not.contain",
       "Some doc content",
+    );
+    cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
+      "contain",
+      "invalid base64 data",
     );
     deployMode.NavigateBacktoEditor();
   });
@@ -64,16 +72,24 @@ describe("DocumentViewer Widget Functionality", () => {
     );
     deployMode.NavigateBacktoEditor();
   });
-  it("7. Should show an empty xlsx document when a malformed input is provided", () => {
+  it("7. Should show an errored state when a malformed xlsx input is provided", () => {
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
     // previously the document contains the number "456"
-    const someGarbageString = "fdfdfdf";
-    propPane.UpdatePropertyFieldValue("Document Link", someGarbageString);
+    const someGarbageString = "+dsds";
+    //give a corrupted xlsx doc string
+    propPane.UpdatePropertyFieldValue(
+      "Document Link",
+      encodedXlsxDoc + someGarbageString,
+    );
     deployMode.DeployApp();
     // now the doc should not contain "456" after a malformed input is provided
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
       "not.contain",
       "456",
+    );
+    cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
+      "contain",
+      "invalid base64 data",
     );
   });
 });
