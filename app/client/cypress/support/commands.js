@@ -1434,11 +1434,11 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("checkCodeInputValue", (selector) => {
   let inputVal = "";
-  cy.get(selector).then(($field: any) => {
+  cy.get(selector).then(($field) => {
     cy.wrap($field)
       .find(".CodeMirror")
       .first()
-      .then((ins: any) => {
+      .then((ins) => {
         const input = ins[0].CodeMirror;
         inputVal = input.getValue();
         this.Sleep(200);
