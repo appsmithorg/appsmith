@@ -73,9 +73,6 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
-  & .select-all {
-    white-space: nowrap;
-  }
 `;
 
 export interface SelectAllProps {
@@ -105,7 +102,7 @@ function SelectAll(props: SelectAllProps) {
       accentColor={accentColor}
       borderRadius={borderRadius}
       checked={checked}
-      className="select-all"
+      className="whitespace-nowrap"
       disabled={disabled}
       indeterminate={indeterminate}
       inline={inline}
