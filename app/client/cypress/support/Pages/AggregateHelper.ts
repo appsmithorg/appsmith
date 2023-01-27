@@ -922,6 +922,8 @@ export class AggregateHelper {
       .should("have.text", errorMessage);
   }
 
+  // this should only be used when we want to verify the evaluated value of dynamic bindings for example {{Api1.data}} or {{"asa"}}
+  // and should not be called for plain strings
   public VerifyEvaluatedValue(currentValue: string) {
     this.Sleep(3000);
     cy.get(this.locator._evaluatedCurrentValue)
@@ -940,7 +942,7 @@ export class AggregateHelper {
       });
   }
 
-  public EvaluateExistingPropertyFieldValue(fieldName = "", currentValue = "") {
+  public EvaluateExistingPropertyFieldValue(fieldName = "") {
     if (fieldName) {
       cy.xpath(this.locator._existingFieldValueByName(fieldName))
         .eq(0)

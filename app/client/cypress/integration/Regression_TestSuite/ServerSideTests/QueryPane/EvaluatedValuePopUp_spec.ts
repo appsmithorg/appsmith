@@ -5,10 +5,6 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources;
 
 describe("Ensures evaluated popup is viewable when dynamic bindings are present and draggable", function() {
-  beforeEach(() => {
-    dataSources.StartDataSourceRoutes();
-  });
-
   it("shows evaluated pop up is visible and draggable", () => {
     dataSources.CreateDataSource("Mongo", true, true);
 
