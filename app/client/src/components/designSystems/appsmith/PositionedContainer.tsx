@@ -177,6 +177,7 @@ export const PositionedContainer = React.forwardRef(
         // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.
         onClick={stopEventPropagation}
         onClickCapture={clickToSelectWidget}
+        ref={ref}
         //Before you remove: This is used by property pane to reference the element
         style={containerStyle}
         zIndexOnHover={onHoverZIndex}
