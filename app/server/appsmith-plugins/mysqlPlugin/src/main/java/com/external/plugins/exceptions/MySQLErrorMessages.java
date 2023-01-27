@@ -12,7 +12,7 @@ public class MySQLErrorMessages {
 
     public static final String GET_STRUCTURE_ERROR_MSG = "Appsmith server has failed to fetch the structure of your schema. Please check more information in the error details.";
 
-    public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your PostgreSQL query failed to execute. Please check more information in the error details.";
+    public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your MySQL query failed to execute. Please check more information in the error details.";
 
     public static final String UNEXPECTED_SSL_OPTION_ERROR_MSG = "Appsmith server has found an unexpected SSL option: %s. Please reach out to" +
             " Appsmith customer support to resolve this.";
