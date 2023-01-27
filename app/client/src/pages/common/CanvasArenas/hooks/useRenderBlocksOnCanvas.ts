@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { SpaceMap } from "reflow/reflowTypes";
@@ -159,10 +160,9 @@ export const useRenderBlocksOnCanvas = (
         });
       }
       if (highlight) {
-        const highlightColor = "rgba(196, 139, 181, 1)";
-        canvasCtx.fillStyle = highlightColor;
+        canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL;
         canvasCtx.lineWidth = 1;
-        canvasCtx.strokeStyle = highlightColor;
+        canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
         canvasCtx.setLineDash([]);
         const { height, posX, posY, width } = highlight;
         let val = 0;
