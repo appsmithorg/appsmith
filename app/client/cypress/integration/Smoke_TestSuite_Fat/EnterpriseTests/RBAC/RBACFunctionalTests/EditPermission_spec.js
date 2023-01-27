@@ -53,7 +53,7 @@ describe("Edit Permission flow ", function() {
         // create new datasource
         cy.NavigateToDatasourceEditor();
         cy.get(datasourceEditor.PostgreSQL).click();
-        cy.fillPostgresDatasourceFormFat();
+        cy.fillPostgresDatasourceForm();
 
         cy.generateUUID().then((uid) => {
           datasourceName = `Postgres CRUD ds ${uid}`;
@@ -89,7 +89,7 @@ describe("Edit Permission flow ", function() {
           // create new datasource
           cy.NavigateToDatasourceEditor();
           cy.get(datasource.MySQL).click();
-          cy.fillMySQLDatasourceFormFat();
+          cy.fillMySQLDatasourceForm();
           cy.generateUUID().then((UUID) => {
             datasourceName2 = `MySQL MOCKDS ${UUID}`;
             cy.renameDatasource(datasourceName2);
