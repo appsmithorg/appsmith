@@ -83,7 +83,6 @@ export interface SelectAllProps {
   onChange: React.FormEventHandler<HTMLInputElement>;
   accentColor: string;
   borderRadius: string;
-  isDisabled?: boolean;
 }
 
 function SelectAll(props: SelectAllProps) {
@@ -94,7 +93,6 @@ function SelectAll(props: SelectAllProps) {
     disabled,
     indeterminate,
     inline,
-    isDisabled,
     onChange,
   } = props;
   return (
@@ -110,8 +108,7 @@ function SelectAll(props: SelectAllProps) {
         <CheckboxLabel
           alignment={AlignWidgetTypes.LEFT}
           className="t--checkbox-widget-label"
-          disabled={isDisabled}
-          labelTextColor={disabled ? Colors.GREY_8 : "inherit"}
+          disabled={disabled}
         >
           Select all
         </CheckboxLabel>
