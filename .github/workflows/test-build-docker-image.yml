@@ -726,7 +726,7 @@ jobs:
           parallel: true
           config-file: cypress_ci.json
           group: "Electrons on Github Action"
-          spec: "cypress/integration/**/**/*"
+          spec: ${{ env.failed_spec_env }}
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
