@@ -108,7 +108,7 @@ export const ActionBlockTree: React.FC<Props> = ({
       </div>
       {showCallbacks && selected && areCallbacksApplicable ? (
         <TreeStructure>
-          <ul className="tree flex flex-col gap-2">
+          <ul className="tree flex flex-col gap-0">
             {callbackBlocks.map(
               ({
                 blockType,

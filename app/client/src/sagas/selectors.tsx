@@ -80,6 +80,7 @@ export const getDataTreeForActionCreator = memoize((state: AppState) => {
       };
     if (value.ENTITY_TYPE)
       dataTree[key] = {
+        ...dataTree[key],
         ENTITY_TYPE: value.ENTITY_TYPE,
       };
   });

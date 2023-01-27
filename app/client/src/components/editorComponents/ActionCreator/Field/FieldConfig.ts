@@ -64,8 +64,8 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
           break;
       }
       if (value === "none") return "";
-      if (defaultArgs && defaultArgs.length)
-        return `{{${value}(${defaultArgs})}}`;
+      // if (defaultArgs && defaultArgs.length)
+      //   return `{{${value}(${defaultArgs})}}`;
       if (defaultParams && defaultParams.length)
         return `{{${value}(${defaultParams})}}`;
       if (

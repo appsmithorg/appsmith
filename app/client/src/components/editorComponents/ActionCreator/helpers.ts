@@ -245,7 +245,7 @@ function getJsFunctionExecutionFields(
   // } else if (matches.length) {
   // const entityPropertyPath = matches[0][1];
   const { propertyPath } = getEntityNameAndPropertyPath(value);
-  const path = propertyPath && propertyPath.replace("()", "");
+  const path = propertyPath && propertyPath.replace("();", "");
   const argsProps =
     path && entity.meta && entity.meta[path] && entity.meta[path].arguments;
   if (isChainedAction) {

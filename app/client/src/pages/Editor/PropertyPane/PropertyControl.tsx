@@ -688,6 +688,7 @@ const PropertyControl = memo((props: Props) => {
                 }}
               >
                 <Icon
+                  fillColor="#182026"
                   hoverFillColor="white"
                   name="plus"
                   size="extraExtraLarge"

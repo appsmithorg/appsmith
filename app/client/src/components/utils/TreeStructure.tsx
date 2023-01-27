@@ -13,7 +13,7 @@ const TreeStructureWrapper = styled.div`
     margin-left: 9px;
     padding: 0;
     list-style: none;
-    color: #a9a7a7;
+    color: var(--ads-color-black-200);
     position: relative;
   }
 
@@ -31,14 +31,14 @@ const TreeStructureWrapper = styled.div`
     bottom: 0;
     left: 0;
     border-left: 1px solid;
-    border-color: var(--ads-color-gray-50);
+    border-color: var(--ads-color-black-200);
   }
 
   .tree li {
     margin: 0;
     padding-left: 6px;
     line-height: 18px;
-    padding-top: 8px;
+    margin-top: 8px;
     position: relative;
   }
 
@@ -57,7 +57,8 @@ const TreeStructureWrapper = styled.div`
     position: absolute;
     top: 22px;
     left: 0;
-    border-color: var(--ads-color-gray-50);
+    border-color: var(--ads-color-black-200);
+  }
   }
 
   .tree li:last-child:before {
