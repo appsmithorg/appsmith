@@ -76,6 +76,10 @@ function CanvasContainer() {
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
 
   useEffect(() => {
+    if (!localStorage.getItem("verticalHighlightDropArea"))
+      localStorage.setItem("verticalHighlightDropArea", "0.35");
+    if (!localStorage.getItem("horizontalHighlightDropArea"))
+      localStorage.setItem("horizontalHighlightDropArea", "0.2");
     return () => {
       dispatch(forceOpenWidgetPanel(false));
     };
