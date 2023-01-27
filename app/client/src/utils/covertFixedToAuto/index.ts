@@ -14,7 +14,12 @@ import { DSLWidget } from "widgets/constants";
 const unHandledWidgets = ["LIST_WIDGET", "FORM_WIDGET", "MODAL_WIDGET"];
 const nonFlexLayerWidgets = ["MODAL_WIDGET"];
 
-export function convertDSLtoAuto(dsl: DSLWidget) {
+/**
+ *
+ * @param dsl DSL to be Converted
+ * @returns dsl in an AutoLayout dsl format
+ */
+export default function convertDSLtoAuto(dsl: DSLWidget) {
   if (!dsl || !dsl.children || dsl.children.length < 1) return dsl;
 
   if (dsl.type === "CANVAS_WIDGET") {
@@ -34,7 +39,12 @@ export function convertDSLtoAuto(dsl: DSLWidget) {
   return currDSL;
 }
 
-function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
+/**
+ * This is specifically for Auto widget
+ * @param dsl
+ * @returns auto layout converted Auto Widget
+ */
+export function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
   const { calculatedBottomRow, children, flexLayers } = fitChildWidgetsIntoCell(
     dsl.children,
   );
@@ -45,6 +55,8 @@ function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
   const minHeight = calculatedBottomRow
     ? calculatedBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
     : dsl.minHeight;
+
+  // Add responsive propertied to the Canvas Widget props
   return {
     ...dsl,
     minHeight,
@@ -57,7 +69,12 @@ function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
   };
 }
 
-function fitChildWidgetsIntoCell(
+/**
+ * This method fits Children widgets into respective cells and layers
+ * @param widgets
+ * @returns modified Children, FlexLayers and new bottom most row of the Canvas
+ */
+export function fitChildWidgetsIntoCell(
   widgets: DSLWidget[] | undefined,
 ): {
   children: DSLWidget[];
@@ -70,11 +87,13 @@ function fitChildWidgetsIntoCell(
     return { children: [], flexLayers };
   }
 
+  //separate ot widgets to be skipped
   const [nonLayerWidgets, currWidgets] = _.partition(
     widgets,
     (widget) => nonFlexLayerWidgets.indexOf(widget.type) > -1,
   );
 
+  //Sort Widgets from top to bottom
   currWidgets.sort((a, b) => {
     if (a.topRow === b.topRow) {
       return a.leftColumn - b.leftColumn;
@@ -86,6 +105,7 @@ function fitChildWidgetsIntoCell(
   let modifiedWidgets: DSLWidget[] = [];
   let widgetsLeft = [...currWidgets];
   let childrenHeight = 0;
+  //Iterate till widgets are left in the Children array
   while (widgetsLeft.length > 0) {
     const {
       flexLayer,
@@ -100,6 +120,7 @@ function fitChildWidgetsIntoCell(
     childrenHeight += layerHeight;
   }
 
+  //Add unhandled widgets to children
   for (const nonLayerWidget of nonLayerWidgets) {
     modifiedWidgets.push(
       unHandledWidgets.indexOf(nonLayerWidget.type) < 0
@@ -115,7 +136,12 @@ function fitChildWidgetsIntoCell(
   };
 }
 
-function getNextLayer(
+/**
+ * get next layer of widgets of all the widgets supplied and return left Over Widgets
+ * @param currWidgets
+ * @returns
+ */
+export function getNextLayer(
   currWidgets: DSLWidget[],
 ): {
   flexLayer: FlexLayer;
@@ -129,37 +155,31 @@ function getNextLayer(
 
   const {
     alignmentMap,
-    isSameWidgetType,
     leftOverWidgets,
     maxBottomRow,
     minTopRow,
-    totalWidgetsWidth,
     widgetsInLayer,
   } = getWidgetsInLayer(topLeftMostWidget, index, currWidgets);
 
   const modifiedWidgetsInLayer = [];
   let alignment = FlexLayerAlignment.None;
 
+  //Recursively call convertDSLtoAuto to convert Children Widgets
   for (const widget of widgetsInLayer) {
     const currWidget =
       unHandledWidgets.indexOf(widget.type) < 0
         ? convertDSLtoAuto(widget)
         : { ...widget, positioning: Positioning.Fixed };
     const widgetConfig = WidgetFactory.getWidgetConfigMap(currWidget.type);
+    //get Responsive Behaviour
     const responsiveBehavior =
       (widgetConfig.responsiveBehavior as ResponsiveBehavior) ||
       ResponsiveBehavior.Hug;
 
+    //get minWidth of the type
     currWidget.minWidth = widgetConfig.minWidth || FILL_WIDGET_MIN_WIDTH;
 
-    const { leftColumn, rightColumn } = getModifiedWidgetDimension(
-      currWidget,
-      widgetsInLayer,
-      totalWidgetsWidth,
-      isSameWidgetType,
-      responsiveBehavior,
-    );
-
+    //Get Alignment of the Widget
     alignment = alignmentMap[currWidget.widgetId] || FlexLayerAlignment.Start;
     const flexVerticalAlignment = getWidgetVerticalAlignment(
       currWidget,
@@ -169,12 +189,12 @@ function getNextLayer(
 
     modifiedWidgetsInLayer.push({
       ...currWidget,
-      leftColumn,
-      rightColumn,
       responsiveBehavior,
       alignment,
       flexVerticalAlignment,
     });
+
+    //If the widget type is not to be added in layer then add only to Children
     if (nonFlexLayerWidgets.indexOf(currWidget.type) < 0) {
       currentLayerChildren.push({
         id: currWidget.widgetId,
@@ -192,7 +212,12 @@ function getNextLayer(
   };
 }
 
-function getTopLeftMostWidget(widgets: DSLWidget[]) {
+/**
+ * This method returns the left most widget of the top layer among the left over widgets
+ * @param widgets
+ * @returns top left most widgets and index of it in the array
+ */
+export function getTopLeftMostWidget(widgets: DSLWidget[]) {
   const topMostWidget = widgets[0];
 
   let modifiedTopMostWidget: DSLWidget = {
@@ -226,15 +251,13 @@ function getTopLeftMostWidget(widgets: DSLWidget[]) {
   return { topLeftMostWidget, index };
 }
 
-function areWidgetsOverlapping(r1: DSLWidget, r2: DSLWidget) {
-  return !(
-    r2.leftColumn >= r1.rightColumn ||
-    r2.rightColumn <= r1.leftColumn ||
-    r2.topRow >= r1.bottomRow ||
-    r2.bottomRow <= r1.topRow
-  );
-}
-
+/**
+ * This method generates the widgets in the layer
+ * @param topLeftMostWidget
+ * @param index
+ * @param currWidgets
+ * @returns widgetsInLayer, leftOverWidgets, alignment of all widgets in the layer
+ */
 function getWidgetsInLayer(
   topLeftMostWidget: DSLWidget,
   index: number,
@@ -244,8 +267,6 @@ function getWidgetsInLayer(
   leftOverWidgets: DSLWidget[];
   maxBottomRow: number;
   minTopRow: number;
-  isSameWidgetType: boolean;
-  totalWidgetsWidth: number;
   alignmentMap: { [key: string]: FlexLayerAlignment };
 } {
   const widgetsInLayer = [topLeftMostWidget];
@@ -253,21 +274,19 @@ function getWidgetsInLayer(
 
   leftOverWidgets.splice(index, 1);
 
-  let totalWidgetsWidth =
-    topLeftMostWidget.rightColumn - topLeftMostWidget.leftColumn;
-
+  //This is the widget against other widgets are checked against
   let currCheckWidget = {
     ...topLeftMostWidget,
     leftColumn: topLeftMostWidget.rightColumn,
     rightColumn: GridDefaults.DEFAULT_GRID_COLUMNS,
   };
-  let isSameWidgetType = true;
-  const widgetType = topLeftMostWidget.type;
 
   let maxBottomRow = currCheckWidget.bottomRow;
   let minTopRow = currCheckWidget.topRow;
 
   let prevWidgetDistance = topLeftMostWidget.rightColumn;
+  // current Group to group widgets, if the distance between them is greater than
+  // 10% of the total width of canvas
   let currentGroup = {
     widgets: [topLeftMostWidget.widgetId],
     leftColumn: topLeftMostWidget.leftColumn,
@@ -280,28 +299,22 @@ function getWidgetsInLayer(
   }
 
   while (leftOverWidgets.length > 0) {
-    let nextWidgetInLayer: DSLWidget | undefined, currIndex;
-    for (let i = 0; i < leftOverWidgets.length; i++) {
-      const currWidget = leftOverWidgets[i];
-      if (currWidget.topRow >= maxBottomRow) break;
-      if (!areWidgetsOverlapping(currWidget, currCheckWidget)) continue;
+    const { currIndex, nextWidgetInLayer } = getNextWidgetInLayer(
+      leftOverWidgets,
+      maxBottomRow,
+      currCheckWidget,
+    );
 
-      if (
-        !nextWidgetInLayer ||
-        (currWidget.leftColumn < nextWidgetInLayer.leftColumn &&
-          currWidget.topRow <= nextWidgetInLayer.bottomRow)
-      ) {
-        nextWidgetInLayer = { ...currWidget };
-        currIndex = i;
-      }
-    }
-
+    //add current group to widget groups
     if (!nextWidgetInLayer) {
       groupedWidgets.push(currentGroup);
       break;
     }
 
     widgetsInLayer.push(nextWidgetInLayer);
+
+    //If space between widgets is greater than 10% add current group to array of groups
+    // or add widget to the current Group
     if (
       (nextWidgetInLayer.leftColumn - prevWidgetDistance) /
         GridDefaults.DEFAULT_GRID_COLUMNS >=
@@ -317,11 +330,12 @@ function getWidgetsInLayer(
       currentGroup.widgets.push(nextWidgetInLayer.widgetId);
       currentGroup.rightColumn = nextWidgetInLayer.rightColumn;
     }
+
     prevWidgetDistance = nextWidgetInLayer.rightColumn;
-    totalWidgetsWidth +=
-      nextWidgetInLayer.rightColumn - nextWidgetInLayer.leftColumn;
-    if (widgetType !== nextWidgetInLayer.type) isSameWidgetType = false;
-    if (currIndex !== undefined) leftOverWidgets.splice(currIndex, 1);
+
+    if (currIndex !== undefined) {
+      leftOverWidgets.splice(currIndex, 1);
+    }
     maxBottomRow = Math.max(maxBottomRow, nextWidgetInLayer.bottomRow);
     minTopRow = Math.min(minTopRow, nextWidgetInLayer.topRow);
 
@@ -342,38 +356,53 @@ function getWidgetsInLayer(
     leftOverWidgets,
     maxBottomRow,
     minTopRow,
-    isSameWidgetType,
-    totalWidgetsWidth,
     alignmentMap,
   };
 }
 
-function getModifiedWidgetDimension(
-  currWidget: DSLWidget,
-  widgetsInLayer: DSLWidget[],
-  totalWidgetsWidth: number,
-  isSameWidgetType: boolean,
-  responsiveBehavior: ResponsiveBehavior,
-): { leftColumn: number; rightColumn: number } {
-  const { leftColumn, rightColumn } = currWidget;
-  if (responsiveBehavior === ResponsiveBehavior.Fill)
-    return { leftColumn, rightColumn };
+/**
+ * This method gets the next widget in layer and also the index of it in the Array
+ * @param leftOverWidgets
+ * @param maxBottomRow
+ * @param currCheckWidget
+ * @returns
+ */
+function getNextWidgetInLayer(
+  leftOverWidgets: DSLWidget[],
+  maxBottomRow: number,
+  currCheckWidget: DSLWidget,
+) {
+  let nextWidgetInLayer: DSLWidget | undefined, currIndex;
+  for (let i = 0; i < leftOverWidgets.length; i++) {
+    const currWidget = leftOverWidgets[i];
+    if (currWidget.topRow >= maxBottomRow) break;
+    if (!areWidgetsOverlapping(currWidget, currCheckWidget)) continue;
 
-  if (
-    widgetsInLayer.length > 1 &&
-    isSameWidgetType &&
-    totalWidgetsWidth / GridDefaults.DEFAULT_GRID_COLUMNS > 0.75
-  ) {
-    return {
-      leftColumn,
-      rightColumn:
-        leftColumn + GridDefaults.DEFAULT_GRID_COLUMNS / widgetsInLayer.length,
-    };
+    if (
+      !nextWidgetInLayer ||
+      (currWidget.leftColumn < nextWidgetInLayer.leftColumn &&
+        currWidget.topRow <= nextWidgetInLayer.bottomRow)
+    ) {
+      nextWidgetInLayer = { ...currWidget };
+      currIndex = i;
+    }
   }
 
-  return { leftColumn, rightColumn };
+  return { currIndex, nextWidgetInLayer };
 }
 
+/**
+ * This method scores the alignment of the widget with total width,
+ * This has a range of -1 to 1, -1 being Start, 0 being center, 1 being end.
+ * The value varies in a logarithmic curve in such a way that
+ * closer to the edges the value increases substantially rather than minutely around the center
+ * This also takes into account the width of the widget itself to give an accurate score for widgets of various sizes
+ * @param widgetMin
+ * @param widgetMax
+ * @param totalMin
+ * @param totalMax
+ * @returns number
+ */
 export function getAlignmentScore(
   widgetMin: number,
   widgetMax: number,
@@ -405,6 +434,11 @@ export function getAlignmentScore(
   return score === undefined || score === NaN ? -1 : score;
 }
 
+/**
+ * This Method takes in groups of widgets and return alignments of all the widgets.
+ * @param groupedWidgets
+ * @returns alignments of individual widget
+ */
 function processGroupedWidgets(
   groupedWidgets: {
     widgets: string[];
@@ -420,6 +454,7 @@ function processGroupedWidgets(
   let widgetAlignments: { [key: string]: FlexLayerAlignment } = {};
 
   switch (condensedGroupedWidgets.length) {
+    //Check the alignment of the group and assign the value to all the widgets
     case 1:
       const alignmentScore = getAlignmentScore(
         condensedGroupedWidgets[0].leftColumn,
@@ -433,6 +468,7 @@ function processGroupedWidgets(
         alignment,
       );
       break;
+    //same as previous case
     case 2:
       const alignmentScore1 = getAlignmentScore(
         condensedGroupedWidgets[0].leftColumn,
@@ -465,6 +501,7 @@ function processGroupedWidgets(
         ),
       };
       break;
+    //If there are three distinct groups, they can be assigned to distinct alignments
     case 3:
       widgetAlignments = {
         ...createAlignmentMapFromGroupedWidgets(
@@ -486,6 +523,11 @@ function processGroupedWidgets(
   return widgetAlignments;
 }
 
+/**
+ * If there are more than 3 distinct groups, they will be condensed into 3 different groups
+ * @param groupedWidgets
+ * @returns
+ */
 function getCondensedGroupedWidgets(
   groupedWidgets: {
     widgets: string[];
@@ -559,12 +601,23 @@ function getCondensedGroupedWidgets(
   return condensedGroupedWidgets;
 }
 
+/**
+ * Method to get Alignment based on score
+ * @param alignmentScore
+ * @returns
+ */
 function getLayerAlignmentBasedOnScore(alignmentScore: number) {
   if (alignmentScore > 0.4) return FlexLayerAlignment.End;
   else if (alignmentScore < -0.4) return FlexLayerAlignment.Start;
   else return FlexLayerAlignment.Center;
 }
 
+/**
+ * Create Alignment map of widgets
+ * @param groupedWidget
+ * @param alignment
+ * @returns
+ */
 function createAlignmentMapFromGroupedWidgets(
   groupedWidget: { widgets: string[]; leftColumn: number; rightColumn: number },
   alignment: FlexLayerAlignment,
@@ -578,6 +631,11 @@ function createAlignmentMapFromGroupedWidgets(
   return alignmentMap;
 }
 
+/**
+ * Method to get Vertical Alignment based on score
+ * @param alignmentScore
+ * @returns
+ */
 function getWidgetVerticalAlignment(
   widget: DSLWidget,
   minTopRow: number,
@@ -593,4 +651,13 @@ function getWidgetVerticalAlignment(
   if (alignmentScore < -0.3) return FlexVerticalAlignment.Top;
   else if (alignmentScore > 0.3) return FlexVerticalAlignment.Bottom;
   else return FlexVerticalAlignment.Center;
+}
+
+function areWidgetsOverlapping(r1: DSLWidget, r2: DSLWidget) {
+  return !(
+    r2.leftColumn >= r1.rightColumn ||
+    r2.rightColumn <= r1.leftColumn ||
+    r2.topRow >= r1.bottomRow ||
+    r2.bottomRow <= r1.topRow
+  );
 }

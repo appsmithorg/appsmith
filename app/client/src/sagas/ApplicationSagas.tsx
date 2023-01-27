@@ -101,7 +101,7 @@ import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
-import { convertDSLtoAuto } from "utils/covertFixedToAuto";
+import convertDSLtoAuto from "utils/covertFixedToAuto";
 import { klona } from "klona/lite";
 import store from "store";
 import WidgetFactory from "utils/WidgetFactory";
