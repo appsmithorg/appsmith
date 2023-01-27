@@ -145,7 +145,7 @@ jobs:
     if: success()
     steps:
       # This step creates a comment on the PR with a link to this workflow run.
-      - name: Add a comment on the PR with link to workflow run
+      - name: Add a comment on the PR with link to Deploy-Preview
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
