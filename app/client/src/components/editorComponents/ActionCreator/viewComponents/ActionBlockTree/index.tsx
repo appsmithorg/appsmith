@@ -136,28 +136,12 @@ export const ActionBlockTree: React.FC<Props> = ({
                         size="extraLarge"
                       />
                     </button>
-                    {callbacks.map(({ actionType, code }, index) => {
-                      const { action, actionTypeLabel, Icon } = getActionInfo(
-                        code,
-                        actionType,
-                      );
-                      return (
-                        <ActionBlock
-                          action={action}
-                          actionTypeLabel={actionTypeLabel}
-                          borderLess={index === callbacks.length - 1}
-                          icon={Icon}
-                          key={code + index}
-                          onClick={() =>
-                            handleSelection({ type: blockType, index })
-                          }
-                          selected={
-                            selectedCallbackBlock?.type === blockType &&
-                            selectedCallbackBlock?.index === index
-                          }
-                        />
-                      );
-                    })}
+                    <CallbackActionBlocks
+                      blockType={blockType}
+                      callbacks={callbacks}
+                      handleSelection={handleSelection}
+                      selectedCallbackBlock={selectedCallbackBlock}
+                    />
                   </div>
                 </li>
               ),
@@ -166,5 +150,44 @@ export const ActionBlockTree: React.FC<Props> = ({
         </TreeStructure>
       ) : null}
     </div>
+  );
+};
+
+type CallbackActionBlockProps = {
+  blockType: SelectedActionBlock["type"];
+  selectedCallbackBlock?: SelectedActionBlock | null;
+  handleSelection: (block: SelectedActionBlock) => void;
+  callbacks: ActionTree[];
+};
+
+const CallbackActionBlocks: React.FC<CallbackActionBlockProps> = ({
+  blockType,
+  callbacks,
+  handleSelection,
+  selectedCallbackBlock,
+}) => {
+  return (
+    <>
+      {callbacks.map(({ actionType, code }, index) => {
+        const { action, actionTypeLabel, Icon } = getActionInfo(
+          code,
+          actionType,
+        );
+        return (
+          <ActionBlock
+            action={action}
+            actionTypeLabel={actionTypeLabel}
+            borderLess={index === callbacks.length - 1}
+            icon={Icon}
+            key={code + index}
+            onClick={() => handleSelection({ type: blockType, index })}
+            selected={
+              selectedCallbackBlock?.type === blockType &&
+              selectedCallbackBlock?.index === index
+            }
+          />
+        );
+      })}
+    </>
   );
 };

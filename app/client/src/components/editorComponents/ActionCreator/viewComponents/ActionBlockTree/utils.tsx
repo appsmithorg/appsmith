@@ -21,10 +21,18 @@ import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
 import { getFunctionName } from "@shared/ast";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { JSToString, stringToJS } from "../../utils";
+import { ApiMethodIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import { useSelector } from "react-redux";
+import { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 
 function getIconForAction(
   actionType: ActionTree["actionType"],
+  code: string,
 ): React.FunctionComponent {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const actions = useSelector(getActionsForCurrentPage);
+
   switch (actionType) {
     case AppsmithFunction.none:
       return React.Fragment;
@@ -77,6 +85,21 @@ function getIconForAction(
 
     case AppsmithFunction.stopWatchGeolocation:
       return StopWatchGeolocation;
+
+    case AppsmithFunction.runAPI:
+      const functionName = getFunctionName(
+        stringToJS(code),
+        self.evaluationVersion,
+      );
+      const apiName = functionName.split(".")[0];
+      const apiAction = actions.find(({ config }) => config.name === apiName);
+      let method: keyof typeof HTTP_METHOD = "GET";
+
+      if (apiAction) {
+        method = apiAction.config.actionConfiguration.httpMethod;
+      }
+
+      return () => <ApiMethodIcon height="12px" type={method} width="28px" />;
   }
 
   return React.Fragment;
@@ -171,7 +194,7 @@ export function getActionInfo(
   code: string,
   actionType: ActionTree["actionType"],
 ) {
-  const Icon = getIconForAction(actionType);
+  const Icon = getIconForAction(actionType, code);
 
   if (!actionType) {
     actionType = AppsmithFunction.none;

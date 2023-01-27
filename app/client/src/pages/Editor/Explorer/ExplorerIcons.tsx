@@ -284,9 +284,17 @@ export { EntityIcon };
 
 /** ======= Entity Icon components ends ====== */
 
-export function ApiMethodIcon(props: { type: keyof typeof HTTP_METHOD }) {
+export function ApiMethodIcon(props: {
+  type: keyof typeof HTTP_METHOD;
+  width?: string;
+  height?: string;
+}) {
   return (
-    <EntityIcon borderColor={HTTP_METHODS_COLOR[props.type]} width={"36px"}>
+    <EntityIcon
+      borderColor={HTTP_METHODS_COLOR[props.type]}
+      height={props.height || "18px"}
+      width={props.width || "36px"}
+    >
       <EntityIcon.textIcon textColor={HTTP_METHODS_COLOR[props.type]}>
         {props.type}
       </EntityIcon.textIcon>
