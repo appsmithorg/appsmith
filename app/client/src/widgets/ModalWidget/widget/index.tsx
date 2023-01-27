@@ -155,9 +155,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
-    setTimeout(() => {
-      this.selectWidgetRequest(SelectionRequestType.Empty);
-    }, 0);
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -183,8 +180,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   closeModal = (e: any) => {
-    this.props.showPropertyPane(undefined);
     this.props.updateWidgetMetaProperty("isVisible", false);
+    this.selectWidgetRequest(SelectionRequestType.Empty);
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
     e.stopPropagation();
