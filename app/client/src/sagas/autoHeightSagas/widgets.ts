@@ -101,12 +101,21 @@ export function* updateWidgetAutoHeightSaga() {
 
       // In case of a widget going invisible in view mode
       if (updates[widgetId] === 0) {
+        // Should we allow zero height for this widget?
         const shouldCollapse: boolean = yield shouldCollapseThisWidget(
           stateWidgets,
           widgetId,
         );
+
+        // If zero height is allowed
         if (shouldCollapse) {
+          // setting the min to be 0, will take care of things with the same algorithm
           minDynamicHeightInPixels = 0;
+          // We also need a way to reset this widget if it is fixed, this is because,
+          // for fixed widgets, auto height doesn't trigger, and there is a chance
+          // that the widget will remain the same zero height even after they become
+          // visible.
+          // To do this, we're going to add some extra properties which we can later use to reset
           if (
             !isAutoHeightEnabledForWidget(widget) &&
             widget.topRow !== widget.bottomRow
