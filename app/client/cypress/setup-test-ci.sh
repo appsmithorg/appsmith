@@ -18,6 +18,13 @@ touch ./docker/localhost ./docker/localhost.pem
 echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/localhost.pem
 echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
 
+sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
+	-v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf \
+    -v `pwd`/docker/nginx.conf:/etc/nginx/conf.d/app.conf \
+    -v `pwd`/docker/dev.appsmith.com.pem:/etc/certificate/dev.appsmith.com.pem \
+    -v `pwd`/docker/dev.appsmith.com-key.pem:/etc/certificate/dev.appsmith.com-key.pem \
+    nginx:latest
+
 sleep 10
 
 echo "Checking if the containers have started"
