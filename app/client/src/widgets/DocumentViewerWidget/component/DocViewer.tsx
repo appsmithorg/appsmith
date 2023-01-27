@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore: Types are not available
 import mammoth from "mammoth/mammoth.browser";
 import styled from "styled-components";
 import Interweave from "interweave";
@@ -26,7 +24,7 @@ export default function DocViewer(props: { blob?: Blob }) {
             { arrayBuffer: buffer },
             { includeEmbeddedStyleMap: true, includeDefaultStyleMap: true },
           )
-          .then((result: any) => {
+          .then((result: { value: string }) => {
             setState({ isLoading: false, isError: false });
             setHtmlContent(result.value);
           })
