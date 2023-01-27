@@ -64,7 +64,10 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
-    private String rtsBaseDomain = "http://127.0.0.1:8091";
+    @Value("${appsmith.rts.port:8091}")
+    private string rtsPort;
+
+    private String rtsBaseDomain = "http://127.0.0.1:" + rtsPort;
 
     private List<String> allowedDomains;
 
