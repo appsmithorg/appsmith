@@ -1,4 +1,14 @@
-import { call, fork, put, select, take } from "redux-saga/effects";
+import {
+  call,
+  CallEffectDescriptor,
+  fork,
+  put,
+  PutEffectDescriptor,
+  select,
+  SelectEffectDescriptor,
+  SimpleEffect,
+  take,
+} from "redux-saga/effects";
 import {
   RouteChangeActionPayload,
   setFocusHistory,
@@ -9,6 +19,7 @@ import { FocusElementsConfig } from "navigation/FocusElements";
 import {
   FocusEntity,
   FocusEntityInfo,
+  FocusStoreHierarchy,
   identifyEntityFromPath,
   isSameBranch,
   shouldStoreURLForFocus,
@@ -37,6 +48,7 @@ import {
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { builderURL } from "RouteBuilder";
 
 let previousPath: string;
 
@@ -123,10 +135,6 @@ function* contextSwitchingSaga(pathname: string, state: AppsmithLocationState) {
   if (previousPath) {
     // store current state
     yield call(storeStateOfPath, previousPath);
-    // while switching from selected widget state to API, Query or Datasources directly, store Canvas state as well
-    if (shouldStoreStateForCanvas(previousPath, pathname)) {
-      yield call(storeStateOfPath, previousPath);
-    }
   }
   // Check if it should restore the stored state of the path
   if (shouldSetState(previousPath, pathname, state)) {
@@ -147,7 +155,21 @@ function* waitForPathLoad(currentPath: string, previousPath?: string) {
   }
 }
 
-function* storeStateOfPath(path: string) {
+type StoreStateOfPathType = Generator<
+  | SimpleEffect<"SELECT", SelectEffectDescriptor>
+  | SimpleEffect<"CALL", CallEffectDescriptor<void>>
+  | SimpleEffect<
+      "PUT",
+      PutEffectDescriptor<{
+        payload: { focusState: FocusState; key: string };
+        type: string;
+      }>
+    >,
+  void,
+  FocusState | undefined
+>;
+
+function* storeStateOfPath(path: string): StoreStateOfPathType {
   const focusHistory: FocusState | undefined = yield select(
     getCurrentFocusInfo,
     path,
@@ -159,8 +181,6 @@ function* storeStateOfPath(path: string) {
   const selectors = FocusElementsConfig[entityInfo.entity];
   const state: Record<string, any> = {};
   for (const selectorInfo of selectors) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
   yield put(
@@ -169,6 +189,14 @@ function* storeStateOfPath(path: string) {
       state,
     }),
   );
+
+  if (entityInfo.entity in FocusStoreHierarchy) {
+    const parentEntity = FocusStoreHierarchy[entityInfo.entity];
+    if (parentEntity) {
+      const parentPath = getEntityParentUrl(entityInfo, parentEntity);
+      yield call(storeStateOfPath, parentPath);
+    }
+  }
 }
 
 function* setStateOfPath(path: string) {
@@ -315,21 +343,12 @@ function shouldSetState(
   );
 }
 
-/**
- * This method returns boolean if it should store an additional intermediate state
- * @param prevPath
- * @param currPath
- * @returns
- */
-function shouldStoreStateForCanvas(prevPath: string, currPath: string) {
-  const prevFocusEntity = identifyEntityFromPath(prevPath).entity;
-  const currFocusEntity = identifyEntityFromPath(currPath).entity;
-
-  // while moving from selected widget state directly to some other state,
-  // it should also store selected widgets as well
-  return (
-    prevFocusEntity === FocusEntity.PROPERTY_PANE &&
-    currFocusEntity !== FocusEntity.PROPERTY_PANE &&
-    (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
-  );
-}
+const getEntityParentUrl = (
+  entityInfo: FocusEntityInfo,
+  parentEntity: FocusEntity,
+): string => {
+  if (parentEntity === FocusEntity.CANVAS) {
+    return builderURL({ pageId: entityInfo.pageId ?? "" });
+  }
+  return "";
+};

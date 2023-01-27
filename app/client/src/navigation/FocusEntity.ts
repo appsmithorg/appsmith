@@ -24,6 +24,10 @@ export enum FocusEntity {
   NONE = "NONE",
 }
 
+export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
+  [FocusEntity.PROPERTY_PANE]: FocusEntity.CANVAS,
+};
+
 export type FocusEntityInfo = {
   entity: FocusEntity;
   id: string;
@@ -116,7 +120,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     exact: true,
   });
   if (!match) {
-    return { entity: FocusEntity.NONE, id: "" };
+    return { entity: FocusEntity.NONE, id: "", pageId: "" };
   }
   if (match.params.apiId) {
     if (match.params.pluginPackageName) {
