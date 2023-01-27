@@ -26,7 +26,6 @@ import {
 } from "utils/WidgetPropsUtils";
 import {
   getEdgeDirection,
-  getInterpolatedMoveDirection,
   getMoveDirection,
   getReflowedSpaces,
   modifyBlockDimension,
@@ -193,8 +192,6 @@ export const useCanvasDragging = (
         bottom: 0,
         id: "",
       };
-
-      let lastMousePositions: { x: number; y: number }[] = [];
 
       const resetCanvasState = () => {
         throttledStopReflowing();
@@ -383,9 +380,6 @@ export const useCanvasDragging = (
           );
           rowRef.current = newRows ? newRows : rowRef.current;
         };
-        const updateMousePosition = ({ x, y }: { x: number; y: number }) => {
-          lastMousePositions = [{ x, y }, ...lastMousePositions.slice(0, 4)];
-        };
 
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && slidingArenaRef.current) {
@@ -438,19 +432,9 @@ export const useCanvasDragging = (
               triggerReflow(e, firstMove);
 
               if (useAutoLayout && isCurrentDraggedCanvas) {
-                currentDirection.current = getInterpolatedMoveDirection(
-                  lastMousePositions,
-                  { x: e.clientX, y: e.clientY },
-                  currentDirection.current,
-                  updateMousePosition,
-                );
                 setTimeout(() => {
-                  if (currentDirection.current !== ReflowDirection.UNSET)
-                    selectedHighlight = highlightDropPosition(
-                      e,
-                      currentDirection.current,
-                    );
-                }, 100);
+                  selectedHighlight = highlightDropPosition(e);
+                }, 50);
               }
             }
             isUpdatingRows = renderBlocks(
