@@ -28,6 +28,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -109,6 +110,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.CommonFieldName.REDACTED_DATA;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
@@ -1407,6 +1409,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (paramsList == null) {
                         paramsList = new ArrayList<>();
                     }
+                    List<String> executionParams = paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.putAll(Map.of(
                             "request", request,
@@ -1418,10 +1421,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
                             "actionId", ObjectUtils.defaultIfNull(action.getId(), "")
                     ));
-                    // Execution DTO related properties
                     data.putAll(Map.of(
                             FieldName.ACTION_EXECUTION_REQUEST_PARAMS_SIZE, executeActionDto.getTotalReadableByteCount(),
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, paramsList.size()
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, executionParams.size()
                     ));
                     data.putAll(Map.of(
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
@@ -1450,11 +1452,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
 
                     String executionRequestQuery = "";
-                    if (actionExecutionResult.getRequest() != null && actionExecutionResult.getRequest().getQuery() != null) {
+                    if (actionExecutionResult != null &&
+                            actionExecutionResult.getRequest() != null &&
+                            actionExecutionResult.getRequest().getQuery() != null) {
                         executionRequestQuery = actionExecutionResult.getRequest().getQuery();
                     }
 
-                    final Map<String, Object> eventData = Map.of(
+                    final Map<String, Object> eventData = new HashMap<>(Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
                             FieldName.APP_MODE, appMode,
@@ -1463,7 +1467,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             FieldName.ACTION_EXECUTION_QUERY, executionRequestQuery,
                             FieldName.APPLICATION, application,
                             FieldName.PLUGIN, plugin
-                    );
+                    ));
+
+                    if (executeActionDto.getTotalReadableByteCount() <= Constraint.MAX_ANALYTICS_SIZE_BYTES) {
+                        // Only send params info if total size is less than 5 MB
+                        eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams);
+                    } else {
+                        eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, REDACTED_DATA);
+                    }
                     data.put(FieldName.EVENT_DATA, eventData);
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data)
