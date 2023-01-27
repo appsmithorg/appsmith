@@ -28,8 +28,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuples;
 
-import java.util.Optional;
-
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
@@ -95,7 +93,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         themeId = application.getPublishedModeThemeId();
                     }
                     if (StringUtils.hasLength(themeId)) {
-                        return repository.findById(themeId, Optional.empty())
+                        return repository.findById(themeId, READ_THEMES)
                                 .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
                     } else { // theme id is not present, return default theme
                         return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
