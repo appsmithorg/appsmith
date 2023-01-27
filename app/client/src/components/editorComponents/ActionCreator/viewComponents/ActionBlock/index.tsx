@@ -24,7 +24,7 @@ export const ActionBlock: React.FC<ActionBlockProps> = ({
   return (
     <button
       className={clsx(
-        "flex flex-col w-full p-2",
+        "flex flex-col gap-1 w-full p-2",
         !borderLess &&
           "border-[1px] hover:border-gray-200 border-transparent focus:border-gray-200 border-b-[1px] border-b-gray-200 border-solid",
         selected && "!border-gray-500 border-solid border-[1px]",

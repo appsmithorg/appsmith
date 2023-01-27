@@ -88,25 +88,30 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
       return "Select an action";
 
     case AppsmithFunction.navigateTo:
-      return FIELD_CONFIG[FieldType.PAGE_SELECTOR_FIELD]
-        .getter(code)
-        .slice(1, -1);
+      return (
+        FIELD_CONFIG[FieldType.PAGE_SELECTOR_FIELD].getter(code).slice(1, -1) ||
+        "Select page"
+      );
 
     case AppsmithFunction.showAlert:
-      return FIELD_CONFIG[FieldType.ALERT_TEXT_FIELD].getter(code);
+      return (
+        FIELD_CONFIG[FieldType.ALERT_TEXT_FIELD].getter(code) || "Add message"
+      );
 
     case AppsmithFunction.storeValue:
-      return FIELD_CONFIG[FieldType.KEY_TEXT_FIELD_STORE_VALUE].getter(code);
+      return (
+        FIELD_CONFIG[FieldType.KEY_TEXT_FIELD_STORE_VALUE].getter(code) ||
+        "Add key"
+      );
 
     case AppsmithFunction.copyToClipboard:
-      return FIELD_CONFIG[FieldType.COPY_TEXT_FIELD].getter(code);
+      return FIELD_CONFIG[FieldType.COPY_TEXT_FIELD].getter(code) || "Add text";
 
     case AppsmithFunction.download:
-      return (
-        FIELD_CONFIG[FieldType.DOWNLOAD_FILE_NAME_FIELD].getter(code) +
-        "." +
-        FIELD_CONFIG[FieldType.DOWNLOAD_FILE_TYPE_FIELD].getter(code)
+      const fileName = FIELD_CONFIG[FieldType.DOWNLOAD_FILE_NAME_FIELD].getter(
+        code,
       );
+      return fileName ? fileName : "Add data to download";
 
     case AppsmithFunction.runAPI:
     case AppsmithFunction.jsFunction:
@@ -116,24 +121,38 @@ function getActionHeading(code: string, actionType: ActionTree["actionType"]) {
       return getFunctionName(stringToJS(code), self.evaluationVersion);
 
     case AppsmithFunction.showModal:
-      return FIELD_CONFIG[FieldType.SHOW_MODAL_FIELD].getter(code);
+      return (
+        FIELD_CONFIG[FieldType.SHOW_MODAL_FIELD].getter(code) || "Select modal"
+      );
+
+    case AppsmithFunction.closeModal:
+      return (
+        FIELD_CONFIG[FieldType.CLOSE_MODAL_FIELD].getter(code) || "Select modal"
+      );
 
     case AppsmithFunction.resetWidget:
-      return FIELD_CONFIG[FieldType.WIDGET_NAME_FIELD].getter(code);
+      return (
+        FIELD_CONFIG[FieldType.WIDGET_NAME_FIELD].getter(code).slice(1, -1) ||
+        "Select widget"
+      );
 
     case AppsmithFunction.clearStore:
       return "";
 
     case AppsmithFunction.removeValue:
-      return FIELD_CONFIG[FieldType.KEY_TEXT_FIELD_REMOVE_VALUE].getter(code);
+      return (
+        FIELD_CONFIG[FieldType.KEY_TEXT_FIELD_REMOVE_VALUE].getter(code) ||
+        "Add ID"
+      );
 
     case AppsmithFunction.setInterval:
       return (
-        stringToJS(FIELD_CONFIG[FieldType.DELAY_FIELD].getter(code)) + "ms"
+        stringToJS(FIELD_CONFIG[FieldType.DELAY_FIELD].getter(code)) + "ms" ||
+        "Add interval"
       );
 
     case AppsmithFunction.clearInterval:
-      return FIELD_CONFIG[FieldType.ID_FIELD].getter(code);
+      return FIELD_CONFIG[FieldType.ID_FIELD].getter(code) || "Add ID";
 
     case AppsmithFunction.getGeolocation:
       return "{{ }}";

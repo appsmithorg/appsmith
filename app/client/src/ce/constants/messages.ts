@@ -410,7 +410,7 @@ export const NO_ACTION = () => `No action`;
 export const EXECUTE_A_QUERY = () => `Execute a query`;
 export const NAVIGATE_TO = () => `Navigate to`;
 export const SHOW_MESSAGE = () => `Show Alert`;
-export const OPEN_MODAL = () => `Open modal`;
+export const OPEN_MODAL = () => `Show modal`;
 export const CLOSE_MODAL = () => `Close modal`;
 export const STORE_VALUE = () => `Store value`;
 export const REMOVE_VALUE = () => `Remove value`;
