@@ -61,7 +61,6 @@ export default abstract class AppEngine {
           applicationId,
           pageId,
           mode: this._mode,
-          updateWorker: true,
         }),
       ],
       [
