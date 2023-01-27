@@ -73,14 +73,17 @@ export const entityFns = [
   {
     name: "run",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeAction) =>
-      isAsyncGuard(run.bind(entity), `${entity.name}.run`),
+    fn: (entity: DataTreeEntity) =>
+      isAsyncGuard(run.bind(entity), `${(entity as DataTreeAction).name}.run`),
   },
   {
     name: "clear",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeAction) =>
-      isAsyncGuard(clear.bind(entity), `${entity.name}.clear`),
+    fn: (entity: DataTreeEntity) =>
+      isAsyncGuard(
+        clear.bind(entity),
+        `${(entity as DataTreeAction).name}.clear`,
+      ),
   },
   {
     name: "getGeoLocation",
