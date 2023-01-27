@@ -553,14 +553,16 @@ function updateVerticalHighlightDropZone(
   highlights: HighlightInfo[],
   canvasWidth: number,
 ): HighlightInfo[] {
+  const dropArea = localStorage.getItem("verticalHighlightDropArea");
+  const zoneSize = dropArea !== null ? parseFloat(dropArea) : 0.35;
   for (const [index, highlight] of highlights.entries()) {
     const nextHighlight: HighlightInfo | undefined = highlights[index + 1];
     const previousHighlight: HighlightInfo | undefined = highlights[index - 1];
     const leftZone = previousHighlight
-      ? (highlight.posX - previousHighlight.posX) * 0.35
+      ? (highlight.posX - previousHighlight.posX) * zoneSize
       : highlight.posX + DEFAULT_HIGHLIGHT_SIZE;
     const rightZone = nextHighlight
-      ? (nextHighlight.posX - highlight.posX) * 0.35
+      ? (nextHighlight.posX - highlight.posX) * zoneSize
       : canvasWidth - highlight.posX;
     highlights[index] = {
       ...highlight,

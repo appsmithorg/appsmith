@@ -81,6 +81,8 @@ function getViableDropPositions(
         selection.push(highlight);
   });
   const hasVerticalSelection = selection.length > 0;
+  const dropArea = localStorage.getItem("horizontalHighlightDropArea");
+  const zoneSize = dropArea ? parseFloat(dropArea) : 0;
   horizontalHighlights.forEach((highlight: HighlightInfo) => {
     if (pos.x >= highlight.posX && pos.x <= highlight.posX + highlight.width)
       if (
@@ -88,13 +90,15 @@ function getViableDropPositions(
           pos.y <=
             highlight.posY +
               (highlight.dropZone?.bottom !== undefined
-                ? highlight.dropZone?.bottom * (hasVerticalSelection ? 0.2 : 1)
+                ? highlight.dropZone?.bottom *
+                  (hasVerticalSelection ? zoneSize : 1)
                 : DEFAULT_DROP_RANGE)) ||
         (pos.y < highlight.posY &&
           pos.y >=
             highlight.posY -
               (highlight.dropZone?.top !== undefined
-                ? highlight.dropZone?.top * (hasVerticalSelection ? 0.3 : 1)
+                ? highlight.dropZone?.top *
+                  (hasVerticalSelection ? zoneSize + 0.1 : 1)
                 : DEFAULT_DROP_RANGE))
       )
         selection.push(highlight);
