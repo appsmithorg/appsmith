@@ -107,7 +107,7 @@ export const renderEmptyRows = (
             } else if (column.sticky === StickyType.RIGHT) {
               const rightColWidths = tableColumns
                 .slice(colIndex + 1, tableColumns.length)
-                .map((col) => col.columnProperties.width);
+                .map((col) => col.width);
 
               distanceFromEdge["right"] =
                 colIndex === tableColumns.length - 1 ? 0 : sum(rightColWidths);

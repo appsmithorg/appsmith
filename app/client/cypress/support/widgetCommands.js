@@ -14,6 +14,7 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
+import { LOCAL_TABLE_COLUMN_ORDER } from "./Constants";
 
 let pageidcopy = " ";
 
@@ -1750,5 +1751,41 @@ Cypress.Commands.add(
         const dataHeaderAttribute = $elem.attr("data-header");
         expect(dataHeaderAttribute).to.equal(columnName);
       });
+  },
+);
+
+Cypress.Commands.add("readLocalColumnOrder", (columnOrderKey) => {
+  const localColumnOrder = window.localStorage.getItem(columnOrderKey) || "";
+  if (localColumnOrder) {
+    const parsedTableConfig = JSON.parse(localColumnOrder);
+    if (parsedTableConfig) {
+      const tableWidgetId = Object.keys(parsedTableConfig)[0];
+      return parsedTableConfig[tableWidgetId];
+    }
+  }
+});
+
+Cypress.Commands.add(
+  "checkLocalColumnOrder",
+  (expectedOrder, direction, columnOrderKey = LOCAL_TABLE_COLUMN_ORDER) => {
+    cy.wait(1000);
+    cy.readLocalColumnOrder(columnOrderKey).then((tableWidgetOrder) => {
+      if (tableWidgetOrder) {
+        const {
+          leftOrder: observedLeftOrder,
+          rightOrder: observedRightOrder,
+        } = tableWidgetOrder;
+        if (direction === "left") {
+          console.log("observedLeftOrder = ", {
+            tableWidgetOrder,
+            columnOrderKey,
+          });
+          expect(expectedOrder).to.be.deep.equal(observedLeftOrder);
+        }
+        if (direction === "right") {
+          expect(expectedOrder).to.be.deep.equal(observedRightOrder);
+        }
+      }
+    });
   },
 );

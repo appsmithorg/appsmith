@@ -9,35 +9,6 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-const readLocalColumnOrder = () => {
-  const localColumnOrder =
-    window.localStorage.getItem("tableWidgetColumnOrder") || "";
-  if (localColumnOrder) {
-    const parsedTableConfig = JSON.parse(localColumnOrder);
-    if (parsedTableConfig) {
-      const tableWidgetId = Object.keys(parsedTableConfig)[0];
-      return parsedTableConfig[tableWidgetId];
-    }
-  }
-};
-
-const checkLocalColumnOrder = (expectedOrder, direction) => {
-  const tableWidgetOrder = readLocalColumnOrder();
-  if (tableWidgetOrder) {
-    const {
-      leftOrder: observedLeftOrder,
-      rightOrder: observedRightOrder,
-    } = tableWidgetOrder;
-    if (direction === "left") {
-      cy.log(expectedOrder);
-      expect(expectedOrder).to.be.deep.equal(observedLeftOrder);
-    }
-    if (direction === "right") {
-      expect(expectedOrder).to.be.deep.equal(observedRightOrder);
-    }
-  }
-};
-
 describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
   before(() => {
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 200, y: 200 });
@@ -66,7 +37,7 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
     it("1.1.1 Freeze column to left", () => {
       cy.openPropertyPane(WIDGET.TABLE);
       cy.openFieldConfiguration("step");
-      cy.get(".t--property-control-columnfreeze .t--button-tab-left").click({
+      cy.get(".t--property-control-columnfreeze .t--button-group-left").click({
         force: true,
       });
       cy.checkIfColumnIsFrozenViaCSS("0", "0");
@@ -81,7 +52,7 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
       cy.get(commonlocators.editPropBackButton).click();
       cy.wait(1000);
       cy.openFieldConfiguration("action");
-      cy.get(".t--property-control-columnfreeze .t--button-tab-right").click({
+      cy.get(".t--property-control-columnfreeze .t--button-group-right").click({
         force: true,
       });
       // Check if the first cell has position sticky:
@@ -104,7 +75,7 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
             .last()
             .click({ force: true });
         });
-      cy.get(".t--property-control-columnfreeze .t--button-tab-").click({
+      cy.get(".t--property-control-columnfreeze .t--button-group-").click({
         force: true,
       });
       // Check if the first cell has position sticky:
@@ -260,55 +231,69 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
     cy.PublishtheApp();
   });
   describe("2.1 Column freeze and unfreeze testing with 0 pre-frozen columns", () => {
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
+    });
+
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
+    });
     it("2.1.1 Freeze Columns left", () => {
       cy.freezeColumnFromDropdown("step", "left");
       cy.checkIfColumnIsFrozenViaCSS("0", "0");
       cy.checkColumnPosition("step", 0);
-      checkLocalColumnOrder(["step"], "left");
+      cy.checkLocalColumnOrder(["step"], "left");
 
       cy.freezeColumnFromDropdown("action", "left");
       cy.checkIfColumnIsFrozenViaCSS("0", "1");
       cy.checkColumnPosition("action", 1);
-      checkLocalColumnOrder(["step", "action"], "left");
+      cy.checkLocalColumnOrder(["step", "action"], "left");
     });
 
     it("2.1.2 Freeze Columns right", () => {
       cy.freezeColumnFromDropdown("status", "right");
       cy.checkIfColumnIsFrozenViaCSS("0", "3");
       cy.checkColumnPosition("status", 3);
-      checkLocalColumnOrder(["status"], "right");
+      cy.checkLocalColumnOrder(["status"], "right");
     });
 
     it("2.1.3 Freeze existing left column to right", () => {
       cy.freezeColumnFromDropdown("step", "right");
       cy.checkIfColumnIsFrozenViaCSS("0", "2");
       cy.checkColumnPosition("step", 2);
-      checkLocalColumnOrder(["step", "status"], "right");
+      cy.checkLocalColumnOrder(["step", "status"], "right");
     });
 
     it("2.1.3 Freeze existing right column to left", () => {
       cy.freezeColumnFromDropdown("status", "left");
       cy.checkIfColumnIsFrozenViaCSS("0", "1");
       cy.checkColumnPosition("status", 1);
-      checkLocalColumnOrder(["action", "status"], "left");
+      cy.checkLocalColumnOrder(["action", "status"], "left");
     });
 
     it("2.1.4 Unfreeze existing column", () => {
       cy.freezeColumnFromDropdown("status", "left");
       cy.checkColumnPosition("status", 1);
-      checkLocalColumnOrder(["action"], "left");
+      cy.checkLocalColumnOrder(["action"], "left");
 
       cy.freezeColumnFromDropdown("action", "left");
       cy.checkColumnPosition("action", 0);
-      checkLocalColumnOrder([], "left");
+      cy.checkLocalColumnOrder([], "left");
 
       cy.freezeColumnFromDropdown("step", "right");
       cy.checkColumnPosition("step", 3);
-      checkLocalColumnOrder([], "right");
+      cy.checkLocalColumnOrder([], "right");
       cy.goToEditFromPublish();
     });
   });
   describe("2.2 Column freeze and unfreeze testing with multiple pre-frozen columns", () => {
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
+    });
+
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
+    });
     it("2.2.1 Freeze column left", () => {
       // Freeze additional column in editor mode
       cy.freezeColumnFromDropdown("action", "left");
@@ -323,22 +308,22 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
       cy.freezeColumnFromDropdown("status", "left");
       cy.checkColumnPosition("status", 1);
       cy.checkIfColumnIsFrozenViaCSS("0", "1");
-      checkLocalColumnOrder(["action", "status"], "left");
+      cy.checkLocalColumnOrder(["action", "status"], "left");
     });
 
     it("2.2.2 Freeze developer left frozen column to right", () => {
       cy.freezeColumnFromDropdown("action", "right");
       cy.checkColumnPosition("action", 2);
       cy.checkIfColumnIsFrozenViaCSS("0", "2");
-      checkLocalColumnOrder(["status"], "left");
-      checkLocalColumnOrder(["action", "step"], "right");
+      cy.checkLocalColumnOrder(["status"], "left");
+      cy.checkLocalColumnOrder(["action", "step"], "right");
     });
 
     it("2.2.3 Freeze developer right frozen column to left", () => {
       cy.freezeColumnFromDropdown("step", "left");
       cy.checkColumnPosition("step", 1);
       cy.checkIfColumnIsFrozenViaCSS("0", "1");
-      checkLocalColumnOrder(["status", "step"], "left");
+      cy.checkLocalColumnOrder(["status", "step"], "left");
     });
 
     it("2.2.4 Unfreeze columns by developers", () => {
@@ -348,11 +333,11 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
 
       cy.freezeColumnFromDropdown("action", "left");
       cy.checkColumnPosition("action", 0);
-      checkLocalColumnOrder([], "left");
+      cy.checkLocalColumnOrder([], "left");
 
       cy.freezeColumnFromDropdown("step", "right");
       cy.checkColumnPosition("step", 3);
-      checkLocalColumnOrder([], "right");
+      cy.checkLocalColumnOrder([], "right");
     });
   });
 });
