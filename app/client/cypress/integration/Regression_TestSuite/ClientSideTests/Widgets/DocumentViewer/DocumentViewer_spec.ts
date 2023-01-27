@@ -1,4 +1,4 @@
-import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import { encodedWordDoc, encodedXlsxDoc } from "./exampleEncodedDocs";
 const ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
