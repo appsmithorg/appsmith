@@ -802,6 +802,7 @@ class MetaWidgetGenerator {
       "originalMetaWidgetId",
       "originalMetaWidgetName",
       "prevRowIndex",
+      "prevViewIndex",
     ];
     const rowCache = Object.entries(currentRowCache).reduce(
       (newRowCache, entry) => {
