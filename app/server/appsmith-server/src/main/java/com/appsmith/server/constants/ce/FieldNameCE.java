@@ -143,8 +143,8 @@ public class FieldNameCE {
     public static final String APP_MODE = "appMode";
     public static final String PAGE_ORDER = "order";
     public static final String ACTION_EXECUTION_REQUEST_PARAMS = "actionExecutionRequestParams";
-    public static final String ACTION_EXECUTION_REQUEST_PARAMS_COUNT = "totalReadableBytesCount";
-    public static final String ACTION_EXECUTION_REQUEST_PARAMS_SIZE = "actionExecutionRequestParamsCount";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS_SIZE = "totalReadableBytesCount";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS_COUNT = "actionExecutionRequestParamsCount";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
