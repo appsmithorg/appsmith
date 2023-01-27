@@ -3,7 +3,7 @@ import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
-import { Button, Size } from "design-system";
+import { Button, Size } from "design-system-old";
 import React, { memo, useRef, useState, useEffect } from "react";
 
 import { FormTextFieldProps } from "components/utils/ReduxFormTextField";

@@ -11,7 +11,14 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Case, Classes, Icon, IconSize, Text, TextType } from "design-system";
+import {
+  Case,
+  Classes,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+} from "design-system-old";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {

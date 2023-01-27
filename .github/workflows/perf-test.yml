@@ -220,7 +220,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
         run: |
-          ./cypress/setup-test.sh
+          ./cypress/setup-test-ci.sh
 
       - name: Get the performance-infra branch/ref
         id: perf_infra_ref
@@ -290,6 +290,11 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: performance-test-logs
+          path: app/client/perf/traces/reports
 
         # Set status = success
       - name: Save the status of the run

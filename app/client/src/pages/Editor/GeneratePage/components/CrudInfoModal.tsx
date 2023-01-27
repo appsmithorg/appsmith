@@ -11,7 +11,7 @@ import {
   Size,
   Text,
   TextType,
-} from "design-system";
+} from "design-system-old";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
@@ -26,7 +26,7 @@ import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
 import {
   ProgressiveImage,
   Container as ProgressiveImageContainer,
-} from "design-system";
+} from "design-system-old";
 import SuccessTick from "pages/common/SuccessTick";
 
 type Props = {

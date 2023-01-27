@@ -1,6 +1,6 @@
 import tinycolor from "tinycolor2";
 import { darkenColor } from "widgets/WidgetUtils";
-import { Toaster, Variant } from "design-system";
+import { Toaster, Variant } from "design-system-old";
 import {
   createMessage,
   ADMIN_BRANDING_LOGO_SIZE_ERROR,
@@ -64,7 +64,7 @@ export function createBrandColorsFromPrimaryColor(
  *
  *  checks:
  *  1. file size max 2MB
- *  2. file type - jpg, svg or png
+ *  2. file type - jpg, or png
  *
  * @param e
  * @param callback
@@ -90,7 +90,7 @@ export const logoImageValidator = (
   }
 
   // case 3: image selected
-  const validTypes = ["image/jpeg", "image/png", "image/svg+xml"];
+  const validTypes = ["image/jpeg", "image/png"];
 
   if (!validTypes.includes(file.type)) {
     Toaster.show({
