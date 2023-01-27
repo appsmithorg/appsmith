@@ -543,6 +543,12 @@ class CodeEditor extends Component<Props, State> {
     200,
   );
 
+  debouncedPeekHide = debounce(() => {
+    this.setState({
+      peekOverlayProps: undefined,
+    });
+  }, 200);
+
   handleMouseOver = (event: MouseEvent) => {
     if (
       event.target instanceof Element &&
@@ -575,9 +581,7 @@ class CodeEditor extends Component<Props, State> {
     } else {
       console.log("text hover - close");
       this.debouncedPeek.cancel();
-      this.setState({
-        peekOverlayProps: undefined,
-      });
+      this.debouncedPeekHide();
     }
   };
 
@@ -1231,9 +1235,8 @@ class CodeEditor extends Component<Props, State> {
               <Portal>
                 <div
                   className="absolute"
-                  onMouseLeave={() =>
-                    this.setState({ peekOverlayProps: undefined })
-                  }
+                  onMouseEnter={() => this.debouncedPeekHide.cancel()}
+                  onMouseLeave={() => this.debouncedPeekHide()}
                   style={{
                     height: "127px",
                     width: "300px",
