@@ -25,7 +25,6 @@ import com.external.plugins.datatypes.MySQLSpecificDataTypes;
 import com.external.utils.MySqlDatasourceUtils;
 import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
-import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.R2dbcNonTransientResourceException;
 import io.r2dbc.spi.Result;
@@ -35,6 +34,7 @@ import io.r2dbc.spi.Statement;
 import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
+import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
@@ -74,12 +74,14 @@ import static com.external.utils.MySqlGetStructureUtils.getTableInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTemplates;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 public class MySqlPlugin extends BasePlugin {
 
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
+    public static final String JSON_DB_TYPE = "JSON";
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -462,29 +464,44 @@ public class MySqlPlugin extends BasePlugin {
          * 2. Return the row as a map {column_name -> column_value}.
          */
         private Map<String, Object> getRow(Row row, RowMetadata meta) {
-            Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
+            Iterator<ColumnDefinitionPacket> iterator = (Iterator<ColumnDefinitionPacket>) meta.getColumnMetadatas().iterator();
             Map<String, Object> processedRow = new LinkedHashMap<>();
 
             while (iterator.hasNext()) {
-                ColumnMetadata metaData = iterator.next();
+                ColumnDefinitionPacket metaData = iterator.next();
                 String columnName = metaData.getName();
-                String typeName = metaData.getJavaType().toString();
+                String javaTypeName = metaData.getJavaType().toString();
+                String sqlColumnType = metaData.getDataType().name();
                 Object columnValue = row.get(columnName);
 
-                if (java.time.LocalDate.class.toString().equalsIgnoreCase(typeName) && columnValue != null) {
+                if (java.time.LocalDate.class.toString().equalsIgnoreCase(javaTypeName) && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName, LocalDate.class));
-                } else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName)) && columnValue != null) {
+                } else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(javaTypeName)) && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
                             LocalDateTime.of(
                                     row.get(columnName, LocalDateTime.class).toLocalDate(),
                                     row.get(columnName, LocalDateTime.class).toLocalTime()
                             )
                     ) + "Z";
-                } else if (java.time.LocalTime.class.toString().equalsIgnoreCase(typeName) && columnValue != null) {
+                } else if (java.time.LocalTime.class.toString().equalsIgnoreCase(javaTypeName) && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
                             LocalTime.class));
-                } else if (java.time.Year.class.toString().equalsIgnoreCase(typeName) && columnValue != null) {
+                } else if (java.time.Year.class.toString().equalsIgnoreCase(javaTypeName) && columnValue != null) {
                     columnValue = row.get(columnName, LocalDate.class).getYear();
+                } else if (JSON_DB_TYPE.equals(sqlColumnType)) {
+                    /**
+                     * In case of MySQL the JSON DB type is stored as a binary object in the DB. This is different from
+                     * MariaDB where it is stored as a text.Since we currently use MariaDB driver for MySQL plugin as
+                     * well the driver reads the JSON DB type data as byte array which we are converting to a string
+                     * here.
+                     *
+                     * Please note that this if check would not apply to MariaDB plugin since MariaDB stores JSON as
+                     * text.
+                     * Ref: https://mariadb.com/kb/en/json-data-type/
+                     **/
+                    if (columnValue.getClass().isArray()) {
+                        columnValue = new String((byte[]) columnValue, UTF_8);
+                    }
                 } else {
                     columnValue = row.get(columnName);
                 }
