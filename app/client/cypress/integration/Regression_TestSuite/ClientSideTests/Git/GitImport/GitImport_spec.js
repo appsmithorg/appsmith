@@ -76,8 +76,8 @@ describe("Git import flow ", function() {
         // cy.createTestGithubRepo(repoName);
         // cy.connectToGitRepo(repoName);
       });
+      cy.wait(5000); // for git connection to settle!
     });
-    cy.wait(5000); // for git connection to settle!
   });
 
   it("2. Import the previous app connected to Git and reconnect Postgres, MySQL and Mongo db ", () => {
