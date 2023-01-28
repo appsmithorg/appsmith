@@ -66,7 +66,7 @@ function TemplatesModal() {
       isOpen={templatesModalOpen}
       noModalBodyMarginTop
       onClose={onClose}
-      width={"90%"}
+      width={"91%"}
     >
       {!!showTemplateDetails ? (
         <TemplateDetailedView
