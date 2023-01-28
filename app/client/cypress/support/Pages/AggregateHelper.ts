@@ -912,7 +912,7 @@ export class AggregateHelper {
         });
 
       // to be chained with another cy command.
-      return cy.wrap(inputVal);
+      return inputVal;
     });
   }
 
@@ -953,7 +953,7 @@ export class AggregateHelper {
     this.Sleep(3000); //Increasing wait time to evaluate non-undefined values
 
     const val = this.ReturnCodeInputValue(fieldName);
-    return val;
+    return cy.wrap(val);
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true) {
