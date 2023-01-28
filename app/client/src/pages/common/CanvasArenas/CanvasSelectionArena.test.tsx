@@ -101,6 +101,7 @@ describe("Canvas selection test cases", () => {
         bottomRow: 3,
         leftColumn: 1,
         rightColumn: 3,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
       {
         type: "SWITCH_WIDGET",
@@ -108,6 +109,7 @@ describe("Canvas selection test cases", () => {
         bottomRow: 2,
         leftColumn: 5,
         rightColumn: 13,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
@@ -417,6 +419,7 @@ describe("Canvas selection test cases", () => {
         bottomRow: 3,
         leftColumn: 1,
         rightColumn: 3,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
       {
         type: "SWITCH_WIDGET",
@@ -424,6 +427,7 @@ describe("Canvas selection test cases", () => {
         bottomRow: 2,
         leftColumn: 5,
         rightColumn: 13,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
