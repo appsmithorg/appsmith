@@ -18,6 +18,7 @@ import {
   getAllSubEntityCollapsibleStates,
   getCodeEditorHistory,
   getFocusableInputField,
+  getPropertyPanelState,
   getSelectedCanvasDebuggerTab,
   getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
