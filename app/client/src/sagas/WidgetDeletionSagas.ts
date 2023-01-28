@@ -41,6 +41,7 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -243,7 +244,9 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
-          yield put(selectWidgetInitAction(undefined));
+          yield put(
+            selectWidgetInitAction(SelectionRequestType.Unselect, [widgetId]),
+          );
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
       }
@@ -319,7 +322,7 @@ function* deleteAllSelectedWidgetsSaga(
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
-    yield put(selectWidgetInitAction(""));
+    yield put(selectWidgetInitAction(SelectionRequestType.Empty));
     const bulkDeleteKey = selectedWidgets.join(",");
     if (!disallowUndo) {
       // close property pane after delete

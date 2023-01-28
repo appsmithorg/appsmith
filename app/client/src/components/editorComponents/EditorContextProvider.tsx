@@ -44,6 +44,10 @@ import {
   checkContainersForAutoHeightAction,
   updateWidgetAutoHeightAction,
 } from "actions/autoHeightActions";
+import {
+  selectWidgetInitAction,
+  WidgetSelectionRequest,
+} from "actions/widgetSelectionActions";
 
 export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -84,6 +88,7 @@ export type EditorContextType<TCache = unknown> = {
   ) => TAltCache extends void ? TCache : TAltCache;
   deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
   updateMetaWidgetProperty?: (payload: UpdateMetaWidgetPropertyPayload) => void;
+  selectWidgetRequest?: WidgetSelectionRequest;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -107,6 +112,7 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "triggerEvalOnMetaUpdate",
   "updateWidgetAutoHeight",
   "checkContainersForAutoHeight",
+  "selectWidgetRequest",
 ];
 
 const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [...COMMON_API_METHODS];
@@ -204,6 +210,7 @@ const mapDispatchToProps = {
   modifyMetaWidgets,
   updateMetaWidgetProperty,
   deleteMetaWidgets,
+  selectWidgetRequest: selectWidgetInitAction,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);
