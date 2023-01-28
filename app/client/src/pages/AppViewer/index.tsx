@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
@@ -247,19 +247,30 @@ function AppViewer(props: Props) {
     [checkContainersForAutoHeightAction],
   );
 
+  const editorContextValue = useMemo(
+    () => ({
+      executeAction: executeActionCallback,
+      resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
+      batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
+      syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
+      triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
+      updateWidgetAutoHeight: updateWidgetAutoHeightCallback,
+      checkContainersForAutoHeight: checkContainersForAutoHeightCallback,
+    }),
+    [
+      executeActionCallback,
+      resetChildrenMetaPropertyCallback,
+      batchUpdateWidgetPropertyCallback,
+      syncUpdateWidgetMetaPropertyCallback,
+      triggerEvalOnMetaUpdateCallback,
+      updateWidgetAutoHeightCallback,
+      checkContainersForAutoHeightCallback,
+    ],
+  );
+
   return (
     <ThemeProvider theme={lightTheme}>
-      <EditorContext.Provider
-        value={{
-          executeAction: executeActionCallback,
-          resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
-          batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
-          syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
-          triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
-          updateWidgetAutoHeight: updateWidgetAutoHeightCallback,
-          checkContainersForAutoHeight: checkContainersForAutoHeightCallback,
-        }}
-      >
+      <EditorContext.Provider value={editorContextValue}>
         <WidgetGlobaStyles
           fontFamily={selectedTheme.properties.fontFamily.appFont}
           primaryColor={selectedTheme.properties.colors.primaryColor}
