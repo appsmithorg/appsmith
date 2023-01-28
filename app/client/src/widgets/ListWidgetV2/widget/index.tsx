@@ -201,6 +201,10 @@ class ListWidget extends BaseWidget<
       this.updatePageSize();
     }
 
+    if (this.props.selectedItemKey || this.props.triggeredItemKey) {
+      this.clearCache();
+    }
+
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
     this.metaWidgetGenerator.withOptions(generatorOptions).didMount();
@@ -712,6 +716,17 @@ class ListWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("selectedItemView", "{{{}}}");
   };
 
+  resetTriggeredItemView = () => {
+    this.props.updateWidgetMetaProperty("triggeredItemView", "{{{}}}");
+  };
+
+  resetTriggeredItemKey = () => {
+    this.props.updateWidgetMetaProperty("triggeredItemKey", null);
+  };
+
+  resetTriggeredItem = () =>
+    this.props.updateWidgetMetaProperty("triggeredItem", undefined);
+
   // Updates TriggeredItem and TriggeredItemKey Meta Properties.
   handleTriggeredItemAndKey = (rowIndex: number) => {
     const { triggeredItem } = this.props;
@@ -734,6 +749,21 @@ class ListWidget extends BaseWidget<
 
   resetSelectedItemKey = () => {
     this.props.updateWidgetMetaProperty("selectedItemKey", null);
+  };
+
+  /**
+   * Clearing selected Items and triggered items when the list widget is mounted
+   * because the MetaWidgetGenerator also clears all cached data when mounted or re-mounted
+   *
+   * Task: Persist the cache in List V2.1
+   */
+  clearCache = () => {
+    this.resetSelectedItem();
+    this.resetSelectedItemKey();
+    this.resetSelectedItemView();
+    this.resetTriggeredItem();
+    this.resetTriggeredItemKey();
+    this.resetTriggeredItemView();
   };
 
   shouldPaginate = () => {

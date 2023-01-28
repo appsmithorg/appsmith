@@ -438,7 +438,11 @@ export const getParentWidgetIdForPasting = function*(
       }
     }
     // Select the selected widget if the widget is container like ( excluding list widget )
-    if (selectedWidget.children && selectedWidget.type !== "LIST_WIDGET") {
+    if (
+      selectedWidget.children &&
+      selectedWidget.type !== "LIST_WIDGET" &&
+      selectedWidget.type !== "LIST_WIDGET_V2"
+    ) {
       parentWidget = widgets[selectedWidget.widgetId];
     }
   }

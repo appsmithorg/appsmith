@@ -80,7 +80,7 @@ export type GeneratorOptions = {
   nestedViewIndex?: number;
   pageNo?: number;
   pageSize?: number;
-  primaryKeys?: (string | number | undefined)[];
+  primaryKeys?: (string | number | undefined | null)[];
   scrollElement: HTMLDivElement | null;
   serverSidePagination: boolean;
   templateBottomRow: number;
@@ -1692,7 +1692,7 @@ class MetaWidgetGenerator {
 
   private convertPrimaryKeyToString = () => {
     const keys = this.primaryKeys?.map((key) => {
-      if (key === undefined) return "";
+      if (isNil(key)) return "";
       return key.toString();
     });
     return keys;
