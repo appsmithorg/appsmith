@@ -591,13 +591,6 @@ class MetaWidgetGenerator {
       rowReferences,
     });
 
-    if (
-      metaWidget.type === "CONTAINER_WIDGET" ||
-      metaWidget.type === "CANVAS_WIDGET"
-    ) {
-      metaWidget.dynamicHeight = "AUTO_HEIGHT";
-    }
-
     this.updateSiblings(rowIndex, {
       metaWidget,
       originalMetaWidgetId,
