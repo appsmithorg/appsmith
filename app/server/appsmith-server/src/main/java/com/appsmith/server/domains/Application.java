@@ -142,6 +142,8 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     AppPositioning unpublishedAppPositioning;
 
+    Boolean collapseInvisibleWidgets;
+
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
      * As this property is modified by the framework when there is any change in domain,
@@ -217,6 +219,7 @@ public class Application extends BaseDomain {
         this.unpublishedNavigationSetting = application.getUnpublishedNavigationSetting() == null ? null : new NavigationSetting();
         this.publishedNavigationSetting = application.getPublishedNavigationSetting() == null ? null : new NavigationSetting();
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
+        this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
