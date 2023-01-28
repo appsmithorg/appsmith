@@ -40,7 +40,7 @@ jobs:
             echo "is_beta=false" >> $GITHUB_OUTPUT
           fi
 
-  buildClient:
+  client-build:
     needs:
       - prelude
 
@@ -113,7 +113,7 @@ jobs:
           name: client-build
           path: app/client/build/
 
-  buildServer:
+  server-build:
     needs:
       - prelude
 
@@ -162,7 +162,7 @@ jobs:
           name: server-build
           path: app/server/dist/
 
-  buildRts:
+  rts-build:
     needs:
       - prelude
 
@@ -202,7 +202,7 @@ jobs:
           path: app/rts/rts-dist.tar
 
   package:
-    needs: [prelude, buildClient, buildServer, buildRts]
+    needs: [prelude, client-build, server-build, rts-build]
 
     runs-on: ubuntu-latest
     permissions:
