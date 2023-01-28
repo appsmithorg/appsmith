@@ -1441,11 +1441,10 @@ Cypress.Commands.add("checkCodeInputValue", (selector) => {
       .then((ins) => {
         const input = ins[0].CodeMirror;
         inputVal = input.getValue();
-        this.Sleep(200);
       });
 
     // to be chained with another cy command.
-    return inputVal;
+    return cy.wrap(inputVal);
   });
 });
 

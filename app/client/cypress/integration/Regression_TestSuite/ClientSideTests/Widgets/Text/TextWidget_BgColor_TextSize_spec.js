@@ -60,7 +60,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       "rgba(0, 0, 0, 0)",
     );
 
-    cy.get(commonlocators.evaluatedCurrentValue).should("not.be.visible");
+    cy.get(commonlocators.evaluatedCurrentValue).should("not.exist");
   });
 
   it("Change the text sizes", function() {

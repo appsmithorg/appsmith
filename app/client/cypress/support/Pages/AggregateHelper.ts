@@ -912,7 +912,7 @@ export class AggregateHelper {
         });
 
       // to be chained with another cy command.
-      return inputVal;
+      return cy.wrap(inputVal);
     });
   }
 
