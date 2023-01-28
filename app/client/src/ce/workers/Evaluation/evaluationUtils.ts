@@ -179,11 +179,11 @@ export const translateDiffEventToDataTreeDiffEvent = (
     case "E": {
       const rhsChange =
         typeof difference.rhs === "string" &&
-        (isDynamicValue(difference.rhs) || isJSAction);
+        (isDynamicValue(difference.rhs) || isJsAction);
 
       const lhsChange =
         typeof difference.lhs === "string" &&
-        (isDynamicValue(difference.lhs) || isJSAction);
+        (isDynamicValue(difference.lhs) || isJsAction);
 
       // JsObject function renaming
       // remove .data from a String instance manually
