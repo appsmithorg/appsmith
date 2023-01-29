@@ -151,35 +151,36 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   };
 
   return (
-    <TemplateWrapper
-      className={props.className}
-      data-cy="template-card"
-      onClick={onClick}
-    >
-      <ImageWrapper className="image-wrapper">
-        <StyledImage src={screenshotUrls[0]} />
-      </ImageWrapper>
-      <TemplateContent>
-        <div className="title">{title}</div>
-        <div className="categories">{functions.join(" • ")}</div>
-        <div className="description">{description}</div>
-        <TemplateContentFooter>
-          <TemplateDatasources>
-            {datasources.map((pluginPackageName) => {
-              return (
-                <DatasourceChip
-                  key={pluginPackageName}
-                  pluginPackageName={pluginPackageName}
-                />
-              );
-            })}
-          </TemplateDatasources>
-          {props.isForkingEnabled && (
-            <ForkTemplateDialog
-              onClose={onForkModalClose}
-              showForkModal={showForkModal}
-              templateId={id}
-            >
+    <>
+      <ForkTemplateDialog
+        onClose={onForkModalClose}
+        showForkModal={showForkModal}
+        templateId={id}
+      />
+      <TemplateWrapper
+        className={props.className}
+        data-cy="template-card"
+        onClick={onClick}
+      >
+        <ImageWrapper className="image-wrapper">
+          <StyledImage src={screenshotUrls[0]} />
+        </ImageWrapper>
+        <TemplateContent>
+          <div className="title">{title}</div>
+          <div className="categories">{functions.join(" • ")}</div>
+          <div className="description">{description}</div>
+          <TemplateContentFooter>
+            <TemplateDatasources>
+              {datasources.map((pluginPackageName) => {
+                return (
+                  <DatasourceChip
+                    key={pluginPackageName}
+                    pluginPackageName={pluginPackageName}
+                  />
+                );
+              })}
+            </TemplateDatasources>
+            {props.isForkingEnabled && (
               <Tooltip
                 content={createMessage(FORK_THIS_TEMPLATE)}
                 minimal
@@ -193,11 +194,11 @@ export function TemplateLayout(props: TemplateLayoutProps) {
                   tag="button"
                 />
               </Tooltip>
-            </ForkTemplateDialog>
-          )}
-        </TemplateContentFooter>
-      </TemplateContent>
-    </TemplateWrapper>
+            )}
+          </TemplateContentFooter>
+        </TemplateContent>
+      </TemplateWrapper>
+    </>
   );
 }
 
