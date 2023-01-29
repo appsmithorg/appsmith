@@ -6,24 +6,26 @@ import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
-import { getCurrentPageWidgets } from "selectors/entitiesSelector";
+import {
+  getCanvasWidgets,
+  getCurrentPageWidgets,
+} from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import store from "store";
 import { NavigationMethod } from "utils/history";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
 
   const dispatch = useDispatch();
-  const {
-    selectWidget,
-    shiftSelectWidgetEntityExplorer,
-  } = useWidgetSelection();
+  const { selectWidget } = useWidgetSelection();
+  const canvasWidgets = useSelector(getCanvasWidgets);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
     navigateToCanvas(pageId);
     flashElementsById(widgetId);
-    selectWidget(widgetId, true);
+    selectWidget(SelectionRequestType.PushPop, [widgetId]);
   };
 
   const selectSingleWidget = (
@@ -32,9 +34,9 @@ export const useNavigateToWidget = () => {
     pageId: string,
     navigationMethod?: NavigationMethod,
   ) => {
-    selectWidget(widgetId, false);
+    selectWidget(SelectionRequestType.One, [widgetId]);
     navigateToCanvas(pageId, widgetId, navigationMethod);
-    quickScrollToWidget(widgetId);
+    quickScrollToWidget(widgetId, canvasWidgets);
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here
     setTimeout(() => {
@@ -56,7 +58,6 @@ export const useNavigateToWidget = () => {
       isWidgetSelected?: boolean,
       isMultiSelect?: boolean,
       isShiftSelect?: boolean,
-      widgetsInStep?: string[],
     ) => {
       const allWidgets = getCurrentPageWidgets(store.getState());
       // restrict multi-select across pages
@@ -64,7 +65,7 @@ export const useNavigateToWidget = () => {
         return;
 
       if (isShiftSelect) {
-        shiftSelectWidgetEntityExplorer(widgetId, widgetsInStep || []);
+        selectWidget(SelectionRequestType.ShiftSelect, [widgetId]);
       } else if (isMultiSelect) {
         multiSelectWidgets(widgetId, pageId);
       } else {

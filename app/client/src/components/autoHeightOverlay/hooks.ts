@@ -25,6 +25,7 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 type UseHoverStateReturnType = [boolean, onMouseHoverCallbacksProps];
 
@@ -282,7 +283,9 @@ export function useDragCallbacksForHandles({
     setIsAutoHeightWithLimitsChanging &&
       !isAutoHeightWithLimitsChanging &&
       setIsAutoHeightWithLimitsChanging(true);
-    selectWidget && selectedWidget !== widgetId && selectWidget(widgetId);
+    selectWidget &&
+      selectedWidget !== widgetId &&
+      selectWidget(SelectionRequestType.One, [widgetId]);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
   }, [widgetId]);
@@ -295,15 +298,17 @@ export function useDragCallbacksForHandles({
         setIsAutoHeightWithLimitsChanging(false);
     }, 0);
 
-    selectWidget && selectWidget(widgetId);
+    selectWidget && selectWidget(SelectionRequestType.One, [widgetId]);
 
     if (parentWidgetToSelect) {
       selectWidget &&
         selectedWidget !== parentWidgetToSelect.widgetId &&
-        selectWidget(parentWidgetToSelect.widgetId);
+        selectWidget(SelectionRequestType.One, [parentWidgetToSelect.widgetId]);
       focusWidget(parentWidgetToSelect.widgetId);
     } else {
-      selectWidget && selectedWidget !== widgetId && selectWidget(widgetId);
+      selectWidget &&
+        selectedWidget !== widgetId &&
+        selectWidget(SelectionRequestType.One, [widgetId]);
     }
     // Property pane closes after a resize/drag
     showPropertyPane && showPropertyPane();
