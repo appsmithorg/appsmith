@@ -23,7 +23,6 @@ import {
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
-import { getParentBottomRowAfterAddingWidget } from "./WidgetOperationUtils";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
@@ -254,18 +253,10 @@ export function* getUpdateDslAfterCreatingChild(
     addChildPayload.props?.blueprint,
   );
 
-  const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
-
-  const parentBottomRow = getParentBottomRowAfterAddingWidget(
-    stateParent,
-    newWidget,
-  );
-
   // Update widgets to put back in the canvasWidgetsReducer
   // TODO(abhinav): This won't work if dont already have an empty children: []
   const parent = {
     ...stateParent,
-    bottomRow: parentBottomRow,
     children: [...(stateParent.children || []), childWidgetPayload.widgetId],
   };
 

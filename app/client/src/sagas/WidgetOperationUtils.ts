@@ -1514,21 +1514,6 @@ export const getAllWidgetsInTree = (
   return widgetList;
 };
 
-export const getParentBottomRowAfterAddingWidget = (
-  stateParent: FlattenedWidgetProps,
-  newWidget: FlattenedWidgetProps,
-) => {
-  const parentRowSpace =
-    newWidget.parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-  const newBottomRow =
-    (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-    parentRowSpace;
-  const updateBottomRow =
-    stateParent.type === "CANVAS_WIDGET" &&
-    newBottomRow > stateParent.bottomRow;
-  return updateBottomRow ? newBottomRow : stateParent.bottomRow;
-};
-
 /**
  * sometimes, selected widgets contains the grouped widget,
  * in those cases, we will just selected the main container as the

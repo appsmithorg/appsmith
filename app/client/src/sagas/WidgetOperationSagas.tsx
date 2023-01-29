@@ -95,7 +95,6 @@ import {
   getNewPositionsForCopiedWidgets,
   getNextWidgetName,
   getOccupiedSpacesFromProps,
-  getParentBottomRowAfterAddingWidget,
   getParentWidgetIdForGrouping,
   getParentWidgetIdForPasting,
   getPastePositionMapFromMousePointer,
@@ -1365,7 +1364,6 @@ function* pasteWidgetSaga(
     // new pasting positions, the variables are undefined if the positions cannot be calculated,
     // then it pastes the regular way at the bottom of the canvas
     ({
-      bottomMostRow,
       canvasId,
       gridProps,
       newPastingPositionMap,
@@ -1562,16 +1560,11 @@ function* pasteWidgetSaga(
               // Add the new child to existing children
               parentChildren = parentChildren.concat(widgetChildren);
             }
-            const parentBottomRow = getParentBottomRowAfterAddingWidget(
-              widgets[pastingParentId],
-              widget,
-            );
 
             widgets = {
               ...widgets,
               [pastingParentId]: {
                 ...widgets[pastingParentId],
-                bottomRow: Math.max(parentBottomRow, bottomMostRow || 0),
                 children: parentChildren,
               },
             };

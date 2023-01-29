@@ -293,7 +293,8 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const fixedHeight =
     isAutoHeightEnabledForWidget(props, true) ||
-    !isAutoHeightEnabledForWidget(props);
+    !isAutoHeightEnabledForWidget(props) ||
+    !props.isCanvas;
 
   return (
     <Resizable

@@ -3,6 +3,7 @@ import React from "react";
 
 import BaseWidget, { WidgetProps } from "./BaseWidget";
 import {
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
@@ -26,6 +27,7 @@ import {
 } from "utils/widgetRenderUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -62,7 +64,27 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     if (!skipWidgetPropsHydration) {
       const canvasWidgetProps = (() => {
         if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-          return computeMainContainerWidget(canvasWidget, mainCanvasProps);
+          const computed = computeMainContainerWidget(
+            canvasWidget,
+            mainCanvasProps,
+          );
+          if (renderMode === RenderModes.CANVAS) {
+            computed.bottomRow = Math.max(
+              computed.minHeight,
+              computed.bottomRow +
+                GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET *
+                  GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            );
+          } else {
+            computed.bottomRow = Math.max(
+              CANVAS_DEFAULT_MIN_HEIGHT_PX,
+              computed.bottomRow +
+                GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET *
+                  GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            );
+          }
+
+          return computed;
         }
 
         return evaluatedWidget

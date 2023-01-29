@@ -1,3 +1,4 @@
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -67,11 +68,21 @@ export function getCanvasWidgetHeightsToUpdate(
           }
         }
       }
-      if (widget.parentId && widget.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+      if (widget.parentId) {
         if (!updatedCanvasWidgets.hasOwnProperty(widget.parentId)) {
           const bottomRow = getCanvasBottomRow(widget.parentId, canvasWidgets);
           if (bottomRow > 0) updatedCanvasWidgets[widget.parentId] = bottomRow;
         }
+      }
+    } else {
+      // This usually means, that we're deleting a widget.
+      if (!updatedCanvasWidgets.hasOwnProperty(MAIN_CONTAINER_WIDGET_ID)) {
+        const bottomRow = getCanvasBottomRow(
+          MAIN_CONTAINER_WIDGET_ID,
+          canvasWidgets,
+        );
+        if (bottomRow > 0)
+          updatedCanvasWidgets[MAIN_CONTAINER_WIDGET_ID] = bottomRow;
       }
     }
   }
@@ -145,6 +156,9 @@ export function getCanvasBottomRow(
     }
     // Subtract the canvas offset due to some parent elements
     parentHeightInRows = parentHeightInRows - parentHeightOffset;
+  } else {
+    parentHeightInRows =
+      CANVAS_DEFAULT_MIN_HEIGHT_PX / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   }
 
   if (Array.isArray(children) && children.length > 0) {

@@ -63,7 +63,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
       if (widgetProps.type === "CANVAS_WIDGET") {
         const bottomRow = getCanvasBottomRow(widgetId, widgets);
         widgets[widgetId].bottomRow = bottomRow;
-        widgets[widgetId].minHeight = bottomRow;
       }
     }
     return widgets;
@@ -101,7 +100,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
 
     for (const widgetId in canvasWidgetHeightsToUpdate) {
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
-      state[widgetId].minHeight = canvasWidgetHeightsToUpdate[widgetId];
     }
   },
   [ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES]: (
@@ -130,7 +128,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     > = getCanvasWidgetHeightsToUpdate(Object.keys(action.payload), state);
     for (const widgetId in canvasWidgetHeightsToUpdate) {
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
-      state[widgetId].minHeight = canvasWidgetHeightsToUpdate[widgetId];
     }
   },
 });
