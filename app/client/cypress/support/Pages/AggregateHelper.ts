@@ -901,19 +901,21 @@ export class AggregateHelper {
 
   public ReturnCodeInputValue(selector: string) {
     let inputVal = "";
-    cy.get(selector).then(($field: any) => {
-      cy.wrap($field)
-        .find(".CodeMirror")
-        .first()
-        .then((ins: any) => {
-          const input = ins[0].CodeMirror;
-          inputVal = input.getValue();
-          this.Sleep(200);
-        });
+    cy.xpath(this.locator._existingFieldValueByName(selector)).then(
+      ($field: any) => {
+        cy.wrap($field)
+          .find(".CodeMirror")
+          .first()
+          .then((ins: any) => {
+            const input = ins[0].CodeMirror;
+            inputVal = input.getValue();
+            this.Sleep(200);
+          });
 
-      // to be chained with another cy command.
-      return inputVal;
-    });
+        // to be chained with another cy command.
+        return inputVal;
+      },
+    );
   }
 
   public VerifyEvaluatedErrorMessage(errorMessage: string) {
