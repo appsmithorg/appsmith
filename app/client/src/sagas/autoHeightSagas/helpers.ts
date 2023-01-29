@@ -207,6 +207,10 @@ export function* shouldCollapseThisWidget(
     // Get the parent Canvas widgetId
     const parentId = widget.parentId;
 
+    if (parentId === MAIN_CONTAINER_WIDGET_ID && canCollapseAllWidgets) {
+      return true;
+    }
+
     // Get the grandparent or the parent container like widget
     const parentContainerLikeWidgetId = parentId
       ? stateWidgets[parentId].parentId
@@ -223,8 +227,7 @@ export function* shouldCollapseThisWidget(
       if (
         parentContainerLikeWidget &&
         canCollapseAllWidgets &&
-        (isAutoHeightEnabledForWidget(parentContainerLikeWidget) ||
-          parentContainerLikeWidgetId === MAIN_CONTAINER_WIDGET_ID)
+        isAutoHeightEnabledForWidget(parentContainerLikeWidget)
       ) {
         return true;
       }
