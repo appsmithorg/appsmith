@@ -45,9 +45,11 @@ export default function convertDSLtoAuto(dsl: DSLWidget) {
  * @returns auto layout converted Auto Widget
  */
 export function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
-  const { calculatedBottomRow, children, flexLayers } = fitChildWidgetsIntoCell(
-    dsl.children,
-  );
+  const {
+    calculatedBottomRow,
+    children,
+    flexLayers,
+  } = fitChildWidgetsIntoLayers(dsl.children);
 
   const bottomRow = calculatedBottomRow
     ? calculatedBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
@@ -74,7 +76,7 @@ export function getAutoCanvasWidget(dsl: DSLWidget): DSLWidget {
  * @param widgets
  * @returns modified Children, FlexLayers and new bottom most row of the Canvas
  */
-export function fitChildWidgetsIntoCell(
+export function fitChildWidgetsIntoLayers(
   widgets: DSLWidget[] | undefined,
 ): {
   children: DSLWidget[];
@@ -141,7 +143,7 @@ export function fitChildWidgetsIntoCell(
  * @param currWidgets
  * @returns
  */
-export function getNextLayer(
+function getNextLayer(
   currWidgets: DSLWidget[],
 ): {
   flexLayer: FlexLayer;
@@ -439,7 +441,7 @@ export function getAlignmentScore(
  * @param groupedWidgets
  * @returns alignments of individual widget
  */
-function processGroupedWidgets(
+export function processGroupedWidgets(
   groupedWidgets: {
     widgets: string[];
     leftColumn: number;
@@ -528,7 +530,7 @@ function processGroupedWidgets(
  * @param groupedWidgets
  * @returns
  */
-function getCondensedGroupedWidgets(
+export function getCondensedGroupedWidgets(
   groupedWidgets: {
     widgets: string[];
     leftColumn: number;
@@ -541,7 +543,7 @@ function getCondensedGroupedWidgets(
   for (let i = 1; i < groupedWidgets.length; i++) {
     gapsArray.push({
       gap: groupedWidgets[i].leftColumn - groupedWidgets[i - 1].rightColumn,
-      index: i,
+      index: i - 1,
     });
   }
 
@@ -572,13 +574,25 @@ function getCondensedGroupedWidgets(
   let tempWidgetIds: any[] = [],
     groupLeftColumn = groupedWidgets[0].leftColumn,
     groupRightColumn = groupedWidgets[0].rightColumn;
+
   for (let i = 0; i < groupedWidgets.length; i++) {
-    if (i < gapIndex || i === groupedWidgets.length - 1) {
+    if (i < gapIndex) {
       tempWidgetIds = tempWidgetIds.concat(groupedWidgets[i].widgets);
+      groupLeftColumn =
+        tempWidgetIds.length > 0
+          ? groupLeftColumn
+          : groupedWidgets[i].leftColumn;
       groupRightColumn = groupedWidgets[i].rightColumn;
     }
 
     if (i === gapIndex) {
+      tempWidgetIds = tempWidgetIds.concat(groupedWidgets[i].widgets);
+      groupLeftColumn =
+        tempWidgetIds.length > 0
+          ? groupLeftColumn
+          : groupedWidgets[i].leftColumn;
+      groupRightColumn = groupedWidgets[i].rightColumn;
+
       condensedGroupedWidgets.push({
         widgets: tempWidgetIds,
         leftColumn: groupLeftColumn,
@@ -592,8 +606,7 @@ function getCondensedGroupedWidgets(
         gapIndex = groupedWidgets.length - 1;
       }
 
-      tempWidgetIds = [...groupedWidgets[i].widgets];
-      groupLeftColumn = groupedWidgets[i].leftColumn;
+      tempWidgetIds = [];
       groupRightColumn = groupedWidgets[i].rightColumn;
     }
   }
