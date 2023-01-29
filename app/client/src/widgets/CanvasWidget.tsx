@@ -27,7 +27,7 @@ class CanvasWidget extends ContainerWidget {
       containerStyle: "none",
       detachFromLayout: true,
       minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
-      noScroll: true,
+      shouldScrollContents: false,
     };
   }
 

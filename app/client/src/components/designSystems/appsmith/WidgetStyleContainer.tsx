@@ -36,6 +36,7 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   border-style: solid;
   background-color: ${(props) => props.backgroundColor || "transparent"};
 
+  overflow: hidden;
   & > div {
     height: 100%;
     width: 100%;

@@ -201,7 +201,11 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   makeModalSelectable(content: ReactNode): ReactNode {
     // substitute coz the widget lacks draggable and position containers.
     return (
-      <ClickContentToOpenPropPane widgetId={this.props.widgetId}>
+      <ClickContentToOpenPropPane
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        widgetId={this.props.widgetId}
+      >
         {content}
       </ClickContentToOpenPropPane>
     );
@@ -229,8 +233,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
     return (
       <ModalComponent
-        backgroundColor={this.props.backgroundColor}
-        borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}

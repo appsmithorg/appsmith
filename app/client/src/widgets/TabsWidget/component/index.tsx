@@ -7,6 +7,7 @@ import { Icon, IconSize } from "design-system-old";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
 import PageTabs from "./PageTabs";
+import { scrollCSS } from "widgets/WidgetUtils";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -51,10 +52,6 @@ const TabsContainerWrapper = styled.div<{
     props.backgroundColor || "var(--wds-color-bg)"};
   border-style: solid;
   overflow: hidden;
-
-  & > div.canvas {
-    width: 100%;
-  }
 `;
 
 export interface TabsContainerProps {
@@ -111,9 +108,10 @@ export interface ScrollNavControlProps {
   className?: string;
 }
 
-const ScrollCanvas = styled.div`
-  overflow-y: auto;
-  overflow-x: hidden;
+const ScrollCanvas = styled.div<{ $shouldScrollContents: boolean }>`
+  overflow: hidden;
+  ${(props) => (props.$shouldScrollContents ? scrollCSS : ``)}
+  width: 100%;
 `;
 
 function TabsComponent(props: TabsComponentProps) {
@@ -196,6 +194,7 @@ function TabsComponent(props: TabsComponentProps) {
       )}
 
       <ScrollCanvas
+        $shouldScrollContents={!!props.shouldScrollContents}
         className={`${
           props.shouldScrollContents ? getCanvasClassName() : ""
         } ${generateClassName(props.widgetId)}`}

@@ -1,4 +1,11 @@
-import React, { MouseEventHandler, PropsWithChildren, ReactNode } from "react";
+import React, {
+  MouseEventHandler,
+  PropsWithChildren,
+  ReactNode,
+  RefObject,
+  useEffect,
+  useRef,
+} from "react";
 import styled from "styled-components";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import WidgetStyleContainer, {
@@ -13,7 +20,10 @@ const StyledContainerComponent = styled.div<
 >`
   height: 100%;
   width: 100%;
-  ${(props) => (props.noScroll ? `` : scrollCSS)}
+  overflow: hidden;
+  ${(props) => (props.shouldScrollContents ? scrollCSS : ``)}
+  opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
+
   &:hover {
     background-color: ${(props) => {
       return props.onClickCapture && props.backgroundColor
@@ -22,10 +32,9 @@ const StyledContainerComponent = styled.div<
             .toString()
         : props.backgroundColor;
     }};
+    z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
+    cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
   }
-  opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
-  z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
-  cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
 `;
 
 interface ContainerWrapperProps {
@@ -35,11 +44,24 @@ interface ContainerWrapperProps {
   backgroundColor?: string;
   widgetId: string;
   type: WidgetType;
-  noScroll?: boolean; // If this is a CANVAS_WIDGET, we don't want any scroll behaviour
 }
 function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
 ) {
+  const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!props.shouldScrollContents) {
+      const supportsNativeSmoothScroll =
+        "scrollBehavior" in document.documentElement.style;
+      if (supportsNativeSmoothScroll) {
+        containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = 0;
+        }
+      }
+    }
+  }, [props.shouldScrollContents]);
   return (
     <StyledContainerComponent
       // Before you remove: generateClassName is used for bounding the resizables within this canvas
@@ -48,9 +70,10 @@ function ContainerComponentWrapper(
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} container-with-scrollbar`}
-      noScroll={props.noScroll}
       onClickCapture={props.onClickCapture}
+      ref={containerRef}
       resizeDisabled={props.resizeDisabled}
+      shouldScrollContents={!!props.shouldScrollContents}
       tabIndex={props.shouldScrollContents ? undefined : 0}
       type={props.type}
     >
@@ -63,7 +86,6 @@ function ContainerComponent(props: ContainerComponentProps) {
   if (props.detachFromLayout) {
     return (
       <ContainerComponentWrapper
-        noScroll={props.noScroll}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={props.shouldScrollContents}
@@ -85,7 +107,6 @@ function ContainerComponent(props: ContainerComponentProps) {
       widgetId={props.widgetId}
     >
       <ContainerComponentWrapper
-        noScroll={props.noScroll}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={props.shouldScrollContents}

@@ -78,12 +78,15 @@ const updateHeight = (
   isMainContainer: boolean,
 ) => {
   if (ref.current) {
-    const height = `${currentRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
-    ref.current.style.height = height;
+    const height = currentRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    ref.current.style.height = `${height}px`;
+    ref.current
+      .closest(".scroll-parent")
+      ?.scrollTo({ top: height, behavior: "smooth" });
     if (isMainContainer) {
       const artboard = document.getElementById("art-board");
       if (artboard) {
-        artboard.style.height = height;
+        artboard.style.height = `${height}px`;
       }
     }
   }
