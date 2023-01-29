@@ -21,7 +21,7 @@ public enum SaaSPluginError implements BasePluginError {
     ),
     UNSUPPORTED_PLUGIN_OPERATION(
             500,
-            AppsmithPluginErrorCode.UNSUPPORTED_PLUGIN_OPERATION.getCode(),
+            "PE-SAS-5001",
             "Testing datasource for SaaS plugin is not supported",
             AppsmithErrorAction.DEFAULT,
             "Unsupported operation",
