@@ -42,7 +42,6 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(
             MediaType.IMAGE_JPEG,
             MediaType.IMAGE_PNG,
-            MediaType.valueOf("image/svg+xml"),
             MediaType.valueOf("image/x-icon"),
             MediaType.valueOf("image/vnd.microsoft.icon")
     );

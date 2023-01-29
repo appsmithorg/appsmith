@@ -8,16 +8,17 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ReactTableColumnProps, ReactTableFilter } from "./Constants";
 import TableFilterPaneContent from "./TableFilterPaneContent";
-import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
+import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
 import { Layers } from "constants/Layers";
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { selectWidgetAction } from "actions/widgetSelectionActions";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 import { WidgetProps } from "widgets/BaseWidget";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const DragBlock = styled.div`
   height: 40px;
@@ -32,6 +33,7 @@ const DragBlock = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+
   span {
     padding-left: 8px;
     color: ${Colors.GREY_11};
@@ -62,7 +64,7 @@ class TableFilterPane extends Component<Props> {
   }
 
   handlePositionUpdate = (position: any) => {
-    this.props.setPanePoistion(
+    this.props.setPanePosition(
       this.props.tableFilterPane.widgetId as string,
       position,
     );
@@ -131,7 +133,7 @@ const mapStateToProps = (state: AppState, ownProps: TableFilterPaneProps) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    setPanePoistion: (widgetId: string, position: any) => {
+    setPanePosition: (widgetId: string, position: any) => {
       dispatch({
         type: ReduxActionTypes.TABLE_PANE_MOVED,
         payload: {
@@ -139,14 +141,14 @@ const mapDispatchToProps = (dispatch: any) => {
           position,
         },
       });
-      dispatch(selectWidgetAction(widgetId));
+      dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
     },
     hideFilterPane: (widgetId: string) => {
       dispatch({
         type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
         payload: { widgetId },
       });
-      dispatch(selectWidgetAction(widgetId));
+      dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
     },
   };
 };

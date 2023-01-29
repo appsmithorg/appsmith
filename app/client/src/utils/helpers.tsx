@@ -1,5 +1,8 @@
 import React from "react";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
 import welcomeConfetti from "assets/lottie/welcome-confetti.json";
@@ -28,6 +31,11 @@ import {
 } from "constants/routes";
 import history from "./history";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { checkContainerScrollable } from "widgets/WidgetUtils";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -215,20 +223,27 @@ export const flashElementsById = (
 /**
  * Scrolls to the widget of WidgetId without any animantion.
  * @param widgetId
- * @returns
+ * @param canvasWidgets
  */
-export const quickScrollToWidget = (widgetId?: string) => {
-  if (!widgetId) return;
+export const quickScrollToWidget = (
+  widgetId: string,
+  canvasWidgets: CanvasWidgetsReduxState,
+) => {
+  if (!widgetId || widgetId === "") return;
 
   setTimeout(() => {
     const el = document.getElementById(widgetId);
     const canvas = document.getElementById("canvas-viewport");
 
     if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
-      el.scrollIntoView({
-        block: "nearest",
-        behavior: "smooth",
-      });
+      const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);
+      if (scrollElement) {
+        scrollElement.scrollIntoView({
+          block: "center",
+          inline: "nearest",
+          behavior: "smooth",
+        });
+      }
     }
   }, 200);
 };
@@ -251,6 +266,26 @@ function isElementVisibleInContainer(
       (elementRect.right < containerRect.right &&
         elementRect.right > containerRect.left))
   );
+}
+
+function getWidgetElementToScroll(
+  widgetId: string,
+  canvasWidgets: CanvasWidgetsReduxState,
+) {
+  const widget = canvasWidgets[widgetId];
+  const parentId = widget.parentId || "";
+  const containerId = getContainerIdForCanvas(parentId);
+  if (containerId === MAIN_CONTAINER_WIDGET_ID) {
+    return document.getElementById(widgetId);
+  }
+  const containerWidget = canvasWidgets[containerId] as ContainerWidgetProps<
+    WidgetProps
+  >;
+  if (checkContainerScrollable(containerWidget)) {
+    return document.getElementById(widgetId);
+  } else {
+    return document.getElementById(containerId);
+  }
 }
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
@@ -807,6 +842,7 @@ export function shouldBeDefined<T>(
 
   return result;
 }
+
 /*
  * Check if a value is null / undefined / empty string
  *
