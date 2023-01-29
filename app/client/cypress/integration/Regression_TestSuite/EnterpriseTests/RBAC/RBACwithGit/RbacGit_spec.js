@@ -2,6 +2,7 @@ import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("RBAC for git connected apps tests", function() {
   let workspaceName;
@@ -37,12 +38,11 @@ describe("RBAC for git connected apps tests", function() {
       });
       cy.CreateAppForWorkspace(workspaceName, appName);
 
-      cy.generateUUID().then((uid) => {
-        repoName = uid;
-
-        cy.createTestGithubRepo(repoName);
-        cy.connectToGitRepo(repoName);
+      _.gitSync.CreateNConnectToGit();
+      cy.get("@gitRepoName").then((repName) => {
+        repoName = repName;
       });
+
       cy.visit("settings/general");
       cy.CreatePermissionWorkspaceLevel(
         PermissionWorkspaceLevel,
@@ -70,7 +70,8 @@ describe("RBAC for git connected apps tests", function() {
       .trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
-    cy.createGitBranch(childBranch);
+    _.gitSync.CreateGitBranch(childBranch);
+    //cy.createGitBranch(childBranch);
     // verify user is able to create JSObject
     cy.createJSObject('return "Success";');
     // verify user is able to edit the page
@@ -102,7 +103,7 @@ describe("RBAC for git connected apps tests", function() {
 
   it("3. Switch to new branch from test branch and verify permissions ", function() {
     // verify the page merged is there on roles screen
-    cy.createGitBranch(childBranch2);
+    _.gitSync.CreateGitBranch(childBranch2, true);
     // verify user is able to create JSObject
     cy.createJSObject('return "Success";');
     cy.LogOut();
@@ -221,6 +222,6 @@ describe("RBAC for git connected apps tests", function() {
   });
 
   after(() => {
-    cy.deleteTestGithubRepo(repoName);
+    _.gitSync.DeleteTestGithubRepo(repoName);
   });
 });

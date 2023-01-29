@@ -42,7 +42,7 @@ describe("View Permission flow ", function() {
         // create new datasource
         cy.NavigateToDatasourceEditor();
         cy.get(datasources.PostgreSQL).click();
-        cy.fillPostgresDatasourceFormFat();
+        cy.fillPostgresDatasourceForm();
         cy.generateUUID().then((uid) => {
           datasourceName = `Postgres CRUD ds ${uid}`;
           cy.renameDatasource(datasourceName);

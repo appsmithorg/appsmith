@@ -47,7 +47,7 @@ describe("Multiple Permission flow ", function() {
       // create new datasource
       cy.NavigateToDatasourceEditor();
       cy.get(datasources.MySQL).click();
-      cy.fillMySQLDatasourceFormFat();
+      cy.fillMySQLDatasourceForm();
       cy.generateUUID().then((uid) => {
         datasourceName = `MySQL CRUD ds ${uid}`;
         cy.renameDatasource(datasourceName);
@@ -178,7 +178,7 @@ describe("Multiple Permission flow ", function() {
     cy.get(".t--widget-tablewidgetv2").should("exist");
     cy.NavigateToDatasourceEditor();
     cy.get(datasources.MySQL).click();
-    cy.fillMySQLDatasourceFormFat();
+    cy.fillMySQLDatasourceForm();
     cy.generateUUID().then((UUID) => {
       datasourceName2 = `MySQL MOCKDS ${UUID}`;
       cy.renameDatasource(datasourceName2);
