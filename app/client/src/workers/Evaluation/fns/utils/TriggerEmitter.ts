@@ -1,7 +1,9 @@
 import { EventEmitter } from "events";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
-import { _internalClearTimeout, _internalSetTimeout } from "../timeout";
+
+const _internalSetTimeout = self.setTimeout;
+const _internalClearTimeout = self.clearTimeout;
 
 export enum BatchKey {
   process_logs = "process_logs",
@@ -62,7 +64,7 @@ const logsHandler = deferredBatchedActionHandler((batchedData) =>
   }),
 );
 
-TriggerEmitter.on("process_logs", logsHandler);
+TriggerEmitter.on(BatchKey.process_logs, logsHandler);
 
 const storeUpdatesHandler = priorityBatchedActionHandler((batchedData) =>
   WorkerMessenger.ping({
@@ -71,7 +73,7 @@ const storeUpdatesHandler = priorityBatchedActionHandler((batchedData) =>
   }),
 );
 
-TriggerEmitter.on("process_store_updates", storeUpdatesHandler);
+TriggerEmitter.on(BatchKey.process_store_updates, storeUpdatesHandler);
 
 const defaultTriggerHandler = priorityBatchedActionHandler((batchedData) =>
   WorkerMessenger.ping({
@@ -80,6 +82,6 @@ const defaultTriggerHandler = priorityBatchedActionHandler((batchedData) =>
   }),
 );
 
-TriggerEmitter.on("process_batched_triggers", defaultTriggerHandler);
+TriggerEmitter.on(BatchKey.process_batched_triggers, defaultTriggerHandler);
 
 export default TriggerEmitter;

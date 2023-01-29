@@ -4,7 +4,6 @@ export function addFn(
   ctx: any,
   fnName: string,
   fn: (...args: any[]) => any,
-  propertyDescriptor = {},
   fnGuards = [isAsyncGuard],
 ) {
   Object.defineProperty(ctx, fnName, {
@@ -15,7 +14,8 @@ export function addFn(
       return fn(...args);
     },
     enumerable: false,
-    ...propertyDescriptor,
+    writable: true,
+    configurable: true,
   });
 }
 

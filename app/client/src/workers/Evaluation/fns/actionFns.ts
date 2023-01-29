@@ -4,7 +4,7 @@ import { promisify } from "./utils/Promisify";
 function runFnDescriptor(
   this: any,
   onSuccessOrParams?: (data: any) => unknown | Record<string, unknown>,
-  onError?: () => unknown,
+  onError?: (e: string) => unknown,
   params = {},
 ) {
   const actionParams = isTrueObject(onSuccessOrParams)
@@ -22,7 +22,7 @@ function runFnDescriptor(
 export default async function run(
   this: any,
   onSuccessOrParams?: (data: any) => unknown | Record<string, unknown>,
-  onError?: () => unknown,
+  onError?: (e: string) => unknown,
   params = {},
 ) {
   const executor = promisify(runFnDescriptor.bind(this));
@@ -34,8 +34,8 @@ export default async function run(
       return;
     }
   } catch (e) {
-    if (typeof onSuccessOrParams === "function") {
-      onSuccessOrParams((e as Error).message);
+    if (typeof onError === "function") {
+      onError((e as Error).message);
       return;
     }
     throw e;

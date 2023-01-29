@@ -3,8 +3,8 @@ import { dataTreeEvaluator } from "../handlers/evalTree";
 import ExecutionMetaData from "./utils/ExecutionMetaData";
 import { addFn } from "./utils/fnGuard";
 
-export const _internalSetTimeout = self.setTimeout;
-export const _internalClearTimeout = self.clearTimeout;
+const _internalSetTimeout = self.setTimeout;
+const _internalClearTimeout = self.clearTimeout;
 
 export default function initTimeoutFns() {
   function setTimeout(cb: (...args: any) => any, delay: number, ...args: any) {

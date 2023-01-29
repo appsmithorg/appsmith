@@ -37,11 +37,9 @@ export class WorkerMessenger {
   }
 
   static ping(payload: any) {
-    const messageId = uniqueId(`request-${payload.type}-`);
     sendMessage.call(self, {
       messageType: MessageType.DEFAULT,
       body: payload,
     });
-    return messageId;
   }
 }
