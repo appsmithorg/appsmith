@@ -18,6 +18,7 @@ import {
 } from "selectors/widgetSelectors";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -151,7 +152,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       if (!isFocused) return;
 
       if (!isSelected) {
-        selectWidget(props.widgetId);
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
       const widgetHeight = props.bottomRow - props.topRow;
       const widgetWidth = props.rightColumn - props.leftColumn;

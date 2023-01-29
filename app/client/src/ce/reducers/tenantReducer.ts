@@ -18,7 +18,7 @@ export const defaultBrandingConfig = {
   brandColors: {
     ...createBrandColorsFromPrimaryColor("#F86A2B"),
   },
-  brandLogoUrl: "https://assets.appsmith.com/appsmith-logo.svg",
+  brandLogoUrl: "https://assets.appsmith.com/appsmith-logo-no-margin.png",
 };
 
 export const initialState: TenantReduxState<any> = {

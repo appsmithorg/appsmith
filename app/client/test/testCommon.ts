@@ -87,6 +87,7 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
 
   dispatch(updateCurrentPage(mockResp.data.id));
 };
+
 export function MockPageDSL({ children, dsl }: any) {
   editorInitializer();
   useMockDsl(dsl);
