@@ -21,10 +21,9 @@ export const getHighlightPayload = (
 
   // Current mouse coordinates.
   const pos: Point = {
-    x: e?.offsetX || val?.x,
-    y: e?.offsetY || val?.y,
+    x: e ? e.offsetX || e.layerX : val?.x,
+    y: e ? e.offsetY || e.layerY : val?.y,
   };
-
   /**
    * Filter highlights that  span the current mouse position.
    */

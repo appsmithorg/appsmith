@@ -118,7 +118,7 @@ export const useAutoLayoutHighlights = ({
       e,
     );
     if (!highlight) return;
-    // console.log("#### selection", highlight);
+
     lastActiveHighlight = highlight;
     return highlight;
   };
