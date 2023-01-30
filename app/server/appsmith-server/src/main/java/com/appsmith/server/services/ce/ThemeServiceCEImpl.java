@@ -17,6 +17,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ApplicationPermission;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -26,8 +27,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuples;
-
-import jakarta.validation.Validator;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
@@ -94,7 +93,8 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         themeId = application.getPublishedModeThemeId();
                     }
                     if (StringUtils.hasLength(themeId)) {
-                        return repository.findById(themeId, READ_THEMES);
+                        return repository.findById(themeId, READ_THEMES)
+                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
                     } else { // theme id is not present, return default theme
                         return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
                     }
