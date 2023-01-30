@@ -102,7 +102,7 @@ export class JSEditor {
     this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
   }`;
 
-  private handleContentFilling(toPaste: boolean, JSCode: string, el: any) {
+  private handleJSContentFilling(toPaste: boolean, JSCode: string, el: any) {
     if (toPaste) {
       //input.invoke("val", value);
       this.agHelper.Paste(el, JSCode);
@@ -162,7 +162,7 @@ export class JSEditor {
         .focus()
         .type(`${downKeys}  `)
         .then((el: any) => {
-          this.handleContentFilling(paste, JSCode, el);
+          this.handleJSContentFilling(paste, JSCode, el);
         });
     } else {
       cy.get(this.locator._codeMirrorTextArea)
@@ -170,7 +170,7 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .then((el: any) => {
-          this.handleContentFilling(paste, JSCode, el);
+          this.handleJSContentFilling(paste, JSCode, el);
         });
     }
 
@@ -182,6 +182,8 @@ export class JSEditor {
     }
 
     if (toRun) {
+      // Wait for JSObject parsing to get complete
+      this.agHelper.Sleep(2000);
       //clicking 1 times & waits for 2 second for result to be populated!
       Cypress._.times(1, () => {
         this.agHelper.GetNClick(this._runButton, 0, true);
