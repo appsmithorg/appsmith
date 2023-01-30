@@ -147,7 +147,7 @@ describe("Autocomplete tests", () => {
   });
 
   it("5. Api data with array of object autocompletion test", () => {
-    ApiPage.CreateAndFillApi("http://host.docker.internal:5001/v1/mock-api?records=10");
+    ApiPage.CreateAndFillApi(agHelper.mockApiUrl);
     agHelper.Sleep(2000);
     ApiPage.RunAPI();
     // Using same js object

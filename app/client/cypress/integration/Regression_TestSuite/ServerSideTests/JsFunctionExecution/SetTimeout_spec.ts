@@ -146,7 +146,7 @@ describe("Tests setTimeout API", function() {
   });
 
   it("6. Access to args passed into success/error callback functions in API.run when using setTimeout", () => {
-    apiPage.CreateAndFillApi("http://host.docker.internal:5001/v1/mock-api?records=10");
+    apiPage.CreateAndFillApi(agHelper.mockApiUrl);
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
@@ -197,14 +197,14 @@ describe("Tests setTimeout API", function() {
   });
 
   it("7. Verifies whether setTimeout executes on page load", () => {
-    apiPage.CreateAndFillApi("http://host.docker.internal:5001/v1/mock-api?records=10");
+    //apiPage.CreateAndFillApi(agHelper.mockApiUrl);
     jsEditor.CreateJSObject(
       `export default {
         myVar1: [],
         myVar2: {},
         myFun1: (x) => {
             setTimeout(() => {
-              Api2.run().then(() => showAlert("Success!"));
+              Api1.run().then(() => showAlert("Success!"));
               Timeouts.myFun2();
             }, 3000)
         },

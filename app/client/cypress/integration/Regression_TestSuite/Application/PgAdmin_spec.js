@@ -1,8 +1,7 @@
 import homePage from "../../../locators/HomePage";
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-const dataSources = ObjectsRegistry.DataSources;
+import * as _ from "../../../support/Objects/ObjectsCore";
 const dsl = require("../../../fixtures/PgAdmindsl.json");
-const datasource = require("../../../locators/DatasourcesEditor.json");
+const datasource = require("../../../locators/dataSourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
@@ -19,7 +18,7 @@ describe("PgAdmin Clone App", function() {
   });
 
   it("1. Add dsl and authenticate datasource", function() {
-    dataSources.CreateDataSource("Postgres");
+    _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
     });
@@ -48,8 +47,8 @@ describe("PgAdmin Clone App", function() {
         parseSpecialCharSequences: false,
       });
     cy.WaitAutoSave();
-    dataSources.RunQuery();
-    // clicking on chevron icon to go back to the datasources page
+    _.dataSources.RunQuery();
+    // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
     // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
@@ -69,8 +68,8 @@ describe("PgAdmin Clone App", function() {
         },
       );
     cy.WaitAutoSave();
-    dataSources.RunQuery();
-    // clicking on chevron icon to go back to the datasources page
+    _.dataSources.RunQuery();
+    // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
     // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
@@ -90,37 +89,36 @@ describe("PgAdmin Clone App", function() {
         },
       );
     cy.WaitAutoSave();
-    dataSources.RunQuery();
+    _.dataSources.RunQuery();
 
-    cy.get("#switcher--widgets").click();
-    cy.xpath(appPage.viewButton)
-      .first()
-      .click({ force: true });
+    _.agHelper.GetNClick("#switcher--widgets")
+    _.agHelper.GetNClick(appPage.viewButton,0,true)
     // adding new table
-    cy.xpath(appPage.addNewtable).click({ force: true });
-    cy.generateUUID().then((UUID) => {
+    _.agHelper.GetNClick(appPage.addNewtable,0,true)
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
       cy.xpath(appPage.addTablename)
-        .clear()
-        .type(`table${UUID}`);
+      .clear()
+      .type(`table${uid}`);
     });
     // adding column to the table
-    cy.xpath(appPage.addColumn).click({ force: true });
-    cy.xpath(appPage.columnNamefield).should("be.visible");
-    cy.xpath(appPage.datatypefield).should("be.visible");
+    _.agHelper.GetNClick(appPage.addColumn,0,true)
+    _.agHelper.AssertElementVisible(appPage.columnNamefield)
+    _.agHelper.AssertElementVisible(appPage.datatypefield)
     cy.xpath(appPage.addTablename).type("id");
     cy.get(appPage.dropdownChevronDown)
       .last()
       .click();
-    cy.xpath(appPage.selectDatatype).click();
+    _.agHelper.GetNClick(appPage.selectDatatype)
     // switching on the Not Null toggle
     cy.get(widgetsPage.switchWidgetInactive)
       .last()
       .click();
-    cy.xpath(appPage.submitButton).click({ force: true });
-    cy.xpath(appPage.addColumn).should("be.visible");
-    cy.xpath(appPage.closeButton).click({ force: true });
-    cy.get("#switcher--explorer").click({ force: true });
-    dataSources.NavigateToActiveTab();
+    _.agHelper.GetNClick(appPage.submitButton,0,true)
+    _.agHelper.AssertElementVisible(appPage.addColumn)
+    _.agHelper.GetNClick(appPage.closeButton,0,true)
+    _.agHelper.GetNClick("#switcher--explorer",0,true)
+    _.dataSources.NavigateToActiveTab();
 
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
@@ -143,8 +141,8 @@ describe("PgAdmin Clone App", function() {
         },
       );
     cy.WaitAutoSave();
-    dataSources.RunQuery();
-    // clicking on chevron icon to go back to the datasources page
+    _.dataSources.RunQuery();
+    // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
     // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
@@ -168,8 +166,8 @@ describe("PgAdmin Clone App", function() {
         },
       );
     cy.WaitAutoSave();
-    dataSources.RunQuery();
-    // clicking on chevron icon to go back to the datasources page
+    _.dataSources.RunQuery();
+    // clicking on chevron icon to go back to the _.dataSources page
     cy.get(appPage.dropdownChevronLeft).click();
   });
 
@@ -204,7 +202,7 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.submitButton).click({ force: true });
     cy.xpath(appPage.addColumn).should("be.visible");
     cy.wait(500);
-    cy.xpath(appPage.submitButton).click({ force: true });
+    cy.xpath(appPage.submitButton).first().click({ force: true });
     cy.xpath(appPage.closeButton).click({ force: true });
   });
 

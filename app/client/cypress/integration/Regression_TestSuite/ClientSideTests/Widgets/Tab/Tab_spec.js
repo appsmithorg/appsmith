@@ -31,14 +31,13 @@ describe("Tab widget test", function() {
     cy.get(Layoutpage.tabButton).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.tabVerify(1, "Day");
-    cy.get(Layoutpage.tabDelete)
-      .eq(1)
+    cy.xpath("//input[@value ='Day']//parent::div//parent::div//following-sibling::div//div[contains(@class,'t--delete-column-btn')]") 
       .click({ force: true });
     cy.get(Layoutpage.tabWidget)
       .contains("Day")
       .should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(300);
+    cy.wait(500);
     /**
      * @param{toggleButton Css} Assert to be checked
      */
@@ -46,7 +45,7 @@ describe("Tab widget test", function() {
     cy.get(Layoutpage.tabContainer)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
-    cy.CheckForPageSaveError();
+    cy.assertPageSave();
     cy.PublishtheApp();
   });
   it("2. Tab Widget Functionality To Select Tabs", function() {
@@ -72,8 +71,7 @@ describe("Tab widget test", function() {
   });
   it("5. Tab Widget Functionality To Check tab invisiblity", function() {
     cy.openPropertyPane("tabswidget");
-    cy.get(Layoutpage.tabEdit)
-      .eq(1)
+    cy.xpath("//input[@value ='Tab 1']//parent::div//parent::div//following-sibling::div//div[contains(@class,'t--edit-column-btn')]") 
       .click({ force: true });
     cy.get(Layoutpage.tabVisibility)
       .first()
@@ -89,8 +87,7 @@ describe("Tab widget test", function() {
   });
   it("6. Tab Widget Functionality To Check tab visibility", function() {
     cy.openPropertyPane("tabswidget");
-    cy.get(Layoutpage.tabEdit)
-      .eq(1)
+   cy.xpath("//input[@value ='Tab 1']//parent::div//parent::div//following-sibling::div//div[contains(@class,'t--edit-column-btn')]") 
       .click({ force: true });
     cy.get(Layoutpage.tabVisibility)
       .first()

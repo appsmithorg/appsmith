@@ -11,7 +11,7 @@ const jsCode = `//TextWidget, InputWidget, QueryRefactor and RefactorAPI are use
   return 10;`;
 const query =
   "SELECT * FROM paintings ORDER BY id LIMIT {{JSObject1.myFun1()}};";
-const apiURL = "http://host.docker.internal:5001/v1/mock-api?records=10";
+const apiURL = _.agHelper.mockApiUrl;
 const refactorInput = {
   api: { oldName: "RefactorAPI", newName: "RefactorAPIRenamed" },
   query: { oldName: "QueryRefactor", newName: "QueryRefactorRenamed" },
