@@ -1,4 +1,4 @@
-import { call, fork, put, select } from "redux-saga/effects";
+import { call, fork, put, select, take } from "redux-saga/effects";
 import {
   RouteChangeActionPayload,
   setFocusHistory,
@@ -24,7 +24,10 @@ import history, {
 } from "utils/history";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "ce/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
@@ -128,7 +131,19 @@ function* contextSwitchingSaga(
   // Check if it should restore the stored state of the path
   if (shouldSetState(previousPath, pathname, previousHash, hash, state)) {
     // restore old state for new path
+    yield call(waitForPathLoad, pathname, previousPath);
     yield call(setStateOfPath, pathname, hash);
+  }
+}
+
+function* waitForPathLoad(currentPath: string, previousPath?: string) {
+  if (previousPath) {
+    const currentFocus = identifyEntityFromPath(currentPath);
+    const prevFocus = identifyEntityFromPath(previousPath);
+
+    if (currentFocus.pageId !== prevFocus.pageId) {
+      yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
+    }
   }
 }
 
