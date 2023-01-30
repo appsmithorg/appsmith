@@ -111,7 +111,7 @@ export function* updateLayoutForMobileCheckpoint(
     const { canvasWidth, isMobile, parentId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
-      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth)
+      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, canvasWidth)
       : alterLayoutForDesktop(allWidgets, parentId);
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug(
