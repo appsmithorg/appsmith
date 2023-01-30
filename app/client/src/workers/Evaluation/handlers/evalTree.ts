@@ -64,11 +64,6 @@ export default function(request: EvalWorkerSyncRequest) {
       isCreateFirstTree = true;
       replayMap = replayMap || {};
       replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
-      console.log(
-        "env config needed in evalTree.ts",
-        self,
-        self.APPSMITH_FEATURE_CONFIGS,
-      );
       dataTreeEvaluator = new DataTreeEvaluator(
         widgetTypeConfigMap,
         allActionValidationConfig,
@@ -103,11 +98,6 @@ export default function(request: EvalWorkerSyncRequest) {
       if (shouldReplay) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
-      console.log(
-        "env config needed in evalTree.ts",
-        self,
-        self.APPSMITH_FEATURE_CONFIGS,
-      );
       dataTreeEvaluator = new DataTreeEvaluator(
         widgetTypeConfigMap,
         allActionValidationConfig,

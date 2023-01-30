@@ -247,11 +247,6 @@ export const getAllAsyncFunctions = (dataTree: DataTree) => {
     }
   }
 
-  console.log(
-    "--------- env config in getAllAsync",
-    self,
-    self.APPSMITH_FEATURE_CONFIGS,
-  );
   for (const name of Object.values(
     getActionTriggerFunctionNames(self.APPSMITH_FEATURE_CONFIGS.cloudHosting),
   )) {

@@ -68,8 +68,6 @@ export function getlintErrorsFromTree(
     skipEntityFunctions: true,
   });
 
-  // console.log("env config in lint worker", self.APPSMITH_FEATURE_CONFIGS);
-
   const platformFnNamesMap = Object.values(
     getActionTriggerFunctionNames(self.APPSMITH_FEATURE_CONFIGS.cloudHosting),
   ).reduce(
