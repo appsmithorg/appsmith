@@ -310,10 +310,11 @@ export const Action: React.FC<Props> = ({
               />
             </div>
 
-            <div className="flex w-full justify-between px-2">
+            <div className="flex w-full justify-between px-4 mb-1">
               <div className="text-sm text-gray-800">Action</div>
               <Icon
-                fillColor="var(--ads-color-gray-500)"
+                fillColor="var(--ads-color-black-700)"
+                hoverFillColor="var(--ads-color-black-800)"
                 name="delete"
                 onClick={() => {
                   if (isCallbackBlockSelected) {

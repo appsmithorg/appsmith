@@ -30,7 +30,7 @@ const ActionCreator = React.forwardRef(
     );
 
     return (
-      <div className="flex flex-col gap-[2px]" ref={ref}>
+      <div className="flex flex-col gap-[2px] mb-2" ref={ref}>
         {actions.map((value, index) => (
           <Action
             action={props.action}

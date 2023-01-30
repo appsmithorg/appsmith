@@ -83,6 +83,7 @@ export const ActionBlockTree: React.FC<Props> = ({
             icon={MainActionIcon}
             onClick={onClick}
             selected={selected && !selectedCallbackBlock}
+            variant={selected ? "borderLess" : "hoverBorder"}
           />
         }
         {areCallbacksApplicable && selected ? (
@@ -118,10 +119,10 @@ export const ActionBlockTree: React.FC<Props> = ({
                 label,
               }) => (
                 <li key={label}>
-                  <div className="flex flex-col border-[1px] border-gray-200 hover:border-gray-500">
+                  <div className="flex flex-col">
                     <button
                       className={clsx(
-                        "flex justify-between bg-gray-50 px-2 py-1 hover:bg-gray-200",
+                        "flex justify-between bg-gray-50 px-2 py-1 border-x-[1px] border-t-[1px] border-gray-200 hover:bg-gray-200 hover:border-[1px] box-border hover:border-gray-500",
                         successCallbacks.length > 0 &&
                           "border-b-[1px] border-gray-200",
                       )}
@@ -140,7 +141,6 @@ export const ActionBlockTree: React.FC<Props> = ({
                       <CallbackActionBlock
                         actionTree={actionTree}
                         blockType={blockType}
-                        callbacks={callbacks}
                         handleSelection={handleSelection}
                         index={index}
                         key={actionTree.code + index}
@@ -164,13 +164,11 @@ type CallbackActionBlockProps = {
   blockType: SelectedActionBlock["type"];
   selectedCallbackBlock?: SelectedActionBlock | null;
   handleSelection: (block: SelectedActionBlock) => void;
-  callbacks: ActionTree[];
 };
 
 const CallbackActionBlock: React.FC<CallbackActionBlockProps> = ({
   actionTree,
   blockType,
-  callbacks,
   handleSelection,
   index,
   selectedCallbackBlock,
@@ -181,7 +179,6 @@ const CallbackActionBlock: React.FC<CallbackActionBlockProps> = ({
     <ActionBlock
       action={action}
       actionTypeLabel={actionTypeLabel}
-      borderLess={index === callbacks.length - 1}
       icon={Icon}
       key={code + index}
       onClick={() => handleSelection({ type: blockType, index })}
@@ -189,6 +186,7 @@ const CallbackActionBlock: React.FC<CallbackActionBlockProps> = ({
         selectedCallbackBlock?.type === blockType &&
         selectedCallbackBlock?.index === index
       }
+      variant="callbackBlock"
     />
   );
 };
