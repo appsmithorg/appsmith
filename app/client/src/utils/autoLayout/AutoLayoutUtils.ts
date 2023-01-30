@@ -183,6 +183,7 @@ export function alterLayoutForMobile(
       widget,
       mainCanvasWidth,
     );
+
     if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
       widget.mobileRightColumn = 64;
       widget.mobileLeftColumn = 0;
@@ -200,13 +201,18 @@ export function alterLayoutForMobile(
         widget.mobileLeftColumn = 0;
         widget.mobileRightColumn = Math.min(minWidth / columnSpace, 64);
       }
+    } else {
+      widget.mobileLeftColumn = widget.leftColumn;
+      widget.mobileRightColumn = widget.rightColumn;
     }
+
     widget.mobileTopRow = widget.topRow;
     widget.mobileBottomRow = widget.bottomRow;
     if (widget.autoLayout?.mobile?.rows) {
       widget.mobileBottomRow =
         widget.mobileTopRow + widget.autoLayout.mobile.rows;
     }
+
     if (widget.mobileRightColumn !== undefined)
       widgets = alterLayoutForMobile(
         widgets,

@@ -131,6 +131,20 @@ export function getMinSize(
   canvasWidth: number,
 ): MinSize | undefined {
   // Get the widget size configuration.
+  const sizeConfig = getCurrentSizeConfig(widget, canvasWidth);
+  if (!sizeConfig) return;
+
+  // Get the minimum size for the widget at this breakpoint.
+  const { minHeight, minWidth } = sizeConfig.configuration(widget);
+
+  return { minHeight, minWidth };
+}
+
+export function getCurrentSizeConfig(
+  widget: any,
+  canvasWidth: number,
+): WidgetSizeConfig | undefined {
+  // Get the widget size configuration.
   const sizeConfig = WidgetFactory.getWidgetAutoLayoutConfig(widget.type);
   if (!sizeConfig || !sizeConfig?.widgetSize?.length) return;
 
@@ -140,11 +154,7 @@ export function getMinSize(
   while (index < sizes?.length && canvasWidth > sizes[index].viewportMinWidth) {
     index += 1;
   }
-
-  // Get the minimum size for the widget at this breakpoint.
-  const { minHeight, minWidth } = sizes[index - 1].configuration(widget);
-
-  return { minHeight, minWidth };
+  return sizes[index - 1];
 }
 
 /**
