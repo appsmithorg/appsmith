@@ -310,8 +310,8 @@ export const Action: React.FC<Props> = ({
               />
             </div>
 
-            <div className="flex w-full justify-between px-4 mb-1">
-              <div className="text-sm text-gray-800">Action</div>
+            <div className="flex w-full justify-between px-4 mb-[2px]">
+              <div className="text-xs text-gray-600">Action</div>
               <Icon
                 fillColor="var(--ads-color-black-700)"
                 hoverFillColor="var(--ads-color-black-800)"
@@ -323,7 +323,7 @@ export const Action: React.FC<Props> = ({
                     deleteMainAction();
                   }
                 }}
-                size="extraExtraLarge"
+                size="extraLarge"
               />
             </div>
 

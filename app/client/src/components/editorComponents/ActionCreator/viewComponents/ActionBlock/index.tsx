@@ -26,7 +26,7 @@ export const ActionBlock: React.FC<ActionBlockProps> = ({
 
   switch (variant) {
     case "borderLess":
-      className = clsx(className, "border-transparent");
+      className = clsx(className, "border-[1px] border-transparent");
       break;
 
     case "callbackBlock":
@@ -46,7 +46,7 @@ export const ActionBlock: React.FC<ActionBlockProps> = ({
 
   return (
     <button
-      className={clsx(selected && "border-[1px] border-gray-500", className)}
+      className={clsx(selected && "border-[1px] !border-gray-500", className)}
       onClick={onClick}
     >
       <div className="flex items-center gap-1">
