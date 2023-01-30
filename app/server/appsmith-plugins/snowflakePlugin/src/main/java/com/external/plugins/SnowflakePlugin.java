@@ -82,7 +82,6 @@ public class SnowflakePlugin extends BasePlugin {
                             } else {
                                 throw new StaleConnectionException();
                             }
-//                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                         }
 
                         HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
@@ -276,7 +275,6 @@ public class SnowflakePlugin extends BasePlugin {
                             } else {
                                 throw new StaleConnectionException();
                             }
-//                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                         }
 
                         return validateWarehouseDatabaseSchema(connectionFromPool);
@@ -302,7 +300,6 @@ public class SnowflakePlugin extends BasePlugin {
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
                             throw new StaleConnectionException(e.getMessage());
-//                            return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                         }
 
                         HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
