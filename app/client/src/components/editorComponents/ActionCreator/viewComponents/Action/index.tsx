@@ -104,6 +104,22 @@ export const Action: React.FC<Props> = ({
     onValueChange(`{{${actionToCode(actionTree)}}}`, false);
   }, [actionTree]);
 
+  const onCloseClick = () => {
+    handleClose();
+    setSelectedCallbackBlock(null);
+    setActionTree((prev) => {
+      const newActionTree = cloneDeep(prev);
+      newActionTree.successCallbacks = newActionTree.successCallbacks.filter(
+        (cb) => cb.actionType !== AppsmithFunction.none,
+      );
+      newActionTree.errorCallbacks = newActionTree.errorCallbacks.filter(
+        (cb) => cb.actionType !== AppsmithFunction.none,
+      );
+
+      return newActionTree;
+    });
+  };
+
   const addSuccessAction = useCallback(() => {
     setActionTree((prevActionTree) => {
       const newActionTree = cloneDeep(prevActionTree);
@@ -305,7 +321,7 @@ export const Action: React.FC<Props> = ({
               <Icon
                 fillColor="var(--ads-color-gray-700)"
                 name="cross"
-                onClick={() => handleClose()}
+                onClick={onCloseClick}
                 size="extraSmall"
               />
             </div>

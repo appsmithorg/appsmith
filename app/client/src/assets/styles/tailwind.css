@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.action-callback-add:hover .icon, .action-callback-add.selected .icon {
+  @apply bg-gray-900;
+}
+
+.action-callback-add:hover .icon span svg path, .action-callback-add.selected .icon span svg path {
+  @apply !fill-white;
+}
+
+.action-callback-add.selected, .action-callback-add:hover {
+  @apply bg-gray-200 border-[1px] border-gray-500;
+}

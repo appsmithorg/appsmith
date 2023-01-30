@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import clsx from "clsx";
 import { ActionTree, SelectedActionBlock } from "../../types";
 import { getActionInfo } from "./utils";
@@ -42,7 +42,13 @@ export const ActionBlockTree: React.FC<Props> = ({
     actionType,
   );
 
-  const callBacksLength = successCallbacks.length + errorCallbacks.length;
+  const callBacksLength =
+    successCallbacks.filter(
+      ({ actionType }) => actionType !== AppsmithFunction.none,
+    ).length +
+    errorCallbacks.filter(
+      ({ actionType }) => actionType !== AppsmithFunction.none,
+    ).length;
 
   const areCallbacksApplicable = [
     AppsmithFunction.runAPI,
@@ -65,6 +71,25 @@ export const ActionBlockTree: React.FC<Props> = ({
       handleSelection: handleBlockSelection,
     },
   ];
+
+  const isNewActionSelected = useCallback(
+    (type: CallbackBlock["blockType"]) => {
+      if (selectedCallbackBlock) {
+        const { index } = selectedCallbackBlock;
+        const callbacks =
+          type === "success"
+            ? actionTree.successCallbacks
+            : actionTree.errorCallbacks;
+        return (
+          selectedCallbackBlock.type === type &&
+          callbacks[index]?.actionType === AppsmithFunction.none
+        );
+      }
+
+      return false;
+    },
+    [selectedCallbackBlock, actionTree],
+  );
 
   return (
     <div className="flex flex-col">
@@ -122,31 +147,40 @@ export const ActionBlockTree: React.FC<Props> = ({
                   <div className="flex flex-col">
                     <button
                       className={clsx(
-                        "flex justify-between bg-gray-50 px-2 py-1 border-x-[1px] border-t-[1px] border-gray-200 hover:bg-gray-200 hover:border-[1px] box-border hover:border-gray-500",
-                        successCallbacks.length > 0 &&
-                          "border-b-[1px] border-gray-200",
+                        "action-callback-add",
+                        "flex justify-between bg-gray-50 border-[1px] border-b-transparent border-gray-200 box-border",
+                        callbacks.length === 0 &&
+                          "border-b-[1px] border-b-gray-200",
+                        isNewActionSelected(blockType) && "selected",
                       )}
                       onClick={handleAddBlock}
                     >
-                      <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300">
+                      <span className="text-gray-800 underline underline-offset-2 decoration-dashed decoration-gray-300 px-2 py-1">
                         {label}
                       </span>
-                      <Icon
-                        fillColor="var(--ads-color-gray-700)"
-                        name="plus"
-                        size="extraLarge"
-                      />
+                      <span className="icon w-7 h-7 flex items-center justify-center">
+                        <Icon
+                          fillColor="var(--ads-color-black-700)"
+                          name="plus"
+                          size="extraLarge"
+                        />
+                      </span>
                     </button>
-                    {callbacks.map((actionTree, index) => (
-                      <CallbackActionBlock
-                        actionTree={actionTree}
-                        blockType={blockType}
-                        handleSelection={handleSelection}
-                        index={index}
-                        key={actionTree.code + index}
-                        selectedCallbackBlock={selectedCallbackBlock}
-                      />
-                    ))}
+                    {callbacks
+                      .filter(
+                        ({ actionType }) =>
+                          actionType !== AppsmithFunction.none,
+                      )
+                      .map((actionTree, index) => (
+                        <CallbackActionBlock
+                          actionTree={actionTree}
+                          blockType={blockType}
+                          handleSelection={handleSelection}
+                          index={index}
+                          key={actionTree.code + index}
+                          selectedCallbackBlock={selectedCallbackBlock}
+                        />
+                      ))}
                   </div>
                 </li>
               ),
