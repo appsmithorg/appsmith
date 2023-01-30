@@ -11,7 +11,7 @@ describe("Test curl import flow", function() {
       .should("be.visible")
       .click({ force: true });
     cy.get(ApiEditor.curlImage).click({ force: true });
-    cy.get("textarea").type("curl -X GET https://mock-api.appsmith.com/users");
+    cy.get("textarea").type("curl -X GET http://host.docker.internal:5001/v1/mock-api?records=10");
     cy.importCurl();
     cy.get("@curlImport").then((response) => {
       cy.expect(response.response.body.responseMeta.success).to.eq(true);

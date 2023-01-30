@@ -37,7 +37,7 @@ describe("File picker widget v2", () => {
       ".t--property-control-text",
       `{{FilePicker1.files[0].name}}`,
     );
-    cy.createAndFillApi("https://mock-api.appsmith.com/users", "");
+    cy.createAndFillApi("http://host.docker.internal:5001/v1/mock-api?records=10", "");
     cy.updateCodeInput(
       "[class*='t--actionConfiguration']",
       "{{FilePicker1.files}}",

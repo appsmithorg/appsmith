@@ -79,7 +79,7 @@ const widgetsToTest = {
 };
 
 function configureApi() {
-  apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users", "FirstAPI");
+  apiPage.CreateAndFillApi("http://host.docker.internal:5001/v1/mock-api?records=10", "FirstAPI");
   apiPage.EnterHeader("value", "{{this.params.value}}");
 }
 
