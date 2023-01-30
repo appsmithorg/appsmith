@@ -74,8 +74,9 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         }
     }
 
-    private Mono<Void> checkInstanceSchemaVersion() {
+    private Mono<Config> checkInstanceSchemaVersion() {
         return configService.getByName(Appsmith.INSTANCE_SCHEMA_VERSION)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.SCHEMA_VERSION_NOT_FOUND_ERROR)))
                 .onErrorMap(AppsmithException.class, e -> new AppsmithException(AppsmithError.SCHEMA_VERSION_NOT_FOUND_ERROR))
                 .flatMap(config -> {
                     if (CommonConfig.LATEST_INSTANCE_SCHEMA_VERSION == config.getConfig().get("value")) {
@@ -95,8 +96,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
                     SpringApplication.exit(applicationContext, () -> 1);
                     System.exit(1);
-                })
-                .then();
+                });
     }
 
     private AppsmithException populateSchemaMismatchError(Integer currentInstanceSchemaVersion) {
@@ -162,8 +162,11 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                     log.debug("RTS health check succeeded");
                     this.isRtsAccessible = true;
                 })
-                .doOnError(errorSignal -> log.debug("RTS health check failed with error: \n{}", errorSignal.getMessage()))
-                .then();
+                .onErrorResume(errorSignal -> {
+                    log.debug("RTS health check failed with error: \n{}", errorSignal.getMessage());
+                    return Mono.empty();
+
+                }).then();
     }
 
     private void printReady() {
