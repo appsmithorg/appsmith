@@ -28,7 +28,7 @@ import { getQueryParams } from "utils/URLUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
-import { executeFunction } from "./EvaluationsSaga";
+import { executeJSFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
@@ -357,9 +357,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
     }),
   );
-
   const isEntitySaving = yield select(getIsSavingEntity);
-
   /**
    * Only start executing when no entity in the application is saving
    * This ensures that execution doesn't get carried out on stale values
@@ -371,7 +369,7 @@ export function* handleExecuteJSFunctionSaga(data: {
 
   try {
     const { isDirty, result } = yield call(
-      executeFunction,
+      executeJSFunction,
       collectionName,
       action,
       collectionId,
@@ -393,6 +391,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
+    // Function execution data in Async functions are handled by the JSProxy (see JSProxy.ts)
     if (!action.actionConfiguration.isAsync) {
       yield put({
         type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
@@ -407,8 +406,8 @@ export function* handleExecuteJSFunctionSaga(data: {
         },
       });
     }
-    appMode === APP_MODE.EDIT &&
-      !isDirty &&
+    const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
+    showSuccessToast &&
       Toaster.show({
         text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
         variant: Variant.success,

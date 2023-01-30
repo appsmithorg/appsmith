@@ -6,7 +6,7 @@ on:
     types: [ build-deploy-preview-command ]
 
 jobs:
-  notify:
+  notify-job-details:
     runs-on: ubuntu-latest
     steps:
       # This step creates a comment on the PR with a link to this workflow run.
@@ -18,7 +18,6 @@ jobs:
             Deploying Your Preview: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Workflow: `${{ github.workflow }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
-            URL: https://${{ github.event.client_payload.pull_request.number }}-ce.appsmith.com
 
   server-build:
     name: server-build
@@ -95,10 +94,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          repository: ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
-          tags: ${{ steps.git_hash.outputs.git_hash }}
+          repository: ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-dp
+          tags: ${{ github.event.client_payload.pull_request.number }}-ce
     outputs:
-      imageHash: ${{ steps.git_hash.outputs.git_hash }}
+      imageHash: ${{ github.event.client_payload.pull_request.number }}-ce
 
   build-deploy-preview:
     needs: [push-image]
@@ -139,3 +138,16 @@ jobs:
         run: |
           echo "environment variables set to deploy the image" $IMAGE_HASH
           /bin/bash ./scripts/deploy_preview.sh
+
+  notify-url:
+    needs: [build-deploy-preview]
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      # This step creates a comment on the PR with a link to this workflow run.
+      - name: Add a comment on the PR with link to Deploy-Preview
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Deploy-Preview-URL: https://${{ github.event.client_payload.pull_request.number }}-ce.dp.appsmith.com
