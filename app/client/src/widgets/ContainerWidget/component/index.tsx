@@ -33,8 +33,6 @@ const StyledContainerComponent = styled.div<
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
-  box-shadow: ${(props) =>
-    props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
   border-radius: ${({ borderRadius }) => borderRadius};
   backgound: ${({ backgroundColor }) => backgroundColor};
 
@@ -150,6 +148,7 @@ function ContainerComponent(props: ContainerComponentProps) {
         "borderWidth",
         "borderRadius",
         "boxShadow",
+        "selected",
       ])}
     >
       <ContainerComponentWrapper {...props} />

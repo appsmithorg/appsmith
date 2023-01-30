@@ -55,7 +55,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { difference, get, isEmpty, isUndefined } from "lodash";
+import { get, isEmpty, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -195,10 +195,8 @@ export function* evaluateTreeSaga(
 
   const updates = diff(oldDataTree, dataTree) || [];
 
-  const currentViewMetaWidgetIds = Object.keys(metaWidgets);
-  const hiddenStaleMetaIds = difference(staleMetaIds, currentViewMetaWidgetIds);
-  if (!isEmpty(hiddenStaleMetaIds)) {
-    yield put(resetWidgetsMetaState(hiddenStaleMetaIds));
+  if (!isEmpty(staleMetaIds)) {
+    yield put(resetWidgetsMetaState(staleMetaIds));
   }
 
   yield put(setEvaluatedTree(updates));
