@@ -587,7 +587,9 @@ function* evaluationChangeListenerSaga(): any {
     call(lintWorker.start),
   ]);
 
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
+    APPSMITH_FEATURE_CONFIGS: self.APPSMITH_FEATURE_CONFIGS,
+  });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();

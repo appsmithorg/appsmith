@@ -13,10 +13,14 @@ export type ActionDispatcherWithExecutionType = (
   ...args: any[]
 ) => ActionDescriptionWithExecutionType;
 
-export const PLATFORM_FUNCTIONS: Record<
+export const getPlatformFunctions = (): Record<
   string,
   ActionDispatcherWithExecutionType
-> = {
+> => {
+  return PLATFORM_FUNCTIONS;
+};
+
+const PLATFORM_FUNCTIONS: Record<string, ActionDispatcherWithExecutionType> = {
   navigateTo: function(
     pageNameOrUrl: string,
     params: Record<string, string>,

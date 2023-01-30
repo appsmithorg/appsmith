@@ -14,7 +14,7 @@ import { initStoreFns } from "workers/Evaluation/fns/storeFns";
 import {
   ActionDescriptionWithExecutionType,
   ActionDispatcherWithExecutionType,
-  PLATFORM_FUNCTIONS,
+  getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/PlatformFunctions";
 declare global {
   /** All identifiers added to the worker global scope should also
@@ -169,7 +169,6 @@ const ENTITY_FUNCTIONS: Record<
   },
 };
 
-const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
 const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
 /**
  * This method returns new dataTree with entity function and platform function
@@ -225,7 +224,7 @@ export const addDataTreeToContext = (args: {
 };
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
-  for (const [funcName, fn] of platformFunctionEntries) {
+  for (const [funcName, fn] of Object.entries(getPlatformFunctions())) {
     Object.defineProperty(context, funcName, {
       value: pusher.bind({}, fn),
       enumerable: false,

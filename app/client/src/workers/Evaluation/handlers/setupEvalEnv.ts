@@ -8,7 +8,7 @@ import userLogs from "../UserLog";
 import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import initLocalStorage from "../fns/LocalStorage";
 
-export default function() {
+export default function(request: EvalWorkerSyncRequest) {
   const libraries = resetJSLibraries();
   ///// Adding extra libraries separately
   libraries.forEach((library) => {
@@ -22,6 +22,7 @@ export default function() {
     self[func] = undefined;
   });
   self.window = self;
+  self.APPSMITH_FEATURE_CONFIGS = request.data.APPSMITH_FEATURE_CONFIGS;
   userLogs.overrideConsoleAPI();
   overrideTimeout();
   interceptAndOverrideHttpRequest();
