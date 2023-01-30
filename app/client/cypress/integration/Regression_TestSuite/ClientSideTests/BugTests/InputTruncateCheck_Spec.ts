@@ -79,7 +79,7 @@ const widgetsToTest = {
 };
 
 function configureApi() {
-  apiPage.CreateAndFillApi("http://host.docker.internal:5001/v1/mock-api?records=10", "FirstAPI");
+  apiPage.CreateAndFillApi(agHelper.mockApiUrl, "FirstAPI");
   apiPage.EnterHeader("value", "{{this.params.value}}");
 }
 
