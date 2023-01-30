@@ -1,6 +1,5 @@
 package com.appsmith.external.models;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SecretExists {
+public class SecretExistsIndicator {
 
     private Boolean password;
     private Boolean clientSecret;

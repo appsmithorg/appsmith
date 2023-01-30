@@ -3,7 +3,6 @@ package com.appsmith.external.models;
 import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
-import com.appsmith.external.helpers.PluginUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +26,7 @@ public class BasicAuth extends AuthenticationDTO {
     String password;
 
     @Override
-    protected void buildSecretExists(SecretExists secretExists) {
-        secretExists.setPassword(StringUtils.hasLength(password));
+    protected void configureSecretExistsIndicator(SecretExistsIndicator secretExistsIndicator) {
+        secretExistsIndicator.setPassword(StringUtils.hasLength(password));
     }
 }

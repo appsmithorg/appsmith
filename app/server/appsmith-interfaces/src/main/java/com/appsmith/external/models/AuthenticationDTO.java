@@ -50,14 +50,14 @@ public class AuthenticationDTO implements AppsmithDomain {
     @JsonIgnore
     AuthenticationResponse authenticationResponse;
 
-    protected void buildSecretExists(SecretExists secretExists) {
+    protected void configureSecretExistsIndicator(SecretExistsIndicator secretExistsIndicator) {
     }
 
-    @JsonProperty
-    protected SecretExists secretExists() {
-        SecretExists secretExists = new SecretExists();
-        buildSecretExists(secretExists);
-        return secretExists;
+    @JsonProperty("secretExists")
+    protected SecretExistsIndicator createSecretExists() {
+        SecretExistsIndicator secretExistsIndicator = new SecretExistsIndicator();
+        configureSecretExistsIndicator(secretExistsIndicator);
+        return secretExistsIndicator;
     }
 
     public Mono<Boolean> hasExpired() {
