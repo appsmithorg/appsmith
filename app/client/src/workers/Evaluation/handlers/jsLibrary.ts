@@ -7,6 +7,7 @@ import { Def } from "tern";
 import {
   JSLibraries,
   libraryReservedIdentifiers,
+  resetJSLibraries,
 } from "../../common/JSLibrary";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import { EvalWorkerSyncRequest } from "../types";
@@ -139,7 +140,7 @@ export function uninstallLibrary(request: EvalWorkerSyncRequest) {
 }
 
 export function loadLibraries(request: EvalWorkerSyncRequest) {
-  //Add types
+  resetJSLibraries();
   const { data } = request;
   const urls = data.map((lib: any) => lib.url);
   const keysBefore = Object.keys(self);

@@ -61,7 +61,6 @@ export interface FetchApplicationPayload {
   applicationId?: string;
   pageId?: string;
   mode: APP_MODE;
-  updateWorker?: boolean;
 }
 
 export interface FetchApplicationResponseData {
