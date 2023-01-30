@@ -33,6 +33,7 @@ public enum FeatureFlagEnum {
     DATASOURCE_ENVIRONMENTS,
     CUSTOM_JS_LIBRARY,
     AUTO_LAYOUT,
+    LIMITING_GOOGLE_SHEET_ACCESS,
 
     // Put EE flags below this line, to avoid conflicts.
     RBAC,

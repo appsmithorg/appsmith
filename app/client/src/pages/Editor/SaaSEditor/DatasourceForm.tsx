@@ -64,6 +64,7 @@ import {
   createMessage,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -258,6 +259,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
+      featureFlags,
       formData,
       hiddenHeader,
       pageId,
@@ -350,6 +352,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 ? _.map(sections, this.renderMainSection)
                 : null}
               {""}
+              {featureFlags.LIMITING_GOOGLE_SHEET_ACCESS &&
+                "Load UI for Limiting GSheet Access"}
             </>
           )}
           {viewMode && (
@@ -435,6 +439,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     ...pagePermissions,
   ]);
 
+  const featureFlags = selectFeatureFlags(state);
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -462,6 +468,7 @@ const mapStateToProps = (state: AppState, props: any) => {
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     canCreateDatasourceActions,
+    featureFlags,
   };
 };
 
