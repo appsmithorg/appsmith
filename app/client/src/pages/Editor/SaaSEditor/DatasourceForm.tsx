@@ -65,6 +65,7 @@ import {
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -88,6 +89,7 @@ interface StateProps extends JSONtoFormProps {
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
+  FeatureFlags?: FeatureFlags;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -352,7 +354,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 ? _.map(sections, this.renderMainSection)
                 : null}
               {""}
-              {featureFlags.LIMITING_GOOGLE_SHEET_ACCESS &&
+              {featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS &&
                 "Load UI for Limiting GSheet Access"}
             </>
           )}
@@ -439,7 +441,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ...pagePermissions,
   ]);
 
-  const featureFlags = selectFeatureFlags(state);
+  const featureFlags: FeatureFlags = selectFeatureFlags(state);
 
   return {
     datasource,
