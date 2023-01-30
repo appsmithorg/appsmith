@@ -23,7 +23,7 @@ interface AutoHeightContainerProps {
   isAutoHeightWithLimits: boolean;
   onHeightUpdate: (height: number) => void;
   widgetHeightInPixels: number;
-  widgetProps?: WidgetProps;
+  widgetProps: WidgetProps;
 }
 
 const SimpleContainer = styled.div`
@@ -101,7 +101,10 @@ export default function AutoHeightContainer({
         isOverflow={maxDynamicHeight < expectedHeightInRows}
         style={{ backgroundColor }}
       >
-        <CenterContainer shouldBeCentered={shouldBeCentered}>
+        <CenterContainer
+          data-cy={`t--centered-${widgetProps.widgetName}-${widgetProps.widgetId}`}
+          shouldBeCentered={shouldBeCentered}
+        >
           <SimpleContainer className="auto-height-container" ref={ref}>
             {children}
           </SimpleContainer>
@@ -111,7 +114,10 @@ export default function AutoHeightContainer({
   }
 
   return (
-    <CenterContainer shouldBeCentered={shouldBeCentered}>
+    <CenterContainer
+      data-cy={`t--centered-${widgetProps.widgetName}-${widgetProps.widgetId}`}
+      shouldBeCentered={shouldBeCentered}
+    >
       <SimpleContainer className="auto-height-container" ref={ref}>
         {children}
       </SimpleContainer>
