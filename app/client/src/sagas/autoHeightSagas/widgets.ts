@@ -93,11 +93,7 @@ export function* updateWidgetAutoHeightSaga() {
     // Get the widget from the reducer.
     const widget: FlattenedWidgetProps = stateWidgets[widgetId];
     // If this widget exists (not sure why this needs to be here)
-    if (
-      widget &&
-      !widget.detachFromLayout &&
-      isAutoHeightEnabledForWidget(widget)
-    ) {
+    if (widget && !widget.detachFromLayout) {
       // Get the boundaries for possible min and max dynamic height.
       let minDynamicHeightInPixels =
         getWidgetMinAutoHeight(widget) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
