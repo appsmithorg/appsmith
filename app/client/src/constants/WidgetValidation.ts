@@ -405,5 +405,4 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   evaluationVersion: "evaluationVersion",
   $allowAsync: "$allowAsync",
   $isAsync: "$isAsync",
-  TRIGGER_COLLECTOR: "TRIGGER_COLLECTOR",
 };
