@@ -1,55 +1,52 @@
 import {
   all,
-  select,
   call,
-  put,
-  takeLatest,
-  takeEvery,
   delay,
+  put,
+  select,
+  takeEvery,
+  takeLatest,
 } from "redux-saga/effects";
 
 import { generateReactKey } from "utils/generators";
 import {
+  ModalWidgetResize,
   updateAndSaveLayout,
   WidgetAddChild,
-  ModalWidgetResize,
 } from "actions/pageActions";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import {
+  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-  ReduxAction,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
 import {
   getWidget,
-  getWidgets,
   getWidgetByName,
-  getWidgetsMeta,
   getWidgetIdsByType,
   getWidgetMetaProps,
+  getWidgets,
+  getWidgetsMeta,
 } from "sagas/selectors";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetMetaPropAndEval } from "actions/metaActions";
-import { focusWidget } from "actions/widgetActions";
+import { focusWidget, showModal } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { Toaster } from "design-system-old";
-import { deselectAllInitAction } from "actions/widgetSelectionActions";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { APP_MODE } from "entities/App";
-import { getAppMode } from "selectors/applicationSelectors";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -71,11 +68,6 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
     yield put({
       type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: props,
-    });
-
-    yield put({
-      type: ReduxActionTypes.SHOW_MODAL,
-      payload: { modalId: modalWidgetId },
     });
   } catch (error) {
     log.error(error);
@@ -103,12 +95,7 @@ export function* showModalByNameSaga(
         : `showModal() was triggered`,
     });
 
-    yield put({
-      type: ReduxActionTypes.SHOW_MODAL,
-      payload: {
-        modalId: modal.widgetId,
-      },
-    });
+    yield put(showModal(modal.widgetId));
   }
 }
 
@@ -116,16 +103,11 @@ export function* showIfModalSaga(
   action: ReduxAction<{ widgetId: string; type: string }>,
 ) {
   if (action.payload.type === "MODAL_WIDGET") {
-    yield put({
-      type: ReduxActionTypes.SHOW_MODAL,
-      payload: { modalId: action.payload.widgetId },
-    });
+    yield put(showModal(action.payload.widgetId));
   }
 }
 
-export function* showModalSaga(
-  action: ReduxAction<{ modalId: string; shouldSelectModal?: boolean }>,
-) {
+export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   // First we close the currently open modals (if any)
   // Notice the empty payload.
   yield call(closeModalSaga, {
@@ -134,11 +116,6 @@ export function* showModalSaga(
       exclude: action.payload.modalId,
     },
   });
-
-  const pageId: string = yield select(getCurrentPageId);
-  const appMode: APP_MODE = yield select(getAppMode);
-
-  if (appMode === APP_MODE.EDIT) navigateToCanvas(pageId);
 
   yield put(focusWidget(action.payload.modalId));
 
@@ -216,7 +193,7 @@ export function* closeModalSaga(
       );
     }
     if (modalName) {
-      yield put(deselectAllInitAction());
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
       yield put(focusWidget(MAIN_CONTAINER_WIDGET_ID));
     }
   } catch (error) {
