@@ -202,6 +202,12 @@ class ListWidget extends BaseWidget<
     }
 
     if (this.props.selectedItemKey || this.props.triggeredItemKey) {
+      /**
+       * Clearing selected Items and triggered items when the list widget is mounted
+       * because the MetaWidgetGenerator also clears all cached data when mounted or re-mounted
+       *
+       * Task: Persist the cache in List V2.1
+       */
       this.clearCache();
     }
 
