@@ -61,9 +61,7 @@ export default function AutoHeightContainer({
     return () => {
       // clearing out timeout if the component is unMounting
       unmountingTimeout.current && clearTimeout(unmountingTimeout.current);
-      if (ref.current) {
-        observer.current.unobserve(ref.current);
-      }
+      observer.current.disconnect();
     };
   }, []);
 
