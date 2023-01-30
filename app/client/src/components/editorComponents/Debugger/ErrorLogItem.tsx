@@ -72,6 +72,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     margin-left: 4px;
+    font-weight: 500;
+    color: ${Colors.GRAY_500};
     cursor: default;
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
