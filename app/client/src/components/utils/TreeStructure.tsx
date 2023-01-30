@@ -55,7 +55,7 @@ const TreeStructureWrapper = styled.div`
     border-top: 1px solid;
     margin-top: 0px;
     position: absolute;
-    top: 22px;
+    top: 14px;
     left: 0;
     border-color: var(--ads-color-black-200);
   }
