@@ -50,7 +50,7 @@ public class MongoPluginUtils {
         try {
             return Document.parse(input);
         } catch (JsonParseException | BsonInvalidOperationException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(MongoPluginErrorMessages.UNPARSABLE_FIELDNAME_ERROR_MSG, fieldName));
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(MongoPluginErrorMessages.UNPARSABLE_FIELDNAME_ERROR_MSG, fieldName), e.getMessage());
         }
     }
 
@@ -66,7 +66,7 @@ public class MongoPluginUtils {
                 }
                 return parsedDocumentList;
             } catch (JSONException ne) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(MongoPluginErrorMessages.UNPARSABLE_FIELDNAME_ERROR_MSG, fieldName));
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, String.format(MongoPluginErrorMessages.UNPARSABLE_FIELDNAME_ERROR_MSG, fieldName), e.getMessage());
             }
         }
    
