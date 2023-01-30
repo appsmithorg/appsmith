@@ -1,14 +1,13 @@
-import {
-  FlexLayerAlignment,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { useSelector } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getWidgets } from "sagas/selectors";
 import { getCanvasWidth } from "selectors/editorSelectors";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
-import { deriveHighlightsFromLayers } from "utils/autoLayout/highlightUtils";
+import {
+  deriveHighlightsFromLayers,
+  HighlightInfo,
+} from "utils/autoLayout/highlightUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import {
@@ -16,24 +15,9 @@ import {
   Point,
 } from "utils/autoLayout/highlightSelectionUtils";
 
-export interface HighlightInfo {
-  isNewLayer: boolean; // determines if a new layer / child has been added directly to the container.
-  index: number; // index of the child in props.children.
-  layerIndex?: number; // index of layer in props.flexLayers.
-  rowIndex: number; // index of highlight within a horizontal layer.
-  alignment: FlexLayerAlignment; // alignment of the child in the layer.
-  posX: number; // x position of the highlight.
-  posY: number; // y position of the highlight.
-  width: number; // width of the highlight.
-  height: number; // height of the highlight.
-  isVertical: boolean; // determines if the highlight is vertical or horizontal.
-  canvasId: string; // widgetId of the canvas to which the highlight belongs.
-}
-
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
   canvasId: string;
-  direction?: LayoutDirection;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
   useAutoLayout?: boolean;
@@ -48,7 +32,6 @@ export interface HighlightSelectionPayload {
 export const useAutoLayoutHighlights = ({
   blocksToDraw,
   canvasId,
-  direction,
   isCurrentDraggedCanvas,
   isDragging,
   useAutoLayout,
@@ -137,8 +120,6 @@ export const useAutoLayoutHighlights = ({
 
     const highlight: HighlightInfo | undefined = getHighlightPayload(
       highlights,
-      direction,
-      isFillWidget,
       e,
       moveDirection,
     );
@@ -163,8 +144,6 @@ export const useAutoLayoutHighlights = ({
 
     const payload: HighlightInfo | undefined = getHighlightPayload(
       highlights,
-      direction,
-      isFillWidget,
       null,
       undefined,
       val,

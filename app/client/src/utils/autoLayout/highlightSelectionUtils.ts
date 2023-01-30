@@ -1,6 +1,5 @@
-import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
 import { ReflowDirection } from "reflow/reflowTypes";
-import { FlexLayerAlignment, LayoutDirection } from "./constants";
+import { HighlightInfo } from "./highlightUtils";
 
 export interface Point {
   x: number;
@@ -10,8 +9,6 @@ export interface Point {
 /**
  * Select the closest highlight to the mouse position (in the direction of the).
  * @param highlights | HighlightInfo[] : all highlights for the current canvas.
- * @param direction | LayoutDirection | undefined : direction of the stacking.
- * @param isFillWidget | boolean : determines if the dragged widgets contain a fill widget.
  * @param e | any : mouse event.
  * @param moveDirection | ReflowDirection : direction of the drag.
  * @param val | Point : mouse coordinates.
@@ -19,8 +16,6 @@ export interface Point {
  */
 export const getHighlightPayload = (
   highlights: HighlightInfo[],
-  direction: LayoutDirection | undefined,
-  isFillWidget: boolean,
   e: any,
   moveDirection?: ReflowDirection,
   val?: Point,
@@ -34,34 +29,15 @@ export const getHighlightPayload = (
   };
 
   /**
-   * If the mouse is within 10px of a highlight, return that highlight.
-   */
-  const closestHighlight: HighlightInfo | undefined = getClosestHighlight(
-    highlights,
-    pos,
-  );
-  if (closestHighlight) return closestHighlight;
-
-  /**
-   * Filter highlights that are in the direction of the drag
-   * and span the current mouse position.
+   * Filter highlights that  span the current mouse position.
    */
   let filteredHighlights: HighlightInfo[] = [];
-  filteredHighlights = getViableDropPositions(
-    highlights,
-    pos,
-    isFillWidget,
-    moveDirection,
-    direction,
-  );
+  filteredHighlights = getViableDropPositions(highlights, pos, moveDirection);
   if (!filteredHighlights || !filteredHighlights?.length) return;
 
   // Sort filtered highlights in ascending order of distance from mouse position.
   const arr = [...filteredHighlights]?.sort((a, b) => {
-    return (
-      calculateDirectionalDistance(a, pos, moveDirection) -
-      calculateDirectionalDistance(b, pos, moveDirection)
-    );
+    return calculateDistance(a, pos) - calculateDistance(b, pos);
   });
 
   // console.log("#### arr", arr, highlights, moveDirection);
@@ -74,139 +50,63 @@ export const getHighlightPayload = (
  * Filter highlights based on direction of drag.
  * @param arr | HighlightInfo[] : all highlights for the current canvas.
  * @param pos | Point : current mouse coordinates.
- * @param isFillWidget | boolean : determines if the dragged widgets contain a fill widget.
  * @param moveDirection | ReflowDirection : direction of the drag.
- * @param direction | LayoutDirection | undefined : direction of the stacking.
  * @returns HighlightInfo | undefined
  */
 function getViableDropPositions(
   arr: HighlightInfo[],
   pos: Point,
-  isFillWidget: boolean,
   moveDirection?: ReflowDirection,
-  direction?: LayoutDirection,
 ): HighlightInfo[] {
   if (!moveDirection || !arr) return arr || [];
-  const isVerticalDrag = [ReflowDirection.TOP, ReflowDirection.BOTTOM].includes(
-    moveDirection,
+  const DEFAULT_DROP_RANGE = 10;
+  const verticalHighlights = arr.filter(
+    (highlight: HighlightInfo) => highlight.isVertical,
   );
-  return direction === LayoutDirection.Vertical
-    ? getVerticalStackDropPositions(arr, pos, isVerticalDrag, isFillWidget)
-    : getHorizontalStackDropPositions(arr, pos);
-}
-
-/**
- * Calculate the distance between the mouse position and the highlight.
- * Return the closest highlight if distance <= 10px.
- * @param arr | HighlightInfo[] : all highlights for the current canvas.
- * @param pos | Point : current mouse coordinates.
- * @returns HighlightInfo | undefined
- */
-function getClosestHighlight(
-  arr: HighlightInfo[],
-  pos: Point,
-): HighlightInfo | undefined {
-  if (!arr || !pos) return;
-  const res: HighlightInfo[] = arr.filter((highlight: HighlightInfo) => {
-    const distance = calculateActualDistance(highlight, pos);
-    return distance <= 10;
+  const horizontalHighlights = arr.filter(
+    (highlight: HighlightInfo) => !highlight.isVertical,
+  );
+  const selection: HighlightInfo[] = [];
+  verticalHighlights.forEach((highlight: HighlightInfo) => {
+    if (pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height)
+      if (
+        (pos.x >= highlight.posX &&
+          pos.x <=
+            highlight.posX +
+              (highlight.dropZone?.right || DEFAULT_DROP_RANGE)) ||
+        (pos.x < highlight.posX &&
+          pos.x >=
+            highlight.posX - (highlight.dropZone?.left || DEFAULT_DROP_RANGE))
+      )
+        selection.push(highlight);
   });
-  if (!res.length) return;
-  return res.sort((a, b) => {
-    return calculateActualDistance(a, pos) - calculateActualDistance(b, pos);
-  })[0];
+  const hasVerticalSelection = selection.length > 0;
+  const dropArea = localStorage.getItem("horizontalHighlightDropArea");
+  const zoneSize = dropArea ? parseFloat(dropArea) : 0;
+  horizontalHighlights.forEach((highlight: HighlightInfo) => {
+    if (pos.x >= highlight.posX && pos.x <= highlight.posX + highlight.width)
+      if (
+        (pos.y >= highlight.posY &&
+          pos.y <=
+            highlight.posY +
+              (highlight.dropZone?.bottom !== undefined
+                ? highlight.dropZone?.bottom *
+                  (hasVerticalSelection ? zoneSize : 1)
+                : DEFAULT_DROP_RANGE)) ||
+        (pos.y < highlight.posY &&
+          pos.y >=
+            highlight.posY -
+              (highlight.dropZone?.top !== undefined
+                ? highlight.dropZone?.top *
+                  (hasVerticalSelection ? zoneSize + 0.1 : 1)
+                : DEFAULT_DROP_RANGE))
+      )
+        selection.push(highlight);
+  });
+  return selection;
 }
 
-function getVerticalStackDropPositions(
-  arr: HighlightInfo[],
-  pos: Point,
-  isVerticalDrag: boolean,
-  isFillWidget: boolean,
-): HighlightInfo[] {
-  // For vertical stacks, filter out the highlights based on drag direction and y position.
-  let filteredHighlights: HighlightInfo[] = arr.filter(
-    (highlight: HighlightInfo) => {
-      // Return only horizontal highlights for vertical drag.
-      if (isVerticalDrag)
-        return (
-          !highlight.isVertical &&
-          highlight.width > 0 &&
-          pos.x > 0 &&
-          pos.y > 0 &&
-          pos.x >= highlight.posX &&
-          pos.x <= highlight.posX + highlight.width
-        );
-      // Return only vertical highlights for horizontal drag, if they lie in the same x plane.
-      return (
-        highlight.isVertical &&
-        pos.y >= highlight.posY &&
-        pos.y <= highlight.posY + highlight.height
-      );
-    },
-  );
-  /**
-   * For horizontal drag, if no vertical highlight exists in the same x plane,
-   * return the horizontal highlights for the last layer.
-   * In case of a dragged Fill widget, only return the Start alignment as it will span the entire width.
-   */
-  if (!isVerticalDrag && !filteredHighlights.length)
-    filteredHighlights = arr
-      .slice(arr.length - 3)
-      .filter((highlight: HighlightInfo) =>
-        !highlight.isVertical && isFillWidget
-          ? highlight.alignment === FlexLayerAlignment.Start
-          : true,
-      );
-
-  return filteredHighlights;
-}
-
-function getHorizontalStackDropPositions(
-  arr: HighlightInfo[],
-  pos: Point,
-): HighlightInfo[] {
-  // For horizontal stack, return the highlights that lie in the same x plane.
-  let filteredHighlights = arr.filter(
-    (highlight) =>
-      pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height,
-  );
-  // If no highlight exists in the same x plane, return the last highlight.
-  if (!filteredHighlights.length) filteredHighlights = [arr[arr.length - 1]];
-  return filteredHighlights;
-}
-
-/**
- * Calculate distance between the mouse position and the closest point on the highlight.
- *
- * @param a | HighlightInfo : current highlight.
- * @param b | Point : current mouse position.
- * @param moveDirection | ReflowDirection : current drag direction.
- * @returns number
- */
-function calculateDirectionalDistance(
-  a: HighlightInfo,
-  b: Point,
-  moveDirection?: ReflowDirection,
-): number {
-  let { distX, distY } = getXYDistance(a, b);
-  /**
-   * Emphasize move direction over actual distance.
-   *
-   * If the point is close to a highlight. However, it is moving in the opposite direction,
-   * then increase the appropriate distance to ensure that this highlight is discounted.
-   */
-  if (moveDirection === ReflowDirection.RIGHT && distX > 20) distX += 2000;
-  if (moveDirection === ReflowDirection.LEFT && distX < -20) distX -= 2000;
-  if (moveDirection === ReflowDirection.BOTTOM && distY > 20) distY += 2000;
-  if (moveDirection === ReflowDirection.TOP && distY < -20) distY -= 2000;
-
-  return Math.abs(Math.sqrt(distX * distX + distY * distY));
-}
-
-function getXYDistance(
-  a: HighlightInfo,
-  b: Point,
-): { distX: number; distY: number } {
+function calculateDistance(a: HighlightInfo, b: Point): number {
   let distX = 0,
     distY = 0;
   if (a.isVertical) {
@@ -228,10 +128,5 @@ function getXYDistance(
       distX = 0;
     }
   }
-  return { distX, distY };
-}
-
-function calculateActualDistance(a: HighlightInfo, b: Point): number {
-  const { distX, distY } = getXYDistance(a, b);
   return Math.abs(Math.sqrt(distX * distX + distY * distY));
 }

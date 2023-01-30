@@ -15,6 +15,7 @@ import {
 } from "reflow/reflowTypes";
 import { getParentOffsetTop } from "selectors/autoLayoutSelectors";
 import { getCanvasScale } from "selectors/editorSelectors";
+import { HighlightInfo } from "utils/autoLayout/highlightUtils";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
@@ -32,10 +33,7 @@ import {
   modifyDrawingRectangles,
   updateRectanglesPostReflow,
 } from "./canvasDraggingUtils";
-import {
-  HighlightInfo,
-  useAutoLayoutHighlights,
-} from "./useAutoLayoutHighlights";
+import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
 import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,
@@ -119,7 +117,6 @@ export const useCanvasDragging = (
   } = useAutoLayoutHighlights({
     blocksToDraw,
     canvasId: widgetId,
-    direction,
     isCurrentDraggedCanvas,
     isDragging,
     useAutoLayout,
@@ -465,6 +462,7 @@ export const useCanvasDragging = (
               selectedHighlight,
               widgetId === MAIN_CONTAINER_WIDGET_ID,
               parentOffsetTop,
+              useAutoLayout,
             );
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,

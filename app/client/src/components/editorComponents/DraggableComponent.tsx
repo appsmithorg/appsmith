@@ -115,10 +115,11 @@ function DraggableComponent(props: DraggableComponentProps) {
       focusWidget(props.widgetId);
     e.stopPropagation();
   };
-  const shouldRenderComponent = !(isSelected && isDragging);
+  const shouldRenderComponent =
+    props.isFlexChild || !(isSelected && isDragging);
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
-    display: isCurrentWidgetDragging ? "none" : "block",
+    display: !props.isFlexChild && isCurrentWidgetDragging ? "none" : "block",
   };
   const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
     return {

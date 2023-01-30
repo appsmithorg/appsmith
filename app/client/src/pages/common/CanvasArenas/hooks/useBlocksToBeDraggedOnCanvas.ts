@@ -29,8 +29,8 @@ import {
   WidgetOperationParams,
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
-import { HighlightInfo } from "./useAutoLayoutHighlights";
 import { XYCord } from "./useRenderBlocksOnCanvas";
+import { HighlightInfo } from "utils/autoLayout/highlightUtils";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
