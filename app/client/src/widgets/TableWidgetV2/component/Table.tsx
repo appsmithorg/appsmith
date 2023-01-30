@@ -349,13 +349,15 @@ export function Table(props: TableProps) {
     props.isVisibleDownload ||
     props.isVisiblePagination;
 
-  const scrollContainerHeight = useMemo(() => {
-    return isHeaderVisible
-      ? props.height -
+  const scrollContainerStyles = useMemo(() => {
+    return {
+      height: isHeaderVisible
+        ? props.height -
           tableSizes.TABLE_HEADER_HEIGHT -
           TABLE_SCROLLBAR_HEIGHT -
           SCROLL_BAR_OFFSET
-      : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET;
+        : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
+    };
   }, [isHeaderVisible, props.height, tableSizes.TABLE_HEADER_HEIGHT]);
 
   const shouldUseVirtual =
@@ -508,11 +510,7 @@ export function Table(props: TableProps) {
       >
         <div {...getTableProps()} className="table column-freeze">
           {!shouldUseVirtual && (
-            <SimpleBar
-              style={{
-                height: scrollContainerHeight,
-              }}
-            >
+            <SimpleBar style={scrollContainerStyles}>
               <HeaderComponent
                 handleAllRowSelectClick={handleAllRowSelectClick}
                 headerGroups={headerGroups}
@@ -548,11 +546,7 @@ export function Table(props: TableProps) {
           )}
 
           {shouldUseVirtual && (
-            <SimpleBar
-              style={{
-                height: scrollContainerHeight,
-              }}
-            >
+            <SimpleBar style={scrollContainerStyles}>
               {({ scrollableNodeRef }) => (
                 <TableBody
                   accentColor={props.accentColor}
