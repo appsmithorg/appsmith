@@ -31,6 +31,7 @@ import {
 } from "utils/WidgetPropsUtils";
 import { XYCord } from "./useRenderBlocksOnCanvas";
 import { HighlightInfo } from "utils/autoLayout/highlightUtils";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -403,7 +404,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
-      selectWidget(updateWidgetParams.payload.newWidgetId);
+      selectWidget(SelectionRequestType.One, [
+        updateWidgetParams.payload.newWidgetId,
+      ]);
     }, 100);
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: dragDetails.newWidget.type,

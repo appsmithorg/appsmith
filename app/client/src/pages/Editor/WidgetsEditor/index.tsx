@@ -31,6 +31,7 @@ import CanvasTopSection from "./EmptyCanvasSection";
 import PageTabs from "./PageTabs";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -43,6 +44,7 @@ function WidgetsEditor() {
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -68,9 +70,7 @@ function WidgetsEditor() {
       !guidedTourEnabled
     ) {
       const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash);
-      if (document.getElementById(widgetIdFromURLHash))
-        selectWidget(widgetIdFromURLHash);
+      quickScrollToWidget(widgetIdFromURLHash, canvasWidgets);
     }
   }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 

@@ -15,7 +15,6 @@ import {
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
-import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 import {
   getApiPaneConfigSelectedTabIndex,
   getApiPaneResponsePaneHeight,
@@ -84,6 +83,8 @@ import {
   getQueryPaneResponsePaneHeight,
   getQueryPaneResponseSelectedTab,
 } from "selectors/queryPaneSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -178,7 +179,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     {
       name: FocusElement.SelectedWidgets,
       selector: getSelectedWidgets,
-      setter: selectMultipleWidgetsInitAction,
+      setter: (widgetIds: string[]) =>
+        selectWidgetInitAction(SelectionRequestType.Multiple, widgetIds),
       defaultValue: [],
     },
     {

@@ -43,6 +43,7 @@ import {
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
 } from "./WidgetOperationUtils";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -264,7 +265,9 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
-          yield put(selectWidgetInitAction(undefined));
+          yield put(
+            selectWidgetInitAction(SelectionRequestType.Unselect, [widgetId]),
+          );
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
       }
@@ -353,7 +356,7 @@ function* deleteAllSelectedWidgetsSaga(
     yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
-    yield put(selectWidgetInitAction(""));
+    yield put(selectWidgetInitAction(SelectionRequestType.Empty));
     const bulkDeleteKey = selectedWidgets.join(",");
     if (!disallowUndo) {
       // close property pane after delete

@@ -8,6 +8,7 @@ import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas"
 import React, { memo, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Resizable from "resizable/resizenreflow";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -221,15 +222,17 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       !isLastSelected &&
       parentWidgetToSelect?.widgetId !== props.widgetId &&
-      selectWidget(props.widgetId);
+      selectWidget(SelectionRequestType.One, [props.widgetId]);
 
     if (parentWidgetToSelect) {
       selectWidget &&
         !isParentWidgetSelected &&
-        selectWidget(parentWidgetToSelect.widgetId);
+        selectWidget(SelectionRequestType.One, [parentWidgetToSelect.widgetId]);
       focusWidget(parentWidgetToSelect.widgetId);
     } else {
-      selectWidget && !isLastSelected && selectWidget(props.widgetId);
+      selectWidget &&
+        !isLastSelected &&
+        selectWidget(SelectionRequestType.One, [props.widgetId]);
     }
     // Property pane closes after a resize/drag
     showPropertyPane && showPropertyPane();
@@ -245,7 +248,9 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   const handleResizeStart = (affectsWidth = false) => {
     setIsResizing && !isResizing && setIsResizing(true);
-    selectWidget && !isLastSelected && selectWidget(props.widgetId);
+    selectWidget &&
+      !isLastSelected &&
+      selectWidget(SelectionRequestType.One, [props.widgetId]);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
     // If resizing a fill widget "horizontally", then convert it to a hug widget.
