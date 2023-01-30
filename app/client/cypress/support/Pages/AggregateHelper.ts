@@ -979,7 +979,7 @@ export class AggregateHelper {
           cy.wrap($field).invoke("text");
         });
     }
-    this.Sleep(3000); //Increasing wait time to evaluate non-undefined values
+    this.Sleep(); //Increasing wait time to evaluate non-undefined values
     if (currentValue) expect(val).to.eq(currentValue);
     return val;
   }
