@@ -23,6 +23,7 @@ export function SelectorView(props: SelectorViewProps) {
           defaultText={props.defaultText}
           displayValue={props.displayValue}
           getDefaults={props.getDefaults}
+          menuWidth={256}
           modifiers={{
             preventOverflow: {
               boundariesElement: "viewport",
@@ -30,7 +31,7 @@ export function SelectorView(props: SelectorViewProps) {
           }}
           onSelect={props.set as Setter}
           optionTree={props.options}
-          position={PopoverPosition.AUTO}
+          position={PopoverPosition.BOTTOM}
           selectedLabelModifier={props.selectedLabelModifier}
           selectedValue={props.get(props.value, false) as string}
         />
