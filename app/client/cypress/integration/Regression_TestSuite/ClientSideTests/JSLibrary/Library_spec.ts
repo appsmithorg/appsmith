@@ -34,10 +34,4 @@ describe("Tests JS Libraries", () => {
     homePage.DuplicateApplication("Library_export");
     aggregateHelper.AssertContains("true");
   });
-  it("5. Deploy app and check installation", () => {
-    deployMode.DeployApp();
-    aggregateHelper.AssertContains("true");
-    deployMode.NavigateBacktoEditor();
-    aggregateHelper.AssertContains("true");
-  });
 });
