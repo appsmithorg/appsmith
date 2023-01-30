@@ -38,9 +38,15 @@ export function defaultValueValidation(
   props: InputWidgetProps,
   _?: any,
 ): ValidationResponse {
-  const STRING_ERROR_MESSAGE = "This value must be string";
-  const NUMBER_ERROR_MESSAGE = "This value must be number";
-  const EMPTY_ERROR_MESSAGE = "";
+  const STRING_ERROR_MESSAGE = {
+    name: "TypeError",
+    text: "This value must be string",
+  };
+  const NUMBER_ERROR_MESSAGE = {
+    name: "TypeError",
+    text: "This value must be number",
+  };
+  const EMPTY_ERROR_MESSAGE = { name: "", text: "" };
   if (_.isObject(value)) {
     return {
       isValid: false,
