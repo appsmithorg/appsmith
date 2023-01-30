@@ -10,8 +10,8 @@ export default function overrideTimeout() {
     writable: true,
     configurable: true,
     value: function(cb: (...args: any) => any, delay: number, ...args: any) {
-      if (!self.ALLOW_ASYNC) {
-        self.IS_ASYNC = true;
+      if (self.ALLOW_SYNC) {
+        self.IS_SYNC = false;
         throw new ActionCalledInSyncFieldError("setTimeout");
       }
       const evalContext = createEvaluationContext({
@@ -21,7 +21,7 @@ export default function overrideTimeout() {
       });
       return _internalSetTimeout(
         function(...args: any) {
-          self.ALLOW_ASYNC = true;
+          self.ALLOW_SYNC = false;
           Object.assign(self, evalContext);
           cb(...args);
         },
@@ -35,8 +35,8 @@ export default function overrideTimeout() {
     writable: true,
     configurable: true,
     value: function(timerId: number) {
-      if (!self.ALLOW_ASYNC) {
-        self.IS_ASYNC = true;
+      if (self.ALLOW_SYNC) {
+        self.IS_SYNC = false;
         throw new ActionCalledInSyncFieldError("clearTimeout");
       }
       return _internalClearTimeout(timerId);
