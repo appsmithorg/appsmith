@@ -1,5 +1,5 @@
 import { IconProps, Text } from "design-system-old";
-import { ReactComponentElement } from "react";
+import { ReactComponentElement, ReactNode } from "react";
 
 export type Header = {
   title: string;
@@ -9,6 +9,7 @@ export type Header = {
 export type BillingDashboardCard = {
   title: ReactComponentElement<typeof Text>;
   subtitle: ReactComponentElement<typeof Text>;
+  content?: ReactNode;
   icon: string;
   value?: ReactComponentElement<typeof Text>;
 };

@@ -20,6 +20,7 @@ export interface License {
   expiry: number;
   showBEBanner: boolean;
   closedBannerAlready: boolean;
+  invalidLicenseKeyError: boolean;
 }
 
 export const initialState: TenantReduxState<any> = {
@@ -72,6 +73,7 @@ export const handlers = {
             : false,
         closedBannerAlready:
           state.tenantConfiguration.license?.closedBannerAlready ?? false,
+        invalidLicenseKeyError: false,
       },
     },
     isLoading: false,
@@ -80,6 +82,13 @@ export const handlers = {
     state: TenantReduxState<License>,
   ) => ({
     ...state,
+    tenantConfiguration: {
+      ...state.tenantConfiguration,
+      license: {
+        ...state.tenantConfiguration.license,
+        invalidLicenseKeyError: true,
+      },
+    },
     isLoading: false,
   }),
   [ReduxActionTypes.STOP_LICENSE_STATUS_CHECK]: (

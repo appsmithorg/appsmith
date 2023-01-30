@@ -133,3 +133,11 @@ export const ACTIVATE_INSTANCE = () => `Activate Instance`;
 export const GET_TRIAL_LICENSE = () => `Get Trial License`;
 export const REQUIRED_LICENSE_KEY = () => `License key is required`;
 export const INVALID_LICENSE_KEY = () => `License key is invalid`;
+export const YOUR_LICENSE_KEY = () => `Your license key`;
+export const UPDATE_LICENSE = () => `Update License`;
+export const PREV_LICENSE_INVALID = () =>
+  `The previous license will be invalid`;
+export const ACTIVATE = () => `Activate`;
+export const PASTE_LICENSE_KEY = () => `Paste your license key here`;
+export const LICENSE_EXPIRY_DATE = (date: string) => `Valid until: ${date}`;
+export const UPDATE = () => "UPDATE";
