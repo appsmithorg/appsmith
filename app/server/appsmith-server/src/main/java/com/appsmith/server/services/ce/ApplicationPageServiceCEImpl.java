@@ -318,6 +318,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         application.setPublishedPages(new ArrayList<>());
         application.setUnpublishedCustomJSLibs(new HashSet<>());
+        application.setCollapseInvisibleWidgets(Boolean.TRUE);
 
         // For all new applications being created, set it to use the latest evaluation version.
         application.setEvaluationVersion(EVALUATION_VERSION);

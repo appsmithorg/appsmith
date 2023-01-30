@@ -166,6 +166,34 @@ describe("Table widget Add new row feature's", () => {
       });
       cy.get(".t--property-pane-back-btn").click();
     });
+    it("1.11. should not hide the header section when add new row button is enabled and another header element is disabled", () => {
+      cy.get(".t--discard-new-row").click({ force: true });
+      //disable all header widgets for the table
+      [
+        "Show Pagination",
+        "Allow Searching",
+        "Allow Download",
+        "Allow Filtering",
+        "Allow adding a row",
+      ].forEach((val) => {
+        propPane.ToggleOnOrOff(val, "Off");
+      });
+      cy.wait(1000);
+
+      //intially enable 2 sections to show pagination and "add new row" button to the header section
+      propPane.ToggleOnOrOff("Show Pagination", "On");
+      propPane.ToggleOnOrOff("Allow adding a row", "On");
+
+      //"add new row" button should be present
+      cy.get(".t--add-new-row").should("exist");
+      //turn off pagination and now the "add new row" button should be the only component left in the header section
+      propPane.ToggleOnOrOff("Show Pagination", "Off");
+      //"add new row" should continue to be present
+      cy.get(".t--add-new-row").should("exist");
+      //finally turn off allow adding a row then the "add new row" button should be removed from the header section
+      propPane.ToggleOnOrOff("Allow adding a row", "Off");
+      cy.get(".t--add-new-row").should("not.exist");
+    });
   });
 
   describe("Validation flow", () => {
