@@ -22,22 +22,19 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.datatypes.MySQLSpecificDataTypes;
+import com.external.plugins.exceptions.MySQLErrorMessages;
+import com.external.plugins.exceptions.MySQLPluginError;
 import com.external.utils.MySqlDatasourceUtils;
 import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
-import io.r2dbc.spi.ColumnMetadata;
-import io.r2dbc.spi.Connection;
-import io.r2dbc.spi.R2dbcNonTransientResourceException;
-import io.r2dbc.spi.Result;
-import io.r2dbc.spi.Row;
-import io.r2dbc.spi.RowMetadata;
-import io.r2dbc.spi.Statement;
-import io.r2dbc.spi.ValidationDepth;
+import io.r2dbc.spi.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
+import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -74,12 +71,14 @@ import static com.external.utils.MySqlGetStructureUtils.getTableInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTemplates;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 public class MySqlPlugin extends BasePlugin {
 
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
+    public static final String JSON_DB_TYPE = "JSON";
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -188,13 +187,10 @@ public class MySqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (query == null) {
+            if (! StringUtils.hasLength(query)) {
                 ActionExecutionResult errorResult = new ActionExecutionResult();
-                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
                 errorResult.setIsExecutionSuccess(false);
-                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Missing required " +
-                        "parameter: Query."));
-                errorResult.setTitle(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle());
+                errorResult.setErrorInfo(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MySQLErrorMessages.MISSING_PARAMETER_QUERY_ERROR_MSG));
                 ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                 actionExecutionRequest.setProperties(requestData);
                 errorResult.setRequest(actionExecutionRequest);
@@ -238,10 +234,8 @@ public class MySqlPlugin extends BasePlugin {
             if (preparedStatement && isIsOperatorUsed(query)) {
                 return Mono.error(
                         new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Appsmith currently does not support the IS keyword with the prepared statement " +
-                                        "setting turned ON. Please re-write your SQL query without the IS keyword or " +
-                                        "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab."
+                                MySQLPluginError.IS_KEYWORD_NOT_ALLOWED_IN_PREPARED_STATEMENT,
+                                MySQLErrorMessages.IS_KEYWORD_NOT_SUPPORTED_IN_PS_ERROR_MSG
                         )
                 );
             }
@@ -322,13 +316,24 @@ public class MySqlPlugin extends BasePlugin {
                                 .onErrorResume(error -> {
                                     if (error instanceof StaleConnectionException) {
                                         return Mono.error(error);
+                                    } else if (error instanceof R2dbcBadGrammarException) {
+                                        R2dbcBadGrammarException r2dbcBadGrammarException = ((R2dbcBadGrammarException) error);
+                                        error = new AppsmithPluginException(MySQLPluginError.INVALID_QUERY_SYNTAX, r2dbcBadGrammarException.getMessage(), "SQLSTATE: " +r2dbcBadGrammarException.getSqlState());
+                                    } else if (error instanceof R2dbcPermissionDeniedException) {
+                                        R2dbcPermissionDeniedException r2dbcPermissionDeniedException = (R2dbcPermissionDeniedException) error;
+                                        error = new AppsmithPluginException(MySQLPluginError.MISSING_REQUIRED_PERMISSION, r2dbcPermissionDeniedException.getMessage(), "SQLSTATE: " + r2dbcPermissionDeniedException.getSqlState());
+                                    } else if (error instanceof R2dbcException) {
+                                        R2dbcException r2dbcException = (R2dbcException) error;
+                                        error = new AppsmithPluginException(MySQLPluginError.QUERY_EXECUTION_FAILED, MySQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, r2dbcException.getMessage(), "SQLSTATE: " + r2dbcException.getSqlState());
+                                    } else if (! (error instanceof AppsmithPluginException)) {
+                                        error = new AppsmithPluginException(MySQLPluginError.QUERY_EXECUTION_FAILED, MySQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, error);
                                     }
                                     ActionExecutionResult result = new ActionExecutionResult();
                                     result.setIsExecutionSuccess(false);
                                     result.setErrorInfo(error);
                                     return Mono.just(result);
                                 })
-                                // Now set the request in the result to be returned back to the server
+                                // Now set the request in the result to be returned to the server
                                 .map(actionExecutionResult -> {
                                     ActionExecutionRequest request = new ActionExecutionRequest();
                                     request.setQuery(finalQuery);
@@ -462,29 +467,44 @@ public class MySqlPlugin extends BasePlugin {
          * 2. Return the row as a map {column_name -> column_value}.
          */
         private Map<String, Object> getRow(Row row, RowMetadata meta) {
-            Iterator<ColumnMetadata> iterator = (Iterator<ColumnMetadata>) meta.getColumnMetadatas().iterator();
+            Iterator<ColumnDefinitionPacket> iterator = (Iterator<ColumnDefinitionPacket>) meta.getColumnMetadatas().iterator();
             Map<String, Object> processedRow = new LinkedHashMap<>();
 
             while (iterator.hasNext()) {
-                ColumnMetadata metaData = iterator.next();
+                ColumnDefinitionPacket metaData = iterator.next();
                 String columnName = metaData.getName();
-                String typeName = metaData.getJavaType().toString();
+                String javaTypeName = metaData.getJavaType().toString();
+                String sqlColumnType = metaData.getDataType().name();
                 Object columnValue = row.get(columnName);
 
-                if (java.time.LocalDate.class.toString().equalsIgnoreCase(typeName) && columnValue != null) {
+                if (java.time.LocalDate.class.toString().equalsIgnoreCase(javaTypeName) && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_DATE.format(row.get(columnName, LocalDate.class));
-                } else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(typeName)) && columnValue != null) {
+                } else if ((java.time.LocalDateTime.class.toString().equalsIgnoreCase(javaTypeName)) && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_DATE_TIME.format(
                             LocalDateTime.of(
                                     row.get(columnName, LocalDateTime.class).toLocalDate(),
                                     row.get(columnName, LocalDateTime.class).toLocalTime()
                             )
                     ) + "Z";
-                } else if (java.time.LocalTime.class.toString().equalsIgnoreCase(typeName) && columnValue != null) {
+                } else if (java.time.LocalTime.class.toString().equalsIgnoreCase(javaTypeName) && columnValue != null) {
                     columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName,
                             LocalTime.class));
-                } else if (java.time.Year.class.toString().equalsIgnoreCase(typeName) && columnValue != null) {
+                } else if (java.time.Year.class.toString().equalsIgnoreCase(javaTypeName) && columnValue != null) {
                     columnValue = row.get(columnName, LocalDate.class).getYear();
+                } else if (JSON_DB_TYPE.equals(sqlColumnType)) {
+                    /**
+                     * In case of MySQL the JSON DB type is stored as a binary object in the DB. This is different from
+                     * MariaDB where it is stored as a text.Since we currently use MariaDB driver for MySQL plugin as
+                     * well the driver reads the JSON DB type data as byte array which we are converting to a string
+                     * here.
+                     *
+                     * Please note that this if check would not apply to MariaDB plugin since MariaDB stores JSON as
+                     * text.
+                     * Ref: https://mariadb.com/kb/en/json-data-type/
+                     **/
+                    if (columnValue.getClass().isArray()) {
+                        columnValue = new String((byte[]) columnValue, UTF_8);
+                    }
                 } else {
                     columnValue = row.get(columnName);
                 }
@@ -517,7 +537,7 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(ConnectionPool connection,
                                                    DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
             // Unused function
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(new AppsmithPluginException(MySQLPluginError.QUERY_EXECUTION_FAILED, MySQLErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, "Unsupported Operation"));
         }
 
         @Override
@@ -598,7 +618,8 @@ public class MySqlPlugin extends BasePlugin {
                                 .onErrorMap(e -> {
                                     if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
                                         return new AppsmithPluginException(
-                                                AppsmithPluginError.PLUGIN_ERROR,
+                                                AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                                MySQLErrorMessages.GET_STRUCTURE_ERROR_MSG,
                                                 e.getMessage()
                                         );
                                     }

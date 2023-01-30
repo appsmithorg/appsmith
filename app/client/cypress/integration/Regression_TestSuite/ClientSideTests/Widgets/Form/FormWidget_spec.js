@@ -115,6 +115,7 @@ describe("Form Widget Functionality", function() {
     cy.openPropertyPane("formwidget");
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
+    cy.wait(1000);
     cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(publish.formWidget).should("not.exist");
