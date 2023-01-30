@@ -23,6 +23,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.datatypes.MySQLSpecificDataTypes;
 import com.external.utils.MySqlDatasourceUtils;
+import com.external.utils.MySqlErrorUtils;
 import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Connection;
@@ -82,6 +83,8 @@ public class MySqlPlugin extends BasePlugin {
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
     public static final String JSON_DB_TYPE = "JSON";
+
+    private static final MySqlErrorUtils mySqlErrorUtils = MySqlErrorUtils.getInstance();
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -402,7 +405,10 @@ public class MySqlPlugin extends BasePlugin {
                     .flatMap(p -> p.create())
                     .flatMap(conn -> Mono.from(conn.close()))
                     .then(Mono.just(new DatasourceTestResult()))
-                    .onErrorResume(error -> Mono.error(error.getCause()));
+                    .onErrorResume(error -> {
+                        return Mono.error(new AppsmithPluginException(error.getCause(),AppsmithPluginError.PLUGIN_ERROR,mySqlErrorUtils.getReadableError(error)));
+//                        return Mono.error(error.getCause());
+                    });
         }
 
         @Override
