@@ -69,22 +69,26 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
             mainCanvasProps,
           );
           if (renderMode === RenderModes.CANVAS) {
-            computed.bottomRow = Math.max(
-              computed.minHeight,
-              computed.bottomRow +
-                GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET *
-                  GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-            );
+            return {
+              ...computed,
+              bottomRow: Math.max(
+                computed.minHeight,
+                computed.bottomRow +
+                  GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET *
+                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              ),
+            };
           } else {
-            computed.bottomRow = Math.max(
-              CANVAS_DEFAULT_MIN_HEIGHT_PX,
-              computed.bottomRow +
-                GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET *
-                  GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-            );
+            return {
+              ...computed,
+              bottomRow: Math.max(
+                CANVAS_DEFAULT_MIN_HEIGHT_PX,
+                computed.bottomRow +
+                  GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET *
+                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+              ),
+            };
           }
-
-          return computed;
         }
 
         return evaluatedWidget
