@@ -89,6 +89,7 @@ function eventRequestHandler({
       }
       return true;
     }
+
     default: {
       // eslint-disable-next-line no-console
       console.error("Action not registered on lintWorker ", method);
